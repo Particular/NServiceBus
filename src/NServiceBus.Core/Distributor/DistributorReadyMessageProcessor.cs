@@ -1,16 +1,9 @@
 namespace NServiceBus.Distributor
 {
-    using Faults;
     using Logging;
-    using NServiceBus.Config;
     using ReadyMessages;
     using Unicast.Distributor;
-    using Unicast.Queuing.Msmq;
-    using Faults;
-    using Unicast.Queuing.Msmq;
     using Unicast.Transport;
-    using NServiceBus.Config;
-    using Unicast.Transport.Transactional;
 
     public class DistributorReadyMessageProcessor : IWantToRunWhenBusStartsAndStops
     {

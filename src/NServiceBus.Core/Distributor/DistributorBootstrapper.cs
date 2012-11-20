@@ -1,11 +1,8 @@
 namespace NServiceBus.Distributor
 {
-    using Faults;
-    using NServiceBus.Config;
     using ObjectBuilder;
     using Unicast.Distributor;
     using Unicast.Queuing.Msmq;
-    using Unicast.Transport.Transactional;
     using Unicast.Transport;
 
     public class DistributorBootstrapper : IWantToRunWhenBusStartsAndStops
@@ -27,7 +24,7 @@ namespace NServiceBus.Distributor
                 return;
            
           
-            distributor = new Unicast.Distributor.Distributor
+            distributor = new Distributor
             {
                 MessageBusTransport = Builder.Build<ITransport>(),
                 MessageSender = new MsmqMessageSender(),
@@ -40,6 +37,6 @@ namespace NServiceBus.Distributor
             distributor.Start();
         }
 
-        Unicast.Distributor.Distributor distributor;
+        Distributor distributor;
     }
 }

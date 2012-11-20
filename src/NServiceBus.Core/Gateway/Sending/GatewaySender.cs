@@ -3,16 +3,13 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Config;
     using Logging;
-    using NServiceBus.Config;
     using Notifications;
     using ObjectBuilder;
     using Receiving;
     using Routing;
     using Unicast.Queuing;
     using Unicast.Transport;
-    using Unicast.Transport.Transactional;
     using Unicast;
 
     public class GatewaySender:IDisposable

@@ -12,8 +12,6 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
-    using Config;
-    using Faults;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -26,7 +24,6 @@ namespace NServiceBus.Unicast
     using Subscriptions;
     using Transport;
     using UnitOfWork;
-    using Configure = NServiceBus.Configure;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.

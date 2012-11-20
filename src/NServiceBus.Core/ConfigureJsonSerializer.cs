@@ -12,7 +12,7 @@ namespace NServiceBus
             ConfigureMessageMapper(config);
 
             config.Configurer.ConfigureComponent<JsonMessageSerializer>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(s=>s.SkipArrayWrappingForSingleMessages,dontWrapSingleMessages);
+                  .ConfigureProperty(s => s.SkipArrayWrappingForSingleMessages, dontWrapSingleMessages);
 
             return config;
         }
@@ -26,9 +26,9 @@ namespace NServiceBus
             return config;
         }
 
-    private static void ConfigureMessageMapper(Configure config)
-    {
-      var messageTypes = Configure.TypesToScan.Where(t => MessageConventionExtensions.IsMessageType(t)).ToList();
+        private static void ConfigureMessageMapper(Configure config)
+        {
+            var messageTypes = Configure.TypesToScan.Where(t => MessageConventionExtensions.IsMessageType(t)).ToList();
 
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(messageTypes);

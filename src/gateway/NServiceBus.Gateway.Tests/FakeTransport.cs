@@ -1,13 +1,13 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using System;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     public class FakeTransport : ITransport
     {
         public void Dispose()
         {
-            throw new NotImplementedException();
+            
         }
         
         public void Start(string inputqueue)

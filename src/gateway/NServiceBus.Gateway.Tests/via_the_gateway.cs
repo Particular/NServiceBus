@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
-    using Faults;
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
@@ -16,7 +15,6 @@
     using Rhino.Mocks;
     using Sending;
     using Unicast.Queuing;
-    using Unicast.Transport.Transactional;
 
     public class via_the_gateway
     {
@@ -32,7 +30,6 @@
 
         protected Channel defaultChannelForSiteA = new Channel {Address = HttpAddressForSiteA, Type = "http"};
 
-
         [TearDown]
         public void TearDown()
         {
@@ -46,7 +43,6 @@
             databusForSiteA = new InMemoryDataBus();
             databusForSiteB = new InMemoryDataBus();
             fakeTransport = new FakeTransport();
-            
          
             var builder = MockRepository.GenerateStub<IBuilder>();
 
@@ -76,7 +72,6 @@
             {
                 DataBus = databusForSiteB
             });
-          
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
