@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResponseToPublisherHandler.cs" />
     <Compile Include="ServerEndpoint.cs" />
     <Compile Include="SubscriptionAuthorizer.cs" />
   </ItemGroup>

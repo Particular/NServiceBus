@@ -20,7 +20,7 @@ namespace MyMessages
 
     public interface IMyCommand : ICommand
     {
-        Guid EventId { get; set; }
+        Guid CommandId { get; set; }
         DateTime? Time { get; set; }
         TimeSpan Duration { get; set; }
     }
@@ -39,8 +39,11 @@ namespace MyMessages.Other
 
 namespace MyMessages.Subscriber1
 {
-    public interface IMyRequest1 : IMyCommand
+    public class MyRequest1 : IMyCommand
     {
+        public Guid CommandId { get; set; }
+        public DateTime? Time { get; set; }
+        public TimeSpan Duration { get; set; }
     }
 }
 
@@ -55,7 +58,23 @@ namespace MyMessages.SubscriberNMS
 {
     public class MyRequestNMS : IMyCommand
     {
-        public Guid EventId { get; set; }
+        public Guid CommandId { get; set; }
+        public DateTime? Time { get; set; }
+        public TimeSpan Duration { get; set; }
+    }
+}
+
+namespace MyMessages.Publisher
+{
+    public enum ResponseCode
+    {
+        Ok,
+        Failed
+    };
+
+    public class ResponseToPublisher : IMessage
+    {
+        public Guid ResponseId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
     }

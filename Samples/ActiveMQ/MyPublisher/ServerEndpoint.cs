@@ -5,6 +5,7 @@ using NServiceBus;
 
 namespace MyPublisher
 {
+    using MyMessages.Publisher;
     using MyMessages.Subscriber1;
     using MyMessages.Subscriber2;
     using MyMessages.SubscriberNMS;
@@ -36,7 +37,6 @@ namespace MyPublisher
                         this.SendCommand();
                         break;
                 }
-
             }
         }
 
@@ -47,7 +47,7 @@ namespace MyPublisher
             switch (nextCommandToPublish)
             {
                 case 0:
-                    commandMessage = this.Bus.CreateInstance<IMyRequest1>();
+                    commandMessage = this.Bus.CreateInstance<MyRequest1>();
                     nextCommandToPublish = 1;
                     break;
                 case 1:
@@ -60,13 +60,17 @@ namespace MyPublisher
                     break;
             }
 
-            commandMessage.EventId = Guid.NewGuid();
+            commandMessage.CommandId = Guid.NewGuid();
             commandMessage.Time = DateTime.Now.Second > -1 ? (DateTime?)DateTime.Now : null;
             commandMessage.Duration = TimeSpan.FromSeconds(99999D);
 
-            this.Bus.Send(commandMessage);
+            this.Bus.Send(commandMessage).Register<ResponseCode>(response =>
+                {
+                    Console.WriteLine("Received Response to request {0}: {1}", commandMessage.CommandId, response);
+                    Console.WriteLine("==========================================================================");
+                });
 
-            Console.WriteLine("Published event with Id {0}.", commandMessage.EventId);
+            Console.WriteLine("Published event with Id {0}.", commandMessage.CommandId);
             Console.WriteLine("==========================================================================");
         }
 
