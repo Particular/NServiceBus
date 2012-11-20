@@ -36,7 +36,7 @@ task default -depends PrepareBinaries
 
 task PrepareBinaries -depends CopyBinaries
 
-task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
+task CreateRelease -depends GenerateAssemblyInfo, Build, Merge, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
 task Clean { 
 	if(Test-Path $binariesDir){
@@ -264,7 +264,7 @@ task RunTests -depends Build {
 	Move-Item -path $env:temp\filestoexclude\*.exe -destination $buildBase\ -Force
 }
 
-task Merge -depends RunTests {
+task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
