@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.UI;
 using System.Web.Mvc;
@@ -38,6 +39,20 @@ namespace NServiceBus.Unicast
         }
 
         #region ICallback Members
+        
+        Task<T> ICallback.Register<T>(Func<CompletionResult, T> completion)
+        {
+            var asyncResult = ((ICallback) this).Register(null, null);
+            var task = Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult)x.AsyncState));
+            return task;
+        }
+
+        Task ICallback.Register(Action<CompletionResult> completion)
+        {
+            var asyncResult = ((ICallback)this).Register(null, null);
+            var task = Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult)x.AsyncState));
+            return task;
+        }
 
         IAsyncResult ICallback.Register(AsyncCallback callback, object state)
         {
