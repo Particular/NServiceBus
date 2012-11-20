@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
         {
             try
             {
-                counter = new PerformanceCounter(CategoryName, "Current Throughput", receiveAddress.ToString(), false);
+                counter = new PerformanceCounter(CategoryName, "Current Throughput", receiveAddress.Queue, false);
 
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
                 var t = counter.CounterType;
