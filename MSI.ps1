@@ -50,7 +50,7 @@ task Build -depends Clean, Init, RunHeat {
 
 task RunHeat {
 	exec { &$heat dir "$baseDir\Release\Samples" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\SampleFilesFragment.wxs -var var.SOURCEPATH.SAMPLES -sfrag -cg "SampleFiles" }
-	exec { &$heat dir "$baseDir\Release\net40\Binaries" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\BinaryFilesFragment.wxs -var var.SOURCEPATH.BINARIES -sfrag -cg "BinaryFiles" }
+	exec { &$heat dir "$baseDir\Release\Binaries" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\BinaryFilesFragment.wxs -var var.SOURCEPATH.BINARIES -sfrag -cg "BinaryFiles" }
 	exec { &$heat dir "$baseDir\Release\Tools" -ag -sreg -scom -dr "APPLICATIONFOLDER" -out $baseDir\src\wix\WixInstaller\Fragments\ToolsFilesFragment.wxs -var var.SOURCEPATH.TOOLS -sfrag -cg "ToolsFiles" }
 }
 

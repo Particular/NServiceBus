@@ -3,12 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Transactions;
-    using global::Raven.Client;
-    using NUnit.Framework;
     using Persistence;
     using Persistence.Raven;
-    using global::Raven.Client.Document;
+    using global::Raven.Client;
+    using NUnit.Framework;
     using global::Raven.Client.Embedded;
 
     public class in_the_raven_storage

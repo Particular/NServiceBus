@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Saga;
+
     public class TestSaga : ISagaEntity
     {
         public virtual Guid Id { get; set; }

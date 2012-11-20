@@ -10,7 +10,8 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
             {
                 Configure.Instance
                     .AzureSubcriptionStorage()
-                    .AzureSagaPersister().NHibernateUnitOfWork();
+                    .AzureSagaPersister()
+                    .NHibernateUnitOfWork();
             }
 
         }

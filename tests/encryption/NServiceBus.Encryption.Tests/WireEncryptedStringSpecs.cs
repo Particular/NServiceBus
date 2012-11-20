@@ -17,6 +17,7 @@
                     Secret = MySecretMessage,
                     SecretField = MySecretMessage,
                     CreditCard = new CreditCardDetails {CreditCardNumber = MySecretMessage},
+                    LargeByteArray = new byte[1000000],
                     ListOfCreditCards =
                         new List<CreditCardDetails>
                             {
@@ -282,6 +283,8 @@
         }
     }
 
+
+
     [TestFixture]
     public class When_sending_a_encrypted_message_without_a_encryption_service_configured : WireEncryptedStringContext
     {
@@ -327,6 +330,19 @@
             mutator.EncryptionService = null;
 
             Assert.DoesNotThrow(() => mutator.MutateIncoming(new NonSecureMessage()));
+        }
+    }
+
+    [TestFixture]
+    public class When_sending_a_message_with_a_large_payload :
+        WireEncryptedStringContext
+    {
+        [Test]
+        public void Should_not_throw_an_exception()
+        {
+            mutator.EncryptionService = null;
+
+            Assert.DoesNotThrow(() => mutator.MutateOutgoing(new MessageWithLargePayload{LargeByteArray = new byte[1000000]}));
         }
     }
 
@@ -384,6 +400,8 @@
         public List<CreditCardDetails> ListOfCreditCards { get; set; }
 
         public ArrayList ListOfSecrets { get; set; }
+
+        public byte[] LargeByteArray{ get; set; }
     }
 
     public class CreditCardDetails
@@ -417,5 +435,11 @@
         public MessageWithCircularReferences Parent { get; set; }
         public WireEncryptedString Secret { get; set; }
         public SubProperty Self { get; set; }
+    }
+
+
+    public class MessageWithLargePayload : IMessage
+    {
+        public byte[] LargeByteArray { get; set; }
     }
 }

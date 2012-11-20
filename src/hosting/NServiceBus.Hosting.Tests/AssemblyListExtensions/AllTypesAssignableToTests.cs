@@ -7,7 +7,6 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
     [TestFixture]
     public class AllTypesAssignableToTests
     {
-
         [Test]
         public void ShouldContainAllImplementations()
         {
@@ -19,6 +18,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
             Assert.IsTrue(types.Any(x => x.Name == "Abstract"));
             Assert.IsTrue(types.Any(x => x.Name == "Concrete"));
         }
+
         [Test]
         public void ShouldNotContainSelf()
         {
@@ -27,6 +27,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
                 .ToList();
             Assert.IsFalse(types.Any(x => x.Name == "IProfile"));
         }
+
         [Test]
         public void ShouldNotContainNonImpl()
         {

@@ -17,13 +17,12 @@ namespace NServiceBus.Hosting.Helpers
                 }
         }
 
-
         public static IEnumerable<Type> AllTypesAssignableTo<T>(this IEnumerable<Assembly> assemblies)
         {
             var type = typeof(T);
             return assemblies.Where(type.Assembly.IsReferencedByOrEquals)
                 .AllTypes()
-                .Where(type.IsAssignableFrom);
+                .Where(t => t != type && type.IsAssignableFrom(t));
         }
 
         public static IEnumerable<Type> WhereConcrete(this IEnumerable<Type> types)

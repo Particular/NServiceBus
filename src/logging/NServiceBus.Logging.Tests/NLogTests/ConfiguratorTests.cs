@@ -1,11 +1,11 @@
-using NLog.Config;
 using NLog.Layouts;
 using NLog.Targets;
-using NServiceBus.Logging.Loggers.NLogAdapter;
 using NUnit.Framework;
 
 namespace NServiceBus.Logging.Tests.NLogTests
 {
+    using Loggers.NLogAdapter;
+
     [TestFixture]
     public class ConfiguratorTests
     {
@@ -17,7 +17,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_should_be_All()
         {
-            new NLog.Targets.ColoredConsoleTarget() {UseDefaultRowHighlightingRules = true};
+            new ColoredConsoleTarget() {UseDefaultRowHighlightingRules = true};
 
             var filename = "logfile";
 
@@ -31,7 +31,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
 
             new NLog.Config.LoggingConfiguration();
 
-            new NLog.Targets.FileTarget()
+            new FileTarget()
                 {
                     FileName = Layout.FromString(filename),
                     ArchiveFileName = string.Format("{0}.{{#}}", filename),
@@ -42,7 +42,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
                     KeepFileOpen = false
                 };
 
-            Configurator.Basic(new NLog.Targets.ConsoleTarget(), "Debug");
+            Configurator.Basic(new ConsoleTarget(), "Debug");
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
         }
@@ -50,7 +50,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_default_should_be_Info()
         {
-            Configurator.Basic(new NLog.Targets.ConsoleTarget());
+            Configurator.Basic(new ConsoleTarget());
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
@@ -59,7 +59,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_default_should_be_Error()
         {
-            Configurator.Basic(new NLog.Targets.ConsoleTarget(), "Error");
+            Configurator.Basic(new ConsoleTarget(), "Error");
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");

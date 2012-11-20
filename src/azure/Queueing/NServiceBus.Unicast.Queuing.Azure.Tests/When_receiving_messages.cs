@@ -5,7 +5,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
@@ -18,11 +17,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             Assert.False(receiver.HasMessage());
 
-
             AddTestMessage();
 
             Assert.True(receiver.HasMessage());
-
         }
 
         [Test]

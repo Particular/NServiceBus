@@ -1,9 +1,10 @@
 using System;
-using NServiceBus.Logging.Loggers.NLogAdapter;
 using NUnit.Framework;
 
 namespace NServiceBus.Logging.Tests.NLogTests
 {
+    using Loggers.NLogAdapter;
+
     [TestFixture]
     public class TargetFactoryTests
     {

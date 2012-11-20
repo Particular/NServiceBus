@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using NServiceBus.Faults.Forwarder;
-using NServiceBus.Management.Retries.Helpers;
-using NServiceBus.Unicast.Queuing;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Management.Retries.Tests
 {
+    using Faults.Forwarder;
+    using Helpers;
+    using Unicast.Queuing;
+
     [TestFixture]
     public class SecondLevelRetriesTests
     {

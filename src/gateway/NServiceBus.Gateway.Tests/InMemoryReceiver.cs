@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     internal class InMemoryReceiver:IReceiveMessages
     {

@@ -4,7 +4,6 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Transport;
 
     [TestFixture]
     public class When_defering_a_message_with_no_timeoutmanager_address_specified : using_the_unicastbus

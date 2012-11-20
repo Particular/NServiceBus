@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
     using System;
     using System.Collections.Generic;
     using MessageMutator;
-    using Transport;
 
     public class MessageHeaderManager : IMutateOutgoingTransportMessages
     {

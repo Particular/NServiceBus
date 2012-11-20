@@ -1,8 +1,9 @@
-using NServiceBus.Logging.Loggers.Log4NetAdapter;
 using NUnit.Framework;
 
 namespace NServiceBus.Logging.Tests.Log4Net
 {
+    using Loggers.Log4NetAdapter;
+
     [TestFixture]
     public class AppenderFactoryTests
     {

@@ -4,12 +4,11 @@
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
-    using Faults;
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
-    using Notifications;
     using NUnit.Framework;
+    using Notifications;
     using ObjectBuilder;
     using Persistence;
     using Receiving;
@@ -31,7 +30,6 @@
 
         protected Channel defaultChannelForSiteA = new Channel {Address = HttpAddressForSiteA, Type = "http"};
 
-
         [TearDown]
         public void TearDown()
         {
@@ -44,9 +42,8 @@
         {
             databusForSiteA = new InMemoryDataBus();
             databusForSiteB = new InMemoryDataBus();
-
-            inMemoryReceiver = new InMemoryReceiver();
-
+            fakeTransport = new FakeTransport();
+         
             var builder = MockRepository.GenerateStub<IBuilder>();
 
             var channelFactory = new ChannelFactory();
@@ -75,7 +72,6 @@
             {
                 DataBus = databusForSiteB
             });
-          
 
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
@@ -88,13 +84,8 @@
             dispatcherInSiteA = new GatewaySender(builder,
                                                                    channelManager,
                                                                    MockRepository.GenerateStub<IMessageNotifier>(),
-                                                                   MockRepository.GenerateStub<ISendMessages>(),
-                                                                   new FakeDispatcherSettings
-                                                                       {
-                                                                           Receiver = inMemoryReceiver,
-                                                                           FailureManager = MockRepository.GenerateStub<IManageMessageFailures>()
-                                                                       });
-
+                                                                   MockRepository.GenerateStub<ISendMessages>());
+            dispatcherInSiteA.Transport = fakeTransport;
             dispatcherInSiteA.Start(GatewayAddressForSiteA);
             receiverInSiteB.Start(GatewayAddressForSiteB);
         }
@@ -122,7 +113,7 @@
 
         protected void SendMessage(TransportMessage message)
         {
-            inMemoryReceiver.Add(message);
+            fakeTransport.RaiseEvent(message);
         }
 
         protected FakeMessageSender.SendDetails GetDetailsForReceivedMessage()
@@ -132,7 +123,7 @@
 
         GatewaySender dispatcherInSiteA;
         GatewayReceiver receiverInSiteB;
-        InMemoryReceiver inMemoryReceiver;
+        FakeTransport fakeTransport;
         FakeMessageSender messageSender;
     }
 }

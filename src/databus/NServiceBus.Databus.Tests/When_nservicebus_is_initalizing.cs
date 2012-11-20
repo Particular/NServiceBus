@@ -1,10 +1,10 @@
-using NServiceBus.DataBus.Config;
 using NServiceBus.DataBus.Tests;
 using NUnit.Framework;
 
 namespace NServiceBus.DataBus.Tests
 {
     using System;
+    using Config;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using NServiceBus.Management.Retries.Helpers;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Management.Retries.Tests
 {
+    using Helpers;
+
     [TestFixture]
     public class DefaultRetryPolicyTests
     {
