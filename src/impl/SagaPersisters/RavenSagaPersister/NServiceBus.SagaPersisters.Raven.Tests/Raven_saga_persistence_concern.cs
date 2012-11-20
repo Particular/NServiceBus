@@ -7,7 +7,6 @@ using Raven.Client.Embedded;
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
     using Saga;
-    using global::Raven.Client.Document;
 
     public abstract class Raven_saga_persistence_concern
     {

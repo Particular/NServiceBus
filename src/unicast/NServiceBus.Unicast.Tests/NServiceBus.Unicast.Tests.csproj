@@ -43,8 +43,9 @@
     <Reference Include="pnunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\lib\Rhino.Mocks\Rhino.Mocks.dll</HintPath>
+    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
