@@ -1,5 +1,3 @@
-using NServiceBus.Saga;
-
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
     using System;

@@ -24,6 +24,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             NServiceBus.ConfigureTimeoutManager.TimeoutManagerAddress = config.GetTimeoutManagerAddress();
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
 
+            ServiceContext.TimeoutDataTableName = configSection.TimeoutDataTableName;
+            ServiceContext.TimeoutManagerDataTableName = configSection.TimeoutManagerDataTableName;
+
             config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall).ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString);
             return config;
         }
@@ -35,19 +38,19 @@ namespace NServiceBus.Timeout.Hosting.Azure
         /// <returns></returns>
         public static Configure ListenOnAzureStorageQueues(this Configure config)
         {
-            TimeoutMessageProcessor.MessageReceiverFactory = () =>{
-                var queue = config.Builder.Build<AzureMessageQueueReceiver>();
-                return new AzureMessageQueueReceiver
-                           {
-                               Client = queue.Client,
-                               PeekInterval = queue.PeekInterval,
-                               MaximumWaitTimeWhenIdle = queue.MaximumWaitTimeWhenIdle,
-                               PurgeOnStartup = queue.PurgeOnStartup,
-                               MessageInvisibleTime = queue.MessageInvisibleTime,
-                               BatchSize = queue.BatchSize,
-                               MessageSerializer = queue.MessageSerializer
-                           };
-            };
+            //TimeoutMessageProcessor.MessageReceiverFactory = () =>{
+            //    var queue = config.Builder.Build<AzureMessageQueueReceiver>();
+            //    return new AzureMessageQueueReceiver
+            //               {
+            //                   Client = queue.Client,
+            //                   PeekInterval = queue.PeekInterval,
+            //                   MaximumWaitTimeWhenIdle = queue.MaximumWaitTimeWhenIdle,
+            //                   PurgeOnStartup = queue.PurgeOnStartup,
+            //                   MessageInvisibleTime = queue.MessageInvisibleTime,
+            //                   BatchSize = queue.BatchSize,
+            //                   MessageSerializer = queue.MessageSerializer
+            //               };
+            //};
             return config;
         }
 
@@ -58,23 +61,23 @@ namespace NServiceBus.Timeout.Hosting.Azure
         /// <returns></returns>
         public static Configure ListenOnAzureServiceBusQueues(this Configure config)
         {
-            TimeoutMessageProcessor.MessageReceiverFactory = () =>{
-                var queue = config.Builder.Build<AzureServiceBusMessageQueueReceiver>();
-                return new AzureServiceBusMessageQueueReceiver{
-                    LockDuration = queue.LockDuration,
-                    MaxSizeInMegabytes =queue.MaxSizeInMegabytes,
-                    RequiresDuplicateDetection = queue.RequiresDuplicateDetection,
-                    RequiresSession = queue.RequiresSession,
-                    DefaultMessageTimeToLive = queue.DefaultMessageTimeToLive,
-                    EnableDeadLetteringOnMessageExpiration = queue.EnableDeadLetteringOnMessageExpiration,
-                    DuplicateDetectionHistoryTimeWindow = queue.DuplicateDetectionHistoryTimeWindow,
-                    MaxDeliveryCount = queue.MaxDeliveryCount,
-                    EnableBatchedOperations = queue.EnableBatchedOperations,
-                    Factory = queue.Factory,
-                    NamespaceClient = queue.NamespaceClient,
-                    ServerWaitTime = queue.ServerWaitTime
-                };
-            };
+            //TimeoutMessageProcessor.MessageReceiverFactory = () =>{
+            //    var queue = config.Builder.Build<AzureServiceBusMessageQueueReceiver>();
+            //    return new AzureServiceBusMessageQueueReceiver{
+            //        LockDuration = queue.LockDuration,
+            //        MaxSizeInMegabytes =queue.MaxSizeInMegabytes,
+            //        RequiresDuplicateDetection = queue.RequiresDuplicateDetection,
+            //        RequiresSession = queue.RequiresSession,
+            //        DefaultMessageTimeToLive = queue.DefaultMessageTimeToLive,
+            //        EnableDeadLetteringOnMessageExpiration = queue.EnableDeadLetteringOnMessageExpiration,
+            //        DuplicateDetectionHistoryTimeWindow = queue.DuplicateDetectionHistoryTimeWindow,
+            //        MaxDeliveryCount = queue.MaxDeliveryCount,
+            //        EnableBatchedOperations = queue.EnableBatchedOperations,
+            //        Factory = queue.Factory,
+            //        NamespaceClient = queue.NamespaceClient,
+            //        ServerWaitTime = queue.ServerWaitTime
+            //    };
+            //};
             return config;
         }
     }

@@ -10,5 +10,19 @@ namespace NServiceBus.Timeout.Hosting.Azure
             get { return (string)this["ConnectionString"]; }
             set { this["ConnectionString"] = value; }
         }
+
+        [ConfigurationProperty("TimeoutManagerDataTableName", IsRequired = false, DefaultValue = "TimeoutManagerDataTable")]
+        public string TimeoutManagerDataTableName
+        {
+            get { return (string)this["TimeoutManagerDataTableName"]; }
+            set { this["TimeoutManagerDataTableName"] = value; }
+        }
+
+        [ConfigurationProperty("TimeoutDataTableName", IsRequired = false, DefaultValue = "TimeoutDataTableName")]
+        public string TimeoutDataTableName
+        {
+            get { return (string)this["TimeoutDataTableName"]; }
+            set { this["TimeoutDataTableName"] = value; }
+        }
     }
 }

@@ -17,6 +17,8 @@ namespace NServiceBus.Persistence.Raven.Tests
                 .DefineEndpointName("UnitTests")
                 .DefaultBuilder();
 
+            Configure.DefineEndpointVersionRetriever = () => "1.0.0.0";
+
             Initialize(config);
           
             store = config.Builder.Build<IDocumentStore>() as DocumentStore;

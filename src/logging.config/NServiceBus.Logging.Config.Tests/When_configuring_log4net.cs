@@ -4,6 +4,8 @@ using log4net.Core;
 
 namespace NServiceBus.Logging.Config.Tests
 {
+    using log4net;
+
     [TestFixture]
     public class When_configuring_log4net
     {

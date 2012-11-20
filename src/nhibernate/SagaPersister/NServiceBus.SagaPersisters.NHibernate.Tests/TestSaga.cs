@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using NServiceBus.Saga;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using AutoPersistence.Attributes;
+
     public class TestSaga : ISagaEntity
     {
         public virtual Guid Id { get; set; }

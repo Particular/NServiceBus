@@ -5,7 +5,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
     using System.IO;
     using MessageInterfaces.MessageMapper.Reflection;
     using Serializers.XML;
-    using Transport;
 
     class Helpers
     {

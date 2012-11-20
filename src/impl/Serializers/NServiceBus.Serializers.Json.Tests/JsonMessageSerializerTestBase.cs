@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
 using NUnit.Framework;
 
 namespace NServiceBus.Serializers.Json.Tests
 {
+    using MessageInterfaces.MessageMapper.Reflection;
+
     public class A : IMessage
     {
         public Guid Aguid { get; set; }

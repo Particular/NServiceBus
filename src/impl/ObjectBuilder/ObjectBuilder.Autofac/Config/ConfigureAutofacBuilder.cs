@@ -1,9 +1,10 @@
 using NServiceBus.ObjectBuilder.Autofac;
-using NServiceBus.ObjectBuilder.Common.Config;
 using Autofac;
 
 namespace NServiceBus
 {
+    using ObjectBuilder.Common.Config;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>

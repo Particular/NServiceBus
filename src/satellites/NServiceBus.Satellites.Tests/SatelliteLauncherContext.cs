@@ -1,29 +1,33 @@
-﻿using System.Reflection;
-using NServiceBus.Config;
-using NServiceBus.Faults;
-using NServiceBus.Satellites.Config;
-using NUnit.Framework;
-
-namespace NServiceBus.Satellites.Tests
+﻿namespace NServiceBus.Satellites.Tests
 {
+    using System.Reflection;
+    using Config;
+    using Faults;
+    using NServiceBus.Config;
+    using NUnit.Framework;
+    using Unicast.Transport;
+
     public abstract class SatelliteLauncherContext
     {
         protected FuncBuilder Builder;
         protected IManageMessageFailures InMemoryFaultManager;
-        protected FakeTransportBuilder TransportBuilder;
- 
+        protected FakeTransport Transport;
+     
         [SetUp]
         public void SetUp()
         {
             Builder = new FuncBuilder();
-            InMemoryFaultManager = new NServiceBus.Faults.InMemory.FaultManager();
-            TransportBuilder = new FakeTransportBuilder();
+            InMemoryFaultManager = new Faults.InMemory.FaultManager();
+            Transport = new FakeTransport();
 
-            Configure.With(new Assembly[0]);
+            Configure.With(new Assembly[0])
+                .DefineEndpointName("Test")
+                .DefaultBuilder();
             Configure.Instance.Builder = Builder;
            
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
+            Builder.Register<ITransport>(() => Transport);
 
             var configurer = new SatelliteConfigurer();
             configurer.Init();
@@ -31,7 +35,6 @@ namespace NServiceBus.Satellites.Tests
             var launcher = new NonThreadingSatelliteLauncher
                                {
                                    Builder = Builder,
-                                   TransportBuilder = TransportBuilder
                                };
 
             BeforeRun();

@@ -1,9 +1,10 @@
 using System;
-using NServiceBus.Saga;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Saga;
+
     public class When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating
     {
         [Test]

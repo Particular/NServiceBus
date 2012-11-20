@@ -8,7 +8,6 @@ namespace NServiceBus.Gateway.Tests.Routing
     using Channels;
     using Gateway.Routing;
     using Gateway.Routing.Sites;
-    using Unicast.Transport;
 
     [TestFixture]
     public class When_routing_using_the_configuration_source

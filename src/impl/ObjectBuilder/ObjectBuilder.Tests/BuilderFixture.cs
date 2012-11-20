@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NServiceBus.ObjectBuilder.Autofac;
 using NServiceBus.ObjectBuilder.CastleWindsor;
