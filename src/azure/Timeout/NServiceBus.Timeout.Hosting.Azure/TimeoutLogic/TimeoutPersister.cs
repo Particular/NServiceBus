@@ -391,7 +391,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 else
                 {
                     read.LastSuccessfullRead = DateTime.UtcNow;
-                    context.UpdateObject(read);
+                    context.Detach(read);
+                    context.AttachTo(ServiceContext.TimeoutManagerDataTableName, read, "*");
                 }
                 context.SaveChangesWithRetries(SaveChangesOptions.ReplaceOnUpdate);
             }
