@@ -1,15 +1,15 @@
-namespace NServiceBus.Timeout.Tests
+namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using Core;
-    using Hosting.Windows.Persistence;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture]
+    [TestFixture,Explicit("Slow test, move to integration tests")]
     public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
     {
         private IDocumentStore store;

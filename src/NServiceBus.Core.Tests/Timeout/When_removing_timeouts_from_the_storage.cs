@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Timeout.Tests
+﻿namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
-    using Core;
-    using Hosting.Windows.Persistence;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;

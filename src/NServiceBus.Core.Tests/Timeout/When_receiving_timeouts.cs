@@ -1,7 +1,7 @@
-namespace NServiceBus.Timeout.Tests
+namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
-    using Core;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
     [TestFixture]

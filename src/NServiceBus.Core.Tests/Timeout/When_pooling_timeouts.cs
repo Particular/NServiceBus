@@ -1,19 +1,19 @@
-namespace NServiceBus.Timeout.Tests
+namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Core;
-    using Hosting.Windows;
-    using Hosting.Windows.Persistence;
+    using NServiceBus.Timeout.Core;
+    using NServiceBus.Timeout.Hosting.Windows;
+    using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture]
+   [TestFixture, Explicit("Takes a long time, move to integration tests")]
     public class When_pooling_timeouts_with_raven : When_pooling_timeouts
     {
         private IDocumentStore store;
@@ -36,7 +36,7 @@ namespace NServiceBus.Timeout.Tests
         }
     }
 
-    [TestFixture]
+    [TestFixture,Explicit("Takes a long time, move to integration tests")]
     public class When_pooling_timeouts_with_inmemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
