@@ -60,7 +60,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Testing.csproj">
       <Project>{8B815173-9AFA-4D95-BAB4-686C298F17DA}</Project>
-      <Name>NServiceBus.Testing</Name>
+      <Name>NServiceBus.Testing %28NServiceBus.Testing\NServiceBus.Testing%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

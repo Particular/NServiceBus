@@ -12,6 +12,8 @@
     <AssemblyName>NServiceBus.Unicast.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,58 +33,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Logging">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus">
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Config">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Faults">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Faults.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Licensing">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Licensing.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.MasterNode">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.MessageInterfaces.MessageMapper.Reflection">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.MessageInterfaces.MessageMapper.Reflection.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Serializers.XML">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Serializers.XML.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Queuing.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Transport">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Unicast.Transport.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.UnitOfWork">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
+	<Reference Include="nunit.mocks">
+      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="pnunit.framework">
+      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\..\lib\Rhino.Mocks\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoSubscriptions.cs" />
@@ -110,37 +77,27 @@
     <Compile Include="UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\utils\NServiceBus.Utils.csproj">
-      <Project>{2616579A-202F-48F6-8A7F-6A6AA9288CA7}</Project>
-      <Name>NServiceBus.Utils</Name>
+    <ProjectReference Include="..\..\core\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Config\NServiceBus.Unicast.Config.csproj">
-      <Project>{B6D6B021-F477-4C8C-B19E-9CB2ABBCA095}</Project>
-      <Name>NServiceBus.Unicast.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Monitoring\NServiceBus.Unicast.Monitoring.csproj">
-      <Project>{B074D7F7-6DCA-45B8-8DC4-D952D227BEC3}</Project>
-      <Name>NServiceBus.Unicast.Monitoring</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast.Subscriptions\NServiceBus.Unicast.Subscriptions.csproj">
-      <Project>{CD9FA43E-A56D-4B62-8245-F911B137EC09}</Project>
-      <Name>NServiceBus.Unicast.Subscriptions</Name>
+    <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}</Project>
+      <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Unicast.Tests.Messages\NServiceBus.Unicast.Tests.Messages.csproj">
-      <Project>{50C0CD53-6C74-4554-8D8A-A529943A7409}</Project>
+      <Project>{50c0cd53-6c74-4554-8d8a-a529943a7409}</Project>
       <Name>NServiceBus.Unicast.Tests.Messages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Unicast\NServiceBus.Unicast.csproj">
-      <Project>{EB2C42A2-70FD-4469-959B-C577470B001B}</Project>
-      <Name>NServiceBus.Unicast</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

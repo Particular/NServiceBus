@@ -1,10 +1,8 @@
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NUnit.Framework;
-
 namespace NServiceBus.Serializers.Json.Tests
 {
-    using System;
     using System.IO;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using NUnit.Framework;
 
     [TestFixture]
     public class JsonMessageSerializerTest : JsonMessageSerializerTestBase
@@ -36,7 +34,6 @@ namespace NServiceBus.Serializers.Json.Tests
             }
             
         }
-
 
         [Test]
         public void Deserialize_message_without_wrapping()
@@ -70,8 +67,6 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.That(!result.Contains("$type"), result);
             }
         }
-
-
     }
 
     public class SimpleMessage

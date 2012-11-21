@@ -5,7 +5,6 @@ using Castle.Core.Resource;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
-using NServiceBus.Logging;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -14,6 +13,8 @@ using Castle.MicroKernel.Registration;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
+    using Logging;
+
     /// <summary>
     /// Castle Windsor implementaton of IContainer.
     /// </summary>

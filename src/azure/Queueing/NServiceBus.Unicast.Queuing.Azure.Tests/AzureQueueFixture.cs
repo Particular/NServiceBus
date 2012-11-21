@@ -1,10 +1,13 @@
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using System;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serializers.Json;
+
     public abstract class AzureQueueFixture
     {
         protected AzureMessageQueueSender sender;
@@ -27,7 +30,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         public void Setup()
         {
             client = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
-       
+            client.Timeout = TimeSpan.FromSeconds(10);
             nativeQueue = client.GetQueueReference(QueueName);
 
             nativeQueue.CreateIfNotExist();
@@ -36,17 +39,20 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
             sender = new AzureMessageQueueSender
                         {
-                            Client = client
+                            Client = client,
+                            MessageSerializer = new JsonMessageSerializer(new MessageMapper())
                         };
 
             sender.Init(QueueName, true);
 
             receiver = new AzureMessageQueueReceiver
             {
-                Client = client
+                Client = client,
+                MessageSerializer = new JsonMessageSerializer(new MessageMapper())
+
             };
 
-            sender.Init(QueueName, true);
+            receiver.Init(QueueName, true);
         }
 
         protected void AddTestMessage()
@@ -58,6 +64,5 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             sender.Send(messageToAdd, QueueName);
         }
-
     }
 }

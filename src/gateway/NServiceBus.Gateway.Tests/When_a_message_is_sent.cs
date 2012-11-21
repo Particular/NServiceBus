@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
-    using Channels;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_a_message_is_sent : via_the_gateway
     {
-      
         [Test]
         public void Should_send_the_message_to_the_specified_site()
         {
@@ -26,8 +24,6 @@
 
             Assert.AreEqual(receivedMessage.ReplyToAddress, GatewayAddressForSiteB);
         }
-
-
 
         [Test]
         public void Should_set_the_default_channel_as_the_originating_site()

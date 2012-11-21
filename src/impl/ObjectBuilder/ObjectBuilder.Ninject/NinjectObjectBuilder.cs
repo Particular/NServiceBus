@@ -31,7 +31,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         private readonly IObjectBuilderPropertyHeuristic propertyHeuristic;
 
         /// <summary>
-        /// Maps the supported <see cref="DependencyLifecycle"/> to the <see cref="StandardScopeCallbacks"/> of ninject.
+        /// Maps the supported <see cref="NServiceBus.DependencyLifecycle"/> to the <see cref="StandardScopeCallbacks"/> of ninject.
         /// </summary>
         private readonly IDictionary<DependencyLifecycle, Func<IContext, object>> dependencyLifecycleToScopeMapping =
             new Dictionary<DependencyLifecycle, Func<IContext, object>>

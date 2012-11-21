@@ -1,10 +1,11 @@
 using System;
 using NServiceBus;
-using NServiceBus.Logging;
 
 namespace Subscriber2
 {
     using MyMessages;
+
+    using log4net;
 
     public class EventMessageHandler : IHandleMessages<IMyEvent>
     {

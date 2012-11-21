@@ -1,8 +1,9 @@
 using System;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Saga;
+
     public class SagaWithUniqueProperty : ISagaEntity
     {
         public virtual Guid Id { get; set; }

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using Saga;
+
     [JsonObject(IsReference = true)]
     public class TestSaga : ISagaEntity
     {

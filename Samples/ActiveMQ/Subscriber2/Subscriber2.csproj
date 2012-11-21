@@ -52,12 +52,11 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Apache.NMS, Version=1.5.1.2739, Culture=neutral, PublicKeyToken=82756feee3957618, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\nservicebus.core\Apache.NMS.dll</HintPath>
+    <Reference Include="Apache.NMS">
+      <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
     </Reference>
     <Reference Include="Apache.NMS.ActiveMQ">
-      <HintPath>..\..\..\build\nservicebus.core\Apache.NMS.ActiveMQ.dll</HintPath>
+      <HintPath>..\packages\Apache.NMS.ActiveMQ.1.5.6\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core">
       <HintPath>..\..\..\packages\Castle.Core.3.1.0\lib\net40-client\Castle.Core.dll</HintPath>
@@ -69,21 +68,26 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\binaries\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=1.9.3.40920, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Host, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus.Hosting">
+      <HintPath>..\..\..\binaries\NServiceBus.Hosting.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor">
       <HintPath>..\..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ">
+      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ.Config">
+      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.Config.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

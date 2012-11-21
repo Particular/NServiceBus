@@ -39,7 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NServiceBus.Setup.Windows">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Setup.Windows.dll</HintPath>
+      <HintPath>..\..\..\build\NServiceBus.Setup.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

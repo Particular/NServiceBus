@@ -45,6 +45,9 @@
                                                 PerformanceCounterType.NumberOfItems32),
                         new CounterCreationData("SLA violation countdown",
                                                 "Seconds until the SLA for this endpoint is breached",
+                                                PerformanceCounterType.NumberOfItems32),
+                        new CounterCreationData("Current Throughput",
+                                                "The current number of messages per second flowing through the transport",
                                                 PerformanceCounterType.NumberOfItems32)
                     };
     }

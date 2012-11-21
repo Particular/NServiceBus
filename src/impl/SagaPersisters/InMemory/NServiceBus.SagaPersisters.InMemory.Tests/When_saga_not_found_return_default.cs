@@ -1,9 +1,8 @@
-﻿using NServiceBus.Saga;
-
-namespace NServiceBus.SagaPersisters.InMemory.Tests
+﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using NUnit.Framework;
+    using Saga;
 
     class When_saga_not_found_return_default
     {

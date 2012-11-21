@@ -4,7 +4,6 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Transport;
 
     [TestFixture]
     public class When_publishing_a_command_messages : using_the_unicastbus

@@ -1,87 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Fragment>
+    <Fragment>
         <DirectoryRef Id="APPLICATIONFOLDER">
-          <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48592" Name="Tools">
-            <Component Id="cmp85F967A58332E054CB5378C3DFD9D914" Guid="{C855CFAA-C9A4-496E-A758-078A04A77723}">
-                <File Id="filBC916EC0AF0C50E8E8711D261867C14C" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\NServiceBus.Core.dll" />
-            </Component>
-            <Component Id="cmp8608F882EFA8BA6CAF189BC11F9AA53F" Guid="{9ACBC3CF-7EC5-40B7-9249-4FBD53008941}">
-                <File Id="fil81B20A992DD93C819F70280417B4CFD6" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\NServiceBus.dll" />
-            </Component>
-            <Component Id="cmpA63BD11646E31F2B6323BBB50035E57C" Guid="{D69625DD-B023-41E2-AC74-C0EC206E47C5}">
-                <File Id="filC9DB6983F28F50649BA6E81931D348F3" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\NServiceBus.Tools.Management.Errors.ReturnToSourceQueue.dll" />
-            </Component>
-            <Component Id="cmpF80DF7F691970A7E6E6D10C2BAC6AAB0" Guid="{30B544C2-F6DC-4E6D-8148-EAB87997C853}">
-                <File Id="filE5F9583CB0A64C3E0266AFDCE653768A" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\ReturnToSourceQueue.exe" />
-            </Component>
-            <Component Id="cmpC5896CB5B51AE850471FF45254C9290B" Guid="{7B15648A-1A3F-4FAC-BA22-203B23189E43}">
-                <File Id="filF21A55D3FEC89821C9FBDC4A2A7F5E51" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\XsdGenerator.exe" />
-            </Component>
-            <Directory Id="dirEEE1101473287193165DE0048BB94FDA" Name="licenseinstaller">
-              <Component Id="cmpBBB96CB5B51AE850471FF45254C9290B" Guid="{BBB5648A-1A3F-4FAC-BA22-203B23189E43}">
-                  <File Id="filBBBA55D3FEC89821C9FBDC4A2A7F5E51" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\licenseinstaller\LicenseInstaller.exe" />
-              </Component>
+            <Directory Id="dir0ECB0CA8E092B591CA0FAFDE2769FA82" Name="Tools">
+                <Component Id="cmpCC5A638591DF80C50B0EFE10C02F110C" Guid="*">
+                    <File Id="fil485EC4DAE88F0469B44758CD31E40CF0" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\NServiceBus.Core.dll" />
+                </Component>
+                <Component Id="cmpD163607E6A9FB0F0735BB0D7CC02A778" Guid="*">
+                    <File Id="fil9370B1C9B4922FCC28E05D2E5F98B862" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\NServiceBus.dll" />
+                </Component>
+                <Component Id="cmpEA41448A8D51ACBC5F0C8CCE700CD47A" Guid="*">
+                    <File Id="fil5C07D432ABA02F303A86A9E89F4424B9" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\ReturnToSourceQueue.exe" />
+                </Component>
+                <Component Id="cmp372CD167350456C352E7D371173881E9" Guid="*">
+                    <File Id="fil28B66CEE914BF6D043A5969C261CCD76" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\XsdGenerator.exe" />
+                </Component>
+                <Directory Id="dirD4D717F172B3CF5B4A4F5F1AFBE6E37E" Name="licenseinstaller">
+                    <Component Id="cmp924D5A6FE9855EC1385F4E773084B97B" Guid="*">
+                        <File Id="fil234A1B130B468051EF14AC1F60DCF5EE" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\licenseinstaller\LicenseInstaller.exe" />
+                    </Component>
+                </Directory>
+                <Directory Id="dir72179D94A6400E112F1BF61EBE31BF1D" Name="migration">
+                    <Component Id="cmp38DC2144865CC629244ACE7C89769499" Guid="*">
+                        <File Id="filB09047E95D967541C4B328DD8C1A1F77" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\migration\NServiceBus.Compatibility.dll" />
+                    </Component>
+                    <Component Id="cmp5F9FCFC68FB759F2F34105B29585F28F" Guid="*">
+                        <File Id="filC32F3216B19BE3675B3C84EA27D90E7A" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\migration\NServiceBus.Core.dll" />
+                    </Component>
+                    <Component Id="cmpD0C5EB4E3336E6E7D40A7CCE07E899D6" Guid="*">
+                        <File Id="fil1534E0DC27A080235D4A7572EA770154" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\migration\NServiceBus.dll" />
+                    </Component>
+                    <Component Id="cmp7353F6F84CE58DEC595A521755D93943" Guid="*">
+                        <File Id="fil9BAA6D90BD4E5227699B625F83946BAA" KeyPath="yes" Source="$(var.SOURCEPATH.TOOLS)\migration\TimeoutMigrator.exe" />
+                    </Component>
+                </Directory>
             </Directory>
-            <Directory Id="dir2B71101473287193165DE0048BB94FDA" Name="migration">
-                <Component Id="cmp4C052383CF70BCFF55A7ECD7D29BA6E5" Guid="{58A69214-2C92-454F-960C-53054351246D}">
-                    <File Id="filB9C23EA4437D53FF5DC998EB5573B1C2" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\log4net.dll" />
-                </Component>
-                <Component Id="cmp9F8B3CC097C6FFADB607884A7F937729" Guid="{4AD98AFF-E9D5-4F10-8F20-F98ECA05B2F6}">
-                    <File Id="fil8FCEAB5C5470BA5FFAB0866EF7E83832" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\NServiceBus.Compatibility.dll" />
-                </Component>
-                <Component Id="cmp9B819FA663109076968FEBD6EA4D8FDA" Guid="{33898A0F-25BA-47B8-9327-6B3E58EF3269}">
-                    <File Id="fil626BE09E41CABFF0DCA336A8EE6FAD9C" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\NServiceBus.Core.dll" />
-                </Component>
-                <Component Id="cmpC560EA44BA246DF03A3E717AE001B546" Guid="{6634E8B3-C4C3-4A0D-8578-686B9F0AFE44}">
-                    <File Id="fil948A65E7DDA500A65F94E65185AB006C" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\NServiceBus.dll" />
-                </Component>
-                <Component Id="cmp2658008C784D867DB3EF15B2F6375A1A" Guid="{AB592F14-2747-4A31-80E2-7C690F4FB074}">
-                    <File Id="fil112831E44010DF2ACA7452DD7983E83B" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\TimeoutMigrator.exe" />
-                </Component>
-                <Component Id="cmpCD64A0C0609DF771E8F82B2414C81C01" Guid="{73BA28E9-9CDC-4E25-A07F-48EBDC102392}">
-                    <File Id="fil91DE0E04D637375D32F3DA1453B61B57" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\migration\TimeoutMigrator.exe.config" />
-                </Component>
-            </Directory>
-            <Directory Id="dir8E999FED6CF0C71C8710ADC619CF3448" Name="MsmqUtils">
-                <Component Id="cmpAC1A9D33ACE60512B9C1D640B5DBE1C4" Guid="{C33EE761-4D0F-4F83-8B4D-03C78B668219}">
-                    <File Id="filDF35678C42ABFBD1805B3F04DE0B0E87" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\MsmqUtils\Common.Logging.dll" />
-                </Component>
-                <Component Id="cmp2E1B1A1B677CEA14DD9EE556CCA9A959" Guid="{4A5F8A2D-D744-421D-A226-1C0D2CA1A20D}">
-                    <File Id="fil19A1BD31DFCDE235DDE80068922F8EBA" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\MsmqUtils\Interop.MSMQ.dll" />
-                </Component>
-                <Component Id="cmpFDC08AFE94E02DCD3CE13A3B11CD9049" Guid="{33F99CA6-48C2-46F1-97A4-AE2C299F7C1C}">
-                    <File Id="filDD1AA6FB2900029F4B2B3FDBFD08EEC1" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\MsmqUtils\NServiceBus.Config.dll" />
-                </Component>
-                <Component Id="cmpF6FB8E840567A547BD57A54DEE002683" Guid="{1AD2C0A2-DE35-4122-8B30-CCE95101DA7C}">
-                    <File Id="fil0347C39FAA5A3868342F2BEC5D874603" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\MsmqUtils\NServiceBus.Utils.dll" />
-                </Component>
-                <Component Id="cmp4D42D71E7DB2DEDFCCFE08FBD05A3638" Guid="{6809863A-01C4-4BF9-9CB1-45E7D83A51FF}">
-                    <File Id="filC4910DB92EAF32D5EC89FAD0CE8C61AA" KeyPath="yes" Source="$(var.SOURCEPATH)\Tools\MsmqUtils\NServiceBus.Utils.Reflection.dll" />
-                </Component>
-            </Directory>
-          </Directory>
         </DirectoryRef>
     </Fragment>
     <Fragment>
         <ComponentGroup Id="ToolsFiles">
-          <ComponentRef Id="cmpBBB96CB5B51AE850471FF45254C9290B" />
-          <ComponentRef Id="cmp85F967A58332E054CB5378C3DFD9D914" />
-            <ComponentRef Id="cmp8608F882EFA8BA6CAF189BC11F9AA53F" />
-            <ComponentRef Id="cmpA63BD11646E31F2B6323BBB50035E57C" />
-            <ComponentRef Id="cmpF80DF7F691970A7E6E6D10C2BAC6AAB0" />
-            <ComponentRef Id="cmpC5896CB5B51AE850471FF45254C9290B" />
-            <ComponentRef Id="cmp4C052383CF70BCFF55A7ECD7D29BA6E5" />
-            <ComponentRef Id="cmp9F8B3CC097C6FFADB607884A7F937729" />
-            <ComponentRef Id="cmp9B819FA663109076968FEBD6EA4D8FDA" />
-            <ComponentRef Id="cmpC560EA44BA246DF03A3E717AE001B546" />
-            <ComponentRef Id="cmp2658008C784D867DB3EF15B2F6375A1A" />
-            <ComponentRef Id="cmpCD64A0C0609DF771E8F82B2414C81C01" />
-            <ComponentRef Id="cmpAC1A9D33ACE60512B9C1D640B5DBE1C4" />
-            <ComponentRef Id="cmp2E1B1A1B677CEA14DD9EE556CCA9A959" />
-            <ComponentRef Id="cmpFDC08AFE94E02DCD3CE13A3B11CD9049" />
-            <ComponentRef Id="cmpF6FB8E840567A547BD57A54DEE002683" />
-            <ComponentRef Id="cmp4D42D71E7DB2DEDFCCFE08FBD05A3638" />
+            <ComponentRef Id="cmpCC5A638591DF80C50B0EFE10C02F110C" />
+            <ComponentRef Id="cmpD163607E6A9FB0F0735BB0D7CC02A778" />
+            <ComponentRef Id="cmpEA41448A8D51ACBC5F0C8CCE700CD47A" />
+            <ComponentRef Id="cmp372CD167350456C352E7D371173881E9" />
+            <ComponentRef Id="cmp924D5A6FE9855EC1385F4E773084B97B" />
+            <ComponentRef Id="cmp38DC2144865CC629244ACE7C89769499" />
+            <ComponentRef Id="cmp5F9FCFC68FB759F2F34105B29585F28F" />
+            <ComponentRef Id="cmpD0C5EB4E3336E6E7D40A7CCE07E899D6" />
+            <ComponentRef Id="cmp7353F6F84CE58DEC595A521755D93943" />
         </ComponentGroup>
     </Fragment>
 </Wix>

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-using NServiceBus.Serializers.XML;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
 {
     using System.Threading.Tasks;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serializers.XML;
 
     [TestFixture, Ignore]
     public class SqlServerMessageQueueTests

@@ -30,7 +30,7 @@ namespace NServiceBus.Config.UnitTests
         public void Should_always_include_the_core_nservicebus_types()
         {
             Assert.True(
-                loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Config")));
+                loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Core")));
         }
     }
 }
