@@ -108,8 +108,6 @@
     <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
-    <Compile Include="Wcf\WcfManager.cs" />
-    <Compile Include="Wcf\WcfServiceHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
