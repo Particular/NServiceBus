@@ -456,13 +456,14 @@
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Config\LicenceConfig.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Config\ConfigureTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\PooledThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
+    <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />

@@ -2,8 +2,8 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
     using System;
     using System.Configuration;
+    using Licensing;
     using NServiceBus.Config;
-    using INeedInitialization = NServiceBus.INeedInitialization;
     using DequeueStrategies;
     using DequeueStrategies.ThreadingStrategies;
     using Logging;
@@ -19,10 +19,25 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         public void Init()
         {
             var numberOfWorkerThreadsInAppConfig = ConfiguredMaxDegreeOfParallelism();
+            var throughput = MaxThroughput;
+
+            if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
+            {
+                if (throughput == 0 || LicenseManager.CurrentLicense.MaxThroughputPerSecond < throughput)
+                    throughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
+            }
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
-                .ConfigureProperty(t => t.NumberOfWorkerThreads, LicenceConfig.GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig));
+                .ConfigureProperty(t => t.NumberOfWorkerThreads, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
+                .ConfigureProperty(t=>t.MaxThroughputPerSecond,throughput);
+        }
+
+        static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
+        {
+            int workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
+
+            return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
 
         static int ConfiguredMaxDegreeOfParallelism()
@@ -60,6 +75,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             return 1;
         }
 
+        public static int MaxThroughput { get; set; }
         public static TransactionSettings TransactionSettings { get; set; }
 
         static readonly ILog Logger = LogManager.GetLogger("Configuration");
