@@ -801,7 +801,7 @@ namespace NServiceBus.Unicast
 
         IBus IStartableBus.Start(Action startupAction)
         {
-            var license = ValidateLicense();
+            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
             if (started)
                 return this;
@@ -827,7 +827,6 @@ namespace NServiceBus.Unicast
 
                 if (!DoNotStartTransport)
                 {
-                    transport.MaxThroughputPerSecond = license.MaxThroughputPerSecond;
                     transport.Start(InputAddress);
                 }
 
@@ -889,13 +888,7 @@ namespace NServiceBus.Unicast
             Task.WaitAll(tasks, TimeSpan.FromSeconds(20));
         }
 
-        License ValidateLicense()
-        {
-            LicenseManager.PromptUserForLicenseIfTrialHasExpired();
-
-            return LicenseManager.CurrentLicense;
-        }
-
+        
         /// <summary>
         /// Allow disabling the unicast bus.
         /// </summary>
