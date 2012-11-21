@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.Encryption.Tests
+﻿namespace NServiceBus.Core.Tests.Encryption
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Config;
+    using NServiceBus.Encryption;
+    using NServiceBus.Encryption.Config;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,6 +1,7 @@
-namespace NServiceBus.Encryption.Tests
+namespace NServiceBus.Core.Tests.Encryption
 {
     using System;
+    using NServiceBus.Encryption;
 
     public class FakeEncryptionService : IEncryptionService
     {
