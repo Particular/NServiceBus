@@ -92,7 +92,19 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
         /// </summary>
-        public int MaxThroughputPerSecond { get; set; }
+        public int MaxThroughputPerSecond
+        {
+            get { return maxThroughputPerSecond; }
+            set
+            {
+                if (isStarted)
+                    throw new InvalidOperationException("Changing the throughput at runtime isn't currently supported");
+
+                maxThroughputPerSecond = value;
+            }
+        }
+
+        int maxThroughputPerSecond;
 
         /// <summary>
         /// Event raised when a message has been received in the input queue.
@@ -128,7 +140,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             InitializePerformanceCounters();
 
+            throughputLimiter = new ThroughputLimiter();
+
+            throughputLimiter.Start(maxThroughputPerSecond);
+
             StartReceiver();
+
+            if(maxThroughputPerSecond > 0)
+                Logger.InfoFormat("Transport: {0} started with its throughpit limited to {1} messages/second",receiveAddress,maxThroughputPerSecond);
 
             isStarted = true;
         }
@@ -169,6 +188,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
                 ClearFailuresForMessage(message.Id);
 
+                throughputLimiter.MessageProcessed();
                 currentThroughputPerformanceCounter.MessageProcessed();
             }
             catch (AbortHandlingCurrentMessageException)
@@ -410,6 +430,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         Address receiveAddress;
         bool isStarted;
+        ThroughputLimiter throughputLimiter;
 
         private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
         /// <summary>
@@ -426,9 +447,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private static volatile bool _needToAbort;
 
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
+        static readonly ILog Logger = LogManager.GetLogger("Transport");
 
-    
+
 
         /// <summary>
         /// Stops all worker threads.
