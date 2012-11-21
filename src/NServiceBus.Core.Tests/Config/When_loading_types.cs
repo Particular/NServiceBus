@@ -1,4 +1,4 @@
-namespace NServiceBus.Config.UnitTests
+namespace NServiceBus.Core.Tests.Config
 {
     using System;
     using System.Collections.Generic;
@@ -33,10 +33,7 @@ namespace NServiceBus.Config.UnitTests
                 loadedTypes.Any(a => a.Assembly.GetName().Name.Equals("NServiceBus.Core")));
         }
     }
-}
 
-namespace Raven.Client
-{
     public class TestClass
     {
         

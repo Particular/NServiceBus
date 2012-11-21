@@ -1,7 +1,8 @@
-namespace NServiceBus.Config.UnitTests
+namespace NServiceBus.Core.Tests.Config
 {
     using System.IO;
     using System.Linq;
+    using Microsoft.FSharp.Core;
     using NUnit.Framework;
 
     [TestFixture]
@@ -75,7 +76,7 @@ namespace NServiceBus.Config.UnitTests
         [Test]
         public void Should_use_Appdomain_Assemblies_if_flagged()
         {
-            var loadThisIntoAppdomain = new Microsoft.FSharp.Core.ClassAttribute();
+            var loadThisIntoAppdomain = new ClassAttribute();
 
             var someDir = Path.Combine(Path.GetTempPath(), "empty");
             Directory.CreateDirectory(someDir);

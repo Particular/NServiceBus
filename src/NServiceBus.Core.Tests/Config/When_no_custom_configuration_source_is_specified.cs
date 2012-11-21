@@ -1,6 +1,6 @@
-using System;
-namespace NServiceBus.Config.UnitTests
+namespace NServiceBus.Core.Tests.Config
 {
+    using System;
     using NUnit.Framework;
 
     [TestFixture]

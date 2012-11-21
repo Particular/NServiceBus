@@ -1,4 +1,4 @@
-namespace NServiceBus.Config.UnitTests
+namespace NServiceBus.Core.Tests.Config
 {
     using System;
     using System.Collections.Generic;

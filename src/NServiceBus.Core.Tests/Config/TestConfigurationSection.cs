@@ -1,7 +1,7 @@
-using System.Configuration;
-
-namespace NServiceBus.Config.UnitTests
+namespace NServiceBus.Core.Tests.Config
 {
+    using System.Configuration;
+
     public class TestConfigurationSection : ConfigurationSection
     {
         [ConfigurationProperty("TestSetting", IsRequired = true)]
