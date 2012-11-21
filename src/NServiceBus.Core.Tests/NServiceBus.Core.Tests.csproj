@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2C8F181B-9BAF-4858-968B-1C16F5DDCFA7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus.Core.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Core.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Esent.Interop">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Esent.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Lucene.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Spatial">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Lucene.Net.Contrib.Spatial.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.SpellChecker">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Lucene.Net.Contrib.SpellChecker.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.1.0.980\lib\net40\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Embedded.975\Raven.Client.Embedded.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight, Version=1.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.1.0.980\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Database">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Raven.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Munin">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Raven.Munin.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Esent">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Raven.Storage.Esent.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Storage.Managed">
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Raven.Storage.Managed.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Spatial4n.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9f9456e1ca16d45e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\RavenDB\RavenDB.Database.975\Spatial4n.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config\TestConfigurationSection.cs" />
+    <Compile Include="Config\When_finding_assemblies_to_scan_with_expressions.cs" />
+    <Compile Include="Config\When_loading_types.cs" />
+    <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
+    <Compile Include="Config\When_scanning_assemblies.cs" />
+    <Compile Include="Config\When_users_override_the_configuration_source.cs" />
+    <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
+    <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
+    <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithoutDataBusProperty.cs" />
+    <Compile Include="DataBus\on_the_bus.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
+    <Compile Include="DataBus\When_nservicebus_is_initalizing.cs" />
+    <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
+    <Compile Include="Encryption\FakeEncryptionService.cs" />
+    <Compile Include="Encryption\Issue_701.cs" />
+    <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
+    <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Timeout\FakeMessageSender.cs" />
+    <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
+    <Compile Include="Timeout\When_pooling_timeouts.cs" />
+    <Compile Include="Timeout\When_receiving_timeouts.cs" />
+    <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\core\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-	<SignAssembly>true</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -94,10 +94,6 @@
     <ProjectReference Include="..\..\..\core\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\hosting\NServiceBus.Hosting\NServiceBus.Hosting.csproj">
-      <Project>{b5f333d1-d6b1-49fb-82f6-74641e5d11e3}</Project>
-      <Name>NServiceBus.Hosting</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>

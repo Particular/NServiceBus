@@ -1,11 +1,7 @@
 ﻿namespace NServiceBus.PowerShell
 {
-    using System;
-    using System.ComponentModel;
     using System.Management.Automation;
-    using System.Runtime.InteropServices;
     using System.Security;
-    using System.Security.Principal;
     using Setup.Windows;
 
 

@@ -4,10 +4,34 @@ namespace NServiceBus.Persistence.Raven
     using System.Diagnostics;
     using System.Security.Cryptography;
     using System.Text;
+    using Microsoft.Win32;
 
     public static class RavenPersistenceConstants
     {
         public const int DefaultPort = 8080;
+
+        private static readonly int registryPort = DefaultPort;
+
+        static RavenPersistenceConstants()
+        {
+            try
+            {
+                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\NServiceBus"))
+                {
+                    if (key == null)
+                    {
+                        return;
+                    }
+
+                    registryPort = (int) key.GetValue("RavenPort", DefaultPort);
+                }
+            }
+            catch
+            {
+                //We couldn't read the registry!
+            } 
+        }
+
         public static string DefaultUrl
         {
             get
@@ -17,11 +41,10 @@ namespace NServiceBus.Persistence.Raven
                 if (string.IsNullOrEmpty(masterNode))
                     masterNode = "localhost";
 
-                return string.Format("http://{0}:{1}", masterNode, DefaultPort);
+                return string.Format("http://{0}:{1}", masterNode, registryPort);
             }
         }
-
-
+        
         public static Guid DefaultResourceManagerId
         {
             get

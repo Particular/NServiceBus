@@ -6,13 +6,17 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Net.NetworkInformation;
     using System.Security.Principal;
     using System.ServiceProcess;
     using System.Xml;
+    using Microsoft.Win32;
     using Persistence.Raven.Installation;
 
     public class RavenDBSetup
     {
+        public const int DefaultPort = 8080;
+
         public bool Install(WindowsIdentity identity, int port = 0, string installPath = null, bool allowInstall = false)
         {
             if (string.IsNullOrEmpty(installPath))
@@ -20,32 +24,49 @@
 
             if (Directory.Exists(installPath))
             {
-                Console.Out.WriteLine("Path {0} already exists please update RavenDB manually if needed",installPath);
+                Console.Out.WriteLine("Path '{0}' already exists please update RavenDB manually if needed.", installPath);
                 return true;
             }
 
             var service = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName == "RavenDB");
             if(service != null)
             {
-                Console.Out.WriteLine("There is already a RavenDB service installed on this computer, current status:{0}",service.Status);
+                Console.Out.WriteLine("There is already a RavenDB service installed on this computer, the RavenDB service is {0}.", service.Status);
                 return true;
             }
 
             if (!allowInstall)
                 return false;
 
-            //Check if the port is available, if so let the installer setup raven if its beeing run
-            if (port > 0 && !RavenHelpers.EnsureCanListenToWhenInNonAdminContext(port))
-            {
-                Console.Out.WriteLine("Port {0} isn't available please choose a different port an rerun the command",port);
-                return false;
+            int availablePort;
 
+            //Check if the port is available, if so let the installer setup raven if its being run
+            if (port > 0)
+            {
+                availablePort = FindPort(port);
+                if (availablePort != port)
+                {
+                    Console.Out.WriteLine(
+                        "Port '{0}' isn't available, please specify a different port and rerun the command.", port);
+                    return false;
+                }
+            }
+            else
+            {
+                availablePort = FindPort(DefaultPort);
             }
          
-            if (!Directory.Exists(installPath))
-                Directory.CreateDirectory(installPath);
+            if (!RavenHelpers.EnsureCanListenToWhenInNonAdminContext(availablePort))
+            {
+                Console.WriteLine("Failed to grant rights for listening to http on port {0}, please specify a different port and rerun the command.", availablePort);
+            }
 
-            Console.WriteLine("Unpacking resources");
+            if (!Directory.Exists(installPath))
+            {
+                Directory.CreateDirectory(installPath);
+            }
+
+            Console.WriteLine("Unpacking resources...");
             string ravenConfigData = null;
 
             foreach (DictionaryEntry entry in RavenServer.ResourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true))
@@ -73,7 +94,6 @@
                     default:
                         fileName += ".dll";
                         break;
-
                 }
 
                 var destinationPath = Path.Combine(installPath, fileName);
@@ -81,28 +101,24 @@
                 if(data == null)
                     continue;
 
-                Console.WriteLine("Unpacking {0} to {1}", entry.Key, destinationPath);
-
+                Console.WriteLine("Unpacking '{0}' to '{1}'...", entry.Key, destinationPath);
 
                 File.WriteAllBytes(destinationPath, data);
             }
+            
+            var ravenConfigPath = Path.Combine(installPath, "Raven.Server.exe.config");
+            var ravenConfig = new XmlDocument();
 
-            if(port > 0)
-            {
-                var ravenConfigPath = Path.Combine(installPath, "Raven.Server.exe.config");
-                var ravenConfig = new XmlDocument();
+            ravenConfig.LoadXml(ravenConfigData);
 
-                ravenConfig.LoadXml(ravenConfigData);
+            var key = (XmlElement) ravenConfig.DocumentElement.SelectSingleNode("//add[@key='Raven/Port']");
 
-                var key = (XmlElement) ravenConfig.DocumentElement.SelectSingleNode("//add[@key='Raven/Port']");
+            key.SetAttribute("value", availablePort.ToString(CultureInfo.InvariantCulture));
 
-                key.SetAttribute("value", port.ToString());
-
-                ravenConfig.Save(ravenConfigPath);
-                Console.Out.WriteLine("Updated Raven configuration to use port: {0}",port);
-            }
-
-            Console.WriteLine("Installing RavenDB as a windows service");
+            ravenConfig.Save(ravenConfigPath);
+            Console.Out.WriteLine("Updated Raven configuration to use port {0}.", availablePort);
+            
+            Console.WriteLine("Installing RavenDB as a windows service.");
 
             var startInfo = new ProcessStartInfo
             {
@@ -123,13 +139,42 @@
 
                 if (process.ExitCode != 0)
                 {
-                    Console.WriteLine("The RavenDB service failed to start service, exit code: {0}", process.ExitCode);
+                    Console.WriteLine("The RavenDB service failed to start, Raven.Server.exe exit code was {0}.", process.ExitCode);
                     return false;
                 }
             }
             
-            Console.WriteLine("RavenDB service started");
+            Console.WriteLine("RavenDB service started.");
+
+            SavePortToBeUsedForRavenInRegistry(availablePort);
+
             return true;
+        }
+
+        private static void SavePortToBeUsedForRavenInRegistry(int availablePort)
+        {
+            using (var key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\NServiceBus"))
+            {
+                key.SetValue("RavenPort", availablePort, RegistryValueKind.DWord);
+            }
+        }
+
+        private static int FindPort(int startPort)
+        {
+            var activeTcpListeners = IPGlobalProperties
+                .GetIPGlobalProperties()
+                .GetActiveTcpListeners();
+
+            for (var port = startPort; port < startPort + 1024; port++)
+            {
+                var portCopy = port;
+                if (activeTcpListeners.All(endPoint => endPoint.Port != portCopy))
+                {
+                    return port;
+                }
+            }
+
+            return startPort;
         }
         
         const string DefaultDirectoryName = "NServiceBus.Persistence";

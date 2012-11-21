@@ -384,10 +384,15 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat(@"Using license in current folder ({0}).", LicenseDescriptor.LocalLicenseFile);
                 licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.LocalLicenseFile);
             }
-            else if (!String.IsNullOrEmpty(LicenseDescriptor.RegistryLicense))
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.HKCULicense))
             {
-                Logger.InfoFormat(@"Using embeded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", SoftwareVersion.ToString(2));
-                licenseText = LicenseDescriptor.RegistryLicense;
+                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", SoftwareVersion.ToString(2));
+                licenseText = LicenseDescriptor.HKCULicense;
+            }
+            else if (!String.IsNullOrEmpty(LicenseDescriptor.HKLMLicense))
+            {
+                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\NServiceBus\{0}\License].", SoftwareVersion.ToString(2));
+                licenseText = LicenseDescriptor.HKLMLicense;
             }
 
             return String.IsNullOrEmpty(licenseText) ? null : new StringLicenseValidator(LicenseDescriptor.PublicKey, licenseText);

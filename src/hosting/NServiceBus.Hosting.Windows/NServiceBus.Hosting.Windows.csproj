@@ -108,6 +108,8 @@
     <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
+    <Compile Include="Wcf\WcfManager.cs" />
+    <Compile Include="Wcf\WcfServiceHost.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
@@ -130,10 +132,6 @@
     <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Hosting\NServiceBus.Hosting.csproj">
-      <Project>{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}</Project>
-      <Name>NServiceBus.Hosting</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
