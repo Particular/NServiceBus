@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.DataBus.Tests
+﻿namespace NServiceBus.Core.Tests.DataBus
 {
-    using MessageHeaders;
-    using MessageMutator;
+    using NServiceBus.DataBus;
+    using NServiceBus.MessageHeaders;
+    using NServiceBus.MessageMutator;
     using NUnit.Framework;
     using Rhino.Mocks;
 

@@ -1,11 +1,9 @@
-using NServiceBus.DataBus.Tests;
-using NUnit.Framework;
-
-namespace NServiceBus.DataBus.Tests
+namespace NServiceBus.Core.Tests.DataBus
 {
-    using System;
-    using Config;
+    using NServiceBus.DataBus;
     using NUnit.Framework;
+    using System;
+    using NServiceBus.DataBus.Config;
 
     [TestFixture]
     public class When_nservicebus_is_initalizing

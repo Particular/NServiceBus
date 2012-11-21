@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System;
-
-namespace NServiceBus.DataBus.Tests
+﻿namespace NServiceBus.Core.Tests.DataBus
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System;
+    using NServiceBus.DataBus;
+
     public class InMemoryDataBus : IDataBus
     {
         private readonly IDictionary<string, byte[]> storage = new Dictionary<string, byte[]>();

@@ -1,4 +1,4 @@
-namespace NServiceBus.DataBus.Tests
+namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
     using System.IO;

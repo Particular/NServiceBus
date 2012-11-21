@@ -38,6 +38,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -50,6 +53,17 @@
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
+    <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
+    <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
+    <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithoutDataBusProperty.cs" />
+    <Compile Include="DataBus\on_the_bus.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
+    <Compile Include="DataBus\When_nservicebus_is_initalizing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +80,7 @@
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

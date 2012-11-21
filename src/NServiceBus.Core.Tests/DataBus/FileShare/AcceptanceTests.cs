@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.DataBus.FileShare.Tests
+﻿namespace NServiceBus.Core.Tests.DataBus.FileShare
 {
-	using System;
-	using System.IO;
-	using System.Text;
-	using NUnit.Framework;
-	using FileShare;
+    using System;
+    using System.IO;
+    using System.Text;
+    using NUnit.Framework;
+    using NServiceBus.DataBus.FileShare;
 
-	[TestFixture]
+    [TestFixture]
 	public class AcceptanceTests
 	{
 		FileShareDataBus dataBus;
