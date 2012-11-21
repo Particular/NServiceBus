@@ -44,7 +44,6 @@
             }
         }
 
-
         private static bool CanStartHttpListener(int port)
         {
             try
@@ -53,6 +52,7 @@
                 httpListener.Prefixes.Add("http://+:" + port + "/");
                 httpListener.Start();
                 httpListener.Stop();
+                
                 return true;
             }
             catch (HttpListenerException e)
@@ -60,10 +60,11 @@
                 if (e.ErrorCode != 5) //access denies
                     throw;
             }
+
             return false;
         }
 
-        private static int TryGrantingHttpPrivileges(int port)
+        private static void TryGrantingHttpPrivileges(int port)
         {
             string args;
             string cmd;
@@ -80,11 +81,9 @@
                     FileName = cmd,
                 });
                 process.WaitForExit();
-                return process.ExitCode;
             }
-            catch (Exception)
+            catch
             {
-                return -144;
             }
         }
     }
