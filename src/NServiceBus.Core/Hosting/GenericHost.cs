@@ -5,7 +5,7 @@ using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Helpers;
 using NServiceBus.Hosting.Profiles;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Hosting.Wcf;
+//using NServiceBus.Hosting.Wcf;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting
@@ -33,7 +33,7 @@ namespace NServiceBus.Hosting
                     bus.Start();
 
                 configManager.Startup();
-                wcfManager.Startup();
+              //  wcfManager.Startup();
             }
             catch (Exception ex)
             {
@@ -52,7 +52,7 @@ namespace NServiceBus.Hosting
             try
             {
                 configManager.Shutdown();
-                wcfManager.Shutdown();
+            //    wcfManager.Shutdown();
 
                 if (bus != null)
                 {
@@ -163,7 +163,7 @@ namespace NServiceBus.Hosting
             ProfileActivator.ProfileManager = profileManager;
 
             configManager = new ConfigManager(assembliesToScan, specifier);
-            wcfManager = new WcfManager(assembliesToScan);
+     //       wcfManager = new WcfManager(assembliesToScan);
             roleManager = new RoleManager(assembliesToScan);
         }
 
@@ -171,7 +171,7 @@ namespace NServiceBus.Hosting
         readonly IConfigureThisEndpoint specifier;
         readonly ProfileManager profileManager;
         readonly ConfigManager configManager;
-        readonly WcfManager wcfManager;
+   //     readonly WcfManager wcfManager;
         readonly RoleManager roleManager;
     }
 }

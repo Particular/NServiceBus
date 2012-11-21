@@ -282,7 +282,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Host.exe
-	$assemblies += dir $outDir\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Topshelf.dll
 	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
@@ -291,7 +290,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir32\NServiceBus.Host.exe
-	$assemblies += dir $outDir32\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir32\log4net.dll
 	$assemblies += dir $outDir32\Topshelf.dll
 	$assemblies += dir $outDir32\Microsoft.Practices.ServiceLocation.dll
@@ -300,7 +298,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Hosting.Azure.HostProcess.exe
-	$assemblies += dir $outDir\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Topshelf.dll
 	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
