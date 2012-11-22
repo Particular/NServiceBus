@@ -13,6 +13,7 @@ using NUnit.Framework;
 namespace NServiceBus.Serializers.XML.Test
 {
     using System.Net.Mail;
+    using System.Text;
     using A;
     using B;
     using MessageInterfaces;
@@ -25,6 +26,29 @@ namespace NServiceBus.Serializers.XML.Test
         private int number = 1;
         private int numberOfIterations = 100;
 
+        [Test]
+        public void SerializeInvalidCharacters()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithInvalidCharacter>();
+            var msg = mapper.CreateInstance<MessageWithInvalidCharacter>();
+
+            var sb = new StringBuilder();
+            sb.Append("Hello");
+            sb.Append((char)0x1C);
+            sb.Append("John");
+            msg.Special = sb.ToString();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream);
+                var m = msgArray[0] as MessageWithInvalidCharacter;
+                Assert.AreEqual(sb.ToString(), m.Special);
+            }
+        }
 
         [Test, Ignore("Not supported")]
         public void Should_deserialize_arraylist()
@@ -66,7 +90,6 @@ namespace NServiceBus.Serializers.XML.Test
 
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
                 Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
-
             }
         }
 
@@ -133,8 +156,6 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-
-
         [Test]
         public void TestMultipleInterfacesDuplicatedPropery()
         {
@@ -169,8 +190,6 @@ namespace NServiceBus.Serializers.XML.Test
                                                                          });
 
             Assert.AreEqual("a property", result.GenericProperty.WhatEver);
-
-
         }
 
 
@@ -627,6 +646,11 @@ namespace NServiceBus.Serializers.XML.Test
     public class MessageWithListItem
     {
         public string Data { get; set; }
+    }
+
+    public class MessageWithInvalidCharacter : IMessage
+    {
+        public string Special { get; set; }
     }
 
     public class MessageWithList : IMessage

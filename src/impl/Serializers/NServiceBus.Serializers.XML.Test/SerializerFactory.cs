@@ -5,8 +5,6 @@ namespace NServiceBus.Serializers.XML.Test
     using System.IO;
     using System.Xml;
     using MessageInterfaces.MessageMapper.Reflection;
-    using NUnit.Framework;
-    using Serialization;
 
     public class SerializerFactory
     {
