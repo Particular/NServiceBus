@@ -379,10 +379,15 @@ namespace NServiceBus.Licensing
                     licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.AppConfigLicenseFile);
                 }
             }
-            else if (!String.IsNullOrEmpty(LicenseDescriptor.LocalLicenseFile) && File.Exists(LicenseDescriptor.LocalLicenseFile))
+            else if (File.Exists(LicenseDescriptor.LocalLicenseFile))
             {
                 Logger.InfoFormat(@"Using license in current folder ({0}).", LicenseDescriptor.LocalLicenseFile);
                 licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.LocalLicenseFile);
+            }
+            else if (File.Exists(LicenseDescriptor.OldLocalLicenseFile))
+            {
+                Logger.InfoFormat(@"Using license in current folder ({0}).", LicenseDescriptor.OldLocalLicenseFile);
+                licenseText = ReadAllTextWithoutLocking(LicenseDescriptor.OldLocalLicenseFile);
             }
             else if (!String.IsNullOrEmpty(LicenseDescriptor.HKCULicense))
             {

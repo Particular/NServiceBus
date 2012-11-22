@@ -7,11 +7,19 @@ namespace NServiceBus.Licensing
 
     public class LicenseDescriptor
     {
-        public static string LocalLicenseFile
+        public static string OldLocalLicenseFile
         {
             get
             {
                 return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"License\License.xml");
+            }
+        }
+
+        public static string LocalLicenseFile
+        {
+            get
+            {
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"NServiceBus\License.xml");
             }
         }
 
