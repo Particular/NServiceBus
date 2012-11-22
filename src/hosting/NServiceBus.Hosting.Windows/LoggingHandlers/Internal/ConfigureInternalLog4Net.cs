@@ -23,21 +23,15 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
             LogManager.LoggerFactory = new InternalLog4NetLoggerFactory();
         }
 
-        public static void Production()
+        public static void Production(bool logToConsole)
         {
             ConfigureFileAppender();
 
-            if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
-                return;
-
-            ConfigureColoredConsoleAppender(Level.Info);
+            if (logToConsole)
+                ConfigureColoredConsoleAppender(Level.Info);
 
             LogManager.LoggerFactory = new InternalLog4NetLoggerFactory();
         }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
-        const int STD_OUTPUT_HANDLE = -11;
 
         private static void ConfigureFileAppender()
         {

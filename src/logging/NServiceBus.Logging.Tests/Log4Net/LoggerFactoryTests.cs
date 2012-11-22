@@ -13,14 +13,14 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Test()
         {
-            var loggerFactory = new LoggerFactory();
+            var loggerFactory = new Log4NetLoggerFactory();
 
             global::log4net.LogManager.ResetConfiguration();
-            global::log4net.Config.BasicConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
+            Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
 
             var log = loggerFactory.GetLogger("Test");
 
-            Assert.IsInstanceOf<Log>(log);
+            Assert.IsInstanceOf<Log4NetLogger>(log);
 
             CallAllMethodsOnLog(log);
 

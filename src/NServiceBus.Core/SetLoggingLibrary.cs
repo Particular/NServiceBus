@@ -9,21 +9,13 @@ namespace NServiceBus
     public static class SetLoggingLibrary
     {
         /// <summary>
-        /// Configure NServiceBus to use Log4Net
+        /// Use Log4Net for logging with the Console Appender at the level of All.
         /// </summary>
-        public static void Log4Net()
+        public static Configure Log4Net(this Configure config)
         {
-            LogManager.LoggerFactory = new Logging.Loggers.Log4NetAdapter.LoggerFactory();
-        }
+            var appender = Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateConsoleAppender("All");
 
-        public static void NLog()
-        {
-            LogManager.LoggerFactory = new Logging.Loggers.NLogAdapter.LoggerFactory();
-        }
-
-        public static void Custom(ILoggerFactory loggerFactory)
-        {
-            LogManager.LoggerFactory = loggerFactory;
+            return config.Log4Net(appender);
         }
 
         /// <summary>
@@ -32,10 +24,12 @@ namespace NServiceBus
         /// If you don't specify a threshold, will default to Level.Debug.
         /// If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
         /// </summary>
-        [ObsoleteEx(Message = "Use Log4Net() instead and configure your own appenders", RemoveInVersion = "4.0.0")]
         public static Configure Log4Net<TAppender>(this Configure config, Action<TAppender> initializeAppender) where TAppender : new()
         {
-            throw new LoggingLibraryException("This method is not supported anymore. Use Log4Net() instead and configure your own appenders");
+            var appender = new TAppender();
+            initializeAppender(appender);
+
+            return config.Log4Net(appender);
         }
 
         /// <summary>
@@ -44,20 +38,67 @@ namespace NServiceBus
         /// If you don't specify a threshold, will default to Level.Debug.
         /// If you don't specify layout, uses this as a default: %d [%t] %-5p %c [%x] &lt;%X{auth}&gt; - %m%n
         /// </summary>
-        [ObsoleteEx(Message = "Use Log4Net() instead and configure your own appenders", RemoveInVersion="4.0.0")]
         public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
-            throw new LoggingLibraryException("This method is not supported anymore. Use Log4Net() instead and configure your own appenders");
+            Log4Net();
+
+            string threshold = null;
+
+            var cfg = Configure.GetConfigSection<Config.Logging>();
+            if (cfg != null)
+            {
+                threshold = cfg.Threshold;
+            }
+
+            Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Configure(appenderSkeleton, threshold);
+
+            return config;
         }
-        
+
+        /// <summary>
+        /// Configure NServiceBus to use Log4Net without setting a specific appender.
+        /// </summary>
+        public static void Log4Net()
+        {
+            Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Configure();
+        }
+
+
+
         /// <summary>
         /// Configure NServiceBus to use Log4Net and specify your own configuration.
         /// Use 'log4net.Config.XmlConfigurator.Configure' as the parameter to get the configuration from the app.config.
         /// </summary>
-        [ObsoleteEx(Message = "Use Log4Net() instead and configure your own appenders", RemoveInVersion = "4.0.0")]
         public static void Log4Net(Action config)
         {
-            throw new LoggingLibraryException("This method is not supported anymore. Use Log4Net() instead and configure your own appenders");
+            Log4Net();
+
+            config();
+        }
+
+        public static Configure NLog(this Configure config, params object[] targets)
+        {
+            string threshold = null;
+
+            var cfg = Configure.GetConfigSection<Config.Logging>();
+            if (cfg != null)
+            {
+                threshold = cfg.Threshold;
+            }
+
+            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure(targets, threshold);
+
+            return config;
+        }
+
+        public static void NLog()
+        {
+            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure();
+        }
+
+        public static void Custom(ILoggerFactory loggerFactory)
+        {
+            LogManager.LoggerFactory = loggerFactory;
         }
     }
 }

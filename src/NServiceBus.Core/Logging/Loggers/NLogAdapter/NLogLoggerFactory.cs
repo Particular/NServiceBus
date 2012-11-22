@@ -6,11 +6,11 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
     /// <summary>
     /// 
     /// </summary>
-    public class LoggerFactory : ILoggerFactory
+    public class NLogLoggerFactory : ILoggerFactory
     {
         private readonly Func<string, object> GetLoggerByStringDelegate;
 
-        public LoggerFactory()
+        public NLogLoggerFactory()
         {
             var logManagerType = Type.GetType("NLog.LogManager, NLog");
 
@@ -22,13 +22,13 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
 
         public ILog GetLogger(Type type)
         {
-            return new Log(GetLoggerByStringDelegate(type.FullName));
+            return new NLogLogger(GetLoggerByStringDelegate(type.FullName));
         }
 
         public ILog GetLogger(string name)
         {
             object logger = GetLoggerByStringDelegate(name);
-            return new Log(logger);
+            return new NLogLogger(logger);
         }
     }
 }

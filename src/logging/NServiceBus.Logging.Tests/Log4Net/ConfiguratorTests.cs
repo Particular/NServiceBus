@@ -1,13 +1,13 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using log4net.Appender;
 using log4net.Core;
 
-namespace NServiceBus.Logging.Config.Tests
+namespace NServiceBus.Logging.Tests.Log4Net
 {
-    using log4net;
+    using Loggers.Log4NetAdapter;
 
     [TestFixture]
-    public class When_configuring_log4net
+    public class ConfiguratorTests
     {
         [SetUp]
         public void Setup()
@@ -16,26 +16,26 @@ namespace NServiceBus.Logging.Config.Tests
         }
 
         [Test]
-        public void Default_ConsoleLogger()
+        public void Threshold_should_be_All()
         {
-            Configure.With().Log4Net();
+            Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
         }
 
         [Test]
-        public void Custom_Logger()
+        public void Threshold_default_should_be_Info()
         {
-            Configure.With().Log4Net<ConsoleAppender>(x => { });
+            Log4NetConfigurator.Configure(new ConsoleAppender());
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
         }
 
         [Test]
-        public void Custom_Logger_with_configured_threshold()
+        public void Threshold_default_should_be_Error()
         {
-            Configure.With().Log4Net<ConsoleAppender>(x => { x.Threshold = Level.Error; });
+            Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.Error });
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");

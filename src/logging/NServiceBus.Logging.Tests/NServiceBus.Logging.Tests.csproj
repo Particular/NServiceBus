@@ -50,8 +50,12 @@
     <Compile Include="Config\When_configuring_log4net.cs" />
     <Compile Include="Log4NetBridge\DummyTests.cs" />
     <Compile Include="BaseLoggerFactoryTests.cs" />
+    <Compile Include="Log4Net\AppenderFactoryTests.cs" />
+    <Compile Include="Log4Net\ConfiguratorTests.cs" />
     <Compile Include="Log4Net\LoggerFactoryTests.cs" />
+    <Compile Include="NLogTests\ConfiguratorTests.cs" />
     <Compile Include="NLogTests\LoggerFactoryTests.cs" />
+    <Compile Include="NLogTests\TargetFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

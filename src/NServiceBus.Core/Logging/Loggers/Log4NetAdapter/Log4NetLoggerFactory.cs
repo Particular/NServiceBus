@@ -6,12 +6,12 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
     /// <summary>
     /// 
     /// </summary>
-    public class LoggerFactory : ILoggerFactory
+    public class Log4NetLoggerFactory : ILoggerFactory
     {
         private readonly Func<Type, object> GetLoggerByTypeDelegate;
         private readonly Func<String, object> GetLoggerByStringDelegate;
 
-        public LoggerFactory()
+        public Log4NetLoggerFactory()
         {
             var logManagerType = Type.GetType("log4net.LogManager, log4net");
 
@@ -24,12 +24,12 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 
         public ILog GetLogger(Type type)
         {
-            return new Log(GetLoggerByTypeDelegate(type));
+            return new Log4NetLogger(GetLoggerByTypeDelegate(type));
         }
 
         public ILog GetLogger(string name)
         {
-            return new Log(GetLoggerByStringDelegate(name));
+            return new Log4NetLogger(GetLoggerByStringDelegate(name));
         }
     }
 }
