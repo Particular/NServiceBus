@@ -2,6 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
+    using System.Linq;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Text;
+    using Logging;
     using Persistence.Raven;
     using Raven.Abstractions.Data;
     using Raven.Client;
@@ -157,12 +162,78 @@ namespace NServiceBus
             //We need to turn compression off to make us compatible with Raven616
             store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
+            WarnUserIfRavenDatabaseIsNotReachable(store);
+
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
 
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
             return config;
+        }
+
+        private static void WarnUserIfRavenDatabaseIsNotReachable(IDocumentStore store)
+        {
+            try
+            {
+                store.DatabaseCommands.GetDatabaseNames(1);
+            }
+            catch (WebException ex)
+            {
+                IPEndPoint foundRavenPort = null;
+
+                if (ex.Status == WebExceptionStatus.ConnectFailure)
+                {
+                    var activeTcpListeners = IPGlobalProperties
+                        .GetIPGlobalProperties()
+                        .GetActiveTcpListeners();
+
+                    foundRavenPort = activeTcpListeners.FirstOrDefault(IsRavenServer);
+                }
+
+                var sb = new StringBuilder();
+                sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
+                                store.Url);
+                sb.AppendLine();
+                sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
+                sb.AppendLine();
+
+                if (foundRavenPort != null)
+                {
+                    sb.AppendFormat(
+                        "We have found on your machine a Raven instance listening on port {0}, to configure NServiceBus to use this instance instead add the following connection string in your config file:",
+                        foundRavenPort.Port);
+                    sb.AppendFormat(
+                        @"
+<connectionStrings>
+    <add name=""NServiceBus.Persistence"" connectionString=""http://localhost:{0}"" />
+</connectionStrings>", foundRavenPort.Port);
+                }
+
+                Logger.Warn(sb.ToString());
+            }
+            catch (Exception)
+            {
+                //Ignore
+            }
+        }
+
+        private static bool IsRavenServer(IPEndPoint endpoint)
+        {
+            var webRequest = WebRequest.Create(String.Format("http://localhost:{0}", endpoint.Port));
+            webRequest.Timeout = 1000;
+
+            try
+            {
+                var webResponse = webRequest.GetResponse();
+                var serverBuild = webResponse.Headers["Raven-Server-Build"];
+
+                return serverBuild != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         [ObsoleteEx(Message = "This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]
@@ -187,7 +258,7 @@ namespace NServiceBus
                     //and then make sure that the database the user asked for is created
                     dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);
                 }
-                catch (System.Net.WebException)
+                catch (WebException)
                 {
                     //Ignore since this could be running as part of an install
                 }
@@ -242,5 +313,7 @@ namespace NServiceBus
 
         static Func<Type, string> tagNameConvention;
         public static bool AutoCreateDatabase = true;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+
     }
 }
