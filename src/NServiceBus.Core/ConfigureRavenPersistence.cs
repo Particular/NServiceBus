@@ -39,6 +39,11 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
+            if (Configure.Instance.Configurer.HasComponent<RavenSessionFactory>())
+            {
+                return config;
+            }
+
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
             //use existing config if we can find one
