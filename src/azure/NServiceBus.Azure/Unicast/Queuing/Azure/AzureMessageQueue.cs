@@ -82,37 +82,21 @@ namespace NServiceBus.Unicast.Queuing.Azure
 				queue.Clear();
         }
 
-        public bool HasMessage()
-        {
-            if (messages.Count > 0) return true;
-
-            var hasMessage = queue.PeekMessage() != null;
-
-            DelayNextPeekWhenThereIsNoMessage(hasMessage);
-            
-            return hasMessage;
-        }
-
-        private void DelayNextPeekWhenThereIsNoMessage(bool hasMessage)
-        {
-            if (hasMessage)
-            {
-                timeToDelayNextPeek = 0;
-            }
-            else
-            {
-                if (timeToDelayNextPeek < MaximumWaitTimeWhenIdle) timeToDelayNextPeek += PeekInterval;
-
-                Thread.Sleep(timeToDelayNextPeek);
-            }
-        }
-
         public TransportMessage Receive()
         {
             var rawMessage = GetMessage();
 
             if (rawMessage == null)
+            {
+
+                if (timeToDelayNextPeek < MaximumWaitTimeWhenIdle) timeToDelayNextPeek += PeekInterval;
+
+                Thread.Sleep(timeToDelayNextPeek);
+
                 return null;
+            }
+
+            timeToDelayNextPeek = 0;
 
             return DeserializeMessage(rawMessage);
         }

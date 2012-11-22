@@ -82,11 +82,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             useTransactions = transactional;
         }
 
-        public bool HasMessage()
-        {
-            return true; 
-        }
-
         public TransportMessage Receive()
         {
             try{
