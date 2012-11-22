@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using NUnit.Framework;
-
-namespace NServiceBus.Unicast.Queuing.SQLServer.Tests
+﻿namespace NServiceBus.Core.Tests.Queuing.SqlServer
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+    using System.Threading;
+    using NUnit.Framework;
     using System.Threading.Tasks;
-    using MessageInterfaces.MessageMapper.Reflection;
-    using Serializers.XML;
+    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.Serializers.XML;
+    using Unicast.Queuing.SQLServer;
 
-    [TestFixture, Ignore]
+    [TestFixture, Explicit("This is a integration test")]
     public class SqlServerMessageQueueTests
     {
         private SqlServerMessageQueue _mq;
         private XmlMessageSerializer _xmlMessageSerializer;
         private MessageMapper _messageMapper;
 
-        private const string ConStr = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=SiteB;Integrated Security=True;";
+        private const string ConStr = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=NServiceBus.SqlTransportTests;Integrated Security=True;";
 
         [SetUp]
         public void SetUp()
