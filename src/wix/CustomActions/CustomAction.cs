@@ -2,7 +2,6 @@
 {
     using System;
     using System.IO;
-    using System.Security.Principal;
     using System.Text;
     using Microsoft.Deployment.WindowsInstaller;
     using Setup.Windows.Dtc;
@@ -48,14 +47,8 @@
             {
                 CaptureOut(() =>
                     {
-                        if (DtcSetup.StartDtcIfNecessary(true))
-                        {
-                            session.Log("DTC installed and configured.");
-                        }
-                        else
-                        {
-                            session.Log("DTC already properly configured.");
-                        }
+                        DtcSetup.StartDtcIfNecessary();
+                        session.Log("DTC installed and configured.");
                     }, session);
 
                 return ActionResult.Success;
@@ -75,15 +68,8 @@
             {
                 CaptureOut(() =>
                     {
-                        var ravenDbSetup = new RavenDBSetup();
-                        if (ravenDbSetup.Install(WindowsIdentity.GetCurrent(), allowInstall: true))
-                        {
-                            session.Log("RavenDB installed and configured.");
-                        }
-                        else
-                        {
-                            session.Log("RavenDB could not be installed.");
-                        }
+                        RavenDBSetup.Install();
+                        session.Log("RavenDB installed and configured.");
                     }, session);
 
                 return ActionResult.Success;
@@ -103,14 +89,8 @@
             {
                 CaptureOut(() =>
                     {
-                        if (PerformanceCounterSetup.SetupCounters(true))
-                        {
-                            session.Log("NSB performance counters installed.");
-                        }
-                        else
-                        {
-                            session.Log("NSB performance counters already installed.");
-                        }
+                        PerformanceCounterSetup.SetupCounters();
+                        session.Log("NSB performance counters installed.");
                     }, session);
 
                 return ActionResult.Success;

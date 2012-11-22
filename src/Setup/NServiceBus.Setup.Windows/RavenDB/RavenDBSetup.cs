@@ -6,8 +6,8 @@
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Net.NetworkInformation;
-    using System.Security.Principal;
     using System.ServiceProcess;
     using System.Xml;
     using Microsoft.Win32;
@@ -17,7 +17,41 @@
     {
         public const int DefaultPort = 8080;
 
-        public bool Install(WindowsIdentity identity, int port = 0, string installPath = null, bool allowInstall = false)
+        public static bool Check(int port = 0)
+        {
+            if (port == 0)
+            {
+                port = DefaultPort;
+            }
+
+            var url = String.Format("http://localhost:{0}", port);
+
+            Console.Out.WriteLine("Checking if Raven is listening on {0}.", url);
+
+            var result = QueryHttpForRavenOn(port);
+
+            return result;
+        }
+
+        private static bool QueryHttpForRavenOn(int port)
+        {
+            var webRequest = WebRequest.Create(String.Format("http://localhost:{0}", port));
+            webRequest.Timeout = 2000;
+
+            try
+            {
+                var webResponse = webRequest.GetResponse();
+                var serverBuild = webResponse.Headers["Raven-Server-Build"];
+
+                return serverBuild != null;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static void Install(int port = 0, string installPath = null)
         {
             if (string.IsNullOrEmpty(installPath))
                 installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), DefaultDirectoryName);
@@ -25,18 +59,15 @@
             if (Directory.Exists(installPath))
             {
                 Console.Out.WriteLine("Path '{0}' already exists please update RavenDB manually if needed.", installPath);
-                return true;
+                return;
             }
 
             var service = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName == "RavenDB");
             if(service != null)
             {
-                Console.Out.WriteLine("There is already a RavenDB service installed on this computer, the RavenDB service is {0}.", service.Status);
-                return true;
+                Console.Out.WriteLine("There is already a RavenDB service installed on this computer, the RavenDB service status is {0}.", service.Status);
+                return;
             }
-
-            if (!allowInstall)
-                return false;
 
             int availablePort;
 
@@ -48,7 +79,7 @@
                 {
                     Console.Out.WriteLine(
                         "Port '{0}' isn't available, please specify a different port and rerun the command.", port);
-                    return false;
+                    return;
                 }
             }
             else
@@ -59,6 +90,7 @@
             if (!RavenHelpers.EnsureCanListenToWhenInNonAdminContext(availablePort))
             {
                 Console.WriteLine("Failed to grant rights for listening to http on port {0}, please specify a different port and rerun the command.", availablePort);
+                return;
             }
 
             if (!Directory.Exists(installPath))
@@ -140,7 +172,7 @@
                 if (process.ExitCode != 0)
                 {
                     Console.WriteLine("The RavenDB service failed to start, Raven.Server.exe exit code was {0}.", process.ExitCode);
-                    return false;
+                    return;
                 }
             }
             
@@ -148,7 +180,7 @@
 
             SavePortToBeUsedForRavenInRegistry(availablePort);
 
-            return true;
+            return;
         }
 
         private static void SavePortToBeUsedForRavenInRegistry(int availablePort)

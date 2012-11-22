@@ -30,10 +30,10 @@ if($machinePrepared -or $dontCheckMachineSetup.value)
 	exit
 }
 
-$perfCountersInstalled = Install-PerformanceCounters -WhatIf
-$msmqInstalled = Install-Msmq -WhatIf
-$dtcInstalled = Install-Dtc -WhatIf
-$ravenDBInstalled = Install-RavenDB -WhatIf
+$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
+$msmqInstalled = Test-NServiceBusMSMQInstallation
+$dtcInstalled = Test-NServiceBusDTCInstallation
+$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
 
 if(!$perfCountersInstalled){
 	Write-Verbose "Performance counters are not installed."

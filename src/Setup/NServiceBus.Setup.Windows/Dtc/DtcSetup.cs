@@ -11,23 +11,28 @@
         /// Checks that the MSDTC service is running and configured correctly, and if not
         /// takes the necessary corrective actions to make it so.
         /// </summary>
-        public static bool StartDtcIfNecessary(bool allowReconfiguration = false)
+        public static void StartDtcIfNecessary()
         {
-            if (DoesSecurityConfigurationRequireRestart(allowReconfiguration))
+            if (DoesSecurityConfigurationRequireRestart(true))
             {
-                if (!allowReconfiguration)
-                    return false;
-
                 ProcessUtil.ChangeServiceStatus(Controller, ServiceControllerStatus.Stopped, Controller.Stop);
             }
 
-            if (!allowReconfiguration && Controller.Status != ServiceControllerStatus.Running)
+            ProcessUtil.ChangeServiceStatus(Controller, ServiceControllerStatus.Running, Controller.Start);
+        }
+
+        public static bool IsDtcWorking()
+        {
+            if (DoesSecurityConfigurationRequireRestart(false))
+            {
+                return false;
+            }
+
+            if (Controller.Status != ServiceControllerStatus.Running)
             {
                 Console.Out.WriteLine("MSDTC isn't currently running and needs to be started");
                 return false;
             }
-
-            ProcessUtil.ChangeServiceStatus(Controller, ServiceControllerStatus.Running, Controller.Start);
 
             return true;
         }
@@ -35,27 +40,30 @@
         static bool DoesSecurityConfigurationRequireRestart(bool doChanges)
         {
             Console.WriteLine("Checking if DTC is configured correctly.");
-            
-            var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\MSDTC\Security", doChanges);
-            if (key == null)
-                throw new InvalidOperationException("MSDTC could not be found in the registry. Cannot continue.");
 
-            var needToChange = false;
-            foreach (var val in RegValues)
-                if ((int)key.GetValue(val) == 0)
-                    if (doChanges)
-                    {
-                        
-                        Console.WriteLine("DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
+            bool needToChange;
+            using (var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\MSDTC\Security", doChanges))
+            {
+                if (key == null)
+                    throw new InvalidOperationException("MSDTC could not be found in the registry. Cannot continue.");
 
-                        key.SetValue(val, 1, RegistryValueKind.DWord);
-                    
-                        Console.WriteLine("DTC configuration fixed.");
-                    }
-                    else
-                        needToChange = true;
+                needToChange = false;
+                foreach (var val in RegValues)
+                    if ((int)key.GetValue(val) == 0)
+                        if (doChanges)
+                        {
+                            Console.WriteLine(
+                                "DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
 
-            key.Close();
+                            key.SetValue(val, 1, RegistryValueKind.DWord);
+
+                            Console.WriteLine("DTC configuration fixed.");
+                        }
+                        else
+                        {
+                            needToChange = true;
+                        }
+            }
 
             return needToChange;
         }

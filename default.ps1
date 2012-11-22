@@ -174,7 +174,8 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 }
 
 task CopyBinaries -depends Merge {
-		
+	
+	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
 	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
@@ -182,8 +183,6 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.PowerShell.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Setup.Windows.* $binariesDir -Force -Exclude **Tests.dll
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
@@ -268,6 +267,7 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
+	$assemblies += dir $outDir\NServiceBus.PowerShell.dll
 	$assemblies += dir $outDir\NServiceBus.Setup.Windows.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll

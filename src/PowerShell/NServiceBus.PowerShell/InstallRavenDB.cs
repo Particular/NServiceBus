@@ -1,10 +1,9 @@
 ﻿namespace NServiceBus.PowerShell
 {
-    using System;
     using System.Management.Automation;
     using Setup.Windows.RavenDB;
 
-    [Cmdlet(VerbsLifecycle.Install, "RavenDB", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsLifecycle.Install, "NServiceBusRavenDB")]
     public class InstallRavenDB : CmdletBase
     {
         [Parameter(HelpMessage = "Port number to be used, default is 8080")]
@@ -15,9 +14,19 @@
 
         protected override void Process()
         {
-            var setup = new RavenDBSetup();
+            RavenDBSetup.Install(Port, Path);
+        }
+    }
 
-            var isGood = setup.Install(null, Port, Path, ShouldProcess(Environment.MachineName));
+    [Cmdlet(VerbsDiagnostic.Test, "NServiceBusRavenDBInstallation")]
+    public class ValidateRavenDB : CmdletBase
+    {
+        [Parameter(HelpMessage = "Port number to be used, default is 8080")]
+        public int Port { get; set; }
+
+        protected override void Process()
+        {
+            var isGood = RavenDBSetup.Check(Port);
 
             WriteObject(isGood);
         }

@@ -1,14 +1,33 @@
 ﻿namespace NServiceBus.Setup.Windows.PerformanceCounters
 {
-    using System;
     using System.Diagnostics;
 
     public class PerformanceCounterSetup
     {
-        public static bool SetupCounters(bool allowModifications = false)
-        {
-            var categoryName = "NServiceBus";
+        const string categoryName = "NServiceBus";
 
+        public static bool CheckCounters()
+        {
+            if (PerformanceCounterCategory.Exists(categoryName))
+            {
+                bool needToRecreateCategory = false;
+
+                foreach (CounterCreationData counter in Counters)
+                {
+                    if (!PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName))
+                        needToRecreateCategory = true;
+
+                }
+
+                if (!needToRecreateCategory)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static void SetupCounters()
+        {
             if (PerformanceCounterCategory.Exists(categoryName))
             {
                 bool needToRecreateCategory = false;
@@ -21,25 +40,17 @@
                 }
 
                 if (!needToRecreateCategory)
-                    return true;
+                    return;
 
-                if (!allowModifications)
-                    return false;
 
-                Console.WriteLine("Category " + categoryName + " already exist, going to delete first");
                 PerformanceCounterCategory.Delete(categoryName);
             }
 
-            if (!allowModifications)
-                return false;
-
             PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
                                               PerformanceCounterCategoryType.MultiInstance, Counters);
-
-            return true;
         }
 
-        static CounterCreationDataCollection Counters = new CounterCreationDataCollection
+        static readonly CounterCreationDataCollection Counters = new CounterCreationDataCollection
                     {
                         new CounterCreationData("Critical Time", "Age of the oldest message in the queue",
                                                 PerformanceCounterType.NumberOfItems32),
