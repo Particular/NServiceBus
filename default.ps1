@@ -104,7 +104,6 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	Write-Output "##teamcity[buildNumber '$infoVersion']"
 	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
     
 	foreach($projectFile in $projectFiles) {
 
