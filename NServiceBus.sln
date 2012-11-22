@@ -1,7 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Config.UnitTests", "src\config\NServiceBus.Config.UnitTests\NServiceBus.Config.UnitTests.csproj", "{3F2577A6-D767-4A02-92A6-725B0FA7A9C5}"
-EndProject
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "src\core\NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Gateway.Tests", "src\gateway\NServiceBus.Gateway.Tests\NServiceBus.Gateway.Tests.csproj", "{33632B71-0CAA-4245-A4E3-BA94B563D679}"

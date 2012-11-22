@@ -22,6 +22,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             var configSection = Configure.GetConfigSection<AzureTimeoutPersisterConfig>() ?? new AzureTimeoutPersisterConfig();
 
             NServiceBus.ConfigureTimeoutManager.TimeoutManagerAddress = config.GetTimeoutManagerAddress();
+            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
 
             ServiceContext.TimeoutDataTableName = configSection.TimeoutDataTableName;
