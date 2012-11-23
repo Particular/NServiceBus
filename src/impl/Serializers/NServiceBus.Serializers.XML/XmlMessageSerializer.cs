@@ -313,7 +313,14 @@ namespace NServiceBus.Serializers.XML
                     if (parent.GetType().IsArray)
                         return GetObjectOfTypeFromNode(parent.GetType().GetElementType(), node);
 
-                    var args = parent.GetType().GetGenericArguments();
+					var ilistImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>));
+					if (ilistImplementations.Any())
+					{
+						var ilistImplementation = ilistImplementations.First();
+						return GetObjectOfTypeFromNode(ilistImplementation.GetGenericArguments().Single(), node);
+					}
+
+	                var args = parent.GetType().GetGenericArguments();
                     if (args.Length == 1)
                         return GetObjectOfTypeFromNode(args[0], node);
                 }
