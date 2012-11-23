@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             get
             {
-                if (transactionSettings != null)
+                if (transactionSettings == null)
                     transactionSettings = new TransactionSettings();
 
                 return transactionSettings;
