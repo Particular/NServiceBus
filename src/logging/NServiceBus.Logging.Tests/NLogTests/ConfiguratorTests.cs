@@ -42,7 +42,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
                     KeepFileOpen = false
                 };
 
-            Configurator.Basic(new ConsoleTarget(), "Debug");
+            NLogConfigurator.Configure(new ConsoleTarget(), "Debug");
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
         }
@@ -50,7 +50,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_default_should_be_Info()
         {
-            Configurator.Basic(new ConsoleTarget());
+            NLogConfigurator.Configure(new ConsoleTarget());
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
@@ -59,7 +59,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_default_should_be_Error()
         {
-            Configurator.Basic(new ConsoleTarget(), "Error");
+            NLogConfigurator.Configure(new ConsoleTarget(), "Error");
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
@@ -69,7 +69,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Can_configure_2_targets()
         {
-            Configurator.Basic(new Target[] { new ConsoleTarget(), new ColoredConsoleTarget()});
+            NLogConfigurator.Configure(new Target[] { new ConsoleTarget(), new ColoredConsoleTarget()});
 
             Assert.AreEqual(2, NLog.LogManager.Configuration.LoggingRules[0].Targets.Count);
         }

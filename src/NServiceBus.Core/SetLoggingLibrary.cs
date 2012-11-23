@@ -13,7 +13,7 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config)
         {
-            var appender = Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateConsoleAppender("All");
+            var appender = Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateConsoleAppender("All");
 
             return config.Log4Net(appender);
         }
@@ -50,7 +50,7 @@ namespace NServiceBus
                 threshold = cfg.Threshold;
             }
 
-            Logging.Loggers.Log4NetAdapter.Configurator.Basic(appenderSkeleton, threshold);
+            Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Configure(appenderSkeleton, threshold);
 
             return config;
         }
@@ -60,7 +60,7 @@ namespace NServiceBus
         /// </summary>
         public static void Log4Net()
         {
-            Logging.Loggers.Log4NetAdapter.Configurator.Basic();
+            Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Configure();
         }
 
 
@@ -86,29 +86,19 @@ namespace NServiceBus
                 threshold = cfg.Threshold;
             }
 
-            Logging.Loggers.NLogAdapter.Configurator.Basic(targets, threshold);
+            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure(targets, threshold);
 
             return config;
         }
 
         public static void NLog()
         {
-            Logging.Loggers.NLogAdapter.Configurator.Basic();
+            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure();
         }
 
         public static void Custom(ILoggerFactory loggerFactory)
         {
             LogManager.LoggerFactory = loggerFactory;
-        }
-
-        public static bool Log4NetExists
-        {
-            get { return Type.GetType("log4net.LogManager, log4net") != null; }
-        }
-
-        public static bool NLogExists
-        {
-            get { return Type.GetType("NLog.LogManager, NLog") != null; }
         }
     }
 }

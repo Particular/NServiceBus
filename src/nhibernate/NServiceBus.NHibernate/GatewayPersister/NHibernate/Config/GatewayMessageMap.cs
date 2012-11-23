@@ -18,7 +18,7 @@ namespace NServiceBus.GatewayPersister.NHibernate.Config
             Property(p => p.OriginalMessage);
             Property(p => p.Acknowledged);
             Property(p => p.TimeReceived);
-            Property(p => p.Headers, pm => pm.Length(4000));
+            Property(p => p.Headers, pm => pm.Length(4001));
         }
     }
 }

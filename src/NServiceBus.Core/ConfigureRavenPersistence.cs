@@ -39,6 +39,11 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
+            if (Configure.Instance.Configurer.HasComponent<RavenSessionFactory>())
+            {
+                return config;
+            }
+
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
             //use existing config if we can find one
@@ -148,7 +153,7 @@ namespace NServiceBus
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
 
             EnsureDatabaseExists((DocumentStore)store);
-            store.Initialize();
+            WarnUserIfRavenDatabaseIsNotReachable(store);
 
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
@@ -162,7 +167,6 @@ namespace NServiceBus
             //We need to turn compression off to make us compatible with Raven616
             store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
-            WarnUserIfRavenDatabaseIsNotReachable(store);
 
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
 
@@ -176,63 +180,24 @@ namespace NServiceBus
         {
             try
             {
+                store.Initialize();
                 store.DatabaseCommands.GetDatabaseNames(1);
             }
-            catch (WebException ex)
+            catch (WebException)
             {
-                IPEndPoint foundRavenPort = null;
-
-                if (ex.Status == WebExceptionStatus.ConnectFailure)
-                {
-                    var activeTcpListeners = IPGlobalProperties
-                        .GetIPGlobalProperties()
-                        .GetActiveTcpListeners();
-
-                    foundRavenPort = activeTcpListeners.FirstOrDefault(IsRavenServer);
-                }
-
                 var sb = new StringBuilder();
                 sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
                                 store.Url);
                 sb.AppendLine();
                 sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
                 sb.AppendLine();
-
-                if (foundRavenPort != null)
-                {
-                    sb.AppendFormat(
-                        "We have found on your machine a Raven instance listening on port {0}, to configure NServiceBus to use this instance instead add the following connection string in your config file:",
-                        foundRavenPort.Port);
-                    sb.AppendFormat(
-                        @"
-<connectionStrings>
-    <add name=""NServiceBus.Persistence"" connectionString=""http://localhost:{0}"" />
-</connectionStrings>", foundRavenPort.Port);
-                }
-
+                sb.AppendLine(@"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
+                sb.AppendFormat(
+                    @"<connectionStrings>
+    <add name=""NServiceBus.Persistence"" connectionString=""http://localhost:9090"" />
+</connectionStrings>");
+                
                 Logger.Warn(sb.ToString());
-            }
-            catch (Exception)
-            {
-                //Ignore
-            }
-        }
-
-        private static bool IsRavenServer(IPEndPoint endpoint)
-        {
-            var webRequest = WebRequest.Create(String.Format("http://localhost:{0}", endpoint.Port));
-            webRequest.Timeout = 1000;
-
-            try
-            {
-                var webResponse = webRequest.GetResponse();
-                var serverBuild = webResponse.Headers["Raven-Server-Build"];
-
-                return serverBuild != null;
-            }
-            catch (Exception)
-            {
-                return false;
             }
         }
 

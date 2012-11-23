@@ -3,7 +3,7 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
     using System;
     using Internal;
 
-    public class AppenderFactory
+    public class Log4NetAppenderFactory
     {
         private static readonly Type LevelType = Type.GetType("log4net.Core.Level, log4net");
         private static readonly Type ConsoleAppenderType = Type.GetType("log4net.Appender.ConsoleAppender, log4net");
@@ -15,7 +15,7 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
         private static readonly Type RollingModeType = Type.GetType("log4net.Appender.RollingFileAppender+RollingMode, log4net");
         private static readonly Type MinimalLockType = Type.GetType("log4net.Appender.FileAppender+MinimalLock, log4net");
 
-        static AppenderFactory()
+        static Log4NetAppenderFactory()
         {
             if (ColoredConsoleAppenderType == null)
                 throw new InvalidOperationException("Log4net could not be loaded. Make sure that the log4net assembly is located in the executable directory.");

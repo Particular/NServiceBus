@@ -7,7 +7,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
     /// <summary>
     /// 
     /// </summary>
-    public class Configurator
+    public class NLogConfigurator
     {
         private static readonly Type TargetType = Type.GetType("NLog.Targets.Target, NLog");
         private static readonly Type LogLevelType = Type.GetType("NLog.LogLevel, NLog");
@@ -15,19 +15,24 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
         private static readonly Type LogManagerType = Type.GetType("NLog.LogManager, NLog");
         private static readonly Type LoggingRuleType = Type.GetType("NLog.Config.LoggingRule, NLog");
 
-        public static void Basic(object target, string level = null)
+        public static bool NLogExists
         {
-            Basic(new [] { target}, level);
+            get { return Type.GetType("NLog.LogManager, NLog") != null; }
         }
 
-        public static void Basic(object[] targets, string level = null)
+        public static void Configure(object target, string level = null)
+        {
+            Configure(new [] { target}, level);
+        }
+
+        public static void Configure(object[] targets, string level = null)
         {
             EnsureNLogExists();
 
             if (!targets.All(x => TargetType.IsInstanceOfType(x)))
                 throw new ArgumentException("The objects provided must inherit from NLog.Targets.Target.");
 
-            Basic();
+            Configure();
             
             var loggingConfiguration = Activator.CreateInstance(LoggingConfigurationType);
 
@@ -49,16 +54,16 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
         /// <summary>
         /// Configure NServiceBus to use Log4Net without setting a specific appender.
         /// </summary>
-        public static void Basic()
+        public static void Configure()
         {
             EnsureNLogExists();
 
-            LogManager.LoggerFactory = new LoggerFactory();
+            LogManager.LoggerFactory = new NLogLoggerFactory();
         }
 
         private static void EnsureNLogExists()
         {
-            if (LogManagerType == null)
+            if (!NLogExists)
                 throw new LoggingLibraryException("NLog could not be loaded. Make sure that the NLog assembly is located in the executable directory.");
         }
     }

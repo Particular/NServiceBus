@@ -6,7 +6,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
     /// <summary>
     /// Factory to create NLog targets
     /// </summary>
-    public class TargetFactory
+    public class NLogTargetFactory
     {
         private static readonly Type ConsoleTargetType = Type.GetType("NLog.Targets.ConsoleTarget, NLog");
         private static readonly Type ColoredConsoleTargetType = Type.GetType("NLog.Targets.ColoredConsoleTarget, NLog");
@@ -18,7 +18,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
         private static readonly Type SimpleLayoutType = Type.GetType("NLog.Layouts.SimpleLayout, NLog");
         private static readonly Type LayoutType = Type.GetType("NLog.Layouts.Layout, NLog");
 
-        static TargetFactory()
+        static NLogTargetFactory()
         {
             if (ConsoleTargetType == null || ColoredConsoleTargetType == null || FileTargetType == null)
                 throw new InvalidOperationException("NLog could not be loaded. Make sure that the NLog assembly is located in the executable directory.");
