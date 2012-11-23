@@ -1,6 +1,7 @@
 namespace NServiceBus.TimeoutPersisters.NHibernate.Config
 {
     using Persistence.NHibernate;
+    using global::NHibernate;
     using global::NHibernate.Mapping.ByCode;
     using global::NHibernate.Mapping.ByCode.Conformist;
 
@@ -24,7 +25,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Config
                                              });
             Property(p => p.SagaId, pm => pm.Index("TimeoutEntity_SagaIdIdx"));
             Property(p => p.Time);
-            Property(p => p.Headers, pm => pm.Length(4001));
+            Property(p => p.Headers, pm => pm.Type(NHibernateUtil.StringClob));
             Property(p => p.Endpoint, pm =>
                                           {
                                               pm.Index("TimeoutEntity_EndpointIdx");
