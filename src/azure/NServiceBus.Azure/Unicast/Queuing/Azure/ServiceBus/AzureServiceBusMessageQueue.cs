@@ -99,8 +99,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                             message.SafeComplete();
                         }
                     }
-                    else
+                    else if (Transaction.Current.TransactionInformation.Status == TransactionStatus.Active)
+                    {
                         Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
+                    }
+                    else
+                    {
+                        return null;
+                    }
 
                     return t;
                 }
