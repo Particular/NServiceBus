@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace NServiceBus.MessageInterfaces.Tests
@@ -43,7 +40,7 @@ namespace NServiceBus.MessageInterfaces.Tests
 		}
 
 		[Test]
-		public void Classs_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionObject) });
 
@@ -51,7 +48,7 @@ namespace NServiceBus.MessageInterfaces.Tests
 		}
 
 		[Test]
-		public void Classs_implementing_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_implementing_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself) });
 
@@ -59,7 +56,7 @@ namespace NServiceBus.MessageInterfaces.Tests
 		}
 
 		[Test]
-		public void Classs_implementing_base_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_implementing_base_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself) });
 
