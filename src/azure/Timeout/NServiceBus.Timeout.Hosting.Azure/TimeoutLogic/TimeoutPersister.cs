@@ -52,7 +52,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             }
             catch (DataServiceQueryException)
             {
-                nextTimeToRunQuery = DateTime.Now.AddMinutes(1);
+                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
                 results = new List<Tuple<String, DateTime>>();
             }
             return results;
