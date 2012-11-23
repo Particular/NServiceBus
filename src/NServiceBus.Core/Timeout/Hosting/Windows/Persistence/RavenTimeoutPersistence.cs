@@ -3,6 +3,8 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
+    using System.Text;
     using Core;
     using Logging;
     using Raven.Abstractions.Indexing;
@@ -18,31 +20,44 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         {
             this.store = store;
 
-            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId", new IndexDefinitionBuilder<TimeoutData>
+            try
             {
-                Map = docs => from doc in docs
-                              select new { doc.SagaId }
-            }, true);
+                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId",
+                                                new IndexDefinitionBuilder<TimeoutData>
+                                                    {
+                                                        Map = docs => from doc in docs
+                                                                      select new {doc.SagaId}
+                                                    }, true);
 
-            store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
-                                            new IndexDefinitionBuilder<TimeoutData>
-                                                {
-                                                    Map = docs => from doc in docs
-                                                                  select new { doc.Time, OwningTimeoutManager = doc.OwningTimeoutManager ?? String.Empty },
-                                                    SortOptions =
+                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
+                                                new IndexDefinitionBuilder<TimeoutData>
+                                                    {
+                                                        Map = docs => from doc in docs
+                                                                      select
+                                                                          new
+                                                                              {
+                                                                                  doc.Time,
+                                                                                  OwningTimeoutManager =
+                                                                          doc.OwningTimeoutManager ?? String.Empty
+                                                                              },
+                                                        SortOptions =
                                                             {
                                                                 {doc => doc.Time, SortOptions.String}
                                                             },
-                                                    Indexes =
+                                                        Indexes =
                                                             {
                                                                 {doc => doc.Time, FieldIndexing.Default}
                                                             },
-                                                    Stores =
+                                                        Stores =
                                                             {
                                                                 {doc => doc.Time, FieldStorage.No}
                                                             }
-                                                }, true);
-
+                                                    }, true);
+            }
+            catch (WebException)
+            {
+                LogRavenConnectionFailure();
+            }
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
@@ -115,22 +130,14 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     return results;
                 }
             }
-            catch (Exception)
+            catch (WebException)
             {
-                if ((store == null) || (string.IsNullOrWhiteSpace(store.Identifier)) ||
-                    (string.IsNullOrWhiteSpace(store.Url)))
-                {
-                    Logger.Error(
-                        "Exception occurred while trying to access Raven Database. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).");
-                    throw;
-                }
-
-                Logger.ErrorFormat(
-                    "Exception occurred while trying to access Raven Database: [{0}] at [{1}]. You can check Raven availability at its console at http://localhost:8080/raven/studio.html (unless Raven defaults were changed), or make sure the Raven service is running at services.msc (services programs console).",
-                    store.Identifier, store.Url);
-
-                throw;
+                LogRavenConnectionFailure();
             }
+
+            nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
+
+            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
         }
 
         public void Add(TimeoutData timeout)
@@ -181,6 +188,24 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             session.Advanced.UseOptimisticConcurrency = true;
 
             return session;
+        }
+
+        void LogRavenConnectionFailure()
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
+                            store.Url);
+            sb.AppendLine();
+            sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
+            sb.AppendLine();
+            sb.AppendLine(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
+            sb.AppendFormat(
+                @"<connectionStrings>
+    <add name=""NServiceBus.Persistence"" connectionString=""http://localhost:9090"" />
+</connectionStrings>");
+
+            Logger.Warn(sb.ToString());
         }
 
         static readonly ILog Logger = LogManager.GetLogger("RavenTimeoutPersistence");
