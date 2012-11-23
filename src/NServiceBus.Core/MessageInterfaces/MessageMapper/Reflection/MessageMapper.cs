@@ -57,10 +57,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
                 foreach (var interfaceType in t.GetInterfaces())
                 {
-                    foreach (var g in interfaceType.GetGenericArguments())
-                        InitType(g, moduleBuilder);
+					foreach (var g in interfaceType.GetGenericArguments())
+					{
+						if(g == t)
+							continue;
 
-                    continue;
+						InitType(g, moduleBuilder);
+					}
+
                 }
 
                 return;
