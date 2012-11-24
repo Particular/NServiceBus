@@ -49,7 +49,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
             }
             catch (Exception)
             {
-                Logger.WarnFormat("NServiceBus performance counter for CurrentThroughput not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-PerformanceCounters powershell command to create the counter", receiveAddress.Queue);
+                Logger.InfoFormat("NServiceBus performance counter for CurrentThroughput not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-PerformanceCounters powershell command to create the counter", receiveAddress.Queue);
                 return false;
             }
             Logger.InfoFormat("Throughput counter initialized for transport: {0}", receiveAddress);
