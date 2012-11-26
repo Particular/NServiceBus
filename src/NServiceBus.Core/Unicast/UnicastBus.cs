@@ -1187,8 +1187,8 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception e)
                 {
-                    var innerEx = GetInnermostException(e);
-                    Log.Warn(handlerType.Name + " failed handling message.", GetInnermostException(innerEx));
+                    var innerEx = e.GetBaseException();
+                    Log.Warn(handlerType.Name + " failed handling message.", innerEx);
 
                     throw new TransportMessageHandlingFailedException(innerEx);
                 }
@@ -1222,34 +1222,6 @@ namespace NServiceBus.Unicast
         /// True if no deseralization should be performed. This means that no handlers will be called
         /// </summary>
         public bool SkipDeserialization { get; set; }
-
-
-        /// <summary>
-        /// Gets the inner most exception from an exception stack.
-        /// </summary>
-        /// <param name="e">The exception to get the inner most exception for.</param>
-        /// <returns>The innermost exception.</returns>
-        /// <remarks>
-        /// If the exception has no inner exceptions the provided exception will be returned.
-        /// </remarks>
-        private static Exception GetInnermostException(Exception e)
-        {
-            if (e.InnerException == null)
-                return e;
-
-            var result = e;
-
-            do
-            {
-                if (!result.Source.ToLower().Equals("mscorlib"))
-                    return result;
-
-                result = result.InnerException;
-
-            } while (result.InnerException != null);
-
-            return result;
-        }
 
         /// <summary>
         /// If the message contains a correlationId, attempts to
