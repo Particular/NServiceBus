@@ -10,7 +10,7 @@ namespace NServiceBus.Gateway.Channels.Http
 
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl,IDictionary<string,string> headers,Stream data)
+        public void Send(string remoteUrl, IDictionary<string,string> headers,Stream data)
         {
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";

@@ -373,6 +373,7 @@
     <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="SetLoggingLibrary.cs" />
     <Compile Include="SyncConfig.cs" />
+    <Compile Include="TaskSchedulers\IOCompletionPortTaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
