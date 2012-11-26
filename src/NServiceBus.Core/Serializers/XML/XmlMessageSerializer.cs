@@ -1017,7 +1017,7 @@ namespace NServiceBus.Serializers.XML
                 Type baseType = t.BaseType;
                 while (baseType != typeof(object) && baseType != null)
                 {
-                    if (baseType.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(baseType))
                         if (!result.Contains(baseType.FullName))
                             result.Add(baseType.FullName);
 
@@ -1025,7 +1025,7 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 foreach (Type i in t.GetInterfaces())
-                    if (i.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(i))
                         if (!result.Contains(i.FullName))
                             result.Add(i.FullName);
             }

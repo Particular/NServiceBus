@@ -25,7 +25,7 @@ namespace NServiceBus.Sagas.Impl.Finders
             if (SagaPersister == null)
                 return default(T);
 
-            var sagaIdHeader = message.GetHeader(Headers.SagaId);
+            var sagaIdHeader = Headers.GetMessageHeader(message, Headers.SagaId);
 
             if (string.IsNullOrEmpty(sagaIdHeader))
                 return default(T);

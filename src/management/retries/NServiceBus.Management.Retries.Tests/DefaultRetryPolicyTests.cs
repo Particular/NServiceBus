@@ -34,7 +34,7 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void The_default_time_out_should_be_1_day()
         {
-            TransportMessageHelpers.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, (DateTime.UtcNow.AddDays(-1).AddSeconds(-1)).ToWireFormattedString());
+            TransportMessageHelpers.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
             var hasTimedOut = DefaultRetryPolicy.HasTimedOut(_message);
             Assert.IsTrue(hasTimedOut);
         }

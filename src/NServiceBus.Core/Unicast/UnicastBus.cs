@@ -603,7 +603,7 @@ namespace NServiceBus.Unicast
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
-            messages[0].SetDestinationSitesHeader(string.Join(",", siteKeys.ToArray()));
+            Headers.SetMessageHeader(messages[0], Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
             return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
         }
@@ -634,7 +634,7 @@ namespace NServiceBus.Unicast
 
             try
             {
-                messages.First().SetHeader(Headers.Expire, processAt.ToWireFormattedString());
+                Headers.SetMessageHeader(messages.First(), Headers.Expire, DateTimeExtensions.ToWireFormattedString(processAt));
 
                 if (processAt.ToUniversalTime() <= DateTime.UtcNow)
                 {
@@ -700,7 +700,7 @@ namespace NServiceBus.Unicast
                 var numberOfMessagesWithDataBusProperties = 0;
                 foreach (var message in messages)
                 {
-                    var hasAtLeastOneDataBusProperty = message.GetType().GetProperties().Any(p => p.IsDataBusProperty());
+                    var hasAtLeastOneDataBusProperty = message.GetType().GetProperties().Any(MessageConventionExtensions.IsDataBusProperty);
 
                     if (hasAtLeastOneDataBusProperty)
                     {
@@ -781,7 +781,7 @@ namespace NServiceBus.Unicast
                 types.Add(s);
 
                 foreach (var t in m.GetType().GetInterfaces())
-                    if (t.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(t))
                         if (!types.Contains(t))
                             types.Add(t);
             }
@@ -926,14 +926,14 @@ namespace NServiceBus.Unicast
 
                 Subscribe(messageType);
 
-                if (!messageType.IsEventType())
+                if (!MessageConventionExtensions.IsEventType(messageType))
                     Log.Info("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
             }
         }
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !t.IsCommandType()).ToList();
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t)).ToList();
 
             if (AllowSubscribeToSelf)
                 return eventsHandled;
@@ -1673,7 +1673,7 @@ namespace NServiceBus.Unicast
                 if (potentialMessageType == null)
                     continue;
 
-                if (potentialMessageType.IsMessageType() ||
+                if (MessageConventionExtensions.IsMessageType(potentialMessageType) ||
                     typeof(IMessageHandler<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t))
                     yield return potentialMessageType;
             }
@@ -1703,7 +1703,7 @@ namespace NServiceBus.Unicast
         {
             foreach (var handlerType in handlerList.Keys)
                 foreach (var typeHandled in handlerList[handlerType])
-                    if (typeHandled.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(typeHandled))
                         yield return typeHandled;
         }
 

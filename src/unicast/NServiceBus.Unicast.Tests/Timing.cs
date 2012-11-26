@@ -64,7 +64,7 @@
 
             
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
-            receivedMessage.Headers[Headers.TimeSent] = now.ToWireFormattedString();
+            receivedMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(now);
 
             
             ReceiveMessage(receivedMessage);
@@ -72,7 +72,7 @@
             //need at least 2 messages to enable us to count
             Assert.AreEqual(0,secondsUntilSlaIsBreached);
 
-            receivedMessage.Headers[Headers.TimeSent] = now.AddSeconds(-0.5).ToWireFormattedString();
+            receivedMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(now.AddSeconds(-0.5));
             ReceiveMessage(receivedMessage);
 
             //this should be rougly 2.1 since it takes 0.02 second to process both messages and the CT delta is 0.5 (since we fake a 0.5 delay)
@@ -83,7 +83,7 @@
             Assert.Less(secondsUntilSlaIsBreached_2, 3.0);
 
 
-            receivedMessage.Headers[Headers.TimeSent] = now.AddSeconds(-0.5).ToWireFormattedString();
+            receivedMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(now.AddSeconds(-0.5));
             ReceiveMessage(receivedMessage);
             var secondsUntilSlaIsBreached_3 = secondsUntilSlaIsBreached;
 

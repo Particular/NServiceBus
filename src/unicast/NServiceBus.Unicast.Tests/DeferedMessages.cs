@@ -33,7 +33,7 @@
 
             VerifyThatMessageWasSentWithHeaders(h=>
                                                     {
-                                                        var e = h[Headers.Expire].ToUtcDateTime();
+                                                        var e = DateTimeExtensions.ToUtcDateTime(h[Headers.Expire]);
                                                         var now = DateTime.UtcNow + delay;
                                                         return e <= now;
                                                     });
@@ -51,7 +51,7 @@
 
             bus.Defer(time, new DeferedMessage());
 
-            VerifyThatMessageWasSentWithHeaders(h => h[Headers.Expire] == time.ToWireFormattedString());
+            VerifyThatMessageWasSentWithHeaders(h => h[Headers.Expire] == DateTimeExtensions.ToWireFormattedString(time));
         }
     }
 

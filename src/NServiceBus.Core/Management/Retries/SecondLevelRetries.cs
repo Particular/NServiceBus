@@ -63,7 +63,7 @@ namespace NServiceBus.Management.Retries
 
         void Defer(TimeSpan defer, TransportMessage message)
         {
-            TransportMessageHelpers.SetHeader(message, Headers.Expire, (DateTime.UtcNow + defer).ToWireFormattedString());
+            TransportMessageHelpers.SetHeader(message, Headers.Expire, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow + defer));
             TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
             var faultingEndpointAddress = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
@@ -73,7 +73,7 @@ namespace NServiceBus.Management.Retries
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
-                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTime.UtcNow.ToWireFormattedString());
+                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 
             Logger.DebugFormat("Defer message and send it to {0} using the timeout manager at {1}", faultingEndpointAddress, TimeoutManagerAddress);            

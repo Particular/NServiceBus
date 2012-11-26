@@ -25,9 +25,9 @@ namespace NServiceBus.Sagas.Impl
         /// <returns>Saga Dispatcher</returns>
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
         {
-            var isTimeoutMessage = message.IsTimeoutMessage();
+            var isTimeoutMessage = IsTimeoutMessage(message);
 
-            if (isTimeoutMessage && !message.TimeoutHasExpired())
+            if (isTimeoutMessage && !TimeoutHasExpired(message))
             {
                 yield return () => Bus.HandleCurrentMessageLater();
                 yield break;
@@ -151,7 +151,7 @@ namespace NServiceBus.Sagas.Impl
 
         IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)
         {
-            var sagaId = message.GetHeader(Headers.SagaId);
+            var sagaId = Headers.GetMessageHeader(message, Headers.SagaId);
             var sagaEntityType = GetSagaEntityType(message);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
@@ -172,12 +172,12 @@ namespace NServiceBus.Sagas.Impl
         static Type GetSagaEntityType(object message)
         {
             //we keep this for backwards compatibility with versions < 3.0.4
-            var sagaEntityType = message.GetHeader(Headers.SagaEntityType);
+            var sagaEntityType = Headers.GetMessageHeader(message, Headers.SagaEntityType);
 
             if (!string.IsNullOrEmpty(sagaEntityType))
                 return Type.GetType(sagaEntityType);
 
-            var sagaTypeName = message.GetHeader(Headers.SagaType);
+            var sagaTypeName = Headers.GetMessageHeader(message, Headers.SagaType);
 
             if (string.IsNullOrEmpty(sagaTypeName))
                 return null;
@@ -209,6 +209,38 @@ namespace NServiceBus.Sagas.Impl
         {
             if (saga.Completed)
                 logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
+        }
+
+        /// <summary>
+        /// True if this is a timeout message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        static bool IsTimeoutMessage(object message)
+        {
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.Expire)) && !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.SagaId));
+        }
+
+
+        /// <summary>
+        /// True if the timeout for this message has expired
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        static bool TimeoutHasExpired(object message)
+        {
+            var tm = message as TimeoutMessage;
+            if (tm != null)
+                return !tm.HasNotExpired();
+            try
+            {
+                return DateTime.UtcNow >= DateTimeExtensions.ToUtcDateTime(Headers.GetMessageHeader(message, Headers.Expire));
+            }
+            catch (Exception)
+            {
+                //for backwards compatibility
+                return DateTime.UtcNow >= DateTime.Parse(Headers.GetMessageHeader(message, Headers.Expire));
+            }
         }
 
         /// <summary>

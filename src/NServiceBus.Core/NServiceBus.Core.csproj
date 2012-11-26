@@ -309,7 +309,6 @@
     <Compile Include="Notifications\SendEmail.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\ContainerExtensions.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\ObjectExtensions.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\TypeExtensions.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
@@ -340,7 +339,6 @@
     <Compile Include="Sagas\Impl\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Impl\Finders\NullSagaFinder.cs" />
     <Compile Include="Sagas\Impl\Finders\PropertySagaFinder.cs" />
-    <Compile Include="Sagas\Impl\MessageExtensions.cs" />
     <Compile Include="Sagas\Impl\OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Sagas\Impl\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Sagas\Impl\SagaContext.cs" />

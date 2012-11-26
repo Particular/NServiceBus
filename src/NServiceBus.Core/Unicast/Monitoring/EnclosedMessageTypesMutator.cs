@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Monitoring
             var types = messages.Select(m => m.GetType()).ToList();
 
             var interfaces = types.SelectMany(t => t.GetInterfaces())
-                .Where(t => t.IsMessageType());
+                .Where(MessageConventionExtensions.IsMessageType);
 
             var noneProxyTypes = types.Distinct().Where(t => !t.Assembly.IsDynamic); // Exclude proxies
             var interfacesOrderedByHierarchy = interfaces.Distinct().OrderByDescending(i => i.GetInterfaces().Count()); // Interfaces with less interfaces are lower in the hierarchy. 

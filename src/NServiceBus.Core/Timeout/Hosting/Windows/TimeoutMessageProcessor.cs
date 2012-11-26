@@ -106,7 +106,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     Destination = destination,
                     SagaId = sagaId,
                     State = message.Body,
-                    Time = message.Headers[Headers.Expire].ToUtcDateTime(),
+                    Time = DateTimeExtensions.ToUtcDateTime(message.Headers[Headers.Expire]),
                     CorrelationId = message.CorrelationId,
                     Headers = message.Headers,
                     OwningTimeoutManager = Configure.EndpointName

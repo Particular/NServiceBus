@@ -16,9 +16,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsMessage(this object o)
+        public static bool IsMessage(object o)
         {
-            return o.GetType().IsMessageType();
+            return IsMessageType(o.GetType());
         }
 
         /// <summary>
@@ -26,7 +26,7 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsMessageType(this Type t)
+        public static bool IsMessageType(Type t)
         {
             try
             {
@@ -41,7 +41,7 @@
             }
         }
 
-        private static bool IsInSystemConventionList(this Type t)
+        private static bool IsInSystemConventionList(Type t)
         {
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }
@@ -61,9 +61,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsCommand(this object o)
+        public static bool IsCommand(object o)
         {
-                return o.GetType().IsCommandType();
+                return IsCommandType(o.GetType());
         }
 
         /// <summary>
@@ -71,7 +71,7 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsCommandType(this Type t)
+        public static bool IsCommandType(Type t)
         {
             try
             {
@@ -115,7 +115,7 @@
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static bool IsEncryptedProperty(this PropertyInfo property)
+        public static bool IsEncryptedProperty(PropertyInfo property)
         {
             try
             {
@@ -134,7 +134,7 @@
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static bool IsDataBusProperty(this PropertyInfo property)
+        public static bool IsDataBusProperty(PropertyInfo property)
         {
             try
             {
@@ -151,9 +151,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsEvent(this object o)
+        public static bool IsEvent(object o)
         {
-            return o.GetType().IsEventType();
+            return IsEventType(o.GetType());
         }
 
         /// <summary>
@@ -161,7 +161,7 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsEventType(this Type t)
+        public static bool IsEventType(Type t)
         {
             try
             {

@@ -14,7 +14,7 @@ namespace NServiceBus
         /// Converts the date time to a string suitable for transport over the wire
         /// </summary>
         /// <returns></returns>
-        public static string ToWireFormattedString(this DateTime time)
+        public static string ToWireFormattedString(DateTime time)
         {
             return time.ToUniversalTime().ToString(Format, CultureInfo.InvariantCulture);
         }
@@ -23,7 +23,7 @@ namespace NServiceBus
         /// Converts the date time to a string suitable for transport over the wire
         /// </summary>
         /// <returns></returns>
-        public static DateTime ToUtcDateTime(this string time)
+        public static DateTime ToUtcDateTime(string time)
         {
             return DateTime.ParseExact(time, Format, CultureInfo.InvariantCulture).ToUniversalTime();
         }

@@ -62,7 +62,7 @@ namespace NServiceBus.DataBus
                         }
 
                         //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                        message.SetHeader(DATABUS_PREFIX + headerKey, headerValue);
+                        Headers.SetMessageHeader(message, DATABUS_PREFIX + headerKey, headerValue);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace NServiceBus.DataBus
                         headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
                     }
 
-                    var dataBusKey = message.GetHeader(DATABUS_PREFIX + headerKey);
+                    var dataBusKey = Headers.GetMessageHeader(message, DATABUS_PREFIX + headerKey);
 
                     if (string.IsNullOrEmpty(dataBusKey))
                         continue;

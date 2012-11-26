@@ -23,7 +23,7 @@ namespace NServiceBus.Management.Retries
             var timestampHeader = TransportMessageHelpers.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
             try
             {
-                var handledAt = timestampHeader.ToUtcDateTime();
+                var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
 
                 if (DateTime.UtcNow > handledAt.AddDays(1))
                 {
