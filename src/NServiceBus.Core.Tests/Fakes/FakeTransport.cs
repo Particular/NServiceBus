@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace NServiceBus.Satellites.Tests
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
+    using System;
     using Unicast.Transport;
 
     public class FakeTransport : ITransport

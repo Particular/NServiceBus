@@ -1,10 +1,12 @@
-﻿namespace NServiceBus.Satellites.Tests
+﻿namespace NServiceBus.Core.Tests.Satellite
 {
     using System.Reflection;
-    using Config;
+    using Fakes;
     using Faults;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using Satellites;
+    using Satellites.Config;
     using Unicast.Transport;
 
     public abstract class SatelliteLauncherContext

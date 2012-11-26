@@ -11,9 +11,11 @@ namespace NServiceBus.Satellites
     using Unicast.Transport;
 
     public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
-    {   
-        public IBuilder Builder { get; set; }        
-        
+    {
+        public static Action<ISatellite, ITransport> SatelliteTransportInitialized = (satellite, transport) => {};
+
+        public IBuilder Builder { get; set; }
+
         public void Start()
         {
             timer = new System.Timers.Timer {Interval = 1000};
@@ -26,7 +28,15 @@ namespace NServiceBus.Satellites
 
         public void Stop()
         {
-            //TODO: Need to stop satellite
+            foreach (var ctx in AllSatellitesThatShouldBeStarted())
+            {
+                if (ctx.Transport != null)
+                {
+                    ctx.Transport.ChangeNumberOfWorkerThreads(0);
+                }
+
+                ctx.Instance.Stop();
+            }
         }
 
         void Build()
@@ -34,7 +44,7 @@ namespace NServiceBus.Satellites
             Configure.Instance.Builder
                 .BuildAll<ISatellite>()
                 .ToList()
-                .ForEach(s => Satellites.Add(new SatelliteContext
+                .ForEach(s => satellites.Add(new SatelliteContext
                                                  {
                                                      Instance = s
                                                  }));
@@ -42,7 +52,7 @@ namespace NServiceBus.Satellites
 
         void Initialize()
         {
-            foreach (var ctx in Satellites)
+            foreach (var ctx in satellites)
             {                                
                 if (ctx.Instance == null)
                 {
@@ -53,6 +63,8 @@ namespace NServiceBus.Satellites
                 if (ctx.Instance.InputAddress != null && ctx.Instance.Disabled == false)
                 {
                     ctx.Transport = Builder.Build<ITransport>();
+
+                    SatelliteTransportInitialized(ctx.Instance, ctx.Transport);
                 }                
             }
         }
@@ -70,9 +82,9 @@ namespace NServiceBus.Satellites
             timer.Start();
         }        
         
-        static IEnumerable<SatelliteContext> AllSatellitesThatShouldBeStarted()
+        IEnumerable<SatelliteContext> AllSatellitesThatShouldBeStarted()
         {
-            return Satellites.Where(sat => 
+            return satellites.Where(sat => 
                 sat.Instance != null && 
                 !sat.Instance.Disabled && 
                 !sat.Started &&                 
@@ -138,7 +150,7 @@ namespace NServiceBus.Satellites
         static readonly ILog Logger = LogManager.GetLogger("SatelliteLauncher");
 
         System.Timers.Timer timer;
-        
-        internal static ConcurrentBag<SatelliteContext> Satellites = new ConcurrentBag<SatelliteContext>();
+
+        private readonly ConcurrentBag<SatelliteContext> satellites = new ConcurrentBag<SatelliteContext>();
     }
 }

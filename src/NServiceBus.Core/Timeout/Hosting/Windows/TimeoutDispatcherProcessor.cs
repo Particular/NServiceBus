@@ -1,9 +1,7 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using Core;
-    using ObjectBuilder;
     using Unicast.Queuing;
-    using Unicast.Queuing.Msmq;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 

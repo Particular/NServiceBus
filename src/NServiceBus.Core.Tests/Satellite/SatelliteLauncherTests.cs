@@ -1,8 +1,9 @@
-﻿using System;
-using NUnit.Framework;
-
-namespace NServiceBus.Satellites.Tests
+﻿namespace NServiceBus.Core.Tests.Satellite
 {
+    using System;
+    using Satellites;
+    using NUnit.Framework;
+
     public class FakeSatellite : ISatellite
     {
         public bool IsMessageHandled = false;

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.ObjectBuilder;
-
-namespace NServiceBus.Satellites.Tests
+﻿namespace NServiceBus.Core.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using ObjectBuilder;
+
     public class FuncBuilder : IBuilder
     {
-        IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
+        readonly IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
         public void Dispose()
         {
 
