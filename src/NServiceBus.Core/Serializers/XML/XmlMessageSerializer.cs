@@ -23,7 +23,6 @@ namespace NServiceBus.Serializers.XML
         readonly IMessageMapper mapper;
         IList<Type> messageTypes;
 
-
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -80,7 +79,7 @@ namespace NServiceBus.Serializers.XML
                     if (e.IsAssignableFrom(t))
                         typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                 }
-#if !NET35
+
                 if (t.IsGenericType && t.GetGenericArguments().Length == 1)
                 {
                     Type setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
@@ -94,7 +93,6 @@ namespace NServiceBus.Serializers.XML
                             typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                     }
                 }
-#endif
 
                 return;
             }
@@ -642,12 +640,10 @@ namespace NServiceBus.Serializers.XML
 
                         if (isArray)
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
-#if !NET35
+
                         if (isISet)
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
-#endif
                     }
-
 
                     return list;
                 }
@@ -1045,7 +1041,6 @@ namespace NServiceBus.Serializers.XML
 
         #region members
 
-        private const string XMLPREFIX = "d1p1";
         private const string BASETYPE = "baseType";
 
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
