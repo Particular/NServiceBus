@@ -320,6 +320,7 @@
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
+    <Compile Include="Persistence\ConcurrencyException.cs" />
     <Compile Include="Persistence\Raven\RavenConventions.cs" />
     <Compile Include="Persistence\Raven\RavenPersistenceConstants.cs" />
     <Compile Include="Persistence\Raven\RavenSessionFactory.cs" />
