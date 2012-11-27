@@ -350,7 +350,15 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (parent.GetType().IsArray)
                         return parent.GetType().GetElementType();
-                    var args = parent.GetType().GetGenericArguments();
+                    
+					var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
+					if (listImplementations.Any())
+					{
+						var listImplementation = listImplementations.First();
+						return listImplementation.GetGenericArguments().Single();
+					}
+
+	                var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
                         return args[0];
