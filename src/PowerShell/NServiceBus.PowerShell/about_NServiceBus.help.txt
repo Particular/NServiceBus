@@ -5,39 +5,42 @@ SHORT DESCRIPTION
   Provides information about NServiceBus commands.
 
 LONG DESCRIPTION
-  This topic describes the NServiceBus commands. NServiceBus is a developer
-  friendly .NET ESB framework.
+  This topic describes the NServiceBus commands. NServiceBus is a developer friendly 
+  .NET ESB framework.
   
   The following NServiceBus cmdlets are included:
   
-  Cmdlet                                          Description
-  ---------------------------------------------------------------------------------------------
-  Install-NServiceBusLicense                      Install a NServiceBus license file.
-  
-  Get-NServiceBusMessage                          Displays all messages in a queue.
-  
-  Get-NServiceBusVersion                          Displays the NServiceBus installed version.
-  
-  Install-NServiceBusDTC                          Install DTC on the machine.
-   
-  Install-NServiceBusRavenDB                      Install RavenDB on the machine.
-   
-  Install-NServiceBusPerformanceCounters          Install NServiceBus performance counters
-                                                  on the machine.
-   
-  Install-NServiceBusMSMQ                         Install MSMQ on the machine.
-  
-  Test-NServiceBusDTCInstallation                 Validates if DTC is installed and running
-                                                  on the machine.
-   
-  Test-NServiceBusRavenDBInstallation             Ensures RavenDB is on the machine.
-   
-  Test-NServiceBusPerformanceCountersInstallation Validates that NServiceBus performance 
-                                                  counters are correctly installed on 
-                                                  the machine.
-   
-  Test-NServiceBusMSMQInstallation                Validates MSMQ is correctly installed on 
-                                                  the machine.
+  Cmdlet                                               Description
+  -------------------------------------------------------------------------------------------------
+  Install-NServiceBusLicense                           Install a NServiceBus license file.
+  												       
+  Get-NServiceBusMessage                               Displays all messages in a queue.
+  												       
+  Get-NServiceBusVersion                               Displays the NServiceBus installed version.
+  												       
+  Install-NServiceBusDTC                               Install DTC on the machine.
+   												       
+  Install-NServiceBusRavenDB                           Install RavenDB on the machine.
+   												       
+  Install-NServiceBusPerformanceCounters               Install NServiceBus performance counters
+                                                       on the machine.
+   												       
+  Install-NServiceBusMSMQ                              Install MSMQ on the machine.
+  												       
+  Test-NServiceBusDTCInstallation                      Validates if DTC is installed and running
+                                                       on the machine.
+   												       
+  Test-NServiceBusRavenDBInstallation                  Ensures RavenDB is on the machine.
+   												       
+  Test-NServiceBusPerformanceCountersInstallation      Validates that NServiceBus performance 
+                                                       counters are correctly installed on 
+                                                       the machine.
+   												       
+  Test-NServiceBusMSMQInstallation                     Validates MSMQ is correctly installed on 
+                                                       the machine.
+
+  Add-NServiceBusMessageForwardingInCaseOfFaultConfig  Adds the required configuration section to
+                                                       the config file.
   
 Sample Commands
   
@@ -69,3 +72,4 @@ SEE ALSO
   Test-NServiceBusRavenDBInstallation
   Test-NServiceBusPerformanceCountersInstallation
   Test-NServiceBusMSMQInstallation
+  Add-NServiceBusMessageForwardingInCaseOfFaultConfig

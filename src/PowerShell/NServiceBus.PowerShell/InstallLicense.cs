@@ -9,7 +9,7 @@
     [Cmdlet(VerbsLifecycle.Install, "NServiceBusLicense")]
     public class InstallLicense : PSCmdlet
     {
-        [Parameter(Mandatory = true, HelpMessage = "License file path")]
+        [Parameter(Mandatory = true, Position = 0, HelpMessage = "License file path", ValueFromPipeline = true)]
         public string Path { get; set; }
 
         [Parameter(Mandatory = false, HelpMessage = @"Installs license in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_CURRENT_USER\SOFTWARE\NServiceBus")]

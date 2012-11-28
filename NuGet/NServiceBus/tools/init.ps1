@@ -7,9 +7,9 @@ if(!$toolsPath){
 
 Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
 
-Write-Host
+Write-Host ""
 Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
-Write-Host
+Write-Host ""
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
