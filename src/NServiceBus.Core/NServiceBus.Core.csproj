@@ -383,6 +383,7 @@
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\RavenTimeoutPersistence.cs" />
+    <Compile Include="Timeout\Hosting\Windows\SatelliteInterceptor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />

@@ -2,16 +2,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using Satellites;
     using Unicast.Queuing;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
 
-    public class TimeoutMessageProcessor : IWantToRunWhenBusStartsAndStops 
+
+    public class TimeoutMessageProcessor : ISatellite
     {
+        private bool enabled = true;
+
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
-        
         static readonly Address TimeoutManagerAddress;
 
         public ISendMessages MessageSender { get; set; }
@@ -23,35 +24,32 @@ namespace NServiceBus.Timeout.Hosting.Windows
             TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");            
         }
 
-        public TransactionalTransport InputTransport { get; set; }
+        public Address InputAddress { get { return TimeoutManagerAddress; } }
+
+        public bool Disabled { get { return !enabled; } }
+
+        public void Disable()
+        {
+            enabled = false;
+        }
 
         public void Start()
         {
 
-            //todo - the line below needs to change when we refactore the slr to be:
-            // transport.DisableSLR() or similar
-            InputTransport.FailureManager = new ManageMessageFailuresWithoutSlr(InputTransport.FailureManager);
-
-            InputTransport.TransportMessageReceived += OnTransportMessageReceived;
-
-            InputTransport.Start(TimeoutManagerAddress);
         }
 
         public void Stop()
         {
-            if (InputTransport != null)
-            {
-                InputTransport.Dispose();
-            }
+            
         }
 
-        void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        public void Handle(TransportMessage message)
         {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
-            if (e.Message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
-                HandleBackwardsCompatibility(e.Message);
+            if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
+                HandleBackwardsCompatibility(message);
             else
-                Handle(e.Message);
+                HandleInternal(message);
         }
 
         void HandleBackwardsCompatibility(TransportMessage message)
@@ -73,7 +71,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             MessageSender.Send(message, destination);
         }
 
-        void Handle(TransportMessage message)
+        void HandleInternal(TransportMessage message)
         {
             var sagaId = Guid.Empty;
 

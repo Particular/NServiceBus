@@ -1,14 +1,13 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
     using Core;
+    using Satellites;
     using Unicast.Queuing;
-    using Unicast.Transport;
-    using Unicast.Transport.Transactional;
 
-    public class TimeoutDispatcherProcessor : IWantToRunWhenBusStartsAndStops
+    public class TimeoutDispatcherProcessor : ISatellite
     {
-        public TransactionalTransport InputTransport { get; set; }
-
+        private bool enabled = true;
+        
         public static readonly Address TimeoutDispatcherAddress;
 
         public ISendMessages MessageSender { get; set; }
@@ -21,24 +20,18 @@ namespace NServiceBus.Timeout.Hosting.Windows
             TimeoutDispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
         }
 
-        public void Start()
+        public Address InputAddress { get { return TimeoutDispatcherAddress; } }
+
+        public bool Disabled { get { return !enabled; } }
+
+        public void Disable()
         {
-            TimeoutPersisterReceiver.Start();
-
-
-            //todo - the line below needs to change when we refactore the slr to be:
-            // transport.DisableSLR() or similar
-            InputTransport.FailureManager = new ManageMessageFailuresWithoutSlr(InputTransport.FailureManager);
-
-            InputTransport.TransportMessageReceived += OnTransportMessageReceived;
-
-            InputTransport.Start(TimeoutDispatcherAddress);
+            enabled = false;
         }
 
-        private void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        public void Handle(TransportMessage message)
         {
-            var transportMessage = e.Message;
-            var timeoutId = transportMessage.Headers["Timeout.Id"];
+            var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
 
             if (TimeoutsPersister.TryRemove(timeoutId, out timeoutData))
@@ -47,14 +40,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
+        public void Start()
+        {
+            TimeoutPersisterReceiver.Start();
+        }
+
         public void Stop()
         {
             TimeoutPersisterReceiver.Stop();
-
-            if (InputTransport != null)
-            {
-                InputTransport.Dispose();
-            }
         }
     }
 }

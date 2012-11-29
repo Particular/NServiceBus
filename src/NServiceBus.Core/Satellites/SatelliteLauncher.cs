@@ -12,7 +12,7 @@ namespace NServiceBus.Satellites
 
     public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
     {
-        public static Action<ISatellite, ITransport> SatelliteTransportInitialized = (satellite, transport) => {};
+        public static event EventHandler<SatelliteArgs> SatelliteTransportInitialized;
 
         public IBuilder Builder { get; set; }
 
@@ -64,7 +64,12 @@ namespace NServiceBus.Satellites
                 {
                     ctx.Transport = Builder.Build<ITransport>();
 
-                    SatelliteTransportInitialized(ctx.Instance, ctx.Transport);
+                    SatelliteTransportInitialized(null,
+                                                  new SatelliteArgs
+                                                      {
+                                                          Satellite = ctx.Instance,
+                                                          Transport = ctx.Transport
+                                                      });
                 }                
             }
         }
@@ -152,5 +157,11 @@ namespace NServiceBus.Satellites
         System.Timers.Timer timer;
 
         private readonly ConcurrentBag<SatelliteContext> satellites = new ConcurrentBag<SatelliteContext>();
+    }
+
+    public class SatelliteArgs : EventArgs
+    {
+        public ISatellite Satellite { get; set; }
+        public ITransport Transport { get; set; }
     }
 }

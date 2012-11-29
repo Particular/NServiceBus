@@ -2,13 +2,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
     using Faults;
     using Logging;
-    using Queuing;
-    using Utils;
     using System.Linq;
     using System.Runtime.Serialization;
     using Monitoring;
