@@ -121,6 +121,7 @@ namespace NServiceBus
             {
                 configurer = value;
                 WireUpConfigSectionOverrides();
+                InvokeBeforeConfigurationInitializers();
             }
         }
 
@@ -260,6 +261,23 @@ namespace NServiceBus
             return null;
         }
 
+        private static bool beforeConfigurationInitializersCalled;
+
+        private void InvokeBeforeConfigurationInitializers()
+        {
+            if (beforeConfigurationInitializersCalled)
+            {
+                return;
+            }
+
+            ForAllTypes<IWantToRunBeforeConfiguration>(t =>
+            {
+                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                ini.Init();
+            });
+
+            beforeConfigurationInitializersCalled = true;
+        }
 
         /// <summary>
         /// Finalizes the configuration by invoking all initializers.
@@ -273,11 +291,7 @@ namespace NServiceBus
             
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunBeforeConfiguration>(t =>
-            {
-                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                ini.Init();
-            });
+            InvokeBeforeConfigurationInitializers();
 
             ForAllTypes<Config.INeedInitialization>(t =>
             {

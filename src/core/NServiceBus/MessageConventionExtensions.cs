@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Reflection;
 
-  /// <summary>
+    /// <summary>
     /// Extension methods for message related conventions
     /// </summary>
     public static class MessageConventionExtensions
@@ -31,9 +31,10 @@
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
-                                                               type =>
-                                                               IsMessageTypeAction(type) || IsCommandTypeAction(type) ||
-                                                               IsEventTypeAction(type) || (IsInSystemConventionList(type)));
+                                                               type => IsMessageTypeAction(type) ||
+                                                                       IsCommandTypeAction(type) ||
+                                                                       IsEventTypeAction(type) ||
+                                                                       IsInSystemConventionList(type));
             }
             catch (Exception ex)
             {
@@ -52,8 +53,10 @@
         /// <param name="definesMessageType">Function to define system message convention</param>
         public static void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
         {
-            if(!IsSystemMessageActions.Contains(definesMessageType))
+            if (!IsSystemMessageActions.Contains(definesMessageType))
+            {
                 IsSystemMessageActions.Add(definesMessageType);
+            }
         }
 
         /// <summary>
@@ -222,7 +225,7 @@
        /// <summary>
        /// Contains list of System messages' conventions
        /// </summary>
-        public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        public static readonly List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
