@@ -10,13 +10,13 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Can_create_ColoredConsoleAppender()
         {
-            var appender = AppenderFactory.CreateColoredConsoleAppender("Debug");
+            var appender = Log4NetAppenderFactory.CreateColoredConsoleAppender("Debug");
         }
 
         [Test]
         public void Can_create_RollingFileAppender()
         {
-            var appender = AppenderFactory.CreateRollingFileAppender("Debug", "logfile");
+            var appender = Log4NetAppenderFactory.CreateRollingFileAppender("Debug", "logfile");
         }
     }
 }

@@ -35,12 +35,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 myQueue.Purge();
         }
 
-
-        bool IReceiveMessages.HasMessage()
-        {
-            return true;
-        }
-
         public TransportMessage Receive()
         {
             try

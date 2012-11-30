@@ -7,6 +7,7 @@ using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Unicast.Queuing.Azure.ServiceBus;
+using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus
 {
@@ -63,6 +64,9 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.ServerWaitTime, configSection.ServerWaitTime);
+
+            // make sure the transaction stays open a little longer than the long poll.
+            Configure.Instance.TransactionTimeout(TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1));
 
             if (!string.IsNullOrEmpty(configSection.QueueName))
             {

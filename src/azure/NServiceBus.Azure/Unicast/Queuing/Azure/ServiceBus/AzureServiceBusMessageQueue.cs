@@ -82,11 +82,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             useTransactions = transactional;
         }
 
-        public bool HasMessage()
-        {
-            return true; 
-        }
-
         public TransportMessage Receive()
         {
             try{
@@ -104,8 +99,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                             message.SafeComplete();
                         }
                     }
-                    else
+                    else if (Transaction.Current.TransactionInformation.Status == TransactionStatus.Active)
+                    {
                         Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
+                    }
+                    else
+                    {
+                        return null;
+                    }
 
                     return t;
                 }

@@ -119,31 +119,27 @@ namespace NServiceBus
             }
             set
             {
-                bool invoke = configurer == null;
                 configurer = value;
                 WireUpConfigSectionOverrides();
-                if (invoke)
-                    InvokeBeforeConfigurationInitializers();
+                InvokeBeforeConfigurationInitializers();
             }
         }
 
-        private void InvokeBeforeConfigurationInitializers()
-        {
-            TypesToScan.Where(t => typeof(IWantToRunBeforeConfiguration).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
-                .ToList().ForEach(t =>
-                {
-                    var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                    ini.Init();
-                });
-        }
-
         private IConfigureComponents configurer;
+        private static bool configSectionOverridesInitialised;
 
         void WireUpConfigSectionOverrides()
         {
+            if (configSectionOverridesInitialised)
+            {
+                return;
+            }
+
             TypesToScan
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+
+            configSectionOverridesInitialised = true;
         }
 
         /// <summary>
@@ -265,6 +261,23 @@ namespace NServiceBus
             return null;
         }
 
+        private static bool beforeConfigurationInitializersCalled;
+
+        private void InvokeBeforeConfigurationInitializers()
+        {
+            if (beforeConfigurationInitializersCalled)
+            {
+                return;
+            }
+
+            ForAllTypes<IWantToRunBeforeConfiguration>(t =>
+            {
+                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
+                ini.Init();
+            });
+
+            beforeConfigurationInitializersCalled = true;
+        }
 
         /// <summary>
         /// Finalizes the configuration by invoking all initializers.
@@ -278,11 +291,7 @@ namespace NServiceBus
             
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            ForAllTypes<IWantToRunBeforeConfiguration>(t =>
-            {
-                var ini = (IWantToRunBeforeConfiguration)Activator.CreateInstance(t);
-                ini.Init();
-            });
+            InvokeBeforeConfigurationInitializers();
 
             ForAllTypes<Config.INeedInitialization>(t =>
             {

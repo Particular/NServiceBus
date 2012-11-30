@@ -18,7 +18,7 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Threshold_should_be_All()
         {
-            Configurator.Basic(new ConsoleAppender { Threshold = Level.All });
+            Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
         }
@@ -26,7 +26,7 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Threshold_default_should_be_Info()
         {
-            Configurator.Basic(new ConsoleAppender());
+            Log4NetConfigurator.Configure(new ConsoleAppender());
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");
@@ -35,7 +35,7 @@ namespace NServiceBus.Logging.Tests.Log4Net
         [Test]
         public void Threshold_default_should_be_Error()
         {
-            Configurator.Basic(new ConsoleAppender { Threshold = Level.Error });
+            Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.Error });
 
             LogManager.GetLogger("Test").Debug("Testing Debug");
             LogManager.GetLogger("Test").Info("Testing Info");

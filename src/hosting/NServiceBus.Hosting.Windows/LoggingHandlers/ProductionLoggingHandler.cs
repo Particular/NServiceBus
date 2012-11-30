@@ -11,29 +11,28 @@
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            if (SetLoggingLibrary.Log4NetExists)
+            bool logToConsole = GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero;
+
+            if (Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Log4NetExists)
             {
-                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateRollingFileAppender(null, "logfile"));
+                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender(null, "logfile"));
 
-                if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
-                    return;
-
-                SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.AppenderFactory.CreateColoredConsoleAppender("Info"));
+                if (logToConsole)
+                    SetLoggingLibrary.Log4Net(null, Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateColoredConsoleAppender("Info"));
             }
-            else if (SetLoggingLibrary.NLogExists)
-            {
-                const string layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}";
+            //else if (Logging.Loggers.NLogAdapter.NLogConfigurator.NLogExists)
+            //{
+            //    const string layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}";
 
-                var targets = new List<object> { Logging.Loggers.NLogAdapter.TargetFactory.CreateRollingFileTarget("logfile", layout) };
+            //    var targets = new List<object> { Logging.Loggers.NLogAdapter.TargetFactory.CreateRollingFileTarget("logfile", layout) };
 
-                if (GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero)
-                    targets.Add(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget(layout));
+            //    if (logToConsole)
+            //        targets.Add(Logging.Loggers.NLogAdapter.TargetFactory.CreateColoredConsoleTarget(layout));
 
-                SetLoggingLibrary.NLog(null, targets.ToArray());
-            }
+            //    SetLoggingLibrary.NLog(null, targets.ToArray());
+            //}
             else
-                Internal.ConfigureInternalLog4Net.Production();
-            //                throw new ConfigurationErrorsException("No logging framework found. NServiceBus supports log4net and NLog. You need to put any of these in the same directory as the host.");
+                Internal.ConfigureInternalLog4Net.Production(logToConsole);
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

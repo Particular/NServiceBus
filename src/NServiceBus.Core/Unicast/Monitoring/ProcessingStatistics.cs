@@ -26,17 +26,17 @@ namespace NServiceBus.Unicast.Monitoring
 
         public void Begin()
         {
-            Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTime.UtcNow.ToWireFormattedString();
+            Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         public void End(Exception ex = null)
         {
             var now = DateTime.UtcNow;
 
-            Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = now.ToWireFormattedString();
+            Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
 
             if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
-                UpdateCounters(Bus.CurrentMessageContext.Headers[Headers.TimeSent].ToUtcDateTime(), Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted].ToUtcDateTime(), now);
+                UpdateCounters(DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.TimeSent]), DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
             
                 
         }

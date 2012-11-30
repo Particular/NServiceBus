@@ -229,6 +229,33 @@
     <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Gateway\Utils\Hasher.cs" />
     <Compile Include="Gateway\Utils\StreamExtensions.cs" />
+    <Compile Include="Hosting\Configuration\ConfigurationManager.cs" />
+    <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
+    <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
+    <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
+    <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
+    <Compile Include="Hosting\Configuration\INameThisEndpoint.cs" />
+    <Compile Include="Hosting\Configuration\IWant.cs" />
+    <Compile Include="Hosting\GenericHost.cs" />
+    <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
+    <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
+    <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
+    <Compile Include="Hosting\Helpers\FileVersionRetriever.cs" />
+    <Compile Include="Hosting\IHost.cs" />
+    <Compile Include="Hosting\InternalsVisibleTo.cs" />
+    <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
+    <Compile Include="Hosting\Profiles\IProfile.cs" />
+    <Compile Include="Hosting\Profiles\ProfileActivator.cs" />
+    <Compile Include="Hosting\Profiles\ProfileManager.cs" />
+    <Compile Include="Hosting\Roles\IConfigureRole.cs" />
+    <Compile Include="Hosting\Roles\IRole.cs" />
+    <Compile Include="Hosting\Roles\RoleManager.cs" />
+    <Compile Include="Hosting\Wcf\WcfManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Wcf\WcfServiceHost.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
     <Compile Include="Impersonation\ImpersonationManager.cs" />
@@ -245,7 +272,6 @@
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Licensing\LicenseType.cs" />
     <Compile Include="Licensing\LicenseValidator.cs" />
-    <Compile Include="LoggingLibraryException.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\Internal\ReflectionExtensions.cs" />
@@ -254,14 +280,14 @@
     <Compile Include="Logging\Log4NetBridge\Log4NetBridgeAppender.cs" />
     <Compile Include="Logging\Loggers\ConsoleLogger.cs" />
     <Compile Include="Logging\Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\AppenderFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Configurator.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\LoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\Configurator.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\Log.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\LoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\TargetFactory.cs" />
+    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetAppenderFactory.cs" />
+    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetConfigurator.cs" />
+    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLogger.cs" />
+    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLoggerFactory.cs" />
+    <Compile Include="Logging\Loggers\NLogAdapter\NLogConfigurator.cs" />
+    <Compile Include="Logging\Loggers\NLogAdapter\NLogLogger.cs" />
+    <Compile Include="Logging\Loggers\NLogAdapter\NLogLoggerFactory.cs" />
+    <Compile Include="Logging\Loggers\NLogAdapter\NLogTargetFactory.cs" />
     <Compile Include="Logging\Loggers\NullLogger.cs" />
     <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
     <Compile Include="Logging\LoggingLibraryException.cs" />
@@ -283,7 +309,6 @@
     <Compile Include="Notifications\SendEmail.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\ContainerExtensions.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\ObjectExtensions.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\TypeExtensions.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
@@ -295,6 +320,7 @@
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />
+    <Compile Include="Persistence\ConcurrencyException.cs" />
     <Compile Include="Persistence\Raven\RavenConventions.cs" />
     <Compile Include="Persistence\Raven\RavenPersistenceConstants.cs" />
     <Compile Include="Persistence\Raven\RavenSessionFactory.cs" />
@@ -314,7 +340,6 @@
     <Compile Include="Sagas\Impl\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Impl\Finders\NullSagaFinder.cs" />
     <Compile Include="Sagas\Impl\Finders\PropertySagaFinder.cs" />
-    <Compile Include="Sagas\Impl\MessageExtensions.cs" />
     <Compile Include="Sagas\Impl\OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Sagas\Impl\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Sagas\Impl\SagaContext.cs" />
@@ -347,6 +372,7 @@
     <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="SetLoggingLibrary.cs" />
     <Compile Include="SyncConfig.cs" />
+    <Compile Include="TaskSchedulers\IOCompletionPortTaskScheduler.cs" />
     <Compile Include="Timeout\Core\DefaultTimeoutManager.cs" />
     <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
@@ -357,6 +383,7 @@
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\RavenTimeoutPersistence.cs" />
+    <Compile Include="Timeout\Hosting\Windows\SatelliteInterceptor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
@@ -429,13 +456,14 @@
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Config\LicenceConfig.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Config\ConfigureTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\PooledThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
+    <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />

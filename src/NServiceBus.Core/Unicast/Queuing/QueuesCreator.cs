@@ -23,6 +23,9 @@ namespace NServiceBus.Unicast.Queuing
             if (Endpoint.IsSendOnly)
                 return;
 
+            if(MsmqTransportConfig.DoNotCreateQueues)
+                return;
+
             var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>();
 
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))

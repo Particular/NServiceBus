@@ -47,12 +47,12 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
                 var t = counter.CounterType;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Logger.Warn(string.Format("NServiceBus performance counter for CurrentThroughput not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-PerformanceCounters powershell command to create the counter", receiveAddress), e);
+                Logger.InfoFormat("NServiceBus performance counter for CurrentThroughput not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-PerformanceCounters powershell command to create the counter", receiveAddress.Queue);
                 return false;
             }
-            Logger.InfoFormat("Throughput counter initalized for transport: {0}",receiveAddress);
+            Logger.InfoFormat("Throughput counter initialized for transport: {0}", receiveAddress);
             return true;
         }
 

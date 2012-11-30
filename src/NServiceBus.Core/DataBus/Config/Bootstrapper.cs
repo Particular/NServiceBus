@@ -11,9 +11,9 @@ namespace NServiceBus.DataBus.Config
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 var properties = Configure.TypesToScan
-                    .Where(t => MessageConventionExtensions.IsMessageType(t))
+                    .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Where(p => p.IsDataBusProperty());
+                    .Where(MessageConventionExtensions.IsDataBusProperty);
 
                 foreach (var property in properties)
                 {
@@ -33,9 +33,9 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             else
             {
                 dataBusPropertyFound = Configure.TypesToScan
-                    .Where(t => t.IsMessageType())
+                    .Where(MessageConventionExtensions.IsMessageType)
                     .SelectMany(messageType => messageType.GetProperties())
-                    .Any(t => t.IsDataBusProperty());
+                    .Any(MessageConventionExtensions.IsDataBusProperty);
             }
 
 		    if (!dataBusPropertyFound)

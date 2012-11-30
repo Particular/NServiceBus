@@ -63,6 +63,7 @@
     <Compile Include="DataResponseMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="ClientEndpoint.cs" />
+    <Compile Include="LoggingConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

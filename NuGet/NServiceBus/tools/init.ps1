@@ -7,8 +7,9 @@ if(!$toolsPath){
 
 Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
 
-Write-Host
+Write-Host ""
 Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
+Write-Host ""
 
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
@@ -30,26 +31,26 @@ if($machinePrepared -or $dontCheckMachineSetup.value)
 	exit
 }
 
-$perfCountersInstalled = Install-PerformanceCounters -WhatIf
-$msmqInstalled = Install-Msmq -WhatIf
-$dtcInstalled = Install-Dtc -WhatIf
-$ravenDBInstalled = Install-RavenDB -WhatIf
+$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
+$msmqInstalled = Test-NServiceBusMSMQInstallation
+$dtcInstalled = Test-NServiceBusDTCInstallation
+$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
 
 if(!$perfCountersInstalled){
-	Write-Verbose "Performance counters are not installed."
+	Write-Host "Performance counters are not installed."
 }
 if(!$msmqInstalled){
-	Write-Verbose "Msmq is not installed or correctly setup."
+	Write-Host "Msmq is not installed or correctly setup."
 }
 if(!$dtcInstalled){
-	Write-Verbose "DTC is not installed or started."
+	Write-Host "DTC is not installed or started."
 }
 if(!$ravenDBInstalled){
-	Write-Verbose "RavenDB is not installed."
+	Write-Host "RavenDB is not installed."
 }
 
 if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
-	Write-Verbose "Required infrastructure is all setup correctly."
+	Write-Host "Required infrastructure is all setup correctly."
 
 	New-Item -Path $nserviceBusVersionPath -Force | Out-Null
 	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force | Out-Null

@@ -33,10 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Apache.NMS">
-      <HintPath>..\..\..\..\Curabill\doc\Dokumentationen\ActiveMQ\NMS Prototype\NMS Prototype\NMS Prototype\Apache.NMS.dll</HintPath>
+      <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
     </Reference>
     <Reference Include="Apache.NMS.ActiveMQ">
-      <HintPath>..\..\..\..\Curabill\doc\Dokumentationen\ActiveMQ\NMS Prototype\NMS Prototype\NMS Prototype\Apache.NMS.ActiveMQ.dll</HintPath>
+      <HintPath>..\packages\Apache.NMS.ActiveMQ.1.5.6\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">

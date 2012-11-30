@@ -12,15 +12,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
     [TestFixture]
     public class When_receiving_messages : AzureQueueFixture
     {
-        [Test]
-        public void Has_messages_should_indicate_if_messages_exists_int_the_queue()
-        {
-            Assert.False(receiver.HasMessage());
-
-            AddTestMessage();
-
-            Assert.True(receiver.HasMessage());
-        }
+       
 
         [Test]
         public void Should_throw_if_non_nservicebus_messages_are_received()

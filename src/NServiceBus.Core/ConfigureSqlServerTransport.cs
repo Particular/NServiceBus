@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Configuration;
-    using System.Transactions;
     using Config;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.SQLServer;
@@ -28,8 +27,6 @@ namespace NServiceBus
 
             configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.ConnectionString, connectionString);
-
-            configure.IsolationLevel(IsolationLevel.ReadCommitted);
 
             EndpointInputQueueCreator.Enabled = true;
 

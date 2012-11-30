@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.Timeout.Hosting.Azure
+﻿using System.Threading;
+using Microsoft.WindowsAzure.ServiceRuntime;
+
+namespace NServiceBus.Timeout.Hosting.Azure
 {
     using System;
     using System.Collections.Generic;
@@ -49,7 +52,7 @@
             }
             catch (DataServiceQueryException)
             {
-                nextTimeToRunQuery = DateTime.Now.AddMinutes(1);
+                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
                 results = new List<Tuple<String, DateTime>>();
             }
             return results;
@@ -347,12 +350,19 @@
             return hash.ToString();
         }
 
+        private string GetUniqueEndpointName()
+        {
+            var identifier = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Id : Environment.MachineName;
+
+            return Configure.EndpointName + "_" + identifier;
+        }
+
         private bool TryGetLastSuccessfullRead(ServiceContext context, out TimeoutManagerDataEntity lastSuccessfullReadEntity)
         {
             try
             {
                 lastSuccessfullReadEntity = (from m in context.TimeoutManagerData
-                                             where m.PartitionKey == Configure.EndpointName
+                                             where m.PartitionKey == GetUniqueEndpointName()
                                              select m).FirstOrDefault();
             }
             catch
@@ -367,22 +377,42 @@
 
         private void UpdateSuccesfullRead(ServiceContext context, TimeoutManagerDataEntity read)
         {
-            if (read == null)
+            try
             {
-                read = new TimeoutManagerDataEntity(Configure.EndpointName, string.Empty)
+                if (read == null)
                 {
-                    LastSuccessfullRead = DateTime.UtcNow
-                };
+                    read = new TimeoutManagerDataEntity(GetUniqueEndpointName(), string.Empty)
+                               {
+                                   LastSuccessfullRead = DateTime.UtcNow
+                               };
 
-                context.AddObject(ServiceContext.TimeoutManagerDataTableName, read);
+                    context.AddObject(ServiceContext.TimeoutManagerDataTableName, read);
+                }
+                else
+                {
+                    read.LastSuccessfullRead = DateTime.UtcNow;
+                    context.Detach(read);
+                    context.AttachTo(ServiceContext.TimeoutManagerDataTableName, read, "*");
+                    context.UpdateObject(read);
+                }
+                context.SaveChangesWithRetries(SaveChangesOptions.ReplaceOnUpdate);
             }
-            else
+            catch (DataServiceRequestException ex) // handle concurrency issues
             {
-                read.LastSuccessfullRead = DateTime.UtcNow;
-                context.UpdateObject(read);
+                var response = ex.Response.FirstOrDefault();
+                //Concurrency Exception - PreCondition Failed or Entity Already Exists
+                if (response != null && (response.StatusCode == 412 || response.StatusCode == 409))
+                {
+                    return; 
+                    // I assume we can ignore this condition? 
+                    // Time between read and update is very small, meaning that another instance has sent 
+                    // the timeout messages that this node intended to send and if not we will resend 
+                    // anything after the other node's last read value anyway on next request.
+                }
+
+                throw;
             }
 
-            context.SaveChanges(SaveChangesOptions.ReplaceOnUpdate);
         }
 
         private string connectionString;

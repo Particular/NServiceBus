@@ -107,12 +107,19 @@ namespace OrderService
             return result;
         }
 
-        private static List<Messages.IOrderLine> GetOrderLines(IEnumerable<OrderLine> lines)
+        private List<Messages.IOrderLine> GetOrderLines(IEnumerable<OrderLine> lines)
         {
             var result = new List<Messages.IOrderLine>();
 
             foreach (OrderLine ol in lines)
-                result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
+            {
+                OrderLine ol1 = ol;
+                result.Add(Bus.CreateInstance<Messages.IOrderLine>(o =>
+                    {
+                        o.ProductId = ol1.ProductId;
+                        o.Quantity = ol1.Quantity;
+                    }));
+            }
 
             return result;
         }
@@ -128,12 +135,19 @@ namespace OrderService
             });
         }
 
-        private static List<Messages.IOrderLine> GetOrderLines(IEnumerable<IOrderLine> lines)
+        private List<Messages.IOrderLine> GetOrderLines(IEnumerable<IOrderLine> lines)
         {
             var result = new List<Messages.IOrderLine>();
 
             foreach (IOrderLine ol in lines)
-                result.Add(o => { o.ProductId = ol.ProductId; o.Quantity = ol.Quantity; });
+            {
+                IOrderLine ol1 = ol;
+                result.Add(Bus.CreateInstance<Messages.IOrderLine>(o =>
+                    {
+                        o.ProductId = ol1.ProductId;
+                        o.Quantity = ol1.Quantity;
+                    }));
+            }
 
             return result;
         }

@@ -4,7 +4,7 @@
     using System.Management.Automation;
     using System.Reflection;
 
-    [Cmdlet("Get", "NServiceBusVersion")]
+    [Cmdlet(VerbsCommon.Get, "NServiceBusVersion")]
     public class GetNServiceBusVersion : PSCmdlet
     {
         protected override void ProcessRecord()

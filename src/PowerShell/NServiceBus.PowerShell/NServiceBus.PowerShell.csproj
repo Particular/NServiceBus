@@ -7,19 +7,21 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5E51EFBF-329F-4D3A-B86E-CC111697746F}</ProjectGuid>
     <OutputType>Library</OutputType>
-	<SignAssembly>true</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.PowerShell</RootNamespace>
     <AssemblyName>NServiceBus.PowerShell</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\binaries\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,12 +29,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\binaries\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -41,8 +45,11 @@
     </Reference>
     <Reference Include="System.Messaging" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="VsCmdletBase.cs" />
+    <Compile Include="AddMessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="CmdletBase.cs" />
     <Compile Include="GetMessage.cs" />
     <Compile Include="GetNServiceBusVersion.cs" />
@@ -52,14 +59,25 @@
     <Compile Include="InstallMsmq.cs" />
     <Compile Include="InstallRavenDB.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VsConstants.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.vb.t4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfig.ps1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.cs.t4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Examples\Get-Message.ps1" />
     <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
     <None Include="Examples\Install-Dtc.ps1" />
     <None Include="Examples\Install-Msmq.ps1" />
     <None Include="Examples\Install-RavenDB.ps1" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Setup\NServiceBus.Setup.Windows\NServiceBus.Setup.Windows.csproj">
@@ -67,7 +85,13 @@
       <Name>NServiceBus.Setup.Windows</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="about_NServiceBus.help.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

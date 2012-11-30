@@ -1,5 +1,5 @@
 properties {
-	$ProductVersion = "4.0"
+	$ProductVersion = "3.4"
     $PatchVersion = "0"
 	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
 	$PreRelease = "alpha"
@@ -104,7 +104,6 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	Write-Output "##teamcity[buildNumber '$infoVersion']"
 	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
     
 	foreach($projectFile in $projectFiles) {
 
@@ -174,7 +173,8 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 }
 
 task CopyBinaries -depends Merge {
-		
+	
+	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
 	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
@@ -182,8 +182,6 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.PowerShell.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Setup.Windows.* $binariesDir -Force -Exclude **Tests.dll
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
@@ -215,13 +213,13 @@ task CreateReleaseFolder {
 	Copy-Item "$baseDir\RunMeFirst.bat" $releaseRoot -Force -ErrorAction SilentlyContinue
 	
 	Create-Directory $releaseRoot\tools\licenseinstaller
-	Copy-Item "$outDir32\LicenseInstaller.exe" -Destination $releaseRoot\tools\licenseinstaller -Force -ErrorAction SilentlyContinue
+	Copy-Item "$outDir\LicenseInstaller.exe" -Destination $releaseRoot\tools\licenseinstaller -Force -ErrorAction SilentlyContinue
 
 	Create-Directory $releaseRoot\tools\migration
 	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools\migration -Force 
 	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools\migration -Force 
 	Copy-Item "$outDir\NServiceBus.Compatibility.dll" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
-	Copy-Item "$outDir32\TimeoutMigrator.exe" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
+	Copy-Item "$outDir\TimeoutMigrator.exe" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
 	
 	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
@@ -268,6 +266,7 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
+	$assemblies += dir $outDir\NServiceBus.PowerShell.dll
 	$assemblies += dir $outDir\NServiceBus.Setup.Windows.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll
@@ -282,7 +281,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Host.exe
-	$assemblies += dir $outDir\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Topshelf.dll
 	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
@@ -291,7 +289,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir32\NServiceBus.Host.exe
-	$assemblies += dir $outDir32\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir32\log4net.dll
 	$assemblies += dir $outDir32\Topshelf.dll
 	$assemblies += dir $outDir32\Microsoft.Practices.ServiceLocation.dll
@@ -300,7 +297,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Hosting.Azure.HostProcess.exe
-	$assemblies += dir $outDir\NServiceBus.Hosting.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Topshelf.dll
 	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll

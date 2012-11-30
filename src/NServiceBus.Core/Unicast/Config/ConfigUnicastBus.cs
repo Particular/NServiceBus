@@ -61,7 +61,7 @@ namespace NServiceBus.Unicast.Config
         void RegisterLocalMessages()
         {
             TypesToScan
-                .Where(t => t.IsMessageType())
+                .Where(MessageConventionExtensions.IsMessageType)
                 .ToList()
                 .ForEach(t => MapTypeToAddress(t, Address.Undefined));
         }

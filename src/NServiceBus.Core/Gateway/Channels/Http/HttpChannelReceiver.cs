@@ -7,15 +7,18 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Net;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
+    using System.Threading.Tasks.Schedulers;
     using System.Web;
     using HeaderManagement;
     using Logging;
     using Utils;
 
-    public class HttpChannelReceiver:IChannelReceiver
+    public class HttpChannelReceiver : IChannelReceiver
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
+        private IOCompletionPortTaskScheduler scheduler;
        
         public void Start(string address, int numWorkerThreads)
         {
@@ -23,7 +26,7 @@ namespace NServiceBus.Gateway.Channels.Http
         
             listener.Prefixes.Add(address);
 
-            ThreadPool.SetMaxThreads(numWorkerThreads, numWorkerThreads);
+            scheduler = new IOCompletionPortTaskScheduler(numWorkerThreads, numWorkerThreads);
 
             try
             {
@@ -31,7 +34,7 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin priviliges",address),ex);
+                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin priviliges", address), ex);
             }
            
             new Thread(HttpServer).Start();
@@ -40,6 +43,7 @@ namespace NServiceBus.Gateway.Channels.Http
         public void Dispose()
         {
             listener.Stop();
+            scheduler.Dispose();
         }
 
         public void Handle(HttpListenerContext ctx)
@@ -118,19 +122,19 @@ namespace NServiceBus.Gateway.Channels.Http
                 try
                 {
                     var ctx = listener.GetContext();
-                    ThreadPool.QueueUserWorkItem(x => Handle(ctx));
+                    new Task(() => Handle(ctx)).Start(scheduler);
                 }
-                catch (HttpListenerException)
+                catch (HttpListenerException ex)
                 {
+                    Logger.Error("Gateway failed to receive incoming request.", ex);
                     break;
                 }
-                catch (InvalidOperationException)
+                catch (InvalidOperationException ex)
                 {
+                    Logger.Error("Gateway failed to receive incoming request.", ex);
                     break;
                 }
             }
-
-            hasStopped.Set();
         }
 
         static void ReportSuccess(HttpListenerContext ctx)
@@ -177,8 +181,6 @@ namespace NServiceBus.Gateway.Channels.Http
             }
         }
 
-        readonly ManualResetEvent hasStopped = new ManualResetEvent(false);
-        
         HttpListener listener;
         
         const int MaximumBytesToRead = 100000;

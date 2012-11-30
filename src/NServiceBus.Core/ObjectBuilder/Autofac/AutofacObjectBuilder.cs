@@ -3,6 +3,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using Internal;
     using global::Autofac;
     using global::Autofac.Builder;
@@ -128,7 +129,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
                     "Cannot configure properties for a type that hasn't been configured yet: " + component.FullName);
             }
 
-            registration.Activating += (sender, e) => ObjectExtensions.SetPropertyValue(e.Instance, property, value);
+            registration.Activating += (sender, e) => SetPropertyValue(e.Instance, property, value);
         }
 
         ///<summary>
@@ -146,6 +147,17 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public bool HasComponent(Type componentType)
         {
             return container.IsRegistered(componentType);
+        }
+
+        ///<summary>
+        /// Set a property value on an instance using reflection
+        ///</summary>
+        ///<param name="instance"></param>
+        ///<param name="propertyName"></param>
+        ///<param name="value"></param>
+        private static void SetPropertyValue(object instance, string propertyName, object value)
+        {
+            instance.GetType().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance).SetValue(instance, value, null);
         }
 
         private static void SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle> registrationBuilder)

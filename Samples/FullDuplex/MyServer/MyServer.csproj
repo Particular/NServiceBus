@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="LoggingConfiguration.cs" />
     <Compile Include="MyOwnMessageModule.cs" />
     <Compile Include="MyOwnUnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

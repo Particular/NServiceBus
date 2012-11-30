@@ -7,7 +7,7 @@ namespace NServiceBus.Licensing
 
     public class LicenseDescriptor
     {
-        public static string LocalLicenseFile
+        public static string OldLocalLicenseFile
         {
             get
             {
@@ -15,7 +15,15 @@ namespace NServiceBus.Licensing
             }
         }
 
-        public static string RegistryLicense
+        public static string LocalLicenseFile
+        {
+            get
+            {
+                return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"NServiceBus\License.xml");
+            }
+        }
+
+        public static string HKCULicense
         {
             get
             {
@@ -25,6 +33,29 @@ namespace NServiceBus.Licensing
                     {
                         return (string)registryKey.GetValue("License", null);
                     }
+                }
+
+                return null;
+            }
+        }
+
+        public static string HKLMLicense
+        {
+            get
+            {
+                try
+                {
+                    using (var registryKey = Registry.LocalMachine.OpenSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", LicenseManager.SoftwareVersion.ToString(2))))
+                    {
+                        if (registryKey != null)
+                        {
+                            return (string) registryKey.GetValue("License", null);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    //Swallow exception if we can't read HKLM
                 }
 
                 return null;

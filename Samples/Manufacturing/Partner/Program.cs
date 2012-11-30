@@ -52,7 +52,8 @@ namespace Partner
                     {
                         float quantity; 
                         float.TryParse(line, out quantity);
-                        orderlines.Add(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
+                        
+                        orderlines.Add(bus.CreateInstance<IOrderLine>(ol => {ol.ProductId = productId; ol.Quantity = quantity;}));
                     }
 
                     var orderMessage = new OrderMessage
