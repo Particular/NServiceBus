@@ -107,12 +107,17 @@ namespace NServiceBus
         ///</summary>
         ///<param name="queueName"></param>
         ///<param name="machineName"></param>
-        public Address(string queueName, string machineName)
+        public Address(string queueName, string machineName) :
+            this(queueName, machineName, false)
         {
-            Queue = queueName.ToLower();
-            Machine = addressMode == AddressMode.Local ? machineName.ToLower() : machineName;
         }
 
+        public Address(string queueName, string machineName, bool caseSensitive)
+        {
+            Queue = caseSensitive ? queueName : queueName.ToLower();
+            Machine = caseSensitive || addressMode != AddressMode.Local ? machineName : machineName.ToLower();
+        }
+        
         /// <summary>
         /// Deserializes an Address.
         /// </summary>

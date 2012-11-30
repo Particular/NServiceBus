@@ -1,0 +1,14 @@
+namespace NServiceBus.Unicast.Queuing.ActiveMQ
+{
+    using System;
+
+    public class SubscriptionEventArgs : EventArgs
+    {
+        public SubscriptionEventArgs(string topic)
+        {
+            this.Topic = topic;
+        }
+
+        public string Topic { get; private set; }
+    }
+}
