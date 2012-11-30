@@ -2,9 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
-    using System.Linq;
     using System.Net;
-    using System.Net.NetworkInformation;
     using System.Text;
     using Logging;
     using Persistence.Raven;
@@ -244,22 +242,12 @@ namespace NServiceBus
             return config;
         }
 
-        [ObsoleteEx(Message = "RequestCompression will be on by default from v5.0.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        public static Configure EnableRequestCompression(this Configure config)
-        {
-            enableRequestCompression = true;
-
-            return config;
-        }
-
-        public static Configure DisableRequestCompression(this Configure config)
+        public static Configure DisableRavenRequestCompression(this Configure config)
         {
             enableRequestCompression = false;
 
             return config;
         }
-
-        static bool enableRequestCompression;
 
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
@@ -268,14 +256,13 @@ namespace NServiceBus
             return config;
         }
 
-        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
-
-
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {
             tagNameConvention = convention;
         }
 
+        static bool enableRequestCompression = true;
+        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
         static Func<Type, string> tagNameConvention;
         public static bool AutoCreateDatabase = true;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
