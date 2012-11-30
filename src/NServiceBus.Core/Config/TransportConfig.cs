@@ -38,5 +38,21 @@
                 this["MaxRetries"] = value;
             }
         }
+
+        /// <summary>
+        /// The max throughput for the transport. This allows the user to throttle their endpoint if needed
+        /// </summary>
+        [ConfigurationProperty("MaxThroughput", IsRequired = false, DefaultValue = 0)]
+        public int MaxThroughput
+        {
+            get
+            {
+                return (int)this["MaxThroughput"];
+            }
+            set
+            {
+                this["MaxThroughput"] = value;
+            }
+        }
     }
 }

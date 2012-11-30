@@ -52,6 +52,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             if (transportConfig != null)
             {
                 TransactionSettings.MaxRetries = transportConfig.MaxRetries;
+                MaxThroughput = transportConfig.MaxThroughput;
 
                 return transportConfig.MaxDegreeOfParallelism;
             }
