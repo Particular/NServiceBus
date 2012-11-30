@@ -64,6 +64,10 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete, Version=1.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.3.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -80,8 +84,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Topshelf\Topshelf.dll</HintPath>
     </Reference>
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="INameThisEndpoint.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
     <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
     <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
@@ -147,4 +153,5 @@
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\host\"</notused>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="$(ProjectPath)\..\..\..\..\Tools\Fody\Fody.targets" />
 </Project>
