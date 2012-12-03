@@ -65,6 +65,9 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.ActiveMQ">
+      <HintPath>..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
@@ -73,12 +76,6 @@
     </Reference>
     <Reference Include="NServiceBus.Hosting">
       <HintPath>..\..\..\binaries\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ">
-      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ.Config">
-      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.Config.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

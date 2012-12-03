@@ -1,9 +1,7 @@
 ﻿namespace MyPublisher
 {
-    using System.Linq;
-
     using NServiceBus;
-    using NServiceBus.Unicast.Queuing.ActiveMQ.Config;
+    using NServiceBus.ActiveMQ.Config;
 
     class EndpointConfig :  IConfigureThisEndpoint, AsA_Publisher,IWantCustomInitialization
     {

@@ -1,11 +1,7 @@
-﻿using NServiceBus;
-
-namespace Subscriber1
+﻿namespace Subscriber1
 {
-    using System.Linq;
-
-    using NServiceBus.Unicast.Queuing.ActiveMQ;
-    using NServiceBus.Unicast.Queuing.ActiveMQ.Config;
+    using NServiceBus;
+    using NServiceBus.ActiveMQ.Config;
 
     class EndpointConfig : IConfigureThisEndpoint, AsA_Server,IWantCustomInitialization
     {

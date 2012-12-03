@@ -71,6 +71,9 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.ActiveMQ">
+      <HintPath>..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
@@ -82,12 +85,6 @@
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor">
       <HintPath>..\..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ">
-      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Unicast.Queuing.ActiveMQ.Config">
-      <HintPath>..\..\..\binaries\NServiceBus.Unicast.Queuing.ActiveMQ.Config.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

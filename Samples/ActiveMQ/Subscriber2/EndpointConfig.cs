@@ -1,9 +1,7 @@
 ﻿namespace Subscriber2
 {
-    using System.Linq;
-
     using NServiceBus;
-    using NServiceBus.Unicast.Queuing.ActiveMQ.Config;
+    using NServiceBus.ActiveMQ.Config;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
