@@ -8,7 +8,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// The temp directory where files will be place before sending
         /// </summary>
-        [Obsolete("Not required any longer. You can safely remove this attribute.", false)]
+        [ObsoleteEx(Message = "Not required any longer. You can safely remove this attribute.", RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
         [ConfigurationProperty("SendDirectory", IsRequired = false)]
         public String SendDirectory 
         { 

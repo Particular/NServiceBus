@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="inputqueue">
 		/// The adress of a local queue that should be used as input channel for this transport
         /// </param>
-        [Obsolete("Use the overload which accepts an 'Address' parameter.", true)]		
+        [ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]		
         void Start(string inputqueue);
 
         /// <summary>
