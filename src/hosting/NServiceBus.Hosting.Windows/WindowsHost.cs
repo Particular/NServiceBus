@@ -41,10 +41,14 @@ namespace NServiceBus.Hosting.Windows
         /// <summary>
         /// Windows hosting behavior when critical error occurs is suicide.
         /// </summary>
-        private void OnCriticalError()
+        private void OnCriticalError(string errorMessage)
         {
-            Thread.Sleep(10000); // so that user can see on their screen the problem
-            Process.GetCurrentProcess().Kill();
+            if (Environment.UserInteractive)
+            {
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+            }
+
+            Environment.FailFast(string.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage));
         }
 
         /// <summary>

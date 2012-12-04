@@ -1,37 +1,35 @@
 namespace NServiceBus
 {
     using System;
-    using Unicast.Transport;
 
     /// <summary>
     /// Allow override critical error action
     /// </summary>
     public static class ConfigureCriticalErrorAction
     {
-        /// <summary>
-        /// Set default behavior to zeroing the number of receiving worker threads.
-        /// </summary>
-        private static Action onCriticalErrorAction = () => Configure.Instance.Builder.Build<ITransport>().ChangeNumberOfWorkerThreads(0);
+        private static Action<string> onCriticalErrorAction = (errorMessage) => Environment.FailFast(string.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage));
             
         /// <summary>
-        /// Sets the function to be used when critical error occurs
+        /// Sets the function to be used when critical error occurs.
         /// </summary>
         /// <param name="config"></param>
         /// <param name="onCriticalError"></param>
         /// <returns></returns>
-        public static Configure DefineCriticalErrorAction(this Configure config, Action onCriticalError)
+        public static Configure DefineCriticalErrorAction(this Configure config, Action<string> onCriticalError)
         {
             onCriticalErrorAction = onCriticalError;
             return config;
         }
+
         /// <summary>
-        /// Execute the configured Critical error action
+        /// Execute the configured Critical error action.
         /// </summary>
         /// <param name="config"></param>
+        /// <param name="errorMessage">The error message.</param>
         /// <returns></returns>
-        public static Configure OnCriticalError(this Configure config)
+        public static Configure OnCriticalError(this Configure config, string errorMessage)
         {
-            onCriticalErrorAction();
+            onCriticalErrorAction(errorMessage);
             return config;
         }
     }

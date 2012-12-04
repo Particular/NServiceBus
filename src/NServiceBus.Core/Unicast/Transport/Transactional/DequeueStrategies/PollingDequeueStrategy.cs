@@ -66,15 +66,14 @@
             {
                 Logger.Fatal("Error in receiving messages.", e);
 
-                Configure.Instance.OnCriticalError();
-
-                return null;
+                Configure.Instance.OnCriticalError(String.Format("Error in receiving messages.\n{0}", e));
             }
             catch (Exception e)
             {
                 Logger.Error("Error in receiving messages.", e);
-                return null;
             }
+
+            return null;
         }
 
 
