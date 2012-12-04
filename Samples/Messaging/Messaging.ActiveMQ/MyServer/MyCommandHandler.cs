@@ -6,9 +6,13 @@
 
     public class MyCommandHandler:IHandleMessages<MyCommand>
     {
+        public IBus Bus { get; set; }
+
         public void Handle(MyCommand message)
         {
             Console.Out.WriteLine("MyCommand message received, Description: " + message.Description);
+
+            Bus.Return(CommandStatus.Ok);
         }
     }
 }

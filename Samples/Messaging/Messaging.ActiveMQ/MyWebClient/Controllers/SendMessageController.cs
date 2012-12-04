@@ -2,6 +2,7 @@
 
 namespace MyWebClient.Controllers
 {
+    using System.Threading.Tasks;
     using MyMessages;
     using NServiceBus;
 
@@ -9,11 +10,15 @@ namespace MyWebClient.Controllers
     {
         public IBus Bus { get; set; }
 
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            Bus.Send(new MyCommand{ Description = "This message was sent from MyWebClient"});
+            // We use the support for asyncronous methods in MVC 4 to avoid holding on precious web server threads
+            // while the server is processing our command - http://www.asp.net/mvc/tutorials/mvc-4/using-asynchronous-methods-in-aspnet-mvc-4
+            // Please see AsyncController if you're using an older version of MVC - http://msdn.microsoft.com/en-us/library/ee728598(v=vs.100).aspx
+            var status =  await Bus.Send(new MyCommand { Description = "This message was sent from MyWebClient" })
+                .Register<CommandStatus>();
 
-            return new ContentResult{ Content = "Message of type MyCommand sent to MyServer"};
+            return new ContentResult { Content = "Message of type MyCommand sent to MyServer, Command status returned: " + status };
         }
 
     }

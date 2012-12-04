@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandStatus.cs" />
     <Compile Include="MyCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
