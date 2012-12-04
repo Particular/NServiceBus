@@ -69,7 +69,7 @@ $propertyGroupElement.AppendChild($startActionElement)
 $propertyGroupElement.StartAction = "Program"
 $startProgramElement = $prjXml.CreateElement("StartProgram", $prjXml.Project.GetAttribute("xmlns"));
 $propertyGroupElement.AppendChild($startProgramElement)
-$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)NServiceBus.Host.exe"
+$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)NServiceBus.Host32.exe"
 $prjXml.project.AppendChild($propertyGroupElement);
 $writerSettings = new-object System.Xml.XmlWriterSettings
 $writerSettings.OmitXmlDeclaration = $false
