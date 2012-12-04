@@ -1,9 +1,9 @@
-﻿namespace MyServer
+﻿namespace MySubscriber
 {
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
         public void Init()
         {
@@ -18,7 +18,7 @@
     {
         public void Start()
         {
-            Console.Out.WriteLine("The MyServer endpoint is now started and ready to accept messages");
+            Console.Out.WriteLine("The MySubscriber endpoint is now started and subscribed to events from MyServer (Read more on how NServiceBus autosubscribes here: - TBD)");
         }
 
         public void Stop()

@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="CommandStatus.cs" />
     <Compile Include="MyCommand.cs" />
+    <Compile Include="MyEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

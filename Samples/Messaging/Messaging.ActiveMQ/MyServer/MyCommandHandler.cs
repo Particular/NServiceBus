@@ -12,6 +12,8 @@
         {
             Console.Out.WriteLine("MyCommand message received, Description: " + message.Description);
 
+            Bus.Publish(new MyEvent());
+
             Bus.Return(CommandStatus.Ok);
         }
     }
