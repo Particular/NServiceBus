@@ -60,8 +60,6 @@ namespace NServiceBus.Hosting.Windows
             if (arguments.SideBySide != null)
             {
                 serviceName += "-" + endpointVersion;
-
-                displayName += " (SideBySide)";
             }
 
             //Add the endpoint name so that the new appdomain can get it
