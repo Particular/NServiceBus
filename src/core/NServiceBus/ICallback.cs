@@ -10,7 +10,20 @@ namespace NServiceBus
     /// </summary>
     public interface ICallback
     {
-    	  /// <summary>
+        /// <summary>
+        /// Registers a callback to be invoked when a response arrives to the message sent.
+        /// The return code is returned as an int
+        /// </summary>
+        Task<int> Register();
+
+        /// <summary>
+        /// Registers a callback to be invoked when a response arrives to the message sent.
+        /// The return code is cast to the given enumerated type - T.
+        /// </summary>
+        /// <typeparam name="T">An enumeration type or an integer.</typeparam>
+        Task<T> Register<T>();
+
+        /// <summary>
         /// Registers a function to be invoked when a response arrives to the message sent.
         /// Returns a Task that can be used with async/await operations.
         /// </summary>
