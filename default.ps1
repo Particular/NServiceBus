@@ -34,7 +34,9 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends PrepareBinaries
 
-task PrepareBinaries -depends CopyBinaries
+task Quick -depends Merge, CopyBinaries
+
+task PrepareBinaries -depends RunTests, CopyBinaries
 
 task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
@@ -263,7 +265,7 @@ task RunTests -depends Build {
 	Move-Item -path $env:temp\filestoexclude\*.exe -destination $buildBase\ -Force
 }
 
-task Merge -depends RunTests {
+task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
