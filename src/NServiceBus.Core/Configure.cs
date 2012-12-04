@@ -10,6 +10,8 @@ namespace NServiceBus
     using Config;
     using Config.ConfigurationSource;
     using Config.Conventions;
+    using Installation;
+    using Installation.Environments;
     using Logging;
     using ObjectBuilder;
 
@@ -311,6 +313,9 @@ namespace NServiceBus
                 ini.Run();
             });
 
+            ForAllTypes<INeedToInstallSomething<Windows>>(
+                t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            
             initialized = true;
 
             if (ConfigurationComplete != null)

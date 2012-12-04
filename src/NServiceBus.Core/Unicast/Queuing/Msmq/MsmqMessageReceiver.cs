@@ -3,7 +3,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System;
     using System.Messaging;
     using System.Security.Principal;
-    using Logging;
+    using System.Threading;
     using NServiceBus.Config;
 
     public class MsmqMessageReceiver : IReceiveMessages
@@ -33,6 +33,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (PurgeOnStartup)
                 myQueue.Purge();
+
+            resetCircuitBreaker = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
         }
 
         public TransportMessage Receive()
@@ -44,19 +46,25 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     if (m == null)
                         return null;
 
-                    return MsmqUtilities.Convert((Message) m);
+                    return MsmqUtilities.Convert(m);
                 }
             }
             catch (MessageQueueException mqe)
             {
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                {
                     return null;
+                }
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    string errorException = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.QueueName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "unknown user");
-                    Logger.Fatal(errorException);
+                    string errorException = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.", myQueue.FormatName, WindowsIdentity.GetCurrent() != null ? WindowsIdentity.GetCurrent().Name : "Unknown User");
                     throw new InvalidOperationException(errorException, mqe);
+                }
+
+                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
+                {
+                    throw new InvalidOperationException(string.Format("Failed to receive messages from [{0}].", myQueue.FormatName), mqe);
                 }
 
                 throw;
@@ -71,7 +79,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException(string.Format((string) "There is a problem with the input queue: {0}. See the enclosed exception for details.", (object) myQueue.Path), ex);
+                throw new InvalidOperationException(string.Format("There is a problem with the input queue: {0}. See the enclosed exception for details.", myQueue.Path), ex);
             }
         }
         
@@ -94,17 +102,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
 
-        int secondsToWait = 1;
         public int SecondsToWaitForMessage
         {
             get { return secondsToWait;  }
             set { secondsToWait = value; }
         }
 
+        int secondsToWait = 1;
         MessageQueue myQueue;
-
+        int numberOfExceptionsThrown;
         bool useTransactions;
-
-        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqMessageReceiver));
+        Timer resetCircuitBreaker;
     }
 }

@@ -57,7 +57,7 @@ namespace NServiceBus.Saga
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
-
+            
             SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 

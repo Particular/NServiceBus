@@ -183,20 +183,30 @@ namespace NServiceBus
             }
             catch (WebException)
             {
-                var sb = new StringBuilder();
-                sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
-                                store.Url);
-                sb.AppendLine();
-                sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
-                sb.AppendLine();
-                sb.AppendLine(@"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
-                sb.AppendFormat(
-                    @"<connectionStrings>
+                ShowUncontactableRavenWarning(store);
+            }
+            catch (InvalidOperationException)
+            {
+                ShowUncontactableRavenWarning(store);
+            }
+        }
+
+        private static void ShowUncontactableRavenWarning(IDocumentStore store)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
+                            store.Url);
+            sb.AppendLine();
+            sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
+            sb.AppendLine();
+            sb.AppendLine(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
+            sb.AppendFormat(
+                @"<connectionStrings>
     <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
 </connectionStrings>");
-                
-                Logger.Warn(sb.ToString());
-            }
+
+            Logger.Warn(sb.ToString());
         }
 
         [ObsoleteEx(Message = "This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]

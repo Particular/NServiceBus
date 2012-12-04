@@ -2,6 +2,7 @@ namespace NServiceBus.Sagas.Impl
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using Saga;
     using Utils.Reflection;
 
@@ -16,7 +17,21 @@ namespace NServiceBus.Sagas.Impl
             var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
             var messageProp = Reflect<TMessage>.GetProperty(messageProperty, false);
 
+            ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
+            ThrowIfNotPropertyLambdaExpression(messageProperty, messageProp);
+
             Configure.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
+        }
+
+        private static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
+        {
+            if (propertyInfo == null)
+            {
+                throw new ArgumentException(
+                    String.Format(
+                        "Only public properties are supported for mapping Sagas. The lambda expression provided '{0}' is not mapping to a Property!",
+                        expression.Body));
+            }
         }
     }
 }

@@ -190,7 +190,10 @@ namespace NServiceBus.Utils.Reflection
         /// <exception cref="ArgumentException">The <paramref name="property"/> is not a lambda expression or it does not represent a property access.</exception>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
-            return GetProperty(property, false);
+            var info = GetMemberInfo(property, false) as PropertyInfo;
+            if (info == null) throw new ArgumentException("Member is not a property");
+
+            return info;
         }
 
         /// <summary>
@@ -201,10 +204,7 @@ namespace NServiceBus.Utils.Reflection
         /// <returns></returns>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
         {
-            var info = GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
-            if (info == null) throw new ArgumentException("Member is not a property");
-
-            return info;
+            return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;;
         }
 
 

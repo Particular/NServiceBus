@@ -64,12 +64,15 @@ namespace NServiceBus.Satellites
                 {
                     ctx.Transport = Builder.Build<ITransport>();
 
-                    SatelliteTransportInitialized(null,
-                                                  new SatelliteArgs
-                                                      {
-                                                          Satellite = ctx.Instance,
-                                                          Transport = ctx.Transport
-                                                      });
+                    if (SatelliteTransportInitialized != null)
+                    {
+                        SatelliteTransportInitialized(null,
+                                                      new SatelliteArgs
+                                                          {
+                                                              Satellite = ctx.Instance,
+                                                              Transport = ctx.Transport
+                                                          });
+                    }
                 }                
             }
         }

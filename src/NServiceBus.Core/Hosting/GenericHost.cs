@@ -150,6 +150,12 @@ namespace NServiceBus.Hosting
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
+            
+            if (String.IsNullOrEmpty(endpointName))
+            {
+                endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
+            }
+
             Configure.GetEndpointNameAction = () => endpointName;
             Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
             List<Assembly> assembliesToScan;

@@ -34,7 +34,6 @@ namespace NServiceBus.Hosting.Windows.Installers
             installDomain.DoCallBack(del);
         }
 
-
         /// <summary>
         /// Run Install
         /// </summary>
@@ -51,8 +50,6 @@ namespace NServiceBus.Hosting.Windows.Installers
                 //need to suppress here in order to avoid infinite loop
                 Console.WriteLine("Failed to execute installers: " +ex);  
             }
-           
-
         }
 
         static void DomainInitializer(string[] args)
@@ -60,12 +57,14 @@ namespace NServiceBus.Hosting.Windows.Installers
             Console.WriteLine("Initializing the installer in the Install AppDomain");
             Parser.Args commandLineArguments = Parser.ParseArgs(args);
             var arguments = new HostArguments(commandLineArguments);
-
-            string endpointName = string.Empty;
-            if (arguments.EndpointName != null)
-                endpointName = arguments.EndpointName.Value;
-
+            string endpointName = null;
             string[] scannedAssemblies = null;
+
+            if (arguments.EndpointName != null)
+            {
+                endpointName = arguments.EndpointName.Value;
+            }
+
             if (arguments.ScannedAssemblies != null)
                 scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
             

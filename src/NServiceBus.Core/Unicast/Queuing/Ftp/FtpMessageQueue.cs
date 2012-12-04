@@ -21,11 +21,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
 
         #region IMessageQueue Members
 
-        public bool HasMessage()
-        {
-            return (_locQueue.Count > 0);
-        }
-
         public void Init(Address address, bool transactional)
         {
             SetupReceiveService();

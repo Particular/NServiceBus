@@ -57,6 +57,9 @@
     <Reference Include="NLog">
       <HintPath>..\..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="Raven.Client.Embedded">
       <HintPath>..\..\..\lib\RavenDB\RavenDB.Embedded.975\Raven.Client.Embedded.dll</HintPath>
     </Reference>
@@ -75,21 +78,11 @@
     <Reference Include="Raven.Storage.Managed">
       <HintPath>..\..\..\lib\RavenDB\RavenDB.Database.975\Raven.Storage.Managed.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.mocks">
-      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
-    </Reference>
-    <Reference Include="pnunit.framework">
-      <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="Raven.Abstractions">
       <HintPath>..\..\..\lib\RavenDB\RavenDB.Client.975\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Mocks, Version=3.6.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\RhinoMocks.3.6\lib\Rhino.Mocks.dll</HintPath>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="Spatial4n.Core">
       <HintPath>..\..\..\lib\RavenDB\RavenDB.Database.975\Spatial4n.Core.dll</HintPath>
