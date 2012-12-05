@@ -90,7 +90,6 @@ namespace NServiceBus
             switch (IsLocalIpAddress(masterNodeName))
             {
                 case true:
-                    Address.InitializeLocalAddress(Address.Local.SubScope(Guid.NewGuid().ToString()).ToString());
                     logger.WarnFormat("'MasterNodeConfig.Node' points to a local host name: [{0}]. Worker input address name is [{1}]. It is randomly and uniquely generated to allow multiple workers working from the same machine as the Distributor.", masterNodeName, Address.Local);
                     break;
                 case false:
