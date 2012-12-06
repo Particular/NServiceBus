@@ -430,7 +430,7 @@
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Queuing\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\Msmq\HeaderInfo.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\MsmqMessageReceiver.cs" />
+    <Compile Include="Unicast\Queuing\Msmq\MsmqDequeueStrategy.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
@@ -456,7 +456,6 @@
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
-    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\MsmqDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
@@ -465,6 +464,7 @@
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
+    <Compile Include="Unicast\Transport\Transactional\TransportMessageAvailableEventArgs.cs" />
     <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />

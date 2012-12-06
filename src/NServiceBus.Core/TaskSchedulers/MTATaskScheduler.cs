@@ -17,10 +17,10 @@ namespace System.Threading.Tasks.Schedulers
     {
         /// <summary>Stores the queued tasks to be executed by our pool of STA threads.</summary>
         private BlockingCollection<Task> _tasks;
-        /// <summary>The STA threads used by the scheduler.</summary>
+        /// <summary>The MTA threads used by the scheduler.</summary>
         private readonly List<Thread> _threads;
 
-        /// <summary>Initializes a new instance of the StaTaskScheduler class with the specified concurrency level.</summary>
+        /// <summary>Initializes a new instance of the MTATaskScheduler class with the specified concurrency level.</summary>
         /// <param name="numberOfThreads">The number of threads that should be created and used by this scheduler.</param>
         public MTATaskScheduler(int numberOfThreads)
         {
