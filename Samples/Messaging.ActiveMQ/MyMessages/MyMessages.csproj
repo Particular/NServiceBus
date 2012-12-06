@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />

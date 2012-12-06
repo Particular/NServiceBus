@@ -56,13 +56,13 @@
       <HintPath>..\packages\Newtonsoft.Json.4.5.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ActiveMQ">
-      <HintPath>..\..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
+      <HintPath>..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Core">
-      <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
