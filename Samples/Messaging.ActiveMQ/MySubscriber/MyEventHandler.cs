@@ -1,7 +1,7 @@
 ﻿namespace MySubscriber
 {
     using System;
-    using MyMessages;
+    using MyMessages.Events;
     using NServiceBus;
 
     public class MyEventHandler:IHandleMessages<MyEvent>

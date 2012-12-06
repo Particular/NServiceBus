@@ -3,7 +3,7 @@
 namespace MyWebClient.Controllers
 {
     using System.Threading.Tasks;
-    using MyMessages;
+    using MyMessages.Commands;
     using NServiceBus;
 
     public class SendMessageController : Controller

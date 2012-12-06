@@ -1,4 +1,4 @@
-﻿namespace MySubscriber
+﻿namespace MyRequestResponseEndpoint
 {
     using System;
     using NServiceBus;
@@ -18,7 +18,7 @@
     {
         public void Start()
         {
-            Console.Out.WriteLine("The MySubscriber endpoint is now started and subscribed to events from MyServer");
+            Console.Out.WriteLine("The MyRequestResponseEndpoint is now started and ready to accept messages");
         }
 
         public void Stop()

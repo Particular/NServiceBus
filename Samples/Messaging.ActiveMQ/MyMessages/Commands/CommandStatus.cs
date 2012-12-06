@@ -1,4 +1,4 @@
-﻿namespace MyMessages
+﻿namespace MyMessages.Commands
 {
     public enum CommandStatus
     {
