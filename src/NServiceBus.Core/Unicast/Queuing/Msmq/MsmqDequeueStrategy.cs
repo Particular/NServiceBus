@@ -24,6 +24,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private SemaphoreSlim semaphore;
         private Timer timer;
         private TransactionSettings transactionSettings;
+        private readonly AutoResetEvent resetEvent = new AutoResetEvent(false);
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -155,13 +156,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 {
                     if (transactionSettings.IsTransactional)
                     {
-                        new TransactionWrapper().RunInTransaction(FireMessageDequeueEvent,
+                        new TransactionWrapper().RunInTransaction(ReceiveAndFireEvent,
                                                                   transactionSettings.IsolationLevel,
                                                                   transactionSettings.TransactionTimeout);
                     }
                     else
                     {
-                        FireMessageDequeueEvent();
+                        ReceiveAndFireEvent();
                     }
                 }, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
@@ -174,62 +175,14 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 .ContinueWith(task => semaphore.Release())
                 .ContinueWith(task =>
                     {
+                        //We need this otherwise the whole process may be killed!
+                        //See http://ayende.com/blog/157154/it-uses-async-run-for-the-hills-on-net-4-0
                         AggregateException ignore = task.Exception;
                     });
 
+            //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
+            resetEvent.WaitOne();
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
-        }
-
-        private TransportMessage Receive()
-        {
-            try
-            {
-                using (Message m = queue.Receive(receiveTimeout, GetTransactionTypeForReceive()))
-                {
-                    if (m == null)
-                    {
-                        return null;
-                    }
-
-                    return MsmqUtilities.Convert(m);
-                }
-            }
-            catch (MessageQueueException mqe)
-            {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                {
-                    return null;
-                }
-
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
-                {
-                    WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
-
-                    string errorException =
-                        string.Format(
-                            "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
-                            queue.FormatName,
-                            windowsIdentity != null
-                                ? windowsIdentity.Name
-                                : "Unknown User");
-                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
-
-                    return null;
-                }
-
-                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
-                {
-                    OnCriticalExceptionEncountered(new InvalidOperationException
-                                                       (
-                                                       string.Format(
-                                                           "Failed to receive messages from [{0}].",
-                                                           queue.FormatName),
-                                                       mqe));
-                    return null;
-                }
-
-                throw;
-            }
         }
 
         private void CallPeekWithExceptionHandling(Action action)
@@ -240,11 +193,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (MessageQueueException mqe)
             {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                {
-                    return;
-                }
-
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
                     WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
@@ -275,22 +223,74 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        private void FireMessageDequeueEvent()
+        private void ReceiveAndFireEvent()
         {
-            TransportMessage message = null;
-
+            Message message = null;
             try
             {
-                message = Receive();
+                message = queue.Receive(receiveTimeout, GetTransactionTypeForReceive());
+            }
+            catch (MessageQueueException mqe)
+            {
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                {
+                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                }
+
+                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+                {
+                    WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+
+                    string errorException =
+                        string.Format(
+                            "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
+                            queue.FormatName,
+                            windowsIdentity != null
+                                ? windowsIdentity.Name
+                                : "Unknown User");
+                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
+                }
+
+                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
+                {
+                    OnCriticalExceptionEncountered(new InvalidOperationException
+                                                       (
+                                                       string.Format(
+                                                           "Failed to receive messages from [{0}].",
+                                                           queue.FormatName),
+                                                       mqe));
+                }
+
+                Logger.Error("Error in receiving messages.", mqe);
             }
             catch (Exception ex)
             {
                 Logger.Error("Error in receiving messages.", ex);
             }
-
-            if (message != null)
+            finally
             {
-                MessageDequeued(this, new TransportMessageAvailableEventArgs(message));
+                resetEvent.Set();
+            }
+
+            if (message == null)
+            {
+                return;
+            }
+
+            TransportMessage transportMessage = null;
+            try
+            {
+                transportMessage = MsmqUtilities.Convert(message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error in converting message to TransportMessage.", ex);
+
+            }
+
+            if (transportMessage != null)
+            {
+                MessageDequeued(this, new TransportMessageAvailableEventArgs(transportMessage));
             }
         }
 
