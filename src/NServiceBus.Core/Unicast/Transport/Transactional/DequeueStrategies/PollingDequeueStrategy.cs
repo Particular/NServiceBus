@@ -7,11 +7,11 @@
     using ThreadingStrategies;
     using Utils;
 
-    public class PollingDequeueStrategy:IDequeueMessages
+    public class PollingDequeueStrategy : IDequeueMessages
     {
         public IReceiveMessages MessageReceiver { get; set; }
         public IThreadingStrategy ThreadingStrategy { get; set; }
-      
+
         public void Init(Address address, TransactionSettings transactionSettings)
         {
             addressToPoll = address;
@@ -30,12 +30,13 @@
             ThreadingStrategy.ChangeMaxDegreeOfParallelism(value);
         }
 
-        void Poll()
+        private void Poll()
         {
             try
             {
                 if (settings.IsTransactional)
-                    new TransactionWrapper().RunInTransaction(TryReceive, settings.IsolationLevel, settings.TransactionTimeout); 
+                    new TransactionWrapper().RunInTransaction(TryReceive, settings.IsolationLevel,
+                                                              settings.TransactionTimeout);
                 else
                     TryReceive();
             }
@@ -46,13 +47,13 @@
 
         }
 
-        void TryReceive()
+        private void TryReceive()
         {
             var m = Receive();
             if (m == null)
                 return;
 
-           MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
+            MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
         }
 
         [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
@@ -66,17 +67,15 @@
             {
                 Logger.Fatal("Error in receiving messages.", e);
 
-                Configure.Instance.OnCriticalError();
-
-                return null;
+                Configure.Instance.OnCriticalError(String.Format("Error in receiving messages.\n{0}", e));
             }
             catch (Exception e)
             {
                 Logger.Error("Error in receiving messages.", e);
-                return null;
             }
-        }
 
+            return null;
+        }
 
         public void Stop()
         {
@@ -85,10 +84,10 @@
 
         public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
 
-        Address addressToPoll;
-        TransactionSettings settings;
+        private Address addressToPoll;
+        private TransactionSettings settings;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(PollingDequeueStrategy));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
 
     }
 }

@@ -12,7 +12,6 @@ using Topshelf.Internal;
 
 namespace NServiceBus.Hosting.Windows
 {
-    using System.Diagnostics;
     using System.Security.Principal;
     using Installers;
 
@@ -51,26 +50,20 @@ namespace NServiceBus.Hosting.Windows
 
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
             string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
-
-            var endpointName = GetEndpointName(endpointConfigurationType, arguments);
+            string endpointName, serviceName;
             var endpointVersion = FileVersionRetriever.GetFileVersion(endpointConfigurationType);
 
-            var serviceName = endpointName;
-
-            if (arguments.ServiceName != null)
-                serviceName = arguments.ServiceName.Value;
+            GetEndpointName(endpointConfigurationType, arguments, out endpointName, out serviceName);
 
             var displayName = serviceName + "-" + endpointVersion;
 
             if (arguments.SideBySide != null)
             {
                 serviceName += "-" + endpointVersion;
-
-                displayName += " (SideBySide)";
             }
 
             //Add the endpoint name so that the new appdomain can get it
-            if (arguments.EndpointName == null)
+            if (arguments.EndpointName == null && !String.IsNullOrEmpty(endpointName))
                 args = args.Concat(new[] { "/endpointName:" + endpointName }).ToArray();
 
             //Add the ScannedAssemblies name so that the new appdomain can get it
@@ -81,7 +74,6 @@ namespace NServiceBus.Hosting.Windows
             if (arguments.EndpointConfigurationType == null)
                 args = args.Concat(new[] { "/endpointConfigurationType:" + endpointConfigurationType.AssemblyQualifiedName }).ToArray();
             
-            AppDomain.CurrentDomain.SetupInformation.AppDomainInitializerArguments = args;
             if ((commandLineArguments.Install) || (arguments.InstallInfrastructure != null))
                 WindowsInstaller.Install(args, endpointConfigurationFile);
 
@@ -118,8 +110,13 @@ namespace NServiceBus.Hosting.Windows
                                                                    x.SetDescription(arguments.Description != null ? arguments.Description.Value : "NServiceBus Message Endpoint Host Service for " + displayName);
 
                                                                    var serviceCommandLine = commandLineArguments.CustomArguments.AsCommandLine();
+                                                                   
                                                                    serviceCommandLine += " /serviceName:\"" + serviceName + "\"";
-                                                                   serviceCommandLine += " /endpointName:\"" + endpointName + "\"";
+                                                                   
+                                                                   if (!String.IsNullOrEmpty(endpointName))
+                                                                   {
+                                                                       serviceCommandLine += " /endpointName:\"" + endpointName + "\"";
+                                                                   }
 
                                                                    x.SetServiceCommandLine(serviceCommandLine);
 
@@ -178,31 +175,38 @@ namespace NServiceBus.Hosting.Windows
             return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
         }
 
-        /// <summary>
-        /// Gives a string which serves to identify the endpoint.
-        /// </summary>
-        /// <param name="endpointConfigurationType"></param>
-        /// <param name="arguments"> </param>
-        /// <returns></returns>
-        static string GetEndpointName(Type endpointConfigurationType, HostArguments arguments)
+
+        private static void GetEndpointName(Type endpointConfigurationType, HostArguments arguments,
+                                            out string endpointName, out string serviceName)
         {
             var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
-            var endpointName = endpointConfiguration.GetType().Namespace;
-            
+
+            endpointName = null;
+            serviceName = endpointConfiguration.GetType().Namespace ?? endpointConfiguration.GetType().Assembly.GetName().Name;
+
             if (arguments.ServiceName != null)
-                endpointName = arguments.ServiceName.Value;
+            {
+                serviceName = arguments.ServiceName.Value;
+            }
 
-            var arr = endpointConfiguration.GetType().GetCustomAttributes(typeof(EndpointNameAttribute), false);
+            var arr = endpointConfiguration.GetType().GetCustomAttributes(typeof (EndpointNameAttribute), false);
             if (arr.Length == 1)
-                endpointName = (arr[0] as EndpointNameAttribute).Name;
+            {
+                endpointName = ((EndpointNameAttribute) arr[0]).Name;
+                return;
+            }
 
-            if (endpointConfiguration is INameThisEndpoint)
-                endpointName = (endpointConfiguration as INameThisEndpoint).GetName();
+            var nameThisEndpoint = endpointConfiguration as INameThisEndpoint;
+            if (nameThisEndpoint != null)
+            {
+                endpointName = nameThisEndpoint.GetName();
+                return;
+            }
 
             if (arguments.EndpointName != null)
+            {
                 endpointName = arguments.EndpointName.Value;
-
-            return endpointName;
+            }
         }
 
         static Type GetEndpointConfigurationType(HostArguments arguments)
@@ -230,8 +234,8 @@ namespace NServiceBus.Hosting.Windows
                 return endpointType;
             }
 
-            IEnumerable<Type> endpoints = ScanAssembliesForEndpoints();
-            if ((endpoints.Count() == 0))
+            List<Type> endpoints = ScanAssembliesForEndpoints().ToList();
+            if (!endpoints.Any())
             {
                 Console.Out.WriteLine(assemblyScannerResults);
                 return null;
@@ -244,20 +248,17 @@ namespace NServiceBus.Hosting.Windows
         static IEnumerable<Type> ScanAssembliesForEndpoints()
         {
             var scannableAssemblies = assemblyScannerResults.Assemblies;
-            foreach (var assembly in scannableAssemblies)
-                foreach (Type type in assembly.GetTypes().Where(
-                        t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
-                        && t != typeof(IConfigureThisEndpoint)
-                        && !t.IsAbstract))
-                {
-                    yield return type;
-                }
+
+            return scannableAssemblies.SelectMany(assembly => assembly.GetTypes().Where(
+                t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
+                     && t != typeof(IConfigureThisEndpoint)
+                     && !t.IsAbstract));
         }
 
-        
-        static void AssertThatNotMoreThanOneEndpointIsDefined(IEnumerable<Type> endpointConfigurationTypes)
+
+        static void AssertThatNotMoreThanOneEndpointIsDefined(List<Type> endpointConfigurationTypes)
         {
-            if (endpointConfigurationTypes.Count() > 1)
+            if (endpointConfigurationTypes.Count > 1)
             {
                 throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints. " +
                                                     "Endpoint classes found: " +

@@ -52,7 +52,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
             }
             catch (DataServiceQueryException)
             {
-                nextTimeToRunQuery = DateTime.Now.AddMinutes(1);
+                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
                 results = new List<Tuple<String, DateTime>>();
             }
             return results;
@@ -391,6 +391,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 else
                 {
                     read.LastSuccessfullRead = DateTime.UtcNow;
+                    context.Detach(read);
+                    context.AttachTo(ServiceContext.TimeoutManagerDataTableName, read, "*");
                     context.UpdateObject(read);
                 }
                 context.SaveChangesWithRetries(SaveChangesOptions.ReplaceOnUpdate);

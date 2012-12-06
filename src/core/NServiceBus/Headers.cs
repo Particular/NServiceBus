@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
-
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
@@ -138,5 +136,27 @@
         /// Header entry key indicating the types of messages contained.
         /// </summary>
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
+
+        /// <summary>
+        /// Get the header with the given key. Cannot be used to change its value.
+        /// </summary>
+        /// <param name="msg">The message to retrieve a header from.</param>
+        /// <param name="key">The header key.</param>
+        /// <returns>The value assigned to the header.</returns>
+        public static string GetMessageHeader(object msg, string key)
+        {
+            return ExtensionMethods.GetHeaderAction(msg, key);
+        }
+
+        /// <summary>
+        /// Sets the value of the header for the given key.
+        /// </summary>
+        /// <param name="msg">The message to add a header to.</param>
+        /// <param name="key">The header key.</param>
+        /// <param name="value">The value to assign to the header.</param>
+        public static void SetMessageHeader(object msg, string key, string value)
+        {
+            ExtensionMethods.SetHeaderAction(msg, key, value);
+        }
     }
 }

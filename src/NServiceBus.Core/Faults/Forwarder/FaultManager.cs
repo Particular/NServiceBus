@@ -94,7 +94,7 @@ namespace NServiceBus.Faults.Forwarder
             var failedQ = localAddress ?? Address.Local;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTime.UtcNow.ToWireFormattedString();
+            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         /// <summary>

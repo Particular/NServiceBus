@@ -22,6 +22,10 @@ namespace NServiceBus.Satellites
         {
             if (Endpoint.IsSendOnly)
                 return;
+
+            if (MsmqTransportConfig.DoNotCreateQueues)
+                return;
+
             var satellites = Configure.Instance.Builder
                  .BuildAll<ISatellite>()
                  .ToList();

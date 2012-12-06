@@ -3,6 +3,7 @@ namespace NServiceBus
     using Config;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.Msmq;
+    using Unicast.Transport.Transactional.DequeueStrategies;
 
     public static class ConfigureMsmqMessageQueue
     {
@@ -20,11 +21,9 @@ namespace NServiceBus
         {
             Selected = true;
 
-            config.Configurer.ConfigureComponent<MsmqMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
-
             config.Configurer.ConfigureComponent<MsmqMessageSender>(DependencyLifecycle.InstancePerCall);
-
+            config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.SingleInstance);
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();

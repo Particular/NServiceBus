@@ -22,10 +22,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <param name="types"></param>
         public void Initialize(IEnumerable<Type> types)
         {
-            if (types == null || types.Count() == 0)
+            var typesToList = types.ToList();
+
+            if (types == null || !typesToList.Any())
                 return;
 
-            string name = types.First().Namespace + SUFFIX;
+            string name = typesToList.First().Namespace + SUFFIX;
 
             AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName(name),
@@ -34,7 +36,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
-            foreach (Type t in types)
+            foreach (Type t in typesToList)
                 InitType(t, moduleBuilder);
         }
 
@@ -57,10 +59,13 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
                 foreach (var interfaceType in t.GetInterfaces())
                 {
-                    foreach (var g in interfaceType.GetGenericArguments())
-                        InitType(g, moduleBuilder);
+					foreach (var g in interfaceType.GetGenericArguments())
+					{
+						if(g == t)
+							continue;
 
-                    continue;
+						InitType(g, moduleBuilder);
+					}
                 }
 
                 return;

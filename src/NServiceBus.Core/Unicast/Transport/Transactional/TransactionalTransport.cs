@@ -2,13 +2,10 @@ namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
     using Faults;
     using Logging;
-    using Queuing;
-    using Utils;
     using System.Linq;
     using System.Runtime.Serialization;
     using Monitoring;
@@ -27,7 +24,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             get
             {
-                if (transactionSettings != null)
+                if (transactionSettings == null)
                     transactionSettings = new TransactionSettings();
 
                 return transactionSettings;
@@ -308,8 +305,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception ex)
             {
-                Logger.FatalFormat("Fault manager failed to process the failed message {0}", ex, message);
-                Configure.Instance.OnCriticalError();
+                Logger.Fatal(string.Format("Fault manager failed to process the failed message with id {0}", message), ex);
+                Configure.Instance.OnCriticalError(string.Format("Fault manager failed to process the failed message.\n{0}", ex));
             }
 
         }

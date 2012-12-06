@@ -8,10 +8,10 @@
     using System.Messaging;
     using System.Xml.Serialization;
 
-    [Cmdlet("Get", "Message")]
+    [Cmdlet(VerbsCommon.Get, "NServiceBusMessage")]
     public class GetMessage : PSCmdlet
     {
-        [Parameter(HelpMessage = "The name of the privage queue to search")]
+        [Parameter(HelpMessage = "The name of the privage queue to search", ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string QueueName { get; set; }
 
         protected override void ProcessRecord()

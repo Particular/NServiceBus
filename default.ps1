@@ -1,5 +1,5 @@
 properties {
-	$ProductVersion = "4.0"
+	$ProductVersion = "3.4"
     $PatchVersion = "0"
 	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
 	$PreRelease = "alpha"
@@ -22,7 +22,7 @@ $outDir32 = "$baseDir\build32"
 $buildBase = "$baseDir\build"
 $libDir = "$baseDir\lib" 
 $artifactsDir = "$baseDir\artifacts"
-$nunitexec = "packages\NUnit.2.5.10.11092\tools\nunit-console.exe"
+$nunitexec = "$toolsDir\nunit\nunit-console.exe"
 $zipExec = "$toolsDir\zip\7za.exe"
 $ilMergeKey = "$srcDir\NServiceBus.snk"
 $ilMergeExclude = "$toolsDir\IlMerge\ilmerge.exclude"
@@ -34,9 +34,11 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends PrepareBinaries
 
-task PrepareBinaries -depends CopyBinaries
+task Quick -depends Merge, CopyBinaries
 
-task CreateRelease -depends GenerateAssemblyInfo, Build, Merge, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
+task PrepareBinaries -depends RunTests, CopyBinaries
+
+task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
 task Clean { 
 	if(Test-Path $binariesDir){
@@ -104,7 +106,6 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	Write-Output "##teamcity[buildNumber '$infoVersion']"
 	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-	$projectFiles += ls -path $baseDir\tests -include *.csproj -recurse  
     
 	foreach($projectFile in $projectFiles) {
 
@@ -174,16 +175,16 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 }
 
 task CopyBinaries -depends Merge {
-		
+	
+	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
 	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.PowerShell.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Setup.Windows.* $binariesDir -Force -Exclude **Tests.dll
 	
 	Create-Directory "$binariesDir\containers\autofac"
 	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
@@ -268,6 +269,7 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
+	$assemblies += dir $outDir\NServiceBus.PowerShell.dll
 	$assemblies += dir $outDir\NServiceBus.Setup.Windows.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll

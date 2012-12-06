@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers[Headers.TimeSent] = DateTime.UtcNow.ToWireFormattedString();
+            transportMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         public void Init()

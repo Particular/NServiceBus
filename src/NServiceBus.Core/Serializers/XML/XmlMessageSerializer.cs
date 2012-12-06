@@ -23,7 +23,6 @@ namespace NServiceBus.Serializers.XML
         readonly IMessageMapper mapper;
         IList<Type> messageTypes;
 
-
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -80,7 +79,7 @@ namespace NServiceBus.Serializers.XML
                     if (e.IsAssignableFrom(t))
                         typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                 }
-#if !NET35
+
                 if (t.IsGenericType && t.GetGenericArguments().Length == 1)
                 {
                     Type setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
@@ -94,7 +93,6 @@ namespace NServiceBus.Serializers.XML
                             typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
                     }
                 }
-#endif
 
                 return;
             }
@@ -350,7 +348,15 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (parent.GetType().IsArray)
                         return parent.GetType().GetElementType();
-                    var args = parent.GetType().GetGenericArguments();
+                    
+					var listImplementations = parent.GetType().GetInterfaces().Where(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IList<>)).ToList();
+					if (listImplementations.Any())
+					{
+						var listImplementation = listImplementations.First();
+						return listImplementation.GetGenericArguments().Single();
+					}
+
+	                var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
                         return args[0];
@@ -634,12 +640,10 @@ namespace NServiceBus.Serializers.XML
 
                         if (isArray)
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
-#if !NET35
+
                         if (isISet)
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
-#endif
                     }
-
 
                     return list;
                 }
@@ -900,9 +904,96 @@ namespace NServiceBus.Serializers.XML
             if (value is TimeSpan)
                 return XmlConvert.ToString((TimeSpan)value);
             if (value is string)
-                return System.Security.SecurityElement.Escape(value as string);
+                return Escape(value as string);
 
             return value.ToString();
+        }
+
+        private static string Escape(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+            {
+                return str;
+            }
+
+            StringBuilder builder = null; // initialize if we need it
+
+            int startIndex = 0;
+            for (var i = 0; i < str.Length; ++i)
+            {
+                char c = str[i];
+                if (c == 0x9 || c == 0xA || c == 0xD
+                    || (0x20 <= c && c <= 0xD7FF)
+                    || (0xE000 <= c && c <= 0xFFFD)
+                    || (0x10000 <= c && c <= 0x10ffff)
+                    )
+                {
+                    string ss = null;
+                    switch (c)
+                    {
+                        case '<':
+                            ss = "&lt;";
+                            break;
+                        case '>':
+                            ss = "&gt;";
+                            break;
+                        case '"':
+                            ss = "&quot;";
+                            break;
+                        case '\'':
+                            ss = "&apos;";
+                            break;
+                        case '&':
+                            ss = "&amp;";
+                            break;
+                    }
+                    if (ss != null)
+                    {
+                        if (builder == null)
+                        {
+                            builder = new StringBuilder(str.Length + ss.Length);
+                        }
+                        if (startIndex < i)
+                        {
+                            builder.Append(str, startIndex, i - startIndex);
+                        }
+                        startIndex = i + 1;
+                        builder.Append(ss);
+                    }
+
+                }
+                else
+                {
+                    // invalid characters
+                    if (builder == null)
+                    {
+                        builder = new StringBuilder(str.Length + 8);
+                    }
+                    if (startIndex < i)
+                    {
+                        builder.Append(str, startIndex, i - startIndex);
+                    }
+                    startIndex = i + 1;
+                    builder.AppendFormat("&#x{0:X};", (int) c);
+                }
+            }
+
+            if (startIndex < str.Length)
+            {
+                if (builder == null)
+                {
+                    return str;
+                }
+                builder.Append(str, startIndex, str.Length - startIndex);
+            }
+
+            if (builder != null)
+            {
+                return builder.ToString();
+            }
+
+            //Should not get here but just in case!
+            return str;
         }
 
         List<string> GetNamespaces(object[] messages)
@@ -930,7 +1021,7 @@ namespace NServiceBus.Serializers.XML
                 Type baseType = t.BaseType;
                 while (baseType != typeof(object) && baseType != null)
                 {
-                    if (baseType.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(baseType))
                         if (!result.Contains(baseType.FullName))
                             result.Add(baseType.FullName);
 
@@ -938,7 +1029,7 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 foreach (Type i in t.GetInterfaces())
-                    if (i.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(i))
                         if (!result.Contains(i.FullName))
                             result.Add(i.FullName);
             }
@@ -950,7 +1041,6 @@ namespace NServiceBus.Serializers.XML
 
         #region members
 
-        private const string XMLPREFIX = "d1p1";
         private const string BASETYPE = "baseType";
 
         private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();

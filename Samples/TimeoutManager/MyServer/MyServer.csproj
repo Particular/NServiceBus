@@ -44,9 +44,6 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting">
-      <HintPath>..\..\..\binaries\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />

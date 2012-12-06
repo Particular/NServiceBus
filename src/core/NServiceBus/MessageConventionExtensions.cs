@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Reflection;
 
-  /// <summary>
+    /// <summary>
     /// Extension methods for message related conventions
     /// </summary>
     public static class MessageConventionExtensions
@@ -16,9 +16,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsMessage(this object o)
+        public static bool IsMessage(object o)
         {
-            return o.GetType().IsMessageType();
+            return IsMessageType(o.GetType());
         }
 
         /// <summary>
@@ -26,14 +26,15 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsMessageType(this Type t)
+        public static bool IsMessageType(Type t)
         {
             try
             {
                 return MessagesConventionCache.ApplyConvention(t,
-                                                               type =>
-                                                               IsMessageTypeAction(type) || IsCommandTypeAction(type) ||
-                                                               IsEventTypeAction(type) || (IsInSystemConventionList(type)));
+                                                               type => IsMessageTypeAction(type) ||
+                                                                       IsCommandTypeAction(type) ||
+                                                                       IsEventTypeAction(type) ||
+                                                                       IsInSystemConventionList(type));
             }
             catch (Exception ex)
             {
@@ -41,7 +42,7 @@
             }
         }
 
-        private static bool IsInSystemConventionList(this Type t)
+        private static bool IsInSystemConventionList(Type t)
         {
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }
@@ -52,8 +53,10 @@
         /// <param name="definesMessageType">Function to define system message convention</param>
         public static void AddSystemMessagesConventions(Func<Type, bool> definesMessageType)
         {
-            if(!IsSystemMessageActions.Contains(definesMessageType))
+            if (!IsSystemMessageActions.Contains(definesMessageType))
+            {
                 IsSystemMessageActions.Add(definesMessageType);
+            }
         }
 
         /// <summary>
@@ -61,9 +64,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsCommand(this object o)
+        public static bool IsCommand(object o)
         {
-                return o.GetType().IsCommandType();
+                return IsCommandType(o.GetType());
         }
 
         /// <summary>
@@ -71,7 +74,7 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsCommandType(this Type t)
+        public static bool IsCommandType(Type t)
         {
             try
             {
@@ -115,7 +118,7 @@
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static bool IsEncryptedProperty(this PropertyInfo property)
+        public static bool IsEncryptedProperty(PropertyInfo property)
         {
             try
             {
@@ -134,7 +137,7 @@
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        public static bool IsDataBusProperty(this PropertyInfo property)
+        public static bool IsDataBusProperty(PropertyInfo property)
         {
             try
             {
@@ -151,9 +154,9 @@
         /// </summary>
         /// <param name="o"></param>
         /// <returns></returns>
-        public static bool IsEvent(this object o)
+        public static bool IsEvent(object o)
         {
-            return o.GetType().IsEventType();
+            return IsEventType(o.GetType());
         }
 
         /// <summary>
@@ -161,7 +164,7 @@
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>
-        public static bool IsEventType(this Type t)
+        public static bool IsEventType(Type t)
         {
             try
             {
@@ -222,7 +225,7 @@
        /// <summary>
        /// Contains list of System messages' conventions
        /// </summary>
-        public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        public static readonly List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();

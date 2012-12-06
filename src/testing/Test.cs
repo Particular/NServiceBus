@@ -58,7 +58,7 @@ namespace NServiceBus.Testing
             if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType()));
+            mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
@@ -160,14 +160,14 @@ namespace NServiceBus.Testing
             bool isHandler = (from i in handler.GetType().GetInterfaces()
                               let args = i.GetGenericArguments()
                               where args.Length == 1
-                              where args[0].IsMessageType()
+                              where MessageConventionExtensions.IsMessageType(args[0])
                               where typeof (IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i)
                               select i).Any();
 
             if (!isHandler)
                 throw new ArgumentException("The handler object created does not implement IMessageHandler<T>.", "handlerCreationCallback");
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
+            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             return new Handler<T>(handler, bus, messageCreator, messageTypes);
         }

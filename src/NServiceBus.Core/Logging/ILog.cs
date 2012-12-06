@@ -82,7 +82,7 @@ namespace NServiceBus.Logging
         /// <param name="format"></param>
         /// <param name="args"></param>
         void WarnFormat(string format, params object[] args);
-    
+
         /// <summary>
         /// 
         /// </summary>

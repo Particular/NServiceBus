@@ -355,7 +355,7 @@ namespace NServiceBus.Sagas.Impl
                     if (typeof (ISagaEntity).IsAssignableFrom(typ))
                         sagaEntityType = typ;
 
-                    if (typ.IsMessageType() || typ == typeof(object))
+                    if (MessageConventionExtensions.IsMessageType(typ) || typ == typeof(object))
                         messageType = typ;
                 }
 
@@ -399,7 +399,7 @@ namespace NServiceBus.Sagas.Impl
             {
                 Type[] types = interfaceType.GetGenericArguments();
                 foreach (Type arg in types)
-                    if (arg.IsMessageType())
+                    if (MessageConventionExtensions.IsMessageType(arg))
                         if (filter.MakeGenericType(arg) == interfaceType)
                             yield return arg;
             }

@@ -57,7 +57,7 @@ namespace NServiceBus.Saga
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
-
+            
             SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
@@ -133,7 +133,7 @@ namespace NServiceBus.Saga
 
             object toSend = timeoutMessage;
 
-            if (!typeof(TTimeoutmessageType).IsMessageType())
+            if (!MessageConventionExtensions.IsMessageType(typeof(TTimeoutmessageType)))
                 toSend = new TimeoutMessage(at, Data, toSend);
 
             SetHeaders(toSend);
@@ -169,7 +169,7 @@ namespace NServiceBus.Saga
         {
             object toSend = timeoutMessage;
 
-            if (!typeof(TTimeoutmessageType).IsMessageType())
+            if (!MessageConventionExtensions.IsMessageType(typeof(TTimeoutmessageType)))
                 toSend = new TimeoutMessage(within, Data, toSend);
 
             SetHeaders(toSend);
@@ -246,8 +246,8 @@ namespace NServiceBus.Saga
         
         private void SetHeaders(object toSend)
         {
-            toSend.SetHeader(Headers.SagaId, Data.Id.ToString());
-            toSend.SetHeader(Headers.SagaType, this.GetType().AssemblyQualifiedName);
+            Headers.SetMessageHeader(toSend, Headers.SagaId, Data.Id.ToString());
+            Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 
         /// <summary>

@@ -92,7 +92,7 @@ namespace Client
                                   OrderId = Guid.NewGuid()
                               };
             if (!string.IsNullOrEmpty(tennant))
-                message.SetHeader("tennant", tennant);
+                Headers.SetMessageHeader(message, "tennant", tennant);
 
             Bus.Send(message);
             Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent");

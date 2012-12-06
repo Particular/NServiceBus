@@ -9,7 +9,8 @@ namespace NServiceBus.Saga
     /// Used to specify that a saga property should be unique across all saga instances. 
     /// This will ensure that 2 saga instances don't get persisted when using the property to correlate between multiple message types
     /// </summary>
-    public class UniqueAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Property, Inherited = true)]
+    public sealed class UniqueAttribute : Attribute
     {
         /// <summary>
         /// Gets a single property that is marked with the UniqueAttribute for a saga entity

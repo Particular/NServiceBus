@@ -20,10 +20,10 @@
                     return false;
                 };
 
-                this.IsMessage();
+                MessageConventionExtensions.IsMessage(this);
                 Assert.AreEqual(1, timesCalled);
 
-                this.IsMessage();
+                MessageConventionExtensions.IsMessage(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -41,10 +41,10 @@
                     return false;
                 };
 
-                this.IsEvent();
+                MessageConventionExtensions.IsEvent(this);
                 Assert.AreEqual(1, timesCalled);
 
-                this.IsEvent();
+                MessageConventionExtensions.IsEvent(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -62,10 +62,10 @@
                     return false;
                 };
 
-                this.IsCommand();
+                MessageConventionExtensions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
 
-                this.IsCommand();
+                MessageConventionExtensions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
             }
         }
@@ -81,7 +81,7 @@
                 sw.Start();
                 for (int i = 0; i < numIterations; i++)
                 {
-                    i.IsMessage();
+                    MessageConventionExtensions.IsMessage(i);
                 }
                 sw.Stop();
 
@@ -91,7 +91,7 @@
                 sw.Start();
                 for (int i = 0; i < numIterations; i++)
                 {
-                    hashTable[i.GetType()] = i.IsMessage();
+                    hashTable[i.GetType()] = MessageConventionExtensions.IsMessage(i);
                 }
 
                 sw.Stop();

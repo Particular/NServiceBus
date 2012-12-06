@@ -51,7 +51,7 @@ namespace NServiceBus.Encryption
             {
                 if (propertyInfo.GetIndexParameters().Length > 0)
                 {
-                    if (propertyInfo.IsEncryptedProperty())
+                    if (MessageConventionExtensions.IsEncryptedProperty(propertyInfo))
                     {
                         throw new NotSupportedException("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
                     }
@@ -59,7 +59,7 @@ namespace NServiceBus.Encryption
                     return false;
                 }
 
-                return propertyInfo.IsEncryptedProperty();
+                return MessageConventionExtensions.IsEncryptedProperty(propertyInfo);
             }
 
             var fieldInfo = arg as FieldInfo;

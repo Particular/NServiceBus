@@ -16,7 +16,3 @@ namespace NServiceBus
         }
     }
 }
-
-namespace NServiceBus
-{
-}

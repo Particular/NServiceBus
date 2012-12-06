@@ -2,6 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
+    using System.Net;
+    using System.Text;
+    using Logging;
     using Persistence.Raven;
     using Raven.Abstractions.Data;
     using Raven.Client;
@@ -34,6 +37,11 @@ namespace NServiceBus
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config)
         {
+            if (Configure.Instance.Configurer.HasComponent<RavenSessionFactory>())
+            {
+                return config;
+            }
+
             var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
 
             //use existing config if we can find one
@@ -143,7 +151,7 @@ namespace NServiceBus
             store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
 
             EnsureDatabaseExists((DocumentStore)store);
-            store.Initialize();
+            WarnUserIfRavenDatabaseIsNotReachable(store);
 
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
@@ -157,12 +165,48 @@ namespace NServiceBus
             //We need to turn compression off to make us compatible with Raven616
             store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
+
             config.Configurer.RegisterSingleton<IDocumentStore>(store);
 
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
             return config;
+        }
+
+        private static void WarnUserIfRavenDatabaseIsNotReachable(IDocumentStore store)
+        {
+            try
+            {
+                store.Initialize();
+                store.DatabaseCommands.GetDatabaseNames(1);
+            }
+            catch (WebException)
+            {
+                ShowUncontactableRavenWarning(store);
+            }
+            catch (InvalidOperationException)
+            {
+                ShowUncontactableRavenWarning(store);
+            }
+        }
+
+        private static void ShowUncontactableRavenWarning(IDocumentStore store)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
+                            store.Url);
+            sb.AppendLine();
+            sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
+            sb.AppendLine();
+            sb.AppendLine(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
+            sb.AppendFormat(
+                @"<connectionStrings>
+    <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
+</connectionStrings>");
+
+            Logger.Warn(sb.ToString());
         }
 
         [ObsoleteEx(Message = "This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]
@@ -187,7 +231,7 @@ namespace NServiceBus
                     //and then make sure that the database the user asked for is created
                     dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);
                 }
-                catch (System.Net.WebException)
+                catch (WebException)
                 {
                     //Ignore since this could be running as part of an install
                 }
@@ -208,22 +252,12 @@ namespace NServiceBus
             return config;
         }
 
-        [ObsoleteEx(Message = "RequestCompression will be on by default from v5.0.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        public static Configure EnableRequestCompression(this Configure config)
-        {
-            enableRequestCompression = true;
-
-            return config;
-        }
-
-        public static Configure DisableRequestCompression(this Configure config)
+        public static Configure DisableRavenRequestCompression(this Configure config)
         {
             enableRequestCompression = false;
 
             return config;
         }
-
-        static bool enableRequestCompression;
 
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
@@ -232,15 +266,16 @@ namespace NServiceBus
             return config;
         }
 
-        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
-
-
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {
             tagNameConvention = convention;
         }
 
+        static bool enableRequestCompression = true;
+        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
         static Func<Type, string> tagNameConvention;
         public static bool AutoCreateDatabase = true;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+
     }
 }

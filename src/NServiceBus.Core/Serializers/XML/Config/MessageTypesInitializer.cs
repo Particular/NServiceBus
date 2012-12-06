@@ -16,7 +16,7 @@ namespace NServiceBus.Serializers.XML.Config
             if (Mapper == null)
                 return;
 
-            var messageTypes = Configure.TypesToScan.Where(t => MessageConventionExtensions.IsMessageType(t)).ToList();
+            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             Mapper.Initialize(messageTypes);
             Serializer.Initialize(messageTypes);

@@ -17,9 +17,9 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Can_create_ConsoleTarget()
         {
-            var target = TargetFactory.CreateColoredConsoleTarget();
+            var target = NLogTargetFactory.CreateColoredConsoleTarget();
 
-            Configurator.Basic(target, "Debug");
+            NLogConfigurator.Configure(target, "Debug");
 
             NLog.LogManager.GetCurrentClassLogger().Debug("Testing console target");
         }
@@ -27,9 +27,9 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Can_create_ColoredConsoleTarget()
         {
-            var target = TargetFactory.CreateColoredConsoleTarget("${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}");
+            var target = NLogTargetFactory.CreateColoredConsoleTarget("${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}");
 
-            Configurator.Basic(target, "Debug");
+            NLogConfigurator.Configure(target, "Debug");
 
             NLog.LogManager.GetCurrentClassLogger().Debug("Testing colored console target");
             NLog.LogManager.GetCurrentClassLogger().DebugException("Testing colored console target", new Exception());
@@ -38,9 +38,9 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Can_create_RollingFileTarget()
         {
-            var target = TargetFactory.CreateRollingFileTarget("nlog.txt");
+            var target = NLogTargetFactory.CreateRollingFileTarget("nlog.txt");
 
-            Configurator.Basic(target, "Debug");
+            NLogConfigurator.Configure(target, "Debug");
 
             NLog.LogManager.GetCurrentClassLogger().Debug("Testing rolling file target");
         }

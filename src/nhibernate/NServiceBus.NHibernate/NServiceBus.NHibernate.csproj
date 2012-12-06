@@ -42,8 +42,9 @@
     <Reference Include="NHibernate">
       <HintPath>..\..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="Obsolete">
-      <HintPath>..\..\..\packages\Obsolete.Fody.1.2.0.0\Lib\NET40\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete, Version=1.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.3.0.0\lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -55,6 +56,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureNHibernateDistributorManager.cs" />
@@ -120,4 +122,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(ProjectPath)\..\..\..\..\Tools\Fody\Fody.targets" />
 </Project>

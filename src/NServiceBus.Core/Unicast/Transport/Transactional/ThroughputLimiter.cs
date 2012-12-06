@@ -1,8 +1,6 @@
 namespace NServiceBus.Unicast.Transport.Transactional
 {
-    using System;
     using System.Threading;
-    using Logging;
 
     /// <summary>
     /// Support for throughput limitation of the transport

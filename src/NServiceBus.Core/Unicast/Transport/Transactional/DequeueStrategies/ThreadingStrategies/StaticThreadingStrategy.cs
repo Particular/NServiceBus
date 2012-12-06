@@ -32,33 +32,9 @@
                 {
                     for (var i = current; i < targetNumberOfWorkerThreads; i++)
                         AddWorkerThread().Start();
-
-                    return;
                 }
             }
-
         }
-
-        //public int TargetThroughputPerSecond
-        //{
-        //    get { return maxThroughputPerSecond; }
-        //}
-
-        //public void ChangeTargetThroughputPerSecond(int value)
-        //{
-        //    maxThroughputPerSecond = value;
-        //    if (maxThroughputPerSecond == 0)
-        //    {
-        //        throttlingMilliseconds = 0;
-        //        Logger.Debug("Throttling on message receiving rate is not limited by licensing policy.");
-        //        return;
-        //    }
-
-        //    if (maxThroughputPerSecond > 0)
-        //        throttlingMilliseconds = (1000 - AverageMessageHandlingTime) / maxThroughputPerSecond;
-
-        //    Logger.DebugFormat("Setting throttling to: [{0}] message/s per second, sleep between receiving message: [{1}]", maxThroughputPerSecond, throttlingMilliseconds);
-        //}
 
         public void Start(int maxDegreeOfParallelism, Action worker)
         {
@@ -68,8 +44,6 @@
 
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
-
-
         }
 
         public void Stop()
@@ -78,8 +52,6 @@
                 for (var i = 0; i < workerThreads.Count; i++)
                     workerThreads[i].Stop();
         }
-
-
 
         WorkerThread AddWorkerThread()
         {
@@ -102,24 +74,11 @@
 
         void DoWork()
         {
-            //if (throttlingMilliseconds > 0)
-            //    Thread.Sleep(throttlingMilliseconds);
-
-            workerMethod();
+           workerMethod();
         }
 
-         
-
         Action workerMethod;
-
         int numberOfWorkerThreads = 1;
-        
         readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
-
-        //static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
-
-        //int throttlingMilliseconds;
-        //int maxThroughputPerSecond;
-        //const int AverageMessageHandlingTime = 200; // "guessed" time it takes for user code in handler to execute.
     }
 }

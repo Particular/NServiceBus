@@ -14,11 +14,11 @@ namespace NServiceBus.Logging.Tests.NLogTests
         {
             global::NLog.Config.SimpleConfigurator.ConfigureForConsoleLogging(LogLevel.Trace);
 
-            var loggerFactory = new LoggerFactory();
+            var loggerFactory = new NLogLoggerFactory();
 
             var log = loggerFactory.GetLogger("Test");
 
-            Assert.IsInstanceOf<Log>(log);
+            Assert.IsInstanceOf<NLogLogger>(log);
 
             CallAllMethodsOnLog(log);
 

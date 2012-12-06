@@ -1,3 +1,7 @@
+namespace NServiceBus.Persistence
+{
+}
+
 namespace NServiceBus.Persistence.Raven
 {
     using System;
@@ -68,20 +72,5 @@ namespace NServiceBus.Persistence.Raven
         }
 
         public static Func<IMessageContext, string> GetDatabaseName = context => String.Empty;
-    }
-
-    public class ConcurrencyException : Exception
-    {
-        public ConcurrencyException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        public ConcurrencyException(string message) : base(message)
-        {
-        }
-
-        public ConcurrencyException()
-        {
-        }
     }
 }

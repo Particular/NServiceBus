@@ -1,0 +1,15 @@
+<#@ Template Language="VB" HostSpecific="True" Inherits="DynamicTransform" #>
+<#@ Output Extension="vb" #>
+
+Imports NServiceBus
+Namespace <#= Model.Namespace #>
+
+	'
+	' This class configures this endpoint as a Server. More information about how to configure the NServiceBus host
+	' can be found here: http://nservicebus.com/GenericHost.aspx
+	'
+	Public Class EndpointConfig
+		Implements IConfigureThisEndpoint
+		Inherits AsA_Server
+	End Class
+End Namespace

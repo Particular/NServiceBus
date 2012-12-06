@@ -6,6 +6,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
     using System.Data.SqlClient;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using Serialization;
     using Serializers.Binary;
     using Serializers.Json;
@@ -26,6 +27,9 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
         public string ConnectionString { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
+
+
+        public int SleepTimeBetweenPolls { get; set; }
 
         public void Send(TransportMessage message, Address address)
         {
@@ -80,11 +84,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
         public void Init(Address address, bool transactional)
         {
             currentEndpointName = address.ToString();
-        }
-
-        bool IReceiveMessages.HasMessage()
-        {
-            return true;
         }
 
         public TransportMessage Receive()
@@ -143,8 +142,12 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                     }
                 }
             }
-
+            if (SleepTimeBetweenPolls > 0)
+                Thread.Sleep(SleepTimeBetweenPolls);
+            else
+                Thread.Sleep(1000);
             return null;
         }
     }
+
 }

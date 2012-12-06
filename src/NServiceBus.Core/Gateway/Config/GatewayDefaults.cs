@@ -10,8 +10,11 @@ namespace NServiceBus.Gateway.Config
 
         public void Run()
         {
-            if (!Configure.Instance.Configurer.HasComponent<GatewaySender>() || Configure.Instance.Configurer.HasComponent<IPersistMessages>())
+            if (!Configure.Instance.Configurer.HasComponent<GatewaySender>() ||
+                Configure.Instance.Configurer.HasComponent<IPersistMessages>())
+            {
                 return;
+            }
 
             DefaultPersistence();
         }

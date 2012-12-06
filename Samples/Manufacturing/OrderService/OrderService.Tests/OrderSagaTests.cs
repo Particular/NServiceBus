@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using HR.Messages;
-using NServiceBus.Saga;
 using NServiceBus.Testing;
 using OrderService.Messages;
 using NUnit.Framework;
@@ -35,7 +34,7 @@ namespace OrderService.Tests
             partnerId = Guid.NewGuid();
             purchaseOrderNumber = Guid.NewGuid().ToString();
             orderLines = new List<Messages.IOrderLine>();
-            orderLines.Add(ol => { ol.ProductId = productId; ol.Quantity = quantity; });
+            orderLines.Add(ExtensionMethods.MessageCreator.CreateInstance<Messages.IOrderLine>(ol => { ol.ProductId = productId; ol.Quantity = quantity; }));
         }
 
         [Test]
