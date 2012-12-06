@@ -33,9 +33,13 @@ namespace Runner
                 case "json":
                     config.JsonSerializer();
                     break;
+
+                case "bin":
+                    config.BinarySerializer();
+                    break;
+
                 default:
                     throw new InvalidOperationException("Illegal seralization format " + args[2]);
-
             }
     
             
@@ -46,27 +50,19 @@ namespace Runner
                      .CreateBus();
 
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
-
+            
             var bus = Configure.Instance.Builder.Build<IBus>();
 
-            Parallel.For(0, 10, (x, y) =>
-                {
-                    for (int i = 0; i < numberOfMessages/10; i++)
-                    {
-                        bus.Send("PerformanceTest", new TestMessage());
-                    }
-
-                });
-
-
+            var message = new TestMessage();
+            Parallel.For(0, numberOfMessages, x => bus.Send("PerformanceTest", message));
             
             startableBus.Start();
             
-            while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages)< numberOfMessages)
+            while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages) < numberOfMessages)
                 Thread.Sleep(1000);
 
             var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
-            Console.Out.WriteLine("Threads: {0},NumMessages: {1},Serialization: {2}, Throughput: {3} msg/s", numberOfThreads, numberOfMessages, args[2], Convert.ToDouble(numberOfMessages) / durationSeconds);
+            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Throughput: {3:0.0} msg/s", numberOfThreads, numberOfMessages, args[2], Convert.ToDouble(numberOfMessages) / durationSeconds);
 
             Environment.Exit(0);
         }
@@ -87,8 +83,6 @@ namespace Runner
         }
     }
 
-
-
     class TestMessageHandler:IHandleMessages<TestMessage>
     {
         public static DateTime? First;
@@ -108,6 +102,7 @@ namespace Runner
         }
     }
 
+    [Serializable]
     public class TestMessage:IMessage
     {
         
