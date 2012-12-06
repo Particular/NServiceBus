@@ -8,7 +8,7 @@
         /// <summary>
         /// The number of worker threads that can process messages in parallel.
         /// </summary>
-        [ConfigurationProperty("MaxDegreeOfParallelism", IsRequired = true, DefaultValue = 1)]
+        [ConfigurationProperty("MaxDegreeOfParallelism", IsRequired = false, DefaultValue = 1)]
         public int MaxDegreeOfParallelism
         {
             get
@@ -26,7 +26,7 @@
         /// The maximum number of times to retry processing a message
         /// when it fails before moving it to the error queue.
         /// </summary>
-        [ConfigurationProperty("MaxRetries", IsRequired = true, DefaultValue = 5)]
+        [ConfigurationProperty("MaxRetries", IsRequired = false, DefaultValue = 5)]
         public int MaxRetries
         {
             get
