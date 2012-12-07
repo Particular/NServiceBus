@@ -5,4 +5,4 @@
 .\TestSuites\Serializers.ps1
 
 "Transports"
-#.\TestSuites\Transports.ps1
+.\TestSuites\Transports.ps1

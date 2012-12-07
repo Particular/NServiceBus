@@ -1,6 +1,6 @@
 ﻿. .\TestSupport.ps1
 
 RunTest -transport "msmq"
-RunTest -transport "sql"
+RunTest -transport "sqlserver"
 RunTest -transport "activemq"
-RunTest -transport "azure"
+#RunTest -transport "azure"

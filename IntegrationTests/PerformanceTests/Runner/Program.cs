@@ -43,12 +43,29 @@ namespace Runner
                     break;
 
                 default:
-                    throw new InvalidOperationException("Illegal seralization format " + args[2]);
+                    throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
-    
+
+            switch (args[3].ToLower())
+            {
+                case "msmq":
+                    config.MsmqTransport();
+                    break;
+
+                case "sqlserver":
+                    config.SqlServerTransport(@"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
+                    break;
+
+                case "activemq":
+                    config.ActiveMqTransport("activemq:tcp://localhost:61616");
+                    break;
+
+
+                default:
+                    throw new InvalidOperationException("Illegal transport " + args[2]);
+            }
             
             var startableBus = config
-                     .MsmqTransport()
                      .InMemoryFaultManagement()
                      .UnicastBus()
                      .CreateBus();
@@ -66,7 +83,7 @@ namespace Runner
                 Thread.Sleep(1000);
 
             var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
-            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Throughput: {3:0.0} msg/s", numberOfThreads, numberOfMessages, args[2], Convert.ToDouble(numberOfMessages) / durationSeconds);
+            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s", numberOfThreads, numberOfMessages, args[2], args[3], Convert.ToDouble(numberOfMessages) / durationSeconds);
 
             Environment.Exit(0);
         }
