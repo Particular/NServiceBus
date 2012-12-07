@@ -17,7 +17,7 @@ namespace NServiceBus.Distributor.ReadyMessages
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
                 return;
 
-            var capacityAvailable = Bus.Transport.NumberOfWorkerThreads;
+            var capacityAvailable = Bus.Transport.MaxDegreeOfParallelism;
             SendReadyMessage(capacityAvailable, true);
 
             Bus.Transport.FinishedMessageProcessing += (a, b) =>

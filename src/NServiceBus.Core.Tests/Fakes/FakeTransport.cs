@@ -23,11 +23,19 @@
             InputAddress = localAddress;
         }
 
-        public int HasChangedNumberOfThreadsNTimes { get; set; }
+        public int HasChangedMaxDegreeOfParallelismNTimes { get; set; }
+
+        public int MaxDegreeOfParallelism { get; private set; }
+
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            NumberOfWorkerThreads = targetNumberOfWorkerThreads;
-            HasChangedNumberOfThreadsNTimes++;
+            ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+        }
+
+        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        {
+            MaxDegreeOfParallelism = maxDegreeOfParallelism;
+            HasChangedMaxDegreeOfParallelismNTimes++;
         }
 
         public void AbortHandlingCurrentMessage()
@@ -47,6 +55,11 @@
         public void RaiseEvent(TransportMessage message)
         {
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(message));
+        }
+
+        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        {
+            throw new NotImplementedException();
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

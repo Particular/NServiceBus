@@ -26,10 +26,10 @@ namespace NServiceBus.Gateway.Config
         {
             get
             {
-                if (masterNodeTransport.NumberOfWorkerThreads == 0)
+                if (masterNodeTransport.MaxDegreeOfParallelism == 0)
                     return 1;
 
-                return masterNodeTransport.NumberOfWorkerThreads;
+                return masterNodeTransport.MaxDegreeOfParallelism;
             }
         }
 

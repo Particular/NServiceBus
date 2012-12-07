@@ -25,11 +25,6 @@
             ThreadingStrategy.Start(maxDegreeOfParallelism, Poll);
         }
 
-        public void ChangeMaxDegreeOfParallelism(int value)
-        {
-            ThreadingStrategy.ChangeMaxDegreeOfParallelism(value);
-        }
-
         private void Poll()
         {
             try

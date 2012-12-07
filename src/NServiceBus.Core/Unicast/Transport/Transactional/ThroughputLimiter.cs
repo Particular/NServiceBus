@@ -1,19 +1,35 @@
 namespace NServiceBus.Unicast.Transport.Transactional
 {
+    using System;
     using System.Threading;
 
     /// <summary>
     /// Support for throughput limitation of the transport
     /// </summary>
-    public class ThroughputLimiter
+    internal class ThroughputLimiter
     {
         public void Start(int limit)
         {
-            if (limit == 0)
+            if (limit <= 0)
                 return;
 
-            througputSemaphore = new Semaphore(limit, limit);
+            througputSemaphore = new SemaphoreSlim(limit, limit);
             timer = new Timer(ResetLimit, null, 0, 1000);
+        }
+
+        public void Stop()
+        {
+            if (througputSemaphore == null)
+            {
+                return;
+            }
+
+            timer.Dispose();
+
+            stopResetEvent.WaitOne();
+
+            througputSemaphore.Dispose();
+            througputSemaphore = null;
         }
 
         public void MessageProcessed()
@@ -21,20 +37,27 @@ namespace NServiceBus.Unicast.Transport.Transactional
             if (througputSemaphore == null)
                 return;
 
-            througputSemaphore.WaitOne();
+            througputSemaphore.Wait();
             Interlocked.Increment(ref numberOfMessagesProcessed);
         }
 
         void ResetLimit(object state)
         {
+            stopResetEvent.Reset();
+
             var numberOfMessagesProcessedSnapshot = Interlocked.Exchange(ref numberOfMessagesProcessed, 0);
 
             if (numberOfMessagesProcessedSnapshot > 0)
-                througputSemaphore.Release((int)numberOfMessagesProcessedSnapshot);
+            {
+                througputSemaphore.Release((int) numberOfMessagesProcessedSnapshot);
+            }
+
+            stopResetEvent.Set();
         }
 
-        long numberOfMessagesProcessed;
+        readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         Timer timer;
-        Semaphore througputSemaphore;
+        long numberOfMessagesProcessed;
+        SemaphoreSlim througputSemaphore;
     }
 }

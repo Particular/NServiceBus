@@ -1,5 +1,3 @@
-using System.Threading;
-
 namespace NServiceBus.Unicast.Tests.Helpers
 {
     using System;
@@ -20,8 +18,18 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
         }
 
+        public int MaxDegreeOfParallelism
+        {
+            get { return 1; }
+        }
+
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
+        }
+
+        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        {
+            
         }
 
         /// <summary>
@@ -39,7 +47,12 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public int NumberOfWorkerThreads
         {
-            get { return 1; }
+            get { return MaxDegreeOfParallelism; }
+        }
+
+        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        {
+            throw new NotImplementedException();
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

@@ -26,11 +26,6 @@
             
         }
 
-        public void ChangeMaxDegreeOfParallelism(int value)
-        {
-           
-        }
-
         public void Stop()
         {
            

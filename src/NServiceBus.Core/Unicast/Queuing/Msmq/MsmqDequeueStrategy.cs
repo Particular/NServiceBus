@@ -17,14 +17,15 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     public class MsmqDequeueStrategy : IDequeueMessages
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqDequeueStrategy));
+        private readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         private readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
+        private readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         private int numberOfExceptionsThrown;
         private MessageQueue queue;
         private TaskScheduler scheduler;
         private SemaphoreSlim semaphore;
         private Timer timer;
         private TransactionSettings transactionSettings;
-        private readonly AutoResetEvent resetEvent = new AutoResetEvent(false);
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -78,7 +79,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// <param name="maxDegreeOfParallelism">The max degree of parallelism supported.</param>
         public void Start(int maxDegreeOfParallelism)
         {
-            scheduler = new IOCompletionPortTaskScheduler(maxDegreeOfParallelism, maxDegreeOfParallelism);
+            scheduler = new MTATaskScheduler(maxDegreeOfParallelism);
             semaphore = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
 
             timer = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30),
@@ -90,15 +91,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         /// <summary>
-        ///     updates the max degree of parallelism supported.
-        /// </summary>
-        /// <param name="value">The new max degree of parallelism supported.</param>
-        public void ChangeMaxDegreeOfParallelism(int value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         ///     Stops the dequeuing of messages.
         /// </summary>
         public void Stop()
@@ -106,13 +98,15 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             timer.Dispose();
             queue.PeekCompleted -= OnPeekCompleted;
 
-            semaphore.Dispose();
+            stopResetEvent.WaitOne();
 
             var disposableScheduler = scheduler as IDisposable;
             if (disposableScheduler != null)
             {
                 disposableScheduler.Dispose();
             }
+
+            semaphore.Dispose();
         }
 
         /// <summary>
@@ -148,41 +142,46 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
+            stopResetEvent.Reset();
+
             CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
 
             semaphore.Wait();
 
             Task.Factory.StartNew(() =>
                 {
-                    if (transactionSettings.IsTransactional)
+                    try
                     {
-                        new TransactionWrapper().RunInTransaction(ReceiveAndFireEvent,
-                                                                  transactionSettings.IsolationLevel,
-                                                                  transactionSettings.TransactionTimeout);
+                        if (transactionSettings.IsTransactional)
+                        {
+                            new TransactionWrapper().RunInTransaction(ReceiveAndFireEvent,
+                                                                      transactionSettings.IsolationLevel,
+                                                                      transactionSettings.TransactionTimeout);
+                        }
+                        else
+                        {
+                            ReceiveAndFireEvent();
+                        }
                     }
-                    else
+                    finally
                     {
-                        ReceiveAndFireEvent();
+                        semaphore.Release();
                     }
                 }, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
-                {
-                    if (task.IsFaulted)
                     {
-                        Logger.Error("Error processing message.", task.Exception);
-                    }
-                })
-                .ContinueWith(task => semaphore.Release())
-                .ContinueWith(task =>
-                    {
-                        //We need this otherwise the whole process may be killed!
-                        //See http://ayende.com/blog/157154/it-uses-async-run-for-the-hills-on-net-4-0
-                        AggregateException ignore = task.Exception;
+                        if (task.IsFaulted)
+                        {
+                            Logger.Error("Error processing message.", task.Exception);
+                        }
                     });
 
             //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
-            resetEvent.WaitOne();
+            peekResetEvent.WaitOne();
+
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
+
+            stopResetEvent.Set();
         }
 
         private void CallPeekWithExceptionHandling(Action action)
@@ -269,7 +268,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             finally
             {
-                resetEvent.Set();
+                peekResetEvent.Set();
             }
 
             if (message == null)
@@ -285,7 +284,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             catch (Exception ex)
             {
                 Logger.Error("Error in converting message to TransportMessage.", ex);
-
             }
 
             if (transportMessage != null)
