@@ -82,7 +82,7 @@
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}</Project>
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.ActiveMQ\NServiceBus.ActiveMQ.csproj">

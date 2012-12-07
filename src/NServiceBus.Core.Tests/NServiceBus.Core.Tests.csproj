@@ -137,6 +137,32 @@
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
+    <Compile Include="Unicast\AutoSubscriptions.cs" />
+    <Compile Include="Unicast\ConfigurationSettings.cs" />
+    <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
+    <Compile Include="Unicast\Contexts\CommandMessage.cs" />
+    <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
+    <Compile Include="Unicast\Contexts\EventMessage.cs" />
+    <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
+    <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
+    <Compile Include="Unicast\DeferedMessages.cs" />
+    <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
+    <Compile Include="Unicast\Helpers\FakeTransport.cs" />
+    <Compile Include="Unicast\Helpers\FuncBuilder.cs" />
+    <Compile Include="Unicast\Helpers\Helpers.cs" />
+    <Compile Include="Unicast\Helpers\MessageHeaderManager.cs" />
+    <Compile Include="Unicast\MessageModules.cs" />
+    <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
+    <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
+    <Compile Include="Unicast\Messages\MessageA.cs" />
+    <Compile Include="Unicast\Messages\MessageB.cs" />
+    <Compile Include="Unicast\Publishing.cs" />
+    <Compile Include="Unicast\Receiving.cs" />
+    <Compile Include="Unicast\Sending.cs" />
+    <Compile Include="Unicast\SendOnlyMode.cs" />
+    <Compile Include="Unicast\Subscriptions.cs" />
+    <Compile Include="Unicast\Timing.cs" />
+    <Compile Include="Unicast\UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
