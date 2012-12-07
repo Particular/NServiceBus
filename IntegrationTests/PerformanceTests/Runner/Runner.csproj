@@ -63,8 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="TestSupport.ps1" />
-    <None Include="RunAllSuites.ps1" />
+    <None Include="TestSuites\TestSupport.ps1" />
+    <None Include="TestSuites\RunAllSuites.ps1" />
     <None Include="TestSuites\Transports.ps1" />
     <None Include="TestSuites\Serializers.ps1" />
     <None Include="TestSuites\Threads.ps1" />

@@ -11,6 +11,6 @@
 {
 
   
-    .\bin\debug\Runner.exe $numThreads $numMessages $serializationFormat $transport
+    ..\.\bin\debug\Runner.exe $numThreads $numMessages $serializationFormat $transport
 
 }
