@@ -2,6 +2,7 @@
 
 namespace Runner
 {
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using NServiceBus;
@@ -72,20 +73,39 @@ namespace Runner
 
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
             
-            var bus = Configure.Instance.Builder.Build<IBus>();
+            var sendTime = SeedInputQueue(numberOfMessages);
 
-            var message = new TestMessage();
-            Parallel.For(0, numberOfMessages, x => bus.Send("PerformanceTest", message));
-            
+            var startTime = DateTime.Now;
+
             startableBus.Start();
             
             while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages) < numberOfMessages)
                 Thread.Sleep(1000);
 
             var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
-            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s", numberOfThreads, numberOfMessages, args[2], args[3], Convert.ToDouble(numberOfMessages) / durationSeconds);
+            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, TimeToFirstMessage: {6:0.0}s", 
+                                numberOfThreads, 
+                                numberOfMessages, 
+                                args[2], 
+                                args[3], 
+                                Convert.ToDouble(numberOfMessages) / durationSeconds, 
+                                Convert.ToDouble(numberOfMessages) / sendTime.TotalSeconds,
+                                (TestMessageHandler.First - startTime).Value.TotalSeconds);
 
             Environment.Exit(0);
+        }
+
+        static TimeSpan SeedInputQueue(int numberOfMessages)
+        {
+            var sw = new Stopwatch();
+            var bus = Configure.Instance.Builder.Build<IBus>();
+
+            var message = new TestMessage();
+            sw.Start();
+            Parallel.For(0, numberOfMessages, x => bus.Send("PerformanceTest", message));
+            sw.Stop();
+
+            return sw.Elapsed;
         }
     }
 
