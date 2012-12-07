@@ -51,7 +51,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestSuite.ps1" />
+    <None Include="TestSupport.ps1" />
+    <None Include="RunAllSuites.ps1" />
+    <None Include="TestSuites\Transports.ps1" />
+    <None Include="TestSuites\Serializers.ps1" />
+    <None Include="TestSuites\Threads.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

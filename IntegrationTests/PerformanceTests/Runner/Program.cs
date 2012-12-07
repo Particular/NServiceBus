@@ -34,6 +34,10 @@ namespace Runner
                     config.JsonSerializer();
                     break;
 
+                case "bson":
+                    config.BsonSerializer();
+                    break;
+
                 case "bin":
                     config.BinarySerializer();
                     break;
