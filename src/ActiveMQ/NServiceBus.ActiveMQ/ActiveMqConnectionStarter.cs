@@ -4,22 +4,24 @@ namespace NServiceBus.ActiveMQ
 
     public class ActiveMqConnectionStarter : IWantToRunWhenBusStartsAndStops
     {
-        private readonly INetTxConnection connection;
 
-        public ActiveMqConnectionStarter(INetTxConnection connection)
-        {
-            this.connection = connection;
-        }
+        public INetTxConnection Connection { get; set; }
 
         public void Start()
         {
-            this.connection.Start();
+            if (Connection == null)
+                return;
+
+            Connection.Start();
         }
 
         public void Stop()
         {
-            this.connection.Stop();
-            this.connection.Dispose();
+            if (Connection == null)
+                return;
+
+            Connection.Stop();
+            Connection.Dispose();
         }
     }
 }

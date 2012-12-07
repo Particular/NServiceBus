@@ -18,7 +18,7 @@
         {
             this.connection = new Mock<INetTxConnection>();
 
-            this.testee = new ActiveMqConnectionStarter(this.connection.Object);
+            this.testee = new ActiveMqConnectionStarter { Connection = this.connection.Object };
         }
 
         [Test]
