@@ -1,7 +1,6 @@
 ﻿namespace Subscriber2
 {
     using NServiceBus;
-    using NServiceBus.ActiveMQ.Config;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
@@ -11,7 +10,7 @@
                 //this overrides the NServiceBus default convention of IEvent
                 .CastleWindsorBuilder() // just to show we can mix and match containers
                 .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
-                .ActiveMqTransport("C", "activemq:tcp://localhost:61616")
+                .ActiveMqTransport("activemq:tcp://localhost:61616")
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
 
