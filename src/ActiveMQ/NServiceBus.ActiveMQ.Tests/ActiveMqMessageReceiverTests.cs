@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
+    using System;
+
     using Apache.NMS;
 
     using FluentAssertions;
@@ -20,6 +22,9 @@
         private Mock<ISubscriptionManager> subscriptionManagerMock;
 
         private Mock<INetTxSession> session;
+
+        private Mock<IActiveMqPurger> purger;
+
         private Mock<IMessageConsumer> consumer;
 
         [SetUp] 
@@ -28,10 +33,13 @@
             this.connectionMock = new Mock<INetTxConnection>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
+            this.purger = new Mock<IActiveMqPurger>();
+
             this.testee = new ActiveMqMessageReceiver(
                 this.connectionMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
-                this.subscriptionManagerMock.Object);
+                this.subscriptionManagerMock.Object,
+                this.purger.Object);
         }
 
         [Test]
@@ -76,6 +84,34 @@
         }
 
         [Test]
+        public void WhenSubscriptionIsAddedToReceiverWithLocalAddressAndPurgeRequired_ThenPurge()
+        {
+            const string AnyTopic = "SomeTopic";
+
+            this.testee.PurgeOnStartup = true;
+            this.testee.ConsumerName = "A";
+
+            this.StartTesteeWithLocalAddress();
+            var destination = this.SetupGetQueue(this.session, string.Format("Consumer.{0}.{1}", "A", AnyTopic));
+
+            this.RaiseTopicSubscribed(AnyTopic);
+
+            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), destination));
+        }
+
+        [Test]
+        public void WhenSubscriptionIsAddedToReceiverWithLocalAddressAndPurgeNotRequired_ThenNotPurge()
+        {
+            this.testee.PurgeOnStartup = false;
+
+            this.StartTesteeWithLocalAddress();
+
+            this.RaiseTopicSubscribed("AnyTopic");
+
+            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), It.IsAny<IDestination>()), Times.Never());
+        }
+
+        [Test]
         public void WhenSubscriptionIsAddedToReceiverWithNotLocalAddress_ThenTopicIsNotSubscribed()
         {
             const string Topic = "SomeTopic";
@@ -117,9 +153,9 @@
         {
             this.testee.PurgeOnStartup = true;
 
-            this.StartTesteeWithLocalAddress();
+            this.StartTestee(new Address("anyqueue", "anymachine"));
 
-            this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()));
+            this.purger.Verify(s => s.Purge(this.session.Object, It.Is<IQueue>(d => d.QueueName.Contains("anyqueue"))));
         }
 
         [Test]
@@ -127,9 +163,9 @@
         {
             this.testee.PurgeOnStartup = false;
 
-            this.StartTesteeWithLocalAddress();
+            this.StartTestee(new Address("anyqueue", "anymachine"));
 
-            this.session.Verify(s => s.DeleteDestination(It.IsAny<IDestination>()), Times.Never());
+            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), It.IsAny<IDestination>()), Times.Never());
         }
 
         [Test]
@@ -174,9 +210,10 @@
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
         {
-            var destination = new Mock<IQueue>().Object;
-            sessionMock.Setup(s => s.GetQueue(queue)).Returns(destination);
-            return destination;
+            var destinationMock = new Mock<IQueue>();
+            sessionMock.Setup(s => s.GetQueue(queue)).Returns(destinationMock.Object);
+            destinationMock.Setup(destination => destination.QueueName).Returns(queue);
+            return destinationMock.Object;
         }
         
         private Mock<IMessageConsumer> SetupCreateConsumer(Mock<INetTxSession> sessionMock, IDestination destination)
@@ -194,7 +231,7 @@
 
         private Mock<INetTxSession> SetupCreateSession()
         {
-            var sessionMock = new Mock<INetTxSession>();
+            var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
             this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
