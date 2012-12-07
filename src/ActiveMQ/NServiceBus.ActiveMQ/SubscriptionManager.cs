@@ -7,8 +7,8 @@ namespace NServiceBus.ActiveMQ
     {
         readonly ISet<string> subscriptions = new HashSet<string>();
 
-        public event EventHandler<SubscriptionEventArgs> TopicSubscribed;
-        public event EventHandler<SubscriptionEventArgs> TopicUnsubscribed;
+        public event EventHandler<SubscriptionEventArgs> TopicSubscribed = delegate { };
+        public event EventHandler<SubscriptionEventArgs> TopicUnsubscribed = delegate { };
 
         public IEnumerable<string> GetTopics()
         {
@@ -17,7 +17,7 @@ namespace NServiceBus.ActiveMQ
 
         public void Subscribe(string topic)
         {
-            if (this.subscriptions.Add(topic) && this.TopicSubscribed != null)
+            if (this.subscriptions.Add(topic))
             {
                 this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
             }
@@ -25,7 +25,7 @@ namespace NServiceBus.ActiveMQ
 
         public void Unsubscribe(string topic)
         {
-            if (this.subscriptions.Remove(topic) && this.TopicUnsubscribed != null)
+            if (this.subscriptions.Remove(topic))
             {
                 this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
             }

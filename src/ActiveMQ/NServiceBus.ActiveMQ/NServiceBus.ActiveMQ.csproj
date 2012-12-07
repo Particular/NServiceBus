@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
     <Compile Include="ActiveMqMessageReceiver.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Config\ConfigureActiveMqMessageQueue.cs" />
     <Compile Include="DestinationEvaluator.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
+    <Compile Include="IActiveMqPurger.cs" />
     <Compile Include="IDestinationEvaluator.cs" />
     <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />

@@ -1,11 +1,13 @@
 namespace NServiceBus
 {
+    using System;
+
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
 
-    using ActiveMQ;
-    using Config;
-    using Unicast.Queuing.Installers;
+    using NServiceBus.ActiveMQ;
+    using NServiceBus.Config;
+    using NServiceBus.Unicast.Queuing.Installers;
 
     public static class ConfigureActiveMqMessageQueue
     {
@@ -45,6 +47,7 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<ActiveMqQueueCreator>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
 
             var factory = new NetTxConnectionFactory(brokerUri)
                 {

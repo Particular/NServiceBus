@@ -11,6 +11,9 @@ namespace NServiceBus.ActiveMQ
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
         private readonly ISubscriptionManager subscriptionManager;
+
+        private readonly IActiveMqPurger purger;
+
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
         private readonly INetTxConnection connection;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
@@ -18,13 +21,14 @@ namespace NServiceBus.ActiveMQ
         private ISession session;
         private IMessageConsumer defaultConsumer;
 
-        public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived;
+        public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
 
-        public ActiveMqMessageReceiver(INetTxConnection connection, IActiveMqMessageMapper activeMqMessageMapper, ISubscriptionManager subscriptionManager)
+        public ActiveMqMessageReceiver(INetTxConnection connection, IActiveMqMessageMapper activeMqMessageMapper, ISubscriptionManager subscriptionManager, IActiveMqPurger purger)
         {
             this.connection = connection;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.subscriptionManager = subscriptionManager;
+            this.purger = purger;
         }
 
         public string ConsumerName { get; set; }
@@ -40,11 +44,7 @@ namespace NServiceBus.ActiveMQ
             this.session = this.connection.CreateNetTxSession();
             IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
-            if (this.PurgeOnStartup)
-            {
-                // Currently there's no other way to purge the queues
-                this.session.DeleteDestination(destination);
-            }
+            this.PurgeIfNecessary(this.session, destination);
 
             this.defaultConsumer = this.session.CreateConsumer(destination);
             this.defaultConsumer.Listener += this.OnMessageReceived;
@@ -77,6 +77,7 @@ namespace NServiceBus.ActiveMQ
             {
                 this.subscriptionManager.TopicSubscribed += this.OnTopicSubscribed;
                 this.subscriptionManager.TopicUnsubscribed += this.OnTopicUnsubscribed;
+
                 foreach (var topic in this.subscriptionManager.GetTopics())
                 {
                     this.Subscribe(topic);
@@ -87,6 +88,8 @@ namespace NServiceBus.ActiveMQ
         private void Subscribe(string topic)
         {
             var destination = SessionUtil.GetDestination(this.session, string.Format("queue://Consumer.{0}.{1}", this.ConsumerName, topic));
+            this.PurgeIfNecessary(this.session, destination);
+
             var consumer = this.session.CreateConsumer(destination);
             consumer.Listener += this.OnMessageReceived;
             this.topicConsumers[topic] = consumer;
@@ -96,6 +99,14 @@ namespace NServiceBus.ActiveMQ
         {
             var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
             this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+        }
+
+        private void PurgeIfNecessary(ISession session, IDestination destination)
+        {
+            if (this.PurgeOnStartup)
+            {
+                this.purger.Purge(session, destination);
+            }
         }
 
         public void Dispose()

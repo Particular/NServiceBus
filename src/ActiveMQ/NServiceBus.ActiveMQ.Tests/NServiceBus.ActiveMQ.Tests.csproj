@@ -64,6 +64,7 @@
     <Compile Include="ActiveMqMessageMapperTest.cs" />
     <Compile Include="ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
+    <Compile Include="ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
     <Compile Include="ActiveMqConnectionStarterTest.cs" />
     <Compile Include="DestinationEvaluatorTests.cs" />
