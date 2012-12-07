@@ -2,7 +2,7 @@ param($installPath, $toolsPath, $package, $project)
 
 #default to build dir when debugging
 if(!$toolsPath){
-	$toolsPath = "..\..\NServiceBus.PowerShell\bin\Debug"
+	$toolsPath = ""
 }
 
 Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
@@ -18,7 +18,7 @@ $nservicebusVersion = Get-NServiceBusVersion
 $nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
 
 #Figure out if this machine is properly setup
-$a = get-itemproperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
+$a = Get-ItemProperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
 $preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
 $dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
 
@@ -37,24 +37,23 @@ $dtcInstalled = Test-NServiceBusDTCInstallation
 $ravenDBInstalled = Test-NServiceBusRavenDBInstallation
 
 if(!$perfCountersInstalled){
-	Write-Host "Performance counters are not installed."
+	Write-Warning "Performance counters are not installed."
 }
 if(!$msmqInstalled){
-	Write-Host "Msmq is not installed or correctly setup."
+	Write-Warning "Msmq is not installed or correctly setup."
 }
 if(!$dtcInstalled){
-	Write-Host "DTC is not installed or started."
+	Write-Warning "DTC is not installed or started."
 }
 if(!$ravenDBInstalled){
-	Write-Host "RavenDB is not installed."
+	Write-Warning "RavenDB is not installed."
 }
 
 if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
 	Write-Host "Required infrastructure is all setup correctly."
-
-	New-Item -Path $nserviceBusVersionPath -Force | Out-Null
-	New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" -Force | Out-Null
-	exit
 }
+
+New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
+New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
 
 $dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)

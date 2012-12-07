@@ -29,8 +29,8 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
-                .ConfigureProperty(t => t.NumberOfWorkerThreads, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
-                .ConfigureProperty(t=>t.MaxThroughputPerSecond,throughput);
+                .ConfigureProperty(t => t.MaxDegreeOfParallelism, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
+                .ConfigureProperty(t=>t.MaxThroughputPerSecond, throughput);
         }
 
         static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
@@ -42,7 +42,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
         static int ConfiguredMaxDegreeOfParallelism()
         {
-        
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
             var msmqTransportConfig = Configure.GetConfigSection<MsmqTransportConfig>();
 

@@ -18,7 +18,7 @@ namespace NServiceBus.Gateway.Channels.Http
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        private IOCompletionPortTaskScheduler scheduler;
+        private TaskScheduler scheduler;
        
         public void Start(string address, int numWorkerThreads)
         {
@@ -26,7 +26,7 @@ namespace NServiceBus.Gateway.Channels.Http
         
             listener.Prefixes.Add(address);
 
-            scheduler = new IOCompletionPortTaskScheduler(numWorkerThreads, numWorkerThreads);
+            scheduler = new MTATaskScheduler(numWorkerThreads);
 
             try
             {
@@ -43,7 +43,12 @@ namespace NServiceBus.Gateway.Channels.Http
         public void Dispose()
         {
             listener.Stop();
-            scheduler.Dispose();
+
+            var disposableScheduler = scheduler as IDisposable;
+            if (disposableScheduler != null)
+            {
+                disposableScheduler.Dispose();
+            }
         }
 
         public void Handle(HttpListenerContext ctx)

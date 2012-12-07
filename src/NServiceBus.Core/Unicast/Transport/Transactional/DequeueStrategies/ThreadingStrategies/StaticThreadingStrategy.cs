@@ -4,38 +4,8 @@
     using System.Collections.Generic;
     using NServiceBus.Utils;
 
-    public class StaticThreadingStrategy:IThreadingStrategy
+    public class StaticThreadingStrategy : IThreadingStrategy
     {
-        public int MaxDegreeOfParallelism 
-        { 
-            get { return numberOfWorkerThreads; }
-        }
-
-        public void ChangeMaxDegreeOfParallelism(int targetNumberOfWorkerThreads)
-        {
-            lock (workerThreads)
-            {
-                var current = workerThreads.Count;
-
-                if (targetNumberOfWorkerThreads == current)
-                    return;
-
-                if (targetNumberOfWorkerThreads < current)
-                {
-                    for (var i = targetNumberOfWorkerThreads; i < current; i++)
-                        workerThreads[i].Stop();
-
-                    return;
-                }
-
-                if (targetNumberOfWorkerThreads > current)
-                {
-                    for (var i = current; i < targetNumberOfWorkerThreads; i++)
-                        AddWorkerThread().Start();
-                }
-            }
-        }
-
         public void Start(int maxDegreeOfParallelism, Action worker)
         {
             numberOfWorkerThreads = maxDegreeOfParallelism;
@@ -53,7 +23,7 @@
                     workerThreads[i].Stop();
         }
 
-        WorkerThread AddWorkerThread()
+        private WorkerThread AddWorkerThread()
         {
             lock (workerThreads)
             {
@@ -62,23 +32,23 @@
                 workerThreads.Add(result);
 
                 result.Stopped += delegate(object sender, EventArgs e)
-                                      {
-                                          var wt = sender as WorkerThread;
-                                          lock (workerThreads)
-                                              workerThreads.Remove(wt);
-                                      };
+                    {
+                        var wt = sender as WorkerThread;
+                        lock (workerThreads)
+                            workerThreads.Remove(wt);
+                    };
 
                 return result;
             }
         }
 
-        void DoWork()
+        private void DoWork()
         {
-           workerMethod();
+            workerMethod();
         }
 
-        Action workerMethod;
-        int numberOfWorkerThreads = 1;
-        readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+        private Action workerMethod;
+        private int numberOfWorkerThreads = 1;
+        private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
     }
 }

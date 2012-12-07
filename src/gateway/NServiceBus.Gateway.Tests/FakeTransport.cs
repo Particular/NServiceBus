@@ -16,18 +16,28 @@
         }
 
         public bool IsStarted { get; set; }
+
         public Address InputAddress { get; set; }
+
         public void Start(Address localAddress)
         {
             IsStarted = true;
             InputAddress = localAddress;
         }
 
-        public int HasChangedNumberOfThreadsNTimes { get; set; }
+        public int HasChangedMaxDegreeOfParallelismNTimes { get; set; }
+
+        public int MaxDegreeOfParallelism { get; private set; }
+
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            NumberOfWorkerThreads = targetNumberOfWorkerThreads;
-            HasChangedNumberOfThreadsNTimes++;
+            ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+        }
+
+        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        {
+            MaxDegreeOfParallelism = maxDegreeOfParallelism;
+            HasChangedMaxDegreeOfParallelismNTimes++;
         }
 
         public void AbortHandlingCurrentMessage()
@@ -35,18 +45,18 @@
             throw new NotImplementedException();
         }
 
-        public int NumberOfWorkerThreads { get; set; }
+        public int NumberOfWorkerThreads { get; private set; }
 
         public int MaxThroughputPerSecond { get; set; }
-
-        public bool IsEventAssiged
-        {
-            get { return TransportMessageReceived != null; }
-        }
 
         public void RaiseEvent(TransportMessage message)
         {
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(message));
+        }
+
+        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        {
+            throw new NotImplementedException();
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

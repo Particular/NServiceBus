@@ -10,6 +10,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Runtime.Serialization;
     using Monitoring;
 
+    /// <summary>
+    /// An implementation of <see cref="ITransport"/> that supports transactions.
+    /// </summary>
     public class TransactionalTransport : ITransport
     {
         /// <summary>
@@ -63,21 +66,29 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Get returns the actual number of running worker threads, which may
         /// be different than the originally configured value.
         /// 
-        /// When used as a setter, this value will be used by the <see cref="Start"/>
+        /// When used as a setter, this value will be used by the <see cref="Start(Address)"/>
         /// method only and will have no effect if called afterwards.
         /// 
         /// To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads"/>.
         /// </summary>
         public virtual int NumberOfWorkerThreads
         {
-            get
-            {
-                return maxDegreeOfParallelism;
-            }
+            get { return MaxDegreeOfParallelism; }
+        }
+
+        /// <summary>
+        /// Gets the max degree of parallelism supported..
+        /// </summary>
+        public virtual int MaxDegreeOfParallelism
+        {
+            get { return maxDegreeOfParallelism; }
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Can't set the number of worker threads after the transport has been started. Use ChangeNumberOfWorkerThreads instead");
+                {
+                    throw new InvalidOperationException(
+                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaxDegreeOfParallelism instead");
+                }
 
                 maxDegreeOfParallelism = value;
             }
@@ -85,6 +96,26 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         int maxDegreeOfParallelism;
 
+        /// <summary>
+        /// Updates the max degree of parallelism supported.
+        /// </summary>
+        /// <param name="maxDegreeOfParallelism">The new max degree of parallelism supported.</param>
+        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        {
+            if (this.maxDegreeOfParallelism == maxDegreeOfParallelism)
+            {
+                return;
+            }
+
+            this.maxDegreeOfParallelism = maxDegreeOfParallelism;
+
+            if (isStarted)
+            {
+                Receiver.Stop();
+                Receiver.Start(maxDegreeOfParallelism);
+                Logger.InfoFormat("Degree of parallelism for {0} changed to {1}.", receiveAddress, maxDegreeOfParallelism);
+            }
+        }
 
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
@@ -103,6 +134,19 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         int maxThroughputPerSecond;
 
+        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        {
+            if (maxThroughputPerSecond == this.maxThroughputPerSecond)
+            {
+                return;
+            }
+
+            this.maxThroughputPerSecond = maxThroughputPerSecond;
+            throughputLimiter.Stop();
+            throughputLimiter.Start(maxThroughputPerSecond);
+            Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
+        }
+
         /// <summary>
         /// Event raised when a message has been received in the input queue.
         /// </summary>
@@ -115,10 +159,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <param name="targetNumberOfWorkerThreads"></param>
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            maxDegreeOfParallelism = targetNumberOfWorkerThreads;
-
-            if (isStarted)
-                Receiver.ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+            ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
         }
 
         public void Start(string inputqueue)
@@ -144,7 +185,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             StartReceiver();
 
             if(maxThroughputPerSecond > 0)
-                Logger.InfoFormat("Transport: {0} started with its throughpit limited to {1} messages/second",receiveAddress,maxThroughputPerSecond);
+                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
 
             isStarted = true;
         }
@@ -162,7 +203,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             Receiver.Init(receiveAddress, TransactionSettings);
             Receiver.MessageDequeued += Process;
-
             Receiver.Start(maxDegreeOfParallelism);
         }
 
