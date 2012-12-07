@@ -32,6 +32,8 @@
         [Test]
         public void Stop_ShouldStopAndDisposeConnection()
         {
+            connection.SetupGet(c => c.IsStarted).Returns(true);
+
             this.testee.Stop();
 
             this.connection.Verify(c => c.Stop());
