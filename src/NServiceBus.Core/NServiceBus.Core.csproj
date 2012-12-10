@@ -456,6 +456,7 @@
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />

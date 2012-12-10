@@ -25,19 +25,19 @@
             InputAddress = localAddress;
         }
 
-        public int HasChangedMaxDegreeOfParallelismNTimes { get; set; }
+        public int HasChangedMaximumConcurrencyLevelNTimes { get; set; }
 
-        public int MaxDegreeOfParallelism { get; private set; }
+        public int MaximumConcurrencyLevel { get; private set; }
 
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
         }
 
-        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
-            MaxDegreeOfParallelism = maxDegreeOfParallelism;
-            HasChangedMaxDegreeOfParallelismNTimes++;
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
+            HasChangedMaximumConcurrencyLevelNTimes++;
         }
 
         public void AbortHandlingCurrentMessage()

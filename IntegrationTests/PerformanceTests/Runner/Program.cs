@@ -15,7 +15,7 @@ namespace Runner
         {
             var numberOfThreads = int.Parse(args[0]);
 
-            TransportConfigOverride.MaxDegreeOfParallelism = numberOfThreads;
+            TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
             var numberOfMessages = int.Parse(args[1]);
 
@@ -111,12 +111,12 @@ namespace Runner
 
     class TransportConfigOverride : IProvideConfiguration<TransportConfig>
     {
-        public static int MaxDegreeOfParallelism;
+        public static int MaximumConcurrencyLevel;
         public TransportConfig GetConfiguration()
         {
             return new TransportConfig
                 {
-                    MaxDegreeOfParallelism = MaxDegreeOfParallelism,
+                    MaximumConcurrencyLevel = MaximumConcurrencyLevel,
                     MaxRetries = 5,
                     MaxMessageThroughputPerSecond = 0
 

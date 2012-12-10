@@ -25,13 +25,13 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Gets the number of worker threads currently running in the transport.
 		/// </summary>
-		[ObsoleteEx(Replacement = "MaxDegreeOfParallelism", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		[ObsoleteEx(Replacement = "MaximumConcurrencyLevel", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
 		int NumberOfWorkerThreads { get; }
 
 		/// <summary>
-		/// Gets the max degree of parallelism supported..
+        /// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
-		int MaxDegreeOfParallelism { get; }
+		int MaximumConcurrencyLevel { get; }
 
 		/// <summary>
 		/// Changes the number of worker threads running in the transport.
@@ -42,14 +42,14 @@ namespace NServiceBus.Unicast.Transport
 		/// The requested number of active worker threads after
 		/// the necessary threads have been stopped or started.
 		/// </param>
-		[ObsoleteEx(Replacement = "ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		[ObsoleteEx(Replacement = "ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
 		void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
 		/// <summary>
-		/// Updates the max degree of parallelism supported.
+        /// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
-		/// <param name="maxDegreeOfParallelism">The new max degree of parallelism supported.</param>
-		void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism);
+        /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
+		void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
 
 		/// <summary>
 		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.

@@ -1,23 +1,24 @@
 ﻿namespace NServiceBus.Config
 {
     using System.Configuration;
+    using Unicast.Transport;
 
     public class TransportConfig : ConfigurationSection
     {
      
         /// <summary>
-        /// The number of worker threads that can process messages in parallel.
+        /// Specifies the maximum concurrency level this <see cref="ITransport"/> is able to support.
         /// </summary>
-        [ConfigurationProperty("MaxDegreeOfParallelism", IsRequired = false, DefaultValue = 1)]
-        public int MaxDegreeOfParallelism
+        [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 1)]
+        public int MaximumConcurrencyLevel
         {
             get
             {
-                return (int)this["MaxDegreeOfParallelism"];
+                return (int)this["MaximumConcurrencyLevel"];
             }
             set
             {
-                this["MaxDegreeOfParallelism"] = value;
+                this["MaximumConcurrencyLevel"] = value;
 
             }
         }

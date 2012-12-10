@@ -74,13 +74,13 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         /// <summary>
-        ///     Starts the dequeuing of message using the specified <paramref name="maxDegreeOfParallelism" />.
+        ///     Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel" />.
         /// </summary>
-        /// <param name="maxDegreeOfParallelism">The max degree of parallelism supported.</param>
-        public void Start(int maxDegreeOfParallelism)
+        /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
+        public void Start(int maximumConcurrencyLevel)
         {
-            scheduler = new MTATaskScheduler(maxDegreeOfParallelism);
-            semaphore = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
+            scheduler = new MTATaskScheduler(maximumConcurrencyLevel);
+            semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
             timer = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30),
                               TimeSpan.FromSeconds(30));

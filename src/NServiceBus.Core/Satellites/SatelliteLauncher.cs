@@ -32,7 +32,7 @@ namespace NServiceBus.Satellites
             {
                 if (ctx.Transport != null)
                 {
-                    ctx.Transport.ChangeMaxDegreeOfParallelism(0);
+                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);
                 }
 
                 ctx.Instance.Stop();
@@ -129,7 +129,7 @@ namespace NServiceBus.Satellites
                     ctx.Transport.TransportMessageReceived += (o, e) => HandleMessageReceived(o, e, ctx.Instance);
                     ctx.Transport.Start(ctx.Instance.InputAddress);
 
-                    Logger.DebugFormat("Starting transport {0} for satellite {1} using {2} as the limit of concurrent operations(s).", ctx.Instance.InputAddress, ctx.Instance.GetType().Name, ctx.Transport.MaxDegreeOfParallelism);
+                    Logger.DebugFormat("Starting transport {0} for satellite {1} using {2} as the limit of concurrent operations(s).", ctx.Instance.InputAddress, ctx.Instance.GetType().Name, ctx.Transport.MaximumConcurrencyLevel);
                 }
                 else
                 {
@@ -147,7 +147,7 @@ namespace NServiceBus.Satellites
 
                     if (ctx.Transport != null)
                     {
-                        ctx.Transport.ChangeMaxDegreeOfParallelism(0);                        
+                        ctx.Transport.ChangeMaximumConcurrencyLevel(0);                        
                     }
 
                     ctx.FailedAttempts++;

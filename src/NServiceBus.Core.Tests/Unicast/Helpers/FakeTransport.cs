@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
         }
 
-        public int MaxDegreeOfParallelism
+        public int MaximumConcurrencyLevel
         {
             get { return 1; }
         }
@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
         }
 
-        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
             
         }
@@ -47,7 +47,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
         public int NumberOfWorkerThreads
         {
-            get { return MaxDegreeOfParallelism; }
+            get { return MaximumConcurrencyLevel; }
         }
 
         public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)

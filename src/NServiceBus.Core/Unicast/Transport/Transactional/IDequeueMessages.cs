@@ -15,10 +15,10 @@
         void Init(Address address, TransactionSettings transactionSettings);
         
         /// <summary>
-        /// Starts the dequeuing of message using the specified <paramref name="maxDegreeOfParallelism"/>.
+        /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
         /// </summary>
-        /// <param name="maxDegreeOfParallelism">The max degree of parallelism supported.</param>
-        void Start(int maxDegreeOfParallelism);
+        /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
+        void Start(int maximumConcurrencyLevel);
         
         /// <summary>
         /// Stops the dequeuing of messages.

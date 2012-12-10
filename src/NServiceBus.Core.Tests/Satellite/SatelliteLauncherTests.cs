@@ -116,7 +116,7 @@
         [Test]
         public void TheTransport_should_have_been_restarted()
         {
-            Assert.That(Transport.HasChangedMaxDegreeOfParallelismNTimes, Is.GreaterThan(0));
+            Assert.That(Transport.HasChangedMaximumConcurrencyLevelNTimes, Is.GreaterThan(0));
         }
     }
 

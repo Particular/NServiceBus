@@ -26,10 +26,10 @@ namespace NServiceBus.Gateway.Config
         {
             get
             {
-                if (masterNodeTransport.MaxDegreeOfParallelism == 0)
+                if (masterNodeTransport.MaximumConcurrencyLevel == 0)
                     return 1;
 
-                return masterNodeTransport.MaxDegreeOfParallelism;
+                return masterNodeTransport.MaximumConcurrencyLevel;
             }
         }
 

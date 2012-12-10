@@ -42,12 +42,12 @@
         }
 
         /// <summary>
-        ///     Starts the dequeuing of message using the specified <paramref name="maxDegreeOfParallelism" />.
+        /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
         /// </summary>
-        /// <param name="maxDegreeOfParallelism">The max degree of parallelism supported.</param>
-        public void Start(int maxDegreeOfParallelism)
+        /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
+        public void Start(int maximumConcurrencyLevel)
         {
-            for (int i = 0; i < maxDegreeOfParallelism; i++)
+            for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 CreateAndStartMessageReceiver();
             }

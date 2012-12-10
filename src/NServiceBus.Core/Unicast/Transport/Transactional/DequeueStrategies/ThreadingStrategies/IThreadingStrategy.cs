@@ -4,7 +4,7 @@
 
     public interface IThreadingStrategy
     {
-        void Start(int maxDegreeOfParallelism,Action workerMethod);
+        void Start(int maximumConcurrencyLevel, Action workerMethod);
         void Stop();
     }
 }

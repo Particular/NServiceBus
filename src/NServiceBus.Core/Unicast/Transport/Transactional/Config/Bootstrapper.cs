@@ -4,10 +4,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
     using System.Configuration;
     using Licensing;
     using NServiceBus.Config;
-    using DequeueStrategies;
-    using DequeueStrategies.ThreadingStrategies;
     using Logging;
-    using Queuing;
 
     public class Bootstrapper : INeedInitialization
     {
@@ -18,7 +15,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
         public void Init()
         {
-            var numberOfWorkerThreadsInAppConfig = ConfiguredMaxDegreeOfParallelism();
+            var numberOfWorkerThreadsInAppConfig = ConfiguredMaximumConcurrencyLevel();
             var throughput = MaxThroughput;
 
             if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
@@ -29,7 +26,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
-                .ConfigureProperty(t => t.MaxDegreeOfParallelism, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
+                .ConfigureProperty(t => t.MaximumConcurrencyLevel, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
                 .ConfigureProperty(t=>t.MaxThroughputPerSecond, throughput);
         }
 
@@ -40,7 +37,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
 
-        static int ConfiguredMaxDegreeOfParallelism()
+        static int ConfiguredMaximumConcurrencyLevel()
         {
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
             var msmqTransportConfig = Configure.GetConfigSection<MsmqTransportConfig>();
@@ -53,7 +50,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                 TransactionSettings.MaxRetries = transportConfig.MaxRetries;
                 MaxThroughput = transportConfig.MaxMessageThroughputPerSecond;
 
-                return transportConfig.MaxDegreeOfParallelism;
+                return transportConfig.MaximumConcurrencyLevel;
             }
 
             if (msmqTransportConfig != null)
@@ -80,20 +77,5 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
         static readonly ILog Logger = LogManager.GetLogger("Configuration");
 
-    }
-
-    class DefaultDequeueStrategy : IWantToRunBeforeConfigurationIsFinalized
-    {
-        public void Run()
-        {
-            if (Configure.Instance.Configurer.HasComponent<IDequeueMessages>())
-                return;
-
-            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessages>())
-                throw new InvalidOperationException("No message receiver has been specified. Either configure one or add your own DequeueStrategy");
-
-            Configure.Instance.Configurer.ConfigureComponent<StaticThreadingStrategy>(DependencyLifecycle.InstancePerCall);
-            Configure.Instance.Configurer.ConfigureComponent<PollingDequeueStrategy>(DependencyLifecycle.InstancePerCall);
-        }
     }
 }

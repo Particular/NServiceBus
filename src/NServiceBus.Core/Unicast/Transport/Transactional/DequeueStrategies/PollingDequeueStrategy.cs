@@ -18,11 +18,11 @@
             settings = transactionSettings;
         }
 
-        public void Start(int maxDegreeOfParallelism)
+        public void Start(int maximumConcurrencyLevel)
         {
             MessageReceiver.Init(addressToPoll, settings.IsTransactional);
 
-            ThreadingStrategy.Start(maxDegreeOfParallelism, Poll);
+            ThreadingStrategy.Start(maximumConcurrencyLevel, Poll);
         }
 
         private void Poll()

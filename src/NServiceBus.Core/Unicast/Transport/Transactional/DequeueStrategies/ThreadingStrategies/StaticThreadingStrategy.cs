@@ -6,9 +6,9 @@
 
     public class StaticThreadingStrategy : IThreadingStrategy
     {
-        public void Start(int maxDegreeOfParallelism, Action worker)
+        public void Start(int maximumConcurrencyLevel, Action worker)
         {
-            numberOfWorkerThreads = maxDegreeOfParallelism;
+            numberOfWorkerThreads = maximumConcurrencyLevel;
 
             workerMethod = worker;
 

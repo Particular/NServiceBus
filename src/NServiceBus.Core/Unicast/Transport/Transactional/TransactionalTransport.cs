@@ -73,47 +73,47 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public virtual int NumberOfWorkerThreads
         {
-            get { return MaxDegreeOfParallelism; }
+            get { return MaximumConcurrencyLevel; }
         }
 
         /// <summary>
-        /// Gets the max degree of parallelism supported..
+        /// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
         /// </summary>
-        public virtual int MaxDegreeOfParallelism
+        public virtual int MaximumConcurrencyLevel
         {
-            get { return maxDegreeOfParallelism; }
+            get { return maximumConcurrencyLevel; }
             set
             {
                 if (isStarted)
                 {
                     throw new InvalidOperationException(
-                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaxDegreeOfParallelism instead");
+                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) instead.");
                 }
 
-                maxDegreeOfParallelism = value;
+                maximumConcurrencyLevel = value;
             }
         }
 
-        int maxDegreeOfParallelism;
+        int maximumConcurrencyLevel;
 
         /// <summary>
-        /// Updates the max degree of parallelism supported.
+        /// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
         /// </summary>
-        /// <param name="maxDegreeOfParallelism">The new max degree of parallelism supported.</param>
-        public void ChangeMaxDegreeOfParallelism(int maxDegreeOfParallelism)
+        /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
-            if (this.maxDegreeOfParallelism == maxDegreeOfParallelism)
+            if (this.maximumConcurrencyLevel == maximumConcurrencyLevel)
             {
                 return;
             }
 
-            this.maxDegreeOfParallelism = maxDegreeOfParallelism;
+            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
 
             if (isStarted)
             {
                 Receiver.Stop();
-                Receiver.Start(maxDegreeOfParallelism);
-                Logger.InfoFormat("Degree of parallelism for {0} changed to {1}.", receiveAddress, maxDegreeOfParallelism);
+                Receiver.Start(maximumConcurrencyLevel);
+                Logger.InfoFormat("Maximum concurrency level for '{0}' changed to {1}.", receiveAddress, maximumConcurrencyLevel);
             }
         }
 
@@ -126,7 +126,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Changing the throughput at runtime isn't currently supported");
+                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaxThroughputPerSecond(int maxThroughputPerSecond) instead.");
 
                 maxThroughputPerSecond = value;
             }
@@ -159,7 +159,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <param name="targetNumberOfWorkerThreads"></param>
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
         }
 
         public void Start(string inputqueue)
@@ -203,7 +203,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             Receiver.Init(receiveAddress, TransactionSettings);
             Receiver.MessageDequeued += Process;
-            Receiver.Start(maxDegreeOfParallelism);
+            Receiver.Start(maximumConcurrencyLevel);
         }
 
         void Process(object sender, TransportMessageAvailableEventArgs e)
