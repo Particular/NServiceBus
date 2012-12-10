@@ -32,14 +32,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
             
         }
 
-        /// <summary>
-        /// Throttling receiving messages rate.
-        /// </summary>
-        /// <param name="maxMessageThroughputPerSecond"/>
-        public void MaxMessageThroughputPerSecond(int maxMessageThroughputPerSecond)
-        {
-        }
-
         public void AbortHandlingCurrentMessage()
         {
            
@@ -50,7 +42,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
             get { return MaximumConcurrencyLevel; }
         }
 
-        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
         {
             throw new NotImplementedException();
         }
@@ -85,5 +77,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         /// todo: use for testing.
         /// </summary>
         public int MaxThroughputPerSecond { get; set; }
+
+        public int MaximumThroughputPerSecond { get; private set; }
     }
 }

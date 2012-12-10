@@ -458,8 +458,6 @@
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
-    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\IThreadingStrategy.cs" />
-    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\ThreadingStrategies\StaticThreadingStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />

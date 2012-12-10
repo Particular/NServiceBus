@@ -118,6 +118,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
         }
 
         /// <summary>
+        /// Gets the receiving messages rate.
+        /// </summary>
+        public int MaximumThroughputPerSecond
+        {
+            get { return maxThroughputPerSecond; }
+        }
+
+        /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
         /// </summary>
         public int MaxThroughputPerSecond
@@ -126,7 +134,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaxThroughputPerSecond(int maxThroughputPerSecond) instead.");
+                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond) instead.");
 
                 maxThroughputPerSecond = value;
             }
@@ -134,17 +142,20 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         int maxThroughputPerSecond;
 
-        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
         {
-            if (maxThroughputPerSecond == this.maxThroughputPerSecond)
+            if (maximumThroughputPerSecond == maxThroughputPerSecond)
             {
                 return;
             }
 
-            this.maxThroughputPerSecond = maxThroughputPerSecond;
-            throughputLimiter.Stop();
-            throughputLimiter.Start(maxThroughputPerSecond);
-            Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
+            maxThroughputPerSecond = maximumThroughputPerSecond;
+            if (throughputLimiter != null)
+            {
+                throughputLimiter.Stop();
+                throughputLimiter.Start(maximumThroughputPerSecond);
+            }
+            Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress, maximumThroughputPerSecond);
         }
 
         /// <summary>

@@ -43,16 +43,16 @@
         /// <summary>
         /// The max throughput for the transport. This allows the user to throttle their endpoint if needed
         /// </summary>
-        [ConfigurationProperty("MaxMessageThroughputPerSecond", IsRequired = false, DefaultValue = 0)]
-        public int MaxMessageThroughputPerSecond
+        [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = 0)]
+        public int MaximumMessageThroughputPerSecond
         {
             get
             {
-                return (int)this["MaxMessageThroughputPerSecond"];
+                return (int)this["MaximumMessageThroughputPerSecond"];
             }
             set
             {
-                this["MaxMessageThroughputPerSecond"] = value;
+                this["MaximumMessageThroughputPerSecond"] = value;
             }
         }
     }

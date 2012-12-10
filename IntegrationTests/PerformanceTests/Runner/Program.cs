@@ -118,8 +118,7 @@ namespace Runner
                 {
                     MaximumConcurrencyLevel = MaximumConcurrencyLevel,
                     MaxRetries = 5,
-                    MaxMessageThroughputPerSecond = 0
-
+                    MaximumMessageThroughputPerSecond = 0
                 };
         }
     }

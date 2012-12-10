@@ -49,12 +49,14 @@
 
         public int MaxThroughputPerSecond { get; set; }
 
+        public int MaximumThroughputPerSecond { get; private set; }
+
         public void RaiseEvent(TransportMessage message)
         {
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(message));
         }
 
-        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
         {
             throw new NotImplementedException();
         }

@@ -11,7 +11,7 @@
         {
             const int throughputLimit = 4;
 
-            transport.MaxThroughputPerSecond = throughputLimit;
+            transport.ChangeMaximumThroughputPerSecond(throughputLimit);
             transport.Start(Address.Parse("mytest"));
 
             ThreadPool.QueueUserWorkItem(Receive10);

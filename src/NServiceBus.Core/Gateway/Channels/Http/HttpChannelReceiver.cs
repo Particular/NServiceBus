@@ -26,7 +26,7 @@ namespace NServiceBus.Gateway.Channels.Http
         
             listener.Prefixes.Add(address);
 
-            scheduler = new MTATaskScheduler(numWorkerThreads);
+            scheduler = new MTATaskScheduler(numWorkerThreads, String.Format("NServiceBus Gateway Channel Receiver Thread for [{0}]", address));
 
             try
             {

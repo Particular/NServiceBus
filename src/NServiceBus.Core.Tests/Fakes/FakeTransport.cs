@@ -47,6 +47,8 @@
 
         public int MaxThroughputPerSecond { get; set; }
 
+        public int MaximumThroughputPerSecond { get; private set; }
+
         public bool IsEventAssiged
         {
             get { return TransportMessageReceived != null; }
@@ -57,7 +59,7 @@
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(message));
         }
 
-        public void ChangeMaxThroughputPerSecond(int maxThroughputPerSecond)
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
         {
             throw new NotImplementedException();
         }

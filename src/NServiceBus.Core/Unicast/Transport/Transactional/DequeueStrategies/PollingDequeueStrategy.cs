@@ -1,16 +1,19 @@
 ﻿namespace NServiceBus.Unicast.Transport.Transactional.DequeueStrategies
 {
     using System;
-    using System.Diagnostics;
+    using System.Collections.Generic;
     using Logging;
     using Queuing;
-    using ThreadingStrategies;
     using Utils;
 
     public class PollingDequeueStrategy : IDequeueMessages
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
+        private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+        private Address addressToPoll;
+        private TransactionSettings settings;
+
         public IReceiveMessages MessageReceiver { get; set; }
-        public IThreadingStrategy ThreadingStrategy { get; set; }
 
         public void Init(Address address, TransactionSettings transactionSettings)
         {
@@ -22,7 +25,42 @@
         {
             MessageReceiver.Init(addressToPoll, settings.IsTransactional);
 
-            ThreadingStrategy.Start(maximumConcurrencyLevel, Poll);
+            StartThreads(maximumConcurrencyLevel);
+        }
+
+        public void Stop()
+        {
+            StopThreads();
+        }
+
+        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+
+        private void StartThreads(int maximumConcurrencyLevel)
+        {
+            for (int i = 0; i < maximumConcurrencyLevel; i++)
+                AddWorkerThread().Start();
+        }
+
+        private void StopThreads()
+        {
+            for (int i = 0; i < workerThreads.Count; i++)
+                workerThreads[i].Stop();
+        }
+
+        private WorkerThread AddWorkerThread()
+        {
+            var result = new WorkerThread(Poll);
+
+            workerThreads.Add(result);
+
+            result.Stopped += delegate(object sender, EventArgs e)
+                {
+                    var wt = sender as WorkerThread;
+                    lock (workerThreads)
+                        workerThreads.Remove(wt);
+                };
+
+            return result;
         }
 
         private void Poll()
@@ -39,19 +77,17 @@
             {
                 Logger.Debug("Failed to process transport message", ex);
             }
-
         }
 
         private void TryReceive()
         {
-            var m = Receive();
+            TransportMessage m = Receive();
             if (m == null)
                 return;
 
             MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
         }
 
-        [DebuggerNonUserCode] // so that exceptions don't interfere with debugging.
         private TransportMessage Receive()
         {
             try
@@ -71,18 +107,5 @@
 
             return null;
         }
-
-        public void Stop()
-        {
-            ThreadingStrategy.Stop();
-        }
-
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
-
-        private Address addressToPoll;
-        private TransactionSettings settings;
-
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
-
     }
 }

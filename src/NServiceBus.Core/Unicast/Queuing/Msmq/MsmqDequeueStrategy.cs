@@ -26,6 +26,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private SemaphoreSlim semaphore;
         private Timer timer;
         private TransactionSettings transactionSettings;
+        private Address endpointAddress;
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -41,6 +42,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </param>
         public void Init(Address address, TransactionSettings settings)
         {
+            endpointAddress = address;
             transactionSettings = settings;
 
             if (address == null)
@@ -79,7 +81,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel);
+            scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", endpointAddress));
             semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
             timer = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30),
