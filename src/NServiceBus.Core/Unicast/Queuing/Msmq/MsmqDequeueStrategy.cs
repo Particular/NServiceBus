@@ -296,9 +296,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         private static void OnCriticalExceptionEncountered(Exception ex)
         {
-            Logger.Fatal("Error in receiving messages.", ex);
-
-            Configure.Instance.OnCriticalError(String.Format("Error in receiving messages.\n{0}", ex));
+            Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
         }
     }
 }

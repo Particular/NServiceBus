@@ -35,8 +35,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
 
-        #region config properties
-
         private bool autoSubscribe = true;
 
         /// <summary>
@@ -268,10 +266,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool AllowSubscribeToSelf { get; set; }
 
-        #endregion
-
-        #region IUnicastBus Members
-
         /// <summary>
         /// Event raised when no subscribers found for the published message.
         /// </summary>
@@ -281,10 +275,6 @@ namespace NServiceBus.Unicast
         /// Event raised when client subscribed to a message type.
         /// </summary>
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
-
-        #endregion
-
-        #region IBus Members
 
         /// <summary>
         /// Creates an instance of the specified type.
@@ -1014,9 +1004,10 @@ namespace NServiceBus.Unicast
             get { return this; }
         }
 
-        #endregion
-
-        #region IInMemoryOperations
+        public void Shutdown()
+        {
+            Dispose();
+        }
 
         void IInMemoryOperations.Raise<T>(T @event)
         {
@@ -1027,10 +1018,6 @@ namespace NServiceBus.Unicast
         {
             ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
         }
-
-        #endregion
-
-        #region receiving and handling
 
         /// <summary>
         /// Handles a received message.
@@ -1470,10 +1457,6 @@ namespace NServiceBus.Unicast
             modules.Reverse();//make sure that the modules are called in reverse order when processing ends
         }
 
-        #endregion
-
-        #region helper methods
-
         /// <summary>
         /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
         /// if it isn't null.
@@ -1768,10 +1751,6 @@ namespace NServiceBus.Unicast
             _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
         
-        #endregion
-
-        #region Fields
-
         Address inputAddress;
 
         /// <summary>
@@ -1815,8 +1794,6 @@ namespace NServiceBus.Unicast
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         private IEnumerable<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
-
-        #endregion
     }
 
     /// <summary>

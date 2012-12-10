@@ -209,5 +209,10 @@ namespace NServiceBus.Scheduling.Tests
         {
             get { throw new NotImplementedException(); }
         }
+
+        public void Shutdown()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

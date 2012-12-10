@@ -41,9 +41,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
-
-        #region ITransport Members
-
         /// <summary>
         /// Event which indicates that message processing has started.
         /// </summary>
@@ -228,7 +225,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         void Process(object sender, TransportMessageAvailableEventArgs e)
         {
             var message = e.Message;
-            _needToAbort = false;
+            needToAbort = false;
 
             try
             {
@@ -269,11 +266,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        #endregion
-
-        #region helper methods
-
-
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
@@ -301,7 +293,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
-            if (_needToAbort)
+            if (needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
             if (exceptionFromMessageHandling != null)
@@ -364,10 +356,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception ex)
             {
-                Logger.Fatal(string.Format("Fault manager failed to process the failed message with id {0}", message), ex);
-                Configure.Instance.OnCriticalError(string.Format("Fault manager failed to process the failed message.\n{0}", ex));
+                Configure.Instance.OnCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
             }
-
         }
 
         private void ClearFailuresForMessage(string messageId)
@@ -407,14 +397,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-
-
         /// <summary>
         /// Causes the processing of the current message to be aborted.
         /// </summary>
         public void AbortHandlingCurrentMessage()
         {
-            _needToAbort = true;
+            needToAbort = true;
         }
 
         private Exception OnStartedMessageProcessing(TransportMessage msg)
@@ -432,7 +420,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             return null;
         }
-
 
         private Exception OnFinishedMessageProcessing()
         {
@@ -465,7 +452,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             return null;
         }
 
-        private bool OnFailedMessageProcessing(Exception originalException)
+        private void OnFailedMessageProcessing(Exception originalException)
         {
             try
             {
@@ -475,14 +462,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             catch (Exception e)
             {
                 Logger.Warn("Failed raising 'failed message processing' event.", e);
-                return false;
             }
-
-            return true;
         }
-
-        #endregion
-
 
         Address receiveAddress;
         bool isStarted;
@@ -500,12 +481,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private readonly IDictionary<string, Exception> exceptionsForMessages = new Dictionary<string, Exception>();
 
         [ThreadStatic]
-        private static volatile bool _needToAbort;
-
+        private static volatile bool needToAbort;
 
         static readonly ILog Logger = LogManager.GetLogger("Transport");
-
-
 
         /// <summary>
         /// Stops all worker threads.

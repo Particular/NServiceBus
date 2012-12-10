@@ -116,9 +116,7 @@
             }
             catch (InvalidOperationException e)
             {
-                Logger.Fatal("Error in receiving messages.", e);
-
-                Configure.Instance.OnCriticalError(String.Format("Error in receiving messages.\n{0}", e));
+                Configure.Instance.OnCriticalError("Error in receiving messages.", e);
             }
             catch (Exception e)
             {

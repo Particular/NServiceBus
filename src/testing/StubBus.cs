@@ -215,6 +215,11 @@ namespace NServiceBus.Testing
             get { throw new NotImplementedException(); }
         }
 
+        public void Shutdown()
+        {
+            throw new NotImplementedException();
+        }
+
         public T CreateInstance<T>()
         {
             return messageCreator.CreateInstance<T>();

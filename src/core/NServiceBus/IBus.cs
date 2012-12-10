@@ -259,8 +259,13 @@ namespace NServiceBus
 		IMessageContext CurrentMessageContext { get; }
 
 		/// <summary>
-		/// 
+		/// Support for in-memory operations.
 		/// </summary>
 		IInMemoryOperations InMemory { get; }
+
+		/// <summary>
+		/// Performs the shutdown of the current <see cref="IBus"/>.
+		/// </summary>
+		void Shutdown();
 	}
 }

@@ -32,7 +32,7 @@ namespace NServiceBus.Satellites
             {
                 if (ctx.Transport != null)
                 {
-                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);
+                    ctx.Transport.Dispose();
                 }
 
                 ctx.Instance.Stop();
