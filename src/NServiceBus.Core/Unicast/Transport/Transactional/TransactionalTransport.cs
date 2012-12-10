@@ -155,7 +155,15 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 throughputLimiter.Stop();
                 throughputLimiter.Start(maximumThroughputPerSecond);
             }
-            Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress, maximumThroughputPerSecond);
+            if (maximumThroughputPerSecond <= 0)
+            {
+                Logger.InfoFormat("Throughput limit for {0} disabled.", receiveAddress);
+            }
+            else
+            {
+                Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress,
+                                  maximumThroughputPerSecond);
+            }
         }
 
         /// <summary>

@@ -2,80 +2,98 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Threading.Tasks.Schedulers;
     using Logging;
     using Queuing;
     using Utils;
 
+    /// <summary>
+    /// A polling implementation of <see cref="IDequeueMessages"/>.
+    /// </summary>
     public class PollingDequeueStrategy : IDequeueMessages
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
-        private readonly IList<WorkerThread> workerThreads = new List<WorkerThread>();
+        private CancellationTokenSource tokenSource;
+        private readonly IList<Task> runningTasks = new List<Task>();
         private Address addressToPoll;
+        private MTATaskScheduler scheduler;
         private TransactionSettings settings;
 
+        /// <summary>
+        /// See <see cref="IReceiveMessages"/>.
+        /// </summary>
         public IReceiveMessages MessageReceiver { get; set; }
 
+        /// <summary>
+        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// </summary>
+        /// <param name="address">The address to listen on.</param>
+        /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         public void Init(Address address, TransactionSettings transactionSettings)
         {
             addressToPoll = address;
             settings = transactionSettings;
+
+            MessageReceiver.Init(addressToPoll, settings.IsTransactional);
         }
 
+        /// <summary>
+        /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
+        /// </summary>
+        /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            MessageReceiver.Init(addressToPoll, settings.IsTransactional);
+            tokenSource = new CancellationTokenSource();
 
+            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
+                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
+
+            
             StartThreads(maximumConcurrencyLevel);
         }
 
+        /// <summary>
+        /// Stops the dequeuing of messages.
+        /// </summary>
         public void Stop()
         {
-            StopThreads();
+            tokenSource.Cancel();
+            scheduler.Dispose();
+            runningTasks.Clear();
         }
 
+        /// <summary>
+        /// Fires when a message has been dequeued.
+        /// </summary>
         public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
 
         private void StartThreads(int maximumConcurrencyLevel)
         {
             for (int i = 0; i < maximumConcurrencyLevel; i++)
-                AddWorkerThread().Start();
-        }
-
-        private void StopThreads()
-        {
-            for (int i = 0; i < workerThreads.Count; i++)
-                workerThreads[i].Stop();
-        }
-
-        private WorkerThread AddWorkerThread()
-        {
-            var result = new WorkerThread(Poll);
-
-            workerThreads.Add(result);
-
-            result.Stopped += delegate(object sender, EventArgs e)
-                {
-                    var wt = sender as WorkerThread;
-                    lock (workerThreads)
-                        workerThreads.Remove(wt);
-                };
-
-            return result;
-        }
-
-        private void Poll()
-        {
-            try
             {
-                if (settings.IsTransactional)
-                    new TransactionWrapper().RunInTransaction(TryReceive, settings.IsolationLevel,
-                                                              settings.TransactionTimeout);
-                else
-                    TryReceive();
-            }
-            catch (Exception ex)
-            {
-                Logger.Debug("Failed to process transport message", ex);
+                var token = tokenSource.Token;
+                runningTasks.Add(Task.Factory.StartNew((obj) =>
+                    {
+                        var cancellationToken = (CancellationToken) obj;
+                        
+                        while (!cancellationToken.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                if (settings.IsTransactional)
+                                    new TransactionWrapper().RunInTransaction(TryReceive, settings.IsolationLevel,
+                                                                              settings.TransactionTimeout);
+                                else
+                                    TryReceive();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Debug("Failed to process transport message", ex);
+                            }
+                        }
+                    }, token, token, TaskCreationOptions.None, scheduler));
             }
         }
 
@@ -83,7 +101,9 @@
         {
             TransportMessage m = Receive();
             if (m == null)
+            {
                 return;
+            }
 
             MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
         }

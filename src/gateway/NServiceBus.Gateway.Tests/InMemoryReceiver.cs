@@ -3,19 +3,13 @@
     using System.Collections.Generic;
     using Unicast.Queuing;
 
-    internal class InMemoryReceiver:IReceiveMessages
+    internal class InMemoryReceiver : IReceiveMessages
     {
-        Queue<TransportMessage> queue;
+        private Queue<TransportMessage> queue;
 
         void IReceiveMessages.Init(Address address, bool transactional)
         {
             queue = new Queue<TransportMessage>();
-        }
-
-        public bool HasMessage()
-        {
-            lock (queue)
-                return queue.Count > 0;
         }
 
         public TransportMessage Receive()
