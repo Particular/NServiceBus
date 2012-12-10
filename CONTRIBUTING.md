@@ -31,7 +31,7 @@ top of things.
 
 ## Submitting Changes
 
-* Sign the [Contributor License Agreement](TODO).
+* Sign the [Contributor License Agreement](http://nservicebus.com/contributors/signup).
 * Push your changes to a feature branch in your fork of the repository.
 * Submit a pull request to the NServiceBus repository
 
