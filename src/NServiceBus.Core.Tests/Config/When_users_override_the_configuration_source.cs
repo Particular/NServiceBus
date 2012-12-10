@@ -16,6 +16,12 @@ namespace NServiceBus.Core.Tests.Config
             Configure.With(new Type[]{})
                 .CustomConfigurationSource(userConfigurationSource);
         }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Configure.Instance.CustomConfigurationSource(new DefaultConfigurationSource());
+        }
         
         [Test]
         public void NService_bus_should_resolve_configuration_from_that_source()
