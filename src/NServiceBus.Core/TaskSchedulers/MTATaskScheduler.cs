@@ -22,7 +22,8 @@ namespace System.Threading.Tasks.Schedulers
 
         /// <summary>Initializes a new instance of the MTATaskScheduler class with the specified concurrency level.</summary>
         /// <param name="numberOfThreads">The number of threads that should be created and used by this scheduler.</param>
-        public MTATaskScheduler(int numberOfThreads)
+        /// <param name="nameFormat">The template name form to use to name threads.</param>
+        public MTATaskScheduler(int numberOfThreads, string nameFormat)
         {
             // Validate arguments
             if (numberOfThreads < 1) throw new ArgumentOutOfRangeException("numberOfThreads");
@@ -44,7 +45,7 @@ namespace System.Threading.Tasks.Schedulers
                            });
                            thread.IsBackground = true;
                            thread.SetApartmentState(ApartmentState.MTA);
-                           thread.Name = String.Format("Worker.{0}", thread.ManagedThreadId);
+                           thread.Name = String.Format("{0} - {1}", nameFormat, thread.ManagedThreadId);
                            return thread;
                        }).ToList();
 

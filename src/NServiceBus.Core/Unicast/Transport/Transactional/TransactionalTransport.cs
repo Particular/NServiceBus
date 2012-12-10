@@ -10,6 +10,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Runtime.Serialization;
     using Monitoring;
 
+    /// <summary>
+    /// An implementation of <see cref="ITransport"/> that supports transactions.
+    /// </summary>
     public class TransactionalTransport : ITransport
     {
         /// <summary>
@@ -38,9 +41,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
-
-        #region ITransport Members
-
         /// <summary>
         /// Event which indicates that message processing has started.
         /// </summary>
@@ -63,28 +63,64 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Get returns the actual number of running worker threads, which may
         /// be different than the originally configured value.
         /// 
-        /// When used as a setter, this value will be used by the <see cref="Start"/>
+        /// When used as a setter, this value will be used by the <see cref="Start(Address)"/>
         /// method only and will have no effect if called afterwards.
         /// 
         /// To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads"/>.
         /// </summary>
         public virtual int NumberOfWorkerThreads
         {
-            get
-            {
-                return maxDegreeOfParallelism;
-            }
+            get { return MaximumConcurrencyLevel; }
+        }
+
+        /// <summary>
+        /// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
+        /// </summary>
+        public virtual int MaximumConcurrencyLevel
+        {
+            get { return maximumConcurrencyLevel; }
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Can't set the number of worker threads after the transport has been started. Use ChangeNumberOfWorkerThreads instead");
+                {
+                    throw new InvalidOperationException(
+                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) instead.");
+                }
 
-                maxDegreeOfParallelism = value;
+                maximumConcurrencyLevel = value;
             }
         }
 
-        int maxDegreeOfParallelism;
+        int maximumConcurrencyLevel;
 
+        /// <summary>
+        /// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
+        /// </summary>
+        /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
+        {
+            if (this.maximumConcurrencyLevel == maximumConcurrencyLevel)
+            {
+                return;
+            }
+
+            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
+
+            if (isStarted)
+            {
+                Receiver.Stop();
+                Receiver.Start(maximumConcurrencyLevel);
+                Logger.InfoFormat("Maximum concurrency level for '{0}' changed to {1}.", receiveAddress, maximumConcurrencyLevel);
+            }
+        }
+
+        /// <summary>
+        /// Gets the receiving messages rate.
+        /// </summary>
+        public int MaximumThroughputPerSecond
+        {
+            get { return maxThroughputPerSecond; }
+        }
 
         /// <summary>
         /// Throttling receiving messages rate. You can't set the value other than the value specified at your license.
@@ -95,13 +131,37 @@ namespace NServiceBus.Unicast.Transport.Transactional
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Changing the throughput at runtime isn't currently supported");
+                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond) instead.");
 
                 maxThroughputPerSecond = value;
             }
         }
 
         int maxThroughputPerSecond;
+
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
+        {
+            if (maximumThroughputPerSecond == maxThroughputPerSecond)
+            {
+                return;
+            }
+
+            maxThroughputPerSecond = maximumThroughputPerSecond;
+            if (throughputLimiter != null)
+            {
+                throughputLimiter.Stop();
+                throughputLimiter.Start(maximumThroughputPerSecond);
+            }
+            if (maximumThroughputPerSecond <= 0)
+            {
+                Logger.InfoFormat("Throughput limit for {0} disabled.", receiveAddress);
+            }
+            else
+            {
+                Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress,
+                                  maximumThroughputPerSecond);
+            }
+        }
 
         /// <summary>
         /// Event raised when a message has been received in the input queue.
@@ -115,10 +175,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <param name="targetNumberOfWorkerThreads"></param>
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            maxDegreeOfParallelism = targetNumberOfWorkerThreads;
-
-            if (isStarted)
-                Receiver.ChangeMaxDegreeOfParallelism(targetNumberOfWorkerThreads);
+            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
         }
 
         public void Start(string inputqueue)
@@ -144,7 +201,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             StartReceiver();
 
             if(maxThroughputPerSecond > 0)
-                Logger.InfoFormat("Transport: {0} started with its throughpit limited to {1} messages/second",receiveAddress,maxThroughputPerSecond);
+                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
 
             isStarted = true;
         }
@@ -162,14 +219,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             Receiver.Init(receiveAddress, TransactionSettings);
             Receiver.MessageDequeued += Process;
-
-            Receiver.Start(maxDegreeOfParallelism);
+            Receiver.Start(maximumConcurrencyLevel);
         }
 
         void Process(object sender, TransportMessageAvailableEventArgs e)
         {
             var message = e.Message;
-            _needToAbort = false;
+            needToAbort = false;
 
             try
             {
@@ -210,11 +266,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        #endregion
-
-        #region helper methods
-
-
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
@@ -242,7 +293,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
-            if (_needToAbort)
+            if (needToAbort)
                 throw new AbortHandlingCurrentMessageException();
 
             if (exceptionFromMessageHandling != null)
@@ -305,10 +356,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception ex)
             {
-                Logger.Fatal(string.Format("Fault manager failed to process the failed message with id {0}", message), ex);
-                Configure.Instance.OnCriticalError(string.Format("Fault manager failed to process the failed message.\n{0}", ex));
+                Configure.Instance.OnCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
             }
-
         }
 
         private void ClearFailuresForMessage(string messageId)
@@ -348,14 +397,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-
-
         /// <summary>
         /// Causes the processing of the current message to be aborted.
         /// </summary>
         public void AbortHandlingCurrentMessage()
         {
-            _needToAbort = true;
+            needToAbort = true;
         }
 
         private Exception OnStartedMessageProcessing(TransportMessage msg)
@@ -373,7 +420,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             return null;
         }
-
 
         private Exception OnFinishedMessageProcessing()
         {
@@ -406,7 +452,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             return null;
         }
 
-        private bool OnFailedMessageProcessing(Exception originalException)
+        private void OnFailedMessageProcessing(Exception originalException)
         {
             try
             {
@@ -416,14 +462,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
             catch (Exception e)
             {
                 Logger.Warn("Failed raising 'failed message processing' event.", e);
-                return false;
             }
-
-            return true;
         }
-
-        #endregion
-
 
         Address receiveAddress;
         bool isStarted;
@@ -441,12 +481,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         private readonly IDictionary<string, Exception> exceptionsForMessages = new Dictionary<string, Exception>();
 
         [ThreadStatic]
-        private static volatile bool _needToAbort;
-
+        private static volatile bool needToAbort;
 
         static readonly ILog Logger = LogManager.GetLogger("Transport");
-
-
 
         /// <summary>
         /// Stops all worker threads.

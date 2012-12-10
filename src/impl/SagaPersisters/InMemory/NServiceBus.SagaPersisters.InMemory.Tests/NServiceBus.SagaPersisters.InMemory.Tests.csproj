@@ -53,6 +53,7 @@
     <Compile Include="When_persisting_different_sagas_with_unique_properties.cs" />
     <Compile Include="When_saga_not_found_return_default.cs" />
     <Compile Include="When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />
+    <Compile Include="When_multiple_workers_retrieve_same_saga.cs" />
     <Compile Include="When_updating_a_saga_with_the_same_unique_property_value.cs" />
   </ItemGroup>
   <ItemGroup>

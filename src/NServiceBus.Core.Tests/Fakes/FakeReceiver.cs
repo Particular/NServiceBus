@@ -21,14 +21,9 @@
             
         }
 
-        public void Start(int maxDegreeOfParallelism)
+        public void Start(int maximumConcurrencyLevel)
         {
             
-        }
-
-        public void ChangeMaxDegreeOfParallelism(int value)
-        {
-           
         }
 
         public void Stop()

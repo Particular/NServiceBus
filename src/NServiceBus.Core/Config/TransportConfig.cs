@@ -1,23 +1,24 @@
 ﻿namespace NServiceBus.Config
 {
     using System.Configuration;
+    using Unicast.Transport;
 
     public class TransportConfig : ConfigurationSection
     {
      
         /// <summary>
-        /// The number of worker threads that can process messages in parallel.
+        /// Specifies the maximum concurrency level this <see cref="ITransport"/> is able to support.
         /// </summary>
-        [ConfigurationProperty("MaxDegreeOfParallelism", IsRequired = true, DefaultValue = 1)]
-        public int MaxDegreeOfParallelism
+        [ConfigurationProperty("MaximumConcurrencyLevel", IsRequired = false, DefaultValue = 1)]
+        public int MaximumConcurrencyLevel
         {
             get
             {
-                return (int)this["MaxDegreeOfParallelism"];
+                return (int)this["MaximumConcurrencyLevel"];
             }
             set
             {
-                this["MaxDegreeOfParallelism"] = value;
+                this["MaximumConcurrencyLevel"] = value;
 
             }
         }
@@ -26,7 +27,7 @@
         /// The maximum number of times to retry processing a message
         /// when it fails before moving it to the error queue.
         /// </summary>
-        [ConfigurationProperty("MaxRetries", IsRequired = true, DefaultValue = 5)]
+        [ConfigurationProperty("MaxRetries", IsRequired = false, DefaultValue = 5)]
         public int MaxRetries
         {
             get
@@ -42,16 +43,16 @@
         /// <summary>
         /// The max throughput for the transport. This allows the user to throttle their endpoint if needed
         /// </summary>
-        [ConfigurationProperty("MaxMessageThroughputPerSecond", IsRequired = false, DefaultValue = 0)]
-        public int MaxMessageThroughputPerSecond
+        [ConfigurationProperty("MaximumMessageThroughputPerSecond", IsRequired = false, DefaultValue = 0)]
+        public int MaximumMessageThroughputPerSecond
         {
             get
             {
-                return (int)this["MaxMessageThroughputPerSecond"];
+                return (int)this["MaximumMessageThroughputPerSecond"];
             }
             set
             {
-                this["MaxMessageThroughputPerSecond"] = value;
+                this["MaximumMessageThroughputPerSecond"] = value;
             }
         }
     }

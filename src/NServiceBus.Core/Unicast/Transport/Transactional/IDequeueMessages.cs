@@ -11,21 +11,15 @@
         /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
-        /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
+        /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         void Init(Address address, TransactionSettings transactionSettings);
         
         /// <summary>
-        /// Starts the dequeuing of message using the specified <paramref name="maxDegreeOfParallelism"/>.
+        /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
         /// </summary>
-        /// <param name="maxDegreeOfParallelism">The max degree of parallelism supported.</param>
-        void Start(int maxDegreeOfParallelism);
+        /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
+        void Start(int maximumConcurrencyLevel);
         
-        /// <summary>
-        /// updates the max degree of parallelism supported.
-        /// </summary>
-        /// <param name="value">The new max degree of parallelism supported.</param>
-        void ChangeMaxDegreeOfParallelism(int value);
-
         /// <summary>
         /// Stops the dequeuing of messages.
         /// </summary>

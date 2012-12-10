@@ -23,11 +23,19 @@
             InputAddress = localAddress;
         }
 
-        public int HasChangedNumberOfThreadsNTimes { get; set; }
+        public int HasChangedMaximumConcurrencyLevelNTimes { get; set; }
+
+        public int MaximumConcurrencyLevel { get; private set; }
+
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
-            NumberOfWorkerThreads = targetNumberOfWorkerThreads;
-            HasChangedNumberOfThreadsNTimes++;
+            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
+        }
+
+        public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
+        {
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
+            HasChangedMaximumConcurrencyLevelNTimes++;
         }
 
         public void AbortHandlingCurrentMessage()
@@ -39,6 +47,8 @@
 
         public int MaxThroughputPerSecond { get; set; }
 
+        public int MaximumThroughputPerSecond { get; private set; }
+
         public bool IsEventAssiged
         {
             get { return TransportMessageReceived != null; }
@@ -47,6 +57,11 @@
         public void RaiseEvent(TransportMessage message)
         {
             TransportMessageReceived(this, new TransportMessageReceivedEventArgs(message));
+        }
+
+        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
+        {
+            throw new NotImplementedException();
         }
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;

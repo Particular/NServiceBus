@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
+    using Impersonation;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -34,8 +35,6 @@ namespace NServiceBus.Unicast
         /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
-
-        #region config properties
 
         private bool autoSubscribe = true;
 
@@ -268,10 +267,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool AllowSubscribeToSelf { get; set; }
 
-        #endregion
-
-        #region IUnicastBus Members
-
         /// <summary>
         /// Event raised when no subscribers found for the published message.
         /// </summary>
@@ -281,10 +276,6 @@ namespace NServiceBus.Unicast
         /// Event raised when client subscribed to a message type.
         /// </summary>
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
-
-        #endregion
-
-        #region IBus Members
 
         /// <summary>
         /// Creates an instance of the specified type.
@@ -1014,9 +1005,10 @@ namespace NServiceBus.Unicast
             get { return this; }
         }
 
-        #endregion
-
-        #region IInMemoryOperations
+        public void Shutdown()
+        {
+            Dispose();
+        }
 
         void IInMemoryOperations.Raise<T>(T @event)
         {
@@ -1027,10 +1019,6 @@ namespace NServiceBus.Unicast
         {
             ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
         }
-
-        #endregion
-
-        #region receiving and handling
 
         /// <summary>
         /// Handles a received message.
@@ -1275,6 +1263,8 @@ namespace NServiceBus.Unicast
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
+            SetupImpersonation(childBuilder, msg);
+
             var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
             var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
             var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
@@ -1350,6 +1340,23 @@ namespace NServiceBus.Unicast
             }
 
             Log.Debug("Finished handling message.");
+        }
+
+        static void SetupImpersonation(IBuilder childBuilder,TransportMessage message)
+        {
+            if (!ConfigureImpersonation.Impersonate)
+                return;
+             var impersonator = childBuilder.Build<IImpersonateClients>();
+
+            if(impersonator == null)
+                throw new InvalidOperationException("Impersonation is configured for this endpoint but no implementation of IImpersonateClients found. Please register one");
+
+            var principal = impersonator.GetPrincipal(message);
+
+            if (principal == null)
+                return;
+
+            Thread.CurrentPrincipal = principal;
         }
 
         static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
@@ -1469,10 +1476,6 @@ namespace NServiceBus.Unicast
 
             modules.Reverse();//make sure that the modules are called in reverse order when processing ends
         }
-
-        #endregion
-
-        #region helper methods
 
         /// <summary>
         /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
@@ -1768,10 +1771,6 @@ namespace NServiceBus.Unicast
             _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
         
-        #endregion
-
-        #region Fields
-
         Address inputAddress;
 
         /// <summary>
@@ -1815,8 +1814,6 @@ namespace NServiceBus.Unicast
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         private IEnumerable<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
-
-        #endregion
     }
 
     /// <summary>

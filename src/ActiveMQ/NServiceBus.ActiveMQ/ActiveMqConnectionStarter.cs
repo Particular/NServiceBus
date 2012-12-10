@@ -1,25 +1,41 @@
 namespace NServiceBus.ActiveMQ
 {
     using Apache.NMS;
+    using Config;
 
-    public class ActiveMqConnectionStarter : IWantToRunWhenBusStartsAndStops
+    public class ActiveMqConnectionStarter : IWantToRunWhenBusStartsAndStops, IWantToRunWhenConfigurationIsComplete
     {
-        private readonly INetTxConnection connection;
 
-        public ActiveMqConnectionStarter(INetTxConnection connection)
-        {
-            this.connection = connection;
-        }
+        public INetTxConnection Connection { get; set; }
 
         public void Start()
         {
-            this.connection.Start();
+            if (Connection == null)
+                return;
+
+            if (!Connection.IsStarted)
+                Connection.Start();
         }
 
         public void Stop()
         {
-            this.connection.Stop();
-            this.connection.Dispose();
+            if (Connection == null)
+                return;
+
+            if (Connection.IsStarted)
+                Connection.Stop();
+
+            Connection.Dispose();
+        }
+
+        //we need to connect to the broker even if the bus never starts to support send only endpoints
+        public void Run()
+        {
+            if (Connection == null)
+                return;
+
+            if (!Connection.IsStarted)
+                Connection.Start();
         }
     }
 }
