@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
+    using Impersonation;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -1262,6 +1263,8 @@ namespace NServiceBus.Unicast
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
+            SetupImpersonation(childBuilder, msg);
+
             var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
             var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
             var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
@@ -1337,6 +1340,23 @@ namespace NServiceBus.Unicast
             }
 
             Log.Debug("Finished handling message.");
+        }
+
+        static void SetupImpersonation(IBuilder childBuilder,TransportMessage message)
+        {
+            if (!ConfigureImpersonation.Impersonate)
+                return;
+             var impersonator = childBuilder.Build<IImpersonateClients>();
+
+            if(impersonator == null)
+                throw new InvalidOperationException("Impersonation is configured for this endpoint but no implementation of IImpersonateClients found. Please register one");
+
+            var principal = impersonator.GetPrincipal(message);
+
+            if (principal == null)
+                return;
+
+            Thread.CurrentPrincipal = principal;
         }
 
         static string GetSubscriptionMessageTypeFrom(TransportMessage msg)

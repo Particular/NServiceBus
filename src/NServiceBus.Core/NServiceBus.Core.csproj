@@ -257,7 +257,10 @@
     </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
-    <Compile Include="Impersonation\ImpersonationManager.cs" />
+    <Compile Include="Impersonation\IImpersonateClients.cs" />
+    <Compile Include="Impersonation\Windows\ConfigureWindowsImpersonation.cs" />
+    <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
+    <Compile Include="Impersonation\Windows\WindowsImpersonator.cs" />
     <Compile Include="Install.cs" />
     <Compile Include="Installation\Environments\Windows.cs" />
     <Compile Include="Installation\IEnvironment.cs" />

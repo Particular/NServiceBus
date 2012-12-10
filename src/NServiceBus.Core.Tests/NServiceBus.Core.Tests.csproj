@@ -163,6 +163,7 @@
     <Compile Include="Unicast\Subscriptions.cs" />
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
+    <Compile Include="Unicast\Impersonation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

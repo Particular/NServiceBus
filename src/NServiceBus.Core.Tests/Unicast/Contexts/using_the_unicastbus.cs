@@ -5,6 +5,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Threading;
     using Faults;
     using Helpers;
+    using Impersonation;
+    using Impersonation.Windows;
     using Licensing;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
@@ -61,6 +63,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
+            FuncBuilder.Register<IImpersonateClients>(() => new WindowsImpersonator());
 
             unicastBus = new UnicastBus
             {
