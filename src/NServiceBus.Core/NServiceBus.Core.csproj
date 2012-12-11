@@ -115,7 +115,7 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="ConfigureSqlServerTransport.cs" />
+    <Compile Include="Unicast\Queuing\SQLServer\Config\ConfigureSqlServerTransport.cs" />
     <Compile Include="ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -129,6 +129,7 @@
     <Compile Include="Config\Endpoint.cs" />
     <Compile Include="Config\FtpQueueConfig.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
+    <Compile Include="Config\IConfigureTransport.cs" />
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Config\Logging.cs" />
@@ -430,13 +431,17 @@
     <Compile Include="Unicast\Queuing\ISendMessages.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Queuing\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
+    <Compile Include="Unicast\Queuing\Msmq\Config\MsmqTransportConfigurer.cs" />
     <Compile Include="Unicast\Queuing\Msmq\HeaderInfo.cs" />
+    <Compile Include="Unicast\Queuing\Msmq\Config\Msmq.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqDequeueStrategy.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServer.cs" />
+    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServerTransportConfigurer.cs" />
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerQueueCreator.cs" />
     <Compile Include="Unicast\SubscriptionEventArgs.cs" />
@@ -454,10 +459,12 @@
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
+    <Compile Include="Unicast\Transport\ITransportDefinition.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
