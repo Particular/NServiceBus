@@ -107,10 +107,10 @@
       <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Utils.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\..\lib\RavenDB\RavenDB.Client.975\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\..\lib\RavenDB\RavenDB.Client.992\Raven.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\..\lib\RavenDB\RavenDB.Client.975\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\..\lib\RavenDB\RavenDB.Client.992\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
