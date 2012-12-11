@@ -9,7 +9,7 @@
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture,Explicit("Fails when run with other tests, todo!")]
+    [TestFixture]
     public class When_removing_timeouts_from_the_storage_with_raven : When_removing_timeouts_from_the_storage
     {
         private IDocumentStore store;
@@ -18,7 +18,7 @@
         {
             store = new EmbeddableDocumentStore {RunInMemory = true};
             //store = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "TempTest" };
-            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.MonotonicRead;
+            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
 
