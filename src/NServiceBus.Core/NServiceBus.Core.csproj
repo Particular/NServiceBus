@@ -191,7 +191,6 @@
     <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
     <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
     <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\Config\GatewayDefaults.cs" />
     <Compile Include="Gateway\Config\IMainEndpointSettings.cs" />
     <Compile Include="Gateway\Config\MainEndpointSettings.cs" />
     <Compile Include="Gateway\HeaderManagement\Bootstrapper.cs" />

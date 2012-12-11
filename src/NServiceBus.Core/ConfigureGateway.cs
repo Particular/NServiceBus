@@ -16,9 +16,10 @@ namespace NServiceBus
 
     public static class ConfigureGateway
     {
-        public static Address GatewayInputAddress { get; private set; }
+        static bool disabledGatewayCalledExplicitly;
+        static Action<Configure> defaultPersistence = config => config.UseRavenGatewayPersister();
 
-        private static bool disabledGatewayCalledExplicitly;
+        public static Address GatewayInputAddress { get; private set; }
 
         /// <summary>
         /// The Gateway is turned on by default for the Master role. Call DisableGateway method to turn the Gateway off.
@@ -77,7 +78,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure DefaultToInMemoryGatewayPersistence(this Configure config)
         {
-            GatewayDefaults.DefaultPersistence = () => UseInMemoryGatewayPersister(config);
+            defaultPersistence = c => UseInMemoryGatewayPersister(c);
 
             return config;
         }
@@ -97,6 +98,11 @@ namespace NServiceBus
 
         static Configure SetupGateway(this Configure config)
         {
+            if (!config.Configurer.HasComponent<IPersistMessages>())
+            {
+                defaultPersistence(config);
+            }
+
             GatewayInputAddress = Address.Parse(Configure.EndpointName).SubScope("gateway");
 
             ConfigureChannels(config);
