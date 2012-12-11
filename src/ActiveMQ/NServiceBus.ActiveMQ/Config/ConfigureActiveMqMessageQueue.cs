@@ -48,6 +48,7 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<SessionFactory>(DependencyLifecycle.SingleInstance);
 
             var factory = new NetTxConnectionFactory(brokerUri)
                 {

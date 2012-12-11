@@ -17,7 +17,7 @@
     {
         private ActiveMqMessageReceiver testee;
 
-        private Mock<INetTxConnection> connectionMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ISubscriptionManager> subscriptionManagerMock;
 
@@ -30,13 +30,13 @@
         [SetUp] 
         public void SetUp()
         {
-            this.connectionMock = new Mock<INetTxConnection>();
+            this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
             this.purger = new Mock<IActiveMqPurger>();
 
             this.testee = new ActiveMqMessageReceiver(
-                this.connectionMock.Object, 
+                this.sessionFactoryMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
                 this.subscriptionManagerMock.Object,
                 this.purger.Object);
@@ -232,7 +232,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
-            this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.CreateSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
 

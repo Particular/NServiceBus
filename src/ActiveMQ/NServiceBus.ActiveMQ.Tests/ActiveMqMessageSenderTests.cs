@@ -14,7 +14,7 @@
     public class ActiveMqMessageSenderTests
     {
         private ActiveMqMessageSender testee;
-        private Mock<INetTxConnection> connectionMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<ISubscriptionManager> subscriptionManagerMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ITopicEvaluator> topicEvaluatiorMock;
@@ -23,14 +23,14 @@
         [SetUp]
         public void SetUp()
         {
-            this.connectionMock = new Mock<INetTxConnection>();
+            this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.topicEvaluatiorMock = new Mock<ITopicEvaluator>();
             this.destinationEvaluatorMock = new Mock<IDestinationEvaluator>();
 
             this.testee = new ActiveMqMessageSender(
-                this.connectionMock.Object, 
+                this.sessionFactoryMock.Object, 
                 this.subscriptionManagerMock.Object, 
                 this.activeMqMessageMapperMock.Object,
                 this.topicEvaluatiorMock.Object,
@@ -156,7 +156,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession>();
-            this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.CreateSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
     }
