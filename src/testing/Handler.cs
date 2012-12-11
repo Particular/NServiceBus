@@ -94,18 +94,6 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-		/// Check that the handler does not reply with a given message
-		/// </summary>
-		/// <typeparam name="TMessage"></typeparam>
-		/// <param name="check"></param>
-		/// <returns></returns>
-		public Handler<T> ExpectNotReply<TMessage>(Func<TMessage, bool> check)
-		{
-			expectedInvocations.Add(new ExpectedNotReplyInvocation<TMessage> { Check = check });
-			return this;
-		}
-
-		/// <summary>
         /// Check that the handler replies with the given message type complying with the given predicate.
         /// </summary>
         /// <typeparam name="TMessage"></typeparam>

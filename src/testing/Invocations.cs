@@ -172,14 +172,6 @@ namespace NServiceBus.Testing
         }
     }
 
-	public class ExpectedNotReplyInvocation<M> : ExpectedReplyInvocation<M>
-	{
-		public ExpectedNotReplyInvocation()
-		{
-			Negate = true;
-		}
-	}
-	
     public class ExpectedReplyToOriginatorInvocation<M> : ExpectedInvocation<ReplyToOriginatorInvocation<M>>
     {
         public Func<M, Address, string, bool> Check { get; set; }
