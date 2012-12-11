@@ -163,6 +163,12 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var prop in t.GetProperties())
             {
+                if (!prop.CanWrite && !isKeyValuePair)
+                    continue;
+                var customAttributes = prop.GetCustomAttributes(typeof (XmlIgnoreAttribute), false);
+                if (customAttributes.Length > 0)
+                    continue;
+
                 if (typeof(IList) == prop.PropertyType)
                     throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
 
@@ -170,8 +176,6 @@ namespace NServiceBus.Serializers.XML
 
                 if (args.Length == 1)
                 {
-                    if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
-                        throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
                     if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
                         throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
                 }
