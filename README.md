@@ -1,54 +1,20 @@
-=======================
-= NServiceBus License =
-=======================
+## Building
 
-By accessing NServiceBus code here, you are agreeing to the following licensing terms.
-If you do not agree to these terms, do not access the NServiceBus code.
+To build NServiceBus from source files you can either:
+* Build using VS2012, open `NServiceBus.sln`
+* Or build using Powershell by executing `build.bat`
 
-Your license to the NServiceBus source and/or binaries is governed by the Reciprocal Public License 1.5 (RPL1.5) license as described here: 
+You'll find the built assemblies in /binaries.
 
-http://www.opensource.org/licenses/rpl1.5.txt
+If you see the build failing, check that you haven't put the source of NServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
-If you do not wish to release the source of software you build using NServiceBus, you may use NServiceBus source and/or binaries under the NServiceBus Express End User License Agreement as described here:
+## Running
 
-http://www.nservicebus.com/EULA.aspx
+To run NServiceBus Msmq and MSDTC need to be installed and configured on your machine. To do this please execute
 
- 
-============
-= Building =
-============
+Running a NServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.
 
-The following web page contains information about how to build NServiceBus form source files:
-http://nservicebus.com/BuildingNServiceBusFromSource.aspxIn order to build the source, run the build.ps1 powershell script.
-
-You'll find the built assemblies in /build/binaries.
-
-If you see CS1668 warning when building under 2008, go to the 'C:\Program Files\Microsoft SDKs\Windows\v6.0A' directory and create the 'lib' subdirectory.
-
-If you see the build failing, check that you haven't put nServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
-
-
-===========
-= Running =
-===========
-
-To run NServiceBus Msmq and MSDTC need to be installed and configured on your machine. To do this please
-run RunMeFirst.bat.
-
-Running an nServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.
-
-
-=========
-= Sagas =
-=========
-
-The 'Manufacturing' sample shows the use of sagas.
-
-
-
-============
-= Licenses =
-============
+## Licenses
 
 NHibernate is licensed under the LGPL v2.1 license as described here:
 
