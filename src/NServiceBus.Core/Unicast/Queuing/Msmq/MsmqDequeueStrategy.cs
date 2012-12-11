@@ -98,6 +98,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public void Stop()
         {
             timer.Dispose();
+
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
@@ -109,6 +110,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
 
             semaphore.Dispose();
+            queue.Dispose();
         }
 
         /// <summary>

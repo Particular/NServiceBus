@@ -12,10 +12,10 @@ namespace NServiceBus.Distributor
     public static class LicenseConfig
     {
         private static readonly ILog Logger = LogManager.GetLogger("Distributor." + Configure.EndpointName);
-        private static int allowedWorkerNodes;
+        private static readonly int allowedWorkerNodes;
         private static readonly ConcurrentBag<Address> WorkersList = new ConcurrentBag<Address>();
 
-        internal static void CheckForLicenseLimitationOnNumberOfWorkerNodes()
+        static LicenseConfig()
         {
             allowedWorkerNodes = LicenseManager.CurrentLicense.AllowedNumberOfWorkerNodes;
         }

@@ -49,10 +49,12 @@ namespace NServiceBus
         {
             return RunGateway(config, typeof(InMemoryPersistence));
         }
+
         public static Configure RunGatewayWithRavenPersistence(this Configure config)
         {
             return RunGateway(config, typeof(RavenDbPersistence));
         }
+
         public static Configure RunGateway(this Configure config, Type persistence)
         {
             config.Configurer.ConfigureComponent(persistence, DependencyLifecycle.SingleInstance);

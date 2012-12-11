@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Transport
 		int NumberOfWorkerThreads { get; }
 
 		/// <summary>
-        /// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
+		/// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
 		int MaximumConcurrencyLevel { get; }
 
@@ -46,23 +46,23 @@ namespace NServiceBus.Unicast.Transport
 		void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
 		/// <summary>
-        /// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
+		/// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
-        /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
+		/// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport"/>.</param>
 		void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
 
 		/// <summary>
 		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.
 		/// </summary>
-        [ObsoleteEx(Replacement = "MaximumThroughputPerSecond and ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
-        int MaxThroughputPerSecond { get; set; }
+		[ObsoleteEx(Replacement = "MaximumThroughputPerSecond and ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		int MaxThroughputPerSecond { get; set; }
 
-        /// <summary>
-        /// Gets the receiving messages rate.
-        /// </summary>
-	    int MaximumThroughputPerSecond { get; }
+		/// <summary>
+		/// Gets the receiving messages rate.
+		/// </summary>
+		int MaximumThroughputPerSecond { get; }
 
-	    /// <summary>
+		/// <summary>
 		/// Updates the max throughput per second.
 		/// </summary>
 		/// <param name="maximumThroughputPerSecond">The new max throughput.</param>

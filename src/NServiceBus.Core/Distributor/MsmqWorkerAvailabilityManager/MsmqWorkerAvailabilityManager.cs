@@ -8,7 +8,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
     /// <summary>
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
-    /// with the <see cref="Distributor"/> class.
+    /// with the <see cref="DistributorSatellite"/> class.
     /// </summary>
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
@@ -69,6 +69,14 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             if ((!storageQueue.Transactional) && (!Endpoint.IsVolatile))
                 throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
+        }
+
+        public void Stop()
+        {
+            if (storageQueue != null)
+            {
+                storageQueue.Dispose();
+            }
         }
 
         /// <summary>

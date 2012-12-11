@@ -1,7 +1,6 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
-    using NServiceBus.Config;
     using Unicast;
     using Unicast.Distributor;
 
@@ -25,18 +24,10 @@ namespace NServiceBus.Distributor.Config
                     .ConfigureProperty(r => r.StorageQueueAddress, masterNodeAddress.SubScope("distributor.storage"));
             }
 
-            config.Configurer.ConfigureComponent<DistributorReadyMessageProcessor>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.ControlQueue, masterNodeAddress.SubScope("distributor.control"));
-
-
-            config.Configurer.ConfigureComponent<DistributorBootstrapper>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.InputQueue, masterNodeAddress);
-
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                               applicativeInputQueue);
         }
 
         static readonly ILog Logger = LogManager.GetLogger("Distributor." + Configure.EndpointName);
-
     }
 }

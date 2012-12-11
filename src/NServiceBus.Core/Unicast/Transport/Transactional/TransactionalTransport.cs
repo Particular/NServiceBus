@@ -232,22 +232,24 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 if (TransactionSettings.SuppressDTC)
                 {
                     using (new TransactionScope(TransactionScopeOption.Suppress))
+                    {
                         ProcessMessage(message);
+                    }
                 }
                 else
                 {
                     ProcessMessage(message);
                 }
 
+                if (needToAbort)
+                {
+                    return;
+                }
+
                 ClearFailuresForMessage(message.Id);
 
                 throughputLimiter.MessageProcessed();
                 currentThroughputPerformanceCounter.MessageProcessed();
-            }
-            catch (AbortHandlingCurrentMessageException)
-            {
-                //in case AbortHandlingCurrentMessage was called
-                //don't increment failures, we want this message kept around.
             }
             catch (Exception ex)
             {
@@ -294,7 +296,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
             if (needToAbort)
-                throw new AbortHandlingCurrentMessageException();
+            {
+                return;
+            }
 
             if (exceptionFromMessageHandling != null)
             {
@@ -320,7 +324,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
 
             if (exceptionFromMessageModules != null) //cause rollback
+            {
                 throw exceptionFromMessageModules;
+            }
         }
 
         private bool HandledMaxRetries(TransportMessage message)
