@@ -43,6 +43,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqDequeueStrategy.cs" />
     <Compile Include="RabbitMqMessageSender.cs" />
+    <Compile Include="RabbitMqTransportMessageExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
