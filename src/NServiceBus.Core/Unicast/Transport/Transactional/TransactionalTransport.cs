@@ -7,7 +7,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Transactions;
     using Faults;
     using Logging;
-    using System.Linq;
     using System.Runtime.Serialization;
     using Monitoring;
 
@@ -255,6 +254,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
             catch (Exception ex)
             {
+                if (ex is AggregateException)
+                {
+                    ex = ex.GetBaseException();
+                }
+
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
                     if (TransactionSettings.IsTransactional)
@@ -307,8 +311,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 if (exceptionFromMessageHandling is AggregateException)
                 {
-                    var aggregateException = (AggregateException)exceptionFromMessageHandling;
-                    var serializationException = aggregateException.InnerExceptions.FirstOrDefault(ex => ex.GetType() == typeof(SerializationException));
+                    var serializationException = exceptionFromMessageHandling.GetBaseException() as  SerializationException;
                     if (serializationException != null)
                     {
                         Logger.Error("Failed to serialize message with ID: " + m.IdForCorrelation, serializationException);

@@ -11,7 +11,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using Logging;
     using NServiceBus.Config;
     using Transport.Transactional;
-    using Utils;
 
     /// <summary>
     ///     Default implementation of the MSMQ <see cref="IDequeueMessages" />.
@@ -180,6 +179,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                             ReceiveAndFireEvent();
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Error processing message.", ex.GetBaseException());
+                    }
                     finally
                     {
                         semaphore.Release();
@@ -187,9 +190,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 }, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
                     {
-                        if (task.IsFaulted)
+                        if (task.Exception != null)
                         {
-                            Logger.Error("Error processing message.", task.Exception);
+                            Logger.Error("Error processing message.", task.Exception.GetBaseException());
                         }
                     });
 
