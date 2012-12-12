@@ -188,9 +188,6 @@
 
             this.consumer.Verify(c => c.Close());
             this.consumer.Verify(c => c.Dispose());
-
-            this.session.Verify(s => s.Close());
-            this.session.Verify(s => s.Dispose());
         }
 
         private void StartTesteeWithLocalAddress()
