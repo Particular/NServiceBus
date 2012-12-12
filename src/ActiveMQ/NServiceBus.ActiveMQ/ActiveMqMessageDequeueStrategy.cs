@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
+
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
@@ -14,6 +16,7 @@
         private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
 
         private Address address;
+        private TransactionOptions transactionOptions;
 
         /// <summary>
         ///     Default constructor.
@@ -37,6 +40,7 @@
         /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
         public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
+            this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
             this.address = address;
         }
 
@@ -75,7 +79,11 @@
 
         private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            {
+                MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
+                scope.Complete();
+            }
         }
     }
 }

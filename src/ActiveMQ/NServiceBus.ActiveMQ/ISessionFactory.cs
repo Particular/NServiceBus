@@ -5,5 +5,7 @@
     public interface ISessionFactory
     {
         INetTxSession CreateSession();
+
+        void Release(INetTxSession session);
     }
 }

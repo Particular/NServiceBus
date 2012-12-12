@@ -2,6 +2,7 @@
 {
     using System.Collections.Concurrent;
     using System.Threading;
+    using System.Transactions;
 
     using Apache.NMS;
 
@@ -18,7 +19,19 @@
 
         public INetTxSession CreateSession()
         {
-            return this.sessions.GetOrAdd(Thread.CurrentThread.ManagedThreadId, key => this.connection.CreateNetTxSession());
+            return this.connection.CreateNetTxSession();
+        }
+
+        public void Release(INetTxSession session)
+        {
+            if (Transaction.Current != null)
+            {
+                Transaction.Current.TransactionCompleted += (s, e) => session.Dispose();
+            }
+            else
+            {
+                session.Dispose();
+            }
         }
     }
 }

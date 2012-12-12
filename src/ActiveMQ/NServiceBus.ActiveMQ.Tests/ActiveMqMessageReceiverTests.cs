@@ -188,6 +188,7 @@
 
             this.consumer.Verify(c => c.Close());
             this.consumer.Verify(c => c.Dispose());
+            this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
         }
 
         private void StartTesteeWithLocalAddress()

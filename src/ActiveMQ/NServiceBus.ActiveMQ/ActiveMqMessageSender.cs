@@ -90,13 +90,20 @@
         {
 
             var session = this.sessionFactory.CreateSession();
-            var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);
-
-            using (var producer = session.CreateProducer())
+            try
             {
-                producer.Send(
-                    this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
-                message.Id = jmsMessage.NMSMessageId;
+                var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);
+
+                using (var producer = session.CreateProducer())
+                {
+                    producer.Send(
+                        this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
+                    message.Id = jmsMessage.NMSMessageId;
+                }
+            }
+            finally
+            {
+                this.sessionFactory.Release(session);
             }
         }
     }

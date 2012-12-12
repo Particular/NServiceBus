@@ -2,6 +2,7 @@ namespace NServiceBus.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
 
     using Apache.NMS;
     using Apache.NMS.Util;
@@ -19,7 +20,7 @@ namespace NServiceBus.ActiveMQ
         private readonly ISessionFactory sessionFactory;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
-        private ISession session;
+        private INetTxSession session;
         private IMessageConsumer defaultConsumer;
 
         public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
@@ -102,12 +103,8 @@ namespace NServiceBus.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
-            new TransactionWrapper().RunInTransaction(
-                () =>
-                    {
-                        var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
-                        this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
-                    });
+            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+            this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)
@@ -128,6 +125,8 @@ namespace NServiceBus.ActiveMQ
 
             this.defaultConsumer.Close();
             this.defaultConsumer.Dispose();
+
+            this.sessionFactory.Release(this.session);
         }
     }
 }

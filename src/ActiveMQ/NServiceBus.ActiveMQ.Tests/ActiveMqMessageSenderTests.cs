@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
+    using System;
     using System.Collections.Generic;
 
     using Apache.NMS;
+
+    using FluentAssertions;
 
     using Moq;
 
@@ -114,6 +117,36 @@
             producerMock.Verify(p => p.Send(queue, jmsMessage));
         }
 
+        [Test]
+        public void WhenSendingASendMessage_TheSessionIsReleasedAfterwards()
+        {
+            var sessionMock = this.SetupCreateSession();
+            this.SetupCreateProducer(sessionMock);
+            var message = CreateTransportMessage(MessageIntentEnum.Send);
+            this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
+
+            this.testee.Send(message, new Address("", "SomeMachineName", true));
+
+            this.sessionFactoryMock.Verify(sf => sf.Release(sessionMock.Object));
+        }
+
+        [Test]
+        public void WhenSendingASendMessage_OnExcpetion_TheSessionIsReleasedAfterwards()
+        {
+            const string Reason = "TheExcpetionReason";
+            var sessionMock = this.SetupCreateSession();
+            var producer = this.SetupCreateProducer(sessionMock);
+            producer.Setup(p => p.Send(It.IsAny<IDestination>(), It.IsAny<IMessage>())).Throws(new Exception(Reason));
+
+            var message = CreateTransportMessage(MessageIntentEnum.Send);
+            this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
+
+            Action action = () => this.testee.Send(message, new Address("", "SomeMachineName", true));
+
+            action.ShouldThrow<Exception>(Reason);
+            this.sessionFactoryMock.Verify(sf => sf.Release(sessionMock.Object));
+        }
+        
         private static TransportMessage CreateTransportMessage(MessageIntentEnum messageIntent)
         {
             var headers = new Dictionary<string, string>();
