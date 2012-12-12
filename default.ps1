@@ -36,7 +36,7 @@ task default -depends PrepareBinaries
 
 task Quick -depends Merge, CopyBinaries
 
-task PrepareBinaries -depends Build, CopyBinaries
+task PrepareBinaries -depends RunTests, CopyBinaries
 
 task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
@@ -249,20 +249,9 @@ task RunTests -depends Build {
 		Create-Directory $buildBase\test-reports 
 	}	
 	
-	if ( -Not (Test-Path $env:temp\filestoexclude))
-	{
-		Create-Directory $env:temp\filestoexclude
-	} else {
-		Remove-Item $env:temp\filestoexclude\*.*
-	}
-
-	Move-Item -path $buildBase\*.exe -destination $env:temp\filestoexclude\ -Force
-	
 	$testAssemblies = @()
 	$testAssemblies +=  dir $buildBase\*Tests.dll -Exclude NServiceBus.Integration.Azure.Tests.dll, NServiceBus.Unicast.Queuing.Azure.Tests.dll
 	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
-
-	Move-Item -path $env:temp\filestoexclude\*.exe -destination $buildBase\ -Force
 }
 
 task Merge -depends Build {
