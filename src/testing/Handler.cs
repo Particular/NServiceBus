@@ -63,7 +63,7 @@ namespace NServiceBus.Testing
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public Handler<T> AssertOutgoingHeader(string key, string value)
         {
             return this;
