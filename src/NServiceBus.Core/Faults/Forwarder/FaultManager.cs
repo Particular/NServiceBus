@@ -78,11 +78,23 @@ namespace NServiceBus.Faults.Forwarder
 
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
+            if (e is AggregateException)
+            {
+                e = e.GetBaseException();
+            }
+
+            if (e is TransportMessageHandlingFailedException)
+            {
+                e = e.GetBaseException();
+            }
+
             message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
             message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
             if (e.InnerException != null)
+            {
                 message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+            }
 
             message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;

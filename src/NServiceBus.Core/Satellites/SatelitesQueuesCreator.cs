@@ -29,7 +29,7 @@ namespace NServiceBus.Satellites
             var satellites = Configure.Instance.Builder
                  .BuildAll<ISatellite>()
                  .ToList();
-            foreach (var satellite in satellites.Where(satellite => !satellite.Disabled))
+            foreach (var satellite in satellites.Where(satellite => !satellite.Disabled && satellite.InputAddress != null))
                 QueueCreator.CreateQueueIfNecessary(satellite.InputAddress, identity.Name);
         }
     }

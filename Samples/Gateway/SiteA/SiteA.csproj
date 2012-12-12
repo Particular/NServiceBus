@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="CustomResponder\CustomHttpResponder.cs" />
     <Compile Include="CustomResponder\Inspectors\AuditInspector.cs" />
-    <Compile Include="CustomResponder\Inspectors\NumberOfThreadsInspector.cs" />
+    <Compile Include="CustomResponder\Inspectors\MaximumConcurrencyLevelInspector.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="PriceUpdatedHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +69,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-	<StartArguments>NServiceBus.Lite NServiceBus.MultiSite</StartArguments>	
+    <StartArguments>NServiceBus.Lite NServiceBus.MultiSite</StartArguments>
   </PropertyGroup>
 </Project>

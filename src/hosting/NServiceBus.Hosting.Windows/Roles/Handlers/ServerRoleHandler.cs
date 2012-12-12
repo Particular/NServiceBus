@@ -17,9 +17,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
-                Configure.Instance.MsmqTransport();
-
+         
             return Configure.Instance
                 .Sagas()
                 .IsTransactional(!Endpoint.IsVolatile)

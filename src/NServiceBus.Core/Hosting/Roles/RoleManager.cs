@@ -16,7 +16,7 @@ namespace NServiceBus.Hosting.Roles
     public class RoleManager
     {
         private readonly IDictionary<Type, Type> availableRoles;
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (RoleManager));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(RoleManager));
 
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles
@@ -25,8 +25,8 @@ namespace NServiceBus.Hosting.Roles
         public RoleManager(IEnumerable<Assembly> assembliesToScan)
         {
             availableRoles = assembliesToScan.AllTypes()
-                .Select(t => new {Role = t.GetGenericallyContainedType(typeof (IConfigureRole<>), typeof (IRole)),Configurer=t})
-                .Where(x=>x.Role != null)
+                .Select(t => new { Role = t.GetGenericallyContainedType(typeof(IConfigureRole<>), typeof(IRole)), Configurer = t })
+                .Where(x => x.Role != null)
                 .ToDictionary(key => key.Role, value => value.Configurer);
         }
 
@@ -36,20 +36,46 @@ namespace NServiceBus.Hosting.Roles
         /// <param name="specifier"></param>
         public void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier)
         {
-            ConfigUnicastBus config = null;
+            ConfigUnicastBus unicastBusConfig = null;
 
             foreach (var role in availableRoles)
             {
                 var roleType = role.Key;
-                if (!roleType.IsAssignableFrom(specifier.GetType())) continue;
+                bool handlesRole;
 
-                if (config != null)
-                    throw new InvalidOperationException("Endpoints can only have one role");
+
+                if (roleType.IsGenericType)
+                {
+                    handlesRole =
+                        specifier.GetType()
+                                 .GetInterfaces()
+                                 .Any(
+                                     x =>
+                                     x.IsGenericType &&
+                                     x.GetGenericTypeDefinition() == roleType.GetGenericTypeDefinition());
+                }
+                else
+                {
+                    handlesRole = roleType.IsInstanceOfType(specifier);
+                }
+
+                if (!handlesRole)
+                    continue;
+
 
                 //apply role
                 var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
 
-                config = roleConfigurer.ConfigureRole(specifier);
+                var config = roleConfigurer.ConfigureRole(specifier);
+
+                if (config != null)
+                {
+                    if (unicastBusConfig != null)
+                        throw new InvalidOperationException("Only one role can configure the unicastbus");
+
+                    unicastBusConfig = config;
+                }
+
                 Logger.Info("Role " + roleType + " configured");
                 foreach (var markerProfile in GetMarkerRoles(specifier.GetType(), roleType))
                     Logger.Info("Role " + markerProfile + " is marked.");
@@ -58,12 +84,12 @@ namespace NServiceBus.Hosting.Roles
 
         private IEnumerable<string> GetMarkerRoles(Type configuredEndpoint, Type roleType)
         {
-            return (from markerProfile in configuredEndpoint.GetInterfaces() 
-                    where markerProfile != roleType 
-                    where (markerProfile != typeof (IRole)) && (markerProfile.GetInterface(typeof (IRole).ToString()) != null) 
+            return (from markerProfile in configuredEndpoint.GetInterfaces()
+                    where markerProfile != roleType
+                    where (markerProfile != typeof(IRole)) && (markerProfile.GetInterface(typeof(IRole).ToString()) != null)
                     select markerProfile.ToString()).ToList();
         }
     }
 
-   
+
 }

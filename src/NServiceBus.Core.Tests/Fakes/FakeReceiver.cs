@@ -16,7 +16,8 @@
             NumMessagesReceived++;
         }
 
-        public void Init(Address address, TransactionSettings transactionSettings)
+
+        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
             
         }

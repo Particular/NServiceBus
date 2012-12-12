@@ -1,7 +1,7 @@
 namespace NServiceBus.ActiveMQ
 {
     using Apache.NMS;
-    using Config;
+    using NServiceBus.Config;
 
     public class ActiveMqConnectionStarter : IWantToRunWhenBusStartsAndStops, IWantToRunWhenConfigurationIsComplete
     {

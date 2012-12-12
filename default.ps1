@@ -212,7 +212,9 @@ task CreateReleaseFolder {
 
 	Copy-Item $binariesDir $releaseRoot\binaries -Force -Recurse
 
-	Copy-Item "$baseDir\*.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\acknowledgements.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\README.md" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\LICENSE" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\RunMeFirst.bat" $releaseRoot -Force -ErrorAction SilentlyContinue
 	
 	Create-Directory $releaseRoot\tools\licenseinstaller
@@ -249,20 +251,9 @@ task RunTests -depends Build {
 		Create-Directory $buildBase\test-reports 
 	}	
 	
-	if ( -Not (Test-Path $env:temp\filestoexclude))
-	{
-		Create-Directory $env:temp\filestoexclude
-	} else {
-		Remove-Item $env:temp\filestoexclude\*.*
-	}
-
-	Move-Item -path $buildBase\*.exe -destination $env:temp\filestoexclude\ -Force
-	
 	$testAssemblies = @()
 	$testAssemblies +=  dir $buildBase\*Tests.dll -Exclude NServiceBus.Integration.Azure.Tests.dll, NServiceBus.Unicast.Queuing.Azure.Tests.dll
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework}
-
-	Move-Item -path $env:temp\filestoexclude\*.exe -destination $buildBase\ -Force
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror}
 }
 
 task Merge -depends Build {

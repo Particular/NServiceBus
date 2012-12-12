@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast.Distributor
 {
 	/// <summary>
 	/// Defines a manager class that determines the availability
-	/// of a worker for the <see cref="Distributor"/>.
+	/// of a worker for the <see cref="DistributorSatellite"/>.
 	/// </summary>
     public interface IWorkerAvailabilityManager
     {
@@ -10,6 +10,11 @@ namespace NServiceBus.Unicast.Distributor
 	    /// Start the worker availability manager
 	    ///</summary>
 	    void Start();
+
+        ///<summary>
+        /// Stops the worker availability manager
+        ///</summary>
+        void Stop();
 
 	    /// <summary>
 	    /// Signal that a worker is available to receive a dispatched message.

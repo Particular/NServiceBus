@@ -64,6 +64,11 @@ namespace NServiceBus.Satellites
                 {
                     ctx.Transport = Builder.Build<ITransport>();
 
+                    if (ctx.Instance is IWantAccessToTransport)
+                    {
+                        ((IWantAccessToTransport) ctx.Instance).Transport = ctx.Transport;
+                    }
+
                     if (SatelliteTransportInitialized != null)
                     {
                         SatelliteTransportInitialized(null,

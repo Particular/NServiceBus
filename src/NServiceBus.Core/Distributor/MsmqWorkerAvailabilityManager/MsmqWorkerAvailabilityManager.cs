@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
     using System;
+    using System.Diagnostics;
     using System.Messaging;
     using NServiceBus.Config;
     using Unicast.Distributor;
@@ -8,7 +9,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
     /// <summary>
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
-    /// with the <see cref="Distributor"/> class.
+    /// with the <see cref="DistributorSatellite"/> class.
     /// </summary>
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
@@ -41,6 +42,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// Pops the next available worker from the available worker queue
         /// and returns its address.
         /// </summary>
+        [DebuggerNonUserCode]
         public Address PopAvailableWorker()
         {
             try
@@ -69,6 +71,14 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             if ((!storageQueue.Transactional) && (!Endpoint.IsVolatile))
                 throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
+        }
+
+        public void Stop()
+        {
+            if (storageQueue != null)
+            {
+                storageQueue.Dispose();
+            }
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
-﻿using log4net;
-using NServiceBus;
+﻿using NServiceBus;
 using Orders.Messages;
 
 namespace Orders.Handler

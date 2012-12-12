@@ -1,15 +1,16 @@
 namespace NServiceBus.Unicast.Queuing.Msmq
 {
     using System;
+    using System.Diagnostics;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
+    using System.Transactions;
     using Logging;
     using NServiceBus.Config;
     using Transport.Transactional;
-    using Utils;
 
     /// <summary>
     ///     Default implementation of the MSMQ <see cref="IDequeueMessages" />.
@@ -27,6 +28,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private Timer timer;
         private TransactionSettings transactionSettings;
         private Address endpointAddress;
+        private TransactionOptions transactionOptions;
+        private Func<bool> commitTransation;
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -34,16 +37,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
-        ///     Initialises the <see cref="IDequeueMessages" />.
+        /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
-        /// <param name="settings">
-        ///     The <see cref="TransactionSettings" /> to be used by <see cref="IDequeueMessages" />.
-        /// </param>
-        public void Init(Address address, TransactionSettings settings)
+        /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
+        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
+        public void Init(Address address, TransactionSettings settings, Func<bool> commitTransation)
         {
             endpointAddress = address;
             transactionSettings = settings;
+            this.commitTransation = commitTransation;
 
             if (address == null)
             {
@@ -56,6 +59,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     string.Format("Input queue [{0}] must be on the same machine as this process [{1}].",
                                   address, Environment.MachineName));
             }
+
+            transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
 
             queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
 
@@ -98,6 +103,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public void Stop()
         {
             timer.Dispose();
+
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
@@ -109,6 +115,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
 
             semaphore.Dispose();
+            queue.Dispose();
         }
 
         /// <summary>
@@ -142,6 +149,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return MessageQueueTransactionType.Automatic;
         }
 
+        [DebuggerNonUserCode]
         private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
             stopResetEvent.Reset();
@@ -156,14 +164,24 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     {
                         if (transactionSettings.IsTransactional)
                         {
-                            new TransactionWrapper().RunInTransaction(ReceiveAndFireEvent,
-                                                                      transactionSettings.IsolationLevel,
-                                                                      transactionSettings.TransactionTimeout);
+                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                            {
+                                ReceiveAndFireEvent();
+
+                                if (commitTransation())
+                                {
+                                    scope.Complete();
+                                }
+                            }
                         }
                         else
                         {
                             ReceiveAndFireEvent();
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Error processing message.", ex.GetBaseException());
                     }
                     finally
                     {
@@ -172,9 +190,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 }, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
                     {
-                        if (task.IsFaulted)
+                        if (task.Exception != null)
                         {
-                            Logger.Error("Error processing message.", task.Exception);
+                            Logger.Error("Error processing message.", task.Exception.GetBaseException());
                         }
                     });
 
@@ -224,6 +242,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
+        [DebuggerNonUserCode]
         private void ReceiveAndFireEvent()
         {
             Message message = null;

@@ -2,11 +2,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
     using Faults;
     using Logging;
-    using System.Linq;
     using System.Runtime.Serialization;
     using Monitoring;
 
@@ -217,11 +217,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings);
+            Receiver.Init(receiveAddress, TransactionSettings, () => !needToAbort);
             Receiver.MessageDequeued += Process;
             Receiver.Start(maximumConcurrencyLevel);
         }
 
+        [DebuggerNonUserCode]
         void Process(object sender, TransportMessageAvailableEventArgs e)
         {
             var message = e.Message;
@@ -232,11 +233,18 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 if (TransactionSettings.SuppressDTC)
                 {
                     using (new TransactionScope(TransactionScopeOption.Suppress))
+                    {
                         ProcessMessage(message);
+                    }
                 }
                 else
                 {
                     ProcessMessage(message);
+                }
+
+                if (needToAbort)
+                {
+                    return;
                 }
 
                 ClearFailuresForMessage(message.Id);
@@ -244,13 +252,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 throughputLimiter.MessageProcessed();
                 currentThroughputPerformanceCounter.MessageProcessed();
             }
-            catch (AbortHandlingCurrentMessageException)
-            {
-                //in case AbortHandlingCurrentMessage was called
-                //don't increment failures, we want this message kept around.
-            }
             catch (Exception ex)
             {
+                if (ex is AggregateException)
+                {
+                    ex = ex.GetBaseException();
+                }
+
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
                     if (TransactionSettings.IsTransactional)
@@ -266,6 +274,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
+        [DebuggerNonUserCode]
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
@@ -294,14 +303,15 @@ namespace NServiceBus.Unicast.Transport.Transactional
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
             if (needToAbort)
-                throw new AbortHandlingCurrentMessageException();
+            {
+                return;
+            }
 
             if (exceptionFromMessageHandling != null)
             {
                 if (exceptionFromMessageHandling is AggregateException)
                 {
-                    var aggregateException = (AggregateException)exceptionFromMessageHandling;
-                    var serializationException = aggregateException.InnerExceptions.FirstOrDefault(ex => ex.GetType() == typeof(SerializationException));
+                    var serializationException = exceptionFromMessageHandling.GetBaseException() as  SerializationException;
                     if (serializationException != null)
                     {
                         Logger.Error("Failed to serialize message with ID: " + m.IdForCorrelation, serializationException);
@@ -320,7 +330,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
 
             if (exceptionFromMessageModules != null) //cause rollback
+            {
                 throw exceptionFromMessageModules;
+            }
         }
 
         private bool HandledMaxRetries(TransportMessage message)

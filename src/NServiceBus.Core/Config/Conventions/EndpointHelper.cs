@@ -57,6 +57,11 @@ namespace NServiceBus.Config.Conventions
                     "No version of the endpoint could not be retrieved using the default convention, please specify your own convention using Configure.DefineEndpointVersionRetriever()");
         }
 
+        /// <summary>
+        /// If set this will be used to figure out what to name the endpoint and select the version.
+        /// </summary>
+        public static StackTrace StackTraceToExamine { get; set; }
+
         static void Initialize()
         {
             if (intialized)
@@ -67,10 +72,12 @@ namespace NServiceBus.Config.Conventions
                 if (entryAssembly != null && entryAssembly.EntryPoint != null)
                 {
                     entryType = entryAssembly.EntryPoint.ReflectedType;
+                    return;
                 }
 
-                var stackFrames = new StackTrace().GetFrames();
                 StackFrame targetFrame = null;
+
+                StackFrame[] stackFrames = new StackTrace().GetFrames();
                 if (stackFrames != null)
                 {
                     targetFrame =
@@ -79,7 +86,26 @@ namespace NServiceBus.Config.Conventions
                 }
 
                 if (targetFrame != null)
+                {
                     entryType= targetFrame.GetMethod().ReflectedType;
+                    return;
+                }
+
+                if (StackTraceToExamine != null)
+                {
+                    stackFrames = StackTraceToExamine.GetFrames();
+                    if (stackFrames != null)
+                    {
+                        targetFrame =
+                            stackFrames.FirstOrDefault(
+                                f => f.GetMethod().DeclaringType != typeof(NServiceBus.Configure));
+                    }
+                }
+
+                if (targetFrame != null)
+                {
+                    entryType = targetFrame.GetMethod().ReflectedType;
+                }
             }
             finally
             {

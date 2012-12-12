@@ -5,6 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
+    using System.Transactions;
     using Logging;
     using Queuing;
     using Utils;
@@ -20,6 +21,8 @@
         private Address addressToPoll;
         private MTATaskScheduler scheduler;
         private TransactionSettings settings;
+        private TransactionOptions transactionOptions;
+        private Func<bool> commitTransation;
 
         /// <summary>
         /// See <see cref="IReceiveMessages"/>.
@@ -31,10 +34,13 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
+            this.commitTransation = commitTransation;
             addressToPoll = address;
             settings = transactionSettings;
+            transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
 
             MessageReceiver.Init(addressToPoll, settings.IsTransactional);
         }
@@ -83,10 +89,21 @@
                             try
                             {
                                 if (settings.IsTransactional)
-                                    new TransactionWrapper().RunInTransaction(TryReceive, settings.IsolationLevel,
-                                                                              settings.TransactionTimeout);
+                                {
+                                    using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                                    {
+                                        TryReceive();
+
+                                        if (commitTransation())
+                                        {
+                                            scope.Complete();
+                                        }
+                                    }
+                                }
                                 else
+                                {
                                     TryReceive();
+                                }
                             }
                             catch (Exception ex)
                             {

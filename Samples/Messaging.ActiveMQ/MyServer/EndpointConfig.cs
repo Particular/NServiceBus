@@ -2,17 +2,12 @@
 {
     using System;
     using NServiceBus;
+    using NServiceBus.ActiveMQ;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<ActiveMQ>
     {
-        public void Init()
-        {
-            Configure.With()
-                     .DefaultBuilder()
-                     .XmlSerializer(dontWrapSingleMessages: true)
-                     .ActiveMqTransport();
-        }
     }
+
 
     public class MyClass:IWantToRunWhenBusStartsAndStops
     {

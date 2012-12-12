@@ -10,7 +10,7 @@ namespace NServiceBus.Distributor.NHibernate
     /// </summary>
     public class NHibernateWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
-        private string currentEndpointName;
+        private readonly string currentEndpointName;
 
         /// <summary>
         /// Creates <c>ISession</c>s.
@@ -31,6 +31,14 @@ namespace NServiceBus.Distributor.NHibernate
         public void Start()
         {
             
+        }
+
+        ///<summary>
+        /// Stops the worker availability manager
+        ///</summary>
+        public void Stop()
+        {
+
         }
 
         /// <summary>
