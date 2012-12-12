@@ -36,7 +36,7 @@ task default -depends PrepareBinaries
 
 task Quick -depends Merge, CopyBinaries
 
-task PrepareBinaries -depends RunTests, CopyBinaries
+task PrepareBinaries -depends Build, CopyBinaries
 
 task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
