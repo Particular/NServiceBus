@@ -8,7 +8,7 @@ properties {
 $baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 $packageOutPutDir = "$baseDir\artifacts"
 $toolsDir = "$baseDir\tools"
-$buildWixPath = "$baseDir\build\wix\"
+$buildWixPath = "$baseDir\buildwix\"
 $heat = "$toolsDir\WiX\3.6\heat.exe"
 
 include $toolsDir\psake\buildutils.ps1
