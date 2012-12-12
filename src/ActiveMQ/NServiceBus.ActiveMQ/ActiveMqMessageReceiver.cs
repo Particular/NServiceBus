@@ -7,6 +7,7 @@ namespace NServiceBus.ActiveMQ
     using Apache.NMS.Util;
 
     using NServiceBus.Unicast.Transport;
+    using NServiceBus.Utils;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
@@ -15,7 +16,7 @@ namespace NServiceBus.ActiveMQ
         private readonly IActiveMqPurger purger;
 
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
-        private readonly INetTxConnection connection;
+        private readonly ISessionFactory sessionFactory;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
         private ISession session;
@@ -23,9 +24,13 @@ namespace NServiceBus.ActiveMQ
 
         public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
 
-        public ActiveMqMessageReceiver(INetTxConnection connection, IActiveMqMessageMapper activeMqMessageMapper, ISubscriptionManager subscriptionManager, IActiveMqPurger purger)
+        public ActiveMqMessageReceiver(
+            ISessionFactory sessionFactory, 
+            IActiveMqMessageMapper activeMqMessageMapper, 
+            ISubscriptionManager subscriptionManager, 
+            IActiveMqPurger purger)
         {
-            this.connection = connection;
+            this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.subscriptionManager = subscriptionManager;
             this.purger = purger;
@@ -41,7 +46,7 @@ namespace NServiceBus.ActiveMQ
 
         public void Start(Address address)
         {
-            this.session = this.connection.CreateNetTxSession();
+            this.session = this.sessionFactory.CreateSession();
             IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
             this.PurgeIfNecessary(this.session, destination);
@@ -97,8 +102,12 @@ namespace NServiceBus.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
-            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
-            this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+            new TransactionWrapper().RunInTransaction(
+                () =>
+                    {
+                        var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+                        this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+                    });
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)
@@ -119,8 +128,6 @@ namespace NServiceBus.ActiveMQ
 
             this.defaultConsumer.Close();
             this.defaultConsumer.Dispose();
-            this.session.Close();
-            this.session.Dispose();
         }
     }
 }

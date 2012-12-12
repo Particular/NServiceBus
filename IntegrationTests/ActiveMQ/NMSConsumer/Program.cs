@@ -17,7 +17,14 @@
         private static INetTxConnection currentconnection;
         private static int nextResponseType = 0;
 
+        private INetTxSession session;
+
         static void Main(string[] args)
+        {
+            new Program().Run();
+        }
+
+        private void Run()
         {
             var connectionFactory = new NetTxConnectionFactory("activemq:tcp://localhost:61616")
                 {
@@ -29,16 +36,17 @@
             {
                 currentconnection = connection;
                 connection.Start();
-                using (var session = connection.CreateSession(AcknowledgementMode.Transactional))
+                using (var session = connection.CreateNetTxSession())
                 {
+                    this.session = session;
                     var eventDestination = SessionUtil.GetDestination(session, "queue://Consumer.NMS.VirtualTopic.EventMessage");
                     var commandDestination = SessionUtil.GetDestination(session, "queue://subscribernms");
                     using (var eventConsumer = session.CreateConsumer(eventDestination))
                     using (var commandConsumer = session.CreateConsumer(commandDestination))
                     {
                         eventConsumer.Listener += OnEventMessage;
-                        commandConsumer.Listener += OnCommandMessage;
-                        
+                        commandConsumer.Listener += this.OnCommandMessage;
+
                         Console.WriteLine("Consumer started. Press q to quit");
                         while (Console.ReadKey().KeyChar != 'q')
                         {
@@ -60,9 +68,9 @@
             }
         }
 
-        private static void OnCommandMessage(IMessage message)
+        private void OnCommandMessage(IMessage message)
         {
-            //using (var scope = new TransactionScope(TransactionScopeOption.Required))
+            using (var scope = new TransactionScope(TransactionScopeOption.Required))
             {
                 var textMessage = (ITextMessage)message;
                 var messageContent = (MyRequestNMS)XmlUtil.Deserialize(typeof(MyRequestNMS), textMessage.Text);
@@ -71,14 +79,12 @@
 
                 try
                 {
-                    using (var session = currentconnection.CreateNetTxSession())
+           //         using (var session = currentconnection.CreateNetTxSession())
                     {
-                        using (var producer = session.CreateProducer())
+                        using (var producer = this.session.CreateProducer())
                         {
-                            var responseMessage = GetResponseMessage(session, textMessage);
-                            var destinationAddress = message.NMSReplyTo.ToString();
-                            var destination =
-                                new ActiveMQTempQueue(destinationAddress.Substring("temp-queue://".Length));
+                            var responseMessage = GetResponseMessage(this.session, textMessage);
+                            var destination = message.NMSReplyTo;
 
                             producer.Send(destination, responseMessage);
                         }
@@ -88,7 +94,7 @@
                 {
                 }
 
-                //scope.Complete();
+                scope.Complete();
             }
         }
 
