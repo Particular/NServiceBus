@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Transactions;
     using Faults;
@@ -217,11 +218,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings);
+            Receiver.Init(receiveAddress, TransactionSettings, () => !needToAbort);
             Receiver.MessageDequeued += Process;
             Receiver.Start(maximumConcurrencyLevel);
         }
 
+        [DebuggerNonUserCode]
         void Process(object sender, TransportMessageAvailableEventArgs e)
         {
             var message = e.Message;
@@ -268,6 +270,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
+        [DebuggerNonUserCode]
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);

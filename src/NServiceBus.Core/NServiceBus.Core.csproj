@@ -483,7 +483,6 @@
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
-    <Compile Include="Utils\TransactionWrapper.cs" />
     <Compile Include="WcfService.cs" />
     <Compile Include="Webservice.cs">
       <SubType>Component</SubType>

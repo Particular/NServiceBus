@@ -30,13 +30,12 @@
         public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
 
         /// <summary>
-        ///     Initialises the <see cref="IDequeueMessages" />.
+        /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
-        /// <param name="transactionSettings">
-        ///     The <see cref="TransactionSettings" /> to be used by <see cref="IDequeueMessages" />.
-        /// </param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
+        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
             this.address = address;
         }

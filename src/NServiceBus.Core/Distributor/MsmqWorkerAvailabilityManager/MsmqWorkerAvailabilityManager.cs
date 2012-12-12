@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
     using System;
+    using System.Diagnostics;
     using System.Messaging;
     using NServiceBus.Config;
     using Unicast.Distributor;
@@ -41,6 +42,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// Pops the next available worker from the available worker queue
         /// and returns its address.
         /// </summary>
+        [DebuggerNonUserCode]
         public Address PopAvailableWorker()
         {
             try
