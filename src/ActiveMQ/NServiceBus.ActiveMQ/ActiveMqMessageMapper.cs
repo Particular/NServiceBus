@@ -6,6 +6,7 @@ namespace NServiceBus.ActiveMQ
     using System.Text;
 
     using Apache.NMS;
+    using Apache.NMS.Util;
 
     using NServiceBus.Unicast.Transport;
 
@@ -42,7 +43,7 @@ namespace NServiceBus.ActiveMQ
             }
 
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
-            jmsmessage.NMSReplyTo = session.GetQueue(message.ReplyToAddress.Queue);
+            jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
             jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
 
             foreach (var header in message.Headers)
