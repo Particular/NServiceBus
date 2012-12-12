@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -233,6 +234,8 @@ namespace NServiceBus
             }
 
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
+
+            EndpointHelper.StackTraceToExamine = new StackTrace();
 
             return instance;
         }
