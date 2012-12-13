@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.RabbitMQ.Tests
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
     using NUnit.Framework;
     using Unicast.Queuing;
@@ -10,7 +12,7 @@
 
 
     [TestFixture, Explicit("Integration tests")]
-    public class Sending
+    public class When_sending_a_message_over_rabbitmq
     {
         const string TESTQUEUE = "testendpoint";
 
@@ -55,6 +57,43 @@
                     {
                         Assert.AreEqual(address, t.ReplyToAddress);
                         Assert.AreEqual(address.Queue, r.BasicProperties.ReplyTo);
+                    });
+
+        }
+
+        [Test]
+        public void Should_set_the_message_intent()
+        {
+            Verify(new TransportMessageBuilder().Intent(MessageIntentEnum.Publish),
+                result =>Assert.AreEqual(MessageIntentEnum.Publish, result.MessageIntent)
+                );
+
+        }
+
+
+
+        [Test]
+        public void Should_set_correlation_id_if_present()
+        {
+            var correlationId = Guid.NewGuid().ToString();
+
+            Verify(new TransportMessageBuilder().CorrelationId(correlationId),
+                result => Assert.AreEqual(correlationId, result.CorrelationId));
+
+        }
+
+        [Test]
+        public void Should_transmitt_all_transportmessage_headers()
+        {
+
+            Verify(new TransportMessageBuilder().WithHeader("h1", "v1").WithHeader("h2", "v2"),
+                result =>
+                    {
+                        Assert.AreEqual("h1",result.Headers.First().Key);
+
+                        Assert.AreEqual("v1",result.Headers.First().Value);
+
+                        Assert.AreEqual(2,result.Headers.Count);
                     });
 
         }

@@ -1,7 +1,10 @@
 ﻿namespace NServiceBus.RabbitMQ
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
@@ -14,11 +17,8 @@
             if (!string.IsNullOrEmpty(message.CorrelationId))
                 properties.CorrelationId = message.CorrelationId;
 
-
             if (message.TimeToBeReceived < TimeSpan.MaxValue)
                 properties.Expiration = message.TimeToBeReceived.TotalMilliseconds.ToString();
-
-
 
             properties.SetPersistent(message.Recoverable);
 
@@ -43,7 +43,7 @@
                 properties.Headers = new Dictionary<string, string>();
             }
 
-            properties.Headers["NServiceBus.MessageIntent"] = message.MessageIntent.ToString();
+            properties.AppId = message.MessageIntent.ToString();
 
             return properties;
         }
@@ -61,6 +61,17 @@
 
             if (properties.IsReplyToPresent())
                 result.ReplyToAddress = Address.Parse(properties.ReplyTo);
+
+
+            result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
+                                        .ToDictionary(
+                                        kvp => (string)kvp.Key, 
+                                        kvp => Encoding.UTF8.GetString((byte[])kvp.Value));
+            if (properties.IsAppIdPresent())
+                result.MessageIntent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), properties.AppId);
+
+            if (properties.IsCorrelationIdPresent())
+                result.CorrelationId = properties.CorrelationId;
 
             return result;
         }
