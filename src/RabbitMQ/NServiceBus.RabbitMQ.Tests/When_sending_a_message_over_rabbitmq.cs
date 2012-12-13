@@ -89,11 +89,8 @@
             Verify(new TransportMessageBuilder().WithHeader("h1", "v1").WithHeader("h2", "v2"),
                 result =>
                     {
-                        Assert.AreEqual("h1",result.Headers.First().Key);
-
-                        Assert.AreEqual("v1",result.Headers.First().Value);
-
-                        Assert.AreEqual(2,result.Headers.Count);
+                        Assert.AreEqual("v1",result.Headers["h1"]);
+                        Assert.AreEqual("v2", result.Headers["h2"]);
                     });
 
         }

@@ -12,7 +12,7 @@
     {
         public static IBasicProperties FillRabbitMqProperties(this TransportMessage message, IBasicProperties properties)
         {
-            properties.MessageId = Guid.NewGuid().ToString();
+            properties.MessageId = message.Id;
 
             if (!string.IsNullOrEmpty(message.CorrelationId))
                 properties.CorrelationId = message.CorrelationId;
