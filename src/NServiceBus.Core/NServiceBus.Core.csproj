@@ -182,7 +182,6 @@
     <Compile Include="Faults\Forwarder\Helpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
-    <Compile Include="GatewayBootstrapper.cs" />
     <Compile Include="Gateway\Channels\Channel.cs" />
     <Compile Include="Gateway\Channels\ChannelFactory.cs" />
     <Compile Include="Gateway\Channels\Http\DefaultResponder.cs" />
@@ -193,14 +192,11 @@
     <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
     <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
     <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\Config\IMainEndpointSettings.cs" />
-    <Compile Include="Gateway\Config\MainEndpointSettings.cs" />
     <Compile Include="Gateway\HeaderManagement\Bootstrapper.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayReturnInfo.cs" />
     <Compile Include="Gateway\HeaderManagement\HeaderMapper.cs" />
-    <Compile Include="Gateway\Installation\GatewayQueueCreator.cs" />
     <Compile Include="Gateway\Notifications\IMessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
@@ -214,7 +210,7 @@
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
     <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IMangageReceiveChannels.cs" />
+    <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
     <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Gateway\Routing\IRouteMessagesToEndpoints.cs" />
@@ -498,6 +494,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Gateway\Installation\" />
     <Folder Include="ObjectBuilder\Autofac\Config\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />

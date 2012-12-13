@@ -36,8 +36,10 @@ namespace NServiceBus.Gateway.Channels.Http
             {
                 throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin priviliges", address), ex);
             }
-           
-            new Thread(HttpServer).Start();
+
+            var thread = new Thread(HttpServer) { IsBackground = true, Name = string.Format("NServiceBus Gateway Channel Listener for [{0}]", address) };
+            thread.SetApartmentState(ApartmentState.MTA);
+            thread.Start();
         }
 
         public void Dispose()

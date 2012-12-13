@@ -3,7 +3,7 @@ namespace NServiceBus.Gateway.Receiving
     using System.Collections.Generic;
     using Channels;
 
-    public interface IMangageReceiveChannels
+    public interface IManageReceiveChannels
     {
         IEnumerable<ReceiveChannel> GetReceiveChannels();
         Channel GetDefaultChannel();

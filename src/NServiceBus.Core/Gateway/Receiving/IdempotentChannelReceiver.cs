@@ -25,7 +25,6 @@ namespace NServiceBus.Gateway.Receiving
 
         public IDataBus DataBus { get; set; }
 
-
         public void Start(Channel channel, int numWorkerThreads)
         {
 
@@ -102,8 +101,6 @@ namespace NServiceBus.Gateway.Receiving
                 AutoAck = headers.ContainsKey(GatewayHeaders.AutoAck)
             };
         }
-
-
 
         void HandleSubmit(CallInfo callInfo)
         {

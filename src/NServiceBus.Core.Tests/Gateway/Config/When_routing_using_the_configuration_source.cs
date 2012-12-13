@@ -10,7 +10,7 @@ namespace NServiceBus.Gateway.Tests.Routing
     [TestFixture]
     public class When_using_the_configuration_bases_channel_manager
     {
-        IMangageReceiveChannels config;
+        IManageReceiveChannels config;
         IEnumerable<ReceiveChannel> activeChannels;
         Channel defaultChannel;
 

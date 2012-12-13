@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Linq;
     using Config;
     using Gateway.Channels;
-    using Gateway.Config;
     using Gateway.Notifications;
     using Gateway.Persistence;
     using Gateway.Persistence.Raven;
@@ -133,8 +132,6 @@ namespace NServiceBus
         {
             config.Configurer.ConfigureComponent<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
-            config.Configurer.ConfigureComponent<MainEndpointSettings>(DependencyLifecycle.SingleInstance);
-
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
@@ -159,7 +156,6 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
-
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                                                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
 
