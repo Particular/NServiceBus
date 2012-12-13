@@ -44,6 +44,8 @@ namespace NServiceBus.Serializers.Binary
             return result;
         }
 
-        private readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
+        public string ContentType { get{ return "application/binary";}}
+
+        readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
     }
 }

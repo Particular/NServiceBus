@@ -689,6 +689,8 @@ namespace NServiceBus.Serializers.XML
             stream.Write(buffer, 0, buffer.Length);
         }
 
+        public string ContentType { get { return "text/xml"; } }
+
         void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
         {
             builder.Append(

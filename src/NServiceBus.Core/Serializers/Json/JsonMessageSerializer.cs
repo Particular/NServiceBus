@@ -38,5 +38,11 @@ namespace NServiceBus.Serializers.Json
     {
         return JsonConvert.SerializeObject(value);
     }
+
+
+    protected override string GetContentType()
+    {
+        return "application/json";
+    }
   }
 }

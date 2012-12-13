@@ -1550,9 +1550,7 @@ namespace NServiceBus.Unicast
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
-            var ms = new MemoryStream();
-            MessageSerializer.Serialize(messages, ms);
-            result.Body = ms.ToArray();
+            SerializeMessages(result, messages);
 
             InvokeOutgoingTransportMessagesMutators(messages, result);
 
@@ -1575,6 +1573,17 @@ namespace NServiceBus.Unicast
             result.TimeToBeReceived = timeToBeReceived;
 
             return result;
+        }
+
+        void SerializeMessages(TransportMessage result, object[] messages)
+        {
+            var ms = new MemoryStream();
+
+            MessageSerializer.Serialize(messages, ms);
+
+            result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+
+            result.Body = ms.ToArray();
         }
 
         private void InvokeOutgoingTransportMessagesMutators(object[] messages, TransportMessage result)

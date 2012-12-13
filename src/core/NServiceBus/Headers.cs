@@ -138,6 +138,12 @@
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
 
         /// <summary>
+        /// Header entry key indicating format of the payload
+        /// </summary>
+        public const string ContentType = "NServiceBus.ContentType";
+
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>

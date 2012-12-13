@@ -6,6 +6,7 @@ namespace NServiceBus.Serializers.Json
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Bson;
     using Newtonsoft.Json.Converters;
     using Serialization;
     using System;
@@ -66,6 +67,11 @@ namespace NServiceBus.Serializers.Json
 
             return jsonSerializer.Deserialize<object[]>(reader);
         }
+
+
+        public string ContentType { get { return GetContentType(); } }
+
+        protected abstract string GetContentType();
 
         protected abstract JsonWriter CreateJsonWriter(Stream stream);
 

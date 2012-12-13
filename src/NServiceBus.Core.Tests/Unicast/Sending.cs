@@ -70,6 +70,20 @@
     }
 
     [TestFixture]
+    public class When_sending_any_message : using_the_unicastbus
+    {
+        [Test]
+        public void The_content_type_should_be_set()
+        {
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ContentType] == "text/xml"), Arg<Address>.Is.Anything));
+        }
+    }
+
+
+    [TestFixture]
     public class When_sending_a_message_that_has_no_configured_address : using_the_unicastbus
     {
         [Test]
