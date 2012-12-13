@@ -3,14 +3,12 @@
     using System;
     using System.Collections.Generic;
     using global::RabbitMQ.Client;
+    using global::RabbitMQ.Client.Events;
 
     public static class RabbitMqTransportMessageExtensions
     {
-        public static IBasicProperties RabbitMqProperties(this TransportMessage message, IModel channel)
+        public static IBasicProperties FillRabbitMqProperties(this TransportMessage message, IBasicProperties properties)
         {
-
-            var properties = channel.CreateBasicProperties();
-
             properties.MessageId = Guid.NewGuid().ToString();
 
             if (!string.IsNullOrEmpty(message.CorrelationId))
@@ -20,7 +18,7 @@
             if (message.TimeToBeReceived < TimeSpan.MaxValue)
                 properties.Expiration = message.TimeToBeReceived.TotalMilliseconds.ToString();
 
-            
+
 
             properties.SetPersistent(message.Recoverable);
 
@@ -38,16 +36,34 @@
 
                 if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
                     properties.ReplyTo = message.ReplyToAddress.Queue;
-                
+
             }
             else
             {
-                properties.Headers = new Dictionary<string,string>();
+                properties.Headers = new Dictionary<string, string>();
             }
 
             properties.Headers["NServiceBus.MessageIntent"] = message.MessageIntent.ToString();
 
             return properties;
         }
+
+
+
+        public static TransportMessage ToTransportMessage(this BasicDeliverEventArgs message)
+        {
+
+            var properties = message.BasicProperties;
+            var result = new TransportMessage
+                {
+                    Body = message.Body
+                };
+
+            if (properties.IsReplyToPresent())
+                result.ReplyToAddress = Address.Parse(properties.ReplyTo);
+
+            return result;
+        }
     }
+
 }

@@ -12,7 +12,7 @@
 
             using (var channel = Connection.CreateModel())
             {
-                var properties = message.RabbitMqProperties(channel);
+                var properties = message.FillRabbitMqProperties(channel.CreateBasicProperties());
 
                 channel.BasicPublish("", address.Queue, true, false, properties, message.Body);
 

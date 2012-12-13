@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sending.cs" />
+    <Compile Include="TransportMessageBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
