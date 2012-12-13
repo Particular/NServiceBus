@@ -101,7 +101,7 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 
-            message.Headers[TransportHeaderKeys.OriginalId] = message.Id;
+            message.Headers[Headers.OriginalId] = message.Id;
 
             var failedQ = localAddress ?? Address.Local;
 

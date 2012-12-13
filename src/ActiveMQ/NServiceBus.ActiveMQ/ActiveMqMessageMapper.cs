@@ -102,7 +102,6 @@ namespace NServiceBus.ActiveMQ
                 transportMessage.Headers[Headers.NServiceBusVersion] = "4.0.0.0";
             }
 
-            transportMessage.IdForCorrelation = transportMessage.GetIdForCorrelation();
             return transportMessage;
         }
 

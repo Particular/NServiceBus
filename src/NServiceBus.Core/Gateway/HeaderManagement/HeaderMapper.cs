@@ -9,11 +9,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         public static void Map(IDictionary<string,string> from, TransportMessage to)
         {
             to.Id = from[NServiceBus + Id];
-            to.IdForCorrelation = from[NServiceBus + IdForCorrelation];
             to.CorrelationId = from[NServiceBus + CorrelationId];
-
-            if (String.IsNullOrEmpty(to.IdForCorrelation))
-                to.IdForCorrelation = to.Id;
 
             bool recoverable;
             if(bool.TryParse(from[NServiceBus + Recoverable], out recoverable))
@@ -33,11 +29,7 @@ namespace NServiceBus.Gateway.HeaderManagement
 
         public static void Map(TransportMessage from, IDictionary<string,string> to)
         {
-            if (!String.IsNullOrEmpty(from.IdForCorrelation))
-                from.IdForCorrelation = from.Id;
-
             to[NServiceBus + Id] = from.Id;
-            to[NServiceBus + IdForCorrelation] = from.IdForCorrelation;
             to[NServiceBus + CorrelationId] = from.CorrelationId;
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();

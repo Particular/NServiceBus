@@ -3,31 +3,54 @@ using System.Collections.Generic;
 
 namespace NServiceBus
 {
-	/// <summary>
-	/// An envelope used by NServiceBus to package messages for transmission.
-	/// </summary>
-	/// <remarks>
-	/// All messages sent and received by NServiceBus are wrapped in this class. 
-	/// More than one message can be bundled in the envelope to be transmitted or 
-	/// received by the bus.
-	/// </remarks>
+    /// <summary>
+    /// An envelope used by NServiceBus to package messages for transmission.
+    /// </summary>
+    /// <remarks>
+    /// All messages sent and received by NServiceBus are wrapped in this class. 
+    /// More than one message can be bundled in the envelope to be transmitted or 
+    /// received by the bus.
+    /// </remarks>
     [Serializable]
     public class TransportMessage
     {
-		/// <summary>
-		/// Gets/sets the identifier of this message bundle.
-		/// </summary>
-        public string Id { get; set; }
+        /// <summary>
+        /// Gets/sets the identifier of this message bundle.
+        /// </summary>
+        public string Id
+        {
+            get { return id; }
+            set
+            {
+                id = value;
+
+                //preserve the ID if one id isn't already present
+                if (!Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) || 
+                    string.IsNullOrEmpty(Headers[NServiceBus.Headers.IdForCorrelation]))
+                    Headers[NServiceBus.Headers.IdForCorrelation] = value;
+            }
+        }
+
+        string id;
 
         /// <summary>
         /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
         /// </summary>
-        public string IdForCorrelation { get; set; }
+        public string IdForCorrelation
+        {
+            get
+            {
+                if (Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) && (!string.IsNullOrWhiteSpace(Headers[NServiceBus.Headers.IdForCorrelation])))
+                    return Headers[NServiceBus.Headers.IdForCorrelation];
 
-		/// <summary>
-		/// Gets/sets the uniqe identifier of another message bundle
-		/// this message bundle is associated with.
-		/// </summary>
+                return Id;
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets the uniqe identifier of another message bundle
+        /// this message bundle is associated with.
+        /// </summary>
         public string CorrelationId { get; set; }
 
         /// <summary>
@@ -35,10 +58,10 @@ namespace NServiceBus
         /// </summary>
         public Address ReplyToAddress { get; set; }
 
-		/// <summary>
-		/// Gets/sets whether or not the message is supposed to
-		/// be guaranteed deliverable.
-		/// </summary>
+        /// <summary>
+        /// Gets/sets whether or not the message is supposed to
+        /// be guaranteed deliverable.
+        /// </summary>
         public bool Recoverable { get; set; }
 
         /// <summary>
@@ -48,10 +71,10 @@ namespace NServiceBus
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
-		/// <summary>
-		/// Gets/sets the maximum time limit in which the message bundle
-		/// must be received.
-		/// </summary>
+        /// <summary>
+        /// Gets/sets the maximum time limit in which the message bundle
+        /// must be received.
+        /// </summary>
         public TimeSpan TimeToBeReceived
         {
             get { return timeToBeReceived; }
@@ -61,11 +84,18 @@ namespace NServiceBus
         /// <summary>
         /// Gets/sets other applicative out-of-band information.
         /// </summary>
-        public Dictionary<string, string> Headers { get; set; }
+        public Dictionary<string, string> Headers
+        {
+            get { return headers ?? (headers = new Dictionary<string, string>()); }
+            set { headers = value; }
+        }
 
-		/// <summary>
-		/// Gets/sets a byte array to the body content of the message
-		/// </summary>
+
+        Dictionary<string, string> headers;
+
+        /// <summary>
+        /// Gets/sets a byte array to the body content of the message
+        /// </summary>
         public byte[] Body { get; set; }
     }
 }

@@ -89,9 +89,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         {
                             var tm = MsmqUtilities.Convert(m);
 
-                            if (tm.Headers.ContainsKey(TransportHeaderKeys.OriginalId))
+                            if (tm.Headers.ContainsKey(Headers.OriginalId))
                             {
-                                if (messageId != tm.Headers[TransportHeaderKeys.OriginalId])
+                                if (messageId != tm.Headers[Headers.OriginalId])
                                     continue;
 
                                 Console.WriteLine("Found message - going to return to queue.");

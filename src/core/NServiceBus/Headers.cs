@@ -142,6 +142,15 @@
         /// </summary>
         public const string ContentType = "NServiceBus.ContentType";
 
+        /// <summary>
+        /// Used for correlation id message.
+        /// </summary>
+        public const string IdForCorrelation = "CorrId";
+
+        /// <summary>
+        /// Header key for setting/getting the ID of the message as it was when it failed processing.
+        /// </summary>
+        public const string OriginalId = "NServiceBus.OriginalId";
 
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.

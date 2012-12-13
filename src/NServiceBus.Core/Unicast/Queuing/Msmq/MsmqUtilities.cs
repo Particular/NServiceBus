@@ -256,8 +256,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             result.Id = result.GetOriginalId();
             if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
                 ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
-            result.IdForCorrelation = result.GetIdForCorrelation();
-
+       
             return result;
         }
 
@@ -272,12 +271,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (string.IsNullOrWhiteSpace(msmqMsg.Label))
                 return;
 
-            if (msmqMsg.Label.Contains(TransportHeaderKeys.IdForCorrelation))
+            if (msmqMsg.Label.Contains(Headers.IdForCorrelation))
             {
-                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", TransportHeaderKeys.IdForCorrelation)) + TransportHeaderKeys.IdForCorrelation.Length + 2;
-                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", TransportHeaderKeys.IdForCorrelation)) - idStartIndex;
+                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.IdForCorrelation)) + Headers.IdForCorrelation.Length + 2;
+                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.IdForCorrelation)) - idStartIndex;
 
-                result.IdForCorrelation = msmqMsg.Label.Substring(idStartIndex, idCount);
+                result.Headers[Headers.IdForCorrelation] = msmqMsg.Label.Substring(idStartIndex, idCount);
             }
 
             if (msmqMsg.Label.Contains(Headers.WindowsIdentityName) && !result.Headers.ContainsKey(Headers.WindowsIdentityName))
@@ -313,12 +312,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (message.Headers == null)
                 message.Headers = new Dictionary<string, string>();
 
-            if (!message.Headers.ContainsKey(TransportHeaderKeys.IdForCorrelation))
-                message.Headers.Add(TransportHeaderKeys.IdForCorrelation, null);
-
-            if (String.IsNullOrEmpty(message.Headers[TransportHeaderKeys.IdForCorrelation]))
-                message.Headers[TransportHeaderKeys.IdForCorrelation] = message.IdForCorrelation;
-
             using (var stream = new MemoryStream())
             {
                 headerSerializer.Serialize(stream, message.Headers.Select(pair => new Utils.HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
@@ -343,7 +336,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 ? transportMessage.Headers[Headers.WindowsIdentityName] : string.Empty;
 
             msmqMessage.Label =
-                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", TransportHeaderKeys.IdForCorrelation, Headers.WindowsIdentityName,
+                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", Headers.IdForCorrelation, Headers.WindowsIdentityName,
                     transportMessage.IdForCorrelation, windowsIdentityName);
         }
 

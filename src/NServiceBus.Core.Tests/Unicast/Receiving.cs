@@ -77,7 +77,7 @@
         {
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
             var originalId = Guid.NewGuid();
-            receivedMessage.Headers[TransportHeaderKeys.OriginalId] = originalId.ToString();
+            receivedMessage.Headers[Headers.OriginalId] = originalId.ToString();
 
             // Receiving a message (into the pipeline)
             RegisterMessageType<EventMessage>();

@@ -206,9 +206,7 @@
                                   Recoverable = true,
                                   ReplyToAddress = Address.Parse("replyto@address"),
                                   TimeToBeReceived = TimeSpan.FromMinutes(1),
-                                  Headers = new Dictionary<string, string>(),
-                                  MessageIntent = MessageIntentEnum.Send,
-                                  IdForCorrelation = Guid.NewGuid().ToString()
+                                  MessageIntent = MessageIntentEnum.Send
                               };
             
             message.Headers.Add("TimeSent",DateTime.UtcNow.ToString());

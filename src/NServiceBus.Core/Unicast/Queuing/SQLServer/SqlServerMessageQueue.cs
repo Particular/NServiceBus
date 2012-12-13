@@ -126,7 +126,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                             var message = new TransportMessage
                             {
                                 Id = id,
-                                IdForCorrelation = idForCorrelation,
                                 CorrelationId = correlationId,                                
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
@@ -136,7 +135,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                                 Body = body
                             };
                             
-                            message.IdForCorrelation = message.GetIdForCorrelation();
                             return message;
                         }
                     }

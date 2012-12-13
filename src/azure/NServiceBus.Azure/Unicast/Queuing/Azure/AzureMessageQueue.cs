@@ -162,13 +162,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     ReplyToAddress = Address.Parse(m.ReplyToAddress),
                     TimeToBeReceived = m.TimeToBeReceived,
                     Headers = m.Headers,
-                    MessageIntent = m.MessageIntent,
-                    IdForCorrelation = m.IdForCorrelation
+                    MessageIntent = m.MessageIntent
                 };
 
                 message.Id = GetRealId(message.Headers) ?? message.Id;
-
-                message.IdForCorrelation = GetIdForCorrelation(message.Headers) ?? message.Id;
 
                 return message;
             }
@@ -190,24 +187,14 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private static string GetRealId(IDictionary<string, string> headers)
         {
-            if (headers.ContainsKey(TransportHeaderKeys.OriginalId))
-                return headers[TransportHeaderKeys.OriginalId];
+            if (headers.ContainsKey(Headers.OriginalId))
+                return headers[Headers.OriginalId];
 
             return null;
         }
 
-        private static string GetIdForCorrelation(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(Idforcorrelation))
-                return headers[Idforcorrelation];
-
-            return null;
-        }
-
+    
         private bool useTransactions;
-        private const string Idforcorrelation = "CorrId";
-
-        
     }
 
     public class AzureMessageQueueSender : ISendMessages
