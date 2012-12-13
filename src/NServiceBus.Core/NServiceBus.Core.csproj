@@ -468,7 +468,6 @@
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransportMessageAvailableEventArgs.cs" />
-    <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />

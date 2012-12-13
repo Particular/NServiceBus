@@ -242,7 +242,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             result.Body = new byte[m.BodyStream.Length];
             m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
-            result.Headers = new Dictionary<string, string>();
             if (m.Extension.Length > 0)
             {
                 var stream = new MemoryStream(m.Extension);
@@ -250,10 +249,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
                 foreach (var pair in o as List<Utils.HeaderInfo>)
                     if (pair.Key != null)
-                        result.Headers.Add(pair.Key, pair.Value);
+                        result.Headers[pair.Key] = pair.Value;
             }
 
-            result.Id = result.GetOriginalId();
             if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
                 ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
        
@@ -308,9 +306,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
                 result.TimeToBeReceived = message.TimeToBeReceived;
-
-            if (message.Headers == null)
-                message.Headers = new Dictionary<string, string>();
 
             using (var stream = new MemoryStream())
             {

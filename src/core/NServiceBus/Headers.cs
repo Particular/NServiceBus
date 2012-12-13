@@ -150,8 +150,8 @@
         /// <summary>
         /// Header key for setting/getting the ID of the message as it was when it failed processing.
         /// </summary>
+        [ObsoleteEx(Message = "The OriginalId headers is replaced by the IdForCorrelation header since they are now equivalent",RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
         public const string OriginalId = "NServiceBus.OriginalId";
-
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>

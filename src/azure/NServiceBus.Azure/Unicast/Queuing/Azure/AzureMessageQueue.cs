@@ -165,8 +165,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     MessageIntent = m.MessageIntent
                 };
 
-                message.Id = GetRealId(message.Headers) ?? message.Id;
-
                 return message;
             }
         }
@@ -185,15 +183,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
             return queueName.Replace('.', '-');
         }
 
-        private static string GetRealId(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(Headers.OriginalId))
-                return headers[Headers.OriginalId];
-
-            return null;
-        }
-
-    
         private bool useTransactions;
     }
 
@@ -277,16 +266,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             using (var stream = new MemoryStream())
             {
-
-                if (message.Headers == null)
-                    message.Headers = new Dictionary<string, string>();
-
-                if (!message.Headers.ContainsKey(Idforcorrelation))
-                    message.Headers.Add(Idforcorrelation, null);
-
-                if (String.IsNullOrEmpty(message.Headers[Idforcorrelation]))
-                    message.Headers[Idforcorrelation] = message.IdForCorrelation;
-
                 var toSend = new MessageWrapper
                 {
                     Id = message.Id,
@@ -296,8 +275,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     ReplyToAddress = message.ReplyToAddress == null ? Address.Self.ToString() : message.ReplyToAddress.ToString(),
                     TimeToBeReceived = message.TimeToBeReceived,
                     Headers = message.Headers,
-                    MessageIntent = message.MessageIntent,
-                    IdForCorrelation = message.IdForCorrelation
+                    MessageIntent = message.MessageIntent
                 };
 
 
@@ -319,8 +297,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             return queueName.Replace('.', '-');
         }
-
-        private const string Idforcorrelation = "CorrId";
     }
 
 

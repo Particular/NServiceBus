@@ -66,8 +66,7 @@ namespace NServiceBus.ActiveMQ
                     TimeToBeReceived = message.NMSTimeToLive,
                     Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
                     Id = message.NMSMessageId,
-                    Body = body,
-                    Headers = new Dictionary<string, string>()
+                    Body = body
                 };
 
             foreach (var key in message.Properties.Keys)

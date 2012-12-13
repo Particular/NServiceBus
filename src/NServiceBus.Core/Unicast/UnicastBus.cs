@@ -1541,9 +1541,7 @@ namespace NServiceBus.Unicast
         /// /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
         protected TransportMessage MapTransportMessageFor(object[] rawMessages, TransportMessage result)
-        {
-            result.Headers = new Dictionary<string, string>();
-            
+        {   
             if(!Endpoint.IsSendOnly)
                 result.ReplyToAddress = Address.Local;
 

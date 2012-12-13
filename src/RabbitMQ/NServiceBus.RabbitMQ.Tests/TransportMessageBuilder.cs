@@ -6,8 +6,7 @@
     public class TransportMessageBuilder
     {
         readonly TransportMessage message = new TransportMessage();
-        readonly Dictionary<string, string> headers = new Dictionary<string, string>();
-
+    
         public TransportMessageBuilder WithBody(byte[] body)
         {
             message.Body = body;
@@ -16,14 +15,12 @@
 
         public TransportMessage Build()
         {
-            message.Headers = headers;
-
             return message;
         }
 
         public TransportMessageBuilder WithHeader(string key,string value)
         {
-            headers.Add(key,value);
+            message.Headers[key] = value;
             return this;
         }
 
