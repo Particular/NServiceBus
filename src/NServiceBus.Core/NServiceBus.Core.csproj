@@ -118,7 +118,7 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\ConfigureSqlServerTransport.cs" />
+    <Compile Include="ConfigureSqlServerTransport.cs" />
     <Compile Include="ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -148,7 +148,6 @@
     <Compile Include="Config\SatelliteLauncherConfiguration.cs" />
     <Compile Include="Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Config\SecondLevelRetriesConfiguration.cs" />
-    <Compile Include="Config\SqlServerTransportConfig.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\Config\Bootstrapper.cs" />

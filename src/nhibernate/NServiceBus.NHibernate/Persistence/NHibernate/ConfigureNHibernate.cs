@@ -30,8 +30,8 @@ Here is an example of what is required:
   </appSettings>
   
   <connectionStrings>
-    <!-- Default connection string for all persisters -->
-    <add name=""NServiceBus/Persistence/NHibernate"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"" />
+    <!-- Default connection string for all Nhibernate/Sql persisters -->
+    <add name=""NServiceBus/Persistence"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"" />
     
     <!-- Optional overrides per persister -->
     <add name=""NServiceBus/Persistence/NHibernate/Timeout"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=timeout;Integrated Security=True"" />
@@ -55,7 +55,7 @@ Here is an example of what is required:
             connectionStringSettingsCollection = NHibernateSettingRetriever.ConnectionStrings() ??
                                                  new ConnectionStringSettingsCollection();
 
-            var defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence/NHibernate");
+            var defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence");
             var configurationProperties = new Dictionary<string, string>(new Configuration().Properties);
 
             var appSettingsSection = NHibernateSettingRetriever.AppSettings() ?? new NameValueCollection();
