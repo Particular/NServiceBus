@@ -7,7 +7,6 @@ namespace NServiceBus.Gateway.Receiving
     using ObjectBuilder;
     using Routing;
     using Satellites;
-    using Sending;
     using Unicast.Queuing;
 
     public class GatewayReceiver : ISatellite
@@ -55,7 +54,10 @@ namespace NServiceBus.Gateway.Receiving
 
         public bool Disabled
         {
-            get { return !Configure.Instance.Configurer.HasComponent<GatewaySender>(); }
+            get
+            {
+                return returnAddress == null;
+            }
         }
 
         public void Start()

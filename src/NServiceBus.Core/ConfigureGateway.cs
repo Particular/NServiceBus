@@ -139,8 +139,6 @@ namespace NServiceBus
             else
                 config.Configurer.ConfigureComponent<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
 
-            config.Configurer.ConfigureComponent<GatewaySender>(DependencyLifecycle.SingleInstance);
-
             ConfigureSiteRouters(config);
         }
 
@@ -153,7 +151,6 @@ namespace NServiceBus
 
         static void ConfigureReceiver(Configure config)
         {
-            config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
