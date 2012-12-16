@@ -5,7 +5,7 @@
     using System.Web.Mvc;
     using NServiceBus;
 
-    public static class ConfigureMvcDependecyInjection
+    public static class ConfigureMvcDependencyInjection
     {
         public static Configure ForMvc(this Configure configure)
         {
