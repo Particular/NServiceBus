@@ -34,7 +34,7 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends PrepareBinaries
 
-task Quick -depends Merge, CopyBinaries
+task Quick -depends CopyBinaries
 
 task PrepareBinaries -depends RunTests, CopyBinaries
 
