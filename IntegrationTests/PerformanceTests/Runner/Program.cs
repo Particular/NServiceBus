@@ -60,7 +60,9 @@ namespace Runner
                 case "activemq":
                     config.ActiveMqTransport("activemq:tcp://localhost:61616");
                     break;
-
+                case "rabbitmq":
+                    config.RabbitMqTransport("host=localhost");
+                    break;
 
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);

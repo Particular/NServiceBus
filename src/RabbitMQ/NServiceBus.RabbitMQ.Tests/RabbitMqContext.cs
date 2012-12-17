@@ -5,7 +5,15 @@
 
     public class RabbitMqContext
     {
-        
+        protected void MakeSureQueueExists(string queueName)
+        {
+            using (var channel = connection.CreateModel())
+            {
+                channel.QueueDeclare(queueName, true, false, false, null);
+                channel.QueuePurge(queueName);
+            }
+        }
+
 
         [SetUp]
         public void SetUp()

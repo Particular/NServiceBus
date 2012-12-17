@@ -56,7 +56,8 @@
             var properties = message.BasicProperties;
             var result = new TransportMessage
                 {
-                    Body = message.Body
+                    Body = message.Body,
+                    Id = properties.MessageId
                 };
 
             if (properties.IsReplyToPresent())

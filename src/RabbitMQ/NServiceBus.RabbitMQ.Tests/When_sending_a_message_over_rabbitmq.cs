@@ -131,7 +131,8 @@
         
         void SendMessage(TransportMessage message)
         {
-            MakeSureQueueExists(connection);
+            MakeSureQueueExists(TESTQUEUE);
+
             sender.Send(message, Address.Parse("TestEndpoint@localhost"));
         }
 
@@ -158,17 +159,6 @@
             }
         }
 
-
-
-        static void MakeSureQueueExists(IConnection connection)
-        {
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(TESTQUEUE, true, false, false, null);
-                channel.QueuePurge(TESTQUEUE);
-            }
-
-        }
 
 
 
