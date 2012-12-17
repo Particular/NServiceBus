@@ -12,7 +12,7 @@
 
 
     [TestFixture, Explicit("Integration tests")]
-    public class When_sending_a_message_over_rabbitmq
+    public class When_sending_a_message_over_rabbitmq : RabbitMqContext
     {
         const string TESTQUEUE = "testendpoint";
 
@@ -172,24 +172,6 @@
 
 
 
-
-        [SetUp]
-        public void SetUp()
-        {
-            factory = new ConnectionFactory { HostName = "localhost" };
-            connection = factory.CreateConnection();
-            sender = new RabbitMqMessageSender { Connection = connection };
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            connection.Close();
-            connection.Dispose();
-        }
-        ConnectionFactory factory;
-        IConnection connection;
-        RabbitMqMessageSender sender;
 
     }
 }
