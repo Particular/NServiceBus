@@ -17,6 +17,7 @@
 
         private Address address;
         private TransactionOptions transactionOptions;
+        private TransactionSettings settings;
 
         /// <summary>
         ///     Default constructor.
@@ -40,6 +41,7 @@
         /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
         public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
+            this.settings = transactionSettings;
             this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
             this.address = address;
         }
@@ -79,10 +81,24 @@
 
         private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            if (settings.IsTransactional)
             {
-                MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
-                scope.Complete();
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                {
+                    MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
+                    scope.Complete();
+                }
+            }
+            else
+            {
+                try
+                {
+                    MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
+                }
+                catch (Exception)
+                {
+                    // Swallow exception so that the message is not retried.
+                }
             }
         }
     }
