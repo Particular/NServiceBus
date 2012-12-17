@@ -22,11 +22,11 @@
         private ActiveMqMessageDequeueStrategy testee;
         private List<Mock<INotifyMessageReceived>> messageReceivers;
 
-        private void VerifyAllReceiversAreStarted(Address address)
+        private void VerifyAllReceiversAreStarted(Address address, TransactionSettings settings)
         {
             foreach (var messageReceiver in messageReceivers)
             {
-                messageReceiver.Verify(mr => mr.Start(address));
+                messageReceiver.Verify(mr => mr.Start(address, settings));
             }
         }
 
@@ -60,15 +60,16 @@
         [Test]
         public void WhenStarted_ThenTheSpecifiedNumberOfReceiversIsCreatedAndStarted()
         {
+            TransactionSettings settings = new TransactionSettings();
             const int NumberOfWorkers = 2;
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), () => true);
+            testee.Init(address, settings, () => true);
             testee.Start(NumberOfWorkers);
 
             messageReceivers.Count.Should().Be(NumberOfWorkers);
-            VerifyAllReceiversAreStarted(address);
+            VerifyAllReceiversAreStarted(address, settings);
         }
 
         [Test]

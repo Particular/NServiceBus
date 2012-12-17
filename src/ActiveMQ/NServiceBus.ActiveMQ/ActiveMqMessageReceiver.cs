@@ -8,6 +8,7 @@ namespace NServiceBus.ActiveMQ
     using Apache.NMS.Util;
 
     using NServiceBus.Unicast.Transport;
+    using NServiceBus.Unicast.Transport.Transactional;
     using NServiceBus.Utils;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
@@ -22,6 +23,9 @@ namespace NServiceBus.ActiveMQ
 
         private INetTxSession session;
         private IMessageConsumer defaultConsumer;
+        private TransactionSettings transactionSettings;
+
+        private TransactionOptions transactionOptions;
 
         public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
 
@@ -45,9 +49,12 @@ namespace NServiceBus.ActiveMQ
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
-        public void Start(Address address)
+        public void Start(Address address, TransactionSettings transactionSettings)
         {
-            this.session = this.sessionFactory.CreateSession();
+            this.transactionSettings = transactionSettings;
+            this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
+
+            this.session = this.sessionFactory.GetSession();
             IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
             this.PurgeIfNecessary(this.session, destination);
@@ -104,7 +111,35 @@ namespace NServiceBus.ActiveMQ
         private void OnMessageReceived(IMessage message)
         {
             var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
-            this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+
+            if (this.transactionSettings.IsTransactional)
+            {
+                using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                {
+                    try
+                    {
+                        this.sessionFactory.SetSessionForCurrentTransaction(this.session);
+                        this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+                    }
+                    finally
+                    {
+                        this.sessionFactory.RemoveSessionForCurrentTransaction();
+                    }
+
+                    scope.Complete();
+                }
+            }
+            else
+            {
+                try
+                {
+                    this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+                }
+                catch (Exception)
+                {
+                    // Swallow exception so that the message is not retried.
+                }
+            }
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)

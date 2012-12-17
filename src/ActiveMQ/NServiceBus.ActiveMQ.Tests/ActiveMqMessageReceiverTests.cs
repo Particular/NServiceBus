@@ -9,6 +9,7 @@
     using Moq;
 
     using NServiceBus.Unicast.Transport;
+    using NServiceBus.Unicast.Transport.Transactional;
 
     using NUnit.Framework;
 
@@ -203,7 +204,7 @@
 
             this.consumer = this.SetupCreateConsumer(this.session, address.Queue);
 
-            this.testee.Start(address);
+            this.testee.Start(address, new TransactionSettings());
         }
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
@@ -230,7 +231,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
-            this.sessionFactoryMock.Setup(c => c.CreateSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
 

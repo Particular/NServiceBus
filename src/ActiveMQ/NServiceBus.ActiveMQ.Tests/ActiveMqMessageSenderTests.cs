@@ -189,7 +189,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession>();
-            this.sessionFactoryMock.Setup(c => c.CreateSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
     }

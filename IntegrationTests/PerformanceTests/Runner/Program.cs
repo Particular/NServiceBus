@@ -58,7 +58,7 @@ namespace Runner
                     break;
 
                 case "activemq":
-                    config.ActiveMqTransport("activemq:tcp://localhost:61616");
+                    config.ActiveMqTransport("activemq:tcp://localhost:61616?nms.prefetchPolicy.all=1");
                     break;
 
 

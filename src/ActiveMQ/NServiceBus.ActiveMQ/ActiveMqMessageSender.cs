@@ -89,7 +89,7 @@
         private void SendMessage(TransportMessage message, string destination, string destinationPrefix)
         {
 
-            var session = this.sessionFactory.CreateSession();
+            var session = this.sessionFactory.GetSession();
             try
             {
                 var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);

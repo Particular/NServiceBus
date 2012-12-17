@@ -53,7 +53,6 @@ namespace NServiceBus
             var factory = new NetTxConnectionFactory(brokerUri)
                 {
                     AcknowledgementMode = AcknowledgementMode.Transactional,
-                    PrefetchPolicy = { QueuePrefetch = 1 }
                 };
 
             config.Configurer.ConfigureComponent<INetTxConnectionFactory>(() => factory, DependencyLifecycle.SingleInstance);

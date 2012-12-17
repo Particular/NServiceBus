@@ -16,7 +16,6 @@
         private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
 
         private Address address;
-        private TransactionOptions transactionOptions;
         private TransactionSettings settings;
 
         /// <summary>
@@ -42,7 +41,6 @@
         public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
         {
             this.settings = transactionSettings;
-            this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
             this.address = address;
         }
 
@@ -75,31 +73,13 @@
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
             receiver.MessageReceived += OnMessageReceived;
-            receiver.Start(address);
+            receiver.Start(address, this.settings);
             messageReceivers.Add(receiver);
         }
 
         private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if (settings.IsTransactional)
-            {
-                using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                {
-                    MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
-                    scope.Complete();
-                }
-            }
-            else
-            {
-                try
-                {
-                    MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
-                }
-                catch (Exception)
-                {
-                    // Swallow exception so that the message is not retried.
-                }
-            }
+            this.MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
         }
     }
 }
