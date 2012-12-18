@@ -14,14 +14,19 @@ namespace Runner
         static void Main(string[] args)
         {
             var numberOfThreads = int.Parse(args[0]);
+            bool volatileMode = (args[4].ToLower() == "volatile");
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
             var numberOfMessages = int.Parse(args[1]);
 
+            var endpointName = "PerformanceTest";
+
+            if (volatileMode)
+                endpointName += ".Volatile";
 
             var config = Configure.With()
-                .DefineEndpointName("PerformanceTest")
+                .DefineEndpointName(endpointName)
                      .DefaultBuilder();
 
 
@@ -67,15 +72,19 @@ namespace Runner
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
-            
+
+            if (volatileMode)
+                config.Volatile();
+
             var startableBus = config
                      .InMemoryFaultManagement()
                      .UnicastBus()
                      .CreateBus();
 
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
-            
-            var sendTime = SeedInputQueue(numberOfMessages);
+
+            var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
+            var sendTime = SeedInputQueue(numberOfMessages,endpointName);
 
             var startTime = DateTime.Now;
 
@@ -85,26 +94,28 @@ namespace Runner
                 Thread.Sleep(1000);
 
             var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
-            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, TimeToFirstMessage: {6:0.0}s", 
+            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}", 
                                 numberOfThreads, 
                                 numberOfMessages, 
                                 args[2], 
                                 args[3], 
                                 Convert.ToDouble(numberOfMessages) / durationSeconds, 
                                 Convert.ToDouble(numberOfMessages) / sendTime.TotalSeconds,
-                                (TestMessageHandler.First - startTime).Value.TotalSeconds);
+                                (TestMessageHandler.First - startTime).Value.TotalSeconds,
+                                (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
+                                args[4]);
 
             Environment.Exit(0);
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages)
+        static TimeSpan SeedInputQueue(int numberOfMessages,string inputQueue)
         {
             var sw = new Stopwatch();
             var bus = Configure.Instance.Builder.Build<IBus>();
 
             var message = new TestMessage();
             sw.Start();
-            Parallel.For(0, numberOfMessages, x => bus.Send("PerformanceTest", message));
+            Parallel.For(0, numberOfMessages, x => bus.Send(inputQueue, message));
             sw.Stop();
 
             return sw.Elapsed;
