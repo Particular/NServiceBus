@@ -54,7 +54,7 @@ namespace Runner
                     break;
 
                 case "sqlserver":
-                    config.SqlServerTransport(@"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
+                    config.SqlServerTransport(()=>@"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
                     break;
 
                 case "activemq":
