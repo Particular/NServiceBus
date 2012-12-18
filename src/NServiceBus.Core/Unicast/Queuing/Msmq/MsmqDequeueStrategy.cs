@@ -29,7 +29,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private TransactionSettings transactionSettings;
         private Address endpointAddress;
         private TransactionOptions transactionOptions;
-        private Func<bool> commitTransation;
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -41,13 +40,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
-        public void Init(Address address, TransactionSettings settings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings settings)
         {
             endpointAddress = address;
             transactionSettings = settings;
-            this.commitTransation = commitTransation;
-
+     
             if (address == null)
             {
                 throw new ArgumentException("Input queue must be specified");

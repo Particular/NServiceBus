@@ -15,16 +15,14 @@
     public class RabbitMqDequeueStrategy : IDequeueMessages
     {
 
-        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings transactionSettings)
         {
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
-            shouldCommitTransation = commitTransation;
         }
 
         public void Start(int maximumConcurrencyLevel)
         {
-            //todo do we need a custom scheduler ?
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
 
             for (int i = 0; i < maximumConcurrencyLevel; i++)
@@ -109,8 +107,6 @@
         bool autoAck;
 
         string workQueue;
-        Func<bool> shouldCommitTransation;
-        static readonly ILog Logger = LogManager.GetLogger("Transport");
         TaskScheduler scheduler;
 
         class RunningConsumer

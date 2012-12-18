@@ -17,7 +17,7 @@
         }
 
 
-        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings transactionSettings)
         {
             
         }

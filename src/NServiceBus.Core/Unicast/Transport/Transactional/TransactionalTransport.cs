@@ -217,7 +217,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings, () => !needToAbort);
+            Receiver.Init(receiveAddress, TransactionSettings);
             Receiver.TryProcessMessage = Process;
             Receiver.Start(maximumConcurrencyLevel);
         }

@@ -39,7 +39,7 @@
                     return true;
                 };
 
-            dequeueStrategy.Init(address,new TransactionSettings{IsTransactional = true},()=>true);
+            dequeueStrategy.Init(address,new TransactionSettings{IsTransactional = true});
             dequeueStrategy.Start(1);
 
             var message = new TransportMessage();
