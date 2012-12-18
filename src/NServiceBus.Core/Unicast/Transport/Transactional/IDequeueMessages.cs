@@ -29,6 +29,6 @@
         /// <summary>
         /// Fires when a message has been dequeued.
         /// </summary>
-        event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+        Func<TransportMessage, bool> TryProcessMessage { get; set; }
     }
 }

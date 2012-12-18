@@ -41,20 +41,24 @@
         [Test]
         public void WhenMessageIsReceived_ThenMessageDequeuedIsRaised()
         {
-            TransportMessageAvailableEventArgs lastDequeuedMessage = null;
+            TransportMessage lastDequeuedMessage = null;
             var message = new TransportMessage();
 
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.MessageDequeued += (sender, e) => lastDequeuedMessage = e;
+            testee.TryProcessMessage = (m) =>
+                {
+                    lastDequeuedMessage = m;
+                    return true;
+                };
             testee.Init(address, new TransactionSettings(), () => true);
             testee.Start(1);
 
             messageReceivers[0].Raise(mr => mr.MessageReceived += null, new TransportMessageReceivedEventArgs(message));
 
             lastDequeuedMessage.Should().NotBeNull();
-            lastDequeuedMessage.Message.Should().Be(message);
+            lastDequeuedMessage.Should().Be(message);
         }
 
         [Test]

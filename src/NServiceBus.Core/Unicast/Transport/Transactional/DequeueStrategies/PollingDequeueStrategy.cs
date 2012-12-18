@@ -15,7 +15,7 @@
     /// </summary>
     public class PollingDequeueStrategy : IDequeueMessages
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(PollingDequeueStrategy));
         private CancellationTokenSource tokenSource;
         private readonly IList<Task> runningTasks = new List<Task>();
         private Address addressToPoll;
@@ -53,10 +53,12 @@
         {
             tokenSource = new CancellationTokenSource();
 
+
+            //todo - do we need a custom scheduler here?
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
 
-            
+
             StartThreads(maximumConcurrencyLevel);
         }
 
@@ -70,20 +72,18 @@
             runningTasks.Clear();
         }
 
-        /// <summary>
-        /// Fires when a message has been dequeued.
-        /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
-        private void StartThreads(int maximumConcurrencyLevel)
+
+        void StartThreads(int maximumConcurrencyLevel)
         {
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 var token = tokenSource.Token;
                 runningTasks.Add(Task.Factory.StartNew((obj) =>
                     {
-                        var cancellationToken = (CancellationToken) obj;
-                        
+                        var cancellationToken = (CancellationToken)obj;
+
                         while (!cancellationToken.IsCancellationRequested)
                         {
                             try
@@ -92,12 +92,8 @@
                                 {
                                     using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                                     {
-                                        TryReceive();
-
-                                        if (commitTransation())
-                                        {
+                                        if (TryReceive())
                                             scope.Complete();
-                                        }
                                     }
                                 }
                                 else
@@ -107,40 +103,17 @@
                             }
                             catch (Exception ex)
                             {
-                                Logger.Debug("Failed to process transport message", ex);
+                                Configure.Instance.OnCriticalError("Failed to receive message from SqlServer", ex);
                             }
                         }
                     }, token, token, TaskCreationOptions.None, scheduler));
             }
         }
 
-        private void TryReceive()
+        bool TryReceive()
         {
-            TransportMessage m = Receive();
-            if (m == null)
-            {
-                return;
-            }
-
-            MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
-        }
-
-        private TransportMessage Receive()
-        {
-            try
-            {
-                return MessageReceiver.Receive();
-            }
-            catch (InvalidOperationException e)
-            {
-                Configure.Instance.OnCriticalError("Error in receiving messages.", e);
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Error in receiving messages.", e);
-            }
-
-            return null;
+            var m = MessageReceiver.Receive();
+            return m != null && TryProcessMessage(m);
         }
     }
 }

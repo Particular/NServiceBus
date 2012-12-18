@@ -32,10 +32,11 @@
             var sr = new ManualResetEvent(false);
             TransportMessage received = null;
             
-            dequeueStrategy.MessageDequeued+= (o, args) =>
+            dequeueStrategy.TryProcessMessage+= (m) =>
                 {
-                    received = args.Message;
+                    received = m;
                     sr.Set();
+                    return true;
                 };
 
             dequeueStrategy.Init(address,new TransactionSettings{IsTransactional = true},()=>true);

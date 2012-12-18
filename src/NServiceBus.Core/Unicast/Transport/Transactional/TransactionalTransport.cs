@@ -218,14 +218,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
         void StartReceiver()
         {
             Receiver.Init(receiveAddress, TransactionSettings, () => !needToAbort);
-            Receiver.MessageDequeued += Process;
+            Receiver.TryProcessMessage = Process;
             Receiver.Start(maximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
-        void Process(object sender, TransportMessageAvailableEventArgs e)
+        bool Process(TransportMessage message)
         {
-            var message = e.Message;
             needToAbort = false;
 
             try
@@ -244,13 +243,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
                 if (needToAbort)
                 {
-                    return;
+                    return false;
                 }
 
                 ClearFailuresForMessage(message.Id);
 
                 throughputLimiter.MessageProcessed();
                 currentThroughputPerformanceCounter.MessageProcessed();
+                return true;
             }
             catch (Exception ex)
             {
@@ -269,8 +269,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     OnFailedMessageProcessing(ex);
                 }
 
-                //rethrow to cause the message to go back to the queue
-                throw;
+               Logger.Warn("Failed to process message",ex);
+
+                return false;
             }
         }
 
@@ -506,7 +507,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 return;
 
             Receiver.Stop();
-            Receiver.MessageDequeued -= Process;
             isStarted = false;
         }
 

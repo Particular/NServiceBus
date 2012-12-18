@@ -118,10 +118,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             queue.Dispose();
         }
 
-        /// <summary>
-        ///     Fires when a message has been dequeued.
-        /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
         private bool QueueIsTransactional()
         {
@@ -166,9 +163,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         {
                             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                             {
-                                ReceiveAndFireEvent();
-
-                                if (commitTransation())
+                               if (ReceiveAndFireEvent())
                                 {
                                     scope.Complete();
                                 }
@@ -243,7 +238,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         [DebuggerNonUserCode]
-        private void ReceiveAndFireEvent()
+        bool ReceiveAndFireEvent()
         {
             Message message = null;
             try
@@ -294,7 +289,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (message == null)
             {
-                return;
+                return true;
             }
 
             TransportMessage transportMessage = null;
@@ -305,15 +300,20 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             catch (Exception ex)
             {
                 Logger.Error("Error in converting message to TransportMessage.", ex);
+
+                //todo DeadLetter the message
+                return true;
             }
 
             if (transportMessage != null)
             {
-                MessageDequeued(this, new TransportMessageAvailableEventArgs(transportMessage));
+                return TryProcessMessage(transportMessage);
             }
+
+            return true;
         }
 
-        private static void OnCriticalExceptionEncountered(Exception ex)
+        static void OnCriticalExceptionEncountered(Exception ex)
         {
             Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
         }

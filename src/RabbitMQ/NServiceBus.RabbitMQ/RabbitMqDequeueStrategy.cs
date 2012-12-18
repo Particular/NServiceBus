@@ -47,25 +47,22 @@
 
                         var consumer = new QueueingBasicConsumer(channel);
 
-                        var channelAborted = false;
-
-                        while (!channelAborted && !cancelationToken.IsCancellationRequested)
+                        
+                        while (!cancelationToken.IsCancellationRequested)
                         {
                             channel.BasicConsume(workQueue, autoAck, consumer);
 
-                            channelAborted = DequeueMessage(consumer, channel);
+                            DequeueMessage(consumer, channel);
                         }
                     }
 
-                }, cancelationToken, TaskCreationOptions.None, scheduler)
+                }, cancelationToken, TaskCreationOptions.LongRunning, scheduler)
             .ContinueWith(t =>
             {
                 if (t.Exception != null)
                 {
-                    Logger.Error("Error processing message.", t.Exception.GetBaseException());
+                    Configure.Instance.OnCriticalError("Failed to start consumer", t.Exception);
                 }
-
-                Configure.Instance.OnCriticalError("Failed to start consumer", t.Exception);
             });
 
             runningConsumers.Add(new RunningConsumer
@@ -75,40 +72,20 @@
                 });
         }
 
-        bool DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
+        void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
         {
-            try
-            {
-                object rawMessage;
+            object rawMessage;
 
-                if (!consumer.Queue.Dequeue(1000, out rawMessage))
-                    return false;
+            if (!consumer.Queue.Dequeue(1000, out rawMessage))
+                return;
 
-                var message = (BasicDeliverEventArgs)rawMessage;
+            var message = (BasicDeliverEventArgs)rawMessage;
 
-                MessageDequeued(this, new TransportMessageAvailableEventArgs(message.ToTransportMessage()));
+            //todo - add dead lettering
+            var messageProcessedOk = TryProcessMessage(message.ToTransportMessage());
 
-                if (!autoAck && shouldCommitTransation())
-                    channel.BasicAck(message.DeliveryTag, false);
-            }
-            catch (OperationInterruptedException ex)
-            {
-                // The consumer was removed, either through
-                // channel or connection closure, or through the
-                // action of IModel.BasicCancel().
-                Logger.Warn("The channel was aborted with the foloowing ex", ex);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error processing message.", ex.GetBaseException());
-
-                //todo refactor the circuit breaker from MSMQ out and connect it to a call from here so that we can shutdown the 
-                // endpoint on to many recurring failures
-                return false;
-            }
-
-            return false;
+            if (!autoAck && messageProcessedOk)
+                channel.BasicAck(message.DeliveryTag, false);
         }
 
 
@@ -123,8 +100,8 @@
             Task.WaitAll(runningConsumers.Select(c => c.Task).ToArray(), TimeSpan.FromSeconds(3));
         }
 
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
 
         public IConnection Connection { get; set; }
 

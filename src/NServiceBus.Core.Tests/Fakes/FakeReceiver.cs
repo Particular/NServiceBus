@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
-    using NServiceBus.Unicast.Transport.Transactional;
+    using Unicast.Transport.Transactional;
 
     public class FakeReceiver : IDequeueMessages
     {
@@ -11,9 +11,9 @@
                 {
                     Id = Guid.NewGuid().ToString()
                 };
-            MessageDequeued(this,new TransportMessageAvailableEventArgs(tm));
 
-            NumMessagesReceived++;
+            if (TryProcessMessage(tm))
+                NumMessagesReceived++;
         }
 
 
@@ -31,7 +31,8 @@
         {
            
         }
+
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
         public int NumMessagesReceived;
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
     }
 }

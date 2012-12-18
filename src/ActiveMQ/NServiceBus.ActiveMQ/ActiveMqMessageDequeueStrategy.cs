@@ -25,11 +25,6 @@
         }
 
         /// <summary>
-        ///     Fires when a message has been dequeued.
-        /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
-
-        /// <summary>
         /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
@@ -65,6 +60,8 @@
             messageReceivers.Clear();
         }
 
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
+
         private void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
@@ -75,7 +72,8 @@
 
         private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
+            if(!TryProcessMessage(e.Message))
+                throw new Exception("We where asked to rollback"); //todo - Daniel, Remo - verify this
         }
     }
 }
