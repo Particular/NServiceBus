@@ -200,7 +200,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 }
             }
 
-            message.Id = Guid.NewGuid().ToString();
             var rawMessage = SerializeMessage(message);
 
             if (Transaction.Current == null)

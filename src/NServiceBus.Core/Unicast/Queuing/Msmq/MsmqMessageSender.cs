@@ -23,8 +23,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                             toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
 
                         q.Send(toSend, GetTransactionTypeForSend());
-
-                        message.Id = toSend.Id;
                     }
                 }
             }

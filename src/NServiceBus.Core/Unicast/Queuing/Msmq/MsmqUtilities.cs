@@ -231,7 +231,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 CorrelationId =
                     (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
                          ? null
-                         : m.CorrelationId),
+                         : m.CorrelationId.Replace("\\0","")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
                 ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
@@ -300,7 +300,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
 
             if (message.CorrelationId != null)
-                result.CorrelationId = message.CorrelationId;
+                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
 
             result.Recoverable = message.Recoverable;
 

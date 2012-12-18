@@ -21,9 +21,7 @@ namespace NServiceBus.Faults.Forwarder
             if (SanitizeProcessingExceptions)
                 e = ExceptionSanitizer.Sanitize(e);
 
-            var id = message.Id;
-            SendFailureMessage(message, e, "ProcessingFailed"); //overwrites message.Id
-            message.Id = id;
+            SendFailureMessage(message, e, "ProcessingFailed");
         }
 
         void IManageMessageFailures.Init(Address address)

@@ -29,9 +29,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            var id = message.Id;
-            SendFailureMessage(message, e, "ProcessingFailed"); //overwrites message.Id
-            message.Id = id;
+            SendFailureMessage(message, e, "ProcessingFailed"); 
         }
 
         void SendFailureMessage(TransportMessage message, Exception e, string reason)

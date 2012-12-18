@@ -41,9 +41,6 @@ namespace NServiceBus.Unicast.Queuing.Ftp
 
             try
             {
-                if (String.IsNullOrEmpty(message.Id))
-                    message.Id = Guid.NewGuid().ToString();
-
                 if (message.Headers == null)
                     message.Headers = new System.Collections.Generic.Dictionary<string, string>();
 

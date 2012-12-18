@@ -26,6 +26,9 @@ namespace NServiceBus.ActiveMQ
             string messageBody = Encoding.UTF8.GetString(message.Body);
             IMessage jmsmessage = session.CreateTextMessage(messageBody);
 
+
+            jmsmessage.NMSMessageId = message.Id;
+
             if (message.CorrelationId != null)
             {
                 jmsmessage.NMSCorrelationID = message.CorrelationId;

@@ -97,7 +97,6 @@
                 using (var producer = session.CreateProducer())
                 {
                     producer.Send(this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
-                    message.Id = jmsMessage.NMSMessageId;
                 }
             }
         }

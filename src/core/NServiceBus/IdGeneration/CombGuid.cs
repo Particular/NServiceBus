@@ -1,4 +1,4 @@
-namespace NServiceBus.Utils
+namespace NServiceBus.IdGeneration
 {
     using System;
 
@@ -18,7 +18,7 @@ namespace NServiceBus.Utils
     /// NHibernate source.
     /// </p>
     /// </remarks>
-    public static class GuidCombGenerator
+    public static class CombGuid
     {
         /// <summary>
         /// Generate a new <see cref="Guid"/> using the comb algorithm.

@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                   BEGIN
                     CREATE TABLE [dbo].[{0}](
 	                    [Id] [uniqueidentifier] NOT NULL,
-	                    [IdForCorrelation] [varchar](255) NULL,
 	                    [CorrelationId] [varchar](255) NULL,
 	                    [ReplyToAddress] [varchar](255) NOT NULL,
 	                    [Recoverable] [bit] NOT NULL,

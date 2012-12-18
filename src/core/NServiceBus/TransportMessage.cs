@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace NServiceBus
 {
+    using IdGeneration;
+
     /// <summary>
     /// An envelope used by NServiceBus to package messages for transmission.
     /// </summary>
@@ -14,6 +16,14 @@ namespace NServiceBus
     [Serializable]
     public class TransportMessage
     {
+        /// <summary>
+        /// Initalizes the transport message with a CombGuid as identifier
+        /// </summary>
+        public TransportMessage()
+        {
+            Id = CombGuid.Generate().ToString();
+        }
+
         /// <summary>
         /// Gets/sets the identifier of this message bundle.
         /// </summary>

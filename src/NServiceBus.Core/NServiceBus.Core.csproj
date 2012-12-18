@@ -472,7 +472,6 @@
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
-    <Compile Include="Utils\GuidCombGenerator.cs" />
     <Compile Include="Utils\HeaderInfo.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
