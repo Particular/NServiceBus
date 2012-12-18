@@ -269,7 +269,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     OnFailedMessageProcessing(ex);
                 }
 
-               Logger.Warn("Failed to process message",ex);
+               Logger.Info("Failed to process message",ex);
 
                 return false;
             }
@@ -284,7 +284,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 if (HandledMaxRetries(m))
                 {
-                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
+                    Logger.Warn(string.Format("Message has failed the maximum number of times allowed, message will be handed over to SLR if enabled, ID={0}.", m.IdForCorrelation));
 
                     OnFinishedMessageProcessing();
 
