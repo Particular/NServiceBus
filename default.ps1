@@ -253,8 +253,8 @@ task RunTests -depends Build {
 	}	
 	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\*Tests.dll -Exclude NServiceBus.Integration.Azure.Tests.dll, NServiceBus.Unicast.Queuing.Azure.Tests.dll
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror}
+	$testAssemblies +=  dir $buildBase\*Tests.dll
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror /exclude="Azure,Integration"}
 }
 
 task Merge -depends Build {

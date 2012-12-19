@@ -4,7 +4,7 @@
     using NUnit.Framework;
     using Unicast.Transport.Transactional;
 
-    [TestFixture, Explicit("Integration tests")]
+    [TestFixture, Category("Integration")]
     public class When_consuming_activemq_messages:RabbitMqContext
     {
         [SetUp]

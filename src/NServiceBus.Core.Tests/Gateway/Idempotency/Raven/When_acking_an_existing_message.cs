@@ -51,7 +51,7 @@
             Assert.True(GetStoredMessage(message.ClientId).Acknowledged);
         }
 
-        [Test, Explicit("We need MSMQ + DTC installed on build server.")]
+        [Test, Category("Integration")]
         public void Raven_dtc_bug()
         {
             new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)

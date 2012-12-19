@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Config
 {
     using System.IO;
     using System.Linq;
+    using System.Transactions;
     using NUnit.Framework;
 
     [TestFixture]
@@ -43,13 +44,13 @@ namespace NServiceBus.Core.Tests.Config
                 found.Any(a => a.GetName().Name == "Rhino.Mocks"));
         }
 
-        [Test, Ignore("Find a way to not us fsharp")]
+        [Test]
         public void Should_include_fsharp_by_expression()
         {
             var found = AllAssemblies
-                .Matching("fsharp.").ToArray();
+                .Matching("TestAssembly.").ToArray();
 
-            Assert.True(found.Any(a => a.GetName().Name == "FSharp.Core"));
+            Assert.True(found.Any(a => a.GetName().Name == "TestAssembly"));
         }
 
         [Test]
@@ -61,28 +62,29 @@ namespace NServiceBus.Core.Tests.Config
             Assert.True(found.Any(a => a.GetName().Name.StartsWith("NServiceBus.")));
         }
 
-        [Test, Ignore("Find a way to not us fsharp")]
+        [Test]
         public void Should_include_fsharp_using_And()
         {
             var found = AllAssemblies
                 .Matching("foo.bar")
-                .And("fsharp.")
+                .And("TestAssembly.")
                 .ToArray();
 
-            Assert.True(found.Any(a => a.GetName().Name == "FSharp.Core"));
+            Assert.True(found.Any(a => a.GetName().Name == "TestAssembly"));
         }
 
-        [Test,Ignore("Find a way to not us fsharp")]
+        [Test]
         public void Should_use_Appdomain_Assemblies_if_flagged()
         {
-            var loadThisIntoAppdomain = new NLog.Config.AdvancedAttribute();
+            var loadThisIntoAppdomain = new TestAssembly.Class1();
 
             var someDir = Path.Combine(Path.GetTempPath(), "empty");
             Directory.CreateDirectory(someDir);
 
             var found = Configure.FindAssemblies(someDir, /*includeAppDomainAssemblies*/ true, null, null);
 
-            CollectionAssert.Contains(found.Select(a => a.GetName().Name).ToArray(), "NLog");
+            var collection = found.Select(a => a.GetName().Name).ToArray();
+            CollectionAssert.Contains(collection, "TestAssembly");
         }
     }
 }

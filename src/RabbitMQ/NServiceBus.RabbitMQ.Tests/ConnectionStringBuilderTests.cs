@@ -3,7 +3,7 @@
     using Config;
     using NUnit.Framework;
 
-    [TestFixture, Explicit("Integration tests")]
+    [TestFixture]
     public class ConnectionStringBuilderTests
     {
         RabbitMqConnectionStringBuilder builder;

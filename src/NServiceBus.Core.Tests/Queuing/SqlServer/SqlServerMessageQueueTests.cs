@@ -10,7 +10,7 @@
     using NServiceBus.Serializers.XML;
     using Unicast.Queuing.SQLServer;
 
-    [TestFixture, Explicit("This is a integration test")]
+    [TestFixture, Category("Integration")]
     public class SqlServerMessageQueueTests
     {
         private SqlServerMessageQueue _mq;

@@ -50,7 +50,7 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        [Test, Ignore("Not supported")]
+        [Test, Ignore("ArrayList is not supported")]
         public void Should_deserialize_arraylist()
         {
             var expected = new ArrayList
@@ -64,7 +64,7 @@ namespace NServiceBus.Serializers.XML.Test
             CollectionAssert.AreEqual(expected, result.ArrayList);
         }
 
-        [Test, Ignore("Not supported")]
+        [Test, Ignore("Hashtable is not supported")]
         public void Should_deserialize_hashtable()
         {
             var expected = new Hashtable

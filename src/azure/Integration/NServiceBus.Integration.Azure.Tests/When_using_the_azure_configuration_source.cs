@@ -5,6 +5,7 @@ using Rhino.Mocks;
 namespace NServiceBus.Integration.Azure.Tests
 {
     [TestFixture]
+    [Category("Azure")]
     public class When_using_the_azure_configuration_source
     {
         private IAzureConfigurationSettings azureSettings;
@@ -34,8 +35,8 @@ namespace NServiceBus.Integration.Azure.Tests
             Assert.AreEqual(configSource.GetConfiguration<SectionNotPresentInConfig>().SomeSetting,"test");
         }
 
-        [Test,Ignore("Check this one Yves")]
-        public void No_section_should_be_returned_if_both_azure_and_app_confis_are_empty()
+        [Test]
+        public void No_section_should_be_returned_if_both_azure_and_app_configs_are_empty()
         {
             Assert.Null(configSource.GetConfiguration<SectionNotPresentInConfig>());
         }

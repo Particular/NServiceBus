@@ -1,17 +1,14 @@
 ﻿namespace NServiceBus.RabbitMQ.Tests
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
     using NUnit.Framework;
     using Unicast.Queuing;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
-    using global::RabbitMQ.Client.Exceptions;
 
 
-    [TestFixture, Explicit("Integration tests")]
+    [TestFixture, Category("Integration")]
     public class When_sending_a_message_over_rabbitmq : RabbitMqContext
     {
         const string TESTQUEUE = "testendpoint";
@@ -43,9 +40,7 @@
 
             VerifyRabbit(new TransportMessageBuilder().TimeToBeReceived(timeToBeReceived),
                 received => Assert.AreEqual(timeToBeReceived.TotalMilliseconds.ToString(), received.BasicProperties.Expiration));
-
         }
-
 
         [Test]
         public void Should_set_the_reply_to_address()
@@ -94,7 +89,6 @@
                     });
 
         }
-
 
         [Test, Ignore("Not sure we should enforce this")]
         public void Should_throw_when_sending_to_a_nonexisting_queue()
