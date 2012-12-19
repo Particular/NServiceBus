@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
-    using Logging;
     using Queuing;
 
     /// <summary>
@@ -74,6 +73,7 @@
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 var token = tokenSource.Token;
+
                 runningTasks.Add(Task.Factory.StartNew(obj =>
                     {
                         var cancellationToken = (CancellationToken)obj;

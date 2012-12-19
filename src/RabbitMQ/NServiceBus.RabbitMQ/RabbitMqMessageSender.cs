@@ -9,16 +9,12 @@
 
         public void Send(TransportMessage message, Address address)
         {
-
             using (var channel = Connection.CreateModel())
-            {  
-                var properties = message.FillRabbitMqProperties(channel.CreateBasicProperties());
+            {
+                var properties = RabbitMqTransportMessageExtensions.FillRabbitMqProperties(message, channel.CreateBasicProperties());
 
-                channel.BasicPublish("", address.Queue, true, false, properties, message.Body);
-
+                channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
             }
         }
-
-
     }
 }

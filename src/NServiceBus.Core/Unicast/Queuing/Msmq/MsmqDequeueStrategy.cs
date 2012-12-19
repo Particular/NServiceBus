@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using Transport.Transactional;
 
     /// <summary>
-    ///     Default implementation of the MSMQ <see cref="IDequeueMessages" />.
+    ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
     public class MsmqDequeueStrategy : IDequeueMessages
     {

@@ -71,8 +71,7 @@
 
         private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            if(!TryProcessMessage(e.Message))
-                throw new Exception("We where asked to rollback"); //todo - Daniel, Remo - verify this
+            TryProcessMessage(e.Message);
         }
     }
 }

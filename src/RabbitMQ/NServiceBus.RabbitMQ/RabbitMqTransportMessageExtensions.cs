@@ -10,7 +10,7 @@
 
     public static class RabbitMqTransportMessageExtensions
     {
-        public static IBasicProperties FillRabbitMqProperties(this TransportMessage message, IBasicProperties properties)
+        public static IBasicProperties FillRabbitMqProperties(TransportMessage message, IBasicProperties properties)
         {
             properties.MessageId = message.Id;
 
@@ -48,9 +48,7 @@
             return properties;
         }
 
-
-
-        public static TransportMessage ToTransportMessage(this BasicDeliverEventArgs message)
+        public static TransportMessage ToTransportMessage(BasicDeliverEventArgs message)
         {
 
             var properties = message.BasicProperties;
@@ -62,7 +60,6 @@
 
             if (properties.IsReplyToPresent())
                 result.ReplyToAddress = Address.Parse(properties.ReplyTo);
-
 
             result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
                                         .ToDictionary(

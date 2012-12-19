@@ -2,28 +2,47 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
-    using Logging;
     using Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
-    using global::RabbitMQ.Client.Exceptions;
 
+    /// <summary>
+    ///     Default implementation of <see cref="IDequeueMessages" /> for RabbitMQ.
+    /// </summary>
     public class RabbitMqDequeueStrategy : IDequeueMessages
     {
+        private readonly List<Task> runningConsumers = new List<Task>();
+        private bool autoAck;
+        private MTATaskScheduler scheduler;
+        private CancellationTokenSource tokenSource;
+        private string workQueue;
 
+        public IConnection Connection { get; set; }
+
+        /// <summary>
+        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// </summary>
+        /// <param name="address">The address to listen on.</param>
+        /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         public void Init(Address address, TransactionSettings transactionSettings)
         {
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
         }
 
+        /// <summary>
+        /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
+        /// </summary>
+        /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
+            tokenSource = new CancellationTokenSource();
+
+            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
+                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
 
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
@@ -31,88 +50,71 @@
             }
         }
 
-        void StartConsumer()
+        /// <summary>
+        /// Stops the dequeuing of messages.
+        /// </summary>
+        public void Stop()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
+            tokenSource.Cancel();
+            scheduler.Dispose();
+            runningConsumers.Clear();
+        }
 
-            var cancelationToken = cancellationTokenSource.Token;
+        /// <summary>
+        /// Called when a message has been dequeued and is ready for processing.
+        /// </summary>
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
-            var task = Task.Factory.StartNew(() =>
+        private void StartConsumer()
+        {
+            var token = tokenSource.Token;
+
+            var task = new Task(obj =>
                 {
-                    using (var channel = Connection.CreateModel())
+                    var cancellationToken = (CancellationToken) obj;
+
+                    using (IModel channel = Connection.CreateModel())
                     {
                         channel.BasicQos(0, 1, false);
 
                         var consumer = new QueueingBasicConsumer(channel);
 
-                        
-                        while (!cancelationToken.IsCancellationRequested)
+                        while (!cancellationToken.IsCancellationRequested)
                         {
                             channel.BasicConsume(workQueue, autoAck, consumer);
 
                             DequeueMessage(consumer, channel);
                         }
                     }
+                }, token, token, TaskCreationOptions.None);
 
-                }, cancelationToken, TaskCreationOptions.LongRunning, scheduler)
-            .ContinueWith(t =>
-            {
-                if (t.Exception != null)
-                {
-                    Configure.Instance.OnCriticalError("Failed to start consumer", t.Exception);
-                }
-            });
+            runningConsumers.Add(task);
 
-            runningConsumers.Add(new RunningConsumer
+            task.ContinueWith(t =>
                 {
-                    CancellationTokenSource = cancellationTokenSource,
-                    Task = task
+                    if (t.Exception != null)
+                    {
+                        Configure.Instance.OnCriticalError("Failed to start consumer.", t.Exception);
+                    }
                 });
+
+            task.Start(scheduler);
         }
 
-        void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
+        private void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
         {
             object rawMessage;
 
             if (!consumer.Queue.Dequeue(1000, out rawMessage))
                 return;
 
-            var message = (BasicDeliverEventArgs)rawMessage;
+            var message = (BasicDeliverEventArgs) rawMessage;
 
             //todo - add dead lettering
-            var messageProcessedOk = TryProcessMessage(message.ToTransportMessage());
+            bool messageProcessedOk = TryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
 
             if (!autoAck && messageProcessedOk)
                 channel.BasicAck(message.DeliveryTag, false);
-        }
-
-
-
-        public void Stop()
-        {
-            //tell all tasks to cancel
-            runningConsumers.ForEach(consumer => consumer.CancellationTokenSource.Cancel());
-
-
-            //and give them a few seconds to wrap up their work
-            Task.WaitAll(runningConsumers.Select(c => c.Task).ToArray(), TimeSpan.FromSeconds(3));
-        }
-
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
-
-        public IConnection Connection { get; set; }
-
-        readonly List<RunningConsumer> runningConsumers = new List<RunningConsumer>();
-        bool autoAck;
-
-        string workQueue;
-        TaskScheduler scheduler;
-
-        class RunningConsumer
-        {
-            public CancellationTokenSource CancellationTokenSource { get; set; }
-            public Task Task { get; set; }
         }
     }
 }

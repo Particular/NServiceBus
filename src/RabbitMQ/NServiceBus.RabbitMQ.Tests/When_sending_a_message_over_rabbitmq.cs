@@ -106,7 +106,6 @@
                  }, Address.Parse("NonExistingQueue@localhost")));
         }
 
-
         void Verify(TransportMessageBuilder builder, Action<TransportMessage, BasicDeliverEventArgs> assertion)
         {
             var message = builder.Build();
@@ -115,7 +114,7 @@
 
             var result = Consume(message.Id);
 
-            assertion(result.ToTransportMessage(), result);
+            assertion(RabbitMqTransportMessageExtensions.ToTransportMessage(result), result);
         }
         void Verify(TransportMessageBuilder builder, Action< TransportMessage> assertion)
         {
