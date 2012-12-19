@@ -14,7 +14,11 @@
             var durable = !Endpoint.IsVolatile;
 
             using (var channel = Connection.CreateModel())
+            {
                 channel.QueueDeclare(address.Queue, durable, false, false, null);
+                channel.ExchangeDeclare(address.Queue + ".events","topic",durable);
+            }
+                
         }
     }
 }

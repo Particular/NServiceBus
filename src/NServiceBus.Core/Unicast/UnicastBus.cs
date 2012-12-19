@@ -277,6 +277,17 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
 
+
+        /// <summary>
+        /// The registered subscription manager for this bus instance
+        /// </summary>
+        public IManageSubscriptions SubscriptionManager { get; set; }
+
+        /// <summary>
+        /// Publishes the given messages
+        /// </summary>
+        public IPublishMessages MessagePublisher{ get; set; }
+
         /// <summary>
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
@@ -341,6 +352,18 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
 
             var fullTypes = GetFullTypes(messages as object[]);
+
+            //until we refactor msmq and sql
+            if (MessagePublisher != null)
+            {
+                var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
+
+                MapTransportMessageFor(messages as object[], eventMessage);
+
+                MessagePublisher.Publish(eventMessage,fullTypes);
+                return;
+            }
+
             var subscribers = Enumerable.ToList<Address>(SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t))));
 
             if (!subscribers.Any())
@@ -407,7 +430,14 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
+            subscriptionPredicatesManager.AddConditionForSubscriptionToMessageType(messageType, condition);
+
+            //until we refactor msmq and sql
+            if (SubscriptionManager != null)
+            {
+                SubscriptionManager.Subscribe(messageType,destination);
+                return;
+            }
 
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
@@ -444,6 +474,14 @@ namespace NServiceBus.Unicast
 
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+
+
+            //until we refactor msmq and sql
+            if (SubscriptionManager != null)
+            {
+                SubscriptionManager.Unsubscribe(messageType, destination);
+                return;
+            }
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
@@ -1065,7 +1103,7 @@ namespace NServiceBus.Unicast
 
                 var canDispatch = true;
 
-                foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
+                foreach (var condition in subscriptionPredicatesManager.GetConditionsForMessage(messageToHandle))
                 {
                     if (condition(messageToHandle)) continue;
 
@@ -1785,7 +1823,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Gets/sets the subscription manager to use for the bus.
         /// </summary>
-        protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
+        protected SubscriptionPredicatesManager subscriptionPredicatesManager = new SubscriptionPredicatesManager();
 
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message

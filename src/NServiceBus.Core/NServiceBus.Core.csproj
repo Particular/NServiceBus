@@ -424,6 +424,7 @@
     <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
+    <Compile Include="Unicast\Queuing\IPublishMessages.cs" />
     <Compile Include="Unicast\Queuing\IReceiveMessages.cs" />
     <Compile Include="Unicast\Queuing\ISendMessages.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
@@ -442,8 +443,9 @@
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerQueueCreator.cs" />
     <Compile Include="Unicast\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\SubscriptionsManager.cs" />
+    <Compile Include="Unicast\SubscriptionPredicatesManager.cs" />
     <Compile Include="Unicast\Subscriptions\InMemory\InMemorySubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageType.cs" />
     <Compile Include="Unicast\Subscriptions\Msmq\Config\SubscriptionsQueueCreator.cs" />

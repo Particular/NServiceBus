@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
 	/// <remarks>
 	/// Thread safe.
 	/// </remarks>
-    public class SubscriptionsManager
+    public class SubscriptionPredicatesManager
     {
 		/// <summary>
 		/// Gets the list of conditions associated with a message.

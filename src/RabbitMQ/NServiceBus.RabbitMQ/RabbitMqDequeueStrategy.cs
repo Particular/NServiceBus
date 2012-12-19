@@ -17,7 +17,7 @@
         private readonly List<Task> runningConsumers = new List<Task>();
         private bool autoAck;
         private MTATaskScheduler scheduler;
-        private CancellationTokenSource tokenSource;
+        private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
         private string workQueue;
 
         public IConnection Connection { get; set; }
@@ -31,6 +31,8 @@
         {
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
+
+
         }
 
         /// <summary>
@@ -39,8 +41,6 @@
         /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            tokenSource = new CancellationTokenSource();
-
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
 
@@ -56,7 +56,10 @@
         public void Stop()
         {
             tokenSource.Cancel();
-            scheduler.Dispose();
+
+            if (scheduler != null)
+                scheduler.Dispose();
+
             runningConsumers.Clear();
         }
 
@@ -71,7 +74,7 @@
 
             var task = new Task(obj =>
                 {
-                    var cancellationToken = (CancellationToken) obj;
+                    var cancellationToken = (CancellationToken)obj;
 
                     using (IModel channel = Connection.CreateModel())
                     {
@@ -108,7 +111,7 @@
             if (!consumer.Queue.Dequeue(1000, out rawMessage))
                 return;
 
-            var message = (BasicDeliverEventArgs) rawMessage;
+            var message = (BasicDeliverEventArgs)rawMessage;
 
             //todo - add dead lettering
             bool messageProcessedOk = TryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
