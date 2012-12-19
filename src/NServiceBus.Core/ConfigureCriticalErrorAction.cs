@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using Logging;
     using Utils;
 
@@ -37,8 +38,8 @@ namespace NServiceBus
         {
             CircuitBreaker.Execute(() =>
                 {
-                    LogManager.GetLogger(typeof(ConfigureCriticalErrorAction)).Fatal(errorMessage, exception);
-                    onCriticalErrorAction(errorMessage, exception);
+                    LogManager.GetLogger(typeof (ConfigureCriticalErrorAction)).Fatal(errorMessage, exception);
+                    ThreadPool.UnsafeQueueUserWorkItem(state => onCriticalErrorAction(errorMessage, exception), null);
                 });
             return config;
         }

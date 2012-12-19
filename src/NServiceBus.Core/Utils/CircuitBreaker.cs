@@ -6,6 +6,7 @@ namespace NServiceBus.Utils
     internal class CircuitBreaker
     {
         private readonly int threashold;
+        private int firedTimes;
         private Timer timer;
         private int failureCount;
 
@@ -19,7 +20,10 @@ namespace NServiceBus.Utils
         {
             if (Interlocked.Increment(ref failureCount) > threashold)
             {
-                trigger();
+                if (Interlocked.Exchange(ref firedTimes, 1) == 0)
+                {
+                    trigger();
+                }
             }
         }
     }

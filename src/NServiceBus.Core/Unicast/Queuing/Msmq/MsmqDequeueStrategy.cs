@@ -197,27 +197,22 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (MessageQueueException mqe)
             {
+                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
                     WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
 
-                    string errorException =
+                    errorException =
                         string.Format(
                             "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
                             queue.FormatName,
                             windowsIdentity != null
                                 ? windowsIdentity.Name
                                 : "Unknown User");
-                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
-
-                    return;
                 }
 
-                OnCriticalExceptionEncountered(new InvalidOperationException(
-                                                       string.Format(
-                                                           "Failed to peek messages from [{0}].",
-                                                           queue.FormatName),
-                                                       mqe));
+                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
             }
         }
 
@@ -236,26 +231,22 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                 }
 
+                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
                     WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
 
-                    string errorException =
+                    errorException =
                         string.Format(
                             "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
                             queue.FormatName,
                             windowsIdentity != null
                                 ? windowsIdentity.Name
                                 : "Unknown User");
-                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
                 }
 
-                OnCriticalExceptionEncountered(new InvalidOperationException
-                                                   (
-                                                   string.Format(
-                                                       "Failed to receive messages from [{0}].",
-                                                       queue.FormatName),
-                                                   mqe));
+                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
             }
             catch (Exception ex)
             {

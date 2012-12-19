@@ -28,7 +28,7 @@ namespace NServiceBus.Satellites
 
         public void Stop()
         {
-            foreach (var ctx in AllSatellitesThatShouldBeStarted())
+            foreach (var ctx in satellites.Where(ctx => ctx.Started))
             {
                 if (ctx.Transport != null)
                 {

@@ -22,11 +22,8 @@ namespace NServiceBus.Unicast.Config
                 return;
 
             Configure.Instance.Builder.Build<UnicastBus>().Started +=
-                (obj, ev) =>
-                    {
-                        Configure.Instance.Builder.BuildAll<IWantToRunWhenTheBusStarts>().ToList()
-                            .ForEach(r => r.Run());
-                    };
+                (obj, ev) => Configure.Instance.Builder.BuildAll<IWantToRunWhenTheBusStarts>().ToList()
+                                      .ForEach(r => r.Run());
         }
     }
 }

@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Queuing
             if(MsmqTransportConfig.DoNotCreateQueues)
                 return;
 
-            var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>();
+            var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
 
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
             {

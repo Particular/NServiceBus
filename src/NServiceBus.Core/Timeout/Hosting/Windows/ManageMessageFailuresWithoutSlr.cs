@@ -4,7 +4,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Faults;
     using Logging;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
@@ -50,13 +49,19 @@ namespace NServiceBus.Timeout.Hosting.Windows
             catch (Exception exception)
             {
                 var qnfEx = exception as QueueNotFoundException;
-                var errorMessage = qnfEx != null
-                                          ? string.Format(
-                                              "Could not forward failed message to error queue '{0}' as it could not be found.",
-                                              qnfEx.Queue)
-                                          : string.Format(
-                                              "Could not forward failed message to error queue, reason: {0}.", exception);
-                Logger.Fatal(errorMessage);
+                string errorMessage;
+
+                if (qnfEx != null)
+                {
+                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
+                    Logger.Fatal(errorMessage);
+                }
+                else
+                {
+                    errorMessage = "Could not forward failed message to error queue.";
+                    Logger.Fatal(errorMessage, exception);
+                }
+
                 throw new InvalidOperationException(errorMessage, exception);
             }
         }

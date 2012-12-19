@@ -832,7 +832,7 @@ namespace NServiceBus.Unicast
             if (Started != null)
                 Started(this, null);
 
-            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>();
+            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
 
             foreach (var thingToRunAtStartup in thingsToRunAtStartup)
             {
@@ -1007,7 +1007,11 @@ namespace NServiceBus.Unicast
 
         public void Shutdown()
         {
+            Log.Info("Initiating shutdown.");
+
             Dispose();
+
+            Log.Info("Shutdown complete.");
         }
 
         void IInMemoryOperations.Raise<T>(T @event)
@@ -1094,10 +1098,10 @@ namespace NServiceBus.Unicast
 
         static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
         {
-            var mutators = builder.BuildAll<IMutateIncomingMessages>();
+            var mutators = builder.BuildAll<IMutateIncomingMessages>().ToList();
 
             var mutatedMessage = originalMessage;
-            mutators.ToList().ForEach(m =>
+            mutators.ForEach(m =>
             {
                 mutatedMessage = m.MutateIncoming(mutatedMessage);
             });
@@ -1596,13 +1600,12 @@ namespace NServiceBus.Unicast
 
         IEnumerable<object> ApplyOutgoingMessageMutatorsTo(IEnumerable<object> messages)
         {
-            var mutators = Builder.BuildAll<IMutateOutgoingMessages>();
-
             foreach (var originalMessage in messages)
             {
+                var mutators = Builder.BuildAll<IMutateOutgoingMessages>().ToList();
 
                 var mutatedMessage = originalMessage;
-                mutators.ToList().ForEach(m =>
+                mutators.ForEach(m =>
                 {
                     mutatedMessage = m.MutateOutgoing(mutatedMessage);
                 });
@@ -1819,7 +1822,7 @@ namespace NServiceBus.Unicast
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
-        private IEnumerable<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
     }
 
     /// <summary>

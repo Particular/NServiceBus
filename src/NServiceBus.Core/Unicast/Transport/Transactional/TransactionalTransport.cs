@@ -348,9 +348,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 failuresPerMessageLocker.EnterWriteLock();
 
                 var ex = exceptionsForMessages[messageId];
-                InvokeFaultManager(message, ex);
-                failuresPerMessage.Remove(messageId);
-                exceptionsForMessages.Remove(messageId);
+                if (TryInvokeFaultManager(message, ex))
+                {
+                    failuresPerMessage.Remove(messageId);
+                    exceptionsForMessages.Remove(messageId);
+                }
 
                 failuresPerMessageLocker.ExitWriteLock();
 
@@ -361,16 +363,19 @@ namespace NServiceBus.Unicast.Transport.Transactional
             return false;
         }
 
-        void InvokeFaultManager(TransportMessage message, Exception exception)
+        bool TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
                 FailureManager.ProcessingAlwaysFailsForMessage(message, exception);
+                return true;
             }
             catch (Exception ex)
             {
                 Configure.Instance.OnCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
             }
+
+            return false;
         }
 
         private void ClearFailuresForMessage(string messageId)
