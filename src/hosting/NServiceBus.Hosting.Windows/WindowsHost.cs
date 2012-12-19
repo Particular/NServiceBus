@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly GenericHost genericHost;
+        readonly IHost genericHost;
         readonly bool runOtherInstallers;
         readonly bool runInfrastructureInstallers;
 
@@ -47,7 +47,7 @@ namespace NServiceBus.Hosting.Windows
             {
                 Thread.Sleep(10000); // so that user can see on their screen the problem
             }
-
+            
             Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
         }
 
@@ -67,7 +67,6 @@ namespace NServiceBus.Hosting.Windows
             genericHost.Stop();
         }
 
-
         /// <summary>
         /// Performs installations
         /// </summary>
@@ -80,6 +79,5 @@ namespace NServiceBus.Hosting.Windows
 
             genericHost.Install<Installation.Environments.Windows>();
         }
-
     }
 }

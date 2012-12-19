@@ -17,9 +17,8 @@ namespace NServiceBus.Hosting
         /// </summary>
         void Stop();
 
-
         /// <summary>
-        /// Performs nessesary installation
+        /// Performs necessary installation
         /// </summary>
         void Install<TEnvironment>() where TEnvironment : IEnvironment;
     }

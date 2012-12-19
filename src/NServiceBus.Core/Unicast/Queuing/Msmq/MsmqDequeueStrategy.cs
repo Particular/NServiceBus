@@ -21,11 +21,9 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         private readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
         private readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
-        private int numberOfExceptionsThrown;
         private MessageQueue queue;
         private TaskScheduler scheduler;
         private SemaphoreSlim semaphore;
-        private Timer timer;
         private TransactionSettings transactionSettings;
         private Address endpointAddress;
         private TransactionOptions transactionOptions;
@@ -86,9 +84,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", endpointAddress));
             semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
-            timer = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30),
-                              TimeSpan.FromSeconds(30));
-
             queue.PeekCompleted += OnPeekCompleted;
 
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
@@ -99,8 +94,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         public void Stop()
         {
-            timer.Dispose();
-
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
@@ -220,17 +213,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     return;
                 }
 
-                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
-                {
-                    OnCriticalExceptionEncountered(new InvalidOperationException(
+                OnCriticalExceptionEncountered(new InvalidOperationException(
                                                        string.Format(
                                                            "Failed to peek messages from [{0}].",
                                                            queue.FormatName),
                                                        mqe));
-                    return;
-                }
-
-                Logger.Error("Error in peeking message.", mqe);
             }
         }
 
@@ -263,17 +250,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
                 }
 
-                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
-                {
-                    OnCriticalExceptionEncountered(new InvalidOperationException
-                                                       (
-                                                       string.Format(
-                                                           "Failed to receive messages from [{0}].",
-                                                           queue.FormatName),
-                                                       mqe));
-                }
-
-                Logger.Error("Error in receiving messages.", mqe);
+                OnCriticalExceptionEncountered(new InvalidOperationException
+                                                   (
+                                                   string.Format(
+                                                       "Failed to receive messages from [{0}].",
+                                                       queue.FormatName),
+                                                   mqe));
             }
             catch (Exception ex)
             {
@@ -289,7 +271,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 return true;
             }
 
-            TransportMessage transportMessage = null;
+            TransportMessage transportMessage;
             try
             {
                 transportMessage = MsmqUtilities.Convert(message);

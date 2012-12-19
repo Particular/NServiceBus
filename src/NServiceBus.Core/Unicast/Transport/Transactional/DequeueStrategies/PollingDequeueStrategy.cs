@@ -8,14 +8,12 @@
     using System.Transactions;
     using Logging;
     using Queuing;
-    using Utils;
 
     /// <summary>
     /// A polling implementation of <see cref="IDequeueMessages"/>.
     /// </summary>
     public class PollingDequeueStrategy : IDequeueMessages
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(PollingDequeueStrategy));
         private CancellationTokenSource tokenSource;
         private readonly IList<Task> runningTasks = new List<Task>();
         private Address addressToPoll;
@@ -50,11 +48,8 @@
         {
             tokenSource = new CancellationTokenSource();
 
-
-            //todo - do we need a custom scheduler here?
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
-
 
             StartThreads(maximumConcurrencyLevel);
         }
@@ -69,15 +64,17 @@
             runningTasks.Clear();
         }
 
+        /// <summary>
+        /// Called when a message has been dequeued and is ready for processing.
+        /// </summary>
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
 
         void StartThreads(int maximumConcurrencyLevel)
         {
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 var token = tokenSource.Token;
-                runningTasks.Add(Task.Factory.StartNew((obj) =>
+                runningTasks.Add(Task.Factory.StartNew(obj =>
                     {
                         var cancellationToken = (CancellationToken)obj;
 
@@ -100,7 +97,7 @@
                             }
                             catch (Exception ex)
                             {
-                                Configure.Instance.OnCriticalError("Failed to receive message from SqlServer", ex);
+                                Configure.Instance.OnCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), ex);
                             }
                         }
                     }, token, token, TaskCreationOptions.None, scheduler));

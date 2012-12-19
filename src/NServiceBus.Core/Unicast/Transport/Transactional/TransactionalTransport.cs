@@ -223,7 +223,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         }
 
         [DebuggerNonUserCode]
-        bool Process(TransportMessage message)
+        private bool Process(TransportMessage message)
         {
             needToAbort = false;
 
@@ -269,7 +269,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     OnFailedMessageProcessing(ex);
                 }
 
-               Logger.Info("Failed to process message",ex);
+                Logger.Info("Failed to process message", ex);
 
                 return false;
             }
