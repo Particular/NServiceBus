@@ -8,10 +8,31 @@ namespace NServiceBus.Config.Advanced
     public static class ConfigureSettingLocalAddressNameAction
     {
         /// <summary>
-        /// By default local address should equal endpoint name.
+        /// Set a function that overrides the default naming of NServiceBus local addresses.
         /// See: <a href="http://nservicebus.com/faq/HowToSpecifyYourInputQueueName.aspx">Here</a> for more details.
         /// </summary>
-        private static Func<string> defineLocalAddressNameFunc = Configure.GetEndpointNameAction;
+        /// <param name="config"></param>
+        /// <param name="setLocalAddressNameFunc"></param>
+        /// <returns></returns>
+        [ObsoleteEx(Message = "Moved to NServiceBus namespace.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        public static Configure DefineLocalAddressNameFunc(this Configure config, Func<string> setLocalAddressNameFunc)
+        {
+            NServiceBus.ConfigureSettingLocalAddressNameAction.defineLocalAddressNameFunc = setLocalAddressNameFunc;
+            return config;
+        }
+    }
+}
+
+namespace NServiceBus
+{
+    using System;
+
+    /// <summary>
+    /// Allow overriding local address name.
+    /// </summary>
+    public static class ConfigureSettingLocalAddressNameAction
+    {
+        internal static Func<string> defineLocalAddressNameFunc = Configure.GetEndpointNameAction;
 
         /// <summary>
         /// Set a function that overrides the default naming of NServiceBus local addresses.
@@ -30,9 +51,10 @@ namespace NServiceBus.Config.Advanced
         /// See: <a href="http://nservicebus.com/faq/HowToSpecifyYourInputQueueName.aspx">Here</a> for more details.
         /// </summary>
         /// <returns></returns>
-        public static string GetLocalAddressName()
+        internal static string GetLocalAddressName()
         {
             return defineLocalAddressNameFunc();
         }
     }
 }
+

@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -21,6 +22,19 @@ namespace NServiceBus.Unicast
         IDictionary<string, string> IMessageContext.Headers
         {
             get { return transportMessage.Headers; }
+        }
+
+        public DateTime TimeSent
+        {
+            get
+            {
+                if (transportMessage.Headers.ContainsKey(Headers.TimeSent))
+                {
+                    return DateTimeExtensions.ToUtcDateTime(transportMessage.Headers[Headers.TimeSent]);
+                }
+
+                return DateTime.MinValue;
+            }
         }
 
         string IMessageContext.Id

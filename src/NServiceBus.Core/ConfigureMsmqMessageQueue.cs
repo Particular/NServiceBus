@@ -3,7 +3,6 @@ namespace NServiceBus
     using Config;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.Msmq;
-    using Unicast.Transport.Transactional.DequeueStrategies;
 
     public static class ConfigureMsmqMessageQueue
     {

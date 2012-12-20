@@ -11,8 +11,6 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         [TestFixtureSetUp]
         public void SetUp()
         {
-            ConfigureRavenPersistence.AutoCreateDatabase = false;
-
             var config = Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName("UnitTests")
                 .DefaultBuilder();

@@ -3,7 +3,6 @@ namespace NServiceBus.Notifications
     using System.IO;
     using System.Linq;
     using System.Net.Mail;
-    using Config;
     using Satellites;
     using Serialization;
 

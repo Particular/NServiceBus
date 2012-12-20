@@ -3,7 +3,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// Initializes the local address
     /// </summary>
-    public class AddressInitializer:IWantToRunBeforeConfiguration
+    public class AddressInitializer : IWantToRunBeforeConfiguration
     {
         /// <summary>
         /// Initialize the local address
@@ -11,7 +11,7 @@ namespace NServiceBus.Config
         public void Init()
         {
             if (Address.Local == null)
-                Address.InitializeLocalAddress(Advanced.ConfigureSettingLocalAddressNameAction.GetLocalAddressName());
+                Address.InitializeLocalAddress(ConfigureSettingLocalAddressNameAction.GetLocalAddressName());
         }
     }
 }
