@@ -14,25 +14,26 @@
     /// </summary>
     public class RabbitMqDequeueStrategy : IDequeueMessages
     {
-        private readonly List<Task> runningConsumers = new List<Task>();
-        private bool autoAck;
-        private MTATaskScheduler scheduler;
-        private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
-        private string workQueue;
-
+        /// <summary>
+        /// The connection to the RabbitMQ broker
+        /// </summary>
         public IConnection Connection { get; set; }
+        /// <summary>
+        /// Determines if the queue should be purged when the transport starts
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
 
         /// <summary>
         /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
+            TryProcessMessage = tryProcessMessage;
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
-
-
         }
 
         /// <summary>
@@ -41,6 +42,9 @@
         /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
+            if (PurgeOnStartup)
+                Purge();
+
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
 
@@ -49,6 +53,7 @@
                 StartConsumer();
             }
         }
+
 
         /// <summary>
         /// Stops the dequeuing of messages.
@@ -63,12 +68,8 @@
             runningConsumers.Clear();
         }
 
-        /// <summary>
-        /// Called when a message has been dequeued and is ready for processing.
-        /// </summary>
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
-        private void StartConsumer()
+        
+        void StartConsumer()
         {
             var token = tokenSource.Token;
 
@@ -104,7 +105,7 @@
             task.Start(scheduler);
         }
 
-        private void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
+        void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
         {
             object rawMessage;
 
@@ -119,5 +120,21 @@
             if (!autoAck && messageProcessedOk)
                 channel.BasicAck(message.DeliveryTag, false);
         }
+
+
+        void Purge()
+        {
+            using (var channel = Connection.CreateModel())
+            {
+                channel.QueuePurge(workQueue);
+            }
+        }
+
+        Func<TransportMessage, bool> TryProcessMessage;
+        readonly List<Task> runningConsumers = new List<Task>();
+        bool autoAck;
+        MTATaskScheduler scheduler;
+        readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
+        string workQueue;
     }
 }

@@ -49,8 +49,7 @@
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.TryProcessMessage = this.tryReceiveMessage;
-            testee.Init(address, settings);
+            testee.Init(address, settings, this.tryReceiveMessage);
             testee.Start(NumberOfWorkers);
 
             messageReceivers.Count.Should().Be(NumberOfWorkers);
@@ -64,7 +63,7 @@
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings());
+            testee.Init(address, new TransactionSettings(), m => { return true; });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 

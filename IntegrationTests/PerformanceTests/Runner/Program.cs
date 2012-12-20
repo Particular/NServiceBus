@@ -26,9 +26,9 @@ namespace Runner
                 endpointName += ".Volatile";
 
             var config = Configure.With()
-                .DefineEndpointName(endpointName)
-                     .DefaultBuilder();
-
+                                  .DefineEndpointName(endpointName)
+                                  .DefaultBuilder();
+                     
 
             switch (args[2].ToLower())
             {

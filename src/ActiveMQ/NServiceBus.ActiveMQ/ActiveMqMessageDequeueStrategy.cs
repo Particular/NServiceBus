@@ -14,6 +14,8 @@
 
         private Address address;
         private TransactionSettings settings;
+        private Func<TransportMessage, bool> tryProcessMessage;
+
 
         /// <summary>
         ///     Default constructor.
@@ -29,9 +31,11 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
             this.settings = transactionSettings;
+            this.tryProcessMessage = tryProcessMessage;
             this.address = address;
         }
 
@@ -60,12 +64,11 @@
             messageReceivers.Clear();
         }
 
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
-        private void CreateAndStartMessageReceiver()
+        
+        void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.TryProcessMessage = this.TryProcessMessage;
+            receiver.TryProcessMessage = this.tryProcessMessage;
             receiver.Start(address, this.settings);
             messageReceivers.Add(receiver);
         }

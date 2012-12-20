@@ -1,11 +1,9 @@
 ﻿. .\TestSupport.ps1
 
-RunTest -transport "msmq"
-RunTest -transport "msmq" -mode "volatile"
+#runs all transport in nonvolatile m
 
+RunTest -transport "msmq"
 RunTest -transport "sqlserver"
 RunTest -transport "activemq"
-RunTest -transport "activemq" -mode "volatile"
-RunTest -transport "rabbitmq"
-RunTest -transport "rabbitmq" -mode "volatile"
+RunTest -transport "rabbitmq" -numThreads 60
 #RunTest -transport "azure"
