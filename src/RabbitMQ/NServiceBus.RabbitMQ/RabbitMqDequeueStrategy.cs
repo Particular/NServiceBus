@@ -14,12 +14,9 @@
     /// </summary>
     public class RabbitMqDequeueStrategy : IDequeueMessages
     {
-        private readonly List<Task> runningConsumers = new List<Task>();
-        private bool autoAck;
-        private MTATaskScheduler scheduler;
-        private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
-        private string workQueue;
-
+        /// <summary>
+        /// The connection to the RabbitMQ broker
+        /// </summary>
         public IConnection Connection { get; set; }
 
         /// <summary>
@@ -27,12 +24,12 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
+            TryProcessMessage = tryProcessMessage;
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
-
-
         }
 
         /// <summary>
@@ -63,12 +60,8 @@
             runningConsumers.Clear();
         }
 
-        /// <summary>
-        /// Called when a message has been dequeued and is ready for processing.
-        /// </summary>
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
-        private void StartConsumer()
+        
+        void StartConsumer()
         {
             var token = tokenSource.Token;
 
@@ -104,7 +97,7 @@
             task.Start(scheduler);
         }
 
-        private void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
+        void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
         {
             object rawMessage;
 
@@ -119,5 +112,12 @@
             if (!autoAck && messageProcessedOk)
                 channel.BasicAck(message.DeliveryTag, false);
         }
+
+        Func<TransportMessage, bool> TryProcessMessage;
+        readonly List<Task> runningConsumers = new List<Task>();
+        bool autoAck;
+        MTATaskScheduler scheduler;
+        readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
+        string workQueue;
     }
 }

@@ -64,14 +64,12 @@
             var sr = new ManualResetEvent(false);
             TransportMessage received = null;
 
-            dequeueStrategy.TryProcessMessage += (m) =>
+            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true },(m) =>
             {
                 received = m;
                 sr.Set();
                 return true;
-            };
-
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true });
+            });
             dequeueStrategy.Start(1);
 
             sr.WaitOne(1000);

@@ -13,10 +13,9 @@
                 NumMessagesReceived++;
         }
 
-
-        public void Init(Address address, TransactionSettings transactionSettings)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
-            
+            TryProcessMessage = tryProcessMessage;
         }
 
         public void Start(int maximumConcurrencyLevel)
@@ -29,7 +28,7 @@
            
         }
 
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
+        Func<TransportMessage, bool> TryProcessMessage;
         public int NumMessagesReceived;
     }
 }
