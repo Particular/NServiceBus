@@ -6,8 +6,8 @@
     using System.Threading;
     using NUnit.Framework;
     using System.Threading.Tasks;
-    using NServiceBus.MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Serializers.XML;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serializers.XML;
     using Unicast.Queuing.SQLServer;
 
     [TestFixture, Category("Integration")]
@@ -33,7 +33,8 @@
             _mq = new SqlServerMessageQueue
                       {
                           ConnectionString = ConStr,
-                          MessageSerializer = _xmlMessageSerializer
+                          MessageSerializer = _xmlMessageSerializer,
+                          PurgeOnStartup = true
                       };
 
             var creator = new SqlServerQueueCreator {ConnectionString = ConStr};
@@ -78,7 +79,7 @@
         public void SendMany()
         {
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 10+0; i++)
             {
                 Send();
             }
@@ -90,6 +91,11 @@
         public void ReceiveMany()
         {   
             Init();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                Send();
+            }
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             for (int i = 0; i < 1000; i++)
             {
@@ -200,7 +206,6 @@
         {
             var message = new TransportMessage
                               {
-                                  Id = Guid.NewGuid().ToString(),
                                   Body = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) ,
                                   CorrelationId = Guid.NewGuid().ToString(),
                                   Recoverable = true,
