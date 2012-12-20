@@ -10,11 +10,6 @@
     /// </summary>
     public class ActiveMqMessageDequeueStrategy : IDequeueMessages
     {
-        private readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
-        private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
-
-        private Address address;
-
         /// <summary>
         ///     Default constructor.
         /// </summary>
@@ -29,8 +24,10 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
+            TryProcessMessage = tryProcessMessage;
             this.address = address;
         }
 
@@ -59,9 +56,8 @@
             messageReceivers.Clear();
         }
 
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
-        private void CreateAndStartMessageReceiver()
+        
+        void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
             receiver.MessageReceived += OnMessageReceived;
@@ -69,9 +65,14 @@
             messageReceivers.Add(receiver);
         }
 
-        private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             TryProcessMessage(e.Message);
         }
+
+        Func<TransportMessage, bool> TryProcessMessage;
+        readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
+        readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
+        Address address;
     }
 }

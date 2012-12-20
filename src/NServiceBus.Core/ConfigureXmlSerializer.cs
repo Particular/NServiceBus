@@ -18,7 +18,7 @@ namespace NServiceBus
         /// <param name="sanitizeInput">Sanatizes the xml input if set to true</param>
         /// <param name="dontWrapSingleMessages">Tells the serializer to not wrap single messages with a "messages" element. This will break compatibility with endpoints older thatn 3.4.0 </param>
         /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false,bool dontWrapSingleMessages = false)
+        public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false, bool dontWrapSingleMessages = false)
         {
             if (!Configure.BuilderIsConfigured())
             {

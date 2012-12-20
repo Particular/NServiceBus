@@ -2,6 +2,8 @@
 
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Contains out-of-band information on the logical message.
     /// </summary>
@@ -21,5 +23,11 @@ namespace NServiceBus
         /// Gets the list of key/value pairs found in the header of the message.
         /// </summary>
         IDictionary<string, string> Headers { get; }
+
+        /// <summary>
+        /// Returns the time at which the message was sent.
+        /// </summary>
+        [ObsoleteEx(Replacement = @"Headers[Headers.TimeSent]", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        DateTime TimeSent { get; }
     }
 }

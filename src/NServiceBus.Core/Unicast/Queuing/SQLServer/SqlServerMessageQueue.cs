@@ -7,80 +7,81 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
     using System.IO;
     using System.Text;
     using System.Threading;
-    using IdGeneration;
+    using Logging;
     using Serialization;
     using Serializers.Binary;
     using Serializers.Json;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
-        private string currentEndpointName;
-        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
-
-        private const string SqlReceive = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
-			DELETE FROM message 
-			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
-        private const string SqlSend = @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
-
+     
         public string ConnectionString { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
-
-
+        public bool PurgeOnStartup { get; set; }
         public int SleepTimeBetweenPolls { get; set; }
 
         public void Send(TransportMessage message, Address address)
         {
-            string body = string.Empty;          
-            
+            string body = string.Empty;
+
             if (MessageSerializer is MessageSerializer)
             {
                 body = Convert.ToBase64String(message.Body);
             }
             else if (message.Body != null)
             {
-                var stream = new MemoryStream(message.Body) {Position = 0};
+                var stream = new MemoryStream(message.Body) { Position = 0 };
                 using (TextReader textReader = new StreamReader(stream))
                 {
                     body = textReader.ReadToEnd();
-                }                
+                }
             }
-            
+
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var sql = string.Format(SqlSend, address); 
-                connection.Open();                
+                var sql = string.Format(SqlSend, address);
+                connection.Open();
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {
-                    var id = CombGuid.Generate();
-
-                    command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = id;
+                    command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = Guid.Parse(message.Id);
                     command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
                     if (message.ReplyToAddress == null) // Sendonly endpoint
-                        command.Parameters.AddWithValue("ReplyToAddress", string.Empty); 
+                        command.Parameters.AddWithValue("ReplyToAddress", string.Empty);
                     else
-                        command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString()); 
-	                command.Parameters.AddWithValue("Recoverable", message.Recoverable); 
-	                command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString()); 
+                        command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString());
+                    command.Parameters.AddWithValue("Recoverable", message.Recoverable);
+                    command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString());
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
                     command.Parameters.AddWithValue("Headers", Serializer.SerializeObject(message.Headers));
                     command.Parameters.AddWithValue("Body", body);
 
                     command.ExecuteNonQuery();
                 }
-            }                           
+            }
         }
 
-        private static object GetValue(object value)
-        {
-            return value ?? DBNull.Value;
-        }
-
+        
         public void Init(Address address, bool transactional)
         {
             currentEndpointName = address.ToString();
+
+            if (PurgeOnStartup)
+            {
+                using (var connection = new SqlConnection(ConnectionString))
+                {
+                    var sql = string.Format(SqlPurge, currentEndpointName);
+                    connection.Open();
+                    using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
+                    {
+                        var numberOfPurgedRows = command.ExecuteNonQuery();
+
+                        Logger.InfoFormat("{0} messages was purged from table {1}", numberOfPurgedRows, currentEndpointName);
+                    }
+                }
+            }
+
         }
+
 
         public TransportMessage Receive()
         {
@@ -89,7 +90,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                 var sql = string.Format(SqlReceive, currentEndpointName);
                 connection.Open();
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
-                {                    
+                {
                     using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
                     {
                         if (dataReader.Read())
@@ -106,9 +107,9 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                             var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(5));
                             var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(6));
                             var tmpBody = dataReader.GetString(7);
-                            
+
                             byte[] body;
-                            
+
                             if (MessageSerializer is MessageSerializer)
                             {
                                 body = Convert.FromBase64String(tmpBody);
@@ -121,15 +122,15 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                             var message = new TransportMessage
                             {
                                 Id = id,
-                                CorrelationId = correlationId,                                
+                                CorrelationId = correlationId,
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
                                 MessageIntent = messageIntent,
-                                TimeToBeReceived = timeToBeReceived,                                
+                                TimeToBeReceived = timeToBeReceived,
                                 Headers = headers,
                                 Body = body
                             };
-                            
+
                             return message;
                         }
                     }
@@ -141,6 +142,27 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                 Thread.Sleep(1000);
             return null;
         }
+
+        static object GetValue(object value)
+        {
+            return value ?? DBNull.Value;
+        }
+
+
+        string currentEndpointName;
+        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+
+        const string SqlReceive = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
+        
+        const string SqlSend = @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
+
+        const string SqlPurge = @"DELETE FROM [{0}]";
+
+        static readonly ILog Logger = LogManager.GetLogger("Transports.SqlServer");
     }
 
 }

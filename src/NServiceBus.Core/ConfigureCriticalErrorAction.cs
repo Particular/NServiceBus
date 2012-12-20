@@ -43,5 +43,29 @@ namespace NServiceBus
                 });
             return config;
         }
+
+        /// <summary>
+        /// Sets the function to be used when critical error occurs
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="onCriticalError"></param>
+        /// <returns></returns>
+        [ObsoleteEx(Replacement = "DefineCriticalErrorAction(this Configure config, Action<string, Exception> onCriticalError)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure DefineCriticalErrorAction(this Configure config, Action onCriticalError)
+        {
+            onCriticalErrorAction = (s, exception) => onCriticalError();
+            return config;
+        }
+        /// <summary>
+        /// Execute the configured Critical error action
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [ObsoleteEx(Replacement = "OnCriticalError(this Configure config, string errorMessage, Exception exception)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure OnCriticalError(this Configure config)
+        {
+            onCriticalErrorAction("A critical error occurred.", new Exception());
+            return config;
+        }
     }
 }

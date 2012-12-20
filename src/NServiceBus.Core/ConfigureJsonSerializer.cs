@@ -28,7 +28,7 @@ namespace NServiceBus
 
         private static void ConfigureMessageMapper(Configure config)
         {
-            var messageTypes = Configure.TypesToScan.Where(t => MessageConventionExtensions.IsMessageType(t)).ToList();
+            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(messageTypes);

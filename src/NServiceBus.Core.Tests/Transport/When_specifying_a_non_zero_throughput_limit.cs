@@ -4,32 +4,30 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_specifying_a_non_zero_throughput_limit:for_the_transactional_transport
+    public class When_specifying_a_non_zero_throughput_limit : for_the_transactional_transport
     {
-        [Test]
+        const int ThroughputLimit = 4;
+
+        [Test, Category("Integration")]
         public void Should_limit_the_throughput_to_the_set_limit()
         {
-            const int throughputLimit = 4;
-
-            transport.ChangeMaximumThroughputPerSecond(throughputLimit);
+            transport.ChangeMaximumThroughputPerSecond(ThroughputLimit);
             transport.Start(Address.Parse("mytest"));
 
             ThreadPool.QueueUserWorkItem(Receive10);
 
             Thread.Sleep(600);
-            
-            Assert.AreEqual(throughputLimit, fakeReceiver.NumMessagesReceived);
+            Assert.AreEqual(ThroughputLimit, fakeReceiver.NumMessagesReceived);
 
-            Thread.Sleep(600);
-            Assert.AreEqual(throughputLimit * 2, fakeReceiver.NumMessagesReceived);
+            Thread.Sleep(500);
+            Assert.AreEqual(ThroughputLimit*2, fakeReceiver.NumMessagesReceived);
         }
 
-        void Receive10(object state)
+        private void Receive10(object state)
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < ThroughputLimit*2; i++)
             {
                 fakeReceiver.FakeMessageReceived();
-
             }
         }
     }

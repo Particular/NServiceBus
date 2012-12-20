@@ -112,7 +112,9 @@ Here is an example of what is required:
                      .ConfigureProperty(p => p.ConnectionString, connectionString);
 
             configure.Configurer.ConfigureComponent<SqlServerMessageQueue>(DependencyLifecycle.InstancePerCall)
-                     .ConfigureProperty(p => p.ConnectionString, connectionString);
+                     .ConfigureProperty(p => p.ConnectionString, connectionString)
+                     .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+
 
             EndpointInputQueueCreator.Enabled = true;
 

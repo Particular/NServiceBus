@@ -12,7 +12,8 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        void Init(Address address, TransactionSettings transactionSettings);
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage);
         
         /// <summary>
         /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.
@@ -24,10 +25,5 @@
         /// Stops the dequeuing of messages.
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Called when a message has been dequeued and is ready for processing.
-        /// </summary>
-        Func<TransportMessage, bool> TryProcessMessage { get; set; }
     }
 }

@@ -17,17 +17,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     /// </summary>
     public class MsmqDequeueStrategy : IDequeueMessages
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (MsmqDequeueStrategy));
-        private readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
-        private readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
-        private readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
-        private MessageQueue queue;
-        private TaskScheduler scheduler;
-        private SemaphoreSlim semaphore;
-        private TransactionSettings transactionSettings;
-        private Address endpointAddress;
-        private TransactionOptions transactionOptions;
-
         /// <summary>
         ///     Purges the queue on startup.
         /// </summary>
@@ -38,8 +27,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings settings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage)
         {
+            TryProcessMessage = tryProcessMessage;
             endpointAddress = address;
             transactionSettings = settings;
      
@@ -108,8 +99,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             queue.Dispose();
         }
 
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
+     
         private bool QueueIsTransactional()
         {
             try
@@ -287,5 +277,18 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         {
             Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
         }
+
+        Func<TransportMessage, bool> TryProcessMessage;
+        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
+        readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
+        readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
+        readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
+        MessageQueue queue;
+        TaskScheduler scheduler;
+        SemaphoreSlim semaphore;
+        TransactionSettings transactionSettings;
+        Address endpointAddress;
+        TransactionOptions transactionOptions;
+
     }
 }

@@ -12,14 +12,7 @@
     /// A polling implementation of <see cref="IDequeueMessages"/>.
     /// </summary>
     public class PollingDequeueStrategy : IDequeueMessages
-    {
-        private CancellationTokenSource tokenSource;
-        private readonly IList<Task> runningTasks = new List<Task>();
-        private Address addressToPoll;
-        private MTATaskScheduler scheduler;
-        private TransactionSettings settings;
-        private TransactionOptions transactionOptions;
-       
+    {  
         /// <summary>
         /// See <see cref="IReceiveMessages"/>.
         /// </summary>
@@ -30,8 +23,11 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        public void Init(Address address, TransactionSettings transactionSettings)
+        /// <param name="tryProcessMessage"></param>
+        public void Init(Address address, TransactionSettings transactionSettings,Func<TransportMessage, bool> tryProcessMessage)
         {
+            TryProcessMessage = tryProcessMessage;
+
             addressToPoll = address;
             settings = transactionSettings;
             transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
@@ -63,11 +59,7 @@
             runningTasks.Clear();
         }
 
-        /// <summary>
-        /// Called when a message has been dequeued and is ready for processing.
-        /// </summary>
-        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
-
+        
         void StartThreads(int maximumConcurrencyLevel)
         {
             for (int i = 0; i < maximumConcurrencyLevel; i++)
@@ -109,5 +101,13 @@
             var m = MessageReceiver.Receive();
             return m != null && TryProcessMessage(m);
         }
+
+        Func<TransportMessage, bool> TryProcessMessage;
+        CancellationTokenSource tokenSource;
+        readonly IList<Task> runningTasks = new List<Task>();
+        Address addressToPoll;
+        MTATaskScheduler scheduler;
+        TransactionSettings settings;
+        TransactionOptions transactionOptions;
     }
 }
