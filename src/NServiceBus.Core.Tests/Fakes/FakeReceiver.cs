@@ -7,10 +7,7 @@
     {
         public void FakeMessageReceived()
         {
-            var tm = new TransportMessage
-                {
-                    Id = Guid.NewGuid().ToString()
-                };
+            var tm = new TransportMessage();
 
             if (TryProcessMessage(tm))
                 NumMessagesReceived++;
