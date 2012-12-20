@@ -32,7 +32,7 @@
             connection = factory.CreateConnection();
             sender = new RabbitMqMessageSender { Connection = connection };
 
-            dequeueStrategy = new RabbitMqDequeueStrategy{Connection = connection};
+            dequeueStrategy = new RabbitMqDequeueStrategy{Connection = connection,PurgeOnStartup = true};
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
@@ -48,7 +48,20 @@
                 Connection = connection,
                 EndpointQueueName = MYRECEIVEQUEUE
             };
+
+            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
+            {
+                received = m;
+                messageReceived.Set();
+                return true;
+            });
+
+            messageReceived = new ManualResetEvent(false);
+
+            dequeueStrategy.Start(1);
+            
         }
+
 
         [TearDown]
         public void TearDown()
@@ -61,23 +74,17 @@
 
         protected TransportMessage WaitForMessage()
         {
-            var sr = new ManualResetEvent(false);
-            TransportMessage received = null;
+            messageReceived.WaitOne(2000);
 
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true },(m) =>
-            {
-                received = m;
-                sr.Set();
-                return true;
-            });
-            dequeueStrategy.Start(1);
+            Assert.NotNull(messageReceived);
 
-            sr.WaitOne(1000);
-
+  
             return received;
 
         }
-        
+        TransportMessage received = null;
+
+        ManualResetEvent messageReceived;
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;

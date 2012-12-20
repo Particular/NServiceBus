@@ -18,6 +18,10 @@
         /// The connection to the RabbitMQ broker
         /// </summary>
         public IConnection Connection { get; set; }
+        /// <summary>
+        /// Determines if the queue should be purged when the transport starts
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
 
         /// <summary>
         /// Initialises the <see cref="IDequeueMessages"/>.
@@ -38,6 +42,9 @@
         /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
+            if (PurgeOnStartup)
+                Purge();
+
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
 
@@ -46,6 +53,7 @@
                 StartConsumer();
             }
         }
+
 
         /// <summary>
         /// Stops the dequeuing of messages.
@@ -111,6 +119,15 @@
 
             if (!autoAck && messageProcessedOk)
                 channel.BasicAck(message.DeliveryTag, false);
+        }
+
+
+        void Purge()
+        {
+            using (var channel = Connection.CreateModel())
+            {
+                channel.QueuePurge(workQueue);
+            }
         }
 
         Func<TransportMessage, bool> TryProcessMessage;

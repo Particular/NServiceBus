@@ -43,7 +43,8 @@
         public static Configure RabbitMqTransport(this Configure config, ConnectionFactory connectionFactory)
         {
             config.Configurer.ConfigureComponent(connectionFactory.CreateConnection, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
+                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested); 
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
 
