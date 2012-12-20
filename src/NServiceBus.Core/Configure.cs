@@ -594,7 +594,12 @@ namespace NServiceBus
                   "raven.server", "raven.client", "raven.munin.",
                   "raven.storage.", "raven.abstractions.", "raven.database",
                   "esent.interop", "asyncctplibrary.", "lucene.net.", 
-                  "icsharpcode.nrefactory", "spatial4n.core"
+                  "icsharpcode.nrefactory", "spatial4n.core",
+
+                  // Azure host process, which is typically referenced for ease of deployment but should not be scanned
+                  "NServiceBus.Hosting.Azure.HostProcess.exe",
+                  // And other windows azure stuff
+                  "Microsoft.WindowsAzure."
               };
 
         // TODO: rename to additionalTypeExclusions 
