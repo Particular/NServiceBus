@@ -1,4 +1,4 @@
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     /// <summary>
     /// Configuration class for Endpoint attributes.

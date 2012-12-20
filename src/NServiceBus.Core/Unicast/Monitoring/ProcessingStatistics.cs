@@ -36,9 +36,9 @@ namespace NServiceBus.Unicast.Monitoring
             Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
 
             if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
+            {
                 UpdateCounters(DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.TimeSent]), DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
-            
-                
+            }
         }
 
         void UpdateCounters(DateTime timeSent, DateTime processingStarted, DateTime processingEnded)

@@ -9,7 +9,6 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using Persistence.NHibernate;
-    using Config;
 
     [TestFixture]
     public class EnsuringBackwardsCompatability
@@ -40,7 +39,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
                                                                          new ConnectionStringSettings(
-                                                                             "NServiceBus/Persistence/NHibernate",
+                                                                             "NServiceBus/Persistence",
                                                                              connectionString)
                                                                      };
 
@@ -114,7 +113,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
                                                                          new ConnectionStringSettings(
-                                                                             "NServiceBus/Persistence/NHibernate",
+                                                                             "NServiceBus/Persistence",
                                                                              "Shouldn't be this")
                                                                      };
             ConfigureNHibernate.Init();

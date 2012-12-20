@@ -4,7 +4,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Faults;
     using Logging;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
@@ -29,9 +28,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            var id = message.Id;
-            SendFailureMessage(message, e, "ProcessingFailed"); //overwrites message.Id
-            message.Id = id;
+            SendFailureMessage(message, e, "ProcessingFailed"); 
         }
 
         void SendFailureMessage(TransportMessage message, Exception e, string reason)
@@ -52,13 +49,19 @@ namespace NServiceBus.Timeout.Hosting.Windows
             catch (Exception exception)
             {
                 var qnfEx = exception as QueueNotFoundException;
-                var errorMessage = qnfEx != null
-                                          ? string.Format(
-                                              "Could not forward failed message to error queue '{0}' as it could not be found.",
-                                              qnfEx.Queue)
-                                          : string.Format(
-                                              "Could not forward failed message to error queue, reason: {0}.", exception);
-                Logger.Fatal(errorMessage);
+                string errorMessage;
+
+                if (qnfEx != null)
+                {
+                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
+                    Logger.Fatal(errorMessage);
+                }
+                else
+                {
+                    errorMessage = "Could not forward failed message to error queue.";
+                    Logger.Fatal(errorMessage, exception);
+                }
+
                 throw new InvalidOperationException(errorMessage, exception);
             }
         }
@@ -80,8 +83,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-
-            message.Headers[TransportHeaderKeys.OriginalId] = message.Id;
 
             var failedQ = localAddress ?? Address.Local;
 

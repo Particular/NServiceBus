@@ -55,7 +55,7 @@ namespace NServiceBus.Hosting.Configuration
         /// </summary>
         public void Startup()
         {
-            thingsToRunAtStartup = Configure.Instance.Builder.BuildAll<IWantToRunAtStartup>();
+            thingsToRunAtStartup = Configure.Instance.Builder.BuildAll<IWantToRunAtStartup>().ToList();
 
             if (thingsToRunAtStartup == null)
                 return;
@@ -116,6 +116,6 @@ namespace NServiceBus.Hosting.Configuration
         internal List<Type> toRunAtStartup;
         private readonly IConfigureThisEndpoint specifier;
 
-        private IEnumerable<IWantToRunAtStartup> thingsToRunAtStartup;
+        private IList<IWantToRunAtStartup> thingsToRunAtStartup;
     }
 }

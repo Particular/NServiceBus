@@ -32,12 +32,12 @@ namespace NServiceBus
         public static Configure ActiveMqTransport(this Configure config, string brokerUri)
         {
             config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
-                .ConfigureProperty(p => p.ConsumerName, Configure.EndpointName);
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
+                  .ConfigureProperty(p => p.ConsumerName, Configure.EndpointName);
 
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
-            
+
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<ActiveMqMessageMapper>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageTypeInterpreter>(DependencyLifecycle.InstancePerCall);
@@ -52,11 +52,14 @@ namespace NServiceBus
 
             var factory = new NetTxConnectionFactory(brokerUri)
                 {
-                    AcknowledgementMode = AcknowledgementMode.Transactional,
+                    AcknowledgementMode =
+                        Endpoint.IsVolatile ? AcknowledgementMode.AutoAcknowledge : AcknowledgementMode.Transactional,
                 };
 
-            config.Configurer.ConfigureComponent<INetTxConnectionFactory>(() => factory, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent(() => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<INetTxConnectionFactory>(
+                () => factory, DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent(
+                () => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
 
             EndpointInputQueueCreator.Enabled = true;
 

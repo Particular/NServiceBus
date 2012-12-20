@@ -153,6 +153,12 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// True if this endpoint is operating in send only mode
+        /// </summary>
+        [ObsoleteEx(Replacement = "Endpoint.IsSendOnly", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static bool SendOnlyMode { get { return Endpoint.IsSendOnly; } }
+
+        /// <summary>
         /// Creates a new configuration object scanning assemblies
         /// in the regular runtime directory.
         /// </summary>

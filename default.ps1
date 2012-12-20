@@ -1,5 +1,5 @@
 properties {
-	$ProductVersion = "3.4"
+	$ProductVersion = "4.0"
     $PatchVersion = "0"
 	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
 	$PreRelease = "alpha"
@@ -34,7 +34,7 @@ include $toolsDir\psake\buildutils.ps1
 
 task default -depends PrepareBinaries
 
-task Quick -depends Merge, CopyBinaries
+task Quick -depends CopyBinaries
 
 task PrepareBinaries -depends RunTests, CopyBinaries
 
@@ -181,6 +181,7 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
@@ -252,8 +253,8 @@ task RunTests -depends Build {
 	}	
 	
 	$testAssemblies = @()
-	$testAssemblies +=  dir $buildBase\*Tests.dll -Exclude NServiceBus.Integration.Azure.Tests.dll, NServiceBus.Unicast.Queuing.Azure.Tests.dll
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror}
+	$testAssemblies +=  dir $buildBase\*Tests.dll
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror /exclude="Azure,Integration"}
 }
 
 task Merge -depends Build {

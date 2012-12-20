@@ -20,9 +20,6 @@
 
         }
 
-
-
-        
         protected FakeReceiver fakeReceiver;
         protected TransactionalTransport transport;
     }

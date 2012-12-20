@@ -1,11 +1,11 @@
 using System.Transactions;
 using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
+    [Category("Azure")]
     public class When_sending_messages : AzureQueueFixture
     {
         const string destinationQueueName = "destination";

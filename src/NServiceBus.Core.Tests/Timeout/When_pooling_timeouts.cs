@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-   [TestFixture, Explicit("Takes a long time, move to integration tests")]
+   [TestFixture, Category("Integration")]
     public class When_pooling_timeouts_with_raven : When_pooling_timeouts
     {
         private IDocumentStore store;
@@ -36,7 +36,7 @@ namespace NServiceBus.Core.Tests.Timeout
         }
     }
 
-    [TestFixture,Explicit("Takes a long time, move to integration tests")]
+    [TestFixture, Category("Integration")]
     public class When_pooling_timeouts_with_inmemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
@@ -94,7 +94,7 @@ namespace NServiceBus.Core.Tests.Timeout
             WaitForMessagesThenAssert(5);
         }
 
-        [Test,Ignore("Seems to be timing sensitive")]
+        [Test]
         public void Should_pickup_future_timeout_messages_and_send_when_expired()
         {
             expected = 1;

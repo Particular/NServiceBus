@@ -225,7 +225,7 @@
        /// <summary>
        /// Contains list of System messages' conventions
        /// </summary>
-        public static readonly List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
+        public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
         static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
         static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();

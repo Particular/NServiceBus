@@ -118,7 +118,7 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\ConfigureSqlServerTransport.cs" />
+    <Compile Include="ConfigureSqlServerTransport.cs" />
     <Compile Include="ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -148,7 +148,6 @@
     <Compile Include="Config\SatelliteLauncherConfiguration.cs" />
     <Compile Include="Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Config\SecondLevelRetriesConfiguration.cs" />
-    <Compile Include="Config\SqlServerTransportConfig.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\Config\Bootstrapper.cs" />
@@ -182,7 +181,6 @@
     <Compile Include="Faults\Forwarder\Helpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
-    <Compile Include="GatewayBootstrapper.cs" />
     <Compile Include="Gateway\Channels\Channel.cs" />
     <Compile Include="Gateway\Channels\ChannelFactory.cs" />
     <Compile Include="Gateway\Channels\Http\DefaultResponder.cs" />
@@ -193,14 +191,11 @@
     <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
     <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
     <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\Config\IMainEndpointSettings.cs" />
-    <Compile Include="Gateway\Config\MainEndpointSettings.cs" />
     <Compile Include="Gateway\HeaderManagement\Bootstrapper.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayReturnInfo.cs" />
     <Compile Include="Gateway\HeaderManagement\HeaderMapper.cs" />
-    <Compile Include="Gateway\Installation\GatewayQueueCreator.cs" />
     <Compile Include="Gateway\Notifications\IMessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
@@ -214,7 +209,7 @@
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
     <Compile Include="Gateway\Receiving\IdempotentChannelReceiver.cs" />
-    <Compile Include="Gateway\Receiving\IMangageReceiveChannels.cs" />
+    <Compile Include="Gateway\Receiving\IManageReceiveChannels.cs" />
     <Compile Include="Gateway\Receiving\IReceiveMessagesFromSites.cs" />
     <Compile Include="Gateway\Routing\Endpoints\DefaultEndpointRouter.cs" />
     <Compile Include="Gateway\Routing\IRouteMessagesToEndpoints.cs" />
@@ -429,6 +424,7 @@
     <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
+    <Compile Include="Unicast\Queuing\IPublishMessages.cs" />
     <Compile Include="Unicast\Queuing\IReceiveMessages.cs" />
     <Compile Include="Unicast\Queuing\ISendMessages.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
@@ -447,8 +443,9 @@
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\SQLServer\SqlServerQueueCreator.cs" />
     <Compile Include="Unicast\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\SubscriptionsManager.cs" />
+    <Compile Include="Unicast\SubscriptionPredicatesManager.cs" />
     <Compile Include="Unicast\Subscriptions\InMemory\InMemorySubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\MessageType.cs" />
     <Compile Include="Unicast\Subscriptions\Msmq\Config\SubscriptionsQueueCreator.cs" />
@@ -473,12 +470,11 @@
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransportMessageAvailableEventArgs.cs" />
-    <Compile Include="Unicast\Transport\TransportHeaderKeys.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
-    <Compile Include="Utils\GuidCombGenerator.cs" />
+    <Compile Include="Utils\CircuitBreaker.cs" />
     <Compile Include="Utils\HeaderInfo.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
@@ -498,6 +494,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Gateway\Installation\" />
     <Folder Include="ObjectBuilder\Autofac\Config\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />

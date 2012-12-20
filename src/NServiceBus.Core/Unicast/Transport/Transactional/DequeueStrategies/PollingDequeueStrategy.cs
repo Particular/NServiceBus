@@ -6,24 +6,20 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
-    using Logging;
     using Queuing;
-    using Utils;
 
     /// <summary>
     /// A polling implementation of <see cref="IDequeueMessages"/>.
     /// </summary>
     public class PollingDequeueStrategy : IDequeueMessages
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
         private CancellationTokenSource tokenSource;
         private readonly IList<Task> runningTasks = new List<Task>();
         private Address addressToPoll;
         private MTATaskScheduler scheduler;
         private TransactionSettings settings;
         private TransactionOptions transactionOptions;
-        private Func<bool> commitTransation;
-
+       
         /// <summary>
         /// See <see cref="IReceiveMessages"/>.
         /// </summary>
@@ -34,10 +30,8 @@
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings transactionSettings)
         {
-            this.commitTransation = commitTransation;
             addressToPoll = address;
             settings = transactionSettings;
             transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
@@ -56,7 +50,6 @@
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
 
-            
             StartThreads(maximumConcurrencyLevel);
         }
 
@@ -71,19 +64,20 @@
         }
 
         /// <summary>
-        /// Fires when a message has been dequeued.
+        /// Called when a message has been dequeued and is ready for processing.
         /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
-        private void StartThreads(int maximumConcurrencyLevel)
+        void StartThreads(int maximumConcurrencyLevel)
         {
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 var token = tokenSource.Token;
-                runningTasks.Add(Task.Factory.StartNew((obj) =>
+
+                runningTasks.Add(Task.Factory.StartNew(obj =>
                     {
-                        var cancellationToken = (CancellationToken) obj;
-                        
+                        var cancellationToken = (CancellationToken)obj;
+
                         while (!cancellationToken.IsCancellationRequested)
                         {
                             try
@@ -92,12 +86,8 @@
                                 {
                                     using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                                     {
-                                        TryReceive();
-
-                                        if (commitTransation())
-                                        {
+                                        if (TryReceive())
                                             scope.Complete();
-                                        }
                                     }
                                 }
                                 else
@@ -107,40 +97,17 @@
                             }
                             catch (Exception ex)
                             {
-                                Logger.Debug("Failed to process transport message", ex);
+                                Configure.Instance.OnCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), ex);
                             }
                         }
                     }, token, token, TaskCreationOptions.None, scheduler));
             }
         }
 
-        private void TryReceive()
+        bool TryReceive()
         {
-            TransportMessage m = Receive();
-            if (m == null)
-            {
-                return;
-            }
-
-            MessageDequeued(this, new TransportMessageAvailableEventArgs(m));
-        }
-
-        private TransportMessage Receive()
-        {
-            try
-            {
-                return MessageReceiver.Receive();
-            }
-            catch (InvalidOperationException e)
-            {
-                Configure.Instance.OnCriticalError("Error in receiving messages.", e);
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Error in receiving messages.", e);
-            }
-
-            return null;
+            var m = MessageReceiver.Receive();
+            return m != null && TryProcessMessage(m);
         }
     }
 }

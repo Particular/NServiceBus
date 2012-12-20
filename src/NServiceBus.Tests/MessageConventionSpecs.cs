@@ -69,45 +69,5 @@
                 Assert.AreEqual(1, timesCalled);
             }
         }
-
-        [TestFixture]
-        public class PerformanceTests
-        {
-            [Test, Explicit("Performance test")]
-            public void Check_performance()
-            {
-                var sw = new Stopwatch();
-                int numIterations = 1000000;
-                sw.Start();
-                for (int i = 0; i < numIterations; i++)
-                {
-                    MessageConventionExtensions.IsMessage(i);
-                }
-                sw.Stop();
-
-                Console.WriteLine("Apply convention: " + sw.ElapsedMilliseconds);
-                sw.Reset();
-                var hashTable = new Dictionary<Type, bool>();
-                sw.Start();
-                for (int i = 0; i < numIterations; i++)
-                {
-                    hashTable[i.GetType()] = MessageConventionExtensions.IsMessage(i);
-                }
-
-                sw.Stop();
-
-                Console.WriteLine("Set dictionary: " + sw.ElapsedMilliseconds);
-                sw.Reset();
-                sw.Start();
-                for (int i = 0; i < numIterations; i++)
-                {
-                    var r = hashTable[i.GetType()];
-                }
-
-                sw.Stop();
-
-                Console.WriteLine("Get dictionary: " + sw.ElapsedMilliseconds);
-            }
-        }
     }
 }

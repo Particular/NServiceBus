@@ -21,7 +21,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
-                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate", connectionString)
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence", connectionString)
                                                                      };
 
             ConfigureNHibernate.Init();
@@ -49,7 +49,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
-                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate", connectionString),
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence", connectionString),
                                                                          new ConnectionStringSettings("NServiceBus/Persistence/NHibernate/Timeout", "timeout_connection_string")
                                                                      };
 
@@ -86,7 +86,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
-                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate", connectionString)
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence", connectionString)
                                                                      };
 
             ConfigureNHibernate.Init();
@@ -118,7 +118,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                                                                      {
-                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate", connectionString)
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence", connectionString)
                                                                      };
 
             ConfigureNHibernate.Init();

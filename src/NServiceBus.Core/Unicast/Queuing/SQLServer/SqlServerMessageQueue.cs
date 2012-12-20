@@ -7,11 +7,10 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
     using System.IO;
     using System.Text;
     using System.Threading;
+    using IdGeneration;
     using Serialization;
     using Serializers.Binary;
     using Serializers.Json;
-    using Transport;
-    using Utils;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
@@ -20,10 +19,10 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
 
         private const string SqlReceive = @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
 			DELETE FROM message 
-			OUTPUT deleted.Id, deleted.IdForCorrelation, deleted.CorrelationId, deleted.ReplyToAddress, 
+			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
 			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
-        private const string SqlSend = @"INSERT INTO [{0}] ([Id],[IdForCorrelation],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    VALUES (@Id,@IdForCorrelation,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
+        private const string SqlSend = @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
 
         public string ConnectionString { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
@@ -54,10 +53,9 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                 connection.Open();                
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
                 {
-                    var id = GuidCombGenerator.Generate();
+                    var id = CombGuid.Generate();
 
                     command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = id;
-                    command.Parameters.Add("IdForCorrelation", SqlDbType.VarChar).Value = GetValue(message.IdForCorrelation);
                     command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
                     if (message.ReplyToAddress == null) // Sendonly endpoint
                         command.Parameters.AddWithValue("ReplyToAddress", string.Empty); 
@@ -70,8 +68,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                     command.Parameters.AddWithValue("Body", body);
 
                     command.ExecuteNonQuery();
-
-                    message.Id = id.ToString();
                 }
             }                           
         }
@@ -100,17 +96,16 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                         {
                             var id = dataReader.GetGuid(0).ToString();
 
-                            var idForCorrelation = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-                            var correlationId = dataReader.IsDBNull(2) ? null : dataReader.GetString(2);
-                            var replyToAddress = Address.Parse(dataReader.GetString(3));
-                            var recoverable = dataReader.GetBoolean(4);
+                            var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                            var replyToAddress = Address.Parse(dataReader.GetString(2));
+                            var recoverable = dataReader.GetBoolean(3);
 
                             MessageIntentEnum messageIntent;
-                            Enum.TryParse(dataReader.GetString(5), out messageIntent);
+                            Enum.TryParse(dataReader.GetString(4), out messageIntent);
 
-                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(6));
-                            var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(7));
-                            var tmpBody = dataReader.GetString(8);
+                            var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(5));
+                            var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(6));
+                            var tmpBody = dataReader.GetString(7);
                             
                             byte[] body;
                             
@@ -126,7 +121,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                             var message = new TransportMessage
                             {
                                 Id = id,
-                                IdForCorrelation = idForCorrelation,
                                 CorrelationId = correlationId,                                
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
@@ -136,7 +130,6 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
                                 Body = body
                             };
                             
-                            message.IdForCorrelation = message.GetIdForCorrelation();
                             return message;
                         }
                     }

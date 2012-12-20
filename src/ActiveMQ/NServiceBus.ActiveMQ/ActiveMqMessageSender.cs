@@ -98,7 +98,6 @@
                 {
                     producer.Send(
                         this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
-                    message.Id = jmsMessage.NMSMessageId;
                 }
             }
             finally

@@ -138,6 +138,21 @@
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
 
         /// <summary>
+        /// Header entry key indicating format of the payload
+        /// </summary>
+        public const string ContentType = "NServiceBus.ContentType";
+
+        /// <summary>
+        /// Used for correlation id message.
+        /// </summary>
+        public const string IdForCorrelation = "CorrId";
+
+        /// <summary>
+        /// Header key for setting/getting the ID of the message as it was when it failed processing.
+        /// </summary>
+        [ObsoleteEx(Message = "The OriginalId headers is replaced by the IdForCorrelation header since they are now equivalent",RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        public const string OriginalId = "NServiceBus.OriginalId";
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>

@@ -18,7 +18,7 @@ namespace NServiceBus.Satellites
 
         public void Start()
         {
-            timer = new System.Timers.Timer {Interval = 1000};
+            timer = new System.Timers.Timer(1000);
             timer.Elapsed += (o, e) => StartSatellites();
 
             Build();
@@ -28,7 +28,7 @@ namespace NServiceBus.Satellites
 
         public void Stop()
         {
-            foreach (var ctx in AllSatellitesThatShouldBeStarted())
+            foreach (var ctx in satellites.Where(ctx => ctx.Started))
             {
                 if (ctx.Transport != null)
                 {
@@ -86,7 +86,14 @@ namespace NServiceBus.Satellites
         {
             timer.Stop();
 
-            foreach (var ctx in AllSatellitesThatShouldBeStarted())
+            var allSatellitesThatShouldBeStarted = AllSatellitesThatShouldBeStarted();
+
+            if (!allSatellitesThatShouldBeStarted.Any())
+            {
+                return;
+            }
+
+            foreach (var ctx in allSatellitesThatShouldBeStarted)
             {
                 ctx.Started = true;
                 StartSatellite(ctx);
@@ -95,13 +102,13 @@ namespace NServiceBus.Satellites
             timer.Start();
         }        
         
-        IEnumerable<SatelliteContext> AllSatellitesThatShouldBeStarted()
+        IList<SatelliteContext> AllSatellitesThatShouldBeStarted()
         {
             return satellites.Where(sat => 
                 sat.Instance != null && 
                 !sat.Instance.Disabled && 
                 !sat.Started &&                 
-                sat.FailedAttempts < 3);
+                sat.FailedAttempts < 3).ToList();
         }
 
         protected virtual void StartSatellite(SatelliteContext ctx)

@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const long DefaultMaxSizeInMegabytes = 1024;
         public const bool DefaultRequiresDuplicateDetection = false;
         public const bool DefaultRequiresSession = false;
-        public const long DefaultDefaultMessageTimeToLive =  92233720368547;
+        public const long DefaultDefaultMessageTimeToLive = 92233720368547;
         public const bool DefaultEnableDeadLetteringOnMessageExpiration = false;
         public const int DefaultDuplicateDetectionHistoryTimeWindow = 600000;
         public const int DefaultMaxDeliveryCount = 6;
@@ -28,7 +28,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const int DefaultServerWaitTime = 300;
         public const string DefaultConnectivityMode = "Tcp";
         public const string DefaultConnectionString = "";
-        
+
         private bool useTransactions;
         private QueueClient queueClient;
         private string queueName;
@@ -59,15 +59,15 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 queueName = address.Queue;
                 var description = new QueueDescription(queueName)
                                       {
-                                           LockDuration= LockDuration,
-                                           MaxSizeInMegabytes = MaxSizeInMegabytes, 
-                                           RequiresDuplicateDetection = RequiresDuplicateDetection,
-                                           RequiresSession = RequiresSession,
-                                           DefaultMessageTimeToLive = DefaultMessageTimeToLive,
-                                           EnableDeadLetteringOnMessageExpiration = EnableDeadLetteringOnMessageExpiration, 
-                                           DuplicateDetectionHistoryTimeWindow = DuplicateDetectionHistoryTimeWindow,
-                                           MaxDeliveryCount = MaxDeliveryCount,
-                                           EnableBatchedOperations = EnableBatchedOperations
+                                          LockDuration = LockDuration,
+                                          MaxSizeInMegabytes = MaxSizeInMegabytes,
+                                          RequiresDuplicateDetection = RequiresDuplicateDetection,
+                                          RequiresSession = RequiresSession,
+                                          DefaultMessageTimeToLive = DefaultMessageTimeToLive,
+                                          EnableDeadLetteringOnMessageExpiration = EnableDeadLetteringOnMessageExpiration,
+                                          DuplicateDetectionHistoryTimeWindow = DuplicateDetectionHistoryTimeWindow,
+                                          MaxDeliveryCount = MaxDeliveryCount,
+                                          EnableBatchedOperations = EnableBatchedOperations
                                       };
 
                 NamespaceClient.CreateQueue(description);
@@ -78,14 +78,15 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
 
             queueClient = Factory.CreateQueueClient(queueName, ReceiveMode.PeekLock);
-            
+
             useTransactions = transactional;
         }
 
         public TransportMessage Receive()
         {
-            try{
-               var message = queueClient.Receive(TimeSpan.FromSeconds(ServerWaitTime));
+            try
+            {
+                var message = queueClient.Receive(TimeSpan.FromSeconds(ServerWaitTime));
 
                 if (message != null)
                 {
@@ -114,13 +115,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             // back off when we're being throttled
             catch (ServerBusyException)
             {
-                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds)); 
+                Thread.Sleep(TimeSpan.FromSeconds(DefaultBackoffTimeInSeconds));
             }
-            catch(TimeoutException)
+            catch (TimeoutException)
             {
                 return null;
             }
-          
+
             return null;
         }
 
@@ -135,31 +136,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 if (message == null)
                     throw new SerializationException("Failed to deserialize message");
 
-                message.Id = GetRealId(message.Headers) ?? message.Id;
-
-                message.IdForCorrelation = GetIdForCorrelation(message.Headers) ?? message.Id;
-
                 return message;
             }
         }
-
-        private static string GetRealId(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(TransportHeaderKeys.OriginalId))
-                return headers[TransportHeaderKeys.OriginalId];
-
-            return null;
-        }
-
-        private static string GetIdForCorrelation(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(Idforcorrelation))
-                return headers[Idforcorrelation];
-
-            return null;
-        }
-
-        private const string Idforcorrelation = "CorrId";
     }
 
     public class AzureServiceBusMessageQueueSender : ISendMessages
@@ -221,7 +200,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 }
             }
 
-            message.Id = Guid.NewGuid().ToString();
             var rawMessage = SerializeMessage(message);
 
             if (Transaction.Current == null)
@@ -248,7 +226,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                         sent = true;
                     }
                 }
-                    // back off when we're being throttled
+                // back off when we're being throttled
                 catch (ServerBusyException)
                 {
                     numRetries++;
@@ -263,15 +241,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         private static byte[] SerializeMessage(TransportMessage message)
         {
-            if (message.Headers == null)
-                message.Headers = new Dictionary<string, string>();
-
-            if (!message.Headers.ContainsKey(Idforcorrelation))
-                message.Headers.Add(Idforcorrelation, null);
-
-            if (String.IsNullOrEmpty(message.Headers[Idforcorrelation]))
-                message.Headers[Idforcorrelation] = message.IdForCorrelation;
-
             using (var stream = new MemoryStream())
             {
                 var formatter = new BinaryFormatter();
@@ -279,8 +248,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 return stream.ToArray();
             }
         }
-
-        private const string Idforcorrelation = "CorrId";
     }
 
     public static class BrokeredMessageExtensions

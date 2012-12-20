@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
+    using System;
     using System.Collections.Generic;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
-    using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
     [TestFixture]
@@ -21,12 +21,14 @@
         private Mock<INotifyMessageReceivedFactory> notifyMessageReceivedFactoryMock;
         private ActiveMqMessageDequeueStrategy testee;
         private List<Mock<INotifyMessageReceived>> messageReceivers;
+        private readonly Func<TransportMessage, bool> tryReceiveMessage = m => true;
 
         private void VerifyAllReceiversAreStarted(Address address, TransactionSettings settings)
         {
             foreach (var messageReceiver in messageReceivers)
             {
                 messageReceiver.Verify(mr => mr.Start(address, settings));
+                messageReceiver.Object.TryProcessMessage.Should().Be(this.tryReceiveMessage);
             }
         }
 
@@ -35,26 +37,8 @@
             var messageReceiver = new Mock<INotifyMessageReceived>();
             messageReceivers.Add(messageReceiver);
             messageReceiver.Setup(mr => mr.Dispose()).Callback(() => messageReceivers.Remove(messageReceiver));
+            messageReceiver.SetupAllProperties();
             return messageReceiver.Object;
-        }
-
-        [Test]
-        public void WhenMessageIsReceived_ThenMessageDequeuedIsRaised()
-        {
-            TransportMessageAvailableEventArgs lastDequeuedMessage = null;
-            var message = new TransportMessage();
-
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
-            var address = new Address("someQueue", "machine");
-
-            testee.MessageDequeued += (sender, e) => lastDequeuedMessage = e;
-            testee.Init(address, new TransactionSettings(), () => true);
-            testee.Start(1);
-
-            messageReceivers[0].Raise(mr => mr.MessageReceived += null, new TransportMessageReceivedEventArgs(message));
-
-            lastDequeuedMessage.Should().NotBeNull();
-            lastDequeuedMessage.Message.Should().Be(message);
         }
 
         [Test]
@@ -65,7 +49,8 @@
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, settings, () => true);
+            testee.TryProcessMessage = this.tryReceiveMessage;
+            testee.Init(address, settings);
             testee.Start(NumberOfWorkers);
 
             messageReceivers.Count.Should().Be(NumberOfWorkers);
@@ -79,7 +64,7 @@
             notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), () => true);
+            testee.Init(address, new TransactionSettings());
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 

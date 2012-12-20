@@ -42,7 +42,7 @@
     [TestFixture]
     public class When_processing_messages_and_a_endpoint_sla_is_set : using_the_unicastbus
     {
-        [Test,Explicit("Timing related test")]
+        [Test, Category("Integration")]
         public void Should_calculate_the_time_to_breach_sla()
         {
             FuncBuilder.Register<IManageUnitsOfWork>(() => new ProcessingStatistics

@@ -165,17 +165,6 @@
             result.CorrelationId.Should().Be(CorrelationId);
         }
 
-        [Test]
-        public void CreateTransportMessage_ShouldAssignMessageIdToIdForCorrelation()
-        {
-            const string MessageId = "MessageId";
-            var message = CreateTextMessage("");
-            message.NMSMessageId = MessageId;
-
-            var result = this.testee.CreateTransportMessage(message);
-
-            result.IdForCorrelation.Should().Be(MessageId);
-        }
 
         [Test]
         public void CreateTransportMessage_WhenMessageHasErrorCodeKey_ShouldAssignReturnMessageErrorCodeHeader()

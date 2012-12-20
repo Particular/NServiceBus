@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using Transport.Transactional;
 
     /// <summary>
-    ///     Default implementation of the MSMQ <see cref="IDequeueMessages" />.
+    ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
     /// </summary>
     public class MsmqDequeueStrategy : IDequeueMessages
     {
@@ -21,15 +21,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         private readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
         private readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
-        private int numberOfExceptionsThrown;
         private MessageQueue queue;
         private TaskScheduler scheduler;
         private SemaphoreSlim semaphore;
-        private Timer timer;
         private TransactionSettings transactionSettings;
         private Address endpointAddress;
         private TransactionOptions transactionOptions;
-        private Func<bool> commitTransation;
 
         /// <summary>
         ///     Purges the queue on startup.
@@ -41,13 +38,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
-        public void Init(Address address, TransactionSettings settings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings settings)
         {
             endpointAddress = address;
             transactionSettings = settings;
-            this.commitTransation = commitTransation;
-
+     
             if (address == null)
             {
                 throw new ArgumentException("Input queue must be specified");
@@ -89,9 +84,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", endpointAddress));
             semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
-            timer = new Timer(state => numberOfExceptionsThrown = 0, null, TimeSpan.FromSeconds(30),
-                              TimeSpan.FromSeconds(30));
-
             queue.PeekCompleted += OnPeekCompleted;
 
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
@@ -102,8 +94,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         public void Stop()
         {
-            timer.Dispose();
-
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
@@ -118,10 +108,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             queue.Dispose();
         }
 
-        /// <summary>
-        ///     Fires when a message has been dequeued.
-        /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
         private bool QueueIsTransactional()
         {
@@ -166,9 +153,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         {
                             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                             {
-                                ReceiveAndFireEvent();
-
-                                if (commitTransation())
+                               if (ReceiveAndFireEvent())
                                 {
                                     scope.Complete();
                                 }
@@ -212,38 +197,27 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
             catch (MessageQueueException mqe)
             {
+                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
                     WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
 
-                    string errorException =
+                    errorException =
                         string.Format(
                             "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
                             queue.FormatName,
                             windowsIdentity != null
                                 ? windowsIdentity.Name
                                 : "Unknown User");
-                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
-
-                    return;
                 }
 
-                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
-                {
-                    OnCriticalExceptionEncountered(new InvalidOperationException(
-                                                       string.Format(
-                                                           "Failed to peek messages from [{0}].",
-                                                           queue.FormatName),
-                                                       mqe));
-                    return;
-                }
-
-                Logger.Error("Error in peeking message.", mqe);
+                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
             }
         }
 
         [DebuggerNonUserCode]
-        private void ReceiveAndFireEvent()
+        bool ReceiveAndFireEvent()
         {
             Message message = null;
             try
@@ -257,31 +231,22 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                 }
 
+                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
                     WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
 
-                    string errorException =
+                    errorException =
                         string.Format(
                             "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
                             queue.FormatName,
                             windowsIdentity != null
                                 ? windowsIdentity.Name
                                 : "Unknown User");
-                    OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
                 }
 
-                if (Interlocked.Increment(ref numberOfExceptionsThrown) > 100)
-                {
-                    OnCriticalExceptionEncountered(new InvalidOperationException
-                                                       (
-                                                       string.Format(
-                                                           "Failed to receive messages from [{0}].",
-                                                           queue.FormatName),
-                                                       mqe));
-                }
-
-                Logger.Error("Error in receiving messages.", mqe);
+                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
             }
             catch (Exception ex)
             {
@@ -294,10 +259,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (message == null)
             {
-                return;
+                return true;
             }
 
-            TransportMessage transportMessage = null;
+            TransportMessage transportMessage;
             try
             {
                 transportMessage = MsmqUtilities.Convert(message);
@@ -305,15 +270,20 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             catch (Exception ex)
             {
                 Logger.Error("Error in converting message to TransportMessage.", ex);
+
+                //todo DeadLetter the message
+                return true;
             }
 
             if (transportMessage != null)
             {
-                MessageDequeued(this, new TransportMessageAvailableEventArgs(transportMessage));
+                return TryProcessMessage(transportMessage);
             }
+
+            return true;
         }
 
-        private static void OnCriticalExceptionEncountered(Exception ex)
+        static void OnCriticalExceptionEncountered(Exception ex)
         {
             Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
         }

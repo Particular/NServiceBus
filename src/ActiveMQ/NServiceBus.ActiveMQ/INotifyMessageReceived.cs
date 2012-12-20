@@ -1,13 +1,11 @@
 namespace NServiceBus.ActiveMQ
 {
     using System;
-
-    using NServiceBus.Unicast.Transport;
     using NServiceBus.Unicast.Transport.Transactional;
 
     public interface INotifyMessageReceived : IDisposable
     {
-        event EventHandler<TransportMessageReceivedEventArgs> MessageReceived;
+        Func<TransportMessage, bool> TryProcessMessage { get; set; }
         void Start(Address address, TransactionSettings settings);
     }
 }

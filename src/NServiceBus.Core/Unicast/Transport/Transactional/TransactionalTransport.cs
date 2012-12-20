@@ -217,15 +217,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings, () => !needToAbort);
-            Receiver.MessageDequeued += Process;
+            Receiver.Init(receiveAddress, TransactionSettings);
+            Receiver.TryProcessMessage = Process;
             Receiver.Start(maximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
-        void Process(object sender, TransportMessageAvailableEventArgs e)
+        private bool Process(TransportMessage message)
         {
-            var message = e.Message;
             needToAbort = false;
 
             try
@@ -244,13 +243,14 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
                 if (needToAbort)
                 {
-                    return;
+                    return false;
                 }
 
                 ClearFailuresForMessage(message.Id);
 
                 throughputLimiter.MessageProcessed();
                 currentThroughputPerformanceCounter.MessageProcessed();
+                return true;
             }
             catch (Exception ex)
             {
@@ -269,8 +269,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     OnFailedMessageProcessing(ex);
                 }
 
-                //rethrow to cause the message to go back to the queue
-                throw;
+                Logger.Info("Failed to process message", ex);
+
+                return false;
             }
         }
 
@@ -283,7 +284,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 if (HandledMaxRetries(m))
                 {
-                    Logger.Error(string.Format("Message has failed the maximum number of times allowed, ID={0}.", m.Id));
+                    Logger.Warn(string.Format("Message has failed the maximum number of times allowed, message will be handed over to SLR if enabled, ID={0}.", m.IdForCorrelation));
 
                     OnFinishedMessageProcessing();
 
@@ -347,9 +348,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 failuresPerMessageLocker.EnterWriteLock();
 
                 var ex = exceptionsForMessages[messageId];
-                InvokeFaultManager(message, ex);
-                failuresPerMessage.Remove(messageId);
-                exceptionsForMessages.Remove(messageId);
+                if (TryInvokeFaultManager(message, ex))
+                {
+                    failuresPerMessage.Remove(messageId);
+                    exceptionsForMessages.Remove(messageId);
+                }
 
                 failuresPerMessageLocker.ExitWriteLock();
 
@@ -360,16 +363,19 @@ namespace NServiceBus.Unicast.Transport.Transactional
             return false;
         }
 
-        void InvokeFaultManager(TransportMessage message, Exception exception)
+        bool TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
                 FailureManager.ProcessingAlwaysFailsForMessage(message, exception);
+                return true;
             }
             catch (Exception ex)
             {
                 Configure.Instance.OnCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
             }
+
+            return false;
         }
 
         private void ClearFailuresForMessage(string messageId)
@@ -506,7 +512,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 return;
 
             Receiver.Stop();
-            Receiver.MessageDequeued -= Process;
             isStarted = false;
         }
 

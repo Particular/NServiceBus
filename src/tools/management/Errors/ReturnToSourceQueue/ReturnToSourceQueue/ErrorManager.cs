@@ -58,68 +58,76 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                     var tm = MsmqUtilities.Convert(message);
                     string failedQ;
-                    if( tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
+                    if (tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
                         failedQ = tm.Headers[Faults.FaultsHeaderKeys.FailedQ];
                     else // try to bring failedQ from label, v2.6 style.
                     {
                         failedQ = GetFailedQueueFromLabel(message);
-                        if(!string.IsNullOrEmpty(failedQ))
+                        if (!string.IsNullOrEmpty(failedQ))
                             message.Label = GetLabelWithoutFailedQueue(message);
                     }
 
-                    if(string.IsNullOrEmpty(failedQ))
+                    if (string.IsNullOrEmpty(failedQ))
                     {
                         Console.WriteLine("ERROR: Message does not have a header (or label) indicating from which queue it came. Cannot be automatically returned to queue.");
                         return;
                     }
-                    
+
                     using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
-                            q.Send(message, MessageQueueTransactionType.Automatic);
+                        q.Send(message, MessageQueueTransactionType.Automatic);
 
                     Console.WriteLine("Success.");
                     scope.Complete();
                 }
-                catch(MessageQueueException ex)
+                catch (MessageQueueException ex)
                 {
                     if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                     {
                         Console.WriteLine(NoMessageFoundErrorFormat, messageId);
 
-                        foreach(var m in queue.GetAllMessages())
+                        foreach (var m in queue.GetAllMessages())
                         {
                             var tm = MsmqUtilities.Convert(m);
 
-                            if (tm.Headers.ContainsKey(TransportHeaderKeys.OriginalId))
+                            string originalId = null;
+
+                            if (tm.Headers.ContainsKey(Headers.OriginalId))
+                                originalId = tm.Headers[Headers.OriginalId];
+
+
+                            if (string.IsNullOrEmpty(originalId) && tm.Headers.ContainsKey(Headers.IdForCorrelation))
+                                originalId = tm.Headers[Headers.IdForCorrelation];
+
+                            if (string.IsNullOrEmpty(originalId) || messageId != originalId)
+                                continue;
+
+
+                            Console.WriteLine("Found message - going to return to queue.");
+
+                            using (var tx = new TransactionScope())
                             {
-                                if (messageId != tm.Headers[TransportHeaderKeys.OriginalId])
-                                    continue;
+                                using (var q = new MessageQueue(
+                                            MsmqUtilities.GetFullPath(
+                                                Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
+                                    q.Send(m, MessageQueueTransactionType.Automatic);
 
-                                Console.WriteLine("Found message - going to return to queue.");
+                                queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
+                                                        MessageQueueTransactionType.Automatic);
 
-                                using (var tx = new TransactionScope())
-                                {
-                                    using (var q = new MessageQueue(
-                                                MsmqUtilities.GetFullPath(
-                                                    Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
-                                        q.Send(m, MessageQueueTransactionType.Automatic);
-
-                                    queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
-                                                            MessageQueueTransactionType.Automatic);
-
-                                    tx.Complete();
-                                }
-
-                                Console.WriteLine("Success.");
-                                scope.Complete();
-
-                                return;
+                                tx.Complete();
                             }
+
+                            Console.WriteLine("Success.");
+                            scope.Complete();
+
+                            return;
+
                         }
                     }
                 }
             }
         }
-        
+
         /// <summary>
         /// For compatibility with V2.6:
         /// Gets the label of the message stripping out the failed queue.
@@ -130,7 +138,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         {
             if (string.IsNullOrEmpty(m.Label))
                 return string.Empty;
-            
+
             if (!m.Label.Contains(FAILEDQUEUE))
                 return m.Label;
 

@@ -7,19 +7,24 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json.Bson;
 
     public class BsonMessageSerializer : JsonMessageSerializerBase
-  {
-    public BsonMessageSerializer(IMessageMapper messageMapper) : base(messageMapper)
     {
-    }
+        public BsonMessageSerializer(IMessageMapper messageMapper): base(messageMapper)
+        {
+        }
 
-    protected override JsonWriter CreateJsonWriter(Stream stream)
-    {
-      return new BsonWriter(stream);
-    }
+        protected override JsonWriter CreateJsonWriter(Stream stream)
+        {
+            return new BsonWriter(stream);
+        }
 
-    protected override JsonReader CreateJsonReader(Stream stream)
-    {
-      return new BsonReader(stream, true, DateTimeKind.Unspecified);
+        protected override JsonReader CreateJsonReader(Stream stream)
+        {
+            return new BsonReader(stream, true, DateTimeKind.Unspecified);
+        }
+
+        protected override string GetContentType()
+        {
+            return "application/bson";
+        }
     }
-  }
 }

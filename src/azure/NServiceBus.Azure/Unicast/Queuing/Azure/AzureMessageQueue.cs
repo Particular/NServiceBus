@@ -162,13 +162,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     ReplyToAddress = Address.Parse(m.ReplyToAddress),
                     TimeToBeReceived = m.TimeToBeReceived,
                     Headers = m.Headers,
-                    MessageIntent = m.MessageIntent,
-                    IdForCorrelation = m.IdForCorrelation
+                    MessageIntent = m.MessageIntent
                 };
-
-                message.Id = GetRealId(message.Headers) ?? message.Id;
-
-                message.IdForCorrelation = GetIdForCorrelation(message.Headers) ?? message.Id;
 
                 return message;
             }
@@ -188,26 +183,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
             return queueName.Replace('.', '-');
         }
 
-        private static string GetRealId(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(TransportHeaderKeys.OriginalId))
-                return headers[TransportHeaderKeys.OriginalId];
-
-            return null;
-        }
-
-        private static string GetIdForCorrelation(IDictionary<string, string> headers)
-        {
-            if (headers.ContainsKey(Idforcorrelation))
-                return headers[Idforcorrelation];
-
-            return null;
-        }
-
         private bool useTransactions;
-        private const string Idforcorrelation = "CorrId";
-
-        
     }
 
     public class AzureMessageQueueSender : ISendMessages
@@ -290,16 +266,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             using (var stream = new MemoryStream())
             {
-
-                if (message.Headers == null)
-                    message.Headers = new Dictionary<string, string>();
-
-                if (!message.Headers.ContainsKey(Idforcorrelation))
-                    message.Headers.Add(Idforcorrelation, null);
-
-                if (String.IsNullOrEmpty(message.Headers[Idforcorrelation]))
-                    message.Headers[Idforcorrelation] = message.IdForCorrelation;
-
                 var toSend = new MessageWrapper
                 {
                     Id = message.Id,
@@ -309,8 +275,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     ReplyToAddress = message.ReplyToAddress == null ? Address.Self.ToString() : message.ReplyToAddress.ToString(),
                     TimeToBeReceived = message.TimeToBeReceived,
                     Headers = message.Headers,
-                    MessageIntent = message.MessageIntent,
-                    IdForCorrelation = message.IdForCorrelation
+                    MessageIntent = message.MessageIntent
                 };
 
 
@@ -332,8 +297,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             return queueName.Replace('.', '-');
         }
-
-        private const string Idforcorrelation = "CorrId";
     }
 
 

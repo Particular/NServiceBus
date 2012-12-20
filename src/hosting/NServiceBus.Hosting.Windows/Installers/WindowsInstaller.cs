@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections.Generic;
 using NServiceBus.Unicast.Queuing.Msmq;
 using NServiceBus.Hosting.Windows.Arguments;
-using Topshelf.Internal;
 
 namespace NServiceBus.Hosting.Windows.Installers
 {
@@ -19,14 +18,14 @@ namespace NServiceBus.Hosting.Windows.Installers
         /// </summary>
         /// <param name="args"></param>
         /// <param name="configFile"></param>
-        public static void Install(IEnumerable<string> args, string configFile)
+        public static void Install(string[] args, string configFile)
         {
             // Create the new appdomain with the new config.
             var installDomain = AppDomain.CreateDomain("installDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup
                                                                                                               {
                                                                                                                   ConfigurationFile = configFile,
                                                                                                                   AppDomainInitializer = DomainInitializer,
-                                                                                                                  AppDomainInitializerArguments = args.ToArray()
+                                                                                                                  AppDomainInitializerArguments = args
                                                                                                               });
 
             // Call the right config method in that appdomain.
@@ -55,25 +54,20 @@ namespace NServiceBus.Hosting.Windows.Installers
         static void DomainInitializer(string[] args)
         {
             Console.WriteLine("Initializing the installer in the Install AppDomain");
-            Parser.Args commandLineArguments = Parser.ParseArgs(args);
-            var arguments = new HostArguments(commandLineArguments);
+            var arguments = new HostArguments(args);
             string endpointName = null;
-            string[] scannedAssemblies = null;
 
             if (arguments.EndpointName != null)
             {
-                endpointName = arguments.EndpointName.Value;
+                endpointName = arguments.EndpointName;
             }
-
-            if (arguments.ScannedAssemblies != null)
-                scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
             
             if (arguments.Username != null)
             {
-                MsmqUtilities.AccountToBeAssignedQueuePermissions(arguments.Username.Value);
+                MsmqUtilities.AccountToBeAssignedQueuePermissions(arguments.Username);
             }
-            
-            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType.Value, true), args, endpointName, commandLineArguments.Install, (arguments.InstallInfrastructure != null), scannedAssemblies);
+
+            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.InstallInfrastructure, arguments.ScannedAssemblies);
         }
 
         static WindowsHost host;

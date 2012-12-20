@@ -277,6 +277,17 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
 
+
+        /// <summary>
+        /// The registered subscription manager for this bus instance
+        /// </summary>
+        public IManageSubscriptions SubscriptionManager { get; set; }
+
+        /// <summary>
+        /// Publishes the given messages
+        /// </summary>
+        public IPublishMessages MessagePublisher{ get; set; }
+
         /// <summary>
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
@@ -341,6 +352,18 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
 
             var fullTypes = GetFullTypes(messages as object[]);
+
+            //until we refactor msmq and sql
+            if (MessagePublisher != null)
+            {
+                var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
+
+                MapTransportMessageFor(messages as object[], eventMessage);
+
+                MessagePublisher.Publish(eventMessage,fullTypes);
+                return;
+            }
+
             var subscribers = Enumerable.ToList<Address>(SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t))));
 
             if (!subscribers.Any())
@@ -407,7 +430,14 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            subscriptionsManager.AddConditionForSubscriptionToMessageType(messageType, condition);
+            subscriptionPredicatesManager.AddConditionForSubscriptionToMessageType(messageType, condition);
+
+            //until we refactor msmq and sql
+            if (SubscriptionManager != null)
+            {
+                SubscriptionManager.Subscribe(messageType,destination);
+                return;
+            }
 
 
             Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
@@ -444,6 +474,14 @@ namespace NServiceBus.Unicast
 
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+
+
+            //until we refactor msmq and sql
+            if (SubscriptionManager != null)
+            {
+                SubscriptionManager.Unsubscribe(messageType, destination);
+                return;
+            }
 
             Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
 
@@ -832,7 +870,7 @@ namespace NServiceBus.Unicast
             if (Started != null)
                 Started(this, null);
 
-            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>();
+            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
 
             foreach (var thingToRunAtStartup in thingsToRunAtStartup)
             {
@@ -1007,7 +1045,11 @@ namespace NServiceBus.Unicast
 
         public void Shutdown()
         {
+            Log.Info("Initiating shutdown.");
+
             Dispose();
+
+            Log.Info("Shutdown complete.");
         }
 
         void IInMemoryOperations.Raise<T>(T @event)
@@ -1061,7 +1103,7 @@ namespace NServiceBus.Unicast
 
                 var canDispatch = true;
 
-                foreach (var condition in subscriptionsManager.GetConditionsForMessage(messageToHandle))
+                foreach (var condition in subscriptionPredicatesManager.GetConditionsForMessage(messageToHandle))
                 {
                     if (condition(messageToHandle)) continue;
 
@@ -1094,10 +1136,10 @@ namespace NServiceBus.Unicast
 
         static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
         {
-            var mutators = builder.BuildAll<IMutateIncomingMessages>();
+            var mutators = builder.BuildAll<IMutateIncomingMessages>().ToList();
 
             var mutatedMessage = originalMessage;
-            mutators.ToList().ForEach(m =>
+            mutators.ForEach(m =>
             {
                 mutatedMessage = m.MutateIncoming(mutatedMessage);
             });
@@ -1492,8 +1534,7 @@ namespace NServiceBus.Unicast
                                  Body = m.Body,
                                  CorrelationId = m.CorrelationId,
                                  Headers = m.Headers,
-                                 Id = m.Id,
-                                 IdForCorrelation = m.IdForCorrelation,
+                                 Id = m.IdForCorrelation,
                                  MessageIntent = m.MessageIntent,
                                  Recoverable = m.Recoverable,
                                  ReplyToAddress = Address.Local,
@@ -1542,17 +1583,13 @@ namespace NServiceBus.Unicast
         /// /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
         protected TransportMessage MapTransportMessageFor(object[] rawMessages, TransportMessage result)
-        {
-            result.Headers = new Dictionary<string, string>();
-            
+        {   
             if(!Endpoint.IsSendOnly)
                 result.ReplyToAddress = Address.Local;
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
-            var ms = new MemoryStream();
-            MessageSerializer.Serialize(messages, ms);
-            result.Body = ms.ToArray();
+            SerializeMessages(result, messages);
 
             InvokeOutgoingTransportMessagesMutators(messages, result);
 
@@ -1577,6 +1614,17 @@ namespace NServiceBus.Unicast
             return result;
         }
 
+        void SerializeMessages(TransportMessage result, object[] messages)
+        {
+            var ms = new MemoryStream();
+
+            MessageSerializer.Serialize(messages, ms);
+
+            result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+
+            result.Body = ms.ToArray();
+        }
+
         private void InvokeOutgoingTransportMessagesMutators(object[] messages, TransportMessage result)
         {
             var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
@@ -1590,13 +1638,12 @@ namespace NServiceBus.Unicast
 
         IEnumerable<object> ApplyOutgoingMessageMutatorsTo(IEnumerable<object> messages)
         {
-            var mutators = Builder.BuildAll<IMutateOutgoingMessages>();
-
             foreach (var originalMessage in messages)
             {
+                var mutators = Builder.BuildAll<IMutateOutgoingMessages>().ToList();
 
                 var mutatedMessage = originalMessage;
-                mutators.ToList().ForEach(m =>
+                mutators.ForEach(m =>
                 {
                     mutatedMessage = m.MutateOutgoing(mutatedMessage);
                 });
@@ -1776,7 +1823,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Gets/sets the subscription manager to use for the bus.
         /// </summary>
-        protected SubscriptionsManager subscriptionsManager = new SubscriptionsManager();
+        protected SubscriptionPredicatesManager subscriptionPredicatesManager = new SubscriptionPredicatesManager();
 
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message
@@ -1813,7 +1860,7 @@ namespace NServiceBus.Unicast
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
-        private IEnumerable<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
     }
 
     /// <summary>

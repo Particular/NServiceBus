@@ -21,9 +21,7 @@ namespace NServiceBus.Faults.Forwarder
             if (SanitizeProcessingExceptions)
                 e = ExceptionSanitizer.Sanitize(e);
 
-            var id = message.Id;
-            SendFailureMessage(message, e, "ProcessingFailed"); //overwrites message.Id
-            message.Id = id;
+            SendFailureMessage(message, e, "ProcessingFailed");
         }
 
         void IManageMessageFailures.Init(Address address)
@@ -54,14 +52,20 @@ namespace NServiceBus.Faults.Forwarder
             {
                 var qnfEx = exception as QueueNotFoundException;
                 string errorMessage;
+
                 if (qnfEx != null)
+                {
                     errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
+                    Logger.Fatal(errorMessage);
+                }
                 else
-                    errorMessage = string.Format("Could not forward failed message to error queue, reason: {0}.", exception.ToString());
-                Logger.Fatal(errorMessage);
+                {
+                    errorMessage = "Could not forward failed message to error queue.";
+                    Logger.Fatal(errorMessage, exception);
+                }
+
                 throw new InvalidOperationException(errorMessage, exception);
             }
-
         }
 
         bool MessageWasSentFromSLR(TransportMessage message)
@@ -101,8 +105,7 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 
-            message.Headers[TransportHeaderKeys.OriginalId] = message.Id;
-
+       
             var failedQ = localAddress ?? Address.Local;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
@@ -125,7 +128,7 @@ namespace NServiceBus.Faults.Forwarder
         public bool SanitizeProcessingExceptions { get; set; }
 
         Address localAddress;
-        static ILog Logger = LogManager.GetLogger("NServiceBus");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
 
 
     }

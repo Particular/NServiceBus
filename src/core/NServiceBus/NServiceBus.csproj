@@ -73,6 +73,7 @@
     <Compile Include="CompletionResult.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="IAuthorizeSubscriptions.cs" />
     <Compile Include="IBus.cs" />

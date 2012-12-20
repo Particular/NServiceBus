@@ -4,7 +4,7 @@ namespace NServiceBus.Gateway.Receiving
     using System.Linq;
     using Channels;
 
-    public class ConventionBasedChannelManager : IMangageReceiveChannels
+    public class ConventionBasedChannelManager : IManageReceiveChannels
     {
         public IEnumerable<ReceiveChannel> GetReceiveChannels()
         {

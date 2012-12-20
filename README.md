@@ -10,9 +10,7 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 ## Running
 
-To run NServiceBus Msmq and MSDTC need to be installed and configured on your machine. To do this please execute
-
-Running a NServiceBus process is simple. Any external dependencies that are needed like MSMQ, MSDTC, databases will be set up automatically at startup if they aren't found.
+To run NServiceBus, please download and install the setup file from http://www.nservicebus.com/Downloads.aspx
 
 ## Licenses
 

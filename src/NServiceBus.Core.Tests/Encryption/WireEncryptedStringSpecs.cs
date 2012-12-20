@@ -4,7 +4,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using NServiceBus.Encryption;
-    using NServiceBus.Encryption.Config;
     using NUnit.Framework;
 
     [TestFixture]

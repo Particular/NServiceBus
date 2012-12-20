@@ -2,9 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Transactions;
-
-    using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
     /// <summary>
@@ -28,17 +25,11 @@
         }
 
         /// <summary>
-        ///     Fires when a message has been dequeued.
-        /// </summary>
-        public event EventHandler<TransportMessageAvailableEventArgs> MessageDequeued;
-
-        /// <summary>
         /// Initialises the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="commitTransation">The callback to call to figure out if the current trasaction should be committed or not.</param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<bool> commitTransation)
+        public void Init(Address address, TransactionSettings transactionSettings)
         {
             this.settings = transactionSettings;
             this.address = address;
@@ -69,17 +60,14 @@
             messageReceivers.Clear();
         }
 
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
+
         private void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.MessageReceived += OnMessageReceived;
+            receiver.TryProcessMessage = this.TryProcessMessage;
             receiver.Start(address, this.settings);
             messageReceivers.Add(receiver);
-        }
-
-        private void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            this.MessageDequeued(this, new TransportMessageAvailableEventArgs(e.Message));
         }
     }
 }

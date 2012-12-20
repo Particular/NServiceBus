@@ -9,7 +9,6 @@ namespace NServiceBus
     using Raven.Abstractions.Data;
     using Raven.Client;
     using Raven.Client.Document;
-    using Raven.Client.Extensions;
 
     public static class ConfigureRavenPersistence
     {
@@ -146,28 +145,31 @@ namespace NServiceBus
             if (config == null) throw new ArgumentNullException("config");
             if (store == null) throw new ArgumentNullException("store");
 
-            var conventions = new RavenConventions();
-
-            store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
-
-            EnsureDatabaseExists((DocumentStore)store);
-            WarnUserIfRavenDatabaseIsNotReachable(store);
-
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
             if (!String.IsNullOrEmpty(ravenMaxNumberOfRequestsPerSession))
             {
                 if (!Int32.TryParse(ravenMaxNumberOfRequestsPerSession, out maxNumberOfRequestsPerSession))
+                {
                     throw new ConfigurationErrorsException(string.Format("Cannot configure RavenDB MaxNumberOfRequestsPerSession. Cannot convert value '{0}' in <appSettings> with key 'NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession' to a numeric value.", ravenMaxNumberOfRequestsPerSession));
+                }
             }
-            store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
 
-            //We need to turn compression off to make us compatible with Raven616
-            store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+            config.Configurer.ConfigureComponent(() =>
+                {
+                    var conventions = new RavenConventions();
 
+                    store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
 
-            config.Configurer.RegisterSingleton<IDocumentStore>(store);
+                    WarnUserIfRavenDatabaseIsNotReachable(store);
 
+                    store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
+
+                    //We need to turn compression off to make us compatible with Raven616
+                    store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+                    
+                    return store;
+                }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
@@ -209,49 +211,24 @@ namespace NServiceBus
             Logger.Warn(sb.ToString());
         }
 
-        [ObsoleteEx(Message = "This can be removed when we drop support for Raven 616.", RemoveInVersion = "5.0")]
-        static void EnsureDatabaseExists(DocumentStore store)
-        {
-            if (!AutoCreateDatabase || string.IsNullOrEmpty(store.DefaultDatabase))
-                return;
-
-            //we need to do a little trick here to be compatible with Raven 616
-
-            //First we create a new store without a specific database
-            using (var dummyStore = new DocumentStore { Url = store.Url })
-            {
-                //that allows us to initalize without talking to the db
-                dummyStore.Initialize();
-
-                //and the turn the compression off
-                dummyStore.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
-
-                try
-                {
-                    //and then make sure that the database the user asked for is created
-                    dummyStore.DatabaseCommands.EnsureDatabaseExists(store.DefaultDatabase);
-                }
-                catch (WebException)
-                {
-                    //Ignore since this could be running as part of an install
-                }
-            }
-        }
-
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "You don't need to call this since Raven is now installed via powershell cmdlet, see http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DisableRavenInstall(this Configure config)
         {
-            AutoCreateDatabase = false;
-
             return config;
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "Use the powershell cmdlet to install Raven instead. See http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure InstallRavenIfNeeded(this Configure config)
         {
             return config;
         }
 
+        [ObsoleteEx(Replacement = "DisableRavenRequestCompression()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure DisableRequestCompression(this Configure config)
+        {
+            return config.DisableRavenRequestCompression();
+        }
+         
         public static Configure DisableRavenRequestCompression(this Configure config)
         {
             enableRequestCompression = false;
@@ -274,8 +251,6 @@ namespace NServiceBus
         static bool enableRequestCompression = true;
         static Func<string> databaseNamingConvention = () => Configure.EndpointName;
         static Func<Type, string> tagNameConvention;
-        public static bool AutoCreateDatabase = true;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
-
     }
 }

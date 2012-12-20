@@ -64,7 +64,6 @@
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="ConfigManagerTests.cs" />
     <Compile Include="ProfileManagerTests.cs" />
-    <Compile Include="ReflectionPerfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleManagerTests.cs" />
     <Compile Include="With_transport_tests.cs" />

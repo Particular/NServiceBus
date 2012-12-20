@@ -15,8 +15,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
             return new TransportMessage
                        {
                            Headers = new Dictionary<string, string>(),
-                           Id = id,
-                           IdForCorrelation = id
+                           Id = id
                        };
         }
 
@@ -28,7 +27,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
             {
                 Headers = new Dictionary<string, string> { { UnicastBus.SubscriptionMessageType, "NServiceBus.Unicast.Tests.MyMessage, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c" } },
                 Id = id,
-                IdForCorrelation = id,
                 MessageIntent = MessageIntentEnum.Subscribe
             };
         }

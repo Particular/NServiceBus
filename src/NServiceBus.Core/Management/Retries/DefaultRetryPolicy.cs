@@ -21,6 +21,12 @@ namespace NServiceBus.Management.Retries
         public static bool HasTimedOut(TransportMessage message)
         {
             var timestampHeader = TransportMessageHelpers.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
+
+            if (String.IsNullOrEmpty(timestampHeader))
+            {
+                return false;
+            }
+
             try
             {
                 var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
@@ -32,7 +38,6 @@ namespace NServiceBus.Management.Retries
             }
             catch (Exception)
             {
-                return false;
             }
 
             return false;

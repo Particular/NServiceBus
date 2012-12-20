@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Receiving
     using Channels;
     using NServiceBus.Config;
 
-    public class ConfigurationBasedChannelManager : IMangageReceiveChannels
+    public class ConfigurationBasedChannelManager : IManageReceiveChannels
     {
         readonly IEnumerable<ReceiveChannel> channels;
 

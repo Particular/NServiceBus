@@ -27,6 +27,9 @@ namespace NServiceBus.ActiveMQ
             string messageBody = Encoding.UTF8.GetString(message.Body);
             IMessage jmsmessage = session.CreateTextMessage(messageBody);
 
+
+            jmsmessage.NMSMessageId = message.Id;
+
             if (message.CorrelationId != null)
             {
                 jmsmessage.NMSCorrelationID = message.CorrelationId;
@@ -67,8 +70,7 @@ namespace NServiceBus.ActiveMQ
                     TimeToBeReceived = message.NMSTimeToLive,
                     Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
                     Id = message.NMSMessageId,
-                    Body = body,
-                    Headers = new Dictionary<string, string>()
+                    Body = body
                 };
 
             foreach (var key in message.Properties.Keys)
@@ -103,7 +105,6 @@ namespace NServiceBus.ActiveMQ
                 transportMessage.Headers[Headers.NServiceBusVersion] = "4.0.0.0";
             }
 
-            transportMessage.IdForCorrelation = transportMessage.GetIdForCorrelation();
             return transportMessage;
         }
 

@@ -63,7 +63,7 @@ namespace NServiceBus.Testing
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public Handler<T> AssertOutgoingHeader(string key, string value)
         {
             return this;
@@ -247,8 +247,15 @@ namespace NServiceBus.Testing
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 
-            MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
-            method.Invoke(handler, new object[] {message});
+            try
+            {
+                MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
+                method.Invoke(handler, new object[] {message});
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
 
             bus.ValidateAndReset(expectedInvocations);
             expectedInvocations.Clear();

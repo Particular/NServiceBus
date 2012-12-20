@@ -76,7 +76,6 @@ namespace NServiceBus.Timeout.Core
             var transportMessage = new TransportMessage
             {
                 ReplyToAddress = replyToAddress,
-                Headers = new Dictionary<string, string>(),
                 Recoverable = true,
                 MessageIntent = MessageIntentEnum.Send,
                 CorrelationId = CorrelationId,

@@ -5,6 +5,7 @@ namespace NServiceBus.Sagas.Impl
     using System.Linq;
     using System.Reflection;
     using Finders;
+    using IdGeneration;
     using Logging;
     using ObjectBuilder;
     using Saga;
@@ -130,7 +131,7 @@ namespace NServiceBus.Sagas.Impl
 
             var sagaEntity = (ISagaEntity)Activator.CreateInstance(sagaEntityType);
 
-            sagaEntity.Id = GuidCombGenerator.Generate();
+            sagaEntity.Id = CombGuid.Generate();
 
             if (Bus.CurrentMessageContext.ReplyToAddress != null)
                 sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();

@@ -33,8 +33,8 @@
         [TearDown]
         public void TearDown()
         {
-            dispatcherInSiteA.Dispose();
-            receiverInSiteB.Dispose();
+            dispatcherInSiteA.Stop();
+            receiverInSiteB.Stop();
         }
 
         [SetUp]
@@ -53,7 +53,7 @@
             channelFactory.RegisterSender(typeof(HttpChannelSender));
 
 
-            var channelManager = MockRepository.GenerateStub<IMangageReceiveChannels>();
+            var channelManager = MockRepository.GenerateStub<IManageReceiveChannels>();
             channelManager.Stub(x => x.GetReceiveChannels()).Return(new[] {new ReceiveChannel()
                                                                               {
                                                                                   Address = HttpAddressForSiteB,
@@ -61,7 +61,6 @@
                                                                                   NumberOfWorkerThreads = 1
                                                                               }});
             channelManager.Stub(x => x.GetDefaultChannel()).Return(defaultChannelForSiteA);
-
 
             builder.Stub(x => x.Build<IdempotentChannelForwarder>()).Return(new IdempotentChannelForwarder(channelFactory)
                                                                              {
@@ -76,18 +75,25 @@
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
             messageSender = new FakeMessageSender();
-            receiverInSiteB = new GatewayReceiver(channelManager,new DefaultEndpointRouter
-                                                                     {
-                                                                         MainInputAddress = EndpointAddressForSiteB
-                                                                     },builder,messageSender);
-           
-            dispatcherInSiteA = new GatewaySender(builder,
-                                                                   channelManager,
-                                                                   MockRepository.GenerateStub<IMessageNotifier>(),
-                                                                   MockRepository.GenerateStub<ISendMessages>());
-            dispatcherInSiteA.Transport = fakeTransport;
-            dispatcherInSiteA.Start(GatewayAddressForSiteA);
-            receiverInSiteB.Start(GatewayAddressForSiteB);
+            receiverInSiteB = new GatewayReceiver();
+            receiverInSiteB.ChannelManager = channelManager;
+            receiverInSiteB.EndpointRouter = new DefaultEndpointRouter
+                {
+                    MainInputAddress = EndpointAddressForSiteB
+                };
+            receiverInSiteB.MessageSender = messageSender;
+            receiverInSiteB.builder = builder;
+            //receiverInSiteB.InputAddress = GatewayAddressForSiteA;
+
+            dispatcherInSiteA = new GatewaySender();
+            dispatcherInSiteA.ChannelManager = channelManager;
+            dispatcherInSiteA.Builder = builder;
+            dispatcherInSiteA.MessageSender = MockRepository.GenerateStub<ISendMessages>();
+            dispatcherInSiteA.Notifier = MockRepository.GenerateStub<IMessageNotifier>();
+           // dispatcherInSiteA.InputAddress = GatewayAddressForSiteA;
+
+            dispatcherInSiteA.Start();
+            receiverInSiteB.Start();
         }
 
         protected void SendMessage(string destinationSites)

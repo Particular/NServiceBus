@@ -12,7 +12,7 @@
 
         public void Handle(MyMessage message)
         {
-            Console.WriteLine("ReplyToAddress: " + Bus.CurrentMessageContext.ReplyToAddress);
+            Console.WriteLine("ReplyToAddress: {0} MessageId:{1}",Bus.CurrentMessageContext.ReplyToAddress,Bus.CurrentMessageContext.Id);
             var numOfRetries = message.GetHeader(Headers.Retries);
 
             if (numOfRetries != null)
@@ -22,7 +22,7 @@
 
                 if (numOfRetries != value)
                 {
-                    Console.WriteLine("This is second level retry number {0}, MessageId: {1} (Notice that NSB keeps the ID consistent for all retries)", numOfRetries,Bus.CurrentMessageContext.Id);
+                    Console.WriteLine("This is second level retry number {0}", numOfRetries);
                     Last.AddOrUpdate(message.Id, numOfRetries, (key, oldValue) => numOfRetries);
                 }
             }            

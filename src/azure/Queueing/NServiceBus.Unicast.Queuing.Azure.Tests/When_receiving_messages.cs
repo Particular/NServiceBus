@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
+    [Category("Azure")]
     public class When_receiving_messages : AzureQueueFixture
     {
        

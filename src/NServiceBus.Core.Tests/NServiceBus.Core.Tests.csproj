@@ -93,6 +93,9 @@
     <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
+    <Reference Include="TestAssembly">
+      <HintPath>Lib\TestAssembly.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\TestConfigurationSection.cs" />
@@ -120,7 +123,6 @@
     <Compile Include="Fakes\FakeTransport.cs" />
     <Compile Include="FuncBuilder.cs" />
     <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Gateway\FakeDispatcherSettings.cs" />
     <Compile Include="Gateway\FakeMessageSender.cs" />
     <Compile Include="Gateway\FakeTransport.cs" />
     <Compile Include="Gateway\HeaderManagement\When_receiving_a_message_from_another_site.cs" />

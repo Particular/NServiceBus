@@ -3,114 +3,98 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Logging;
     using Notifications;
     using ObjectBuilder;
     using Receiving;
     using Routing;
-    using Unicast.Queuing;
-    using Unicast.Transport;
+    using Satellites;
     using Unicast;
+    using Unicast.Queuing;
 
-    public class GatewaySender:IDisposable
+    public class GatewaySender : ISatellite
     {
-        public ITransport Transport { get; set; }
+        private readonly Address localAddress = ConfigureGateway.GatewayInputAddress;
+
         public UnicastBus UnicastBus { get; set; }
+        public IBuilder Builder { get; set; }
+        public IManageReceiveChannels ChannelManager { get; set; }
+        public IMessageNotifier Notifier { get; set; }
+        public ISendMessages MessageSender { get; set; }
 
-        public GatewaySender(   IBuilder builder,
-                                                 IMangageReceiveChannels channelManager,
-                                                 IMessageNotifier notifier,
-                                                 ISendMessages messageSender)
+        public void Handle(TransportMessage message)
         {
-            this.builder = builder;
-            this.channelManager = channelManager;
-            this.notifier = notifier;
-            this.messageSender = messageSender;
-        }
-
-
-
-        public void Start(Address inputAddress)
-        {
-            localAddress = inputAddress;
-       
-            Transport.TransportMessageReceived += OnTransportMessageReceived;
-
-            Transport.Start(localAddress);
-
-            Logger.InfoFormat("Gateway started listening on inputs on - {0}", localAddress);
-        }
-
-        public void Dispose()
-        {
-            Transport.Dispose();
-            Logger.InfoFormat("Gateway stopped");
-        }
-        void OnTransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            var messageToDispatch = e.Message;
-
-            var destinationSites = GetDestinationSitesFor(messageToDispatch);
+            IList<Site> destinationSites = GetDestinationSitesFor(message);
 
             //if there is more than 1 destination we break it up into multiple messages
             if (destinationSites.Count() > 1)
             {
-                foreach (var destinationSite in destinationSites)
-                    CloneAndSendLocal(messageToDispatch, destinationSite);
+                foreach (Site destinationSite in destinationSites)
+                {
+                    CloneAndSendLocal(message, destinationSite);
+                }
 
                 return;
             }
 
-            var destination = destinationSites.FirstOrDefault();
+            Site destination = destinationSites.FirstOrDefault();
 
             if (destination == null)
                 throw new InvalidOperationException("No destination found for message");
 
-
-            SendToSite(messageToDispatch, destination);
+            SendToSite(message, destination);
         }
 
-        IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
+        public Address InputAddress
         {
-            return builder.BuildAll<IRouteMessagesToSites>()
-                .SelectMany(r => r.GetDestinationSitesFor(messageToDispatch));
+            get { return localAddress; }
         }
 
-        void CloneAndSendLocal(TransportMessage messageToDispatch, Site destinationSite)
+        public bool Disabled
+        {
+            get { return localAddress == null; }
+        }
+
+        public void Start()
+        {
+        }
+
+        public void Stop()
+        {
+        }
+
+        private IList<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
+        {
+            return Builder.BuildAll<IRouteMessagesToSites>()
+                          .SelectMany(r => r.GetDestinationSitesFor(messageToDispatch)).ToList();
+        }
+
+        private void CloneAndSendLocal(TransportMessage messageToDispatch, Site destinationSite)
         {
             //todo - do we need to clone? check with Jonathan O
             messageToDispatch.Headers[Headers.DestinationSites] = destinationSite.Key;
 
-            messageSender.Send(messageToDispatch, localAddress);
+            MessageSender.Send(messageToDispatch, localAddress);
         }
 
-        void SendToSite(TransportMessage transportMessage, Site targetSite)
+        private void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
-
             //todo - derive this from the message and the channeltype
-            builder.Build<IdempotentChannelForwarder>()
-                .Forward(transportMessage,targetSite);
+            Builder.Build<IdempotentChannelForwarder>()
+                   .Forward(transportMessage, targetSite);
 
-            notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
+            Notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
 
-            if (UnicastBus != null && UnicastBus.ForwardReceivedMessagesTo != null && UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
-                messageSender.Send(transportMessage, UnicastBus.ForwardReceivedMessagesTo);
+            if (UnicastBus != null && UnicastBus.ForwardReceivedMessagesTo != null &&
+                UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
+                MessageSender.Send(transportMessage, UnicastBus.ForwardReceivedMessagesTo);
         }
 
-       
-        string GetDefaultAddressForThisSite()
+
+        private string GetDefaultAddressForThisSite()
         {
-            return channelManager.GetDefaultChannel().ToString();
+            return ChannelManager.GetDefaultChannel().ToString();
         }
-
-        readonly IBuilder builder;
-        readonly IMangageReceiveChannels channelManager;
-        readonly IMessageNotifier notifier;
-        readonly ISendMessages messageSender;
-        Address localAddress;
-
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

@@ -1,5 +1,6 @@
 namespace NServiceBus.Distributor.ReadyMessages
 {
+    using System;
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -20,18 +21,20 @@ namespace NServiceBus.Distributor.ReadyMessages
             var capacityAvailable = Bus.Transport.MaximumConcurrencyLevel;
             SendReadyMessage(capacityAvailable, true);
 
-            Bus.Transport.FinishedMessageProcessing += (a, b) =>
-                                                               {
-                                                                   if (((IBus)Bus).CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
-                                                                       return;
-                                                                       
-                                                                   SendReadyMessage(1);
-                                                               };
+            Bus.Transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
         }
 
         public void Stop()
         {
-            //TODO: Need to add code here
+            Bus.Transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+        }
+
+        void TransportOnFinishedMessageProcessing(object sender, EventArgs eventArgs)
+        {
+            if (((IBus)Bus).CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
+                return;
+
+            SendReadyMessage(1);
         }
 
         void SendReadyMessage(int capacityAvailable, bool isStarting = false)

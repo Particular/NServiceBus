@@ -13,7 +13,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <param name="inputqueue">
 		/// The adress of a local queue that should be used as input channel for this transport
 		/// </param>
-		[ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]		
+		[ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]		
 		void Start(string inputqueue);
 
 		/// <summary>
@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Gets the number of worker threads currently running in the transport.
 		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumConcurrencyLevel", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		[ObsoleteEx(Replacement = "MaximumConcurrencyLevel", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
 		int NumberOfWorkerThreads { get; }
 
 		/// <summary>
@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Transport
 		/// The requested number of active worker threads after
 		/// the necessary threads have been stopped or started.
 		/// </param>
-		[ObsoleteEx(Replacement = "ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		[ObsoleteEx(Replacement = "ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
 		void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.
 		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumThroughputPerSecond and ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)", TreatAsErrorFromVersion = "3.4", RemoveInVersion = "4.0")]
+		[ObsoleteEx(Replacement = "MaximumThroughputPerSecond and ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
 		int MaxThroughputPerSecond { get; set; }
 
 		/// <summary>

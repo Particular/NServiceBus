@@ -95,7 +95,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type to instantiate.</typeparam>
         /// <param name="list">The list to which to add the new element</param>
         /// <param name="initializer">An action for setting properties of the created instance.</param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void Add<T>(this IList<T> list, Action<T> initializer)
         {
@@ -113,7 +113,7 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        [ObsoleteEx(Replacement = "bus.GetMessageHeader(object msg, string key) or Headers.GetMessageHeader(object msg, string key)", RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(Replacement = "bus.GetMessageHeader(object msg, string key) or Headers.GetMessageHeader(object msg, string key)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHeader(this object msg, string key)
         {
@@ -126,7 +126,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHttpFromHeader(this object msg)
         {
@@ -139,7 +139,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHttpToHeader(this object msg)
         {
@@ -151,7 +151,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetDestinationSitesHeader(this object msg)
         {
@@ -163,7 +163,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetOriginatingSiteHeader(this object msg)
         {
@@ -176,7 +176,7 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(Replacement = "bus.SetMessageHeader(object msg, string key, string value) or Headers.SetMessageHeader(object msg, string key, string value)", RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(Replacement = "bus.SetMessageHeader(object msg, string key, string value) or Headers.SetMessageHeader(object msg, string key, string value)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHeader(this object msg, string key, string value)
         {
@@ -189,7 +189,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetDestinationSitesHeader(this object msg, string value)
         {
@@ -203,7 +203,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetOriginatingSiteHeader(this object msg, string value)
         {
@@ -216,7 +216,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHttpFromHeader(this object msg, string value)
         {
@@ -229,7 +229,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHttpToHeader(this object msg, string value)
         {
@@ -241,7 +241,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="key"></param>
-        [ObsoleteEx(RemoveInVersion = "4.0", TreatAsErrorFromVersion = "3.4")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void CopyHeaderFromRequest(this object msg, string key)
         {

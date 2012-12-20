@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     [TestFixture]
+    [Category("Azure")]
     public class When_configuring_the_azure_queue
     {
         private Configure configure;

@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast.Tests
     [TestFixture]
     public class The_more_specific_mappings
     {
-        [Test,Explicit("Fails randomly")]
+        [Test, Category("Integration")]
         public void Should_take_precedence()
         {
             Configure.With()

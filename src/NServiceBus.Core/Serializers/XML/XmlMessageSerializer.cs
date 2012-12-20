@@ -689,6 +689,8 @@ namespace NServiceBus.Serializers.XML
             stream.Write(buffer, 0, buffer.Length);
         }
 
+        public string ContentType { get { return "text/xml"; } }
+
         void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
         {
             builder.Append(
@@ -759,13 +761,29 @@ namespace NServiceBus.Serializers.XML
                 return;
 
             if (!typeToProperties.ContainsKey(t))
-                throw new InvalidOperationException("Type " + t.FullName + " was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.");
+                throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
 
             foreach (PropertyInfo prop in typeToProperties[t])
+            {
+                if (IsIndexedProperty(prop))
+                {
+                    throw new NotSupportedException(string.Format("Type {0} contains an indexed property named {1}. Indexed properties are not supported on message types.", t.FullName, prop.Name));
+                }
                 WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
+            }
 
             foreach (FieldInfo field in typeToFields[t])
                 WriteEntry(field.Name, field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
+        }
+
+        static bool IsIndexedProperty(PropertyInfo propertyInfo)
+        {
+            if (propertyInfo != null)
+            {
+                return propertyInfo.GetIndexParameters().Length > 0;
+            }
+
+            return false;
         }
 
         private void WriteObject(string name, Type type, object value, StringBuilder builder)

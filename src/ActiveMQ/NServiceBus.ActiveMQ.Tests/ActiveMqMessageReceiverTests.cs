@@ -1,16 +1,9 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
-    using System;
-
     using Apache.NMS;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Unicast.Transport;
     using NServiceBus.Unicast.Transport.Transactional;
-
     using NUnit.Framework;
 
     [TestFixture]
@@ -49,16 +42,19 @@
             const string Queue = "somequeue";
             var messageMock = new Mock<IMessage>();
             var transportMessage = new TransportMessage();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+                {
+                    receivedMessage = m; 
+                    return true; 
+                };
             this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
 
             this.StartTestee(new Address(Queue, "machine"));
             this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
         }
 
         [Test]
@@ -67,10 +63,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
-            TransportMessageReceivedEventArgs receivedEvent = null;
             var transportMessage = new TransportMessage();
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            };
             this.testee.ConsumerName = ConsumerName;
             this.StartTesteeWithLocalAddress();
 
@@ -80,8 +80,7 @@
             this.RaiseTopicSubscribed(Topic);
             this.RaiseEventReceived(topicConsumer, message);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
         }
 
         [Test]
@@ -118,9 +117,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var messageMock = new Mock<IMessage>();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            }; 
+            
             this.testee.ConsumerName = ConsumerName;
             this.StartTestee(new Address("queue", "machine"));
 
@@ -129,7 +133,7 @@
             this.RaiseTopicSubscribed(Topic);
             topicConsumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().BeNull();
+            receivedMessage.Should().BeNull();
         }
 
         [Test]

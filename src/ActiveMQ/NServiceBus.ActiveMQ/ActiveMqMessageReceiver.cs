@@ -7,27 +7,22 @@ namespace NServiceBus.ActiveMQ
     using Apache.NMS;
     using Apache.NMS.Util;
 
-    using NServiceBus.Unicast.Transport;
     using NServiceBus.Unicast.Transport.Transactional;
-    using NServiceBus.Utils;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
+        private readonly IActiveMqPurger purger;
         private readonly ISubscriptionManager subscriptionManager;
 
-        private readonly IActiveMqPurger purger;
-
-        private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
+        private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
+            new Dictionary<string, IMessageConsumer>();
         private readonly ISessionFactory sessionFactory;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
         private INetTxSession session;
         private IMessageConsumer defaultConsumer;
         private TransactionSettings transactionSettings;
-
         private TransactionOptions transactionOptions;
-
-        public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
 
         public ActiveMqMessageReceiver(
             ISessionFactory sessionFactory, 
@@ -44,10 +39,12 @@ namespace NServiceBus.ActiveMQ
         public string ConsumerName { get; set; }
 
         /// <summary>
-        /// Sets whether or not the transport should purge the input
-        /// queue when it is started.
+        ///     Sets whether or not the transport should purge the input
+        ///     queue when it is started.
         /// </summary>
         public bool PurgeOnStartup { get; set; }
+
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
         public void Start(Address address, TransactionSettings transactionSettings)
         {
@@ -57,96 +54,14 @@ namespace NServiceBus.ActiveMQ
             this.session = this.sessionFactory.GetSession();
             IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
-            this.PurgeIfNecessary(this.session, destination);
+            PurgeIfNecessary(session, destination);
 
-            this.defaultConsumer = this.session.CreateConsumer(destination);
-            this.defaultConsumer.Listener += this.OnMessageReceived;
+            defaultConsumer = session.CreateConsumer(destination);
+            defaultConsumer.Listener += OnMessageReceived;
 
             if (address == Address.Local)
             {
-                this.SubscribeTopics();
-            }
-        }
-
-        private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
-        {
-            IMessageConsumer consumer;
-            if (this.topicConsumers.TryGetValue(e.Topic, out consumer))
-            {
-                consumer.Dispose();
-                this.topicConsumers.Remove(e.Topic);
-            }
-        }
-
-        private void OnTopicSubscribed(object sender, SubscriptionEventArgs e)
-        {
-            var topic = e.Topic;
-            this.Subscribe(topic);
-        }
-
-        private void SubscribeTopics()
-        {
-            lock (this.subscriptionManager)
-            {
-                this.subscriptionManager.TopicSubscribed += this.OnTopicSubscribed;
-                this.subscriptionManager.TopicUnsubscribed += this.OnTopicUnsubscribed;
-
-                foreach (var topic in this.subscriptionManager.GetTopics())
-                {
-                    this.Subscribe(topic);
-                }
-            }
-        }
-
-        private void Subscribe(string topic)
-        {
-            var destination = SessionUtil.GetDestination(this.session, string.Format("queue://Consumer.{0}.{1}", this.ConsumerName, topic));
-            this.PurgeIfNecessary(this.session, destination);
-
-            var consumer = this.session.CreateConsumer(destination);
-            consumer.Listener += this.OnMessageReceived;
-            this.topicConsumers[topic] = consumer;
-        }
-
-        private void OnMessageReceived(IMessage message)
-        {
-            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
-
-            if (this.transactionSettings.IsTransactional)
-            {
-                using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                {
-                    try
-                    {
-                        this.sessionFactory.SetSessionForCurrentTransaction(this.session);
-                        this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
-                    }
-                    finally
-                    {
-                        this.sessionFactory.RemoveSessionForCurrentTransaction();
-                    }
-
-                    scope.Complete();
-                }
-            }
-            else
-            {
-                try
-                {
-                    this.MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
-                }
-                catch (Exception)
-                {
-                    // Swallow exception so that the message is not retried.
-                }
-            }
-        }
-
-        private void PurgeIfNecessary(ISession session, IDestination destination)
-        {
-            if (this.PurgeOnStartup)
-            {
-                this.purger.Purge(session, destination);
+                SubscribeTopics();
             }
         }
 
@@ -162,6 +77,100 @@ namespace NServiceBus.ActiveMQ
             this.defaultConsumer.Dispose();
 
             this.sessionFactory.Release(this.session);
+        }
+
+        private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
+        {
+            IMessageConsumer consumer;
+            if (topicConsumers.TryGetValue(e.Topic, out consumer))
+            {
+                consumer.Dispose();
+                topicConsumers.Remove(e.Topic);
+            }
+        }
+
+        private void OnTopicSubscribed(object sender, SubscriptionEventArgs e)
+        {
+            string topic = e.Topic;
+            Subscribe(topic);
+        }
+
+        private void SubscribeTopics()
+        {
+            lock (subscriptionManager)
+            {
+                subscriptionManager.TopicSubscribed += OnTopicSubscribed;
+                subscriptionManager.TopicUnsubscribed += OnTopicUnsubscribed;
+
+                foreach (string topic in subscriptionManager.GetTopics())
+                {
+                    Subscribe(topic);
+                }
+            }
+        }
+
+        private void Subscribe(string topic)
+        {
+            IDestination destination = SessionUtil.GetDestination(session,
+                                                                  string.Format("queue://Consumer.{0}.{1}", ConsumerName,
+                                                                                topic));
+            PurgeIfNecessary(session, destination);
+
+            IMessageConsumer consumer = session.CreateConsumer(destination);
+            consumer.Listener += OnMessageReceived;
+            topicConsumers[topic] = consumer;
+        }
+
+        private void OnMessageReceived(IMessage message)
+        {
+            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+
+            if (this.transactionSettings.IsTransactional)
+            {
+                if (!this.transactionSettings.SuppressDTC)
+                {
+                    this.ProcessInDTCTransaction(transportMessage);
+                }
+                else
+                {
+                    this.ProcessInActiveMqTransaction(transportMessage);
+                }
+            }
+            else
+            {
+                this.TryProcessMessage(transportMessage);
+            }
+        }
+
+        private void ProcessInActiveMqTransaction(TransportMessage transportMessage)
+        {
+            if (!this.TryProcessMessage(transportMessage))
+            {
+                this.session.Rollback();
+            }
+        }
+
+        private void ProcessInDTCTransaction(TransportMessage transportMessage)
+        {
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, this.transactionOptions))
+            {
+                this.sessionFactory.SetSessionForCurrentTransaction(this.session);
+                var success = this.TryProcessMessage(transportMessage);
+                this.sessionFactory.RemoveSessionForCurrentTransaction();
+
+                if (success)
+                {
+                    scope.Complete();
+                }
+            }
+        }
+
+        private void PurgeIfNecessary(ISession session, IDestination destination)
+        {
+            if (PurgeOnStartup)
+            {
+                purger.Purge(session, destination);
+            }
         }
     }
 }
