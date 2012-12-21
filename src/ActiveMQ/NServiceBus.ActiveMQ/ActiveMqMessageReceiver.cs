@@ -2,27 +2,35 @@ namespace NServiceBus.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
+
     using Apache.NMS;
     using Apache.NMS.Util;
-    using Unicast.Transport;
+
+    using NServiceBus.Unicast.Transport.Transactional;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
-        private readonly IActiveMqMessageMapper activeMqMessageMapper;
-        private readonly INetTxConnection connection;
         private readonly IActiveMqPurger purger;
         private readonly ISubscriptionManager subscriptionManager;
 
-        private readonly IDictionary<string, IMessageConsumer> topicConsumers =
+        private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
             new Dictionary<string, IMessageConsumer>();
+        private readonly ISessionFactory sessionFactory;
+        private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
+        private INetTxSession session;
         private IMessageConsumer defaultConsumer;
-        private ISession session;
+        private TransactionSettings transactionSettings;
+        private TransactionOptions transactionOptions;
 
-        public ActiveMqMessageReceiver(INetTxConnection connection, IActiveMqMessageMapper activeMqMessageMapper,
-                                       ISubscriptionManager subscriptionManager, IActiveMqPurger purger)
+        public ActiveMqMessageReceiver(
+            ISessionFactory sessionFactory, 
+            IActiveMqMessageMapper activeMqMessageMapper, 
+            ISubscriptionManager subscriptionManager, 
+            IActiveMqPurger purger)
         {
-            this.connection = connection;
+            this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.subscriptionManager = subscriptionManager;
             this.purger = purger;
@@ -36,12 +44,15 @@ namespace NServiceBus.ActiveMQ
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
-        public event EventHandler<TransportMessageReceivedEventArgs> MessageReceived = delegate { };
+        public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
-        public void Start(Address address)
+        public void Start(Address address, TransactionSettings transactionSettings)
         {
-            session = connection.CreateNetTxSession();
-            IDestination destination = SessionUtil.GetDestination(session, "queue://" + address.Queue);
+            this.transactionSettings = transactionSettings;
+            this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
+
+            this.session = this.sessionFactory.GetSession();
+            IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
             PurgeIfNecessary(session, destination);
 
@@ -56,16 +67,16 @@ namespace NServiceBus.ActiveMQ
 
         public void Dispose()
         {
-            foreach (var messageConsumer in topicConsumers)
+            foreach (var messageConsumer in this.topicConsumers)
             {
                 messageConsumer.Value.Close();
                 messageConsumer.Value.Dispose();
             }
 
-            defaultConsumer.Close();
-            defaultConsumer.Dispose();
-            session.Close();
-            session.Dispose();
+            this.defaultConsumer.Close();
+            this.defaultConsumer.Dispose();
+
+            this.sessionFactory.Release(this.session);
         }
 
         private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
@@ -112,8 +123,46 @@ namespace NServiceBus.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
-            TransportMessage transportMessage = activeMqMessageMapper.CreateTransportMessage(message);
-            MessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+
+            if (this.transactionSettings.IsTransactional)
+            {
+                if (!this.transactionSettings.SuppressDTC)
+                {
+                    this.ProcessInDTCTransaction(transportMessage);
+                }
+                else
+                {
+                    this.ProcessInActiveMqTransaction(transportMessage);
+                }
+            }
+            else
+            {
+                this.TryProcessMessage(transportMessage);
+            }
+        }
+
+        private void ProcessInActiveMqTransaction(TransportMessage transportMessage)
+        {
+            if (!this.TryProcessMessage(transportMessage))
+            {
+                this.session.Rollback();
+            }
+        }
+
+        private void ProcessInDTCTransaction(TransportMessage transportMessage)
+        {
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, this.transactionOptions))
+            {
+                this.sessionFactory.SetSessionForCurrentTransaction(this.session);
+                var success = this.TryProcessMessage(transportMessage);
+                this.sessionFactory.RemoveSessionForCurrentTransaction();
+
+                if (success)
+                {
+                    scope.Complete();
+                }
+            }
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)

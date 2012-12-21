@@ -73,12 +73,14 @@
     <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
+    <Compile Include="ISessionFactory.cs" />
     <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="ITopicEvaluator.cs" />
     <Compile Include="ActiveMqMessageMapper.cs" />
     <Compile Include="MessageTypeInterpreter.cs" />
     <Compile Include="NotifyMessageReceivedFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionFactory.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionManager.cs" />
     <Compile Include="TopicEvaluator.cs" />

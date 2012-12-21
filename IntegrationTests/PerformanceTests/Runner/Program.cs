@@ -63,7 +63,7 @@ namespace Runner
                     break;
 
                 case "activemq":
-                    config.ActiveMqTransport("activemq:tcp://localhost:61616");
+                    config.ActiveMqTransport("activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
                     break;
                 case "rabbitmq":
                     config.RabbitMqTransport("host=localhost");
@@ -84,7 +84,7 @@ namespace Runner
             Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
             var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
-            var sendTime = SeedInputQueue(numberOfMessages,endpointName);
+            var sendTime = SeedInputQueue(numberOfMessages,endpointName, numberOfThreads);
 
             var startTime = DateTime.Now;
 
@@ -105,17 +105,18 @@ namespace Runner
                                 (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
                                 args[4]);
 
+            Console.ReadKey();
             Environment.Exit(0);
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages,string inputQueue)
+        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads)
         {
             var sw = new Stopwatch();
             var bus = Configure.Instance.Builder.Build<IBus>();
 
             var message = new TestMessage();
             sw.Start();
-            Parallel.For(0, numberOfMessages, x => bus.Send(inputQueue, message));
+            Parallel.For(0, numberOfMessages, new ParallelOptions { MaxDegreeOfParallelism = numberOfThreads }, x => bus.Send(inputQueue, message));
             sw.Stop();
 
             return sw.Elapsed;
