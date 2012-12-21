@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
+    using System;
     using System.Collections.Generic;
 
     using Apache.NMS;
+
+    using FluentAssertions;
 
     using Moq;
 
@@ -14,7 +17,7 @@
     public class ActiveMqMessageSenderTests
     {
         private ActiveMqMessageSender testee;
-        private Mock<INetTxConnection> connectionMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<ISubscriptionManager> subscriptionManagerMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ITopicEvaluator> topicEvaluatiorMock;
@@ -23,14 +26,14 @@
         [SetUp]
         public void SetUp()
         {
-            this.connectionMock = new Mock<INetTxConnection>();
+            this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.topicEvaluatiorMock = new Mock<ITopicEvaluator>();
             this.destinationEvaluatorMock = new Mock<IDestinationEvaluator>();
 
             this.testee = new ActiveMqMessageSender(
-                this.connectionMock.Object, 
+                this.sessionFactoryMock.Object, 
                 this.subscriptionManagerMock.Object, 
                 this.activeMqMessageMapperMock.Object,
                 this.topicEvaluatiorMock.Object,
@@ -114,6 +117,36 @@
             producerMock.Verify(p => p.Send(queue, jmsMessage));
         }
 
+        [Test]
+        public void WhenSendingASendMessage_TheSessionIsReleasedAfterwards()
+        {
+            var sessionMock = this.SetupCreateSession();
+            this.SetupCreateProducer(sessionMock);
+            var message = CreateTransportMessage(MessageIntentEnum.Send);
+            this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
+
+            this.testee.Send(message, new Address("", "SomeMachineName", true));
+
+            this.sessionFactoryMock.Verify(sf => sf.Release(sessionMock.Object));
+        }
+
+        [Test]
+        public void WhenSendingASendMessage_OnExcpetion_TheSessionIsReleasedAfterwards()
+        {
+            const string Reason = "TheExcpetionReason";
+            var sessionMock = this.SetupCreateSession();
+            var producer = this.SetupCreateProducer(sessionMock);
+            producer.Setup(p => p.Send(It.IsAny<IDestination>(), It.IsAny<IMessage>())).Throws(new Exception(Reason));
+
+            var message = CreateTransportMessage(MessageIntentEnum.Send);
+            this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
+
+            Action action = () => this.testee.Send(message, new Address("", "SomeMachineName", true));
+
+            action.ShouldThrow<Exception>(Reason);
+            this.sessionFactoryMock.Verify(sf => sf.Release(sessionMock.Object));
+        }
+        
         private static TransportMessage CreateTransportMessage(MessageIntentEnum messageIntent)
         {
             var headers = new Dictionary<string, string>();
@@ -156,7 +189,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession>();
-            this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
     }

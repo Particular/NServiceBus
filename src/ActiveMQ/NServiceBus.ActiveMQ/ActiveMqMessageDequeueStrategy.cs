@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
     /// <summary>
@@ -10,6 +9,14 @@
     /// </summary>
     public class ActiveMqMessageDequeueStrategy : IDequeueMessages
     {
+        private readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
+        private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
+
+        private Address address;
+        private TransactionSettings settings;
+        private Func<TransportMessage, bool> tryProcessMessage;
+
+
         /// <summary>
         ///     Default constructor.
         /// </summary>
@@ -27,7 +34,8 @@
         /// <param name="tryProcessMessage"></param>
         public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            this.settings = transactionSettings;
+            this.tryProcessMessage = tryProcessMessage;
             this.address = address;
         }
 
@@ -60,19 +68,9 @@
         void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.MessageReceived += OnMessageReceived;
-            receiver.Start(address);
+            receiver.TryProcessMessage = this.tryProcessMessage;
+            receiver.Start(address, this.settings);
             messageReceivers.Add(receiver);
         }
-
-        void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            TryProcessMessage(e.Message);
-        }
-
-        Func<TransportMessage, bool> TryProcessMessage;
-        readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
-        readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
-        Address address;
     }
 }

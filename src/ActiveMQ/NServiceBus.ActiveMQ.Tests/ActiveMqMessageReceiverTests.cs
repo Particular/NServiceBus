@@ -1,15 +1,9 @@
 ﻿namespace NServiceBus.ActiveMQ
 {
-    using System;
-
     using Apache.NMS;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Unicast.Transport;
-
+    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,7 +11,7 @@
     {
         private ActiveMqMessageReceiver testee;
 
-        private Mock<INetTxConnection> connectionMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ISubscriptionManager> subscriptionManagerMock;
 
@@ -30,13 +24,13 @@
         [SetUp] 
         public void SetUp()
         {
-            this.connectionMock = new Mock<INetTxConnection>();
+            this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
             this.purger = new Mock<IActiveMqPurger>();
 
             this.testee = new ActiveMqMessageReceiver(
-                this.connectionMock.Object, 
+                this.sessionFactoryMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
                 this.subscriptionManagerMock.Object,
                 this.purger.Object);
@@ -48,16 +42,19 @@
             const string Queue = "somequeue";
             var messageMock = new Mock<IMessage>();
             var transportMessage = new TransportMessage();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+                {
+                    receivedMessage = m; 
+                    return true; 
+                };
             this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
 
             this.StartTestee(new Address(Queue, "machine"));
             this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
         }
 
         [Test]
@@ -66,10 +63,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
-            TransportMessageReceivedEventArgs receivedEvent = null;
             var transportMessage = new TransportMessage();
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            };
             this.testee.ConsumerName = ConsumerName;
             this.StartTesteeWithLocalAddress();
 
@@ -79,8 +80,7 @@
             this.RaiseTopicSubscribed(Topic);
             this.RaiseEventReceived(topicConsumer, message);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
         }
 
         [Test]
@@ -117,9 +117,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var messageMock = new Mock<IMessage>();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            }; 
+            
             this.testee.ConsumerName = ConsumerName;
             this.StartTestee(new Address("queue", "machine"));
 
@@ -128,7 +133,7 @@
             this.RaiseTopicSubscribed(Topic);
             topicConsumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().BeNull();
+            receivedMessage.Should().BeNull();
         }
 
         [Test]
@@ -188,9 +193,7 @@
 
             this.consumer.Verify(c => c.Close());
             this.consumer.Verify(c => c.Dispose());
-
-            this.session.Verify(s => s.Close());
-            this.session.Verify(s => s.Dispose());
+            this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
         }
 
         private void StartTesteeWithLocalAddress()
@@ -205,7 +208,7 @@
 
             this.consumer = this.SetupCreateConsumer(this.session, address.Queue);
 
-            this.testee.Start(address);
+            this.testee.Start(address, new TransactionSettings());
         }
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
@@ -232,7 +235,7 @@
         private Mock<INetTxSession> SetupCreateSession()
         {
             var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
-            this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
+            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
 
