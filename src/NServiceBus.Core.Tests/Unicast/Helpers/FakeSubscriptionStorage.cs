@@ -7,7 +7,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
     public class FakeSubscriptionStorage : ISubscriptionStorage
     {
 
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(messageType =>
                                               {
@@ -19,7 +19,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
                                               });
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public void Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             messageTypes.ToList().ForEach(messageType =>
                                               {
@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
         }
 
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public IEnumerable<Address> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
             messageTypes.ToList().ForEach(m =>

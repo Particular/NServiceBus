@@ -3,6 +3,9 @@ namespace NServiceBus
     using System;
     using Config;
     using Unicast.Config;
+    using Unicast.Publishing;
+    using Unicast.Queuing;
+    using Unicast.Subscriptions;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -46,6 +49,30 @@ namespace NServiceBus
             if (ConfigureUnicastBus.Instance != null)
                 if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
                     ConfigureUnicastBus.Instance.LoadMessageHandlers();
+        }
+    }
+
+    class EnsureDefaultSubscriptionManager : IWantToRunBeforeConfigurationIsFinalized
+    {
+      
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IManageSubscriptions>())
+                Configure.Instance.Configurer.ConfigureComponent<MessageDrivenSubscriptionManager>(
+                    DependencyLifecycle.SingleInstance);
+
+        }
+    }
+
+
+    class EnsureDefaultPublisher : IWantToRunBeforeConfigurationIsFinalized
+    {
+
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
+                Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+
         }
     }
 }

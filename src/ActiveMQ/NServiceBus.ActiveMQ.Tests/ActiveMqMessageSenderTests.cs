@@ -47,7 +47,7 @@
             const string SubscriptionMessageType = "SomeMessageType";
 
             var headers = new Dictionary<string, string>();
-            headers[UnicastBus.SubscriptionMessageType] = SubscriptionMessageType;
+            headers[Headers.SubscriptionMessageType] = SubscriptionMessageType;
             var message = new TransportMessage
                 {
                     MessageIntent = MessageIntentEnum.Subscribe,
@@ -67,7 +67,7 @@
             const string SubscriptionMessageType = "SomeMessageType";
 
             var headers = new Dictionary<string, string>();
-            headers[UnicastBus.SubscriptionMessageType] = SubscriptionMessageType;
+            headers[Headers.SubscriptionMessageType] = SubscriptionMessageType;
             var message = new TransportMessage
             {
                 MessageIntent = MessageIntentEnum.Unsubscribe,

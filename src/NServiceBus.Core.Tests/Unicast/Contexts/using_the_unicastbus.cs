@@ -12,9 +12,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
+    using Publishing;
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
+    using Subscriptions;
     using UnitOfWork;
 
     public class using_a_configured_unicastbus
@@ -34,6 +36,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FuncBuilder FuncBuilder;
         protected Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+
+        MessageDrivenSubscriptionManager subscriptionManager;
 
         [SetUp]
         public void SetUp()
@@ -57,10 +61,19 @@ namespace NServiceBus.Unicast.Tests.Contexts
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
-
             subscriptionStorage = new FakeSubscriptionStorage();
+
+            subscriptionManager = new MessageDrivenSubscriptionManager
+                {
+                    Builder = FuncBuilder,
+                    MessageSender = messageSender,
+                    SubscriptionStorage = subscriptionStorage
+                };
+
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
+            FuncBuilder.Register<IMutateIncomingMessages>(() => subscriptionManager);
+            FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<IImpersonateClients>(() => new WindowsImpersonator());
@@ -73,9 +86,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
-                SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
-                MessageMapper = MessageMapper
+                MessageMapper = MessageMapper,
+                MessagePublisher = new StorageDrivenPublisher
+                    {
+                        MessageSender = messageSender,
+                        SubscriptionStorage = subscriptionStorage
+                    },
+                SubscriptionManager = subscriptionManager
             };
             bus = unicastBus;
 

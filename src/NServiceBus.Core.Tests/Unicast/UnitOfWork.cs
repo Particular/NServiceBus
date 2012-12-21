@@ -25,7 +25,7 @@
             };
 
             RegisterUow(uow);
-            ReceiveMessage(Helpers.Helpers.EmptySubscribeTransportMessage());
+            ReceiveMessage(Helpers.Helpers.EmptySubscriptionMessage());
 
             Assert.True(beginCalled);
             Assert.True(endCalled);

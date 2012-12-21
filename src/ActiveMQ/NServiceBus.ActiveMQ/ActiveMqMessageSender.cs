@@ -48,7 +48,7 @@
 
         private void Subscribe(TransportMessage message)
         {
-            var messageType = message.Headers[UnicastBus.SubscriptionMessageType];
+            var messageType = message.Headers[Headers.SubscriptionMessageType];
             var topic = this.topicEvaluator.GetTopicFromMessageType(messageType);
 
             lock (this.subscriptionManager)
@@ -59,7 +59,7 @@
 
         private void Unsubscribe(TransportMessage message)
         {
-            var messageType = message.Headers[UnicastBus.SubscriptionMessageType];
+            var messageType = message.Headers[Headers.SubscriptionMessageType];
             var topic = this.topicEvaluator.GetTopicFromMessageType(messageType);
 
             lock (this.subscriptionManager)

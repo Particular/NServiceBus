@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Linq;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Subscriptions;
     using Transport;
 
     [TestFixture]
@@ -106,6 +108,39 @@
     }
 
     [TestFixture]
+    public class When_receiving_a_subscription_request : using_the_unicastbus
+    {
+        [Test]
+        public void Should_register_the_subscriber()
+        {
+            var subscriberAddress = Address.Parse("mySubscriber");
+
+            var subscriptionMessage = new TransportMessage
+                {
+                    MessageIntent = MessageIntentEnum.Subscribe,
+                    ReplyToAddress = subscriberAddress
+                };
+           
+
+            subscriptionMessage.Headers[Headers.SubscriptionMessageType] = typeof (EventMessage).AssemblyQualifiedName;
+
+            var eventFired = false;
+            unicastBus.ClientSubscribed += (sender, args) =>
+            {
+                Assert.AreEqual(subscriberAddress, args.SubscriberReturnAddress);
+                eventFired = true;
+            };
+
+
+            ReceiveMessage(subscriptionMessage);
+
+            
+            Assert.AreEqual(subscriberAddress, subscriptionStorage.GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(EventMessage)) }).First());
+            Assert.True(eventFired);
+        }
+    }
+
+    [TestFixture]
     public class When_receiving_a_message_with_the_deserialization_turned_off : using_the_unicastbus
     {
         [Test]
@@ -122,6 +157,26 @@
 
 
             Assert.False(Handler1.Called);
+        }
+    }
+
+    [TestFixture]
+    public class When_receiving_an_event_that_is_filtered_out_with_the_subscribe_predicate : using_the_unicastbus
+    {
+        [Test]
+        public void Should_not_invoke_the_handlers()
+        {
+            Handler2.Called = false;
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+
+            RegisterMessageType<EventMessage>();
+            bus.Subscribe(typeof(EventMessage),m=>false);
+
+            RegisterMessageHandlerType<Handler2>();
+
+            ReceiveMessage(receivedMessage);
+
+            Assert.False(Handler2.Called);
         }
     }
 

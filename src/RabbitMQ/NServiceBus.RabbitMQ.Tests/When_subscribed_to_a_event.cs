@@ -10,7 +10,7 @@
         public void SetUp()
         {
 
-            subscriptionManager.Subscribe(typeof(MyEvent), Address.Parse(PUBLISHERNAME));
+            subscriptionManager.Subscribe(typeof(MyEvent), Address.Parse(PUBLISHERNAME),null);
         }
 
         [Test]

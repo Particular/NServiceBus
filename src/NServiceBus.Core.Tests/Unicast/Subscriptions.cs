@@ -22,8 +22,8 @@ namespace NServiceBus.Unicast.Tests
         {
             bus.Subscribe<TestMessage>();
 
-            AssertSubscription(m => m.Headers.ContainsKey(UnicastBus.SubscriptionMessageType) && 
-                                    m.Headers[UnicastBus.SubscriptionMessageType] == typeof(TestMessage).AssemblyQualifiedName,
+            AssertSubscription(m => m.Headers.ContainsKey(Headers.SubscriptionMessageType) &&
+                                    m.Headers[Headers.SubscriptionMessageType] == typeof(TestMessage).AssemblyQualifiedName,
                                 addressToOwnerOfTestMessage);
 
         }

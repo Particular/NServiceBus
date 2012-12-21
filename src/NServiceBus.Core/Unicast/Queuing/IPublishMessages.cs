@@ -13,6 +13,6 @@ namespace NServiceBus.Unicast.Queuing
         /// </summary>
         /// <param name="message"></param>
         /// <param name="eventTypes"></param>
-        void Publish(TransportMessage message, IEnumerable<Type> eventTypes);
+        bool Publish(TransportMessage message, IEnumerable<Type> eventTypes);
     }
 }

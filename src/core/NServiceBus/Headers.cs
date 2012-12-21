@@ -147,6 +147,13 @@
         /// </summary>
         public const string IdForCorrelation = "CorrId";
 
+
+        /// <summary>
+        /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
+        /// </summary>
+        public const string SubscriptionMessageType = "SubscriptionMessageType";
+
+
         /// <summary>
         /// Header key for setting/getting the ID of the message as it was when it failed processing.
         /// </summary>

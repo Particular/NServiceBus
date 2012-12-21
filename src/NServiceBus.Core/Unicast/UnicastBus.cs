@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast
     using Logging;
     using MessageInterfaces;
     using MessageMutator;
-    using NServiceBus.Config;
     using ObjectBuilder;
     using Queuing;
     using Saga;
@@ -31,13 +30,7 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IStartableBus, IInMemoryOperations
     {
-        /// <summary>
-        /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
-        /// </summary>
-        public const string SubscriptionMessageType = "SubscriptionMessageType";
-
-        private bool autoSubscribe = true;
-
+   
         /// <summary>
         /// When set, when starting up, the bus performs 
         /// a subscribe operation for message types for which it has
@@ -66,10 +59,6 @@ namespace NServiceBus.Unicast
             set { disableMessageHandling = value; }
         }
 
-        /// <summary>
-        /// A reference to the transport.
-        /// </summary>
-        protected ITransport transport;
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -136,12 +125,6 @@ namespace NServiceBus.Unicast
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// Gets and sets an <see cref="NServiceBus.Unicast.Subscriptions.ISubscriptionStorage"/> implementation to
-        /// be used for subscription storage for the bus.
-        /// </summary>
-        public virtual ISubscriptionStorage SubscriptionStorage { get; set; }
 
         /// <summary>
         /// Should be used by the programmer, not the administrator.
@@ -157,7 +140,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IBuilder Builder { get; set; }
 
-        private IMessageMapper messageMapper;
 
         /// <summary>
         /// Gets/sets the message mapper.
@@ -255,12 +237,7 @@ namespace NServiceBus.Unicast
                     IfTypeIsMessageHandlerThenLoad(t);
             }
         }
-        private IEnumerable<Type> messageHandlerTypes;
 
-        /// <summary>
-        /// Object that will be used to authorize subscription requests.
-        /// </summary>
-        public IAuthorizeSubscriptions SubscriptionAuthorizer { get; set; }
 
         /// <summary>
         /// Gets or Set AllowSubscribeToSelf 
@@ -281,12 +258,26 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The registered subscription manager for this bus instance
         /// </summary>
-        public IManageSubscriptions SubscriptionManager { get; set; }
+        public IManageSubscriptions SubscriptionManager
+        {
+            get { return subscriptionManager; }
+            set
+            {
+                subscriptionManager = value;
+                subscriptionManager.ClientSubscribed += (sender, args) =>
+                    {
+                        if (ClientSubscribed == null)
+                            return;
+
+                        ClientSubscribed(this, args);
+                    };
+            }
+        }
 
         /// <summary>
         /// Publishes the given messages
         /// </summary>
-        public IPublishMessages MessagePublisher{ get; set; }
+        public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
         /// Creates an instance of the specified type.
@@ -340,8 +331,6 @@ namespace NServiceBus.Unicast
         /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
-            if (SubscriptionStorage == null)
-                throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
             if (messages == null || messages.Length == 0) // Bus.Publish<IFoo>();
             {
@@ -353,24 +342,17 @@ namespace NServiceBus.Unicast
 
             var fullTypes = GetFullTypes(messages as object[]);
 
-            //until we refactor msmq and sql
-            if (MessagePublisher != null)
-            {
-                var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
-                MapTransportMessageFor(messages as object[], eventMessage);
+            var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
-                MessagePublisher.Publish(eventMessage,fullTypes);
-                return;
-            }
+            MapTransportMessageFor(messages as object[], eventMessage);
 
-            var subscribers = Enumerable.ToList<Address>(SubscriptionStorage.GetSubscriberAddressesForMessage(fullTypes.Select(t => new MessageType(t))));
+            var subscribersExisted = MessagePublisher.Publish(eventMessage, fullTypes);
 
-            if (!subscribers.Any())
-                if (NoSubscribersForMessage != null)
-                    NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
+            if (!subscribersExisted && NoSubscribersForMessage != null)
+                NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
 
-            SendMessage(subscribers, null, MessageIntentEnum.Publish, messages as object[]);
+
         }
 
         /// <summary>
@@ -430,25 +412,7 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            subscriptionPredicatesManager.AddConditionForSubscriptionToMessageType(messageType, condition);
-
-            //until we refactor msmq and sql
-            if (SubscriptionManager != null)
-            {
-                SubscriptionManager.Subscribe(messageType,destination);
-                return;
-            }
-
-
-            Log.Info("Subscribing to " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
-            var subscriptionMessage = ControlMessage.Create(Address.Local);
-
-            subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-            InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-
-            ThreadPool.QueueUserWorkItem(state =>
-                                         SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType.AssemblyQualifiedName));
+            SubscriptionManager.Subscribe(messageType, destination, condition);
         }
 
         /// <summary>
@@ -475,45 +439,9 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-
-            //until we refactor msmq and sql
-            if (SubscriptionManager != null)
-            {
-                SubscriptionManager.Unsubscribe(messageType, destination);
-                return;
-            }
-
-            Log.Info("Unsubscribing from " + messageType.AssemblyQualifiedName + " at publisher queue " + destination);
-
-            var subscriptionMessage = ControlMessage.Create(Address.Local);
-
-            subscriptionMessage.Headers[SubscriptionMessageType] = messageType.AssemblyQualifiedName;
-            subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
-
-            InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-
-            MessageSender.Send(subscriptionMessage, destination);
+            SubscriptionManager.Unsubscribe(messageType, destination);
         }
 
-        void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
-        {
-            try
-            {
-                MessageSender.Send(subscriptionMessage, destination);
-            }
-            catch (QueueNotFoundException ex)
-            {
-                if (retriesCount < 5)
-                {
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
-                }
-                else
-                {
-                    Log.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
-                }
-            }
-        }
 
         void IBus.Reply(params object[] messages)
         {
@@ -558,12 +486,6 @@ namespace NServiceBus.Unicast
             MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
         }
 
-        /// <summary>
-        /// ThreadStatic variable indicating if the current message was already
-        /// marked to be handled later so we don't do this more than once.
-        /// </summary>
-        [ThreadStatic]
-        private static bool _handleCurrentMessageLaterWasCalled;
 
         ICallback IBus.SendLocal<T>(Action<T> messageConstructor)
         {
@@ -658,7 +580,7 @@ namespace NServiceBus.Unicast
         {
             if (processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
-                return ((IBus) this).SendLocal(messages);
+                return ((IBus)this).SendLocal(messages);
             }
 
             try
@@ -717,7 +639,7 @@ namespace NServiceBus.Unicast
             return null;
         }
 
-        private ICollection<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+        IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             messages.ToList()
                         .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
@@ -851,8 +773,6 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-                if (SubscriptionStorage != null)
-                    SubscriptionStorage.Init();
 
                 if (!DoNotStartTransport)
                 {
@@ -889,7 +809,7 @@ namespace NServiceBus.Unicast
                                               }
                                           });
             }
-            
+
             return this;
         }
 
@@ -912,12 +832,12 @@ namespace NServiceBus.Unicast
                                                                                                   }
                                                                                               })).ToArray();
 
-            
+
             // Wait for a period here otherwise the process may be killed too early!
             Task.WaitAll(tasks, TimeSpan.FromSeconds(20));
         }
 
-        
+
         /// <summary>
         /// Allow disabling the unicast bus.
         /// </summary>
@@ -1019,8 +939,6 @@ namespace NServiceBus.Unicast
             _doNotContinueDispatchingCurrentMessageToHandlers = true;
         }
 
-        [ThreadStatic]
-        private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
 
         IDictionary<string, string> IBus.OutgoingHeaders
         {
@@ -1078,7 +996,7 @@ namespace NServiceBus.Unicast
             if (!m.IsControlMessage() && !SkipDeserialization)
             {
                 messages = Extract(m);
-                
+
                 if (messages == null || messages.Length == 0)
                 {
                     Log.Warn("Received an empty message - ignoring.");
@@ -1095,39 +1013,31 @@ namespace NServiceBus.Unicast
                                                return ApplyIncomingMessageMutatorsTo(builder, msg);
                                            }).ToArray();
 
+            if (_doNotContinueDispatchingCurrentMessageToHandlers)
+            {
+                _doNotContinueDispatchingCurrentMessageToHandlers = false;
+                return;
+            }
+
             HandleCorellatedMessage(m, messages);
 
             foreach (var messageToHandle in messages)
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
-                var canDispatch = true;
+                var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
 
-                foreach (var condition in subscriptionPredicatesManager.GetConditionsForMessage(messageToHandle))
+                if (!handlers.Any())
                 {
-                    if (condition(messageToHandle)) continue;
+                    var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
 
-                    Log.Debug(string.Format("Condition {0} failed for message {1}", condition, messageToHandle.GetType().Name));
-                    canDispatch = false;
-                    break;
+                    if (Debugger.IsAttached)
+                        throw new InvalidOperationException(warning);
+
+                    Log.WarnFormat(warning);
                 }
 
-                if (canDispatch)
-                {
-                    var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
-
-                    if (!handlers.Any())
-                    {
-                        var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
-
-                        if (Debugger.IsAttached)
-                            throw new InvalidOperationException(warning);
-
-                        Log.WarnFormat(warning);
-                    }
-
-                    LogPipelineInfo(messageToHandle, handlers);
-                }
+                LogPipelineInfo(messageToHandle, handlers);
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
@@ -1149,12 +1059,12 @@ namespace NServiceBus.Unicast
 
         private object[] Extract(TransportMessage m)
         {
-            
+
             if (m.Body == null || m.Body.Length == 0)
             {
                 return null;
-            }    
-            
+            }
+
             try
             {
                 IEnumerable<string> messageTypes = null;
@@ -1189,8 +1099,8 @@ namespace NServiceBus.Unicast
         /// </remarks>
         IEnumerable<Type> DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle)
         {
-            var messageType = toHandle.GetType();
             var invokedHandlers = new List<Type>();
+            var messageType = toHandle.GetType();
 
             foreach (var handlerType in GetHandlerTypes(messageType))
             {
@@ -1300,7 +1210,7 @@ namespace NServiceBus.Unicast
             using (var child = Builder.CreateChildBuilder())
                 HandleTransportMessage(child, e.Message);
         }
-        
+
         private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
@@ -1320,30 +1230,10 @@ namespace NServiceBus.Unicast
                 }
 
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
+
                 if (transportMutators != null)
                     foreach (var mutator in transportMutators)
                         mutator.MutateIncoming(msg);
-
-                if (HandledSubscriptionMessage(msg, SubscriptionStorage, SubscriptionAuthorizer))
-                {
-                    var messageType = GetSubscriptionMessageTypeFrom(msg);
-
-                    if (msg.MessageIntent == MessageIntentEnum.Subscribe)
-                        if (ClientSubscribed != null)
-                            ClientSubscribed(this,
-                                             new SubscriptionEventArgs
-                                                 {
-                                                     MessageType = messageType,
-                                                     SubscriberReturnAddress = msg.ReplyToAddress
-                                                 });
-
-                    for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
-                    {
-                        var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
-                        uow.End();
-                    }
-                    return;
-                }
 
                 _handleCurrentMessageLaterWasCalled = false;
 
@@ -1353,7 +1243,7 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count;)
+                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
                 {
                     var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
                     uow.End();
@@ -1363,7 +1253,7 @@ namespace NServiceBus.Unicast
             }
             catch (Exception ex)
             {
-                var exceptionsToThrow = new List<Exception> {ex};
+                var exceptionsToThrow = new List<Exception> { ex };
 
                 for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
                 {
@@ -1384,13 +1274,13 @@ namespace NServiceBus.Unicast
             Log.Debug("Finished handling message.");
         }
 
-        static void SetupImpersonation(IBuilder childBuilder,TransportMessage message)
+        static void SetupImpersonation(IBuilder childBuilder, TransportMessage message)
         {
             if (!ConfigureImpersonation.Impersonate)
                 return;
-             var impersonator = childBuilder.Build<IImpersonateClients>();
+            var impersonator = childBuilder.Build<IImpersonateClients>();
 
-            if(impersonator == null)
+            if (impersonator == null)
                 throw new InvalidOperationException("Impersonation is configured for this endpoint but no implementation of IImpersonateClients found. Please register one");
 
             var principal = impersonator.GetPrincipal(message);
@@ -1401,90 +1291,6 @@ namespace NServiceBus.Unicast
             Thread.CurrentPrincipal = principal;
         }
 
-        static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
-        {
-            return (from header in msg.Headers where header.Key == SubscriptionMessageType select header.Value).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Handles subscribe and unsubscribe requests managing the given subscription storage.
-        /// Returns true if the message was a subscription message.
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="subscriptionStorage"></param>
-        /// <param name="subscriptionAuthorizer"></param>
-        /// <returns></returns>
-        public static bool HandledSubscriptionMessage(TransportMessage msg, ISubscriptionStorage subscriptionStorage, IAuthorizeSubscriptions subscriptionAuthorizer)
-        {
-            string messageTypeString = GetSubscriptionMessageTypeFrom(msg);
-
-            Action warn = () =>
-                              {
-                                  var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", msg.ReplyToAddress);
-
-                                  Log.Warn(warning);
-
-                                  if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service
-                                      throw new InvalidOperationException(warning);  // and cause message to go to error queue by throwing an exception
-                              };
-
-            if (msg.MessageIntent == MessageIntentEnum.Subscribe)
-            {
-                if (string.IsNullOrEmpty(messageTypeString))
-                    throw new NullReferenceException("Message intent is Subscribe, but the subscription message type header is missing!");
-
-                if (subscriptionStorage != null)
-                {
-                    bool goAhead = true;
-                    if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, msg.ReplyToAddress.ToString(),msg.Headers))
-                        {
-                            goAhead = false;
-                            Log.Debug(string.Format("Subscription request from {0} on message type {1} was refused.",
-                                                    msg.ReplyToAddress, messageTypeString));
-                        }
-
-                    if (goAhead)
-                    {
-                        Log.Info("Subscribing " + msg.ReplyToAddress + " to message type " + messageTypeString);
-                        subscriptionStorage.Subscribe(msg.ReplyToAddress, new[] {new MessageType(messageTypeString)});
-                    }
-
-                    return true;
-                }
-                else
-                {
-                    warn();
-                }
-            }
-
-            if (msg.MessageIntent == MessageIntentEnum.Unsubscribe)
-                if (subscriptionStorage != null)
-                {
-                    bool goAhead = true;
-
-                    if (subscriptionAuthorizer != null)
-                        if (!subscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, msg.ReplyToAddress.ToString(), msg.Headers))
-                        {
-                            goAhead = false;
-                            Log.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", msg.ReplyToAddress, messageTypeString));
-                        }
-
-                    if (goAhead)
-                    {
-                        Log.Info("Unsubscribing " + msg.ReplyToAddress + " from message type " + messageTypeString);
-                        subscriptionStorage.Unsubscribe(msg.ReplyToAddress, new[] { new MessageType(messageTypeString) });
-                    }
-
-                    return true;
-                }
-                else
-                {
-                    warn();
-                }
-
-            return false;
-        }
 
         void TransportFinishedMessageProcessing(object sender, EventArgs e)
         {
@@ -1557,7 +1363,7 @@ namespace NServiceBus.Unicast
             messageTypeToDestinationLookup[messageType] = address;
             messageTypeToDestinationLocker.ExitWriteLock();
 
-            if(!string.IsNullOrWhiteSpace(address.Machine))
+            if (!string.IsNullOrWhiteSpace(address.Machine))
                 Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
 
             if (!MessageConventionExtensions.IsExpressMessageType(messageType))
@@ -1582,9 +1388,9 @@ namespace NServiceBus.Unicast
         /// <param name="rawMessages">The messages to wrap.</param>
         /// /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
-        protected TransportMessage MapTransportMessageFor(object[] rawMessages, TransportMessage result)
-        {   
-            if(!Endpoint.IsSendOnly)
+        void MapTransportMessageFor(object[] rawMessages, TransportMessage result)
+        {
+            if (!Endpoint.IsSendOnly)
                 result.ReplyToAddress = Address.Local;
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
@@ -1610,8 +1416,6 @@ namespace NServiceBus.Unicast
             }
 
             result.TimeToBeReceived = timeToBeReceived;
-
-            return result;
         }
 
         void SerializeMessages(TransportMessage result, object[] messages)
@@ -1817,13 +1621,9 @@ namespace NServiceBus.Unicast
 
             _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
         }
-        
+
         Address inputAddress;
 
-        /// <summary>
-        /// Gets/sets the subscription manager to use for the bus.
-        /// </summary>
-        protected SubscriptionPredicatesManager subscriptionPredicatesManager = new SubscriptionPredicatesManager();
 
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message
@@ -1861,6 +1661,22 @@ namespace NServiceBus.Unicast
         private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+
+        IManageSubscriptions subscriptionManager;
+
+        [ThreadStatic]
+        private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
+        /// <summary>
+        /// ThreadStatic variable indicating if the current message was already
+        /// marked to be handled later so we don't do this more than once.
+        /// </summary>
+        [ThreadStatic]
+        static bool _handleCurrentMessageLaterWasCalled;
+        IEnumerable<Type> messageHandlerTypes;
+        protected ITransport transport;
+        bool autoSubscribe = true;
+
+        IMessageMapper messageMapper;
     }
 
     /// <summary>

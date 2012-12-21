@@ -8,7 +8,7 @@
 
     public class RabbitMqMessagePublisher : IPublishMessages
     {
-        public void Publish(TransportMessage message, IEnumerable<Type> eventTypes)
+        public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
             var routingKey = eventTypes.First().Name;
 
@@ -19,6 +19,9 @@
 
                 channel.BasicPublish(EndpointQueueName + ".events", routingKey, true, false, properties, message.Body);
             }
+
+            //we don't know if there was a subscriber so we just return true
+            return true;
         }
 
         public string EndpointQueueName { get; set; }
