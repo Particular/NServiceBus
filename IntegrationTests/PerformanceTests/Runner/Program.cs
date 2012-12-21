@@ -105,7 +105,6 @@ namespace Runner
                                 (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
                                 args[4]);
 
-            Console.ReadKey();
             Environment.Exit(0);
         }
 
