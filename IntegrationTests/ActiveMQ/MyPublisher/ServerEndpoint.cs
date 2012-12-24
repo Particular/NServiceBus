@@ -21,7 +21,8 @@ namespace MyPublisher
         public void Start()
         {
             Console.WriteLine("Press 'e' to publish an IEvent, EventMessage, and AnotherEventMessage alternately.");
-            Console.WriteLine("Press 's' to send a command to Subscriber1, Subscriber2, SubscriberNMS alternately");
+            Console.WriteLine("Press 'c' to send a command to Subscriber1, Subscriber2, SubscriberNMS alternately");
+            Console.WriteLine("Press 's' to start a saga locally");
             Console.WriteLine("Press 'd' to defer a command locally");
             Console.WriteLine("Press 'l' to send a command locally");
             Console.WriteLine("Press 'q' to exit");
@@ -36,8 +37,11 @@ namespace MyPublisher
                     case 'e':
                         this.PublishEvent();
                         break;
-                    case 's':
+                    case 'c':
                         this.SendCommand();
+                        break;
+                    case 's':
+                        this.StartSaga();
                         break;
                     case 'd':
                         this.DeferCommand();
@@ -47,6 +51,16 @@ namespace MyPublisher
                         break;
                 }
             }
+        }
+
+        private void StartSaga()
+        {
+            var startSagaMessage = new StartSagaMessage { OrderId = Guid.NewGuid() };
+
+            this.Bus.SendLocal(startSagaMessage);
+
+            Console.WriteLine("Starting saga with for order id {0}.", startSagaMessage.OrderId);
+            Console.WriteLine("==========================================================================");
         }
 
         private void SendCommandLocal()
