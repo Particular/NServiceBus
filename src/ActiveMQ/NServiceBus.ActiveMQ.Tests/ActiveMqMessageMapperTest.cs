@@ -12,6 +12,8 @@
 
     using Moq;
 
+    using NServiceBus.Unicast.Transport;
+
     using NUnit.Framework;
 
     [TestFixture]
@@ -30,6 +32,19 @@
         }
 
         [Test]
+        public void CreateJmsMessage_WhenControlMessage_ShouldUseEmptyMessage()
+        {
+            this.SetupMessageCreation();
+
+            var controlMessage = ControlMessage.Create(Address.Local);
+
+            var result = this.testee.CreateJmsMessage(controlMessage, this.session.Object) as ITextMessage;
+
+            result.Should().NotBeNull();
+            result.Text.Should().BeNull();
+        }
+
+        [Test]
         public void CreateJmsMessage_ShouldUseTextMessage()
         {
             this.SetupMessageCreation();
@@ -42,6 +57,30 @@
 
             result.Should().NotBeNull();
             result.Text.Should().Be(ExpectedMessageBody);
+        }
+
+        [Test]
+        public void CreateTransportMessage_WhenHeaderKeyNull_ShouldAddNullHeaderKey()
+        {
+            const string KeyWhichIsNull = "SomeKeyWhichIsNull";
+
+            var message = CreateTextMessage(string.Empty);
+            message.Properties[KeyWhichIsNull] = null;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[KeyWhichIsNull].Should().BeNull();
+        }
+
+        [Test]
+        public void CreateTransportMessage_WhenControlMessage_ShouldUseNullBody()
+        {
+            var message = CreateTextMessage(default(string));
+            message.Properties[Headers.ControlMessageHeader] = "true";
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Body.Should().BeNull();
         }
 
         [Test]
@@ -61,7 +100,7 @@
         public void CreateTransportMessage_IfNServiceBusVersioIsDefined_ShouldAssignNSeriveBusVersion()
         {
             const string Version = "2.0.0.0";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.NServiceBusVersion] = Version;
 
             var result = this.testee.CreateTransportMessage(message);
@@ -73,7 +112,7 @@
         public void CreateTransportMessage_IfNServiceBusVersioIsNotDefined_ShouldAssignDefaultNServiceBusVersion()
         {
             const string Version = "4.0.0.0";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
 
             var result = this.testee.CreateTransportMessage(message);
 
@@ -84,7 +123,7 @@
         public void CreateTransportMessage_IfMessageIntentIsDefined_ShouldAssignMessageIntent()
         {
             const MessageIntentEnum Intent = MessageIntentEnum.Subscribe;
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.Properties[ActiveMqMessageMapper.MessageIntentKey] = Intent;
 
             var result = this.testee.CreateTransportMessage(message);
@@ -95,7 +134,7 @@
         [Test]
         public void CreateTransportMessage_ForPublicationMessage_IfMessageIntentIsNotDefined_ShouldAssignPublishToMessageIntent()
         {
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.NMSDestination = new ActiveMQTopic("myTopic");
 
             var result = this.testee.CreateTransportMessage(message);
@@ -106,7 +145,7 @@
         [Test]
         public void CreateTransportMessage_ForSendMessage_IfMessageIntentIsNotDefined_ShouldAssignSendToMessageIntent()
         {
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.NMSDestination = new ActiveMQQueue("myQueue");
 
             var result = this.testee.CreateTransportMessage(message);
@@ -118,7 +157,7 @@
         public void CreateTransportMessage_IfEnclosedMessageTypesIsDefined_ShouldAssignIt()
         {
             const string EnclosedMessageTypes = "TheEnclosedMessageTypes";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.EnclosedMessageTypes] = EnclosedMessageTypes;
 
             var result = this.testee.CreateTransportMessage(message);
@@ -131,7 +170,7 @@
         {
             const string ExpectedEnclosedMessageTypes = "TheEnclosedMessageTypes";
             const string JmsMessageType = "JmsMessageType";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.NMSType = JmsMessageType;
 
             this.messageTypeInterpreter
@@ -146,7 +185,7 @@
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsNotDefinedAndNoJmsType_ShouldNotAddEnclosedMessageTypes()
         {
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
 
             var result = this.testee.CreateTransportMessage(message);
 
@@ -157,7 +196,7 @@
         public void CreateTransportMessage_ShouldAssignCorrelationId()
         {
             const string CorrelationId = "TheCorrelationId";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.NMSCorrelationID = CorrelationId;
 
             var result = this.testee.CreateTransportMessage(message);
@@ -170,7 +209,7 @@
         public void CreateTransportMessage_WhenMessageHasErrorCodeKey_ShouldAssignReturnMessageErrorCodeHeader()
         {
             const string Error = "Error";
-            var message = CreateTextMessage("");
+            var message = CreateTextMessage(string.Empty);
             message.Properties[ActiveMqMessageMapper.ErrorCodeKey] = Error;
 
             var result = this.testee.CreateTransportMessage(message);
@@ -193,6 +232,9 @@
         private void SetupMessageCreation()
         {
             string body = null;
+            this.session.Setup(s => s.CreateTextMessage())
+                .Returns(() => Mock.Of<ITextMessage>(m => m.Properties == new PrimitiveMap()));
+
             this.session.Setup(s => s.CreateTextMessage(It.IsAny<string>()))
                 .Callback<string>(b => body = b)
                 .Returns(() => Mock.Of<ITextMessage>(m => m.Text == body && m.Properties == new PrimitiveMap()));
