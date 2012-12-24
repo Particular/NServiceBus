@@ -10,6 +10,8 @@ namespace MyPublisher
     using MyMessages.Subscriber2;
     using MyMessages.SubscriberNMS;
 
+    using MyPublisher.Scheduling;
+
     public class ServerEndpoint : IWantToRunWhenBusStartsAndStops
     {
         private static Random randomizer = new Random();
@@ -26,6 +28,7 @@ namespace MyPublisher
             Console.WriteLine("Press 'd' to defer a command locally");
             Console.WriteLine("Press 'l' to send a command locally");
             Console.WriteLine("Press 'n' to send a notification.");
+            Console.WriteLine("Press 't' to schedule a task.");
             Console.WriteLine("Press 'q' to exit");
 
             while (true)
@@ -53,8 +56,16 @@ namespace MyPublisher
                     case 'n':
                         this.SendNotification();
                         break;
+                    case 't':
+                        this.ScheduleTask();
+                        break;
                 }
             }
+        }
+
+        private void ScheduleTask()
+        {
+            Bus.SendLocal(new ScheduleATask());
         }
 
         private void SendNotification()

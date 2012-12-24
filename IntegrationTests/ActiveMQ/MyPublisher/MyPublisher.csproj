@@ -82,6 +82,10 @@
     <Compile Include="Saga\MyTimeOutState.cs" />
     <Compile Include="Saga\SimpleSaga.cs" />
     <Compile Include="Saga\SimpleSagaData.cs" />
+    <Compile Include="Scheduling\ScheduledTaskExecuted.cs" />
+    <Compile Include="Scheduling\ScheduleATask.cs" />
+    <Compile Include="Scheduling\ScheduleATaskHandler.cs" />
+    <Compile Include="Scheduling\ScheduledTaskExecutedHandler.cs" />
     <Compile Include="ServerEndpoint.cs" />
     <Compile Include="SubscriptionAuthorizer.cs" />
   </ItemGroup>
