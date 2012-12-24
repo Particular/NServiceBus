@@ -78,4 +78,23 @@ namespace MyMessages.Publisher
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
     }
+
+    public class DeferedMessage : IMessage
+    {
+        public DeferedMessage()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; private set; }
+    }
+
+    public class LocalCommand : IMyCommand
+    {
+        public Guid CommandId { get; set; }
+
+        public DateTime? Time { get; set; }
+
+        public TimeSpan Duration { get; set; }
+    }
 }

@@ -12,6 +12,8 @@ namespace MyPublisher
 
     public class ServerEndpoint : IWantToRunWhenBusStartsAndStops
     {
+        private static Random randomizer = new Random();
+
         private int nextEventToPublish = 0;
         private int nextCommandToPublish = 0;
         public IBus Bus { get; set; }
@@ -20,9 +22,10 @@ namespace MyPublisher
         {
             Console.WriteLine("Press 'e' to publish an IEvent, EventMessage, and AnotherEventMessage alternately.");
             Console.WriteLine("Press 's' to send a command to Subscriber1, Subscriber2, SubscriberNMS alternately");
+            Console.WriteLine("Press 'd' to defer a command locally");
+            Console.WriteLine("Press 'l' to send a command locally");
             Console.WriteLine("Press 'q' to exit");
 
-            
             while (true)
             {
                 var key = Console.ReadKey();
@@ -36,8 +39,36 @@ namespace MyPublisher
                     case 's':
                         this.SendCommand();
                         break;
+                    case 'd':
+                        this.DeferCommand();
+                        break;
+                    case 'l':
+                        this.SendCommandLocal();
+                        break;
                 }
             }
+        }
+
+        private void SendCommandLocal()
+        {
+            var localCommand = new LocalCommand { CommandId = Guid.NewGuid(), };
+
+            this.Bus.SendLocal(localCommand);
+
+            Console.WriteLine("Sent command with Id {0}.", localCommand.CommandId);
+            Console.WriteLine("==========================================================================");
+        }
+
+        private void DeferCommand()
+        {
+            TimeSpan delay = TimeSpan.FromSeconds(randomizer.Next(2, 6));
+
+            var deferredMessage = new DeferedMessage();
+
+            this.Bus.Defer(delay, deferredMessage);
+
+            Console.WriteLine("{0} - Sent a message with id {1} to be processed in {2}.", DateTime.Now.ToLongTimeString(), deferredMessage.Id, delay.ToString());
+            Console.WriteLine("==========================================================================");
         }
 
         private void SendCommand()
@@ -70,7 +101,7 @@ namespace MyPublisher
                     Console.WriteLine("==========================================================================");
                 });
 
-            Console.WriteLine("Published event with Id {0}.", commandMessage.CommandId);
+            Console.WriteLine("Sent command with Id {0}.", commandMessage.CommandId);
             Console.WriteLine("==========================================================================");
         }
 
