@@ -97,4 +97,14 @@ namespace MyMessages.Publisher
 
         public TimeSpan Duration { get; set; }
     }
+
+    public class StartSagaMessage : IMessage
+    {
+        public Guid OrderId { get; set; }
+    }
+
+    public class StartedSaga : IMessage
+    {
+        public Guid OrderId { get; set; }
+    }
 }
