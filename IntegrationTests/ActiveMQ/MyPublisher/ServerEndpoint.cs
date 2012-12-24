@@ -25,6 +25,7 @@ namespace MyPublisher
             Console.WriteLine("Press 's' to start a saga locally");
             Console.WriteLine("Press 'd' to defer a command locally");
             Console.WriteLine("Press 'l' to send a command locally");
+            Console.WriteLine("Press 'n' to send a notification.");
             Console.WriteLine("Press 'q' to exit");
 
             while (true)
@@ -49,8 +50,16 @@ namespace MyPublisher
                     case 'l':
                         this.SendCommandLocal();
                         break;
+                    case 'n':
+                        this.SendNotification();
+                        break;
                 }
             }
+        }
+
+        private void SendNotification()
+        {
+            this.Bus.SendEmail(new MailMessage("test@nservicebus.com", "udidahan@nservicebus.com"));
         }
 
         private void StartSaga()
