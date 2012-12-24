@@ -72,6 +72,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleMailer.cs" />
+    <Compile Include="CustomConfiguration.cs" />
     <Compile Include="DeferedMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="LocalCommandMessageHandler.cs" />
