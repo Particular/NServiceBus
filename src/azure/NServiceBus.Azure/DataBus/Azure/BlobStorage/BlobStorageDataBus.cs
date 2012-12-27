@@ -1,3 +1,5 @@
+using NServiceBus.Logging;
+
 namespace NServiceBus.DataBus.Azure.BlobStorage
 {
     using System;
@@ -9,7 +11,6 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
     using System.Threading;
     using Microsoft.WindowsAzure.StorageClient;
     using Microsoft.WindowsAzure.StorageClient.Protocol;
-    using log4net;
 
     public class BlobStorageDataBus : IDataBus
     {
