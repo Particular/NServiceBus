@@ -53,9 +53,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -219,6 +216,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\NServiceBus.Logging.Log4Net\NServiceBus.Logging.Log4Net.csproj">
+      <Project>{8ee4bde3-4597-4f44-8fe0-b7b3c19e5669}</Project>
+      <Name>NServiceBus.Logging.Log4Net</Name>
+    </ProjectReference>
     <ProjectReference Include="..\core\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>

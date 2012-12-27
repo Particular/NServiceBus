@@ -26,3 +26,5 @@ core-only
 Release
 Artifacts
 csx
+*.ncrunchsolution
+*.DotSettings

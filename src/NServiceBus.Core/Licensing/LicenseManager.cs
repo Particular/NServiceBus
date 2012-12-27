@@ -1,3 +1,5 @@
+using NServiceBus.Logging;
+
 namespace NServiceBus.Licensing
 {
     using System;
@@ -13,7 +15,6 @@ namespace NServiceBus.Licensing
     using Forms;
     using Microsoft.Win32;
     using Rhino.Licensing;
-    using log4net;
 
     public class LicenseManager
     {

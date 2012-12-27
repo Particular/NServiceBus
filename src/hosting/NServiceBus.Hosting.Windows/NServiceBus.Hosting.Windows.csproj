@@ -58,9 +58,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -89,9 +86,6 @@
   <ItemGroup>
     <Compile Include="INameThisEndpoint.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
-    <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
-    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
-    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
@@ -106,9 +100,6 @@
     <Compile Include="Profiles\Worker.cs" />
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Arguments\HostArguments.cs" />
-    <Compile Include="LoggingHandlers\IntegrationLoggingHandler.cs" />
-    <Compile Include="LoggingHandlers\LiteLoggingHandler.cs" />
-    <Compile Include="LoggingHandlers\ProductionLoggingHandler.cs" />
     <Compile Include="Profiles\Handlers\IntegrationProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\LiteProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />

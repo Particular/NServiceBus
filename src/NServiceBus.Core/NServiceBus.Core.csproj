@@ -56,9 +56,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="Obsolete, Version=1.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Obsolete.Fody.1.3.0.0\lib\NET40\Obsolete.dll</HintPath>
@@ -271,23 +268,6 @@
     <Compile Include="Licensing\LicenseValidator.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
-    <Compile Include="Logging\Internal\ReflectionExtensions.cs" />
-    <Compile Include="Logging\Internal\TypeExtensions.cs" />
-    <Compile Include="Logging\Log4NetBridge\ConfigureInternalLog4NetBridge.cs" />
-    <Compile Include="Logging\Log4NetBridge\Log4NetBridgeAppender.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLogger.cs" />
-    <Compile Include="Logging\Loggers\ConsoleLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetAppenderFactory.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetConfigurator.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLogger.cs" />
-    <Compile Include="Logging\Loggers\Log4NetAdapter\Log4NetLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogConfigurator.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLogger.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogLoggerFactory.cs" />
-    <Compile Include="Logging\Loggers\NLogAdapter\NLogTargetFactory.cs" />
-    <Compile Include="Logging\Loggers\NullLogger.cs" />
-    <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
-    <Compile Include="Logging\LoggingLibraryException.cs" />
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="MailMessage.cs" />
     <Compile Include="Management\Retries\DefaultRetryPolicy.cs" />
@@ -368,7 +348,6 @@
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
-    <Compile Include="SetLoggingLibrary.cs" />
     <Compile Include="SyncConfig.cs" />
     <Compile Include="TaskSchedulers\IOCompletionPortTaskScheduler.cs" />
     <Compile Include="TaskSchedulers\MTATaskScheduler.cs" />
