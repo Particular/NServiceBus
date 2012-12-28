@@ -216,7 +216,7 @@ task CreateReleaseFolder {
 
 	Copy-Item "$baseDir\acknowledgements.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\README.md" $releaseRoot -Force -ErrorAction SilentlyContinue
-	Copy-Item "$baseDir\LICENSE" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\LICENSE.md" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\RunMeFirst.bat" $releaseRoot -Force -ErrorAction SilentlyContinue
 	
 	Create-Directory $releaseRoot\tools\licenseinstaller
