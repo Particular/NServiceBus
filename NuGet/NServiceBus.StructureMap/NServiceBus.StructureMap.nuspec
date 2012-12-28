@@ -15,7 +15,7 @@
     <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="structuremap" version="2.6.4.1" />
+      <dependency id="structuremap" version="[2.6.4.1,3)" />
       <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>
