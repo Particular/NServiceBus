@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Queuing.SqlServer
+﻿namespace NServiceBus.SQL.Tests
 {
     using System;
     using System.Collections.Generic;
@@ -7,8 +7,8 @@
     using NUnit.Framework;
     using System.Threading.Tasks;
     using MessageInterfaces.MessageMapper.Reflection;
+    using SQL;
     using Serializers.XML;
-    using Unicast.Queuing.SQLServer;
 
     [TestFixture, Category("Integration")]
     public class SqlServerMessageQueueTests
