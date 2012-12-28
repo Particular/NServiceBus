@@ -30,7 +30,16 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IStartableBus, IInMemoryOperations
     {
-   
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public UnicastBus()
+        {
+            _doNotContinueDispatchingCurrentMessageToHandlers = false;
+            _handleCurrentMessageLaterWasCalled = false;
+            _messageBeingHandled = null;
+        }
+
         /// <summary>
         /// When set, when starting up, the bus performs 
         /// a subscribe operation for message types for which it has
