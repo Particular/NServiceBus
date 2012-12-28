@@ -1,7 +1,8 @@
-namespace NServiceBus.Unicast.Queuing.SQLServer
+namespace NServiceBus.SQL
 {
     using System.Data;
     using System.Data.SqlClient;
+    using Unicast.Queuing;
 
     public class SqlServerQueueCreator : ICreateQueues
     {

@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Queuing.SQLServer
+namespace NServiceBus.SQL
 {
     using System;
     using System.Collections.Generic;
@@ -11,6 +11,7 @@ namespace NServiceBus.Unicast.Queuing.SQLServer
     using Serialization;
     using Serializers.Binary;
     using Serializers.Json;
+    using Unicast.Queuing;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {

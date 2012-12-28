@@ -118,7 +118,6 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="ConfigureSqlServerTransport.cs" />
     <Compile Include="ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -439,10 +438,6 @@
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServer.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServerTransportConfigurer.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\SqlServerMessageQueue.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\SqlServerQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionPredicatesEvaluator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptionManager.cs" />
@@ -500,6 +495,7 @@
     <Folder Include="ObjectBuilder\Autofac\Config\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
+    <Folder Include="Unicast\Queuing\SQLServer\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />

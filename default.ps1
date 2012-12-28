@@ -182,6 +182,7 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\NServiceBus.SQL.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll

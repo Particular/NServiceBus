@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
+    using SQL;
     using Unicast.Queuing.Installers;
-    using Unicast.Queuing.SQLServer;
 
     /// <summary>
     /// Default extension methods to configure the Sql Transport
