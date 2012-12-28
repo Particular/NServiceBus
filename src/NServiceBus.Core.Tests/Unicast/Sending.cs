@@ -134,8 +134,8 @@
 
             bus.InMemory.Raise(new TestMessage());
 
-            Assert.That(TestMessageHandler1.Called, Is.True);
-            Assert.That(TestMessageHandler2.Called, Is.True);
+            Assert.True(TestMessageHandler1.Called);
+            Assert.True(TestMessageHandler2.Called);
         }
 
         public class TestMessageHandler1 : IHandleMessages<TestMessage>
