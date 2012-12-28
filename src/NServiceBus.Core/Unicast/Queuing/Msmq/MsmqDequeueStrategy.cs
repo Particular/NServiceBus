@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using Logging;
-    using NServiceBus.Config;
     using Transport.Transactional;
 
     /// <summary>
@@ -30,7 +29,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// <param name="tryProcessMessage"></param>
         public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            this.tryProcessMessage = tryProcessMessage;
             endpointAddress = address;
             transactionSettings = settings;
      
@@ -98,7 +97,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             semaphore.Dispose();
             queue.Dispose();
         }
-
      
         private bool QueueIsTransactional()
         {
@@ -153,10 +151,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         {
                             ReceiveAndFireEvent();
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Error processing message.", ex.GetBaseException());
                     }
                     finally
                     {
@@ -267,7 +261,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (transportMessage != null)
             {
-                return TryProcessMessage(transportMessage);
+                return tryProcessMessage(transportMessage);
             }
 
             return true;
@@ -278,7 +272,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
         }
 
-        Func<TransportMessage, bool> TryProcessMessage;
+        Func<TransportMessage, bool> tryProcessMessage;
         static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
         readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
@@ -289,6 +283,5 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         TransactionSettings transactionSettings;
         Address endpointAddress;
         TransactionOptions transactionOptions;
-
     }
 }

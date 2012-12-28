@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Transport.Transactional.DequeueStrategies
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
@@ -26,7 +25,7 @@
         /// <param name="tryProcessMessage"></param>
         public void Init(Address address, TransactionSettings transactionSettings,Func<TransportMessage, bool> tryProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            this.tryProcessMessage = tryProcessMessage;
 
             addressToPoll = address;
             settings = transactionSettings;
@@ -46,7 +45,10 @@
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
 
-            StartThreads(maximumConcurrencyLevel);
+            for (int i = 0; i < maximumConcurrencyLevel; i++)
+            {
+                StartThread();
+            }
         }
 
         /// <summary>
@@ -56,55 +58,50 @@
         {
             tokenSource.Cancel();
             scheduler.Dispose();
-            runningTasks.Clear();
         }
 
-        
-        void StartThreads(int maximumConcurrencyLevel)
+        void StartThread()
         {
-            for (int i = 0; i < maximumConcurrencyLevel; i++)
-            {
-                var token = tokenSource.Token;
+            var token = tokenSource.Token;
 
-                runningTasks.Add(Task.Factory.StartNew(obj =>
+            Task.Factory.StartNew(obj =>
+                {
+                    var cancellationToken = (CancellationToken)obj;
+
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        var cancellationToken = (CancellationToken)obj;
-
-                        while (!cancellationToken.IsCancellationRequested)
+                        if (settings.IsTransactional)
                         {
-                            try
+                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
                             {
-                                if (settings.IsTransactional)
-                                {
-                                    using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                                    {
-                                        if (TryReceive())
-                                            scope.Complete();
-                                    }
-                                }
-                                else
-                                {
-                                    TryReceive();
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Configure.Instance.OnCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), ex);
+                                if (TryReceive())
+                                    scope.Complete();
                             }
                         }
-                    }, token, token, TaskCreationOptions.None, scheduler));
-            }
+                        else
+                        {
+                            TryReceive();
+                        }
+                    }
+                }, token, token, TaskCreationOptions.None, scheduler)
+                .ContinueWith(t =>
+                {
+                    if (t.Exception != null)
+                    {
+                        Configure.Instance.OnCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), t.Exception);
+                        StartThread();
+                    }
+                });
         }
 
         bool TryReceive()
         {
             var m = MessageReceiver.Receive();
-            return m != null && TryProcessMessage(m);
+            return m != null && tryProcessMessage(m);
         }
 
-        Func<TransportMessage, bool> TryProcessMessage;
+        Func<TransportMessage, bool> tryProcessMessage;
         CancellationTokenSource tokenSource;
-        readonly IList<Task> runningTasks = new List<Task>();
         Address addressToPoll;
         MTATaskScheduler scheduler;
         TransactionSettings settings;

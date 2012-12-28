@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.RabbitMQ
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
@@ -18,6 +17,7 @@
         /// The connection to the RabbitMQ broker
         /// </summary>
         public IConnection Connection { get; set; }
+
         /// <summary>
         /// Determines if the queue should be purged when the transport starts
         /// </summary>
@@ -31,7 +31,7 @@
         /// <param name="tryProcessMessage"></param>
         public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            this.tryProcessMessage = tryProcessMessage;
             workQueue = address.Queue;
             autoAck = !transactionSettings.IsTransactional;
         }
@@ -54,7 +54,6 @@
             }
         }
 
-
         /// <summary>
         /// Stops the dequeuing of messages.
         /// </summary>
@@ -63,19 +62,18 @@
             tokenSource.Cancel();
 
             if (scheduler != null)
+            {
                 scheduler.Dispose();
-
-            runningConsumers.Clear();
+            }
         }
-
         
         void StartConsumer()
         {
             var token = tokenSource.Token;
 
-            var task = new Task(obj =>
+            Task.Factory.StartNew(obj =>
                 {
-                    var cancellationToken = (CancellationToken)obj;
+                    var cancellationToken = (CancellationToken) obj;
 
                     using (IModel channel = Connection.CreateModel())
                     {
@@ -90,19 +88,15 @@
                             DequeueMessage(consumer, channel);
                         }
                     }
-                }, token, token, TaskCreationOptions.None);
-
-            runningConsumers.Add(task);
-
-            task.ContinueWith(t =>
-                {
-                    if (t.Exception != null)
+                }, token, token, TaskCreationOptions.None, scheduler)
+                .ContinueWith(t =>
                     {
-                        Configure.Instance.OnCriticalError("Failed to start consumer.", t.Exception);
-                    }
-                });
-
-            task.Start(scheduler);
+                        if (t.Exception != null)
+                        {
+                            Configure.Instance.OnCriticalError("Failed to start consumer.", t.Exception);
+                            StartConsumer();
+                        }
+                    });
         }
 
         void DequeueMessage(QueueingBasicConsumer consumer, IModel channel)
@@ -115,12 +109,11 @@
             var message = (BasicDeliverEventArgs)rawMessage;
 
             //todo - add dead lettering
-            bool messageProcessedOk = TryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
+            bool messageProcessedOk = tryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
 
             if (!autoAck && messageProcessedOk)
                 channel.BasicAck(message.DeliveryTag, false);
         }
-
 
         void Purge()
         {
@@ -130,8 +123,7 @@
             }
         }
 
-        Func<TransportMessage, bool> TryProcessMessage;
-        readonly List<Task> runningConsumers = new List<Task>();
+        Func<TransportMessage, bool> tryProcessMessage;
         bool autoAck;
         MTATaskScheduler scheduler;
         readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
