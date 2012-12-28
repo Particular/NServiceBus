@@ -41,7 +41,7 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="concreteComponent"></param>
         /// <param name="callModel">Defines whether the type should have singleton or single call sematnics.</param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ConfigureComponent<T>(Type, DependencyLifecycle)")]
         IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NServiceBus.ObjectBuilder
         /// <typeparam name="T"></typeparam>
         /// <param name="callModel"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ConfigureComponent<T>(DependencyLifecycle)")]
         IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel);
 
         /// <summary>
