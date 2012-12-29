@@ -44,7 +44,8 @@ task Init {
 }
 
 task Build -depends Clean, Init, RunHeat {
-	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" }
+	$UpgradeCode = "6bf2f238-54fb-4300-ab68-2416491af0" + $ProductVersion.Replace(".", "")
+	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" /p:UpgradeCode="$UpgradeCode" }
 	copy $buildWixPath*.msi $packageOutPutDir\
 }
 
