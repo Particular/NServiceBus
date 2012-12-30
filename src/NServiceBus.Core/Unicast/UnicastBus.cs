@@ -736,7 +736,7 @@ namespace NServiceBus.Unicast
             foreach (var m in messages)
             {
                 var s = m.GetType();
-                if (types.Contains(s))
+                if (types.Contains(s) || s.Assembly.IsDynamic)
                     continue;
 
                 types.Add(s);
