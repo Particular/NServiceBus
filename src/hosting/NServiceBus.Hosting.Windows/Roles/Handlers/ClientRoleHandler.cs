@@ -21,10 +21,14 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                 Configure.Instance.MsmqTransport();
 
             return Configure.Instance
-                .PurgeOnStartup(true)
-                .IsTransactional(false)
-                .UnicastBus()
-                .ImpersonateSender(false);
+                            .PurgeOnStartup(true)
+                            .IsTransactional(false)
+                            .DisableTimeoutManager()
+                            .DisableNotifications()
+                            .DisableSecondLevelRetries()
+                            .UnicastBus()
+                            .ImpersonateSender(false);
+
         }
     }
 }
