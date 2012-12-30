@@ -13,12 +13,10 @@ namespace NServiceBus.Notifications
     {
         private readonly IMessageSerializer messageSerializer;
 
-        public NotificationSatellite(IMessageSerializer messageSerializer)
+        public NotificationSatellite( IMessageSerializer messageSerializer)
         {
             this.messageSerializer = messageSerializer;
         }
-
-        public ISendMail Mailer { get; set; }
 
         public void Handle(TransportMessage message)
         {
@@ -29,9 +27,10 @@ namespace NServiceBus.Notifications
                 sendEmail = (SendEmail)messageSerializer.Deserialize(stream, new[] { typeof(SendEmail).FullName }).First();
             }
 
+            using (var c = new SmtpClient())
             using (var mailMessage = sendEmail.Message.ToMailMessage())
             {
-                Mailer.Send(mailMessage);
+                c.Send(mailMessage);
             }
         }
 

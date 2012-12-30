@@ -300,12 +300,9 @@
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MonitoringConfig.cs" />
-    <Compile Include="Notifications\DefaultMailSender.cs" />
-    <Compile Include="Notifications\ISendMail.cs" />
     <Compile Include="Notifications\NotificationSatellite.cs" />
     <Compile Include="Notifications\RegisterSystemMessages.cs" />
     <Compile Include="Notifications\SendEmail.cs" />
-    <Compile Include="Notifications\SmtpClientSender.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\ContainerExtensions.cs" />
     <Compile Include="ObjectBuilder\Autofac\Internal\TypeExtensions.cs" />
