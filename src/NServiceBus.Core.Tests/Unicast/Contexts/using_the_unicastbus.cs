@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using Deferral;
     using Faults;
     using Helpers;
     using Impersonation;
@@ -87,7 +88,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
-                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts"),
                 MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
@@ -98,6 +98,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     {
                         MessageSender = messageSender,
                         SubscriptionStorage = subscriptionStorage
+                    },
+                MessageDeferrer = new TimeoutManagerBasedDeferral
+                    {
+                        MessageSender = messageSender,
+                        TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
                     },
                 SubscriptionManager = subscriptionManager,
                 MessageRegistry = messageRegistry
