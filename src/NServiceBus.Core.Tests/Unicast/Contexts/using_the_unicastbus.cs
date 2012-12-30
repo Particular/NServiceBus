@@ -17,6 +17,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Rhino.Mocks;
     using Serializers.XML;
     using Subscriptions;
+    using Unicast.Messages;
     using UnitOfWork;
 
     public class using_a_configured_unicastbus
@@ -36,8 +37,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FuncBuilder FuncBuilder;
         protected Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
-
+        protected DefaultMessageRegistry messageRegistry;
         MessageDrivenSubscriptionManager subscriptionManager;
+
 
         [SetUp]
         public void SetUp()
@@ -47,6 +49,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
+            messageRegistry = new DefaultMessageRegistry
+                {
+                    DefaultToNonPersistentMessages = Endpoint.IsVolatile
+                };
 
             try
             {
@@ -93,7 +99,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                         MessageSender = messageSender,
                         SubscriptionStorage = subscriptionStorage
                     },
-                SubscriptionManager = subscriptionManager
+                SubscriptionManager = subscriptionManager,
+                MessageRegistry = messageRegistry
             };
             bus = unicastBus;
 
@@ -145,6 +152,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
             unicastBus.RegisterMessageType(typeof(T), address);
+            messageRegistry.RegisterMessageType(typeof(T));
 
         }
 
