@@ -53,16 +53,15 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        [ObsoleteEx(Message = "As Timeout Manager is part of the core NServiceBus functionality, it is impossible to disable it.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]        
         public static Configure DisableTimeoutManager(this Configure config)
         {
+            TimeoutManager.Enabled = false;
             return config;
         }
 
-        [ObsoleteEx(Message = "As Timeout Manager is part of the core NServiceBus functionality, this method will always return true.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]        
         public static bool IsTimeoutManagerEnabled(this Configure config)
         {
-            return true;
+            return TimeoutManager.Enabled;
         }
 
         [ObsoleteEx(Message = "As Timeout Manager is part of the core NServiceBus functionality, it is not required to call this method any longer.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
@@ -92,5 +91,15 @@ namespace NServiceBus
         {
             return config;
         }
+    }
+
+    public class TimeoutManager
+    {
+        static TimeoutManager()
+        {
+            Enabled = true;
+        }
+
+        public static bool Enabled { get; set; }
     }
 }

@@ -83,8 +83,14 @@ namespace NServiceBus
         public void Run()
         {
             if (!Configure.Instance.Configurer.HasComponent<IDeferMessages>())
+            {
                 Configure.Instance.Configurer.ConfigureComponent<TimeoutManagerBasedDeferral>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+                    .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());                
+            }
+            else
+            {
+                Configure.Instance.DisableTimeoutManager();
+            }
 
         }
     }
