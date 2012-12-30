@@ -404,6 +404,7 @@
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
+    <Compile Include="Unicast\Deferral\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
@@ -426,6 +427,7 @@
     <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
     <Compile Include="Unicast\Queuing\Ftp\FtpMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
+    <Compile Include="Unicast\Queuing\IDeferMessages.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\IPublishMessages.cs" />

@@ -101,11 +101,6 @@ namespace NServiceBus.Unicast
         public Address MasterNodeAddress { get; set; }
 
         /// <summary>
-        /// Information regarding the current TimeoutManager node
-        /// </summary>
-        public Address TimeoutManagerAddress { get; set; }
-
-        /// <summary>
         /// A delegate for a method that will handle the <see cref="MessageReceived"/>
         /// event.
         /// </summary>
@@ -126,14 +121,10 @@ namespace NServiceBus.Unicast
         /// Clear Timeouts For the saga
         /// </summary>
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferedMessages")]
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            var controlMessage = ControlMessage.Create(Address.Local);
-
-            controlMessage.Headers[Headers.SagaId] = sagaId.ToString();
-            controlMessage.Headers[Headers.ClearTimeouts] = true.ToString();
-
-            MessageSender.Send(controlMessage, TimeoutManagerAddress);
+            MessageDeferrer.ClearDeferedMessages(Headers.SagaId, sagaId.ToString());
         }
 
 
@@ -143,6 +134,18 @@ namespace NServiceBus.Unicast
         /// be used for subscription storage for the bus.
         /// </summary>
         public virtual IMessageSerializer MessageSerializer { get; set; }
+
+
+        /// <summary>
+        /// The registry of all known messages for this endpoint
+        /// </summary>
+        public IMessageRegistry MessageRegistry { get; set; }
+
+
+        /// <summary>
+        /// A way to request the transport to defer the processing of a message
+        /// </summary>
+        public IDeferMessages MessageDeferrer { get; set; }
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -209,7 +212,7 @@ namespace NServiceBus.Unicast
             set
             {
                 value.ToList()
-                    .ForEach((k) => RegisterMessageType(k.Key, k.Value));
+                    .ForEach(k => RegisterMessageType(k.Key, k.Value));
             }
             get
             {
@@ -594,22 +597,13 @@ namespace NServiceBus.Unicast
                 return ((IBus)this).SendLocal(messages);
             }
 
-            try
-            {
-                Headers.SetMessageHeader(messages.First(), Headers.Expire, DateTimeExtensions.ToWireFormattedString(processAt));
+            var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Send };
 
-                if (processAt.ToUniversalTime() <= DateTime.UtcNow)
-                {
-                    return ((IBus)this).SendLocal(messages);
-                }
+            MapTransportMessageFor(messages, toSend);
 
-                return ((IBus)this).Send(TimeoutManagerAddress, messages);
-            }
-            catch (Exception)
-            {
-                Log.Error("It might be that TimeoutManager is not configured. Make sure DisableTimeoutManager was not called at your endpoint.");
-                throw;
-            }
+            MessageDeferrer.Defer(toSend, processAt);
+
+            return SetupCallback(toSend.Id);
         }
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
@@ -637,17 +631,22 @@ namespace NServiceBus.Unicast
             // loop only happens once
             foreach (var id in SendMessage(new List<Address> { address }, correlationId, messageIntent, messages))
             {
-                var result = new Callback(id);
-                result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
+                return SetupCallback(id);
+            }
+
+            return null;
+        }
+
+        ICallback SetupCallback(string transportMessageId)
+        {
+            var result = new Callback(transportMessageId);
+            result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
                 {
                     lock (messageIdToAsyncResultLookup)
                         messageIdToAsyncResultLookup[args.MessageId] = args.Result;
                 };
 
-                return result;
-            }
-
-            return null;
+            return result;
         }
 
         IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
@@ -1394,7 +1393,7 @@ namespace NServiceBus.Unicast
                 if (PropagateReturnAddressOnSend && _messageBeingHandled != null && _messageBeingHandled.ReplyToAddress != null)
                     result.ReplyToAddress = _messageBeingHandled.ReplyToAddress;
             }
-                
+
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
 
@@ -1412,20 +1411,15 @@ namespace NServiceBus.Unicast
         {
             var messageType = message.GetType();
 
-          
+
             //is this a autogenerated proxy?
             if (messageType.Assembly.IsDynamic)
-                messageType = messageType.GetInterfaces().Single(i=>i.Assembly != typeof(IMessage).Assembly);
+                messageType = messageType.GetInterfaces().Single(i => i.Assembly != typeof(IMessage).Assembly);
 
             return messageType;
         }
 
 
-
-        /// <summary>
-        /// The registry of all known messages for this endpoint
-        /// </summary>
-        public IMessageRegistry MessageRegistry { get; set; }
 
         void SerializeMessages(TransportMessage result, object[] messages)
         {
@@ -1481,7 +1475,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-      
+
         /// <summary>
         /// Evaluates a type and loads it if it implements IMessageHander{T}.
         /// </summary>
@@ -1632,7 +1626,7 @@ namespace NServiceBus.Unicast
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
         private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
-       
+
         /// <remarks>
         /// Accessed by multiple threads - needs appropriate locking
         /// </remarks>

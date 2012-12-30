@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using Config;
     using Unicast.Config;
+    using Unicast.Deferral;
     using Unicast.Publishing;
     using Unicast.Queuing;
     using Unicast.Subscriptions;
@@ -35,7 +36,7 @@ namespace NServiceBus
 
             if ((unicastConfig != null) && (!String.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
-            
+
             return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
         }
 
@@ -54,7 +55,7 @@ namespace NServiceBus
 
     class EnsureDefaultSubscriptionManager : IWantToRunBeforeConfigurationIsFinalized
     {
-      
+
         public void Run()
         {
             if (!Configure.Instance.Configurer.HasComponent<IManageSubscriptions>())
@@ -72,6 +73,18 @@ namespace NServiceBus
         {
             if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
                 Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+
+        }
+    }
+
+    class EnsureDefaultDeferrer : IWantToRunBeforeConfigurationIsFinalized
+    {
+
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IDeferMessages>())
+                Configure.Instance.Configurer.ConfigureComponent<TimeoutManagerBasedDeferral>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
 
         }
     }

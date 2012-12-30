@@ -27,6 +27,7 @@ namespace NServiceBus.Unicast
         /// Clears any existing timeouts for the given saga
         /// </summary>
         /// <param name="sagaId"></param>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferedMessages")]
         void ClearTimeoutsFor(Guid sagaId);
     }
 }

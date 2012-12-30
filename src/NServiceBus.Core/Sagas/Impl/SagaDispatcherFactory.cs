@@ -10,6 +10,7 @@ namespace NServiceBus.Sagas.Impl
     using ObjectBuilder;
     using Saga;
     using Unicast;
+    using Unicast.Queuing;
     using Utils;
 
     /// <summary>
@@ -203,7 +204,7 @@ namespace NServiceBus.Sagas.Impl
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            Bus.ClearTimeoutsFor(saga.Entity.Id);
+            MessageDeferrer.ClearDeferedMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         void LogIfSagaIsFinished(ISaga saga)
@@ -254,6 +255,10 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         public IUnicastBus Bus { get; set; }
 
+        /// <summary>
+        /// A way to request the transport to defer the processing of a message
+        /// </summary>
+        public IDeferMessages MessageDeferrer { get; set; }
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaDispatcherFactory));
 
