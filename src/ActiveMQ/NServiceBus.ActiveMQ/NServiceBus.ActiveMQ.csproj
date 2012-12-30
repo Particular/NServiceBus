@@ -77,6 +77,7 @@
     <Compile Include="ISubscriptionManager.cs" />
     <Compile Include="ITopicEvaluator.cs" />
     <Compile Include="ActiveMqMessageMapper.cs" />
+    <Compile Include="MessageExtensions.cs" />
     <Compile Include="MessageTypeInterpreter.cs" />
     <Compile Include="NotifyMessageReceivedFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

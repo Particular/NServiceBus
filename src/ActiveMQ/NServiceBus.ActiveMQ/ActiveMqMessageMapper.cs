@@ -24,9 +24,13 @@ namespace NServiceBus.ActiveMQ
 
         public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
         {
-            string messageBody = Encoding.UTF8.GetString(message.Body);
-            IMessage jmsmessage = session.CreateTextMessage(messageBody);
+            IMessage jmsmessage = session.CreateTextMessage();
 
+            if (!message.IsControlMessage())
+            {
+                string messageBody = Encoding.UTF8.GetString(message.Body);
+                jmsmessage = session.CreateTextMessage(messageBody);
+            }
 
             jmsmessage.NMSMessageId = message.Id;
 
@@ -46,7 +50,12 @@ namespace NServiceBus.ActiveMQ
             }
 
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
-            jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
+
+            if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
+            {
+                jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
+            }
+
             jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
 
             foreach (var header in message.Headers)
@@ -60,7 +69,12 @@ namespace NServiceBus.ActiveMQ
         public TransportMessage CreateTransportMessage(IMessage message)
         {
             var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
-            byte[] body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
+
+            byte[] body = null;
+            if (!message.IsControlMessage())
+            {
+                body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
+            }
 
             var transportMessage = new TransportMessage
                 {
@@ -80,8 +94,8 @@ namespace NServiceBus.ActiveMQ
                 {
                     continue;
                 }
-
-                transportMessage.Headers[keyString] = message.Properties[keyString].ToString();
+                
+                transportMessage.Headers[keyString] = message.Properties[keyString] != null ? message.Properties[keyString].ToString() : null;
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
