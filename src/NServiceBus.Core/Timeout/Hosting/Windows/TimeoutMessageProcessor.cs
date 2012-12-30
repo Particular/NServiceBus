@@ -8,8 +8,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     public class TimeoutMessageProcessor : ISatellite
     {
-        private bool enabled = true;
-
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
 
@@ -26,11 +24,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public Address InputAddress { get { return TimeoutManagerAddress; } }
 
-        public bool Disabled { get { return !enabled; } }
-
-        public void Disable()
+        public bool Disabled
         {
-            enabled = false;
+            get { return !NServiceBus.TimeoutManager.Enabled; }
         }
 
         public void Start()
