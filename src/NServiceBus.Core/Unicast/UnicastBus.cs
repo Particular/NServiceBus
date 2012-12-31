@@ -1077,7 +1077,7 @@ namespace NServiceBus.Unicast
 
             try
             {
-                IEnumerable<string> messageTypes = null;
+                IList<string> messageTypes = null;
 
                 if (m.Headers.ContainsKey(Headers.EnclosedMessageTypes))
                 {

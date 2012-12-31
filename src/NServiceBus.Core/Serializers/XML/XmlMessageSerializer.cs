@@ -38,7 +38,7 @@ namespace NServiceBus.Serializers.XML
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        /// Removes the wrapping "<Messages>" element if serializing a single message 
+        /// Removes the wrapping "<Messages/>" element if serializing a single message 
         /// </summary>
         public bool SkipWrappingElementForSingleMessages { get; set; }
 
@@ -204,11 +204,6 @@ namespace NServiceBus.Serializers.XML
             return result.Distinct();
         }
 
-        /// <summary>
-        /// Gets a FieldInfo for each field in the given type.
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
@@ -217,11 +212,12 @@ namespace NServiceBus.Serializers.XML
         #region Deserialize
 
         /// <summary>
-        /// Deserializes the given stream to an array of messages which are returned.
+        /// Deserializes from the given stream a set of messages.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
-        public object[] Deserialize(Stream stream, IEnumerable<string> messageTypesToDeserialize = null)
+        /// <param name="stream">Stream that contains messages.</param>
+        /// <param name="messageTypesToDeserialize">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <returns>Deserialized messages.</returns>
+        public object[] Deserialize(Stream stream, IList<string> messageTypesToDeserialize = null)
         {
             if (stream == null)
                 return null;

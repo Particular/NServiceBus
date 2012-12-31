@@ -11,21 +11,22 @@ namespace NServiceBus.Serializers.Binary
     public class MessageSerializer : IMessageSerializer
     {
         /// <summary>
-        /// Serializes the given messages to the given stream.
+        /// Serializes the given set of messages into the given stream.
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="stream"></param>
+        /// <param name="messages">Messages to serialize.</param>
+        /// <param name="stream">Stream for <paramref name="messages"/> to be serialized into.</param>
         public void Serialize(object[] messages, Stream stream)
         {
             binaryFormatter.Serialize(stream, new List<object>(messages));
         }
 
         /// <summary>
-        /// Deserializes the given stream returning an array of messages.
+        /// Deserializes from the given stream a set of messages.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
-        public object[] Deserialize(Stream stream, IEnumerable<string> messageTypes = null)
+        /// <param name="stream">Stream that contains messages.</param>
+        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <returns>Deserialized messages.</returns>
+        public object[] Deserialize(Stream stream, IList<string> messageTypes = null)
         {
             if (stream == null)
                 return null;
@@ -44,6 +45,9 @@ namespace NServiceBus.Serializers.Binary
             return result;
         }
 
+        /// <summary>
+        /// Gets the content type into which this serializer serializes the content to 
+        /// </summary>
         public string ContentType { get{ return "application/binary";}}
 
         readonly BinaryFormatter binaryFormatter = new BinaryFormatter();
