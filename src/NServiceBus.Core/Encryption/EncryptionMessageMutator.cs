@@ -8,6 +8,7 @@ namespace NServiceBus.Encryption
     using System.Reflection;
     using Logging;
     using MessageMutator;
+    using Utils.Reflection;
 
     /// <summary>
     /// Invokes the encryption service to encrypt/decrypt messages
@@ -235,25 +236,6 @@ namespace NServiceBus.Encryption
         readonly static IDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
 
         readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
-    }
-
-
-    static class TypeExtensions
-    {
-        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
-
-        static bool IsClrType(byte[] a1)
-        {
-            IStructuralEquatable eqa1 = a1;
-            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
-        }
-
-        public static bool IsSystemType(this Type propertyType)
-        {
-            var nameOfContainingAssembly = propertyType.Assembly.GetName().GetPublicKeyToken();
-
-            return IsClrType(nameOfContainingAssembly);
-        }
     }
 
     static class MemberInfoExtensions

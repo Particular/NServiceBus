@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.Transport.RabbitMQ.Tests
 {
-    using System.Threading;
+    using System;
+    using System.Collections.Concurrent;
     using NUnit.Framework;
+    using RabbitMq;
     using Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
 
@@ -20,7 +22,29 @@
         {
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchangeName,"topic",true);
+                try
+                {
+                    channel.ExchangeDelete(exchangeName);
+                }
+                catch (Exception)
+                {
+                    
+                }
+           
+              
+            }
+
+            using (var channel = connection.CreateModel())
+            {
+                try
+                {
+                    channel.ExchangeDeclare(exchangeName, "topic", true);
+                }
+                catch (Exception)
+                {
+
+                }
+
             }
         }
 
@@ -28,11 +52,12 @@
         [SetUp]
         public void SetUp()
         {
+            receivedMessages = new BlockingCollection<TransportMessage>();
             factory = new ConnectionFactory { HostName = "localhost" };
             connection = factory.CreateConnection();
             sender = new RabbitMqMessageSender { Connection = connection };
 
-            dequeueStrategy = new RabbitMqDequeueStrategy{Connection = connection,PurgeOnStartup = true};
+            dequeueStrategy = new RabbitMqDequeueStrategy { Connection = connection, PurgeOnStartup = true };
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
@@ -51,15 +76,12 @@
 
             dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
             {
-                received = m;
-                messageReceived.Set();
+                receivedMessages.Add(m);
                 return true;
             });
 
-            messageReceived = new ManualResetEvent(false);
-
             dequeueStrategy.Start(1);
-            
+
         }
 
 
@@ -74,17 +96,16 @@
 
         protected TransportMessage WaitForMessage()
         {
-            messageReceived.WaitOne(2000);
 
-            Assert.NotNull(messageReceived);
+            TransportMessage message;
+            receivedMessages.TryTake(out message, TimeSpan.FromSeconds(1));
 
-  
-            return received;
+            return message;
 
         }
-        TransportMessage received = null;
 
-        ManualResetEvent messageReceived;
+        BlockingCollection<TransportMessage> receivedMessages;
+
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;

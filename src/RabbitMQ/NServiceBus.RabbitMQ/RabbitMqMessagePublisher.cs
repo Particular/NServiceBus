@@ -1,16 +1,18 @@
-﻿namespace NServiceBus.Transport.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Unicast.Queuing;
+    using NServiceBus.Unicast.Queuing;
     using global::RabbitMQ.Client;
 
     public class RabbitMqMessagePublisher : IPublishMessages
     {
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
-            var routingKey = eventTypes.First().Name;
+            var eventType = eventTypes.First();//we route on the first event for now
+            
+            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForPublish(eventType);
 
             using (var channel = Connection.CreateModel())
             {

@@ -1,10 +1,8 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.RabbitMq.Config
 {
     using System;
     using System.Configuration;
-    using Transport.RabbitMQ;
-    using Transport.RabbitMQ.Config;
-    using Unicast.Queuing.Installers;
+    using NServiceBus.Unicast.Queuing.Installers;
     using global::RabbitMQ.Client;
 
     public static class ConfigureRabbitMqTransport
@@ -91,11 +89,20 @@ Here is an example of what is required:
         public static Configure RabbitMQTransport(this Configure config, ConnectionFactory connectionFactory)
         {
             config.Configurer.ConfigureComponent(connectionFactory.CreateConnection, DependencyLifecycle.SingleInstance);
+            
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested); 
+            
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
+            
+            config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p=>p.EndpointQueueName,Address.Local.Queue);
 
+            config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.InstancePerCall)
+             .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue);
+
+            config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
+            
             EndpointInputQueueCreator.Enabled = true;
 
             return config;

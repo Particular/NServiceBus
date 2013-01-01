@@ -3,6 +3,7 @@
     using System;
     using System.Text;
     using NUnit.Framework;
+    using RabbitMq;
     using Unicast.Queuing;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;

@@ -30,6 +30,9 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     var assembly = Assembly.LoadFrom(assemblyFile.FullName);
 
+                    //
+                    assembly.GetTypes();
+
                     //will throw if assembly cannot be loaded
                     //assembly.GetTypes();
                     results.Assemblies.Add(assembly);

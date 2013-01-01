@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Transport.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
-    using Unicast.Transport.Transactional;
+    using NServiceBus.Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 

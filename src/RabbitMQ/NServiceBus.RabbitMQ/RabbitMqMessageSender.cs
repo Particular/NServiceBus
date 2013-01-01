@@ -1,6 +1,6 @@
-﻿namespace NServiceBus.Transport.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
-    using Unicast.Queuing;
+    using NServiceBus.Unicast.Queuing;
     using global::RabbitMQ.Client;
 
     public class RabbitMqMessageSender : ISendMessages

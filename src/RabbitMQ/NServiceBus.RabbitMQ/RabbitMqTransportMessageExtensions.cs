@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
     using System;
     using System.Collections;

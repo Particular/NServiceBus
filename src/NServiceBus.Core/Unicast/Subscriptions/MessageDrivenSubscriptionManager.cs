@@ -16,8 +16,8 @@
     /// </summary>
     public class MessageDrivenSubscriptionManager : IManageSubscriptions,
                                                     IMutateIncomingTransportMessages,
-                                                    IMutateIncomingMessages,
-                                                    IWantToRunWhenBusStartsAndStops
+                                                    IMutateIncomingMessages
+                                                    
     {
         public ISendMessages MessageSender { get; set; }
         public IBuilder Builder { get; set; }
@@ -191,6 +191,19 @@
         }
 
 
+    
+        readonly static ILog Logger = LogManager.GetLogger("Subscriptions");
+
+        readonly SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
+
+        IAuthorizeSubscriptions subscriptionAuthorizer;
+
+    }
+
+    class StorageInitalizer : IWantToRunWhenBusStartsAndStops
+    {
+        public ISubscriptionStorage SubscriptionStorage { get; set; }
+
         public void Start()
         {
             if (SubscriptionStorage != null)
@@ -201,12 +214,6 @@
         {
 
         }
-
-        readonly static ILog Logger = LogManager.GetLogger("Subscriptions");
-
-        readonly SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
-
-        IAuthorizeSubscriptions subscriptionAuthorizer;
 
     }
 
