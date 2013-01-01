@@ -23,7 +23,6 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
 
             incomingMessage = new TransportMessage
             {
-                Headers = new Dictionary<string, string>(),
                 ReplyToAddress = addressOfOriginatingEndpoint
             };
 
