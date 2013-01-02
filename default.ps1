@@ -38,7 +38,7 @@ task Quick -depends CopyBinaries
 
 task PrepareBinaries -depends RunTests, CopyBinaries
 
-task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
+task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileIntegrationProjects, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
 task Clean { 
 	if(Test-Path $binariesDir){
@@ -212,7 +212,7 @@ task CreateReleaseFolder {
 	Delete-Directory $releaseRoot
 	Create-Directory $releaseRoot
 
-	Copy-Item $binariesDir $releaseRoot\binaries -Force -Recurse
+	Copy-Item $binariesDir $releaseRoot -Force -Recurse
 
 	Copy-Item "$baseDir\acknowledgements.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\README.md" $releaseRoot -Force -ErrorAction SilentlyContinue
@@ -233,7 +233,7 @@ task CreateReleaseFolder {
 	Copy-Item "$outDir\ReturnToSourceQueue.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	Copy-Item "$outDir\XsdGenerator.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	
-	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
+	Copy-Item -Force -Recurse "$baseDir\samples" $releaseRoot  -ErrorAction SilentlyContinue 
 	dir "$releaseRoot\samples" -recurse -include ('bin', 'obj', 'packages') | ForEach-Object {
 		write-host deleting $_ 
 		Delete-Directory $_
@@ -308,7 +308,20 @@ task CompileSamples -depends CopyBinaries {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
 				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
 					$solutionFile = $_.FullName
-					exec { &$script:msBuild /nr:true $solutionFile }
+					exec { &$script:msBuild  $solutionFile /t:"Clean,Build" /m }
+				}
+		}
+}
+
+task CompileIntegrationProjects -depends CompileSamples {
+	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
+						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
+	$solutions = ls -path $baseDir\IntegrationTests -include *.sln -recurse  
+		$solutions | % {
+			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
+				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
+					$solutionFile = $_.FullName
+					exec { &$script:msBuild $solutionFile /t:"Clean,Build" /m  }
 				}
 		}
 }
