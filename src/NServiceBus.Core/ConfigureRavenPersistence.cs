@@ -22,13 +22,13 @@ namespace NServiceBus
         /// An example that shows the configuration:
         /// <code lang="XML" escaped="true">
         ///  <appSettings>
-        ///    <!-- Optional overrider for number of requests that each RavenDB session is allowed to make -->
+        ///    <!-- Optional overwrites for number of requests that each RavenDB session is allowed to make -->
         ///    <add key="NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession" value="50"/>
         ///  </appSettings>
         ///  
         ///  <connectionStrings>
         ///    <!-- Default connection string name -->
-        ///    <add name="NServiceBus.Persistence" connectionString="http://localhost:8080" />
+        ///    <add name="NServiceBus/Persistence" connectionString="http://localhost:8080" />
         ///  </connectionStrings>
         /// </code>
         /// </example>
@@ -41,7 +41,7 @@ namespace NServiceBus
                 return config;
             }
 
-            var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
+            var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"] ?? ConfigurationManager.ConnectionStrings["NServiceBus/Persistence"];
 
             //use existing config if we can find one
             if (connectionStringEntry != null)

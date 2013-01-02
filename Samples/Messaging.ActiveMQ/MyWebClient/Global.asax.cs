@@ -1,8 +1,7 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
-
-namespace MyWebClient
+﻿namespace MyWebClient
 {
+    using System.Web.Mvc;
+    using System.Web.Routing;
     using Injection;
     using NServiceBus;
 
@@ -19,7 +18,7 @@ namespace MyWebClient
                .DefaultBuilder()
                .ForMvc()
                .XmlSerializer(dontWrapSingleMessages:true)
-               .ActiveMqTransport()
+               .ActiveMQTransport()
                    .DontUseTransactions()
                    .PurgeOnStartup(true)
                .UnicastBus()

@@ -12,16 +12,15 @@ namespace NServiceBus
     {
         private const string Message =
             @"
-To run NServiceBus with Sql Transport you need to specify the database connectionstring.
+To run NServiceBus with SqlServer Transport you need to specify the database connectionstring.
 Here is an example of what is required:
   
   <connectionStrings>
-    <!-- Default connection string for all Sql persisters including the Sql Transport -->
-    <add name=""NServiceBus/Persistence"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"" />
+    <add name=""NServiceBus/Transport"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"" />
   </connectionStrings>";
 
         /// <summary>
-        /// Use Sql for your queuing infrastructure.
+        /// Configures SqlServer as the transport.
         /// </summary>
         /// <remarks>
         /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
@@ -31,7 +30,7 @@ Here is an example of what is required:
         /// <code lang="XML" escaped="true">
         ///  <connectionStrings>
         ///    <!-- Default connection string name -->
-        ///    <add name="NServiceBus/Persistence" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" />
+        ///    <add name="NServiceBus/Transport" connectionString="Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" />
         ///  </connectionStrings>
         /// </code>
         /// </example>
@@ -39,12 +38,12 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure SqlServerTransport(this Configure configure)
         {
-            string defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence");
+            string defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Transport");
 
             if (defaultConnectionString == null)
             {
                 string errorMsg =
-                    @"No default connection string found in your config file ({0}) for the Sql Transport.
+                    @"No default connection string found in your config file ({0}) for the SqlServer Transport.
 {1}";
                 throw new InvalidOperationException(String.Format(errorMsg, GetConfigFileIfExists(), Message));
             }
@@ -53,7 +52,7 @@ Here is an example of what is required:
         }
 
         /// <summary>
-        /// Use Sql for your queuing infrastructure.
+        /// Configures SqlServer as the transport.
         /// </summary>
         /// <param name="configure">The configuration object.</param>
         /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
@@ -74,7 +73,7 @@ Here is an example of what is required:
         }
 
         /// <summary>
-        /// Use Sql for your queuing infrastructure.
+        /// Configures SqlServer as the transport.
         /// </summary>
         /// <param name="configure">The configuration object.</param>
         /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>

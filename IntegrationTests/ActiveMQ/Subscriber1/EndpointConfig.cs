@@ -9,7 +9,7 @@
             var config = Configure.With()
                 .DefaultBuilder()
                 .PurgeOnStartup(true)
-                .ActiveMqTransport("activemq:tcp://localhost:61616")
+                .ActiveMQTransport(() => "activemq:tcp://localhost:61616")
                 .XmlSerializer(dontWrapSingleMessages: true);
 
             Configure.Instance.DisableSecondLevelRetries();

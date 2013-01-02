@@ -10,7 +10,7 @@
                 //this overrides the NServiceBus default convention of IEvent
                 .CastleWindsorBuilder() // just to show we can mix and match containers
                 .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
-                .ActiveMqTransport("activemq:tcp://localhost:61616")
+                .ActiveMQTransport(() => "activemq:tcp://localhost:61616")
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
 

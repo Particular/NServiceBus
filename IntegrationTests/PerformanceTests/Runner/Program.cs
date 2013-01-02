@@ -59,14 +59,14 @@ namespace Runner
                     break;
 
                 case "sqlserver":
-                    config.SqlServerTransport(()=>@"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
+                    config.SqlServerTransport(() => @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
                     break;
 
                 case "activemq":
-                    config.ActiveMqTransport("activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
+                    config.ActiveMQTransport(() => "activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
                     break;
                 case "rabbitmq":
-                    config.RabbitMqTransport("host=localhost");
+                    config.RabbitMQTransport(() => "host=localhost");
                     break;
 
                 default:

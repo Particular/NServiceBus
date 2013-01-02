@@ -1,24 +1,86 @@
 namespace NServiceBus
 {
+    using System;
+    using System.Configuration;
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
 
     using Transport.ActiveMQ;
-    using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
 
     public static class ConfigureActiveMqMessageQueue
     {
+        private const string Message =
+            @"
+To run NServiceBus with ActiveMQ Transport you need to specify the database connectionstring.
+Here is an example of what is required:
+  
+  <connectionStrings>
+    <add name=""NServiceBus/Transport"" connectionString=""activemq:tcp://localhost:61616"" />
+  </connectionStrings>";
+
         /// <summary>
-        /// Configures ActiveMq as the transport. Settings are read from the configuration
+        /// Configures ActiveMQ as the transport.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
+        /// <remarks>
+        /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
+        /// </remarks>
+        /// <example>
+        /// An example that shows the configuration:
+        /// <code lang="XML" escaped="true">
+        ///  <connectionStrings>
+        ///    <!-- Default connection string name -->
+        ///    <add name="NServiceBus/Transport" connectionString="activemq:tcp://localhost:61616" />
+        ///  </connectionStrings>
+        /// </code>
+        /// </example>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure ActiveMQTransport(this Configure config)
         {
-            var configSection = Configure.GetConfigSection<ActiveMqTransportConfig>();
+            string defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Transport");
 
-            return ActiveMQTransport(config, configSection.BrokerUri);
+            if (defaultConnectionString == null)
+            {
+                string errorMsg =
+                    @"No default connection string found in your config file ({0}) for the ActiveMQ Transport.
+{1}";
+                throw new InvalidOperationException(String.Format(errorMsg, GetConfigFileIfExists(), Message));
+            }
+
+            return config.InternalActiveMQTransport(defaultConnectionString);
+        }
+
+        /// <summary>
+        /// Configures ActiveMQ as the transport.
+        /// </summary>
+        /// <param name="configure">The configuration object.</param>
+        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure ActiveMQTransport(this Configure configure, string connectionStringName)
+        {
+            string defaultConnectionString = GetConnectionStringOrNull(connectionStringName);
+
+            if (defaultConnectionString == null)
+            {
+                string errorMsg =
+                    @"The connection string named ({0}) was not found in your config file ({1}).";
+                throw new InvalidOperationException(String.Format(errorMsg, connectionStringName,
+                                                                  GetConfigFileIfExists()));
+            }
+
+            return configure.InternalActiveMQTransport(defaultConnectionString);
+        }
+
+        /// <summary>
+        /// Configures ActiveMQ as the transport.
+        /// </summary>
+        /// <param name="configure">The configuration object.</param>
+        /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure ActiveMQTransport(this Configure configure, Func<string> definesConnectionString)
+        {
+            return configure.InternalActiveMQTransport(definesConnectionString());
         }
 
         /// <summary>
@@ -27,7 +89,7 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="brokerUri">Address of the ActiveMQ broker to connect to</param>
         /// <returns></returns>
-        public static Configure ActiveMQTransport(this Configure config, string brokerUri)
+        static Configure InternalActiveMQTransport(this Configure config, string brokerUri)
         {
             config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
@@ -62,6 +124,23 @@ namespace NServiceBus
             EndpointInputQueueCreator.Enabled = true;
 
             return config;
+        }
+
+        private static string GetConfigFileIfExists()
+        {
+            return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
+        }
+
+        private static string GetConnectionStringOrNull(string name)
+        {
+            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings[name];
+
+            if (connectionStringSettings == null)
+            {
+                return null;
+            }
+
+            return connectionStringSettings.ConnectionString;
         }
     }
 }
