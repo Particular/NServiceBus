@@ -84,7 +84,7 @@ namespace NServiceBus.Gateway.Sending
             Builder.Build<IdempotentChannelForwarder>()
                    .Forward(transportMessage, targetSite);
 
-            Notifier.RaiseMessageForwarded("msmq", targetSite.Channel.Type, transportMessage);
+            Notifier.RaiseMessageForwarded(Address.Local.ToString(), targetSite.Channel.Type, transportMessage);
 
             if (UnicastBus != null && UnicastBus.ForwardReceivedMessagesTo != null &&
                 UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)

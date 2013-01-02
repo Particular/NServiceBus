@@ -50,7 +50,6 @@
 
         public static TransportMessage ToTransportMessage(BasicDeliverEventArgs message)
         {
-
             var properties = message.BasicProperties;
             var result = new TransportMessage
                 {
@@ -64,7 +63,8 @@
             result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
                                         .ToDictionary(
                                         kvp => (string)kvp.Key, 
-                                        kvp => Encoding.UTF8.GetString((byte[])kvp.Value));
+                                        kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[]) kvp.Value));
+
             if (properties.IsAppIdPresent())
                 result.MessageIntent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), properties.AppId);
 
