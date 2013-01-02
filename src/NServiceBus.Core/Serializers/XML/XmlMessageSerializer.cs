@@ -165,6 +165,16 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var prop in t.GetProperties())
             {
+                if (!prop.CanWrite && !isKeyValuePair)
+                {
+                    continue;
+                }
+
+                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
+                {
+                    continue;
+                }
+
                 if (typeof(IList) == prop.PropertyType)
                     throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
 
@@ -185,14 +195,7 @@ namespace NServiceBus.Serializers.XML
 
                     if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
                         throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
-
-
                 }
-
-                if (!prop.CanWrite && !isKeyValuePair)
-                    continue;
-                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
-                    continue;
 
                 result.Add(prop);
             }

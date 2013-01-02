@@ -70,6 +70,7 @@
     <Compile Include="DictionaryTests.cs" />
     <Compile Include="ListTests.cs" />
     <Compile Include="MultipleInterfaces.cs" />
+    <Compile Include="Pull_819.cs" />
     <Compile Include="SerializerFactory.cs" />
     <Compile Include="SerializerTests.cs" />
     <Compile Include="IM1.cs" />

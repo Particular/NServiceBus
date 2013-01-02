@@ -80,7 +80,7 @@ namespace NServiceBus.Testing
             expectedInvocations.Add(new ExpectedSendInvocation<TMessage> { Check = check });
             return this;
         }
-        
+
         /// <summary>
         /// Check that the handler does not send a message of the given type complying with the given predicate.
         /// </summary>
@@ -90,6 +90,18 @@ namespace NServiceBus.Testing
         public Handler<T> ExpectNotSend<TMessage>(Func<TMessage, bool> check)
         {
             expectedInvocations.Add(new ExpectedNotSendInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler does not reply with a given message
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotReply<TMessage>(Func<TMessage, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotReplyInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -165,19 +177,19 @@ namespace NServiceBus.Testing
             return this;
         }
 
-		/// <summary>
+        /// <summary>
         /// Check that the handler does not publish any messages of the given type complying with the given predicate.
-		/// </summary>
-		/// <typeparam name="TMessage"></typeparam>
-		/// <param name="check"></param>
-		/// <returns></returns>
-		public Handler<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check)
-		{
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check)
+        {
             expectedInvocations.Add(new ExpectedNotPublishInvocation<TMessage> { Check = check });
-			return this;
-		}
-		
-		/// <summary>
+            return this;
+        }
+
+        /// <summary>
         /// Check that the handler tells the bus to stop processing the current message.
         /// </summary>
         /// <returns></returns>
@@ -265,15 +277,16 @@ namespace NServiceBus.Testing
             assertions.Clear();
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
-        
-		private static MethodInfo GetMessageHandler(Type targetType, Type messageType) {
-			var method = targetType.GetMethod("Handle", new[] { messageType });
-			if (method != null) return method;
 
-			var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-			return targetType.GetInterfaceMap(handlerType)
-			                .TargetMethods
-			                .FirstOrDefault();
-		}
+        private static MethodInfo GetMessageHandler(Type targetType, Type messageType)
+        {
+            var method = targetType.GetMethod("Handle", new[] { messageType });
+            if (method != null) return method;
+
+            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+            return targetType.GetInterfaceMap(handlerType)
+                            .TargetMethods
+                            .FirstOrDefault();
+        }
     }
 }
