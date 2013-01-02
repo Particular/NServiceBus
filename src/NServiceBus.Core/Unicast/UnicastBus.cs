@@ -958,7 +958,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        IMessageContext IBus.CurrentMessageContext
+        public IMessageContext CurrentMessageContext
         {
             get
             {
@@ -988,6 +988,11 @@ namespace NServiceBus.Unicast
         void IInMemoryOperations.Raise<T>(Action<T> messageConstructor)
         {
             ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
+        }
+
+        internal bool HandleCurrentMessageLaterCalled
+        {
+            get { return _handleCurrentMessageLaterWasCalled; }
         }
 
         /// <summary>
