@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.RabbitMQ.Config
+﻿namespace NServiceBus.Transport.RabbitMQ.Config
 {
     using NServiceBus.Config;
 
-    public class RabbitMqTransportConfigurer : IConfigureTransport<Transports.RabbitMQ>
+    public class RabbitMqTransportConfigurer : IConfigureTransport<NServiceBus.RabbitMQ>
     {
         public void Configure(Configure config)
         {
-            config.RabbitMqTransport();
+            config.RabbitMQTransport();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ.Tests
+﻿namespace NServiceBus.Transport.RabbitMQ.Tests
 {
     using Config;
     using NUnit.Framework;

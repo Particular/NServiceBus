@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ
+﻿namespace NServiceBus.Transport.RabbitMQ
 {
     using NServiceBus.Config;
     using Unicast.Queuing;

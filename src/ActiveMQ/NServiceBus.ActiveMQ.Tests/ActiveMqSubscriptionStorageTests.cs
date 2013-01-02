@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ
 {
     using FluentAssertions;
 

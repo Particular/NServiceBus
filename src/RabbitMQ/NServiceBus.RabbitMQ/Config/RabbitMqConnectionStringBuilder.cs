@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ.Config
+﻿namespace NServiceBus.Transport.RabbitMQ.Config
 {
     using System.Data.Common;
     using global::RabbitMQ.Client;

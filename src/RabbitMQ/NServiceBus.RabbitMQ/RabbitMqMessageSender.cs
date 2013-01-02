@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ
+﻿namespace NServiceBus.Transport.RabbitMQ
 {
     using Unicast.Queuing;
     using global::RabbitMQ.Client;

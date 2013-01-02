@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System.Configuration;
-    using RabbitMQ;
-    using RabbitMQ.Config;
+    using Transport.RabbitMQ;
+    using Transport.RabbitMQ.Config;
     using Unicast.Queuing.Installers;
     using global::RabbitMQ.Client;
 
@@ -14,24 +14,24 @@
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure RabbitMqTransport(this Configure config)
+        public static Configure RabbitMQTransport(this Configure config)
         {
             var connectionString = ConfigurationManager.ConnectionStrings["NServiceBus/Transports/RabbitMQ"].ConnectionString;
 
-            return RabbitMqTransport(config, connectionString);
+            return RabbitMQTransport(config, connectionString);
         }
         /// <summary>
         /// Configures Rabbit as the transport. Settings are read from the configuration
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure RabbitMqTransport(this Configure config, string connectionString)
+        public static Configure RabbitMQTransport(this Configure config, string connectionString)
         {
             var builder = new RabbitMqConnectionStringBuilder(connectionString);
 
             var connectionFactory = builder.BuildConnectionFactory();
 
-            return RabbitMqTransport(config, connectionFactory);
+            return RabbitMQTransport(config, connectionFactory);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@
         /// <param name="config"></param>
         /// <param name="connectionFactory"></param>
         /// <returns></returns>
-        public static Configure RabbitMqTransport(this Configure config, ConnectionFactory connectionFactory)
+        public static Configure RabbitMQTransport(this Configure config, ConnectionFactory connectionFactory)
         {
             config.Configurer.ConfigureComponent(connectionFactory.CreateConnection, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)

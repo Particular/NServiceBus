@@ -1,11 +1,9 @@
 namespace NServiceBus
 {
-    using System;
-
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
 
-    using NServiceBus.ActiveMQ;
+    using Transport.ActiveMQ;
     using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
 
@@ -16,11 +14,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public static Configure ActiveMqTransport(this Configure config)
+        public static Configure ActiveMQTransport(this Configure config)
         {
             var configSection = Configure.GetConfigSection<ActiveMqTransportConfig>();
 
-            return ActiveMqTransport(config, configSection.BrokerUri);
+            return ActiveMQTransport(config, configSection.BrokerUri);
         }
 
         /// <summary>
@@ -29,7 +27,7 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="brokerUri">Address of the ActiveMQ broker to connect to</param>
         /// <returns></returns>
-        public static Configure ActiveMqTransport(this Configure config, string brokerUri)
+        public static Configure ActiveMQTransport(this Configure config, string brokerUri)
         {
             config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)

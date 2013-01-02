@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.ActiveMQ.Config
+﻿namespace NServiceBus.Transport.ActiveMQ.Config
 {
     using NServiceBus.Config;
 
     /// <summary>
     /// Default configuration for ActiveMQ
     /// </summary>
-    public class ActiveMqTransportConfigurer : IConfigureTransport<ActiveMQ>
+    public class ActiveMqTransportConfigurer : IConfigureTransport<NServiceBus.ActiveMQ>
     {
         /// <summary>
         /// Configures ActiveMQ in the default mode
@@ -13,7 +13,7 @@
         /// <param name="config"></param>
         public void Configure(Configure config)
         {
-            config.ActiveMqTransport();
+            config.ActiveMQTransport();
         }
     }
 }
