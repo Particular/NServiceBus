@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.RabbitMq.Config
+﻿namespace NServiceBus
 {
     using System;
     using System.Configuration;
     using NServiceBus.Unicast.Queuing.Installers;
+    using RabbitMq;
+    using RabbitMq.Config;
     using global::RabbitMQ.Client;
 
     public static class ConfigureRabbitMqTransport
