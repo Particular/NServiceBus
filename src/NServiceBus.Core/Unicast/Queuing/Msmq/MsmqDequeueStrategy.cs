@@ -124,7 +124,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return MessageQueueTransactionType.Automatic;
         }
 
-        [DebuggerNonUserCode]
         private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
             stopResetEvent.Reset();

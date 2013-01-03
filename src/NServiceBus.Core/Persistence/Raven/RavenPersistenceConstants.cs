@@ -55,7 +55,6 @@ namespace NServiceBus.Persistence.Raven
             }
         }
 
-        [DebuggerNonUserCode]
         static Guid DeterministicGuidBuilder(string input)
         {
             //use MD5 hash to get a 16-byte hash of the string

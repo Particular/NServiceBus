@@ -221,6 +221,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             Receiver.Start(maximumConcurrencyLevel);
         }
 
+        [DebuggerNonUserCode]
         private bool Process(TransportMessage message)
         {
             needToAbort = false;
@@ -273,7 +274,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        [DebuggerNonUserCode]
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
