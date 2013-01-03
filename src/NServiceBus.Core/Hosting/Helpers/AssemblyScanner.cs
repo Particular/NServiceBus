@@ -14,34 +14,36 @@ namespace NServiceBus.Hosting.Helpers
     {
         /// <summary>
         /// Gets a list of assemblies that can be scanned and a list of errors that occurred while scanning.
-        /// 
         /// </summary>
         /// <returns></returns>
-        [DebuggerNonUserCode] //so that exceptions don't jump at the developer debugging their app
+        [DebuggerNonUserCode]
         public static AssemblyScannerResults GetScannableAssemblies()
         {
             var baseDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             var assemblyFiles = baseDir.GetFiles("*.dll", SearchOption.AllDirectories)
                 .Union(baseDir.GetFiles("*.exe", SearchOption.AllDirectories));
             var results = new AssemblyScannerResults();
+
             foreach (var assemblyFile in assemblyFiles)
             {
+                Assembly assembly;
+
                 try
                 {
-                    var assembly = Assembly.LoadFrom(assemblyFile.FullName);
-
-                    //
-                    assembly.GetTypes();
-
-                    //will throw if assembly cannot be loaded
-                    //assembly.GetTypes();
-                    results.Assemblies.Add(assembly);
+                    assembly = Assembly.LoadFrom(assemblyFile.FullName);
                 }
                 catch (BadImageFormatException bif)
                 {
                     var error = new ErrorWhileScanningAssemblies(bif, "Could not load " + assemblyFile.FullName +
                         ". Consider using 'Configure.With(AllAssemblies.Except(\"" + assemblyFile.Name + "\"))' to tell NServiceBus not to load this file.");
                     results.Errors.Add(error);
+                    continue;
+                }
+
+                try
+                {
+                    //will throw if assembly cannot be loaded
+                    assembly.GetTypes();
                 }
                 catch (ReflectionTypeLoadException e)
                 {
@@ -55,8 +57,12 @@ namespace NServiceBus.Hosting.Helpers
                     }
                     var error = new ErrorWhileScanningAssemblies(e, sb.ToString());
                     results.Errors.Add(error);
+                    continue;
                 }
+
+                results.Assemblies.Add(assembly);
             }
+
             return results;
         }
     }

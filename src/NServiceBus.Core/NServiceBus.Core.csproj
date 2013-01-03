@@ -175,7 +175,6 @@
     <Compile Include="EndpointConventions.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
-    <Compile Include="Faults\Forwarder\ExceptionSanitizer.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
     <Compile Include="Faults\Forwarder\Helpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
