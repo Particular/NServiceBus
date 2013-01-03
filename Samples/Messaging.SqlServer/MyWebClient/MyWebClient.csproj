@@ -51,8 +51,8 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.SQL">
-      <HintPath>..\..\..\binaries\NServiceBus.SQL.dll</HintPath>
+    <Reference Include="NServiceBus.SqlServer">
+      <HintPath>..\..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

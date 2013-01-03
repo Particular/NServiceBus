@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}</ProjectGuid>
+    <ProjectGuid>{C2D005B5-065F-4F81-BA1F-259F90E00AEE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySubscriber</RootNamespace>
-    <AssemblyName>MySubscriber</AssemblyName>
+    <RootNamespace>MyServer</RootNamespace>
+    <AssemblyName>MyServer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -41,20 +41,17 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.SQL">
-      <HintPath>..\..\..\binaries\NServiceBus.SQL.dll</HintPath>
+    <Reference Include="NServiceBus.SqlServer">
+      <HintPath>..\..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="MyEventHandler.cs" />
+    <Compile Include="MyCommandHandler.cs" />
+    <Compile Include="MyResponseHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
