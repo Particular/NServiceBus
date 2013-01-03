@@ -17,11 +17,6 @@ namespace NServiceBus.Faults.Forwarder
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            if (SanitizeProcessingExceptions)
-            {
-                e = ExceptionSanitizer.Sanitize(e);
-            }
-
             SendFailureMessage(message, e, "ProcessingFailed");
         }
 
@@ -111,11 +106,6 @@ namespace NServiceBus.Faults.Forwarder
         /// The address of the Second Level Retries input queue when SLR is enabled
         /// </summary>
         public Address RetriesErrorQueue { get; set; }
-
-        /// <summary>
-        /// Indicates of exceptions should be sanitized before sending them on
-        /// </summary>
-        public bool SanitizeProcessingExceptions { get; set; }
 
         Address localAddress;
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
