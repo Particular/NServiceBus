@@ -13,6 +13,7 @@ namespace NServiceBus
         {
             return distributorEnabled;
         }
+
         public static bool DistributorConfiguredToRunOnThisEndpoint(this Configure config)
         {
             return distributorEnabled && distributorShouldRunOnThisEndpoint;

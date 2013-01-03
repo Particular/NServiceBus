@@ -507,6 +507,12 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.SendLocal(params object[] messages)
         {
+            //if we're a worker, send to the distributor data bus
+            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            {
+                return ((IBus)this).Send(MasterNodeAddress, messages);
+            }
+            
             return ((IBus)this).Send(Address.Local, messages);
         }
 
