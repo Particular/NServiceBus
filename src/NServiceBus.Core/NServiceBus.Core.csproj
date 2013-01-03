@@ -463,6 +463,7 @@
     <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
+    <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
     <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
