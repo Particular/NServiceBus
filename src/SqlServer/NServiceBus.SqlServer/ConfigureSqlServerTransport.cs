@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
-    using SQL;
+    using Transport.SqlServer;
     using Unicast.Queuing.Installers;
 
     /// <summary>

@@ -1,4 +1,4 @@
-namespace NServiceBus.SQL
+namespace NServiceBus.Transport.SqlServer
 {
     using System;
     using System.Collections.Generic;

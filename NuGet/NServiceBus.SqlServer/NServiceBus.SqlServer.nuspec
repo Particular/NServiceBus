@@ -1,7 +1,7 @@
 <package>
   <metadata>
-    <id>NServiceBus.SQL</id>
-    <title>NServiceBus SQL</title>
+    <id>NServiceBus.SqlServer</id>
+    <title>NServiceBus SqlServer</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
     <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
@@ -19,6 +19,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="\binaries\NServiceBus.SQL.???" target="lib\net40" />
+    <file src="\binaries\NServiceBus.SqlServer.???" target="lib\net40" />
   </files>
 </package>

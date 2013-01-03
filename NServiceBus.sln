@@ -127,11 +127,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.RabbitMQ", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.RabbitMQ.Tests", "src\RabbitMQ\NServiceBus.RabbitMQ.Tests\NServiceBus.RabbitMQ.Tests.csproj", "{8B773CFD-E0F8-402F-AABC-04580289C76A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{DED4B2D5-CE9E-4C2C-A263-A46D25D1ACAC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SqlServer", "SqlServer", "{DED4B2D5-CE9E-4C2C-A263-A46D25D1ACAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SQL", "src\SQL\NServiceBus.SQL\NServiceBus.SQL.csproj", "{FA1193BF-325C-4201-BB78-484032E09809}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SqlServer", "src\SqlServer\NServiceBus.SqlServer\NServiceBus.SqlServer.csproj", "{FA1193BF-325C-4201-BB78-484032E09809}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SQL.Tests", "src\SQL\NServiceBus.SQL.Tests\NServiceBus.SQL.Tests.csproj", "{A2C2430F-161E-4CF1-B3DB-628A6817DE41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.SqlServer.Tests", "src\SqlServer\NServiceBus.SqlServer.Tests\NServiceBus.SqlServer.Tests.csproj", "{A2C2430F-161E-4CF1-B3DB-628A6817DE41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
