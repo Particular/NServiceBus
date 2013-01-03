@@ -55,8 +55,8 @@
     <Reference Include="NServiceBus.RabbitMQ">
       <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.SQL">
-      <HintPath>..\..\..\binaries\NServiceBus.SQL.dll</HintPath>
+    <Reference Include="NServiceBus.SqlServer">
+      <HintPath>..\..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
