@@ -500,7 +500,6 @@ namespace NServiceBus.Unicast
             MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
         }
 
-
         ICallback IBus.SendLocal<T>(Action<T> messageConstructor)
         {
             return ((IBus)this).SendLocal(CreateInstance(messageConstructor));
@@ -1119,35 +1118,35 @@ namespace NServiceBus.Unicast
 
             foreach (var handlerType in GetHandlerTypes(messageType))
             {
-                try
-                {
-                    var handlerTypeToInvoke = handlerType;
+                var handlerTypeToInvoke = handlerType;
 
-                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
+                var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
 
-                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
+                var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
 
-                    dispatchers.ForEach(dispatch =>
-                                            {
-                                                Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, handlerTypeToInvoke);
-                                                dispatch();
-                                            });
-
-                    invokedHandlers.Add(handlerTypeToInvoke);
-                    if (_doNotContinueDispatchingCurrentMessageToHandlers)
+                dispatchers.ForEach(dispatch =>
                     {
-                        _doNotContinueDispatchingCurrentMessageToHandlers = false;
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    var innerEx = e.GetBaseException();
-                    Log.Warn(handlerType.Name + " failed handling message.", innerEx);
+                        Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, handlerTypeToInvoke);
+                        try
+                        {
+                            dispatch();
+                        }
+                        catch (TargetInvocationException e)
+                        {
+                            Log.Warn(handlerType.Name + " failed handling message.", e.InnerException);
 
-                    throw new TransportMessageHandlingFailedException(innerEx);
+                            throw new TransportMessageHandlingFailedException(e.InnerException);
+                        }
+                    });
+
+                invokedHandlers.Add(handlerTypeToInvoke);
+                if (_doNotContinueDispatchingCurrentMessageToHandlers)
+                {
+                    _doNotContinueDispatchingCurrentMessageToHandlers = false;
+                    break;
                 }
             }
+
             return invokedHandlers;
         }
 

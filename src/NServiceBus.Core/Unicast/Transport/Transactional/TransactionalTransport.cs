@@ -221,7 +221,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             Receiver.Start(maximumConcurrencyLevel);
         }
 
-        [DebuggerNonUserCode]
         private bool Process(TransportMessage message)
         {
             needToAbort = false;
@@ -366,7 +365,20 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             try
             {
-                FailureManager.ProcessingAlwaysFailsForMessage(message, exception);
+                Exception e = exception;
+
+                if (e is AggregateException)
+                {
+                    e = e.GetBaseException();
+                }
+
+                if (e is TransportMessageHandlingFailedException)
+                {
+                    e = e.InnerException;
+                }
+
+                FailureManager.ProcessingAlwaysFailsForMessage(message, e);
+                
                 return true;
             }
             catch (Exception ex)

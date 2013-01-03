@@ -3,7 +3,6 @@ namespace NServiceBus.Faults.Forwarder
     using System;
     using Logging;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     /// <summary>
     /// Implementation of IManageMessageFailures by forwarding messages
@@ -19,7 +18,9 @@ namespace NServiceBus.Faults.Forwarder
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
             if (SanitizeProcessingExceptions)
+            {
                 e = ExceptionSanitizer.Sanitize(e);
+            }
 
             SendFailureMessage(message, e, "ProcessingFailed");
         }
@@ -82,16 +83,6 @@ namespace NServiceBus.Faults.Forwarder
 
         void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
         {
-            if (e is AggregateException)
-            {
-                e = e.GetBaseException();
-            }
-
-            if (e is TransportMessageHandlingFailedException)
-            {
-                e = e.GetBaseException();
-            }
-
             message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
             message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
@@ -103,8 +94,7 @@ namespace NServiceBus.Faults.Forwarder
             message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-
+            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
        
             var failedQ = localAddress ?? Address.Local;
 
@@ -129,7 +119,5 @@ namespace NServiceBus.Faults.Forwarder
 
         Address localAddress;
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
-
-
     }
 }
