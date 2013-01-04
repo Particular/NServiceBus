@@ -58,6 +58,8 @@ namespace NServiceBus.Management.Retries
         {
             Logger.ErrorFormat("SLR has failed to resolve the issue with message {0} and will be forwarded to the error queue at {1}", message.IdForCorrelation, FaultManager.ErrorQueue);
 
+            message.Headers.Remove(Headers.Retries);
+
             MessageSender.Send(message, FaultManager.ErrorQueue);
         }
 

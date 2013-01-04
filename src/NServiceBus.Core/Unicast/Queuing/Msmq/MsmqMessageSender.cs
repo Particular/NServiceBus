@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System;
     using System.Messaging;
     using System.Transactions;
-    using NServiceBus.Config;
 
     public class MsmqMessageSender : ISendMessages
     {

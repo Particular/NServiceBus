@@ -325,7 +325,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 {
                     throw exceptionFromMessageHandling;//cause rollback    
                 }
-
             }
 
             if (exceptionFromMessageModules != null) //cause rollback

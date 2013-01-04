@@ -87,15 +87,28 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void Message_should_only_be_retried_X_times_when_using_the_defaultPolicy()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-            // default policy is to retry once every minute for 30 minutes
-            for (int i = 0; i < 31; i++)
+            for (int i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
             {
                 _satellite.Handle(_message);
             }
 
             Assert.AreEqual(ERROR_QUEUE, _messageSender.MessageSentTo);
+        }
+
+        [Test]
+        public void Message_retries_header_should_be_removed_before_being_sent_to_real_errorQ()
+        {
+            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+
+            _satellite.Handle(_message);
+
+            SecondLevelRetries.TimeoutPolicy = _ => true;
+            
+             _satellite.Handle(_message);
+
+             Assert.False(_message.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
