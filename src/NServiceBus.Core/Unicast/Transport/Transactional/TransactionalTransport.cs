@@ -6,6 +6,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using Faults;
     using Logging;
     using System.Runtime.Serialization;
+    using Management.Retries;
     using Monitoring;
 
     /// <summary>
@@ -282,7 +283,15 @@ namespace NServiceBus.Unicast.Transport.Transactional
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(m))
                 {
-                    Logger.Warn(string.Format("Message has failed the maximum number of times allowed, message will be handed over to SLR if enabled, ID={0}.", m.IdForCorrelation));
+                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransactionalTransport
+                    if (Configure.Instance.Builder.Build<SecondLevelRetries>().Disabled)
+                    {
+                        Logger.ErrorFormat("Message has failed the maximum number of times allowed, ID={0}.", m.IdForCorrelation);
+                    }
+                    else
+                    {
+                        Logger.WarnFormat("Message has failed the maximum number of times allowed, message will be handed over to SLR, ID={0}.", m.IdForCorrelation);
+                    }
 
                     OnFinishedMessageProcessing();
 
