@@ -210,7 +210,7 @@ namespace NServiceBus.Testing
             return this;
         }
 
-        /// <summary>
+      /// <summary>
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>
@@ -219,7 +219,7 @@ namespace NServiceBus.Testing
             OnMessage(initializeMessage, Guid.NewGuid().ToString("N"));
         }
 
-        /// <summary>
+      /// <summary>
         /// Activates the test that has been set up passing in the given message, 
         /// setting the incoming headers and the message Id.
         /// </summary>
@@ -231,7 +231,16 @@ namespace NServiceBus.Testing
             OnMessage(msg, messageId);
         }
 
-        /// <summary>
+      /// <summary>Activates the test that has been set up passing in a specific message to be used.</summary>
+      /// <param name="initializedMessage">A message to be used with message handler.</param>
+      /// <remarks>This is different from "<![CDATA[public void OnMessage<TMessage>(Action<TMessage> initializedMessage)]]>" in a way that it uses the message, and not calls to an action.</remarks>
+      /// <example><![CDATA[var message = new TestMessage {//...}; Test.Handler<EmptyHandler>().OnMessage<TestMessage>(message);]]></example>
+      public void OnMessage<TMessage>(TMessage initializedMessage)
+      {
+        OnMessage(initializedMessage, Guid.NewGuid().ToString("N"));
+      }
+
+      /// <summary>
         /// Activates the test that has been set up passing in given message,
         /// setting the incoming headers and the message Id.
         /// </summary>
