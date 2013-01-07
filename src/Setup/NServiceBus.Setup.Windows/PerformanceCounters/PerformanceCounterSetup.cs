@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Setup.Windows.PerformanceCounters
 {
+    using System;
+    using System.ComponentModel;
     using System.Diagnostics;
 
     public class PerformanceCounterSetup
@@ -28,22 +30,18 @@
 
         public static void SetupCounters()
         {
-            if (PerformanceCounterCategory.Exists(categoryName))
+            try
             {
-                bool needToRecreateCategory = false;
-
-                foreach (CounterCreationData counter in Counters)
-                {
-                    if (!PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName))
-                        needToRecreateCategory = true;
-   
-                }
-
-                if (!needToRecreateCategory)
-                    return;
-
-
                 PerformanceCounterCategory.Delete(categoryName);
+            }
+            catch (Win32Exception)
+            {
+                //Making sure this won't stop the process.
+            }
+            catch (Exception)
+            {
+                //Ignore exception.
+                //We need to ensure that we attempt to delete category before recreating it. 
             }
 
             PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
