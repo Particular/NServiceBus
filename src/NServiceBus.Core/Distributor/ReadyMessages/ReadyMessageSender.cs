@@ -36,11 +36,6 @@ namespace NServiceBus.Distributor.ReadyMessages
                 return;
             }
 
-            if (Bus.HandleCurrentMessageLaterCalled)
-            {
-                return;
-            }
-
             SendReadyMessage(1);
         }
 

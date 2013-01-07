@@ -488,9 +488,19 @@ namespace NServiceBus.Unicast
         void IBus.HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
+            {
                 return;
+            }
 
-            MessageSender.Send(_messageBeingHandled, Address.Local);
+            //if we're a worker, send to the distributor data bus
+            if (Configure.Instance.WorkerRunsOnThisEndpoint())
+            {
+                MessageSender.Send(_messageBeingHandled, MasterNodeAddress);
+            }
+            else
+            {
+                MessageSender.Send(_messageBeingHandled, Address.Local);
+            }
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -993,11 +1003,6 @@ namespace NServiceBus.Unicast
         void IInMemoryOperations.Raise<T>(Action<T> messageConstructor)
         {
             ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
-        }
-
-        internal bool HandleCurrentMessageLaterCalled
-        {
-            get { return _handleCurrentMessageLaterWasCalled; }
         }
 
         /// <summary>
