@@ -516,9 +516,18 @@ namespace NServiceBus.Unicast
         public void HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
+            {
                 return;
+            }
 
-            MessageSender.Send(_messageBeingHandled, Address.Local);
+            if (WorkerRunsOnThisEndpoint)
+            {
+                MessageSender.Send(_messageBeingHandled, MasterNodeAddress);
+            }
+            else
+            {
+                MessageSender.Send(_messageBeingHandled, Address.Local);
+            }
 
             _handleCurrentMessageLaterWasCalled = true;
         }

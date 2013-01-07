@@ -29,12 +29,7 @@
                                                                    {
                                                                        return;
                                                                    }
-
-                                                                   if (Bus.HandleCurrentMessageLaterCalled)
-                                                                   {
-                                                                       return;
-                                                                   }
-                                                                       
+ 
                                                                    SendReadyMessage(1);
                                                                };
         }
