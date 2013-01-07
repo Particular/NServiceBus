@@ -513,7 +513,7 @@ namespace NServiceBus.Unicast
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
-        void IBus.HandleCurrentMessageLater()
+        public void HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
                 return;
@@ -642,6 +642,11 @@ namespace NServiceBus.Unicast
                 Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
                 throw;
             }
+        }
+
+        internal bool HandleCurrentMessageLaterCalled
+        {
+            get { return _handleCurrentMessageLaterWasCalled; }
         }
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)

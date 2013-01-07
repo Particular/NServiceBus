@@ -25,8 +25,15 @@
 
             EndpointTransport.FinishedMessageProcessing += (a, b) =>
                                                                {
-                                                                   if (((IBus)Bus).CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
+                                                                   if (Bus.CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
+                                                                   {
                                                                        return;
+                                                                   }
+
+                                                                   if (Bus.HandleCurrentMessageLaterCalled)
+                                                                   {
+                                                                       return;
+                                                                   }
                                                                        
                                                                    SendReadyMessage(1);
                                                                };
