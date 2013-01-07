@@ -8,6 +8,7 @@ namespace NServiceBus
 {
     using System;
     using Distributor.Config;
+    using Unicast;
 
     public static class ConfigureDistributor
     {
@@ -44,7 +45,7 @@ namespace NServiceBus
 
             if (withWorker)
             {
-                workerRunsOnThisEndpoint = true;
+                UnicastBus.WorkerRunsOnThisEndpoint = workerRunsOnThisEndpoint = true;
                 WorkerInitializer.Init();
             }
                 
@@ -70,7 +71,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure EnlistWithDistributor(this Configure config)
         {
-            workerRunsOnThisEndpoint = true;
+            UnicastBus.WorkerRunsOnThisEndpoint = workerRunsOnThisEndpoint = true;
 
             ValidateMasterNodeConfigurationForWorker(config);
 
