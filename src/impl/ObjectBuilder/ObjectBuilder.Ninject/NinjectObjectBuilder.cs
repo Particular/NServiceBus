@@ -12,7 +12,6 @@ using NServiceBus.ObjectBuilder.Ninject.Internal;
 
 namespace NServiceBus.ObjectBuilder.Ninject
 {
-    using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Planning.Bindings;
 
     /// <summary>
@@ -71,7 +70,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             this.AddCustomPropertyInjectionHeuristic();
 
-            this.kernel.Bind<NinjectChildContainer>().ToSelf().Named("Container").DefinesNamedScope("Container");
+            this.kernel.Bind<NinjectChildContainer>().ToSelf().DefinesNinjectObjectBuilderScope();
         }
 
         /// <summary>
@@ -332,8 +331,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {
@@ -348,8 +347,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {
