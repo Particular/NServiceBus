@@ -114,6 +114,11 @@ namespace NServiceBus.Unicast.Config
         
         private void MapTypeToAddress(Type messagesType, Address address)
         {
+            if (!MessageConventionExtensions.IsMessageType(messagesType))
+            {
+                return;
+            }
+
             if (typesToEndpoints.ContainsKey(messagesType) && typesToEndpoints[messagesType] != Address.Undefined)
             {
                 return;
