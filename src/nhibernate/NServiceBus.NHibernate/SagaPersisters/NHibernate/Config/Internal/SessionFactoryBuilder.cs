@@ -6,8 +6,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
     using System.Linq;
     using AutoPersistence;
     using global::NHibernate;
-    using global::NHibernate.Context;
     using Configuration = global::NHibernate.Cfg.Configuration;
+    using Environment = global::NHibernate.Cfg.Environment;
 
     /// <summary>
     /// Builder class for the NHibernate Session Factory
@@ -61,8 +61,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
         private static void ApplyDefaultsTo(Configuration configuration)
         {
-            configuration.SetProperty("current_session_context_class",
-                                      typeof (ThreadStaticSessionContext).AssemblyQualifiedName);
+            configuration.SetProperty(Environment.CurrentSessionContextClass,
+                                      typeof(InternalThreadStaticSessionContext).AssemblyQualifiedName);
         }
     }
 }
