@@ -37,15 +37,11 @@ namespace NServiceBus
             return config;
         }
 
-
         public static Address TimeoutManagerAddress { get; set; }
 
         private static void SetupTimeoutManager(Configure config)
         {
             TimeoutManagerAddress = config.GetTimeoutManagerAddress();
-
-            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
         }
 
         /// <summary>
