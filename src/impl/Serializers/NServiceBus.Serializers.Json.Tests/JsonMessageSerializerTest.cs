@@ -90,10 +90,13 @@ namespace NServiceBus.Serializers.Json.Tests
                 Serializer.Serialize(new object[] { messageWithXDocument }, stream);
 
                 stream.Position = 0;
+                var json = new StreamReader(stream).ReadToEnd();
+                stream.Position = 0;
 
                 var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument).AssemblyQualifiedName }).Cast<MessageWithXDocument>().Single();
 
                 Assert.AreEqual(messageWithXDocument.Document.ToString(), result.Document.ToString());
+                Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
             }
 
             using (var stream = new MemoryStream())
@@ -103,10 +106,13 @@ namespace NServiceBus.Serializers.Json.Tests
                 Serializer.Serialize(new object[] { messageWithXElement }, stream);
 
                 stream.Position = 0;
+                var json = new StreamReader(stream).ReadToEnd();
+                stream.Position = 0;
 
                 var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement).AssemblyQualifiedName }).Cast<MessageWithXElement>().Single();
 
                 Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
+                Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
             }
         }
     }
