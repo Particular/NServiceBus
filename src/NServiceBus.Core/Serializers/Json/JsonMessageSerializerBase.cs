@@ -3,6 +3,7 @@ namespace NServiceBus.Serializers.Json
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization.Formatters;
+
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
@@ -23,7 +24,7 @@ namespace NServiceBus.Serializers.Json
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
             TypeNameHandling = TypeNameHandling.Auto,
-            Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind } }
+            Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
         };
 
         protected JsonMessageSerializerBase(IMessageMapper messageMapper)

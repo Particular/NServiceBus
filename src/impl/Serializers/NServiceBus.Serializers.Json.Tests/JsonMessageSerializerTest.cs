@@ -1,8 +1,14 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
+    using System;
+    using System.Diagnostics;
     using System.IO;
+    using System.Xml.Linq;
+
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
+
+    using System.Linq;
 
     [TestFixture]
     public class JsonMessageSerializerTest : JsonMessageSerializerTestBase
@@ -67,10 +73,56 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.That(!result.Contains("$type"), result);
             }
         }
+
+        [Test]
+        public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
+        {
+            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { messageWithXDocument }, stream);
+
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument).AssemblyQualifiedName }).Cast<MessageWithXDocument>().Single();
+
+                Assert.AreEqual(messageWithXDocument.Document.ToString(), result.Document.ToString());
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { messageWithXElement }, stream);
+
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement).AssemblyQualifiedName }).Cast<MessageWithXElement>().Single();
+
+                Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
+            }
+        }
     }
 
     public class SimpleMessage
     {
         public string SomeProperty { get; set; }
+    }
+
+    public class MessageWithXDocument
+    {
+        public XDocument Document { get; set; }
+    }
+
+    public class MessageWithXElement
+    {
+        public XElement Document { get; set; }
     }
 }

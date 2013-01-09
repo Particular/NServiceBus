@@ -359,6 +359,7 @@
     <Compile Include="Serializers\Json\BsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\Internal\MessageContractResolver.cs" />
     <Compile Include="Serializers\Json\Internal\MessageSerializationBinder.cs" />
+    <Compile Include="Serializers\Json\Internal\XContainerConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
