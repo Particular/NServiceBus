@@ -181,7 +181,15 @@ namespace NServiceBus
             try
             {
                 store.Initialize();
-                store.DatabaseCommands.GetDatabaseNames(1);
+                var request = WebRequest.Create(string.Format("{0}/build/version", store.Url));
+                request.Timeout = 2000;
+                using (var response = request.GetResponse())
+                {
+                    if (response.Headers.Get("Raven-Server-Build") == null)
+                    {
+                        ShowUncontactableRavenWarning(store);
+                    }
+                }
             }
             catch (WebException)
             {
