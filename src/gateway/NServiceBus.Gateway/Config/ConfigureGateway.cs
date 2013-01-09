@@ -133,7 +133,6 @@ namespace NServiceBus
         static void ConfigureReceiver(Configure config)
         {
             config.Configurer.ConfigureComponent<GatewayReceiver>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<LegacyEndpointRouter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<MessageNotifier>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
 
