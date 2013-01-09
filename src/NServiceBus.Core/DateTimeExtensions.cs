@@ -11,21 +11,21 @@ namespace NServiceBus
         const string Format = "yyyy-MM-dd HH:mm:ss:ffffff Z";
 
         /// <summary>
-        /// Converts the date time to a string suitable for transport over the wire
+        /// Converts the <see cref="DateTime"/> to a <see cref="string"/> suitable for transport over the wire
         /// </summary>
         /// <returns></returns>
-        public static string ToWireFormattedString(DateTime time)
+        public static string ToWireFormattedString(DateTime dateTime)
         {
-            return time.ToUniversalTime().ToString(Format, CultureInfo.InvariantCulture);
+            return dateTime.ToUniversalTime().ToString(Format, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
-        /// Converts the date time to a string suitable for transport over the wire
+        /// Converts a wire formatted <see cref="string"/> from <see cref="ToWireFormattedString"/> to a UTC <see cref="DateTime"/>
         /// </summary>
         /// <returns></returns>
-        public static DateTime ToUtcDateTime(string time)
+        public static DateTime ToUtcDateTime(string wireFormattedString)
         {
-            return DateTime.ParseExact(time, Format, CultureInfo.InvariantCulture).ToUniversalTime();
+            return DateTime.ParseExact(wireFormattedString, Format, CultureInfo.InvariantCulture).ToUniversalTime();
         }
     }
 }
