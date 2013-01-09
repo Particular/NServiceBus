@@ -57,10 +57,10 @@
     <Compile Include="Config\ConfigureNinjectBuilder.cs" />
     <Compile Include="Internal\IObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="Internal\NinjectChildContainer.cs" />
-    <Compile Include="Internal\NinjectObjectBuilderExtensions.cs" />
     <Compile Include="Internal\ObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="NinjectObjectBuilder.cs" />
     <Compile Include="Internal\NinjectWhenExtensions.cs" />
+    <Compile Include="NinjectObjectBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

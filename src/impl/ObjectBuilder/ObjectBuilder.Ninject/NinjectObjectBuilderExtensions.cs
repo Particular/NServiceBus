@@ -1,5 +1,7 @@
-﻿namespace NServiceBus.ObjectBuilder.Ninject.Internal
+﻿namespace NServiceBus.ObjectBuilder.Ninject
 {
+    using NServiceBus.ObjectBuilder.Ninject.Internal;
+
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
 
