@@ -3,6 +3,8 @@
     using NServiceBus.MessageMutator;
     using NServiceBus.Serialization;
 
+    using NServiceBus.Unicast.Transport;
+
     public class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
         public IMessageSerializer Serializer { get; set; }
@@ -13,7 +15,7 @@
         /// <param name="transportMessage">Transport Message to mutate.</param>
         public void MutateIncoming(TransportMessage transportMessage)
         {
-            if (!transportMessage.Headers.ContainsKey(Headers.ContentType))
+            if (!transportMessage.IsControlMessage() && !transportMessage.Headers.ContainsKey(Headers.ContentType))
             {
                 transportMessage.Headers[Headers.ContentType] = this.Serializer.ContentType;
             }
