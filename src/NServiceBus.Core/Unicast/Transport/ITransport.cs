@@ -54,19 +54,19 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.
 		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumThroughputPerSecond and ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+		[ObsoleteEx(Replacement = "MaximumMessageThroughputPerSecond and ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
 		int MaxThroughputPerSecond { get; set; }
 
 		/// <summary>
 		/// Gets the receiving messages rate.
 		/// </summary>
-		int MaximumThroughputPerSecond { get; }
+		int MaximumMessageThroughputPerSecond { get; }
 
 		/// <summary>
 		/// Updates the max throughput per second.
 		/// </summary>
-		/// <param name="maximumThroughputPerSecond">The new max throughput.</param>
-		void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond);
+		/// <param name="maximumMessageThroughputPerSecond">The new max throughput.</param>
+		void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond);
 
 		/// <summary>
 		/// Raised when a message is received.

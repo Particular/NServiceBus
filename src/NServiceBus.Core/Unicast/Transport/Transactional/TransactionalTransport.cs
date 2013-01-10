@@ -116,9 +116,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Gets the receiving messages rate.
         /// </summary>
-        public int MaximumThroughputPerSecond
+        public int MaximumMessageThroughputPerSecond
         {
-            get { return maxThroughputPerSecond; }
+            get { return maxMessageThroughputPerSecond; }
         }
 
         /// <summary>
@@ -126,39 +126,39 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public int MaxThroughputPerSecond
         {
-            get { return maxThroughputPerSecond; }
+            get { return maxMessageThroughputPerSecond; }
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond) instead.");
+                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) instead.");
 
-                maxThroughputPerSecond = value;
+                maxMessageThroughputPerSecond = value;
             }
         }
 
-        int maxThroughputPerSecond;
+        int maxMessageThroughputPerSecond;
 
-        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
+        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
-            if (maximumThroughputPerSecond == maxThroughputPerSecond)
+            if (maximumMessageThroughputPerSecond == maxMessageThroughputPerSecond)
             {
                 return;
             }
 
-            maxThroughputPerSecond = maximumThroughputPerSecond;
+            maxMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
             if (throughputLimiter != null)
             {
                 throughputLimiter.Stop();
-                throughputLimiter.Start(maximumThroughputPerSecond);
+                throughputLimiter.Start(maximumMessageThroughputPerSecond);
             }
-            if (maximumThroughputPerSecond <= 0)
+            if (maximumMessageThroughputPerSecond <= 0)
             {
                 Logger.InfoFormat("Throughput limit for {0} disabled.", receiveAddress);
             }
             else
             {
                 Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress,
-                                  maximumThroughputPerSecond);
+                                  maximumMessageThroughputPerSecond);
             }
         }
 
@@ -197,12 +197,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             throughputLimiter = new ThroughputLimiter();
 
-            throughputLimiter.Start(maxThroughputPerSecond);
+            throughputLimiter.Start(maxMessageThroughputPerSecond);
 
             StartReceiver();
 
-            if(maxThroughputPerSecond > 0)
-                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
+            if(maxMessageThroughputPerSecond > 0)
+                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxMessageThroughputPerSecond);
 
             isStarted = true;
         }

@@ -7,8 +7,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Messaging;
     using System.Net;
     using System.Net.NetworkInformation;
+    using System.Xml;
     using System.Xml.Serialization;
-    using Transport;
 
     ///<summary>
     /// MSMQ-related utility functions
@@ -244,16 +244,26 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (m.Extension.Length > 0)
             {
-                var stream = new MemoryStream(m.Extension);
-                var o = headerSerializer.Deserialize(stream);
+                object o;
+                using (var stream = new MemoryStream(m.Extension))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}))
+                {
+                    o = headerSerializer.Deserialize(reader);
+                }
 
                 foreach (var pair in o as List<Utils.HeaderInfo>)
+                {
                     if (pair.Key != null)
+                    {
                         result.Headers[pair.Key] = pair.Value;
+                    }
+                }
             }
 
             if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
+            {
                 ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
+            }
        
             return result;
         }
@@ -297,15 +307,21 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var result = new Message();
 
             if (message.Body != null)
+            {
                 result.BodyStream = new MemoryStream(message.Body);
+            }
 
             if (!string.IsNullOrWhiteSpace(message.CorrelationId))
+            {
                 result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
+            }
 
             result.Recoverable = message.Recoverable;
 
             if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+            {
                 result.TimeToBeReceived = message.TimeToBeReceived;
+            }
 
             using (var stream = new MemoryStream())
             {

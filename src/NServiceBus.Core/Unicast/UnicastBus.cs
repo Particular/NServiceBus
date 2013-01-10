@@ -1102,7 +1102,10 @@ namespace NServiceBus.Unicast
                         messageTypes = header.Split(';');
                 }
 
-                return MessageSerializer.Deserialize(new MemoryStream(m.Body), messageTypes);
+                using (var stream = new MemoryStream(m.Body))
+                {
+                    return MessageSerializer.Deserialize(stream, messageTypes);
+                }
             }
             catch (Exception e)
             {
@@ -1431,16 +1434,17 @@ namespace NServiceBus.Unicast
 
         void SerializeMessages(TransportMessage result, object[] messages)
         {
-            var ms = new MemoryStream();
+            using (var ms = new MemoryStream())
+            {
+                MessageSerializer.Serialize(messages, ms);
 
-            MessageSerializer.Serialize(messages, ms);
+                result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-            result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                if (messages.Any())
+                    result.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
 
-            if (messages.Any())
-                result.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
-
-            result.Body = ms.ToArray();
+                result.Body = ms.ToArray();
+            }
         }
 
         string SerializeEnclosedMessageTypes(IEnumerable<object> messages)

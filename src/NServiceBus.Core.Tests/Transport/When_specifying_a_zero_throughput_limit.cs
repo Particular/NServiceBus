@@ -10,7 +10,7 @@
         {
             const int throughputLimit = 0;
 
-            transport.ChangeMaximumThroughputPerSecond(throughputLimit);
+            transport.ChangeMaximumMessageThroughputPerSecond(throughputLimit);
             transport.Start(Address.Parse("mytest"));
 
             for (int i = 0; i < 100; i++)

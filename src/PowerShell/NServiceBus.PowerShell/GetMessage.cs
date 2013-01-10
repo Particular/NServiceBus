@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Management.Automation;
     using System.Messaging;
+    using System.Xml;
     using System.Xml.Serialization;
 
     [Cmdlet(VerbsCommon.Get, "NServiceBusMessage")]
@@ -43,8 +44,12 @@
             
             if(message.Extension.Length > 0)
             {
-                var stream = new MemoryStream(message.Extension);
-                result = headerSerializer.Deserialize(stream) as IEnumerable<HeaderInfo>;
+                using (var stream = new MemoryStream(message.Extension))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
+
+                {
+                    result = headerSerializer.Deserialize(reader) as IEnumerable<HeaderInfo>;
+                }
             }
 
             return result;
