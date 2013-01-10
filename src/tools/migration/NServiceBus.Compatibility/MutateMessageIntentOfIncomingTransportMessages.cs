@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-
-namespace NServiceBus.Compatibility
+﻿namespace NServiceBus.Compatibility
 {
-    using MessageMutator;
+    using System;
+    using System.Linq;
+
+    using NServiceBus.MessageMutator;
 
     public class MutateMessageIntentOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
@@ -16,7 +16,7 @@ namespace NServiceBus.Compatibility
         /// <param name="transportMessage">Transport Message to mutate.</param>
         public void MutateIncoming(TransportMessage transportMessage)
         {
-            if (transportMessage.Headers.ContainsKey("NServiceBus.Version") && transportMessage.Headers["NServiceBus.Version"] != "3.0.0")
+            if (transportMessage.Headers.ContainsKey(Headers.NServiceBusVersion) && transportMessage.Headers[Headers.NServiceBusVersion] != "3.0.0")
             {
                 if ((int)transportMessage.MessageIntent == 0)
                     transportMessage.MessageIntent = Enum.GetValues(typeof(MessageIntentEnum)).Cast<MessageIntentEnum>().Max();
