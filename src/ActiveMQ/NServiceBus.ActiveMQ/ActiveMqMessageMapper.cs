@@ -41,7 +41,7 @@ namespace NServiceBus.Transport.ActiveMQ
                 jmsmessage.NMSTimeToLive = message.TimeToBeReceived;
             }
 
-            if (message.Headers != null && message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
                 jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             }
