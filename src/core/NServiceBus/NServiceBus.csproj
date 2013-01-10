@@ -71,6 +71,7 @@
     <Compile Include="Address.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="CompletionResult.cs" />
+    <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
