@@ -2,10 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
+
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
 
-    using Transport.ActiveMQ;
+    using NServiceBus.Transport.ActiveMQ;
     using NServiceBus.Unicast.Queuing.Installers;
 
     public static class ConfigureActiveMqMessageQueue
@@ -100,6 +101,8 @@ Here is an example of what is required:
 
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<ActiveMqMessageMapper>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(() => new ActiveMqMessageDecoderPipeline(), DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(() => new ActiveMqMessageEncoderPipeline(), DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageTypeInterpreter>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<TopicEvaluator>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<DestinationEvaluator>(DependencyLifecycle.InstancePerCall);
