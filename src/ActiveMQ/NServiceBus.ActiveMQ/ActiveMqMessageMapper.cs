@@ -1,14 +1,11 @@
 namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
     using Apache.NMS;
     using Apache.NMS.Util;
-
-    using NServiceBus.Unicast.Transport;
 
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
@@ -26,7 +23,7 @@ namespace NServiceBus.Transport.ActiveMQ
         {
             IMessage jmsmessage = session.CreateTextMessage();
 
-            if (!message.IsControlMessage())
+            if (message.Body != null)
             {
                 string messageBody = Encoding.UTF8.GetString(message.Body);
                 jmsmessage = session.CreateTextMessage(messageBody);
@@ -71,9 +68,10 @@ namespace NServiceBus.Transport.ActiveMQ
             var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
 
             byte[] body = null;
-            if (!message.IsControlMessage())
+            var textMessage = (ITextMessage)message;
+            if (textMessage.Text != null)
             {
-                body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
+                body = Encoding.UTF8.GetBytes(textMessage.Text);
             }
 
             var transportMessage = new TransportMessage

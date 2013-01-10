@@ -12,8 +12,6 @@
 
     using Moq;
 
-    using NServiceBus.Unicast.Transport;
-
     using NUnit.Framework;
 
     [TestFixture]
@@ -32,11 +30,11 @@
         }
 
         [Test]
-        public void CreateJmsMessage_WhenControlMessage_ShouldUseEmptyMessage()
+        public void CreateJmsMessage_WhenMessageWithoutBody_ShouldUseEmptyMessage()
         {
             this.SetupMessageCreation();
 
-            var controlMessage = ControlMessage.Create(Address.Local);
+            var controlMessage = this.CreateTransportMessage((byte[])null);
 
             var result = this.testee.CreateJmsMessage(controlMessage, this.session.Object) as ITextMessage;
 
@@ -73,10 +71,9 @@
         }
 
         [Test]
-        public void CreateTransportMessage_WhenControlMessage_ShouldUseNullBody()
+        public void CreateTransportMessage_WhenMessageHasNoText_ShouldUseNullBody()
         {
             var message = CreateTextMessage(default(string));
-            message.Properties[Headers.ControlMessageHeader] = "true";
 
             var result = this.testee.CreateTransportMessage(message);
 
