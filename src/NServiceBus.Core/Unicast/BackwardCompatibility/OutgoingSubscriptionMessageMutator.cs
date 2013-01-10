@@ -25,13 +25,15 @@ namespace NServiceBus.Unicast.BackwardCompatibility
                 (transportMessage.MessageIntent == MessageIntentEnum.Unsubscribe) ||
                 (transportMessage.MessageIntent == MessageIntentEnum.Send))))
             {
-                var stream = new MemoryStream();
-                var completionMessage = new CompletionMessage();
-                if (transportMessage.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
-                    completionMessage.ErrorCode = int.Parse(transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader]);
+                using (var stream = new MemoryStream())
+                {
+                    var completionMessage = new CompletionMessage();
+                    if (transportMessage.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
+                        completionMessage.ErrorCode = int.Parse(transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader]);
 
-                MessageSerializer.Serialize(new object[]  { completionMessage }, stream);
-                transportMessage.Body = stream.ToArray();
+                    MessageSerializer.Serialize(new object[]  { completionMessage }, stream);
+                    transportMessage.Body = stream.ToArray();
+                }
                 Log.Debug("Added Completion message and sending message intent: " + transportMessage.MessageIntent);
             }
         }
