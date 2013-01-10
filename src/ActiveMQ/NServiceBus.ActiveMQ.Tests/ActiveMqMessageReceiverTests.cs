@@ -1,5 +1,10 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
@@ -13,12 +18,9 @@
 
         private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
-        private Mock<ISubscriptionManager> subscriptionManagerMock;
-
+        private NotifyTopicSubscriptionsMock subscriptionManagerMock;
         private Mock<INetTxSession> session;
-
         private Mock<IActiveMqPurger> purger;
-
         private Mock<IMessageConsumer> consumer;
 
         [SetUp] 
@@ -26,13 +28,13 @@
         {
             this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
-            this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
+            this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
             this.purger = new Mock<IActiveMqPurger>();
 
             this.testee = new ActiveMqMessageReceiver(
                 this.sessionFactoryMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
-                this.subscriptionManagerMock.Object,
+                this.subscriptionManagerMock,
                 this.purger.Object);
         }
 
@@ -246,17 +248,47 @@
 
         private void RaiseTopicSubscribed(string topic)
         {
-            this.subscriptionManagerMock.Raise(sm => sm.TopicSubscribed += null, new SubscriptionEventArgs(topic));
+            this.subscriptionManagerMock.RaiseTopicSubscribed(topic);
         }
 
         private void RaiseTopicUnsubscribed(string topic)
         {
-            this.subscriptionManagerMock.Raise(sm => sm.TopicUnsubscribed += null, new SubscriptionEventArgs(topic));
+            this.subscriptionManagerMock.RaiseTopicUnsubscribed(topic);
         }
 
         private void RaiseEventReceived(Mock<IMessageConsumer> topicConsumer, IMessage message)
         {
             topicConsumer.Raise(c => c.Listener += null, message);
+        }
+
+        private class NotifyTopicSubscriptionsMock : INotifyTopicSubscriptions
+        {
+            public event EventHandler<SubscriptionEventArgs> TopicSubscribed = delegate { };
+            public event EventHandler<SubscriptionEventArgs> TopicUnsubscribed = delegate { };
+            
+            public IEnumerable<string> Register(ITopicSubscriptionListener listener)
+            {
+                this.TopicSubscribed += listener.TopicSubscribed;
+                this.TopicUnsubscribed += listener.TopicUnsubscribed;
+
+                return Enumerable.Empty<string>();
+            }
+
+            public void Unregister(ITopicSubscriptionListener listener)
+            {
+                this.TopicSubscribed -= listener.TopicSubscribed;
+                this.TopicUnsubscribed -= listener.TopicUnsubscribed;
+            }
+
+            public void RaiseTopicSubscribed(string topic)
+            {
+                this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+            }
+
+            public void RaiseTopicUnsubscribed(string topic)
+            {
+                this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+            }
         }
     }
 }

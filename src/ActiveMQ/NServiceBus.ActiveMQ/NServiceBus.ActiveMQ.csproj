@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMQ.cs" />
+    <Compile Include="ActiveMqMessagePublisher.cs" />
     <Compile Include="ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
@@ -69,14 +70,17 @@
     <Compile Include="IActiveMqMessageMapper.cs" />
     <Compile Include="IActiveMqPurger.cs" />
     <Compile Include="IDestinationEvaluator.cs" />
+    <Compile Include="IMessageProducer.cs" />
     <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
     <Compile Include="ISessionFactory.cs" />
-    <Compile Include="ISubscriptionManager.cs" />
+    <Compile Include="INotifyTopicSubscriptions.cs" />
     <Compile Include="ITopicEvaluator.cs" />
     <Compile Include="ActiveMqMessageMapper.cs" />
+    <Compile Include="ITopicSubscriptionListener.cs" />
     <Compile Include="MessageExtensions.cs" />
+    <Compile Include="MessageProducer.cs" />
     <Compile Include="MessageTypeInterpreter.cs" />
     <Compile Include="NotifyMessageReceivedFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
