@@ -76,24 +76,28 @@ namespace NMSPublisher
                             StartSaga(session, "queue://mypublisher");
                             break;
                         case 'n':
-                            SendCommand(session, "queue://subscribernms");
+                            SendCommand(session, "queue://subscribernms", new MyRequest1());
                             break;
                         case 'c':
-                            SendCommand(session, "queue://subscriber1");
+                            SendCommand(session, "queue://subscriber1", new MyRequestNMS());
                             break;
                     }
                 }
             }
         }
 
-        private static void SendCommand(ISession session, string queue)
+        private static void SendCommand(ISession session, string queue, IMyCommand request)
         {
+            request.Time = DateTime.Now;
+            request.Duration = TimeSpan.FromMinutes(5);
+            request.CommandId = Guid.NewGuid();
+
             var destination = SessionUtil.GetDestination(session, queue);
             using (var producer = session.CreateProducer())
             {
                 var message =
                     session.CreateXmlMessage(
-                        new MyRequest1 { Time = DateTime.Now, Duration = TimeSpan.FromMinutes(5), CommandId = Guid.NewGuid() });
+                        request);
                 message.NMSReplyTo = responseQueue;
                 producer.Send(destination, message);
             }

@@ -9,10 +9,10 @@ namespace NServiceBus.Transport.ActiveMQ
 
     using NServiceBus.Unicast.Transport.Transactional;
 
-    public class ActiveMqMessageReceiver : INotifyMessageReceived
+    public class ActiveMqMessageReceiver : INotifyMessageReceived, ITopicSubscriptionListener
     {
         private readonly IActiveMqPurger purger;
-        private readonly ISubscriptionManager subscriptionManager;
+        private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
 
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
             new Dictionary<string, IMessageConsumer>();
@@ -27,12 +27,12 @@ namespace NServiceBus.Transport.ActiveMQ
         public ActiveMqMessageReceiver(
             ISessionFactory sessionFactory, 
             IActiveMqMessageMapper activeMqMessageMapper, 
-            ISubscriptionManager subscriptionManager, 
+            INotifyTopicSubscriptions notifyTopicSubscriptions, 
             IActiveMqPurger purger)
         {
             this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
-            this.subscriptionManager = subscriptionManager;
+            this.notifyTopicSubscriptions = notifyTopicSubscriptions;
             this.purger = purger;
         }
 
@@ -67,6 +67,7 @@ namespace NServiceBus.Transport.ActiveMQ
 
         public void Dispose()
         {
+            this.notifyTopicSubscriptions.Unregister(this);
             foreach (var messageConsumer in this.topicConsumers)
             {
                 messageConsumer.Value.Close();
@@ -79,7 +80,7 @@ namespace NServiceBus.Transport.ActiveMQ
             this.sessionFactory.Release(this.session);
         }
 
-        private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
+        public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
         {
             IMessageConsumer consumer;
             if (topicConsumers.TryGetValue(e.Topic, out consumer))
@@ -89,7 +90,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        private void OnTopicSubscribed(object sender, SubscriptionEventArgs e)
+        public void TopicSubscribed(object sender, SubscriptionEventArgs e)
         {
             string topic = e.Topic;
             Subscribe(topic);
@@ -97,12 +98,9 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void SubscribeTopics()
         {
-            lock (subscriptionManager)
+            lock (this.notifyTopicSubscriptions)
             {
-                subscriptionManager.TopicSubscribed += OnTopicSubscribed;
-                subscriptionManager.TopicUnsubscribed += OnTopicUnsubscribed;
-
-                foreach (string topic in subscriptionManager.GetTopics())
+                foreach (string topic in this.notifyTopicSubscriptions.Register(this))
                 {
                     Subscribe(topic);
                 }
