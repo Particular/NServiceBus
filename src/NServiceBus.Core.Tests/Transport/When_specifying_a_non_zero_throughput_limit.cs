@@ -11,7 +11,7 @@
         [Test, Category("Integration")]
         public void Should_limit_the_throughput_to_the_set_limit()
         {
-            transport.ChangeMaximumThroughputPerSecond(ThroughputLimit);
+            transport.ChangeMaximumMessageThroughputPerSecond(ThroughputLimit);
             transport.Start(Address.Parse("mytest"));
 
             ThreadPool.QueueUserWorkItem(Receive10);
