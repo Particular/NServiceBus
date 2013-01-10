@@ -21,40 +21,31 @@
         private Mock<INetTxSession> session;
         private Mock<IMessageTypeInterpreter> messageTypeInterpreter;
 
+        private Mock<IActiveMqMessageDecoderPipeline> decoderPipeline;
+
+        private Mock<IActiveMqMessageEncoderPipeline> encoderPipeline;
+
         [SetUp]
         public void SetUp()
         {
             this.session = new Mock<INetTxSession>();
             this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
-            this.testee = new ActiveMqMessageMapper(this.messageTypeInterpreter.Object);
+            this.encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
+            this.decoderPipeline = new Mock<IActiveMqMessageDecoderPipeline>();
+
+            this.testee = new ActiveMqMessageMapper(this.messageTypeInterpreter.Object, this.encoderPipeline.Object, this.decoderPipeline.Object);
         }
 
         [Test]
-        public void CreateJmsMessage_WhenMessageWithoutBody_ShouldUseEmptyMessage()
+        public void CreateJmsMessage_ShouldEncodeMessage()
         {
             this.SetupMessageCreation();
 
-            var controlMessage = this.CreateTransportMessage((byte[])null);
+            TransportMessage transportMessage = this.CreateTransportMessage();
 
-            var result = this.testee.CreateJmsMessage(controlMessage, this.session.Object) as ITextMessage;
+            this.testee.CreateJmsMessage(transportMessage, this.session.Object);
 
-            result.Should().NotBeNull();
-            result.Text.Should().BeNull();
-        }
-
-        [Test]
-        public void CreateJmsMessage_ShouldUseTextMessage()
-        {
-            this.SetupMessageCreation();
-
-            const string ExpectedMessageBody = "Yehaa!";
-
-            TransportMessage transportMessage = this.CreateTransportMessage(ExpectedMessageBody);
-
-            var result = this.testee.CreateJmsMessage(transportMessage, this.session.Object) as ITextMessage;
-
-            result.Should().NotBeNull();
-            result.Text.Should().Be(ExpectedMessageBody);
+            this.encoderPipeline.Verify(e => e.Encode(transportMessage, this.session.Object));
         }
 
         [Test]
@@ -71,30 +62,17 @@
         }
 
         [Test]
-        public void CreateTransportMessage_WhenMessageHasNoText_ShouldUseNullBody()
+        public void CreateTransportMessage_ShouldDecodeMessage()
         {
-            var message = CreateTextMessage(default(string));
+            var message = CreateTextMessage("SomeContent");
 
-            var result = this.testee.CreateTransportMessage(message);
+            this.testee.CreateTransportMessage(message);
 
-            result.Body.Should().BeNull();
+            this.decoderPipeline.Verify(d => d.Decode(It.IsAny<TransportMessage>(), message));
         }
 
         [Test]
-        public void CreateTransportMessage_ShouldUseTextMessage()
-        {
-            const string ExpectedMessageBody = "Yehaa!";
-            var expectedTransportMessage = this.CreateTransportMessage(ExpectedMessageBody);
-
-            var message = CreateTextMessage(ExpectedMessageBody);
-
-            var result = this.testee.CreateTransportMessage(message);
-
-            result.Body.Should().BeEquivalentTo(expectedTransportMessage.Body);
-        }
-
-        [Test]
-        public void CreateTransportMessage_IfNServiceBusVersioIsDefined_ShouldAssignNSeriveBusVersion()
+        public void CreateTransportMessage_IfNServiceBusVersioIsDefined_ShouldAssignNServiceBusVersion()
         {
             const string Version = "2.0.0.0";
             var message = CreateTextMessage(string.Empty);
@@ -228,25 +206,17 @@
 
         private void SetupMessageCreation()
         {
-            string body = null;
-            this.session.Setup(s => s.CreateTextMessage())
-                .Returns(() => Mock.Of<ITextMessage>(m => m.Properties == new PrimitiveMap()));
+            var message = new Mock<IMessage>();
+            message.Setup(m => m.Properties).Returns(new PrimitiveMap());
 
-            this.session.Setup(s => s.CreateTextMessage(It.IsAny<string>()))
-                .Callback<string>(b => body = b)
-                .Returns(() => Mock.Of<ITextMessage>(m => m.Text == body && m.Properties == new PrimitiveMap()));
+            this.encoderPipeline.Setup(e => e.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()))
+                .Returns(message.Object);
         }
 
-        private TransportMessage CreateTransportMessage(string body)
-        {
-            return this.CreateTransportMessage(Encoding.UTF8.GetBytes(body));
-        }
-
-        private TransportMessage CreateTransportMessage(byte[] body)
+        private TransportMessage CreateTransportMessage()
         {
             return new TransportMessage
                 {
-                    Body = body,
                     Headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "FancyHeader" }, },
                     Recoverable = true,
                     TimeToBeReceived = TimeSpan.FromSeconds(2),

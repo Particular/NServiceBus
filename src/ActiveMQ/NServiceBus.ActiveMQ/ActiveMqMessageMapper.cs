@@ -14,20 +14,20 @@ namespace NServiceBus.Transport.ActiveMQ
         
         private readonly IMessageTypeInterpreter messageTypeInterpreter;
 
-        public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter)
+        private readonly IActiveMqMessageEncoderPipeline encoderPipeline;
+
+        private readonly IActiveMqMessageDecoderPipeline decoderPipeline;
+
+        public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter, IActiveMqMessageEncoderPipeline encoderPipeline, IActiveMqMessageDecoderPipeline decoderPipeline)
         {
             this.messageTypeInterpreter = messageTypeInterpreter;
+            this.encoderPipeline = encoderPipeline;
+            this.decoderPipeline = decoderPipeline;
         }
 
         public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
         {
-            IMessage jmsmessage = session.CreateTextMessage();
-
-            if (message.Body != null)
-            {
-                string messageBody = Encoding.UTF8.GetString(message.Body);
-                jmsmessage = session.CreateTextMessage(messageBody);
-            }
+            IMessage jmsmessage = this.encoderPipeline.Encode(message, session);
 
             jmsmessage.NMSMessageId = message.Id;
 
@@ -65,25 +65,20 @@ namespace NServiceBus.Transport.ActiveMQ
 
         public TransportMessage CreateTransportMessage(IMessage message)
         {
-            var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
+            var transportMessage = new TransportMessage();
 
-            byte[] body = null;
-            var textMessage = (ITextMessage)message;
-            if (textMessage.Text != null)
-            {
-                body = Encoding.UTF8.GetBytes(textMessage.Text);
-            }
+            this.decoderPipeline.Decode(transportMessage, message);
 
-            var transportMessage = new TransportMessage
-                {
-                    MessageIntent = this.GetIntent(message),
-                    ReplyToAddress = replyToAddress,
-                    CorrelationId = message.NMSCorrelationID,
-                    TimeToBeReceived = message.NMSTimeToLive,
-                    Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
-                    Id = message.NMSMessageId,
-                    Body = body
-                };
+            var replyToAddress = message.NMSReplyTo == null
+                                     ? null
+                                     : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
+
+            transportMessage.MessageIntent = this.GetIntent(message);
+            transportMessage.ReplyToAddress = replyToAddress;
+            transportMessage.CorrelationId = message.NMSCorrelationID;
+            transportMessage.TimeToBeReceived = message.NMSTimeToLive;
+            transportMessage.Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent;
+            transportMessage.Id = message.NMSMessageId;
 
             foreach (var key in message.Properties.Keys)
             {
@@ -92,8 +87,10 @@ namespace NServiceBus.Transport.ActiveMQ
                 {
                     continue;
                 }
-                
-                transportMessage.Headers[keyString] = message.Properties[keyString] != null ? message.Properties[keyString].ToString() : null;
+
+                transportMessage.Headers[keyString] = message.Properties[keyString] != null
+                                                          ? message.Properties[keyString].ToString()
+                                                          : null;
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
@@ -105,11 +102,12 @@ namespace NServiceBus.Transport.ActiveMQ
                 }
             }
 
-            if (!transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader) &&
-                message.Properties.Contains(ErrorCodeKey))
+            if (!transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader)
+                && message.Properties.Contains(ErrorCodeKey))
             {
                 transportMessage.Headers[Headers.ControlMessageHeader] = "true";
-                transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = message.Properties[ErrorCodeKey].ToString();
+                transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader] =
+                    message.Properties[ErrorCodeKey].ToString();
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.NServiceBusVersion))
