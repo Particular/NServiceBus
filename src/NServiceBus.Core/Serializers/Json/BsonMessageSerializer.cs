@@ -31,7 +31,7 @@ namespace NServiceBus.Serializers.Json
 
         protected override string GetContentType()
         {
-            return "application/bson";
+            return ContentTypes.Bson;
         }
     }
 }
