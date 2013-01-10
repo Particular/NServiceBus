@@ -1,109 +1,19 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ
 {
-    using System;
-
-    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Queuing;
 
     public class ActiveMqMessageSender : ISendMessages
     {
-        private readonly ISessionFactory sessionFactory;
-        private readonly ISubscriptionManager subscriptionManager;
-        private readonly IActiveMqMessageMapper activeMqMessageMapper;
-        private readonly ITopicEvaluator topicEvaluator;
-        private readonly IDestinationEvaluator destinationEvaluator;
+        private readonly IMessageProducer messageProducer;
 
-        public ActiveMqMessageSender(
-            ISessionFactory sessionFactory, 
-            ISubscriptionManager subscriptionManager, 
-            IActiveMqMessageMapper activeMqMessageMapper,
-            ITopicEvaluator topicEvaluator,
-            IDestinationEvaluator destinationEvaluator)
+        public ActiveMqMessageSender(IMessageProducer messageProducer)
         {
-            this.sessionFactory = sessionFactory;
-            this.subscriptionManager = subscriptionManager;
-            this.activeMqMessageMapper = activeMqMessageMapper;
-            this.topicEvaluator = topicEvaluator;
-            this.destinationEvaluator = destinationEvaluator;
+            this.messageProducer = messageProducer;
         }
 
         public void Send(TransportMessage message, Address address)
         {
-            switch (message.MessageIntent)
-            {
-                case MessageIntentEnum.Subscribe:
-                    this.Subscribe(message);
-                    break;
-                case MessageIntentEnum.Unsubscribe:
-                    this.Unsubscribe(message);
-                    break;
-                case MessageIntentEnum.Publish:
-                    this.PublishMessage(message, address);
-                    break;
-                default:
-                    this.SendMessage(message, address);
-                    break;
-            }
-        }
-
-        private void Subscribe(TransportMessage message)
-        {
-            var messageType = message.Headers[Headers.SubscriptionMessageType];
-            var topic = this.topicEvaluator.GetTopicFromMessageType(messageType);
-
-            lock (this.subscriptionManager)
-            {
-                this.subscriptionManager.Subscribe(topic);
-            }
-        }
-
-        private void Unsubscribe(TransportMessage message)
-        {
-            var messageType = message.Headers[Headers.SubscriptionMessageType];
-            var topic = this.topicEvaluator.GetTopicFromMessageType(messageType);
-
-            lock (this.subscriptionManager)
-            {
-                this.subscriptionManager.Unsubscribe(topic);
-            }
-        }
-
-        private void PublishMessage(TransportMessage message, Address address)
-        {
-            if (message.Headers == null || !message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-            {
-                throw new ArgumentException("Messages must have the enclosed message type on the header.");
-            }
-
-            var typeName = message.Headers[Headers.EnclosedMessageTypes];
-            var topic = this.topicEvaluator.GetTopicFromMessageType(typeName);
-
-            this.SendMessage(message, topic, "topic://");
-        }
-
-        private void SendMessage(TransportMessage message, Address address)
-        {
-            this.SendMessage(message, address.Queue, "queue://");
-        }
-
-        private void SendMessage(TransportMessage message, string destination, string destinationPrefix)
-        {
-
-            var session = this.sessionFactory.GetSession();
-            try
-            {
-                var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);
-
-                using (var producer = session.CreateProducer())
-                {
-                    producer.Send(
-                        this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
-                }
-            }
-            finally
-            {
-                this.sessionFactory.Release(session);
-            }
+            this.messageProducer.SendMessage(message, address.Queue, "queue://");
         }
     }
 }

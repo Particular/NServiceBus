@@ -62,12 +62,14 @@
   <ItemGroup>
     <Compile Include="ActiveMqMessageDequeueStrategyTests.cs" />
     <Compile Include="ActiveMqMessageMapperTest.cs" />
+    <Compile Include="ActiveMqMessagePublisherTests.cs" />
     <Compile Include="ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
     <Compile Include="ActiveMqConnectionStarterTest.cs" />
     <Compile Include="DestinationEvaluatorTests.cs" />
+    <Compile Include="MessageProducerTests.cs" />
     <Compile Include="MessageTypeInterpreterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SubscriptionManagerTests.cs" />

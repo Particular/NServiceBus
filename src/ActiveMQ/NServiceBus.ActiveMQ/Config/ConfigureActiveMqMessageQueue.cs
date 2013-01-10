@@ -8,6 +8,8 @@ namespace NServiceBus
     using Transport.ActiveMQ;
     using NServiceBus.Unicast.Queuing.Installers;
 
+    using MessageProducer = NServiceBus.Transport.ActiveMQ.MessageProducer;
+
     public static class ConfigureActiveMqMessageQueue
     {
         private const string Message =
@@ -96,9 +98,12 @@ Here is an example of what is required:
                   .ConfigureProperty(p => p.ConsumerName, Configure.EndpointName);
 
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
 
+            config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
+
             config.Configurer.ConfigureComponent<ActiveMqMessageMapper>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageTypeInterpreter>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<TopicEvaluator>(DependencyLifecycle.InstancePerCall);

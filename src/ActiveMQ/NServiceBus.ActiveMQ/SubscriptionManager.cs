@@ -3,32 +3,66 @@ namespace NServiceBus.Transport.ActiveMQ
     using System;
     using System.Collections.Generic;
 
-    public class SubscriptionManager : ISubscriptionManager
+    using NServiceBus.Unicast.Subscriptions;
+
+    public class SubscriptionManager : INotifyTopicSubscriptions, IManageSubscriptions
     {
-        readonly ISet<string> subscriptions = new HashSet<string>();
+        private readonly ISet<string> subscriptions = new HashSet<string>();
+        private readonly ITopicEvaluator topicEvaluator;
 
-        public event EventHandler<SubscriptionEventArgs> TopicSubscribed = delegate { };
-        public event EventHandler<SubscriptionEventArgs> TopicUnsubscribed = delegate { };
+        private event EventHandler<SubscriptionEventArgs> TopicSubscribed = delegate { };
+        private event EventHandler<SubscriptionEventArgs> TopicUnsubscribed = delegate { };
 
-        public IEnumerable<string> GetTopics()
+        public SubscriptionManager(ITopicEvaluator topicEvaluator)
         {
-            return new HashSet<string>(this.subscriptions);
+            this.topicEvaluator = topicEvaluator;
         }
 
-        public void Subscribe(string topic)
+        public IEnumerable<string> Register(ITopicSubscriptionListener listener)
         {
-            if (this.subscriptions.Add(topic))
+            lock (subscriptions)
             {
-                this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+                this.TopicSubscribed += listener.TopicSubscribed;
+                this.TopicUnsubscribed += listener.TopicUnsubscribed;
+                return new HashSet<string>(this.subscriptions);
             }
         }
 
-        public void Unsubscribe(string topic)
+        public void Unregister(ITopicSubscriptionListener listener)
         {
-            if (this.subscriptions.Remove(topic))
+            lock (subscriptions)
             {
-                this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+                this.TopicSubscribed -= listener.TopicSubscribed;
+                this.TopicUnsubscribed -= listener.TopicUnsubscribed;
             }
         }
+
+        public void Subscribe(Type eventType, Address publisherAddress, Predicate<object> condition)
+        {
+            var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
+
+            lock (subscriptions)
+            {
+                if (this.subscriptions.Add(topic))
+                {
+                    this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+                }
+            }
+        }
+
+        public void Unsubscribe(Type eventType, Address publisherAddress)
+        {
+            var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
+
+            lock (subscriptions)
+            {
+                if (this.subscriptions.Remove(topic))
+                {
+                    this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+                }
+            }
+        }
+
+        public event EventHandler<Unicast.SubscriptionEventArgs> ClientSubscribed;
     }
 }
