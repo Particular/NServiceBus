@@ -160,6 +160,10 @@ namespace NServiceBus.Transport.ActiveMQ
                 {
                     scope.Complete();
                 }
+                else
+                {
+                    throw new Exception("Processing of message failed, throwing exception to force rollback.");
+                }
             }
         }
 

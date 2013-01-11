@@ -119,8 +119,13 @@ namespace MyPublisher
                     commandMessage = this.Bus.CreateInstance<IMyRequest2>();
                     nextCommandToPublish = 2;
                     break;
-                default:
+                case 2:
                     commandMessage = new MyRequestNMS();
+                    nextCommandToPublish = 3;
+                    break;
+                default:
+                    commandMessage = new MyRequest1();
+                    commandMessage.ThrowExceptionDuringProcessing = true;
                     nextCommandToPublish = 0;
                     break;
             }

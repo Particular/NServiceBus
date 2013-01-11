@@ -23,6 +23,7 @@ namespace MyMessages
         Guid CommandId { get; set; }
         DateTime? Time { get; set; }
         TimeSpan Duration { get; set; }
+        bool ThrowExceptionDuringProcessing { get; set; }
     }
 }
 
@@ -44,6 +45,7 @@ namespace MyMessages.Subscriber1
         public Guid CommandId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
     }
 }
 
@@ -61,6 +63,7 @@ namespace MyMessages.SubscriberNMS
         public Guid CommandId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
     }
 }
 
@@ -92,10 +95,9 @@ namespace MyMessages.Publisher
     public class LocalCommand : IMyCommand
     {
         public Guid CommandId { get; set; }
-
         public DateTime? Time { get; set; }
-
         public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
     }
 
     public class StartSagaMessage : IMessage

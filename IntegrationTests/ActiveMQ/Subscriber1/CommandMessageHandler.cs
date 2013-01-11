@@ -26,8 +26,14 @@ namespace Subscriber1
 
             var result = new Random().Next(2) == 1 ? ResponseCode.Ok : ResponseCode.Failed;
             this.bus.Return(result);
-
             Console.WriteLine("Replied with response {0}", result);
+
+            if (message.ThrowExceptionDuringProcessing)
+            {
+                Console.WriteLine("Throwing Exception");
+                throw new Exception();
+            }
+
             Console.WriteLine("==========================================================================");
         }
 
