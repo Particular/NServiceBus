@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
           cfg.AddMapping(faultMappings);
 
-          new SchemaExport(cfg).Create(true, true);
+          new SchemaExport(cfg).Create(false, true);
 
            subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
 
