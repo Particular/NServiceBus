@@ -326,7 +326,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             using (var stream = new MemoryStream())
             {
                 headerSerializer.Serialize(stream, message.Headers.Select(pair => new Utils.HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
-                result.Extension = stream.GetBuffer();
+                result.Extension = stream.ToArray();
             }
 
             result.AppSpecific = (int)message.MessageIntent;
