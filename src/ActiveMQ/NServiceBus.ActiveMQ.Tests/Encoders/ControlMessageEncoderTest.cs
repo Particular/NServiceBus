@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ.Encoders
 {
-    using System;
-
     using Apache.NMS;
 
     using Moq;
@@ -9,9 +7,9 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class ByteMessageEncoderTest
+    public class ControlMessageEncoderTest
     {
-        private ByteMessageEncoder testee;
+        private ControlMessageEncoder testee;
 
         private Mock<ISession> session;
 
@@ -22,16 +20,14 @@
 
             this.SetupMessageCreation();
 
-            this.testee = new ByteMessageEncoder();
+            this.testee = new ControlMessageEncoder();
         }
 
         [Test]
-        [TestCase(ContentTypes.Bson)]
-        [TestCase(ContentTypes.Binary)]
-        public void Encode_WhenBinaryContentTypeWithoutBody_ReturnEmptyBinaryMessage(string contentType)
+        public void Encode_WhenControlMessageWithEmptyBody_ReturnEmptyBinaryMessage()
         {
             var transportMessage = new TransportMessage();
-            transportMessage.Headers.Add(Headers.ContentType, contentType);
+            transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
             IMessage message = this.testee.Encode(transportMessage, this.session.Object);
 
@@ -40,14 +36,11 @@
         }
 
         [Test]
-        [TestCase(ContentTypes.Bson)]
-        [TestCase(ContentTypes.Binary)]
-        public void Encode_WhenBinaryContentTypeWithBody_ReturnFilledBinaryMessage(string contentType)
+        public void Encode_WhenControlMessageWithBody_ReturnFilledBinaryMessage()
         {
             byte[] content = new byte[] { 2 };
-
             var transportMessage = new TransportMessage { Body = content };
-            transportMessage.Headers.Add(Headers.ContentType, contentType);
+            transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
             IMessage message = this.testee.Encode(transportMessage, this.session.Object);
 
@@ -56,12 +49,9 @@
         }
 
         [Test]
-        [TestCase(ContentTypes.Xml)]
-        [TestCase(ContentTypes.Json)]
-        public void Encode_WhenNonBinaryContentType_ReturnNull(string contentType)
+        public void Encode_WhenNotControlMessage_ReturnNull()
         {
             var transportMessage = new TransportMessage();
-            transportMessage.Headers.Add(Headers.ContentType, contentType);
 
             IMessage message = this.testee.Encode(transportMessage, this.session.Object);
 
