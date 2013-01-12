@@ -12,7 +12,7 @@ namespace NServiceBus.Transport.ActiveMQ
         private readonly IEnumerable<IActiveMqMessageEncoder> encoders;
 
         public ActiveMqMessageEncoderPipeline()
-            : this(new IActiveMqMessageEncoder[] { new TextMessageEncoder(), new ByteMessageEncoder(), })
+            : this(new IActiveMqMessageEncoder[] { new ControlMessageEncoder(), new TextMessageEncoder(), new ByteMessageEncoder(), })
         {
         }
 
