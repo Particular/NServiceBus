@@ -69,8 +69,10 @@
     <Compile Include="Config\ActiveMQTransportConfigurer.cs" />
     <Compile Include="Config\ConfigureActiveMqMessageQueue.cs" />
     <Compile Include="Decoders\ByteMessageDecoder.cs" />
+    <Compile Include="Decoders\ControlMessageDecoder.cs" />
     <Compile Include="DestinationEvaluator.cs" />
     <Compile Include="Encoders\ByteMessageEncoder.cs" />
+    <Compile Include="Encoders\ControlMessageEncoder.cs" />
     <Compile Include="Encoders\TextMessageEncoder.cs" />
     <Compile Include="IActiveMqMessageDecoder.cs" />
     <Compile Include="IActiveMqMessageDecoderPipeline.cs" />

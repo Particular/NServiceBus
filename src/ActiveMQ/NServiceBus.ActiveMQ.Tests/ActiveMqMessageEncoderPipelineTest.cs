@@ -11,39 +11,39 @@
     [TestFixture]
     public class ActiveMqMessageEncoderPipelineTest
     {
-        private Mock<IActiveMqMessageEncoder> firstDecoder;
+        private Mock<IActiveMqMessageEncoder> firstEncoder;
 
-        private Mock<IActiveMqMessageEncoder> secondDecoder;
+        private Mock<IActiveMqMessageEncoder> secondEncoder;
 
         private ActiveMqMessageEncoderPipeline testee;
 
         [SetUp]
         public void SetUp()
         {
-            this.firstDecoder = new Mock<IActiveMqMessageEncoder>();
-            this.secondDecoder = new Mock<IActiveMqMessageEncoder>();
+            this.firstEncoder = new Mock<IActiveMqMessageEncoder>();
+            this.secondEncoder = new Mock<IActiveMqMessageEncoder>();
 
             this.testee =
-                new ActiveMqMessageEncoderPipeline(new[] { this.firstDecoder.Object, this.secondDecoder.Object });
+                new ActiveMqMessageEncoderPipeline(new[] { this.firstEncoder.Object, this.secondEncoder.Object });
         }
 
         [Test]
-        public void Encode_FirstDecoderReturnsDecodedMessage()
+        public void Encode_FirstEncoderReturnsEncodedMessage()
         {
             var expectedMessage = Mock.Of<IMessage>();
-            this.firstDecoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(expectedMessage);
+            this.firstEncoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(expectedMessage);
 
             IMessage message = this.testee.Encode(new TransportMessage(), Mock.Of<ISession>());
 
-            this.secondDecoder.Verify(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()), Times.Never());
+            this.secondEncoder.Verify(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()), Times.Never());
             Assert.AreSame(expectedMessage, message);
         }
 
         [Test]
-        public void Encode_WhenAllDecoderCannotDecode_ThenThrow()
+        public void Encode_WhenAllEncoderCannotEncode_ThenThrow()
         {
-            this.firstDecoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(default(IMessage));
-            this.secondDecoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(default(IMessage));
+            this.firstEncoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(default(IMessage));
+            this.secondEncoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(default(IMessage));
 
             Assert.Throws<InvalidOperationException>(() => this.testee.Encode(new TransportMessage(), Mock.Of<ISession>()));
         }
