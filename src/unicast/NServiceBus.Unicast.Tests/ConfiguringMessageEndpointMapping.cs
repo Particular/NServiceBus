@@ -9,11 +9,11 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Tests.Messages
 {
-    public class MessageE
+    public class MessageE : IMessage
     {
     }
 
-    public class MessageF
+    public class MessageF : IMessage
     {
     }
 }
