@@ -169,7 +169,7 @@ namespace NServiceBus.Hosting
             ProfileActivator.ProfileManager = profileManager;
 
             configManager = new ConfigManager(assembliesToScan, specifier);
-            wcfManager = new WcfManager(assembliesToScan);
+            wcfManager = new WcfManager();
             roleManager = new RoleManager(assembliesToScan);
         }
 

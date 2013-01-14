@@ -1,39 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using NServiceBus.Logging;
-
-namespace NServiceBus.Hosting.Wcf
+﻿namespace NServiceBus.Hosting.Wcf
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using Logging;
+
     /// <summary>
     /// Enable users to expose messages as WCF services
     /// </summary>
     public class WcfManager
     {
-        private readonly List<Type> serviceTypes = new List<Type>();
         private readonly List<ServiceHost> hosts = new List<ServiceHost>();
       
-        /// <summary>
-        /// Initlalized the manager with the list of assemblies to be scanned
-        /// </summary>
-        /// <param name="assembliesToScan"></param>
-        public WcfManager(IEnumerable<Assembly> assembliesToScan)
-        {
-            foreach (var a in assembliesToScan)
-                foreach (var t in a.GetTypes())
-                    if (IsWcfService(t) && !t.IsAbstract)
-                        serviceTypes.Add(t);
-        }
-       
         /// <summary>
         /// Starts a servicehost for each found service. Defaults to BasicHttpBinding if
         /// no user specified binding is found
         /// </summary>
         public void Startup()
         {
-            foreach (var serviceType in serviceTypes)
+            foreach (var serviceType in Configure.TypesToScan.Where(t => !t.IsAbstract && IsWcfService(t)))
             {
                 var host = new WcfServiceHost(serviceType);
 
@@ -72,7 +59,7 @@ namespace NServiceBus.Hosting.Wcf
         {
             var args = t.GetGenericArguments();
             if (args.Length == 2)
-                if (typeof(IMessage).IsAssignableFrom(args[0]))
+                if (MessageConventionExtensions.IsMessageType(args[0]))
                 {
                     var wcfType = typeof(WcfService<,>).MakeGenericType(args);
                     if (wcfType.IsAssignableFrom(t))
