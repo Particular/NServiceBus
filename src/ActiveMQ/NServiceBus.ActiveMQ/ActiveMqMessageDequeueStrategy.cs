@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 
     /// <summary>

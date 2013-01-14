@@ -26,10 +26,10 @@ namespace NServiceBus.Timeout.Core
                 return message;
 
             Headers.SetMessageHeader(message, Headers.SagaId, timeoutMessage.SagaId.ToString());
-            Headers.SetMessageHeader(message, Headers.Expire, DateTimeExtensions.ToWireFormattedString(timeoutMessage.Expires));
+            Headers.SetMessageHeader(message, TimeoutManagerHeaders.Expire, DateTimeExtensions.ToWireFormattedString(timeoutMessage.Expires));
 
             if (timeoutMessage.ClearTimeout)
-                Headers.SetMessageHeader(message, Headers.ClearTimeouts, true.ToString(CultureInfo.InvariantCulture));
+                Headers.SetMessageHeader(message, TimeoutManagerHeaders.ClearTimeouts, true.ToString(CultureInfo.InvariantCulture));
 
             return message;
         }
@@ -47,10 +47,10 @@ namespace NServiceBus.Timeout.Core
                 return message;
 
             Bus.CurrentMessageContext.Headers[Headers.SagaId] = timeoutMessage.SagaId.ToString();
-            Bus.CurrentMessageContext.Headers[Headers.Expire] = DateTimeExtensions.ToWireFormattedString(timeoutMessage.Expires);
+            Bus.CurrentMessageContext.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(timeoutMessage.Expires);
 
             if (timeoutMessage.ClearTimeout)
-                Bus.CurrentMessageContext.Headers[Headers.ClearTimeouts] = true.ToString(CultureInfo.InvariantCulture);
+                Bus.CurrentMessageContext.Headers[TimeoutManagerHeaders.ClearTimeouts] = true.ToString(CultureInfo.InvariantCulture);
 
             return message;
         }

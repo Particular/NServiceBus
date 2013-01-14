@@ -3,12 +3,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Deferral;
-    using Faults;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
-    using Licensing;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
@@ -18,6 +15,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Rhino.Mocks;
     using Serializers.XML;
     using Subscriptions;
+    using Timeout;
     using Unicast.Messages;
     using UnitOfWork;
 

@@ -384,6 +384,7 @@
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
+    <Compile Include="Timeout\TimeoutManagerHeaders.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
     <Compile Include="TrialExpired.cs">
       <SubType>Form</SubType>
@@ -395,12 +396,13 @@
     <Compile Include="Unicast\BackwardCompatibility\IncomingReturnMessageMutator.cs" />
     <Compile Include="Unicast\BackwardCompatibility\IncomingSubscriptionMessageMutator.cs" />
     <Compile Include="Unicast\BackwardCompatibility\OutgoingSubscriptionMessageMutator.cs" />
+    <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
-    <Compile Include="Unicast\Deferral\TimeoutManagerBasedDeferral.cs" />
+    <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
@@ -464,7 +466,7 @@
     <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
-    <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
+    <Compile Include="Unicast\Queuing\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />

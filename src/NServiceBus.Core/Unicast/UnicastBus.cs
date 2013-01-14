@@ -616,7 +616,9 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            MessageDeferrer.Defer(toSend, processAt);
+            toSend.Headers[Headers.IsDeferedMessage] = true.ToString();
+
+            MessageDeferrer.Defer(toSend, processAt,Address.Local);
 
             return SetupCallback(toSend.Id);
         }

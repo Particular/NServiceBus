@@ -11,140 +11,159 @@ namespace NServiceBus.Management.Retries.Tests
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        readonly SecondLevelRetries _satellite = new SecondLevelRetries();
-        readonly FakeMessageSender _messageSender = new FakeMessageSender();
+        readonly SecondLevelRetries satellite = new SecondLevelRetries();
+        readonly FakeMessageSender messageSender = new FakeMessageSender();
+        readonly FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
         readonly Address ERROR_QUEUE = new Address("error","localhost");
         readonly Address RETRIES_QUEUE = new Address("retries", "localhost");
         readonly Address TIMEOUT_MANAGER_QUEUE = new Address("timeouts", "localhost");
         readonly Address ORIGINAL_QUEUE = new Address("org", "hostname");
-        TransportMessage _message;
+        TransportMessage message;
 
         [SetUp]
         public void SetUp()
         {
-            _satellite.InputAddress = RETRIES_QUEUE;
-            _satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
-            _satellite.TimeoutManagerAddress = TIMEOUT_MANAGER_QUEUE;
+            satellite.InputAddress = RETRIES_QUEUE;
+            satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
             
-            _satellite.MessageSender = _messageSender;
+            satellite.MessageSender = messageSender;
+            satellite.MessageDeferrer = deferrer;
 
             SecondLevelRetries.RetryPolicy = DefaultRetryPolicy.Validate;
             SecondLevelRetries.TimeoutPolicy = DefaultRetryPolicy.HasTimedOut;
 
-            _message = new TransportMessage {Headers = new Dictionary<string, string>()};
+            message = new TransportMessage {Headers = new Dictionary<string, string>()};
         }
 
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq()
         {
             var expected = new Address("clientQ", "myMachine");
-            _message.ReplyToAddress = expected;
+            message.ReplyToAddress = expected;
             SecondLevelRetries.RetryPolicy = _ => TimeSpan.MinValue;
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
-            Assert.AreEqual(expected, _message.ReplyToAddress);
+            Assert.AreEqual(expected, message.ReplyToAddress);
         }
 
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq_after_retries()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
 
             var expected = new Address("clientQ", "myMachine");
-            _message.ReplyToAddress = expected;
+            message.ReplyToAddress = expected;
 
             for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
             {
-                _satellite.Handle(_message);
+                satellite.Handle(message);
             }
 
-            Assert.AreEqual(expected, _message.ReplyToAddress);
+            Assert.AreEqual(expected, message.ReplyToAddress);
         }
 
         [Test]
         public void Message_should_be_sent_to_real_errorQ_if_defer_timespan_is_less_than_zero()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.MinValue; };
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
-            Assert.AreEqual(ERROR_QUEUE, _messageSender.MessageSentTo);
+            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
         }
 
         [Test]
         public void Message_should_be_sent_to_retryQ_if_defer_timespan_is_greater_than_zero()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");                        
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");                        
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
-            Assert.AreEqual(TIMEOUT_MANAGER_QUEUE, _messageSender.MessageSentTo);
+            Assert.AreEqual(message, deferrer.DeferredMessage);
         }
 
         [Test]
         public void Message_should_only_be_retried_X_times_when_using_the_defaultPolicy()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
             for (int i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
             {
-                _satellite.Handle(_message);
+                satellite.Handle(message);
             }
 
-            Assert.AreEqual(ERROR_QUEUE, _messageSender.MessageSentTo);
+            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
         }
 
         [Test]
         public void Message_retries_header_should_be_removed_before_being_sent_to_real_errorQ()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
             SecondLevelRetries.TimeoutPolicy = _ => true;
             
-             _satellite.Handle(_message);
+             satellite.Handle(message);
 
-             Assert.False(_message.Headers.ContainsKey(Headers.Retries));
+             Assert.False(message.Headers.ContainsKey(Headers.Retries));
         }
 
         [Test]
         public void A_message_should_only_be_able_to_retry_during_N_minutes()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
             SecondLevelRetries.TimeoutPolicy = _ => { return true; };
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
-            Assert.AreEqual(ERROR_QUEUE, _messageSender.MessageSentTo);
+            Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
         }
 
         [Test]
         public void For_each_retry_the_NServiceBus_Retries_header_should_be_increased()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
             SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };            
 
             for (int i = 0; i < 10; i++)
             {
-                _satellite.Handle(_message);
+                satellite.Handle(message);
             }
             
-            Assert.AreEqual(10, TransportMessageHelpers.GetNumberOfRetries(_message));            
+            Assert.AreEqual(10, TransportMessageHelpers.GetNumberOfRetries(message));            
         }
 
         [Test]
         public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
-            TransportMessageHelpers.SetHeader(_message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
-            SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
+            SecondLevelRetries.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
-            _satellite.Handle(_message);
+            satellite.Handle(message);
 
-            Assert.AreEqual(ORIGINAL_QUEUE.ToString(), _message.Headers[Headers.RouteExpiredTimeoutTo]);            
+            Assert.AreEqual(ORIGINAL_QUEUE, deferrer.MessageRoutedTo);            
+        }
+    }
+
+    internal class FakeMessageDeferrer : IDeferMessages
+    {
+        public Address MessageRoutedTo { get; set; }
+
+        public TransportMessage DeferredMessage { get; set; }
+
+        public void Defer(TransportMessage message, DateTime processAt, Address address)
+        {
+            MessageRoutedTo = address;
+            DeferredMessage = message;
+        }
+
+        public void ClearDeferedMessages(string headerKey, string headerValue)
+        {
+            
         }
     }
 

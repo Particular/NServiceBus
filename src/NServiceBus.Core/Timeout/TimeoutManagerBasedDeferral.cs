@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Unicast.Deferral
+﻿namespace NServiceBus.Timeout
 {
     using System;
     using Logging;
-    using Queuing;
-    using Transport;
+    using Unicast.Queuing;
+    using Unicast.Transport;
 
     public class TimeoutManagerBasedDeferral:IDeferMessages
     {
@@ -11,9 +11,11 @@
         public Address TimeoutManagerAddress { get; set; }
 
 
-        public void Defer(TransportMessage message, DateTime processAt)
+        public void Defer(TransportMessage message, DateTime processAt, Address address)
         {
-            message.Headers[Headers.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
+            message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
+
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.ToString();
 
             try
             {
@@ -31,11 +33,11 @@
             var controlMessage = ControlMessage.Create(Address.Local);
 
             controlMessage.Headers[headerKey] = headerValue;
-            controlMessage.Headers[Headers.ClearTimeouts] = true.ToString();
+            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = true.ToString();
 
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        private readonly static ILog Log = LogManager.GetLogger("Deferral");
+        readonly static ILog Log = LogManager.GetLogger("Deferral");
     }
 }

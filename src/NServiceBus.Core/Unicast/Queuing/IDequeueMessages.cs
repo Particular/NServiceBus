@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional
+﻿namespace NServiceBus.Unicast.Queuing
 {
     using System;
+    using Transport.Transactional;
 
     /// <summary>
     /// Interface to implement when developing custom dequeing strategies.

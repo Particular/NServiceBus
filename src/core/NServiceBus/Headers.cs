@@ -38,12 +38,14 @@
         /// Header for time when a message expires in the timeout manager
         /// This header is considered an applicative header.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
         public const string Expire = "NServiceBus.Timeout.Expire";
 
         /// <summary>
         /// Header for redirecting the expired timeout to a endpoint other than the one setting the Timeout
         /// This header is considered an applicative header.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
         public const string RouteExpiredTimeoutTo = "NServiceBus.Timeout.RouteExpiredTimeoutTo";
 
         /// <summary>
@@ -56,6 +58,7 @@
         /// Header telling the timeout manager to clear previous timeouts
         /// This header is considered an applicative header.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
         public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
 
@@ -63,7 +66,7 @@
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
         public const string HeaderName = "Header";
-        
+
         /// <summary>
         /// Header containing the windows identity name
         /// </summary>
@@ -78,7 +81,7 @@
         /// Used in a header when doing a callback (bus.return)
         /// </summary>
         public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
-        
+
         /// <summary>
         /// Header that tells if this transport message is a control message
         /// </summary>
@@ -157,8 +160,19 @@
         /// <summary>
         /// Header key for setting/getting the ID of the message as it was when it failed processing.
         /// </summary>
-        [ObsoleteEx(Message = "The OriginalId headers is replaced by the IdForCorrelation header since they are now equivalent",RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Message = "The OriginalId headers is replaced by the IdForCorrelation header since they are now equivalent", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public const string OriginalId = "NServiceBus.OriginalId";
+
+        /// <summary>
+        /// True if this message is a saga timeout
+        /// </summary>
+        public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
+
+        /// <summary>
+        /// True if this is a defered message
+        /// </summary>
+        public const string IsDeferedMessage = "NServiceBus.IsDeferedMessage";
+
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>

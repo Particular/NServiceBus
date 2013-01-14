@@ -58,9 +58,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
             message.Headers.Remove(TimeoutIdToDispatchHeader);
             message.Headers.Remove(TimeoutDestinationHeader);
 
-            if (message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+            if (message.Headers.ContainsKey(TimeoutManagerHeaders.RouteExpiredTimeoutTo))
             {
-                destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+                destination = Address.Parse(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
@@ -76,7 +76,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 sagaId = Guid.Parse(message.Headers[Headers.SagaId]);
             }
 
-            if (message.Headers.ContainsKey(Headers.ClearTimeouts))
+            if (message.Headers.ContainsKey(TimeoutManagerHeaders.ClearTimeouts))
             {
                 if (sagaId == Guid.Empty)
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
@@ -85,14 +85,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
             else
             {
-                if (!message.Headers.ContainsKey(Headers.Expire))
+                if (!message.Headers.ContainsKey(TimeoutManagerHeaders.Expire))
                     throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
 
                 var destination = message.ReplyToAddress;
 
-                if (message.Headers.ContainsKey(Headers.RouteExpiredTimeoutTo))
+                if (message.Headers.ContainsKey(TimeoutManagerHeaders.RouteExpiredTimeoutTo))
                 {
-                    destination = Address.Parse(message.Headers[Headers.RouteExpiredTimeoutTo]);
+                    destination = Address.Parse(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
                 }
                 
                 var data = new TimeoutData
@@ -100,7 +100,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     Destination = destination,
                     SagaId = sagaId,
                     State = message.Body,
-                    Time = DateTimeExtensions.ToUtcDateTime(message.Headers[Headers.Expire]),
+                    Time = DateTimeExtensions.ToUtcDateTime(message.Headers[TimeoutManagerHeaders.Expire]),
                     CorrelationId = message.CorrelationId,
                     Headers = message.Headers,
                     OwningTimeoutManager = Configure.EndpointName

@@ -2,11 +2,12 @@
 {
     using System;
     using System.Linq;
+    using BackwardCompatibility;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
     using Subscriptions;
-    using Transport;
+    using Timeout;
 
     [TestFixture]
     public class When_receiving_a_regular_message : using_the_unicastbus
@@ -179,6 +180,27 @@
             Assert.False(Handler2.Called);
         }
     }
+
+    [TestFixture]
+    public class When_receiving_a_v3_saga_timeout_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_set_the_newv4_flag()
+        {
+            var transportMessage = new TransportMessage();
+
+            transportMessage.Headers[TimeoutManagerHeaders.Expire] = DateTime.UtcNow.ToString();
+            transportMessage.Headers[Headers.SagaId] = Guid.NewGuid().ToString();
+
+
+            var mutator = new SetIsSagaMessageHeaderForV3XMessages();
+
+           mutator.MutateIncoming(transportMessage);
+
+           Assert.AreEqual(transportMessage.Headers[Headers.IsSagaTimeoutMessage], true.ToString());
+        }
+    }
+
 
     class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>
     {

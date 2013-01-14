@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Runtime.Serialization;
     using Management.Retries;
     using Monitoring;
+    using Queuing;
 
     /// <summary>
     /// An implementation of <see cref="ITransport"/> that supports transactions.

@@ -11,11 +11,10 @@ namespace NServiceBus.Management.Retries
     {
         readonly ILog Logger = LogManager.GetLogger("SecondLevelRetries");
 
-        public ISendMessages MessageSender { get; set; }        
+        public ISendMessages MessageSender { get; set; }
+        public IDeferMessages MessageDeferrer { get; set; }  
         
         public Address InputAddress { get; set; }
-
-        public Address TimeoutManagerAddress { get; set; }
 
         public bool Disabled { get; set; }
 
@@ -65,22 +64,20 @@ namespace NServiceBus.Management.Retries
 
         void Defer(TimeSpan defer, TransportMessage message)
         {
-            TransportMessageHelpers.SetHeader(message, Headers.Expire, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow + defer));
+            var retryMessageAt = DateTime.UtcNow + defer;
+
             TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
-            var faultingEndpointAddress = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
-
-            //tell the TM to route this message to the endpoint where this message failed
-            TransportMessageHelpers.SetHeader(message, Headers.RouteExpiredTimeoutTo, faultingEndpointAddress.ToString());
+            var addressOfFaultingEndpoint = TransportMessageHelpers.GetAddressOfFaultingEndpoint(message);
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
                 TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 
-            Logger.DebugFormat("Defer message and send it to {0} using the timeout manager at {1}", faultingEndpointAddress, TimeoutManagerAddress);            
+            Logger.DebugFormat("Defer message and send it to {0}", addressOfFaultingEndpoint);
 
-            MessageSender.Send(message, TimeoutManagerAddress);
+            MessageDeferrer.Defer(message, retryMessageAt, addressOfFaultingEndpoint);
         }
     }
 }
