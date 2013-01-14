@@ -270,23 +270,14 @@ namespace NServiceBus.Unicast
 
 
         /// <summary>
+        /// Handles the filtering of messages on the subscriber side
+        /// </summary>
+        public SubscriptionPredicatesEvaluator SubscriptionPredicatesEvaluator { get; set; }
+
+        /// <summary>
         /// The registered subscription manager for this bus instance
         /// </summary>
-        public IManageSubscriptions SubscriptionManager
-        {
-            get { return subscriptionManager; }
-            set
-            {
-                subscriptionManager = value;
-                subscriptionManager.ClientSubscribed += (sender, args) =>
-                    {
-                        if (ClientSubscribed == null)
-                            return;
-
-                        ClientSubscribed(this, args);
-                    };
-            }
-        }
+        public IManageSubscriptions SubscriptionManager { get; set; }
 
         /// <summary>
         /// Publishes the given messages
@@ -426,7 +417,10 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            SubscriptionManager.Subscribe(messageType, destination, condition);
+            SubscriptionManager.Subscribe(messageType, destination);
+
+            if (SubscriptionPredicatesEvaluator != null)
+                SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
         }
 
         /// <summary>
@@ -522,7 +516,7 @@ namespace NServiceBus.Unicast
             {
                 return ((IBus)this).Send(MasterNodeAddress, messages);
             }
-            
+
             return ((IBus)this).Send(Address.Local, messages);
         }
 
@@ -618,7 +612,7 @@ namespace NServiceBus.Unicast
 
             toSend.Headers[Headers.IsDeferedMessage] = true.ToString();
 
-            MessageDeferrer.Defer(toSend, processAt,Address.Local);
+            MessageDeferrer.Defer(toSend, processAt, Address.Local);
 
             return SetupCallback(toSend.Id);
         }

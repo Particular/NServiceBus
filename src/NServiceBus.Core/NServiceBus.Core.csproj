@@ -442,8 +442,10 @@
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\Subscriptions\SubscriptionPredicatesEvaluator.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\InMemory\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />

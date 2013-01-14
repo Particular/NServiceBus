@@ -126,7 +126,7 @@
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = typeof (EventMessage).AssemblyQualifiedName;
 
             var eventFired = false;
-            unicastBus.ClientSubscribed += (sender, args) =>
+            subscriptionManager.ClientSubscribed += (sender, args) =>
             {
                 Assert.AreEqual(subscriberAddress, args.SubscriberReturnAddress);
                 eventFired = true;
@@ -162,7 +162,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_an_event_that_is_filtered_out_with_the_subscribe_predicate : using_the_unicastbus
+    public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastbus
     {
         [Test]
         public void Should_not_invoke_the_handlers()

@@ -141,7 +141,7 @@
 
         void Subscribe<T>()
         {
-            subscriptionManager.Subscribe(typeof(T), Address.Parse(PUBLISHERNAME), null);
+            subscriptionManager.Subscribe(typeof(T), Address.Parse(PUBLISHERNAME));
         }
 
         void Publish<T>()

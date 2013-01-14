@@ -37,7 +37,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        public void Subscribe(Type eventType, Address publisherAddress, Predicate<object> condition)
+        public void Subscribe(Type eventType, Address publisherAddress)
         {
             var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
 
@@ -62,7 +62,5 @@ namespace NServiceBus.Transport.ActiveMQ
                 }
             }
         }
-
-        public event EventHandler<Unicast.SubscriptionEventArgs> ClientSubscribed;
     }
 }

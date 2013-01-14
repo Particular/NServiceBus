@@ -33,7 +33,7 @@
         {
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
             var subscribedTopics = this.testee.Register(this);
 
             subscribedTopics.Should().Equal(new object[] { DefaultTopic });
@@ -45,7 +45,7 @@
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
             this.testee.Register(this);
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
 
             this.subscribedTopics.Should().BeEquivalentTo(new object[] { DefaultTopic });
         }
@@ -55,8 +55,8 @@
         {
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(defaultType, Address.Local, null);
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
+            this.testee.Subscribe(defaultType, Address.Local);
             var topics = this.testee.Register(this);
 
             topics.Should().Equal(new object[] { DefaultTopic });
@@ -67,9 +67,9 @@
         {
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
             this.testee.Register(this);
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
 
             this.subscribedTopics.Should().BeEmpty();
         }
@@ -79,7 +79,7 @@
         {
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
             this.testee.Unsubscribe(defaultType, Address.Local);
             var topics = this.testee.Register(this);
 
@@ -91,7 +91,7 @@
         {
             this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(defaultType, Address.Local, null);
+            this.testee.Subscribe(defaultType, Address.Local);
             this.testee.Register(this);
             this.testee.Unsubscribe(defaultType, Address.Local);
 
