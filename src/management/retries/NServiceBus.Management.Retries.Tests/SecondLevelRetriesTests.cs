@@ -161,7 +161,7 @@ namespace NServiceBus.Management.Retries.Tests
             DeferredMessage = message;
         }
 
-        public void ClearDeferedMessages(string headerKey, string headerValue)
+        public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             
         }

@@ -196,7 +196,7 @@ namespace NServiceBus.Sagas.Impl
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            MessageDeferrer.ClearDeferedMessages(Headers.SagaId, saga.Entity.Id.ToString());
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         void LogIfSagaIsFinished(ISaga saga)

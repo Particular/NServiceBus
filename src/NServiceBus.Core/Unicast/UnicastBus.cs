@@ -121,10 +121,10 @@ namespace NServiceBus.Unicast
         /// Clear Timeouts For the saga
         /// </summary>
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferedMessages")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferredMessages")]
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            MessageDeferrer.ClearDeferedMessages(Headers.SagaId, sagaId.ToString());
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
         }
 
 
@@ -802,7 +802,7 @@ namespace NServiceBus.Unicast
 
                 if (autoSubscribe)
                 {
-                    PerformAutoSubcribe();
+                    PerformAutoSubscribe();
                 }
 
                 started = true;
@@ -880,7 +880,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void PerformAutoSubcribe()
+        void PerformAutoSubscribe()
         {
             AssertHasLocalAddress();
 
@@ -1040,7 +1040,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            HandleCorellatedMessage(m, messages);
+            HandleCorrelatedMessage(m, messages);
 
             foreach (var messageToHandle in messages)
             {
@@ -1193,7 +1193,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="msg">The message to evaluate.</param>
         /// <param name="messages">The logical messages in the transport message.</param>
-        void HandleCorellatedMessage(TransportMessage msg, object[] messages)
+        void HandleCorrelatedMessage(TransportMessage msg, object[] messages)
         {
             if (msg.CorrelationId == null)
                 return;
@@ -1225,7 +1225,7 @@ namespace NServiceBus.Unicast
         /// <param name="e">The arguments for the event.</param>
         /// <remarks>
         /// When the transport passes up the <see cref="TransportMessage"/> its received,
-        /// the bus checks for initializiation, 
+        /// the bus checks for initialization, 
         /// sets the message as that which is currently being handled for the current thread
         /// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
         /// </remarks>
@@ -1673,7 +1673,7 @@ namespace NServiceBus.Unicast
     }
 
     /// <summary>
-    /// Extansion methods for IBuilder
+    /// Extension methods for IBuilder
     /// </summary>
     public static class BuilderExtensions
     {

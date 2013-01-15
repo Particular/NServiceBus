@@ -182,7 +182,7 @@
 
     }
 
-    class StorageInitalizer : IWantToRunWhenBusStartsAndStops
+    class StorageInitializer : IWantToRunWhenBusStartsAndStops
     {
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 

@@ -20,6 +20,6 @@
         /// </summary>
         /// <param name="headerKey"></param>
         /// <param name="headerValue"></param>
-        void ClearDeferedMessages(string headerKey, string headerValue);
+        void ClearDeferredMessages(string headerKey, string headerValue);
     }
 }

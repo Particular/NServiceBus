@@ -28,7 +28,7 @@
             }
         }
 
-        public void ClearDeferedMessages(string headerKey, string headerValue)
+        public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             var controlMessage = ControlMessage.Create(Address.Local);
 

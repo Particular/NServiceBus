@@ -129,11 +129,11 @@ namespace NServiceBus
         }
 
         private IConfigureComponents configurer;
-        private static bool configSectionOverridesInitialised;
+        private static bool configSectionOverridesInitialized;
 
         void WireUpConfigSectionOverrides()
         {
-            if (configSectionOverridesInitialised)
+            if (configSectionOverridesInitialized)
             {
                 return;
             }
@@ -142,7 +142,7 @@ namespace NServiceBus
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            configSectionOverridesInitialised = true;
+            configSectionOverridesInitialized = true;
         }
 
         /// <summary>
@@ -378,12 +378,12 @@ namespace NServiceBus
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             Predicate<string> exclude = 
-                f => assembliesToSkip.Any(skip => destillLowerAssemblyName(skip) == f);
+                f => assembliesToSkip.Any(skip => distillLowerAssemblyName(skip) == f);
 
             return FindAssemblies(path, false, null, exclude);
         }
 
-        static string destillLowerAssemblyName(string assemblyOrFileName)
+        static string distillLowerAssemblyName(string assemblyOrFileName)
         {
             var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
             if (lowerAssemblyName.EndsWith(".dll"))
@@ -554,9 +554,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static bool IsMatch(string expression, string scopedNameOrFileName)
         {
-            if (destillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
+            if (distillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
                 return true;
-            if (destillLowerAssemblyName(expression).TrimEnd('.') == destillLowerAssemblyName(scopedNameOrFileName))
+            if (distillLowerAssemblyName(expression).TrimEnd('.') == distillLowerAssemblyName(scopedNameOrFileName))
                 return true;
 
             return false;

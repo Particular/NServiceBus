@@ -11,7 +11,7 @@ namespace NServiceBus
     using Raven.Client.Document;
 
     /// <summary>
-    /// Extension methods to configute RavenDB persister.
+    /// Extension methods to configure RavenDB persister.
     /// </summary>
     public static class ConfigureRavenPersistence
     {

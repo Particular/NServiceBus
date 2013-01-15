@@ -36,7 +36,7 @@ namespace NServiceBus.Management.Retries
         {
             if (Disabled)
             {
-                Logger.DebugFormat("The SecondLevelRetries satellite is invoked, but disabled. Sending message to error queue. Make sure that this behaviour is expected!");
+                Logger.DebugFormat("The SecondLevelRetries satellite is invoked, but disabled. Sending message to error queue. Make sure that this behavior is expected!");
                 SendToErrorQueue(message);
                 return;
             }

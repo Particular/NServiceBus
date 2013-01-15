@@ -36,7 +36,7 @@ namespace NServiceBus.Unicast.Queuing
         }
 
         /// <summary>
-        /// Register all IWantQueueCreated's implementers
+        /// Register all IWantQueueCreated implementers.
         /// </summary>
         public void Init()
         {
