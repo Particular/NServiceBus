@@ -2,6 +2,7 @@
 {
     using NUnit.Framework;
     using Raven.Client;
+    using Raven.Client.Document;
     using Raven.Client.Embedded;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.Raven;
@@ -15,6 +16,7 @@
         public void SetupContext()
         {
             store = new EmbeddableDocumentStore { RunInMemory = true};
+            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
            
             store.Initialize();
 
