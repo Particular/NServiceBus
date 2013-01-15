@@ -109,10 +109,6 @@
              
                 switch (fileName)
                 {
-                    case "Raven.Studio":
-                        fileName += ".xap";
-                        break;
-
                     case "Raven.Server":
                         fileName += ".exe";
                         break;
