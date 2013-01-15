@@ -29,10 +29,20 @@ namespace NServiceBus
 
         public static Address GetMasterNodeAddress(this Configure config)
         {
+            var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
+
+            //allow users to override data address in config
+            if (unicastBusConfig != null && !string.IsNullOrWhiteSpace(unicastBusConfig.DistributorDataAddress))
+            {
+                return Address.Parse(unicastBusConfig.DistributorDataAddress);
+            }
+
             var masterNode = GetMasterNode(config);
             
             if (string.IsNullOrWhiteSpace(masterNode))
+            {
                 return Address.Parse(Configure.EndpointName);
+            }
 
             ValidateHostName(masterNode);
 

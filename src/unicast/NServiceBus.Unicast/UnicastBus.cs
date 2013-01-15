@@ -513,12 +513,21 @@ namespace NServiceBus.Unicast
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
-        void IBus.HandleCurrentMessageLater()
+        public void HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
+            {
                 return;
+            }
 
-            MessageSender.Send(_messageBeingHandled, Address.Local);
+            if (WorkerRunsOnThisEndpoint)
+            {
+                MessageSender.Send(_messageBeingHandled, MasterNodeAddress);
+            }
+            else
+            {
+                MessageSender.Send(_messageBeingHandled, Address.Local);
+            }
 
             _handleCurrentMessageLaterWasCalled = true;
         }
@@ -540,8 +549,19 @@ namespace NServiceBus.Unicast
             return ((IBus)this).SendLocal(CreateInstance(messageConstructor));
         }
 
+        /// <summary>
+        /// To be used internally by NServiceBus infrastructure.
+        /// </summary>
+        public static bool WorkerRunsOnThisEndpoint;
+
         ICallback IBus.SendLocal(params object[] messages)
         {
+            //if we're a worker, send to the distributor data bus
+            if (WorkerRunsOnThisEndpoint)
+            {
+                return ((IBus)this).Send(MasterNodeAddress, messages);
+            }
+
             return ((IBus)this).Send(Address.Local, messages);
         }
 
@@ -642,6 +662,14 @@ namespace NServiceBus.Unicast
                 Log.Error("It might be that TimeoutManager is not configured. Please configure .RunTimeoutManager() at your endpoint.");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// To be used internally by NServiceBus infrastructure.
+        /// </summary>
+        public bool HandleCurrentMessageLaterCalled
+        {
+            get { return _handleCurrentMessageLaterWasCalled; }
         }
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
@@ -946,7 +974,7 @@ namespace NServiceBus.Unicast
             }
         }
 
-        IMessageContext IBus.CurrentMessageContext
+        public IMessageContext CurrentMessageContext
         {
             get
             {

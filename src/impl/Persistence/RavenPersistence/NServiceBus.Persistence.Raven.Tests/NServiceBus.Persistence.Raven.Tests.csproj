@@ -65,15 +65,14 @@
     <Reference Include="NServiceBus.Installation">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Installation.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.MasterNode, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.MasterNode.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.DefaultBuilder">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.ObjectBuilder.DefaultBuilder.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Unicast.Config">
+      <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.Unicast.Config.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.UnitOfWork">
       <HintPath>..\..\..\..\..\build\nservicebus.core\NServiceBus.UnitOfWork.dll</HintPath>

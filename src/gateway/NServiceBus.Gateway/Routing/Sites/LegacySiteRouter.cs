@@ -5,9 +5,9 @@
     using Channels;
     using Unicast.Transport;
 
-    public class LegacySiteRouter:IRouteMessagesToSites
+    public class LegacySiteRouter : IRouteMessagesToSites
     {
-        readonly string remoteUrl;
+        private readonly string remoteUrl;
 
         public LegacySiteRouter()
         {
@@ -18,14 +18,17 @@
         {
             var address = GetRemoteAddress(messageToDispatch);
 
-            return new []{new Site
-            {
-                Channel = new Channel{Address = address,Type = "Http"},
-                Key = address
-            }};
+            return new[]
+                {
+                    new Site
+                        {
+                            Channel = new Channel {Address = address, Type = "Http"},
+                            Key = address
+                        }
+                };
         }
 
-        string GetRemoteAddress(TransportMessage msg)
+        private string GetRemoteAddress(TransportMessage msg)
         {
             if (msg.Headers.ContainsKey(Headers.HttpTo))
                 return msg.Headers[Headers.HttpTo];

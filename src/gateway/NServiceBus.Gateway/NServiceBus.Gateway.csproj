@@ -146,7 +146,6 @@
     <Compile Include="Sending\IdempotentChannelForwarder.cs" />
     <Compile Include="Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Routing\Endpoints\DefaultEndpointRouter.cs" />
-    <Compile Include="Routing\Endpoints\LegacyEndpointRouter.cs" />
     <Compile Include="Routing\IRouteMessagesToEndpoints.cs" />
     <Compile Include="Routing\Sites\ConfigurationBasedSiteRouter.cs" />
     <Compile Include="Config\ConfigureGateway.cs" />
