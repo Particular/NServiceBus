@@ -107,7 +107,7 @@ namespace NServiceBus.Hosting
                 runner.Stop(runningServices);
         }
 
-        public void Install<TEnvironment>() where TEnvironment : IEnvironment
+        public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             //todo -yves
         }

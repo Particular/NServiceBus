@@ -1,18 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using NServiceBus.Hosting.Configuration;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Hosting.Profiles;
-using NServiceBus.Hosting.Roles;
-using NServiceBus.Hosting.Wcf;
-using NServiceBus.Logging;
-
 namespace NServiceBus.Hosting
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Config;
+    using System.Reflection;
+    using Configuration;
+    using Helpers;
     using Installation;
+    using Logging;
+    using Profiles;
+    using Roles;
+    using Wcf;
 
     /// <summary>
     /// A generic host that can be used to provide hosting services in different environments
@@ -72,10 +70,10 @@ namespace NServiceBus.Hosting
         /// When installing as windows service (/install), run infrastructure installers
         /// </summary>
         /// <typeparam name="TEnvironment"></typeparam>
-        public void Install<TEnvironment>() where TEnvironment : IEnvironment
+        public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             PerformConfiguration();
-            Configure.Instance.ForInstallationOn<TEnvironment>().Install();
+            Configure.Instance.ForInstallationOn<TEnvironment>(username).Install();
         }
 
         void PerformConfiguration()

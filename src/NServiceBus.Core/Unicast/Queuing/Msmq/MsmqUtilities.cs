@@ -15,22 +15,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     ///</summary>
     public class MsmqUtilities
     {
-        private static string accountToBeAssignedQueuePermissions;
-
-        /// <summary>
-        /// Sets the account to be assigned queue permissions.
-        /// </summary>
-        /// <param name="account">Account to be used.</param>
-        public static void AccountToBeAssignedQueuePermissions(string account)
-        {
-            accountToBeAssignedQueuePermissions = account;
-        }
-
-        private static string getFullPath(string value)
-        {
-            return GetFullPath(Address.Parse(value));
-        }
-
         /// <summary>
         /// Turns a '@' separated value into a full path.
         /// Format is 'queue@machine', or 'queue@ipaddress'
@@ -113,59 +97,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         static string localIp;
 
         /// <summary>
-        /// Returns the full path without Format or direct os
-        /// from a '@' separated path.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetFullPathWithoutPrefix(string value)
-        {
-            return getMachineNameFromLogicalName(value) + PRIVATE + getQueueNameFromLogicalName(value);
-        }
-
-
-
-        private static string getMachineNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            string machine = Environment.MachineName;
-
-            if (arr.Length >= 2)
-                if (arr[1] != "." && arr[1].ToLower() != "localhost")
-                    machine = arr[1];
-
-            return machine;
-        }
-
-        private static string getQueueNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            if (arr.Length >= 1)
-                return arr[0];
-
-            return null;
-        }
-
-        /// <summary>
-        /// Checks whether or not a queue is local by its path.
-        /// </summary>
-        /// <param name="value">The path to the queue to check.</param>
-        /// <returns>true if the queue is local, otherwise false.</returns>
-        public static bool QueueIsLocal(string value)
-        {
-            var machineName = Environment.MachineName.ToLower();
-
-            value = value.ToLower().Replace(PREFIX.ToLower(), "");
-            var index = value.IndexOf('\\');
-
-            var queueMachineName = value.Substring(0, index).ToLower();
-
-            return (machineName == queueMachineName || queueMachineName == "localhost" || queueMachineName == ".");
-        }
-
-        /// <summary>
         /// Gets an independent address for the queue in the form:
         /// queue@machine.
         /// </summary>
@@ -198,24 +129,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 throw new Exception("Could not translate format name to independent name: " + q.FormatName);
             }
-        }
-
-        /// <summary>
-        /// Returns the number of messages in the queue.
-        /// </summary>
-        /// <returns></returns>
-        public static int GetNumberOfPendingMessages(string queueName)
-        {
-            var q = new MessageQueue(getFullPath(queueName));
-            
-            var qMgmt = new MSMQ.MSMQManagementClass();
-
-            object machine = Environment.MachineName;
-            var missing = Type.Missing;
-            object formatName = q.FormatName;
-
-            qMgmt.Init(ref machine, ref missing, ref formatName);
-            return qMgmt.MessageCount;
         }
 
         /// <summary>

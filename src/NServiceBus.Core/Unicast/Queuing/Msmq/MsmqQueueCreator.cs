@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Messaging;
     using System.Security.Principal;
     using Logging;
-    using NServiceBus.Config;
 
     public class MsmqQueueCreator : ICreateQueues
     {
@@ -12,7 +11,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
-        private static string accountToBeAssignedQueuePermissions;
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
@@ -46,7 +44,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 if (MessageQueue.Exists(q))
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(q, accountToBeAssignedQueuePermissions ?? account);
+                    SetPermissionsForQueue(q, account);
                     return;
                 }
 
@@ -78,7 +76,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         {
             MessageQueue.Create(queueName, transactional);
 
-            SetPermissionsForQueue(queueName, accountToBeAssignedQueuePermissions ?? account);
+            SetPermissionsForQueue(queueName, account);
 
             Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queueName, account, transactional);
         }

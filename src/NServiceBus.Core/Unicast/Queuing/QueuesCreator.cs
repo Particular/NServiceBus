@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast.Queuing
 {
     using System.Linq;
-    using System.Security.Principal;
     using Installation;
     using Installation.Environments;
     using Logging;
@@ -18,7 +17,7 @@ namespace NServiceBus.Unicast.Queuing
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for under which the queue will be created.</param>
-        public void Install(WindowsIdentity identity)
+        public void Install(string identity)
         {
             if (Endpoint.IsSendOnly)
                 return;
@@ -30,8 +29,8 @@ namespace NServiceBus.Unicast.Queuing
 
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
             {
-                QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity.Name);
-                Logger.InfoFormat("Created queue: [{0}], for identity: [{1}]", wantQueueCreatedInstance.Address, identity.Name);
+                QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
+                Logger.InfoFormat("Created queue: [{0}], for identity: [{1}]", wantQueueCreatedInstance.Address, identity);
             }
         }
 

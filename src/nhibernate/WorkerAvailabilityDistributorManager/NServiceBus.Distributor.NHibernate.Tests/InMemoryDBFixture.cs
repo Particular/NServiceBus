@@ -36,7 +36,7 @@ namespace NServiceBus.Distributor.NHibernate.Tests
 
             persister = Configure.Instance.Builder.Build<NHibernateWorkerAvailabilityManager>();
 
-            new Installer.Installer().Install(WindowsIdentity.GetCurrent());
+            new Installer.Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
     }
 }
