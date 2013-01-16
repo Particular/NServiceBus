@@ -45,12 +45,12 @@ namespace NServiceBus.Gateway.Persistence.Sql
                     if (ms == null)
                         messageParam.Value = message;
                     else
-                        messageParam.Value = ms.GetBuffer();
+                        messageParam.Value = ms.ToArray();
                     cmd.Parameters.Add(messageParam);
 
                     var headersParam = cmd.CreateParameter();
                     headersParam.ParameterName = "@Headers";
-                    headersParam.Value = stream.GetBuffer();
+                    headersParam.Value = stream.ToArray();
                     cmd.Parameters.Add(headersParam);
 
                     results = cmd.ExecuteNonQuery();

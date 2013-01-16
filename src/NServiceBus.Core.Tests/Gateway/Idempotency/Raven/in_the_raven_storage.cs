@@ -7,6 +7,7 @@
     using Persistence.Raven;
     using global::Raven.Client;
     using NUnit.Framework;
+    using global::Raven.Client.Document;
     using global::Raven.Client.Embedded;
 
     public class in_the_raven_storage
@@ -19,6 +20,7 @@
         {
             store = new EmbeddableDocumentStore { RunInMemory = true };
             //store = new DocumentStore { Url = "http://localhost:8080" };
+            store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
             
             store.Initialize();
 

@@ -22,26 +22,18 @@
 
             properties.SetPersistent(message.Recoverable);
 
-            if (message.Headers != null)
+            properties.Headers = message.Headers;
+
+            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                properties.Headers = message.Headers;
-
-                if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-                {
-                    properties.Type = message.Headers[Headers.EnclosedMessageTypes];
-                }
-
-                if (message.Headers.ContainsKey(Headers.ContentType))
-                    properties.ContentType = message.Headers[Headers.ContentType];
-
-                if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
-                    properties.ReplyTo = message.ReplyToAddress.Queue;
-
+                properties.Type = message.Headers[Headers.EnclosedMessageTypes];
             }
-            else
-            {
-                properties.Headers = new Dictionary<string, string>();
-            }
+
+            if (message.Headers.ContainsKey(Headers.ContentType))
+                properties.ContentType = message.Headers[Headers.ContentType];
+
+            if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
+                properties.ReplyTo = message.ReplyToAddress.Queue;
 
             properties.AppId = message.MessageIntent.ToString();
 

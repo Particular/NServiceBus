@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMQ.cs" />
+    <Compile Include="ActiveMqMessageDecoderPipeline.cs" />
+    <Compile Include="ActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="ActiveMqMessagePublisher.cs" />
     <Compile Include="ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
@@ -66,7 +68,16 @@
     <Compile Include="ActiveMqConnectionStarter.cs" />
     <Compile Include="Config\ActiveMQTransportConfigurer.cs" />
     <Compile Include="Config\ConfigureActiveMqMessageQueue.cs" />
+    <Compile Include="Decoders\ByteMessageDecoder.cs" />
+    <Compile Include="Decoders\ControlMessageDecoder.cs" />
     <Compile Include="DestinationEvaluator.cs" />
+    <Compile Include="Encoders\ByteMessageEncoder.cs" />
+    <Compile Include="Encoders\ControlMessageEncoder.cs" />
+    <Compile Include="Encoders\TextMessageEncoder.cs" />
+    <Compile Include="IActiveMqMessageDecoder.cs" />
+    <Compile Include="IActiveMqMessageDecoderPipeline.cs" />
+    <Compile Include="IActiveMqMessageEncoder.cs" />
+    <Compile Include="IActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
     <Compile Include="IActiveMqPurger.cs" />
     <Compile Include="IDestinationEvaluator.cs" />
@@ -87,6 +98,7 @@
     <Compile Include="SessionFactory.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionManager.cs" />
+    <Compile Include="Decoders\TextMessageDecoder.cs" />
     <Compile Include="TopicEvaluator.cs" />
   </ItemGroup>
   <ItemGroup>

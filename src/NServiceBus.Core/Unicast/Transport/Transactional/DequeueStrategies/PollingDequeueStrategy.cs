@@ -18,14 +18,16 @@
         public IReceiveMessages MessageReceiver { get; set; }
 
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="tryProcessMessage"></param>
-        public void Init(Address address, TransactionSettings transactionSettings,Func<TransportMessage, bool> tryProcessMessage)
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
 
             addressToPoll = address;
             settings = transactionSettings;
@@ -63,27 +65,9 @@
         void StartThread()
         {
             var token = tokenSource.Token;
-
-            Task.Factory.StartNew(obj =>
-                {
-                    var cancellationToken = (CancellationToken)obj;
-
-                    while (!cancellationToken.IsCancellationRequested)
-                    {
-                        if (settings.IsTransactional)
-                        {
-                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                            {
-                                if (TryReceive())
-                                    scope.Complete();
-                            }
-                        }
-                        else
-                        {
-                            TryReceive();
-                        }
-                    }
-                }, token, token, TaskCreationOptions.None, scheduler)
+            
+            Task.Factory
+                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
                 .ContinueWith(t =>
                 {
                     if (t.Exception != null)
@@ -94,10 +78,51 @@
                 });
         }
 
-        bool TryReceive()
+        private void Action(object obj)
         {
-            var m = MessageReceiver.Receive();
-            return m != null && tryProcessMessage(m);
+            var cancellationToken = (CancellationToken)obj;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                Exception exception = null;
+                TransportMessage message = null;
+
+                try
+                {
+                    if (settings.IsTransactional)
+                    {
+                        using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                        {
+                            message = MessageReceiver.Receive();
+
+                            if (message != null)
+                            {
+                                if (tryProcessMessage(message))
+                                {
+                                    scope.Complete();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        message = MessageReceiver.Receive();
+
+                        if (message != null)
+                        {
+                            tryProcessMessage(message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+                finally
+                {
+                    endProcessMessage(message != null ? message.Id : null, exception);
+                }
+            }
         }
 
         Func<TransportMessage, bool> tryProcessMessage;
@@ -106,5 +131,6 @@
         MTATaskScheduler scheduler;
         TransactionSettings settings;
         TransactionOptions transactionOptions;
+        Action<string, Exception> endProcessMessage;
     }
 }

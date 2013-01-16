@@ -4,6 +4,7 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Timeout;
 
     [TestFixture]
     public class When_defering_a_message_with_no_timeoutmanager_address_specified : using_the_unicastbus
@@ -33,7 +34,7 @@
 
             VerifyThatMessageWasSentWithHeaders(h=>
                                                     {
-                                                        var e = DateTimeExtensions.ToUtcDateTime(h[Headers.Expire]);
+                                                        var e = DateTimeExtensions.ToUtcDateTime(h[TimeoutManagerHeaders.Expire]);
                                                         var now = DateTime.UtcNow + delay;
                                                         return e <= now;
                                                     });
@@ -51,7 +52,7 @@
 
             bus.Defer(time, new DeferedMessage());
 
-            VerifyThatMessageWasSentWithHeaders(h => h[Headers.Expire] == DateTimeExtensions.ToWireFormattedString(time));
+            VerifyThatMessageWasSentWithHeaders(h => h[TimeoutManagerHeaders.Expire] == DateTimeExtensions.ToWireFormattedString(time));
         }
     }
 

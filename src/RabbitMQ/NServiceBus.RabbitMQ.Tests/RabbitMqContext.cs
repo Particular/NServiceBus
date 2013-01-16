@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Transport.RabbitMQ.Tests
+﻿namespace NServiceBus.RabbitMQ.Tests
 {
     using System;
     using System.Collections.Concurrent;
+    using NServiceBus;
+    using NServiceBus.RabbitMq;
+    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
-    using RabbitMq;
-    using Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
 
     public class RabbitMqContext
@@ -78,10 +79,9 @@
             {
                 receivedMessages.Add(m);
                 return true;
-            });
+            }, (s, exception) => {});
 
             dequeueStrategy.Start(1);
-
         }
 
 

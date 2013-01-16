@@ -9,17 +9,18 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Tests.Messages
 {
-    public class MessageE
+    public class MessageE : IMessage
     {
     }
 
-    public class MessageF
+    public class MessageF : IMessage
     {
     }
 }
 
 namespace NServiceBus.Unicast.Tests
 {
+    using System.Reflection;
     using NServiceBus.Config.ConfigurationSource;
 
     public class Configuring_message_endpoint_mapping
@@ -48,13 +49,16 @@ namespace NServiceBus.Unicast.Tests
     [TestFixture]
     public class The_more_specific_mappings
     {
-        [Test, Category("Integration")]
+        [Test]
         public void Should_take_precedence()
         {
-            Configure.With()
-                .DefineEndpointName("Foo")
-                .DefaultBuilder()
-                .UnicastBus();
+            Configure.With(Assembly.GetExecutingAssembly())
+                     .DefineEndpointName("Foo")
+                     .DefaultBuilder();
+
+            Configure.Instance.Configurer.ConfigureComponent<CustomUnicastBusConfig>(DependencyLifecycle.InstancePerCall);
+
+            Configure.Instance.UnicastBus();
 
             var messageOwners = Configure.Instance.Builder.Build<UnicastBus>().MessageOwners;
 

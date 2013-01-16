@@ -12,14 +12,14 @@
         /// </summary>
         /// <param name="message"></param>
         /// <param name="processAt"></param>
-        void Defer(TransportMessage message, DateTime processAt);
+        /// <param name="address">The endpoint of the endpoint who should get the message</param>
+        void Defer(TransportMessage message, DateTime processAt,Address address);
 
         /// <summary>
         /// Clears all timeouts for the given header
         /// </summary>
         /// <param name="headerKey"></param>
         /// <param name="headerValue"></param>
-        void ClearDeferedMessages(string headerKey, string headerValue);
-
+        void ClearDeferredMessages(string headerKey, string headerValue);
     }
 }

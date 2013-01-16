@@ -12,7 +12,7 @@
     [Cmdlet(VerbsCommon.Get, "NServiceBusMessage")]
     public class GetMessage : PSCmdlet
     {
-        [Parameter(HelpMessage = "The name of the privage queue to search", ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        [Parameter(HelpMessage = "The name of the private queue to search", ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string QueueName { get; set; }
 
         protected override void ProcessRecord()

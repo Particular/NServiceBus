@@ -2,8 +2,8 @@ namespace NServiceBus
 {
     using System;
     using Config;
+    using Timeout;
     using Unicast.Config;
-    using Unicast.Deferral;
     using Unicast.Publishing;
     using Unicast.Queuing;
     using Unicast.Subscriptions;

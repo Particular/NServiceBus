@@ -61,54 +61,49 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Raven.Server.exe.config" />
+    <None Include="Resources\Spatial4n.Core.NTS.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\BouncyCastle.Crypto.dll" />
+    <None Include="Resources\Raven.Server.exe" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Esent.Interop.dll" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\GeoAPI.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ICSharpCode.NRefactory.CSharp.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\ICSharpCode.NRefactory.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Lucene.Net.Contrib.Spatial.dll" />
+    <None Include="Resources\Jint.Raven.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Lucene.Net.Contrib.SpellChecker.dll" />
+    <None Include="Resources\Lucene.Net.Contrib.Spatial.NTS.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Lucene.Net.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Newtonsoft.Json.dll" />
+    <None Include="Resources\Mono.Cecil.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\NetTopologySuite.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\NLog.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\PowerCollections.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Raven.Abstractions.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Raven.Database.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Raven.Munin.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Raven.Server.exe" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Raven.Storage.Esent.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Raven.Storage.Managed.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Raven.Studio.xap" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Spatial4n.Core.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

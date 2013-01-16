@@ -52,7 +52,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             UnitOfWork = new UnitOfWorkManager { SessionFactory = SessionFactory };
 
-            new Installer().Install(WindowsIdentity.GetCurrent());
+            new Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
 
         [TearDown]

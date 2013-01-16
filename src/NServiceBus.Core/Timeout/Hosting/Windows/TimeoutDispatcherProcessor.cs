@@ -25,7 +25,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             get { return !TimeoutManager.Enabled; }
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
@@ -34,6 +34,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
             }
+
+            return true;
         }
 
         public void Start()

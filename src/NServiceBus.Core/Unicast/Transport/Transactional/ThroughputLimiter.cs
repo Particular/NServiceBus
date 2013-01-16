@@ -1,6 +1,5 @@
 namespace NServiceBus.Unicast.Transport.Transactional
 {
-    using System;
     using System.Threading;
 
     /// <summary>

@@ -70,14 +70,15 @@ namespace NServiceBus.Hosting.Windows
         /// <summary>
         /// Performs installations
         /// </summary>
-        public void Install()
+        /// <param name="username">Username passed in to host.</param>
+        public void Install(string username)
         {
             if (runOtherInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
             if (runInfrastructureInstallers)
                 Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = true;
 
-            genericHost.Install<Installation.Environments.Windows>();
+            genericHost.Install<Installation.Environments.Windows>(username);
         }
     }
 }

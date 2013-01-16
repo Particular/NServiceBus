@@ -1,7 +1,6 @@
 namespace NServiceBus.TimeoutPersisters.NHibernate.Installer
 {
     using System;
-    using System.Security.Principal;
     using Config;
     using Installation;
     using Installation.Environments;
@@ -22,8 +21,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Installer
         /// <summary>
         /// Executes the installer.
         /// </summary>
-        /// <param name="identity">The <see cref="WindowsIdentity"/> to run the installer under.</param>
-        public void Install(WindowsIdentity identity)
+        /// <param name="identity">The user for whom permissions will be given.</param>
+        public void Install(string identity)
         {
             if (RunInstaller)
             {

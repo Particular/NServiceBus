@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast.BackwardCompatibility
     /// <summary>
     /// Register CompletionMessage as system message 
     /// </summary>
-    public class ConfigureBackwardCompatilibity : IWantToRunBeforeConfiguration
+    public class ConfigureBackwardCompatibility : IWantToRunBeforeConfiguration
     {
         /// <summary>
         /// Register CompletionMessage as system message

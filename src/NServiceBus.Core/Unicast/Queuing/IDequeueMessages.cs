@@ -1,19 +1,21 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional
+﻿namespace NServiceBus.Unicast.Queuing
 {
     using System;
+    using Transport.Transactional;
 
     /// <summary>
-    /// Interface to implement when developing custom dequeing strategies.
+    /// Interface to implement when developing custom dequeuing strategies.
     /// </summary>
     public interface IDequeueMessages
     {
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
-        void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage);
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage);
         
         /// <summary>
         /// Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel"/>.

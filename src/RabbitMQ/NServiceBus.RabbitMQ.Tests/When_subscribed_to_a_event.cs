@@ -1,5 +1,6 @@
-﻿namespace NServiceBus.Transport.RabbitMQ.Tests
+﻿namespace NServiceBus.RabbitMQ.Tests
 {
+    using NServiceBus;
     using NUnit.Framework;
 
     [TestFixture, Category("Integration")]
@@ -141,7 +142,7 @@
 
         void Subscribe<T>()
         {
-            subscriptionManager.Subscribe(typeof(T), Address.Parse(PUBLISHERNAME), null);
+            subscriptionManager.Subscribe(typeof(T), Address.Parse(PUBLISHERNAME));
         }
 
         void Publish<T>()

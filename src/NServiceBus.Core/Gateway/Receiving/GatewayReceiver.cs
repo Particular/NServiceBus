@@ -43,8 +43,9 @@ namespace NServiceBus.Gateway.Receiving
             Logger.InfoFormat("Receiver shutdown complete");
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
+            return true;
         }
 
         public Address InputAddress

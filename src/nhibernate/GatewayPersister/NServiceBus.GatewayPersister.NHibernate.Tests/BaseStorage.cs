@@ -41,7 +41,7 @@
 
             Persister = Configure.Instance.Builder.Build<GatewayPersister>();
 
-            new Installer.Installer().Install(WindowsIdentity.GetCurrent());
+            new Installer.Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
 
         static Dictionary<string, string> ConvertStringToDictionary(string data)

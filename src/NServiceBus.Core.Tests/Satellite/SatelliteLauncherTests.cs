@@ -7,9 +7,11 @@
     public class FakeSatellite : ISatellite
     {
         public bool IsMessageHandled = false;
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             IsMessageHandled = true;
+
+            return true;
         }
 
         public Address InputAddress { get; set; }

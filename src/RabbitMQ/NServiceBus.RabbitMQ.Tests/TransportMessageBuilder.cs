@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.Transport.RabbitMQ.Tests
+﻿namespace NServiceBus.RabbitMQ.Tests
 {
     using System;
-    using System.Collections.Generic;
+    using NServiceBus;
 
     public class TransportMessageBuilder
     {
