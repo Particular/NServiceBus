@@ -39,13 +39,15 @@ namespace NServiceBus.Timeout.Hosting.Windows
             
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
                 HandleBackwardsCompatibility(message);
             else
                 HandleInternal(message);
+
+            return true;
         }
 
         void HandleBackwardsCompatibility(TransportMessage message)

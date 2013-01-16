@@ -21,7 +21,7 @@ namespace NServiceBus.Gateway.Sending
         public IMessageNotifier Notifier { get; set; }
         public ISendMessages MessageSender { get; set; }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             IList<Site> destinationSites = GetDestinationSitesFor(message);
 
@@ -33,7 +33,7 @@ namespace NServiceBus.Gateway.Sending
                     CloneAndSendLocal(message, destinationSite);
                 }
 
-                return;
+                return true;
             }
 
             Site destination = destinationSites.FirstOrDefault();
@@ -42,6 +42,8 @@ namespace NServiceBus.Gateway.Sending
                 throw new InvalidOperationException("No destination found for message");
 
             SendToSite(message, destination);
+
+            return true;
         }
 
         public Address InputAddress

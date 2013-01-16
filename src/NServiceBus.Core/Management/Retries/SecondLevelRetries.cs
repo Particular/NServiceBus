@@ -32,13 +32,13 @@ namespace NServiceBus.Management.Retries
         {            
         }
                        
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             if (Disabled)
             {
                 Logger.DebugFormat("The SecondLevelRetries satellite is invoked, but disabled. Sending message to error queue. Make sure that this behavior is expected!");
                 SendToErrorQueue(message);
-                return;
+                return true;
             }
 
             var defer = RetryPolicy.Invoke(message);
@@ -47,10 +47,12 @@ namespace NServiceBus.Management.Retries
             if (defer < TimeSpan.Zero || hasTimedOut)
             {
                 SendToErrorQueue(message);
-                return;
+                return true;
             }
 
-            Defer(defer, message); 
+            Defer(defer, message);
+
+            return true;
         }
 
         void SendToErrorQueue(TransportMessage message)

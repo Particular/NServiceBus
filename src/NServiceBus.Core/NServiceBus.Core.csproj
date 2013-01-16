@@ -340,7 +340,6 @@
     <Compile Include="Sagas\Impl\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
-    <Compile Include="Satellites\IWantAccessToTransport.cs" />
     <Compile Include="Satellites\SatelitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
     <Compile Include="Schedule.cs" />

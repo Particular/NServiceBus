@@ -4,12 +4,12 @@ namespace NServiceBus.Satellites
     /// Implement this interface to create a Satellite.
     /// </summary>
     public interface ISatellite
-    {     
+    {
         /// <summary>
         /// This method is called when a message is available to be processed.
         /// </summary>
         /// <param name="message">The <see cref="TransportMessage"/> received.</param>
-        void Handle(TransportMessage message);
+        bool Handle(TransportMessage message);
 
         /// <summary>
         /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
