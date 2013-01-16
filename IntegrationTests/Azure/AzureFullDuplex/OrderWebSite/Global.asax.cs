@@ -20,6 +20,8 @@ namespace OrderWebSite
         {
             var bus = Configure.With()
                   .DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m))
+                 // .DefiningEventsAs(m => typeof(IDefineMessages).IsAssignableFrom(m))
+                  //.DefiningCommandsAs(m => typeof(IDefineMessages).IsAssignableFrom(m))
                   .DefaultBuilder()
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()
