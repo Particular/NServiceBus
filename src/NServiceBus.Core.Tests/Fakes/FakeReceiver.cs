@@ -14,7 +14,7 @@
                 NumMessagesReceived++;
         }
 
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
             TryProcessMessage = tryProcessMessage;
         }

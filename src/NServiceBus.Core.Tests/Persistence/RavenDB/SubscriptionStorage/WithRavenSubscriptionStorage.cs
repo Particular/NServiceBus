@@ -11,8 +11,8 @@
     {
         protected ISubscriptionStorage storage;
         protected IDocumentStore store;
-        
-        [TestFixtureSetUp]
+
+        [SetUp]
         public void SetupContext()
         {
             store = new EmbeddableDocumentStore { RunInMemory = true};
@@ -24,5 +24,10 @@
             storage.Init();
         }
 
+        [TearDown]
+        public void Cleanup()
+        {
+            store.Dispose();
+        }
     }
 }

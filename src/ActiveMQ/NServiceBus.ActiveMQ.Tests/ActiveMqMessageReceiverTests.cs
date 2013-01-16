@@ -36,6 +36,8 @@
                 this.activeMqMessageMapperMock.Object, 
                 this.subscriptionManagerMock,
                 this.purger.Object);
+
+            testee.EndProcessMessage = (s, exception) => { };
         }
 
         [Test]
@@ -188,7 +190,7 @@
 
             this.RaiseTopicSubscribed(Topic);
 
-            this.testee.Dispose();
+            this.testee.Stop();
 
             topicConsumer.Verify(c => c.Close());
             topicConsumer.Verify(c => c.Dispose());

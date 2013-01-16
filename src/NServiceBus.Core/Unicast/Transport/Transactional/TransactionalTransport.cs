@@ -219,61 +219,63 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings, Process);
+            Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
             Receiver.Start(maximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
-        private bool Process(TransportMessage message)
+        bool TryProcess(TransportMessage message)
         {
             needToAbort = false;
 
-            try
+            if (TransactionSettings.SuppressDTC)
             {
-                if (TransactionSettings.SuppressDTC)
-                {
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                    {
-                        ProcessMessage(message);
-                    }
-                }
-                else
+                using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
                     ProcessMessage(message);
                 }
-
-                if (needToAbort)
-                {
-                    return false;
-                }
-
-                firstLevelRetries.ClearFailuresForMessage(message.Id);
-
-                throughputLimiter.MessageProcessed();
-                currentThroughputPerformanceCounter.MessageProcessed();
-                return true;
             }
-            catch (Exception ex)
+            else
             {
-                if (ex is AggregateException)
-                {
-                    ex = ex.GetBaseException();
-                }
+                ProcessMessage(message);
+            }
 
-                using (new TransactionScope(TransactionScopeOption.Suppress))
-                {
-                    if (TransactionSettings.IsTransactional)
-                    {
-                        firstLevelRetries.IncrementFailuresForMessage(message.Id, ex);
-                    }
-
-                    OnFailedMessageProcessing(ex);
-                }
-
-                Logger.Info("Failed to process message", ex);
-
+            if (needToAbort)
+            {
                 return false;
             }
+
+            return true;
+        }
+
+        void EndProcess(string messageId, Exception ex)
+        {
+            throughputLimiter.MessageProcessed();
+            currentThroughputPerformanceCounter.MessageProcessed();
+
+            if (ex == null)
+            {
+                if (messageId != null)
+                {
+                    firstLevelRetries.ClearFailuresForMessage(messageId);
+                }
+
+                return;
+            }
+
+            if (ex is AggregateException)
+            {
+                ex = ex.GetBaseException();
+            }
+
+            if (TransactionSettings.IsTransactional && messageId != null)
+            {
+                firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
+            }
+
+            OnFailedMessageProcessing(ex);
+            
+            Logger.Info("Failed to process message", ex);
         }
 
         void ProcessMessage(TransportMessage m)

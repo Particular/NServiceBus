@@ -44,6 +44,7 @@ namespace NServiceBus.Transport.ActiveMQ
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
+        public Action<string, Exception> EndProcessMessage { get; set; }
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
         public void Start(Address address, TransactionSettings transactionSettings)
@@ -65,7 +66,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        public void Dispose()
+        public void Stop()
         {
             this.notifyTopicSubscriptions.Unregister(this);
             foreach (var messageConsumer in this.topicConsumers)
@@ -121,22 +122,36 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
-            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+            TransportMessage transportMessage = null;
+            Exception exception = null;
 
-            if (this.transactionSettings.IsTransactional)
+            try
             {
-                if (!this.transactionSettings.SuppressDTC)
+                transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+
+                if (this.transactionSettings.IsTransactional)
                 {
-                    this.ProcessInDTCTransaction(transportMessage);
+                    if (!this.transactionSettings.SuppressDTC)
+                    {
+                        this.ProcessInDTCTransaction(transportMessage);
+                    }
+                    else
+                    {
+                        this.ProcessInActiveMqTransaction(transportMessage);
+                    }
                 }
                 else
                 {
-                    this.ProcessInActiveMqTransaction(transportMessage);
+                    this.TryProcessMessage(transportMessage);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                this.TryProcessMessage(transportMessage);
+                exception = ex;
+            }
+            finally
+            {
+                EndProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
             }
         }
 

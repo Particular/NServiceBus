@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Transport.RabbitMQ.Tests
+﻿namespace NServiceBus.RabbitMQ.Tests
 {
     using System;
     using System.Text;
+    using NServiceBus;
+    using NServiceBus.RabbitMq;
+    using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
-    using RabbitMq;
-    using Unicast.Queuing;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
