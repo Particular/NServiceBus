@@ -467,7 +467,7 @@
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
     <Compile Include="Unicast\Queuing\IDequeueMessages.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />

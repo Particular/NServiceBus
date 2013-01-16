@@ -210,12 +210,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void InitializePerformanceCounters()
         {
-            currentThroughputPerformanceCounter = new ThroughputPerformanceCounter(receiveAddress);
+            currentReceivePerformanceDiagnostics = new ReceivePerformanceDiagnostics(receiveAddress);
 
-            currentThroughputPerformanceCounter.Initialize();
+            currentReceivePerformanceDiagnostics.Initialize();
         }
 
-        ThroughputPerformanceCounter currentThroughputPerformanceCounter;
+        ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
 
         void StartReceiver()
         {
@@ -250,9 +250,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void EndProcess(string messageId, Exception ex)
         {
-            throughputLimiter.MessageProcessed();
-            currentThroughputPerformanceCounter.MessageProcessed();
 
+            
             if (ex == null)
             {
                 if (messageId != null)
@@ -260,8 +259,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
                     firstLevelRetries.ClearFailuresForMessage(messageId);
                 }
 
+                currentReceivePerformanceDiagnostics.MessageProcessed();
+                throughputLimiter.MessageProcessed();
+            
                 return;
             }
+
+            currentReceivePerformanceDiagnostics.MessageFailed();
 
             if (ex is AggregateException)
             {
