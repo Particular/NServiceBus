@@ -29,6 +29,7 @@ namespace Customer
                .AzureMessageQueue()
                .JsonSerializer()
                .UseNHibernateSubscriptionPersister()
+               .UseNHibernateTimeoutPersister()
                .UnicastBus()
                .LoadMessageHandlers()
                .IsTransactional(true)
