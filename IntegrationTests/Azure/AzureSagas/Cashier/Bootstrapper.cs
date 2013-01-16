@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Threading;
+using NServiceBus.Timeout.Hosting.Azure;
 using log4net.Core;
 using NServiceBus;
 using NServiceBus.Config;
@@ -33,6 +34,8 @@ namespace Cashier
                 .AzureMessageQueue().JsonSerializer()
                 .AzureSubcriptionStorage()
                 .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
+
+                .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
 
                 .UnicastBus()
                 .LoadMessageHandlers()

@@ -1,5 +1,6 @@
 using NServiceBus;
 using NServiceBus.Config;
+using NServiceBus.Timeout.Hosting.Azure;
 using StructureMap;
 
 namespace Barista
@@ -28,6 +29,8 @@ namespace Barista
                .AzureMessageQueue().JsonSerializer()
                .AzureSubcriptionStorage()
                .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
+
+               .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
 
                .UnicastBus()
                .LoadMessageHandlers()

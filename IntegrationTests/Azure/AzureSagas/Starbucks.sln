@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerContracts", "Custom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Barista", "Barista\Barista.csproj", "{F5C48D42-06F2-4CCA-88B5-6C49F2A09065}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeoutManager", "TimeoutManager\TimeoutManager.csproj", "{402F4888-C262-4AB7-82D2-183ADD631B26}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BA241B77-F8F3-4D9B-8BD8-ADD856A66C3D}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
@@ -79,16 +77,6 @@ Global
 		{F5C48D42-06F2-4CCA-88B5-6C49F2A09065}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{F5C48D42-06F2-4CCA-88B5-6C49F2A09065}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{F5C48D42-06F2-4CCA-88B5-6C49F2A09065}.Release|x86.ActiveCfg = Release|Any CPU
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Debug|x86.ActiveCfg = Debug|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Debug|x86.Build.0 = Debug|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Release|Any CPU.ActiveCfg = Release|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Release|Mixed Platforms.Build.0 = Release|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Release|x86.ActiveCfg = Release|x86
-		{402F4888-C262-4AB7-82D2-183ADD631B26}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
