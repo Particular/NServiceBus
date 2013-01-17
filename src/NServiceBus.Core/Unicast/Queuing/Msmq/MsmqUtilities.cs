@@ -7,30 +7,14 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Messaging;
     using System.Net;
     using System.Net.NetworkInformation;
+    using System.Xml;
     using System.Xml.Serialization;
-    using Transport;
 
     ///<summary>
     /// MSMQ-related utility functions
     ///</summary>
     public class MsmqUtilities
     {
-        private static string accountToBeAssignedQueuePermissions;
-
-        /// <summary>
-        /// Sets the account to be assigned queue permissions.
-        /// </summary>
-        /// <param name="account">Account to be used.</param>
-        public static void AccountToBeAssignedQueuePermissions(string account)
-        {
-            accountToBeAssignedQueuePermissions = account;
-        }
-
-        private static string getFullPath(string value)
-        {
-            return GetFullPath(Address.Parse(value));
-        }
-
         /// <summary>
         /// Turns a '@' separated value into a full path.
         /// Format is 'queue@machine', or 'queue@ipaddress'
@@ -113,59 +97,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         static string localIp;
 
         /// <summary>
-        /// Returns the full path without Format or direct os
-        /// from a '@' separated path.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public static string GetFullPathWithoutPrefix(string value)
-        {
-            return getMachineNameFromLogicalName(value) + PRIVATE + getQueueNameFromLogicalName(value);
-        }
-
-
-
-        private static string getMachineNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            string machine = Environment.MachineName;
-
-            if (arr.Length >= 2)
-                if (arr[1] != "." && arr[1].ToLower() != "localhost")
-                    machine = arr[1];
-
-            return machine;
-        }
-
-        private static string getQueueNameFromLogicalName(string logicalName)
-        {
-            string[] arr = logicalName.Split('@');
-
-            if (arr.Length >= 1)
-                return arr[0];
-
-            return null;
-        }
-
-        /// <summary>
-        /// Checks whether or not a queue is local by its path.
-        /// </summary>
-        /// <param name="value">The path to the queue to check.</param>
-        /// <returns>true if the queue is local, otherwise false.</returns>
-        public static bool QueueIsLocal(string value)
-        {
-            var machineName = Environment.MachineName.ToLower();
-
-            value = value.ToLower().Replace(PREFIX.ToLower(), "");
-            var index = value.IndexOf('\\');
-
-            var queueMachineName = value.Substring(0, index).ToLower();
-
-            return (machineName == queueMachineName || queueMachineName == "localhost" || queueMachineName == ".");
-        }
-
-        /// <summary>
         /// Gets an independent address for the queue in the form:
         /// queue@machine.
         /// </summary>
@@ -201,24 +132,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         /// <summary>
-        /// Returns the number of messages in the queue.
-        /// </summary>
-        /// <returns></returns>
-        public static int GetNumberOfPendingMessages(string queueName)
-        {
-            var q = new MessageQueue(getFullPath(queueName));
-            
-            var qMgmt = new MSMQ.MSMQManagementClass();
-
-            object machine = Environment.MachineName;
-            var missing = Type.Missing;
-            object formatName = q.FormatName;
-
-            qMgmt.Init(ref machine, ref missing, ref formatName);
-            return qMgmt.MessageCount;
-        }
-
-        /// <summary>
         /// Converts an MSMQ message to a TransportMessage.
         /// </summary>
         /// <param name="m"></param>
@@ -244,16 +157,26 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (m.Extension.Length > 0)
             {
-                var stream = new MemoryStream(m.Extension);
-                var o = headerSerializer.Deserialize(stream);
+                object o;
+                using (var stream = new MemoryStream(m.Extension))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}))
+                {
+                    o = headerSerializer.Deserialize(reader);
+                }
 
                 foreach (var pair in o as List<Utils.HeaderInfo>)
+                {
                     if (pair.Key != null)
+                    {
                         result.Headers[pair.Key] = pair.Value;
+                    }
+                }
             }
 
             if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
+            {
                 ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
+            }
        
             return result;
         }
@@ -297,20 +220,26 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var result = new Message();
 
             if (message.Body != null)
+            {
                 result.BodyStream = new MemoryStream(message.Body);
+            }
 
             if (!string.IsNullOrWhiteSpace(message.CorrelationId))
+            {
                 result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
+            }
 
             result.Recoverable = message.Recoverable;
 
             if (message.TimeToBeReceived < MessageQueue.InfiniteTimeout)
+            {
                 result.TimeToBeReceived = message.TimeToBeReceived;
+            }
 
             using (var stream = new MemoryStream())
             {
                 headerSerializer.Serialize(stream, message.Headers.Select(pair => new Utils.HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
-                result.Extension = stream.GetBuffer();
+                result.Extension = stream.ToArray();
             }
 
             result.AppSpecific = (int)message.MessageIntent;

@@ -39,8 +39,7 @@ namespace NServiceBus.Config
             Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, RetriesQueueAddress);                
                 
             Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(rs => rs.InputAddress, RetriesQueueAddress)
-                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+                .ConfigureProperty(rs => rs.InputAddress, RetriesQueueAddress);
         }
 
         static void DisableSecondLevelRetries()

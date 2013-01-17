@@ -2,11 +2,12 @@
 {
     using System;
     using System.Linq;
+    using BackwardCompatibility;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
     using Subscriptions;
-    using Transport;
+    using Timeout;
 
     [TestFixture]
     public class When_receiving_a_regular_message : using_the_unicastbus
@@ -125,7 +126,7 @@
             subscriptionMessage.Headers[Headers.SubscriptionMessageType] = typeof (EventMessage).AssemblyQualifiedName;
 
             var eventFired = false;
-            unicastBus.ClientSubscribed += (sender, args) =>
+            subscriptionManager.ClientSubscribed += (sender, args) =>
             {
                 Assert.AreEqual(subscriberAddress, args.SubscriberReturnAddress);
                 eventFired = true;
@@ -161,7 +162,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_an_event_that_is_filtered_out_with_the_subscribe_predicate : using_the_unicastbus
+    public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastbus
     {
         [Test]
         public void Should_not_invoke_the_handlers()
@@ -179,6 +180,27 @@
             Assert.False(Handler2.Called);
         }
     }
+
+    [TestFixture]
+    public class When_receiving_a_v3_saga_timeout_message : using_the_unicastbus
+    {
+        [Test]
+        public void Should_set_the_newv4_flag()
+        {
+            var transportMessage = new TransportMessage();
+
+            transportMessage.Headers[TimeoutManagerHeaders.Expire] = DateTime.UtcNow.ToString();
+            transportMessage.Headers[Headers.SagaId] = Guid.NewGuid().ToString();
+
+
+            var mutator = new SetIsSagaMessageHeaderForV3XMessages();
+
+           mutator.MutateIncoming(transportMessage);
+
+           Assert.AreEqual(transportMessage.Headers[Headers.IsSagaTimeoutMessage], true.ToString());
+        }
+    }
+
 
     class HandlerThatRepliesWithACommand : IHandleMessages<EventMessage>
     {

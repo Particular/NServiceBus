@@ -1,7 +1,5 @@
 namespace NServiceBus.Unicast.Transport
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Helper for creating control messages
     /// </summary>

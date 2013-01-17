@@ -1,5 +1,6 @@
-﻿namespace NServiceBus.Transport.RabbitMQ.Tests
+﻿namespace NServiceBus.RabbitMQ.Tests
 {
+    using NServiceBus;
     using NUnit.Framework;
 
     [TestFixture, Category("Integration")]

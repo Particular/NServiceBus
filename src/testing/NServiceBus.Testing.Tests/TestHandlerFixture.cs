@@ -279,6 +279,20 @@ namespace NServiceBus.Testing.Tests
                 .OnMessage<Incoming>();
         }
 
+        [Test]
+        public void Should_be_able_to_pass_an_already_constructed_message_into_handler_without_specifying_id()
+        {
+            const string expected = "dummy";
+
+            var handler = new TestMessageWithPropertiesHandler();
+            var message = new TestMessageWithProperties { Dummy = expected };
+            Test.Handler(handler)
+              .OnMessage(message);
+            Assert.AreEqual(expected, handler.ReceivedDummyValue);
+            Assert.DoesNotThrow(() => Guid.Parse(handler.AssignedMessageId), "Message ID should be a valid GUID.");
+        }
+
+
         private class TestMessageImpl : TestMessage
         {
         }
@@ -483,5 +497,23 @@ namespace NServiceBus.Testing.Tests
     public class MessageWithDataBusProperty : IMessage
     {
         public DataBusProperty<byte[]> ALargeByteArray { get; set; }
+    }
+
+    public class TestMessageWithPropertiesHandler : IHandleMessages<TestMessageWithProperties>
+    {
+        public IBus Bus { get; set; }
+        public string ReceivedDummyValue;
+        public string AssignedMessageId;
+
+        public void Handle(TestMessageWithProperties message)
+        {
+            ReceivedDummyValue = message.Dummy;
+            AssignedMessageId = Bus.CurrentMessageContext.Id;
+        }
+    }
+
+    public class TestMessageWithProperties : IMessage
+    {
+        public string Dummy { get; set; }
     }
 }

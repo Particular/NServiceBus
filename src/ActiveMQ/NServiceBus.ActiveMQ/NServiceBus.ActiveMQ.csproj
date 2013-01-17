@@ -56,6 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMQ.cs" />
+    <Compile Include="ActiveMqMessageDecoderPipeline.cs" />
+    <Compile Include="ActiveMqMessageEncoderPipeline.cs" />
+    <Compile Include="ActiveMqMessagePublisher.cs" />
     <Compile Include="ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
@@ -65,24 +68,37 @@
     <Compile Include="ActiveMqConnectionStarter.cs" />
     <Compile Include="Config\ActiveMQTransportConfigurer.cs" />
     <Compile Include="Config\ConfigureActiveMqMessageQueue.cs" />
+    <Compile Include="Decoders\ByteMessageDecoder.cs" />
+    <Compile Include="Decoders\ControlMessageDecoder.cs" />
     <Compile Include="DestinationEvaluator.cs" />
+    <Compile Include="Encoders\ByteMessageEncoder.cs" />
+    <Compile Include="Encoders\ControlMessageEncoder.cs" />
+    <Compile Include="Encoders\TextMessageEncoder.cs" />
+    <Compile Include="IActiveMqMessageDecoder.cs" />
+    <Compile Include="IActiveMqMessageDecoderPipeline.cs" />
+    <Compile Include="IActiveMqMessageEncoder.cs" />
+    <Compile Include="IActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="IActiveMqMessageMapper.cs" />
     <Compile Include="IActiveMqPurger.cs" />
     <Compile Include="IDestinationEvaluator.cs" />
+    <Compile Include="IMessageProducer.cs" />
     <Compile Include="IMessageTypeInterpreter.cs" />
     <Compile Include="INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
     <Compile Include="ISessionFactory.cs" />
-    <Compile Include="ISubscriptionManager.cs" />
+    <Compile Include="INotifyTopicSubscriptions.cs" />
     <Compile Include="ITopicEvaluator.cs" />
     <Compile Include="ActiveMqMessageMapper.cs" />
+    <Compile Include="ITopicSubscriptionListener.cs" />
     <Compile Include="MessageExtensions.cs" />
+    <Compile Include="MessageProducer.cs" />
     <Compile Include="MessageTypeInterpreter.cs" />
     <Compile Include="NotifyMessageReceivedFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SessionFactory.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="SubscriptionManager.cs" />
+    <Compile Include="Decoders\TextMessageDecoder.cs" />
     <Compile Include="TopicEvaluator.cs" />
   </ItemGroup>
   <ItemGroup>

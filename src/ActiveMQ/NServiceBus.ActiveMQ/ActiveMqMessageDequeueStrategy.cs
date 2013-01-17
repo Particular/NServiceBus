@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 
     /// <summary>
@@ -15,6 +16,7 @@
         private Address address;
         private TransactionSettings settings;
         private Func<TransportMessage, bool> tryProcessMessage;
+        private Action<string, Exception> endProcessMessage;
 
 
         /// <summary>
@@ -27,15 +29,17 @@
         }
 
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="tryProcessMessage"></param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
-            this.settings = transactionSettings;
+            settings = transactionSettings;
             this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
             this.address = address;
         }
 
@@ -58,18 +62,18 @@
         {
             foreach (INotifyMessageReceived messageReceiver in messageReceivers)
             {
-                messageReceiver.Dispose();
+                messageReceiver.Stop();
             }
 
             messageReceivers.Clear();
         }
-
         
         void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.TryProcessMessage = this.tryProcessMessage;
-            receiver.Start(address, this.settings);
+            receiver.TryProcessMessage = tryProcessMessage;
+            receiver.EndProcessMessage = endProcessMessage;
+            receiver.Start(address, settings);
             messageReceivers.Add(receiver);
         }
     }

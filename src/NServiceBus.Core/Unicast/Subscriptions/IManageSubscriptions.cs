@@ -4,9 +4,7 @@
 
     public interface IManageSubscriptions
     {
-        void Subscribe(Type eventType, Address publisherAddress, Predicate<object> condition);
+        void Subscribe(Type eventType, Address publisherAddress);
         void Unsubscribe(Type eventType, Address publisherAddress);
-        
-        event EventHandler<SubscriptionEventArgs> ClientSubscribed;
     }
 }

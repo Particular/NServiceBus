@@ -11,7 +11,7 @@
 
         public string EndpointQueueName { get; set; }
 
-        public void Subscribe(Type eventType, Address publisherAddress, Predicate<object> condition)
+        public void Subscribe(Type eventType, Address publisherAddress)
         {
             var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
@@ -31,6 +31,5 @@
             }
         }
 
-        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
     }
 }

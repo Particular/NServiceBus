@@ -1,86 +1,115 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ
 {
+    using System;
+    using System.Collections.Generic;
     using FluentAssertions;
-
+    using Moq;
     using NUnit.Framework;
 
     [TestFixture]
-    class SubscriptionManagerTests
+    class SubscriptionManagerTests : ITopicSubscriptionListener
     {
+        private const string DefaultTopic = "TheDefaultTopic";
+        private readonly Type defaultType = typeof(SubscriptionManagerTests);
+
         private SubscriptionManager testee;
+        private Mock<ITopicEvaluator> topicEvaluatorMock;
+
+        private IList<string> subscribedTopics;
+        private IList<string> unsubscribedTopics;
 
         [SetUp]
         public void SetUp()
         {
-            this.testee = new SubscriptionManager();
+            this.subscribedTopics = new List<string>();
+            this.unsubscribedTopics = new List<string>();
+
+            this.topicEvaluatorMock = new Mock<ITopicEvaluator>();
+            this.testee = new SubscriptionManager(this.topicEvaluatorMock.Object);
         }
 
         [Test]
-        public void WhenATopicIsSubscribed_ThenGetTopicsShouldContainIt()
+        public void WhenATopicIsSubscribed_ThenItIsReturnedWhenSomeoneSubscribesLater()
         {
-            const string Topic = "SomeTopic";
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
-            var subscribedTopics = this.testee.GetTopics();
+            this.testee.Subscribe(defaultType, Address.Local);
+            var subscribedTopics = this.testee.Register(this);
 
-            subscribedTopics.Should().Equal(new object[] { Topic });
+            subscribedTopics.Should().Equal(new object[] { DefaultTopic });
         }
 
         [Test]
         public void WhenATopicIsSubscribed_ThenTopicSubscribedShouldBeRaised()
         {
-            const string Topic = "SomeTopic";
-            this.testee.MonitorEvents();
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
+            this.testee.Register(this);
+            this.testee.Subscribe(defaultType, Address.Local);
 
-            this.testee.ShouldRaise("TopicSubscribed").WithArgs<SubscriptionEventArgs>(e => e.Topic == Topic);
+            this.subscribedTopics.Should().BeEquivalentTo(new object[] { DefaultTopic });
         }
 
         [Test]
         public void WhenAnAlreadySubscribedTopicIsSubscribed_ThenGetTopicsShouldContainItOnce()
         {
-            const string Topic = "SomeTopic";
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
-            var subscribedTopics = this.testee.GetTopics();
+            this.testee.Subscribe(defaultType, Address.Local);
+            this.testee.Subscribe(defaultType, Address.Local);
+            var topics = this.testee.Register(this);
 
-            subscribedTopics.Should().Equal(new object[] { Topic });
+            topics.Should().Equal(new object[] { DefaultTopic });
         }
-        
+
         [Test]
         public void WhenAnAlreadySubscribedTopicIsSubscribed_ThenTopicSubscribedShouldBeRaised()
         {
-            const string Topic = "SomeTopic";
-            this.testee.Subscribe(Topic);
-            this.testee.MonitorEvents();
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
+            this.testee.Subscribe(defaultType, Address.Local);
+            this.testee.Register(this);
+            this.testee.Subscribe(defaultType, Address.Local);
 
-            this.testee.ShouldNotRaise("TopicSubscribed");
+            this.subscribedTopics.Should().BeEmpty();
         }
 
         [Test]
-        public void WhenATopicIsUnsubscribed_ThenGetTopicsShouldNotContainIt()
+        public void WhenATopicIsUnsubscribed_ThenGetTopicsShouldNotContainItAnymore()
         {
-            const string Topic = "SomeTopic";
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
-            this.testee.Unsubscribe(Topic);
-            var subscribedTopics = this.testee.GetTopics();
+            this.testee.Subscribe(defaultType, Address.Local);
+            this.testee.Unsubscribe(defaultType, Address.Local);
+            var topics = this.testee.Register(this);
 
-            subscribedTopics.Should().Equal(new object[] { });
+            topics.Should().BeEmpty();
         }
 
         [Test]
         public void WhenATopicIsUnsubscribed_ThenTopicUnubscribedShouldBeRaised()
         {
-            const string Topic = "SomeTopic";
-            this.testee.MonitorEvents();
+            this.SetupTypeToTopicMapping(defaultType, DefaultTopic);
 
-            this.testee.Subscribe(Topic);
+            this.testee.Subscribe(defaultType, Address.Local);
+            this.testee.Register(this);
+            this.testee.Unsubscribe(defaultType, Address.Local);
 
-            this.testee.ShouldRaise("TopicSubscribed").WithArgs<SubscriptionEventArgs>(e => e.Topic == Topic);
+            this.unsubscribedTopics.Should().BeEquivalentTo(new object[] { DefaultTopic });
+        }
+
+        private void SetupTypeToTopicMapping(Type type, string Topic)
+        {
+            this.topicEvaluatorMock.Setup(te => te.GetTopicFromMessageType(type)).Returns(Topic);
+        }
+        public void TopicSubscribed(object sender, SubscriptionEventArgs e)
+        {
+            this.subscribedTopics.Add(e.Topic);
+        }
+
+        public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
+        {
+            this.unsubscribedTopics.Add(e.Topic);
         }
     }
 }

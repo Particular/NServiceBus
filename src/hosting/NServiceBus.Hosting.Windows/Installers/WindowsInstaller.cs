@@ -1,11 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using NServiceBus.Unicast.Queuing.Msmq;
-using NServiceBus.Hosting.Windows.Arguments;
-
-namespace NServiceBus.Hosting.Windows.Installers
+﻿namespace NServiceBus.Hosting.Windows.Installers
 {
+    using System;
+    using Arguments;
 
 
     /// <summary>
@@ -41,8 +37,8 @@ namespace NServiceBus.Hosting.Windows.Installers
             Console.WriteLine("Executing the NServiceBus installers");
 
             try
-            {   
-                host.Install();
+            {
+                host.Install(username);
             }
             catch (Exception ex)
             {
@@ -50,6 +46,8 @@ namespace NServiceBus.Hosting.Windows.Installers
                 Console.WriteLine("Failed to execute installers: " +ex);  
             }
         }
+
+        private static string username;
 
         static void DomainInitializer(string[] args)
         {
@@ -61,13 +59,10 @@ namespace NServiceBus.Hosting.Windows.Installers
             {
                 endpointName = arguments.EndpointName;
             }
-            
-            if (arguments.Username != null)
-            {
-                MsmqUtilities.AccountToBeAssignedQueuePermissions(arguments.Username);
-            }
 
-            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.InstallInfrastructure, arguments.ScannedAssemblies);
+            username = arguments.Username;
+            
+            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.ScannedAssemblies);
         }
 
         static WindowsHost host;

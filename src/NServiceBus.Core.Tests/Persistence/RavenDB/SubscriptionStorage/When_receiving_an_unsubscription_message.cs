@@ -1,7 +1,6 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
 {
     using System.Linq;
-    using System.Transactions;
     using NUnit.Framework;
 
     [TestFixture]
@@ -10,18 +9,10 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
         [Test]
         public void All_subscription_entries_for_specfied_message_types_should_be_removed()
         {
-            using (var transaction = new TransactionScope())
-            {
-                storage.Subscribe(TestClients.ClientA, MessageTypes.All);
-                transaction.Complete();
-            }
+            storage.Subscribe(TestClients.ClientA, MessageTypes.All);
             
-            using (var transaction = new TransactionScope())
-            {
-                storage.Unsubscribe(TestClients.ClientA, MessageTypes.All);
-                transaction.Complete();
-            }
-
+            storage.Unsubscribe(TestClients.ClientA, MessageTypes.All);
+            
             var clients = storage.GetSubscriberAddressesForMessage(MessageTypes.All);
             Assert.IsFalse(clients.Any(a => a == TestClients.ClientA));
         }

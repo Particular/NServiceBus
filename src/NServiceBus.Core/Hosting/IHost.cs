@@ -20,6 +20,6 @@ namespace NServiceBus.Hosting
         /// <summary>
         /// Performs necessary installation
         /// </summary>
-        void Install<TEnvironment>() where TEnvironment : IEnvironment;
+        void Install<TEnvironment>(string username) where TEnvironment : IEnvironment;
     }
 }

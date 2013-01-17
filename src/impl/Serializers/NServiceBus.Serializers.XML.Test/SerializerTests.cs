@@ -115,7 +115,6 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-
         [Test]
         public void Should_be_able_to_serialize_single_message_without_wrapping_element()
         {
@@ -124,6 +123,73 @@ namespace NServiceBus.Serializers.XML.Test
                 .AssertResultingXml(d=> d.DocumentElement.Name == "EmptyMessage","Root should be message typename");
         }
 
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_default_namespaces_and_then_deserialize()
+        {
+            var serializer = SerializerFactory.Create<MessageWithDouble>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            var msg = new MessageWithDouble();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
+
+                Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
+            }
+        }
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_default_namespaces()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            var msg = new EmptyMessage();
+
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                string result;
+                using (var reader = new StreamReader(stream))
+                {
+                    reader.ReadLine();
+                    result = reader.ReadLine();
+                }
+
+                Assert.AreEqual(expected, result);
+            }
+        }
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_specified_namespaces()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            serializer.Namespace = "http://super.com";
+            var msg = new EmptyMessage();
+
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { msg }, stream);
+                stream.Position = 0;
+
+                string result;
+                using (var reader = new StreamReader(stream))
+                {
+                    reader.ReadLine();
+                    result = reader.ReadLine();
+                }
+
+                Assert.AreEqual(expected, result);
+            }
+        }
 
         [Test]
         public void Should_deserialize_a_single_message_with_typename_passed_in_externally()

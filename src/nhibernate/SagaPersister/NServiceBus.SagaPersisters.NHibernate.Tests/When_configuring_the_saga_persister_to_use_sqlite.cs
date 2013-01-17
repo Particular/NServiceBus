@@ -25,14 +25,5 @@
 
             Assert.AreNotEqual(persister, config.Builder.Build<SagaPersister>());
         }
-
-        [Test]
-        public void The_sessionfactory_should_be_built_and_registered_as_singleton()
-        {
-            var sessionFactory = config.Builder.Build<ISessionFactory>();
-
-            Assert.NotNull(sessionFactory);
-            Assert.AreEqual(sessionFactory, config.Builder.Build<ISessionFactory>());
-        }
     }
 }

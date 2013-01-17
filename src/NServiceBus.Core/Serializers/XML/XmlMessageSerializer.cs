@@ -690,53 +690,32 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object[] messages, Stream stream)
         {
             var namespaces = InitializeNamespaces(messages);
-
             var messageBuilder = SerializeMessages(messages);
 
             var builder = new StringBuilder();
 
-            List<string> baseTypes = GetBaseTypes(messages);
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
-            if (SkipWrappingElementForSingleMessages && messages.Count() == 1)
+            if (SkipWrappingElementForSingleMessages && messages.Length == 1)
+            {
                 builder.Append(messageBuilder);
+            }
             else
-                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
+            {
+                List<string> baseTypes = GetBaseTypes(messages);
 
+                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
+            }
             byte[] buffer = Encoding.UTF8.GetBytes(builder.ToString());
             stream.Write(buffer, 0, buffer.Length);
         }
 
-        public string ContentType { get { return "text/xml"; } }
+        public string ContentType { get { return ContentTypes.Xml; } }
 
         void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
         {
-            builder.Append(
-                "<Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"");
-
-            for (int i = 0; i < namespaces.Count; i++)
-            {
-                string prefix = "q" + i;
-                if (i == 0)
-                    prefix = "";
-
-                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace, namespaces[i]);
-            }
-
-            foreach (var type in namespacesToAdd)
-                builder.AppendFormat(" xmlns:{0}=\"{1}\"", type.Name.ToLower(), type.Name);
-
-            for (int i = 0; i < baseTypes.Count; i++)
-            {
-                string prefix = BASETYPE;
-                if (i != 0)
-                    prefix += i;
-
-                builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
-            }
-
-            builder.Append(">\n");
+            CreateStartElementWithNamespaces(namespaces, baseTypes, builder, "Messages");
 
             builder.Append(messageBuilder);
 
@@ -751,7 +730,7 @@ namespace NServiceBus.Serializers.XML
             {
                 var t = mapper.GetMappedTypeFor(m.GetType());
 
-                WriteObject(t.Name, t, m, messageBuilder);
+                WriteObject(t.Name, t, m, messageBuilder, SkipWrappingElementForSingleMessages && messages.Length == 1);
             }
             return messageBuilder;
         }
@@ -805,7 +784,7 @@ namespace NServiceBus.Serializers.XML
             return false;
         }
 
-        private void WriteObject(string name, Type type, object value, StringBuilder builder)
+        private void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
         {
             string element = name;
             string prefix;
@@ -814,8 +793,10 @@ namespace NServiceBus.Serializers.XML
             if (string.IsNullOrEmpty(prefix) && type == typeof(object) && (value.GetType().IsSimpleType()))
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
+                {
                     namespacesToAdd.Add(value.GetType());
-
+                }
+                
                 builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
@@ -826,11 +807,53 @@ namespace NServiceBus.Serializers.XML
             if (!string.IsNullOrEmpty(prefix))
                 element = prefix + ":" + name;
 
-            builder.AppendFormat("<{0}>\n", element);
+            if (useNS)
+            {
+                var namespaces = InitializeNamespaces(new[] {value});
+                var baseTypes = GetBaseTypes(new[] {value});
+                CreateStartElementWithNamespaces(namespaces, baseTypes, builder, element);
+            }
+            else
+            {
+                builder.AppendFormat("<{0}>\n", element);
+            }
 
             Write(builder, type, value);
 
             builder.AppendFormat("</{0}>\n", element);
+        }
+
+        private void CreateStartElementWithNamespaces(List<string> namespaces, List<string> baseTypes, StringBuilder builder, string element)
+        {
+            string prefix;
+
+            builder.AppendFormat(
+                "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
+                element);
+
+            for (int i = 0; i < namespaces.Count; i++)
+            {
+                prefix = "q" + i;
+                if (i == 0)
+                    prefix = "";
+
+                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace,
+                                     namespaces[i]);
+            }
+
+            foreach (var t in namespacesToAdd)
+                builder.AppendFormat(" xmlns:{0}=\"{1}\"", t.Name.ToLower(), t.Name);
+
+            for (int i = 0; i < baseTypes.Count; i++)
+            {
+                prefix = BASETYPE;
+                if (i != 0)
+                    prefix += i;
+
+                builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
+            }
+
+            builder.Append(">\n");
         }
 
         private void WriteEntry(string name, Type type, object value, StringBuilder builder)

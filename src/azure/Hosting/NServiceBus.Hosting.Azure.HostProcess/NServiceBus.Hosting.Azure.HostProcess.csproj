@@ -87,6 +87,7 @@
     <EmbeddedResource Include="Content\Help.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -8,7 +8,6 @@ namespace OrderService
         public void Init()
         {
            // Configure.Instance.UnicastBus().DoNotAutoSubscribe();
-            Configure.Instance.DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m));
         }
     }
 }

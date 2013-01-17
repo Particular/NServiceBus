@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
 {
     using System;
     using Core;
-    using NServiceBus.Config;
 
     public class TimeoutManagerDefaults : IWantToRunBeforeConfigurationIsFinalized
     {
@@ -10,9 +9,20 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
 
         public void Run()
         {
+            if (!Configure.Instance.IsTimeoutManagerEnabled())
+            {
+                return;
+            }
+
             if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !Endpoint.IsSendOnly)
             {
                 DefaultPersistence();
+            }
+
+            Configure.Instance.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
+            if (!Configure.Instance.Configurer.HasComponent<IManageTimeouts>())
+            {
+                Configure.Instance.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
             }
         }
     }

@@ -1,7 +1,6 @@
 namespace NServiceBus.Satellites
 {
     using System.Linq;
-    using System.Security.Principal;
     using Installation;
     using Installation.Environments;
     using NServiceBus.Config;
@@ -18,7 +17,7 @@ namespace NServiceBus.Satellites
         /// Performs the installation providing permission for the given user.
         /// </summary>
         /// <param name="identity">The user for whom permissions will be given.</param>
-        public void Install(WindowsIdentity identity)
+        public void Install(string identity)
         {
             if (Endpoint.IsSendOnly)
                 return;
@@ -30,7 +29,7 @@ namespace NServiceBus.Satellites
                  .BuildAll<ISatellite>()
                  .ToList();
             foreach (var satellite in satellites.Where(satellite => !satellite.Disabled && satellite.InputAddress != null))
-                QueueCreator.CreateQueueIfNecessary(satellite.InputAddress, identity.Name);
+                QueueCreator.CreateQueueIfNecessary(satellite.InputAddress, identity);
         }
     }
 }

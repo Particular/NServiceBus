@@ -267,7 +267,7 @@ task Merge -depends Build {
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll
 	$assemblies += dir $outDir\AutoFac.dll
-	$assemblies += dir $outDir\NLog.dll
+	$assemblies += dir $outDir\Autofac.Configuration.dll
 	$assemblies += dir $outDir\Raven.Abstractions.dll
 	$assemblies += dir $outDir\Raven.Client.Lightweight.dll
 	$assemblies += dir $outDir\rhino.licensing.dll

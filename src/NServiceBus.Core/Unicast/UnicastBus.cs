@@ -121,10 +121,10 @@ namespace NServiceBus.Unicast
         /// Clear Timeouts For the saga
         /// </summary>
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferedMessages")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferredMessages")]
         public void ClearTimeoutsFor(Guid sagaId)
         {
-            MessageDeferrer.ClearDeferedMessages(Headers.SagaId, sagaId.ToString());
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
         }
 
 
@@ -270,23 +270,14 @@ namespace NServiceBus.Unicast
 
 
         /// <summary>
+        /// Handles the filtering of messages on the subscriber side
+        /// </summary>
+        public SubscriptionPredicatesEvaluator SubscriptionPredicatesEvaluator { get; set; }
+
+        /// <summary>
         /// The registered subscription manager for this bus instance
         /// </summary>
-        public IManageSubscriptions SubscriptionManager
-        {
-            get { return subscriptionManager; }
-            set
-            {
-                subscriptionManager = value;
-                subscriptionManager.ClientSubscribed += (sender, args) =>
-                    {
-                        if (ClientSubscribed == null)
-                            return;
-
-                        ClientSubscribed(this, args);
-                    };
-            }
-        }
+        public IManageSubscriptions SubscriptionManager { get; set; }
 
         /// <summary>
         /// Publishes the given messages
@@ -426,7 +417,10 @@ namespace NServiceBus.Unicast
             if (destination == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
-            SubscriptionManager.Subscribe(messageType, destination, condition);
+            SubscriptionManager.Subscribe(messageType, destination);
+
+            if (SubscriptionPredicatesEvaluator != null)
+                SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
         }
 
         /// <summary>
@@ -522,7 +516,7 @@ namespace NServiceBus.Unicast
             {
                 return ((IBus)this).Send(MasterNodeAddress, messages);
             }
-            
+
             return ((IBus)this).Send(Address.Local, messages);
         }
 
@@ -616,7 +610,9 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            MessageDeferrer.Defer(toSend, processAt);
+            toSend.Headers[Headers.IsDeferedMessage] = true.ToString();
+
+            MessageDeferrer.Defer(toSend, processAt, Address.Local);
 
             return SetupCallback(toSend.Id);
         }
@@ -666,6 +662,11 @@ namespace NServiceBus.Unicast
 
         IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
+            if (messages.Length == 0)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             messages.ToList()
                         .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
 
@@ -806,7 +807,7 @@ namespace NServiceBus.Unicast
 
                 if (autoSubscribe)
                 {
-                    PerformAutoSubcribe();
+                    PerformAutoSubscribe();
                 }
 
                 started = true;
@@ -884,7 +885,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void PerformAutoSubcribe()
+        void PerformAutoSubscribe()
         {
             AssertHasLocalAddress();
 
@@ -1044,7 +1045,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            HandleCorellatedMessage(m, messages);
+            HandleCorrelatedMessage(m, messages);
 
             foreach (var messageToHandle in messages)
             {
@@ -1102,7 +1103,10 @@ namespace NServiceBus.Unicast
                         messageTypes = header.Split(';');
                 }
 
-                return MessageSerializer.Deserialize(new MemoryStream(m.Body), messageTypes);
+                using (var stream = new MemoryStream(m.Body))
+                {
+                    return MessageSerializer.Deserialize(stream, messageTypes);
+                }
             }
             catch (Exception e)
             {
@@ -1194,7 +1198,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="msg">The message to evaluate.</param>
         /// <param name="messages">The logical messages in the transport message.</param>
-        void HandleCorellatedMessage(TransportMessage msg, object[] messages)
+        void HandleCorrelatedMessage(TransportMessage msg, object[] messages)
         {
             if (msg.CorrelationId == null)
                 return;
@@ -1226,7 +1230,7 @@ namespace NServiceBus.Unicast
         /// <param name="e">The arguments for the event.</param>
         /// <remarks>
         /// When the transport passes up the <see cref="TransportMessage"/> its received,
-        /// the bus checks for initializiation, 
+        /// the bus checks for initialization, 
         /// sets the message as that which is currently being handled for the current thread
         /// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
         /// </remarks>
@@ -1431,16 +1435,17 @@ namespace NServiceBus.Unicast
 
         void SerializeMessages(TransportMessage result, object[] messages)
         {
-            var ms = new MemoryStream();
+            using (var ms = new MemoryStream())
+            {
+                MessageSerializer.Serialize(messages, ms);
 
-            MessageSerializer.Serialize(messages, ms);
+                result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-            result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                if (messages.Any())
+                    result.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
 
-            if (messages.Any())
-                result.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
-
-            result.Body = ms.ToArray();
+                result.Body = ms.ToArray();
+            }
         }
 
         string SerializeEnclosedMessageTypes(IEnumerable<object> messages)
@@ -1673,7 +1678,7 @@ namespace NServiceBus.Unicast
     }
 
     /// <summary>
-    /// Extansion methods for IBuilder
+    /// Extension methods for IBuilder
     /// </summary>
     public static class BuilderExtensions
     {

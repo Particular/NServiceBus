@@ -31,7 +31,7 @@ namespace NServiceBus.Hosting.Windows
             if (arguments.EndpointName != null)
                 endpointName = arguments.EndpointName;
 
-            return new WindowsHost(endpoint, Args, endpointName, false, false, arguments.ScannedAssemblies.ToArray());
+            return new WindowsHost(endpoint, Args, endpointName, false, arguments.ScannedAssemblies.ToArray());
         }
 
         /// <summary>

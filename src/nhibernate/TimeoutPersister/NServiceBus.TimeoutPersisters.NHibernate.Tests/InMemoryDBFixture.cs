@@ -44,7 +44,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             persister = Configure.Instance.Builder.Build<TimeoutStorage>();
             sessionFactory = persister.SessionFactory;
 
-            new Installer.Installer().Install(WindowsIdentity.GetCurrent());
+            new Installer.Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
     }
 }

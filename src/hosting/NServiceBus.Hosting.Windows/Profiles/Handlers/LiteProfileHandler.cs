@@ -27,7 +27,6 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
                     Configure.Instance.InMemorySubscriptionStorage();
 
             WindowsInstallerRunner.RunInstallers = true;
-            WindowsInstallerRunner.RunInfrastructureInstallers = false;
         }
 
         public IConfigureThisEndpoint Config { get; set; }

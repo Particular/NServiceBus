@@ -9,10 +9,10 @@ namespace NServiceBus.Transport.ActiveMQ
 
     using NServiceBus.Unicast.Transport.Transactional;
 
-    public class ActiveMqMessageReceiver : INotifyMessageReceived
+    public class ActiveMqMessageReceiver : INotifyMessageReceived, ITopicSubscriptionListener
     {
         private readonly IActiveMqPurger purger;
-        private readonly ISubscriptionManager subscriptionManager;
+        private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
 
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
             new Dictionary<string, IMessageConsumer>();
@@ -27,12 +27,12 @@ namespace NServiceBus.Transport.ActiveMQ
         public ActiveMqMessageReceiver(
             ISessionFactory sessionFactory, 
             IActiveMqMessageMapper activeMqMessageMapper, 
-            ISubscriptionManager subscriptionManager, 
+            INotifyTopicSubscriptions notifyTopicSubscriptions, 
             IActiveMqPurger purger)
         {
             this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
-            this.subscriptionManager = subscriptionManager;
+            this.notifyTopicSubscriptions = notifyTopicSubscriptions;
             this.purger = purger;
         }
 
@@ -44,6 +44,7 @@ namespace NServiceBus.Transport.ActiveMQ
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
+        public Action<string, Exception> EndProcessMessage { get; set; }
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
 
         public void Start(Address address, TransactionSettings transactionSettings)
@@ -65,8 +66,9 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        public void Dispose()
+        public void Stop()
         {
+            this.notifyTopicSubscriptions.Unregister(this);
             foreach (var messageConsumer in this.topicConsumers)
             {
                 messageConsumer.Value.Close();
@@ -79,7 +81,7 @@ namespace NServiceBus.Transport.ActiveMQ
             this.sessionFactory.Release(this.session);
         }
 
-        private void OnTopicUnsubscribed(object sender, SubscriptionEventArgs e)
+        public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
         {
             IMessageConsumer consumer;
             if (topicConsumers.TryGetValue(e.Topic, out consumer))
@@ -89,7 +91,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        private void OnTopicSubscribed(object sender, SubscriptionEventArgs e)
+        public void TopicSubscribed(object sender, SubscriptionEventArgs e)
         {
             string topic = e.Topic;
             Subscribe(topic);
@@ -97,12 +99,9 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void SubscribeTopics()
         {
-            lock (subscriptionManager)
+            lock (this.notifyTopicSubscriptions)
             {
-                subscriptionManager.TopicSubscribed += OnTopicSubscribed;
-                subscriptionManager.TopicUnsubscribed += OnTopicUnsubscribed;
-
-                foreach (string topic in subscriptionManager.GetTopics())
+                foreach (string topic in this.notifyTopicSubscriptions.Register(this))
                 {
                     Subscribe(topic);
                 }
@@ -123,22 +122,36 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
-            var transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+            TransportMessage transportMessage = null;
+            Exception exception = null;
 
-            if (this.transactionSettings.IsTransactional)
+            try
             {
-                if (!this.transactionSettings.SuppressDTC)
+                transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+
+                if (this.transactionSettings.IsTransactional)
                 {
-                    this.ProcessInDTCTransaction(transportMessage);
+                    if (!this.transactionSettings.SuppressDTC)
+                    {
+                        this.ProcessInDTCTransaction(transportMessage);
+                    }
+                    else
+                    {
+                        this.ProcessInActiveMqTransaction(transportMessage);
+                    }
                 }
                 else
                 {
-                    this.ProcessInActiveMqTransaction(transportMessage);
+                    this.TryProcessMessage(transportMessage);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                this.TryProcessMessage(transportMessage);
+                exception = ex;
+            }
+            finally
+            {
+                EndProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
             }
         }
 

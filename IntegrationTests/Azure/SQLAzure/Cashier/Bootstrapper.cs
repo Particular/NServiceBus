@@ -32,7 +32,7 @@ namespace Cashier
                 .UseNHibernateSubscriptionPersister()
                 .Sagas()
                 .UseNHibernateSagaPersister()
-                .NHibernateUnitOfWork()
+                .UseNHibernateTimeoutPersister()
                 .UnicastBus()
                 .LoadMessageHandlers()
                 .IsTransactional(true)

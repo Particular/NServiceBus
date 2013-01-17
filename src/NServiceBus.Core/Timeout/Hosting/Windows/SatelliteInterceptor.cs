@@ -15,7 +15,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             if (args.Satellite is TimeoutMessageProcessor || args.Satellite is TimeoutDispatcherProcessor)
             {
-                //TODO: The line below needs to change when we refactore the slr to be:
+                //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
                 var transactionalTransport = ((TransactionalTransport) args.Transport);
                 transactionalTransport.FailureManager = new ManageMessageFailuresWithoutSlr(transactionalTransport.FailureManager);

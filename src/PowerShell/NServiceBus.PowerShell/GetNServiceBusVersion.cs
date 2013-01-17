@@ -11,10 +11,10 @@
         {
 
             var appName = Assembly.GetAssembly(typeof(GetNServiceBusVersion)).Location;
-            var assembyVersion = AssemblyName.GetAssemblyName(appName).Version;
+            var assemblyVersion = AssemblyName.GetAssemblyName(appName).Version;
 
             //build a semver compliant version
-            var version = new Version(assembyVersion.Major, assembyVersion.Minor,assembyVersion.Build);
+            var version = new Version(assemblyVersion.Major, assemblyVersion.Minor,assemblyVersion.Build);
 
 
             WriteObject(version);

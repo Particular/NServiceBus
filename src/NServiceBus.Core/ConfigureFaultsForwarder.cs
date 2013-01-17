@@ -18,6 +18,10 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure MessageForwardingInCaseOfFault(this Configure config)
         {
+            if (ErrorQueue != null)
+            {
+                 return config;
+            }
             if (Endpoint.IsSendOnly)
                 return config;
             var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();

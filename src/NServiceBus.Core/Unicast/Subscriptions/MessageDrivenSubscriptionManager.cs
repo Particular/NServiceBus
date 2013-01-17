@@ -15,8 +15,8 @@
     /// Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer, Azure Queues etc)
     /// </summary>
     public class MessageDrivenSubscriptionManager : IManageSubscriptions,
-                                                    IMutateIncomingTransportMessages,
-                                                    IMutateIncomingMessages
+                                                    IMutateIncomingTransportMessages
+                                                    
                                                     
     {
         public ISendMessages MessageSender { get; set; }
@@ -24,14 +24,12 @@
         public ISubscriptionStorage SubscriptionStorage { get; set; }
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); } set { subscriptionAuthorizer = value; } }
 
-        public void Subscribe(Type eventType, Address publisherAddress, Predicate<object> condition)
+        public void Subscribe(Type eventType, Address publisherAddress)
         {
             Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-
-            subscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(eventType, condition);
 
             ThreadPool.QueueUserWorkItem(state =>
                                          SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
@@ -82,7 +80,8 @@
                 return;
             }
 
-            StopMessagePipeline();
+            //service locate to avoid a circular dependency
+            Builder.Build<IBus>().DoNotContinueDispatchingCurrentMessageToHandlers();
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
@@ -93,7 +92,10 @@
                 else
                 {
                     Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
-                    SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[] { new MessageType(messageTypeString) });
+
+                    var mt = new MessageType(messageTypeString);
+
+                    SubscriptionStorage.Subscribe(transportMessage.ReplyToAddress, new[] { mt });
                     if (ClientSubscribed != null)
                         ClientSubscribed(this, new SubscriptionEventArgs
                                              {
@@ -116,25 +118,7 @@
             SubscriptionStorage.Unsubscribe(subscriberAddress, new[] { new MessageType(messageTypeString) });
         }
 
-        void StopMessagePipeline()
-        {
-            //service locate to avoid a circular dependency
-            Builder.Build<IBus>().DoNotContinueDispatchingCurrentMessageToHandlers();
-        }
-
-        public object MutateIncoming(object message)
-        {
-            foreach (var condition in subscriptionPredicatesEvaluator.GetConditionsForMessage(message))
-            {
-                if (condition(message)) continue;
-
-                Logger.Debug(string.Format("Condition {0} failed for message {1}", condition, message.GetType().Name));
-
-                StopMessagePipeline();
-                break;
-            }
-            return message;
-        }
+    
 
 
         static string GetSubscriptionMessageTypeFrom(TransportMessage msg)
@@ -194,13 +178,11 @@
     
         readonly static ILog Logger = LogManager.GetLogger("Subscriptions");
 
-        readonly SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
-
         IAuthorizeSubscriptions subscriptionAuthorizer;
 
     }
 
-    class StorageInitalizer : IWantToRunWhenBusStartsAndStops
+    class StorageInitializer : IWantToRunWhenBusStartsAndStops
     {
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 

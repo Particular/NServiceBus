@@ -49,7 +49,7 @@ namespace NServiceBus.Serializers.Json
 
         protected override string GetContentType()
         {
-            return "application/json";
+            return ContentTypes.Json;
         }
     }
 }

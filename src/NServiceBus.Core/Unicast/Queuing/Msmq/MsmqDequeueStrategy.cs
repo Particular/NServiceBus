@@ -22,14 +22,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="tryProcessMessage"></param>
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage)
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
             endpointAddress = address;
             transactionSettings = settings;
      
@@ -132,30 +134,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             semaphore.Wait();
 
-            Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        if (transactionSettings.IsTransactional)
-                        {
-                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                            {
-                               if (ReceiveAndFireEvent())
-                                {
-                                    scope.Complete();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            ReceiveAndFireEvent();
-                        }
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }, CancellationToken.None, TaskCreationOptions.None, scheduler)
+            Task.Factory
+                .StartNew(Action, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
                     {
                         if (task.Exception != null)
@@ -170,6 +150,55 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
 
             stopResetEvent.Set();
+        }
+
+        private void Action()
+        {
+            Message message = null;
+            Exception exception = null;
+
+            try
+            {
+                if (transactionSettings.IsTransactional)
+                {
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                    {
+                        message = ReceiveMessage();
+
+                        if (message == null)
+                        {
+                            scope.Complete();
+                            return;
+                        }
+
+                        if (ProcessMessage(message))
+                        {
+                            scope.Complete();
+                        }
+                    }
+                }
+                else
+                {
+                    message = ReceiveMessage();
+
+                    if (message == null)
+                    {
+                        return;
+                    }
+
+                    ProcessMessage(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            finally
+            {
+                endProcessMessage(message != null ? message.Id : null, exception);
+
+                semaphore.Release();
+            }
         }
 
         private void CallPeekWithExceptionHandling(Action action)
@@ -199,8 +228,31 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
+        bool ProcessMessage(Message message)
+        {
+            TransportMessage transportMessage;
+            try
+            {
+                transportMessage = MsmqUtilities.Convert(message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error in converting message to TransportMessage.", ex);
+
+                //todo DeadLetter the message
+                return true;
+            }
+
+            if (transportMessage != null)
+            {
+                return tryProcessMessage(transportMessage);
+            }
+
+            return true;
+        }
+
         [DebuggerNonUserCode]
-        bool ReceiveAndFireEvent()
+        Message ReceiveMessage()
         {
             Message message = null;
             try
@@ -239,31 +291,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 peekResetEvent.Set();
             }
-
-            if (message == null)
-            {
-                return true;
-            }
-
-            TransportMessage transportMessage;
-            try
-            {
-                transportMessage = MsmqUtilities.Convert(message);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error in converting message to TransportMessage.", ex);
-
-                //todo DeadLetter the message
-                return true;
-            }
-
-            if (transportMessage != null)
-            {
-                return tryProcessMessage(transportMessage);
-            }
-
-            return true;
+            return message;
         }
 
         static void OnCriticalExceptionEncountered(Exception ex)
@@ -282,5 +310,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         TransactionSettings transactionSettings;
         Address endpointAddress;
         TransactionOptions transactionOptions;
+        Action<string, Exception> endProcessMessage;
     }
 }

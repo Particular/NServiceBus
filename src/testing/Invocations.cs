@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace NServiceBus.Testing
@@ -20,9 +19,7 @@ namespace NServiceBus.Testing
             bool success = calls.Any(c =>
                                          {
                                              var result = Validate(c as T);
-                                             if (!result)
-                                                 Console.Out.WriteLine("Check evaluated false for " + filter(GetType()));
-
+                                             
                                              return result;
                                          });
 

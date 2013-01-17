@@ -12,7 +12,6 @@ namespace NServiceBus.Hosting.Windows
     {
         readonly IHost genericHost;
         readonly bool runOtherInstallers;
-        readonly bool runInfrastructureInstallers;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
@@ -22,9 +21,8 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="args"></param>
         /// <param name="endpointName"></param>
         /// <param name="runOtherInstallers"></param>
-        /// <param name="runInfrastructureInstallers"></param>
         /// <param name="scannableAssembliesFullName">Name of scan-able assemblies</param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, bool runInfrastructureInstallers, IEnumerable<string> scannableAssembliesFullName)
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
@@ -34,8 +32,6 @@ namespace NServiceBus.Hosting.Windows
 
             if (runOtherInstallers || Debugger.IsAttached)
                 this.runOtherInstallers = true;
-
-            this.runInfrastructureInstallers = runInfrastructureInstallers;
         }
 
         /// <summary>
@@ -70,14 +66,13 @@ namespace NServiceBus.Hosting.Windows
         /// <summary>
         /// Performs installations
         /// </summary>
-        public void Install()
+        /// <param name="username">Username passed in to host.</param>
+        public void Install(string username)
         {
             if (runOtherInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
-            if (runInfrastructureInstallers)
-                Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = true;
 
-            genericHost.Install<Installation.Environments.Windows>();
+            genericHost.Install<Installation.Environments.Windows>(username);
         }
     }
 }

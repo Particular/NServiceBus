@@ -1,5 +1,6 @@
 using System;
 using MyMessages;
+using MyMessages.DataBus;
 using MyMessages.Other;
 using NServiceBus;
 
@@ -23,6 +24,7 @@ namespace MyPublisher
         public void Start()
         {
             Console.WriteLine("Press 'e' to publish an IEvent, EventMessage, and AnotherEventMessage alternately.");
+            Console.WriteLine("Press 'b' to send a command with large payload to Subscriber1");
             Console.WriteLine("Press 'c' to send a command to Subscriber1, Subscriber2, SubscriberNMS alternately");
             Console.WriteLine("Press 's' to start a saga locally");
             Console.WriteLine("Press 'd' to defer a command locally");
@@ -40,6 +42,9 @@ namespace MyPublisher
                         return;
                     case 'e':
                         this.PublishEvent();
+                        break;
+                    case 'b':
+                        this.SendOverDataBus();
                         break;
                     case 'c':
                         this.SendCommand();
@@ -61,6 +66,18 @@ namespace MyPublisher
                         break;
                 }
             }
+        }
+
+        private void SendOverDataBus()
+        {
+            Bus.Send<MessageWithLargePayload>(m =>
+            {
+                m.SomeProperty =
+                    "This message contains a large blob that will be sent on the data bus";
+                m.LargeBlob =
+                    new DataBusProperty<byte[]>(new byte[1024 * 1024 * 5]);
+                //5MB
+            });
         }
 
         private void ScheduleTask()

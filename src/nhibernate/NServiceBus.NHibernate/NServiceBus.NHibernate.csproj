@@ -97,6 +97,7 @@
     <Compile Include="Unicast\Subscriptions\NHibernate\Subscription.cs" />
     <Compile Include="Unicast\Subscriptions\NHibernate\SubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\NHibernate\SubscriptionStorageSessionProvider.cs" />
+    <Compile Include="SagaPersisters\NHibernate\Config\Internal\InternalThreadStaticSessionContext.cs" />
     <Compile Include="UnitOfWork\NHibernate\UnitOfWorkManager.cs" />
   </ItemGroup>
   <ItemGroup>

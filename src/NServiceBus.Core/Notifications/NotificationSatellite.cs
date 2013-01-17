@@ -18,7 +18,7 @@ namespace NServiceBus.Notifications
             this.messageSerializer = messageSerializer;
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             SendEmail sendEmail;
 
@@ -32,6 +32,8 @@ namespace NServiceBus.Notifications
             {
                 c.Send(mailMessage);
             }
+
+            return true;
         }
 
         public void Start()

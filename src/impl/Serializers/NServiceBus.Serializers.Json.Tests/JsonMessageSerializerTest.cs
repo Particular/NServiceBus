@@ -25,6 +25,23 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
+        public void Deserialize_message_with_interface_without_wrapping()
+        {
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { new SuperMessage {SomeProperty = "John"} }, stream);
+
+                stream.Position = 0;
+
+                var result = (SuperMessage)Serializer.Deserialize(stream, new[] { typeof(SuperMessage).AssemblyQualifiedName, typeof(IMyEvent).AssemblyQualifiedName })[0];
+
+                Assert.AreEqual("John", result.SomeProperty);
+            }
+        }
+
+        [Test]
         public void Serialize_message_without_wrapping()
         {
             using (var stream = new MemoryStream())
@@ -36,9 +53,8 @@ namespace NServiceBus.Serializers.Json.Tests
                 stream.Position = 0;
                 var result = new StreamReader(stream).ReadToEnd();
 
-                Assert.That(!result.StartsWith("["),result);
+                Assert.That(!result.StartsWith("["), result);
             }
-            
         }
 
         [Test]
@@ -122,6 +138,10 @@ namespace NServiceBus.Serializers.Json.Tests
         public string SomeProperty { get; set; }
     }
 
+    public class SuperMessage : IMyEvent
+    {
+        public string SomeProperty { get; set; }
+    }
     public class MessageWithXDocument
     {
         public XDocument Document { get; set; }

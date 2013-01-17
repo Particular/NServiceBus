@@ -1,7 +1,10 @@
 ﻿namespace NMSConsumer
 {
     using System;
+    using System.IO;
     using System.Transactions;
+    using System.Xml;
+    using System.Xml.Serialization;
 
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
@@ -62,7 +65,7 @@
             using (new TransactionScope())
             {
                 var textMessage = (ITextMessage)message;
-                var messageContent = (EventMessage)XmlUtil.Deserialize(typeof(EventMessage), textMessage.Text);
+                var messageContent = (EventMessage)Deserialize(typeof(EventMessage), textMessage.Text);
 
                 Console.WriteLine("Received EventMessage with ID: {0}", messageContent.EventId);
             }
@@ -73,7 +76,8 @@
             using (var scope = new TransactionScope(TransactionScopeOption.Required))
             {
                 var textMessage = (ITextMessage)message;
-                var messageContent = (MyRequestNMS)XmlUtil.Deserialize(typeof(MyRequestNMS), textMessage.Text);
+                var text = textMessage.Text;
+                var messageContent = (MyRequestNMS)Deserialize(typeof(MyRequestNMS), text);
 
                 Console.WriteLine("Received MyRequestNMS with ID: {0}", messageContent.CommandId);
 
@@ -95,6 +99,24 @@
                 }
 
                 scope.Complete();
+            }
+        }
+
+        public static object Deserialize(Type objType, string text)
+        {
+            if (text == null)
+            {
+                return null;
+            }
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(objType);
+                return serializer.Deserialize(new NamespaceIgnorantXmlTextReader(new StringReader(text)));
+            }
+            catch (Exception ex)
+            {
+                Tracer.ErrorFormat("Error deserializing object: {0}", new object[] { ex.Message });
+                return null;
             }
         }
 
@@ -125,6 +147,16 @@
 
             responseMessage.NMSCorrelationID = textMessage.NMSMessageId;
             return responseMessage;
+        }
+    }
+
+    public class NamespaceIgnorantXmlTextReader : XmlTextReader
+    {
+        public NamespaceIgnorantXmlTextReader(System.IO.TextReader reader) : base(reader) { }
+
+        public override string NamespaceURI
+        {
+            get { return ""; }
         }
     }
 }

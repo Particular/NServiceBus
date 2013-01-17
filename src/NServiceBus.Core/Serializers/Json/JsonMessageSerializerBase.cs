@@ -44,15 +44,16 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream">Stream for <paramref name="messages"/> to be serialized into.</param>
         public void Serialize(object[] messages, Stream stream)
         {
-            JsonSerializer jsonSerializer = JsonSerializer.Create(serializerSettings);
+            var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.Binder = new MessageSerializationBinder(messageMapper);
 
-            JsonWriter jsonWriter = CreateJsonWriter(stream);
+            var jsonWriter = CreateJsonWriter(stream);
 
-            if(SkipArrayWrappingForSingleMessages && messages.Length == 1)
+            if (SkipArrayWrappingForSingleMessages && messages.Length == 1)
                 jsonSerializer.Serialize(jsonWriter, messages[0]);
             else
                 jsonSerializer.Serialize(jsonWriter, messages);
+
             jsonWriter.Flush();
         }
 
@@ -64,15 +65,20 @@ namespace NServiceBus.Serializers.Json
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<string> messageTypes = null)
         {
-            JsonSerializer jsonSerializer = JsonSerializer.Create(serializerSettings);
+            var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
 
-            JsonReader reader = CreateJsonReader(stream);
-            
-            if(SkipArrayWrappingForSingleMessages && messageTypes != null && messageTypes.Count == 1)
-                return new[] { jsonSerializer.Deserialize(reader,Type.GetType(messageTypes.First())) };
+            var reader = CreateJsonReader(stream);
+            reader.Read();
 
-            return jsonSerializer.Deserialize<object[]>(reader);
+            var firstTokenType = reader.TokenType;
+
+            if (firstTokenType == JsonToken.StartArray)
+            {
+                return jsonSerializer.Deserialize<object[]>(reader);
+            }
+
+            return new[] {jsonSerializer.Deserialize(reader, Type.GetType(messageTypes.First()))};
         }
 
         /// <summary>

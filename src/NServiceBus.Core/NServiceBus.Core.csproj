@@ -52,22 +52,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete, Version=1.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Obsolete.Fody.1.3.0.0\lib\NET40\Obsolete.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\packages\RavenDB.Client.1.0.992\lib\net40\Raven.Abstractions.dll</HintPath>
+    <Reference Include="Raven.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\packages\RavenDB.Client.1.0.992\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Licensing">
       <HintPath>..\..\lib\rhino.licensing\Rhino.Licensing.dll</HintPath>
@@ -341,7 +340,6 @@
     <Compile Include="Sagas\Impl\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
-    <Compile Include="Satellites\IWantAccessToTransport.cs" />
     <Compile Include="Satellites\SatelitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
     <Compile Include="Schedule.cs" />
@@ -387,6 +385,7 @@
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
+    <Compile Include="Timeout\TimeoutManagerHeaders.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
     <Compile Include="TrialExpired.cs">
       <SubType>Form</SubType>
@@ -394,16 +393,13 @@
     <Compile Include="TrialExpired.Designer.cs">
       <DependentUpon>TrialExpired.cs</DependentUpon>
     </Compile>
-    <Compile Include="Unicast\BackwardCompatibility\ConfigureBackwardCompatilibity.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\IncomingReturnMessageMutator.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\IncomingSubscriptionMessageMutator.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\OutgoingSubscriptionMessageMutator.cs" />
+    <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
-    <Compile Include="Unicast\Deferral\TimeoutManagerBasedDeferral.cs" />
+    <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
@@ -443,8 +439,10 @@
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\Subscriptions\SubscriptionPredicatesEvaluator.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\InMemory\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />
@@ -455,7 +453,6 @@
     <Compile Include="Unicast\Subscriptions\Storage\Msmq\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\Raven\RavenSubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\Raven\Subscription.cs" />
-    <Compile Include="Unicast\Transport\CompletionMessage.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
@@ -467,8 +464,8 @@
     <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
-    <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
+    <Compile Include="Unicast\Queuing\IDequeueMessages.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
