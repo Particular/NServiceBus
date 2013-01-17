@@ -14,10 +14,15 @@ namespace NServiceBus.Serializers.XML.Test
 {
     using System.Net.Mail;
     using System.Text;
+    using System.Xml.Linq;
+
     using A;
     using B;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
+
+    using NServiceBus.Serializers.Binary;
+
     using Serialization;
 
     [TestFixture]
@@ -696,6 +701,21 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(((ChildOfBase)message.BaseType).ChildProp, ((ChildOfBase)result.BaseType).ChildProp);
         }
 
+        [Test]
+        public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
+        {
+            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+
+            var resultXDocument = ExecuteSerializer.ForMessage<MessageWithXDocument>(messageWithXDocument);
+            var resultXElement = ExecuteSerializer.ForMessage<MessageWithXElement>(messageWithXElement);
+
+            Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());
+            Assert.AreEqual(messageWithXElement.Document.ToString(), resultXElement.Document.ToString());
+        }
     }
 
     public class EmptyMessage:IMessage
@@ -835,6 +855,18 @@ namespace NServiceBus.Serializers.XML.Test
 	{
 		public ItemList Items { get; set; }
 	}
+
+    [Serializable]
+    public class MessageWithXDocument : IMessage
+    {
+        public XDocument Document { get; set; }
+    }
+
+    [Serializable]
+    public class MessageWithXElement : IMessage
+    {
+        public XElement Document { get; set; }
+    }
 
 	public class ItemList : List<MessageWithListItem>
 	{

@@ -1,21 +1,23 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
     using System.IO;
-    using MessageInterfaces.MessageMapper.Reflection;
+    using System.Linq;
+    using System.Xml.Linq;
+
     using NUnit.Framework;
 
     [TestFixture]
     public class JsonMessageSerializerTest : JsonMessageSerializerTestBase
     {
-        protected override JsonMessageSerializerBase Serializer { get; set; }
+        public JsonMessageSerializerTest()
+            : base(typeof(SimpleMessage))
+        {
+        }
 
         [SetUp]
         public void Setup()
         {
-            var messageMapper = new MessageMapper();
-            messageMapper.Initialize(new[] { typeof(IA), typeof(A),typeof(SimpleMessage) });
-
-            Serializer = new JsonMessageSerializer(messageMapper);
+            Serializer = new JsonMessageSerializer(MessageMapper);
         }
 
         [Test]
@@ -83,6 +85,48 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.That(!result.Contains("$type"), result);
             }
         }
+
+        [Test]
+        public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
+        {
+            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { messageWithXDocument }, stream);
+
+                stream.Position = 0;
+                var json = new StreamReader(stream).ReadToEnd();
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument).AssemblyQualifiedName }).Cast<MessageWithXDocument>().Single();
+
+                Assert.AreEqual(messageWithXDocument.Document.ToString(), result.Document.ToString());
+                Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { messageWithXElement }, stream);
+
+                stream.Position = 0;
+                var json = new StreamReader(stream).ReadToEnd();
+                stream.Position = 0;
+
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement).AssemblyQualifiedName }).Cast<MessageWithXElement>().Single();
+
+                Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
+                Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
+            }
+        }
     }
 
     public class SimpleMessage
@@ -97,5 +141,15 @@ namespace NServiceBus.Serializers.Json.Tests
 
     public interface IMyEvent
     {
+    }
+
+    public class MessageWithXDocument
+    {
+        public XDocument Document { get; set; }
+    }
+
+    public class MessageWithXElement
+    {
+        public XElement Document { get; set; }
     }
 }

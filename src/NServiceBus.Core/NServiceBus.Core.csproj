@@ -354,9 +354,12 @@
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
     <Compile Include="Serializers\Binary\MessageSerializer.cs" />
     <Compile Include="Serializers\Binary\SimpleMessageMapper.cs" />
+    <Compile Include="Serializers\Binary\XContainerSurrogate.cs" />
+    <Compile Include="Serializers\Binary\XElementSurrogate.cs" />
     <Compile Include="Serializers\Json\BsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\Internal\MessageContractResolver.cs" />
     <Compile Include="Serializers\Json\Internal\MessageSerializationBinder.cs" />
+    <Compile Include="Serializers\Json\Internal\XContainerConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />

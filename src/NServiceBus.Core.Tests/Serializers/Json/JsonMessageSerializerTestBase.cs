@@ -8,6 +8,8 @@ namespace NServiceBus.Serializers.Json.Tests
 {
     using MessageInterfaces.MessageMapper.Reflection;
 
+    using System.Linq;
+
     public class A : IMessage
     {
         public Guid Aguid { get; set; }
@@ -52,13 +54,13 @@ namespace NServiceBus.Serializers.Json.Tests
 
     public abstract class JsonMessageSerializerTestBase
     {
-        protected abstract JsonMessageSerializerBase Serializer { get; set; }
-        protected MessageMapper MessageMapper { get; private set; }
+        protected JsonMessageSerializerBase Serializer { get; set; }
+        protected MessageMapper MessageMapper { get; set; }
 
-        protected JsonMessageSerializerTestBase()
+        protected JsonMessageSerializerTestBase(params Type[] messageTypes)
         {
             MessageMapper = new MessageMapper();
-            MessageMapper.Initialize(new[] { typeof(IA), typeof(A) });
+            MessageMapper.Initialize(new[] { typeof(IA), typeof(A) }.Union(messageTypes));
         }
 
         [Test]

@@ -9,6 +9,7 @@ namespace NServiceBus.Serializers.XML
     using System.Runtime.Serialization;
     using System.Text;
     using System.Xml;
+    using System.Xml.Linq;
     using System.Xml.Serialization;
     using Logging;
     using MessageInterfaces;
@@ -52,6 +53,13 @@ namespace NServiceBus.Serializers.XML
 
             if (t.IsSimpleType())
                 return;
+
+            if (typeof(XContainer).IsAssignableFrom(t))
+            {
+                typesBeingInitialized.Add(t);
+
+                return;
+            }
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
@@ -566,6 +574,18 @@ namespace NServiceBus.Serializers.XML
                 }
             }
 
+            if (typeof(XContainer).IsAssignableFrom(type))
+            {
+                var reader = new StringReader(n.InnerXml);
+
+                if (type == typeof(XDocument))
+                {
+                    return XDocument.Load(reader);
+                }
+
+                return XElement.Load(reader);
+            }
+
             //Handle dictionaries
             if (typeof(IDictionary).IsAssignableFrom(type))
             {
@@ -854,6 +874,13 @@ namespace NServiceBus.Serializers.XML
                     }
                 }
 
+                return;
+            }
+
+            if (typeof(XContainer).IsAssignableFrom(type))
+            {
+                var container = (XContainer)value;
+                builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
                 return;
             }
 
