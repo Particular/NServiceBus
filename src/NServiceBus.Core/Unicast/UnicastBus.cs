@@ -662,6 +662,11 @@ namespace NServiceBus.Unicast
 
         IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
+            if (messages.Length == 0)
+            {
+                return Enumerable.Empty<string>();
+            }
+
             messages.ToList()
                         .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
 
