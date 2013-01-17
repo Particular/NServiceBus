@@ -390,10 +390,7 @@
     <Compile Include="TrialExpired.Designer.cs">
       <DependentUpon>TrialExpired.cs</DependentUpon>
     </Compile>
-    <Compile Include="Unicast\BackwardCompatibility\ConfigureBackwardCompatibility.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\IncomingReturnMessageMutator.cs" />
     <Compile Include="Unicast\BackwardCompatibility\IncomingSubscriptionMessageMutator.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\OutgoingSubscriptionMessageMutator.cs" />
     <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
@@ -454,7 +451,6 @@
     <Compile Include="Unicast\Subscriptions\Storage\Msmq\MsmqSubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\Raven\RavenSubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\Raven\Subscription.cs" />
-    <Compile Include="Unicast\Transport\CompletionMessage.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
