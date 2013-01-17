@@ -8,6 +8,7 @@
     using Persistence.NHibernate;
     using SagaPersisters.NHibernate;
     using SagaPersisters.NHibernate.Config.Internal;
+    using UnitOfWork.NHibernate;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister.
@@ -117,9 +118,10 @@
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
             }
 
-            config.Configurer.RegisterSingleton<ISessionFactory>(sessionFactory);
-            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
-            config.NHibernateUnitOfWork();
+            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
+            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
 
             return config;
         }

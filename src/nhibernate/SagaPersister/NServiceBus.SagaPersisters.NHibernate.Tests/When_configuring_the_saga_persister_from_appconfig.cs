@@ -1,9 +1,10 @@
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using System.Linq;
+    using Config.Internal;
     using NUnit.Framework;
+    using Persistence.NHibernate;
     using UnitOfWork.NHibernate;
-    using global::NHibernate;
 
     [TestFixture]
     public class When_configuring_the_saga_persister_from_appconfig
@@ -23,7 +24,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test]
         public void Update_schema_can_be_specified_by_the_user()
         {
-            var sessionFactory = config.Builder.Build<ISessionFactory>();
+            var builder = new SessionFactoryBuilder(Configure.TypesToScan);
+            var properties = ConfigureNHibernate.SagaPersisterProperties;
+
+            var sessionFactory = builder.Build(ConfigureNHibernate.CreateConfigurationWith(properties));
 
             using (var session = sessionFactory.OpenSession())
             {
@@ -45,7 +49,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             config.NHibernateUnitOfWork();
 
             var uow = config.Builder.BuildAll<UnitOfWorkManager>().ToList();
-
 
             Assert.IsNotNull(uow);
             Assert.That(uow, Has.Count.EqualTo(1));
