@@ -30,10 +30,7 @@ namespace Barista
                 .UseNHibernateSubscriptionPersister()
                 .Sagas()
                 .UseNHibernateSagaPersister()
-
                 .UseNHibernateTimeoutPersister()
-
-                .NHibernateUnitOfWork()
                 .UnicastBus()
                 .LoadMessageHandlers()
                 .IsTransactional(true)

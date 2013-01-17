@@ -28,10 +28,8 @@ namespace Barista
                .StructureMapBuilder(ObjectFactory.Container)
                .AzureMessageQueue().JsonSerializer()
                .AzureSubcriptionStorage()
-               .Sagas().AzureSagaPersister().NHibernateUnitOfWork()
-
+               .Sagas().AzureSagaPersister()
                .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
-
                .UnicastBus()
                .LoadMessageHandlers()
                .IsTransactional(true)
