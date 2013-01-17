@@ -10,18 +10,17 @@ namespace NServiceBus.Distributor.Config
         {
             var config = Configure.Instance;
 
-            var masterNodeAddress = config.GetMasterNodeAddress();
-            var applicativeInputQueue = masterNodeAddress.SubScope("worker");
+            var applicativeInputQueue = Address.Local.SubScope("worker");
 
             config.Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(r => r.InputAddress, masterNodeAddress.SubScope("worker"))
+                .ConfigureProperty(r => r.InputAddress, applicativeInputQueue)
                 .ConfigureProperty(r => r.DoNotStartTransport, !withWorker);
 
             if (!config.Configurer.HasComponent<IWorkerAvailabilityManager>())
             {
                 config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
                     DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(r => r.StorageQueueAddress, masterNodeAddress.SubScope("distributor.storage"));
+                    .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
             }
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
