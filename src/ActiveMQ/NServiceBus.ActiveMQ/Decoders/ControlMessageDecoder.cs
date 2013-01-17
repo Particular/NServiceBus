@@ -6,13 +6,16 @@
     {
         public bool Decode(TransportMessage transportMessage, IMessage message)
         {
-            if(message.IsControlMessage())
+            if (message.IsControlMessage())
             {
                 var decoded = (IBytesMessage)message;
 
-                if (decoded.Content != null)
+                // currently there is an issue in active mq NMS, accessing the content property 
+                // multiple times will return different results
+                byte[] content = decoded.Content;
+                if (content != null)
                 {
-                    transportMessage.Body = decoded.Content;
+                    transportMessage.Body = content;
                 }
 
                 return true;
