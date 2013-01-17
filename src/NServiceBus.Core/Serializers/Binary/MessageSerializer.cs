@@ -2,7 +2,10 @@ namespace NServiceBus.Serializers.Binary
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
+    using System.Xml.Linq;
+
     using Serialization;
 
     /// <summary>
@@ -10,6 +13,15 @@ namespace NServiceBus.Serializers.Binary
     /// </summary>
     public class MessageSerializer : IMessageSerializer
     {
+        public MessageSerializer()
+        {
+            var surrogateSelector = new SurrogateSelector();
+            surrogateSelector.AddSurrogate(typeof(XDocument), new StreamingContext(StreamingContextStates.All), new XContainerSurrogate());
+            surrogateSelector.AddSurrogate(typeof(XElement), new StreamingContext(StreamingContextStates.All), new XElementSurrogate());
+
+            binaryFormatter.SurrogateSelector = surrogateSelector;
+        }
+
         /// <summary>
         /// Serializes the given set of messages into the given stream.
         /// </summary>

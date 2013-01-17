@@ -20,6 +20,9 @@ namespace NServiceBus.Serializers.XML.Test
     using B;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
+
+    using NServiceBus.Serializers.Binary;
+
     using Serialization;
 
     [TestFixture]
@@ -787,11 +790,13 @@ namespace NServiceBus.Serializers.XML.Test
 		public ItemList Items { get; set; }
 	}
 
+    [Serializable]
     public class MessageWithXDocument : IMessage
     {
         public XDocument Document { get; set; }
     }
 
+    [Serializable]
     public class MessageWithXElement : IMessage
     {
         public XElement Document { get; set; }
