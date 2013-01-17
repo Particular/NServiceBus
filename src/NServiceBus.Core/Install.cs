@@ -77,15 +77,10 @@ namespace NServiceBus
         private readonly IIdentity identity;
 
         /// <summary>
-        /// Gets or sets RunInfrastructureInstallers 
-        /// </summary>
-        public static bool RunInfrastructureInstallers { get; set; }
-        /// <summary>
         /// Gets or sets RunOtherInstallers 
         /// </summary>
         public static bool RunOtherInstallers { private get; set; }
 
-        private static bool installedInfrastructureInstallers;
         private static bool installedOthersInstallers;
 
         /// <summary>
@@ -95,25 +90,8 @@ namespace NServiceBus
         {
             Configure.Instance.Initialize();
 
-            if(RunInfrastructureInstallers)
-                InstallInfrastructureInstallers();
-            
             if(RunOtherInstallers)            
                 InstallOtherInstallers();
-        }
-
-        /// <summary>
-        /// Invokes only Infrastructure installers for the given environment.
-        /// </summary>
-        public void InstallInfrastructureInstallers()
-        {
-            if (installedInfrastructureInstallers)
-                return;
-
-            GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
-                .ForEach(t => ((INeedToInstallInfrastructure)Activator.CreateInstance(t)).Install(identity.Name));
-            
-            installedInfrastructureInstallers = true;
         }
 
         /// <summary>

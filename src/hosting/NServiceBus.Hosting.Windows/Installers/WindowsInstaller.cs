@@ -62,7 +62,7 @@
 
             username = arguments.Username;
             
-            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.InstallInfrastructure, arguments.ScannedAssemblies);
+            host = new WindowsHost(Type.GetType(arguments.EndpointConfigurationType, true), args, endpointName, arguments.Install, arguments.ScannedAssemblies);
         }
 
         static WindowsHost host;

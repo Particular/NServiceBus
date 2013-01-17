@@ -103,8 +103,12 @@ namespace NServiceBus.Hosting.Windows.Arguments
                     },
                     {
                         "installInfrastructure",
-                        @"Runs the infrastructure installers, this will install things like MSMQ and RavenDB if needed."
-                        , s => { InstallInfrastructure = true; }
+                        @"This setting is no longer in use. Please see http://nservicebus.com/powershell.aspx for the replacement."
+                        , s =>
+                            {
+                                throw new ArgumentException(
+                                    "This parameter is no longer supported. Please see http://nservicebus.com/powershell.aspx for the replacement.");
+                            }
                     },
                     {
                         "scannedAssemblies=",
@@ -137,7 +141,6 @@ namespace NServiceBus.Hosting.Windows.Arguments
         public string Username { get; set; }
         public string Password { get; set; }
         public string EndpointName { get; set; }
-        public bool InstallInfrastructure { get; set; }
         public List<string> ScannedAssemblies { get; private set; }
 
         public void PrintUsage()
