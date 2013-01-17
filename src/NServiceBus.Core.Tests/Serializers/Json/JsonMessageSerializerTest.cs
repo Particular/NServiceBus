@@ -1,27 +1,23 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
-    using System;
-    using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Xml.Linq;
 
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
-
-    using System.Linq;
 
     [TestFixture]
     public class JsonMessageSerializerTest : JsonMessageSerializerTestBase
     {
-        protected override JsonMessageSerializerBase Serializer { get; set; }
+        public JsonMessageSerializerTest()
+            : base(typeof(SimpleMessage))
+        {
+        }
 
         [SetUp]
         public void Setup()
         {
-            var messageMapper = new MessageMapper();
-            messageMapper.Initialize(new[] { typeof(IA), typeof(A),typeof(SimpleMessage) });
-
-            Serializer = new JsonMessageSerializer(messageMapper);
+            Serializer = new JsonMessageSerializer(MessageMapper);
         }
 
         [Test]
@@ -142,6 +138,11 @@ namespace NServiceBus.Serializers.Json.Tests
     {
         public string SomeProperty { get; set; }
     }
+
+    public interface IMyEvent
+    {
+    }
+
     public class MessageWithXDocument
     {
         public XDocument Document { get; set; }
