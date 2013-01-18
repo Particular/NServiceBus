@@ -2,29 +2,31 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using NServiceBus.Installation.Environments;
+    using Installation.Environments;
 
     [Serializable]
     public class EndpointRunner:MarshalByRefObject
     {
         IStartableBus startableBus;
         IBus bus;
+        Configure config;
 
         EndpointScenario scenario;
 
 
-        public bool Initialize(string scenarioType)
+        public bool Initialize(string assemblyQualifiedName, string transport)
         {
-            scenario = ((IScenarioFactory)Activator.CreateInstance(Type.GetType(scenarioType))).Get();
+            scenario = ((IScenarioFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
 
 
 
-            var config = Configure.With()
+            config = Configure.With()
                 .DefineEndpointName(scenario.EndpointName)
                 .CustomConfigurationSource(new ScenarioConfigSource(scenario));
 
-            scenario.SetupActions.ForEach(setup=> setup(config));           
+            scenario.SetupActions.ForEach(setup=> setup(config));
+
+            ConfigureTransport(transport);
             
             startableBus = config.CreateBus();
 
@@ -34,7 +36,21 @@
             return true;
         }
 
-       
+        void ConfigureTransport(string transport)
+        {
+            if (string.IsNullOrEmpty(transport))
+                return;
+
+
+            var transportType = Type.GetType(transport);
+
+            if(DefaultConnectionStrings.ContainsKey(transportType))
+                config.UseTransport(transportType, DefaultConnectionStrings[transportType]);
+            else
+                config.UseTransport(transportType);
+        }
+
+
         public bool Start()
         {
             bus = startableBus.Start();
@@ -83,5 +99,13 @@
 
             return failures.ToArray();
         }
+
+        static Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
+            {
+                { typeof(RabbitMQ), "host=localhost" },
+                { typeof(SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;" },
+                { typeof(ActiveMQ),  @"activemq:tcp://localhost:61616" },
+               
+            };
     }
 }

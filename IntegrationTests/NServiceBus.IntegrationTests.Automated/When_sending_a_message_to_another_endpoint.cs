@@ -1,13 +1,11 @@
-﻿using System.Text;
-
-namespace NServiceBus.IntegrationTests.Automated
+﻿namespace NServiceBus.IntegrationTests.Automated
 {
     using EndpointTemplates;
     using NUnit.Framework;
     using Support;
 
     [TestFixture]
-    //[ForAllTransports(Except="RabbitMQ")]
+    [ForAllTransports]
     public class When_sending_a_message_to_another_endpoint
     {
         [Test]
@@ -16,15 +14,6 @@ namespace NServiceBus.IntegrationTests.Automated
             MyMessageHandler.WasCalled = false;
             ScenarioRunner.Run(new SendScenario(), new ReceiveScenario());
         }
-
-
-        [Test]
-        public void Should_receive_the_message_2()
-        {
-            MyMessageHandler.WasCalled = false;
-            ScenarioRunner.Run(new SendScenario(), new ReceiveScenario());
-        }
-
 
         public class SendScenario : IScenarioFactory
         {
@@ -44,11 +33,11 @@ namespace NServiceBus.IntegrationTests.Automated
             {
 
                 return new ScenarioBuilder("Receiver")
-                 .EndpointSetup<DefaultServer>()
-                 .Done(() => MyMessageHandler.WasCalled)
-                 .Assert(() => Assert.True(MyMessageHandler.WasCalled))
+                    .EndpointSetup<DefaultServer>()
+                    .Done(() => MyMessageHandler.WasCalled)
+                    .Assert(() => Assert.True(MyMessageHandler.WasCalled))
 
-                 .CreateScenario();
+                    .CreateScenario();
             }
         }
 
@@ -58,9 +47,10 @@ namespace NServiceBus.IntegrationTests.Automated
         {
         }
 
-        public class MyMessageHandler :IHandleMessages<MyMessage>
+        public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public static bool WasCalled;
+
             public void Handle(MyMessage message)
             {
                 WasCalled = true;

@@ -9,7 +9,6 @@
         {
             return c => c.DefaultBuilder()
                          .XmlSerializer()
-                         .MsmqTransport()
                          .UnicastBus();
         }
     }

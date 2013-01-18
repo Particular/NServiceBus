@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Text;
@@ -14,19 +15,53 @@
 
         public static void Run(params IScenarioFactory[] scenarioFactory)
         {
-            var runners = InitatializeRunners(scenarioFactory);
+            var transportsToRunTestOn = GetTransportsToRunTestOn();
 
-            try
+
+            foreach (var transport in transportsToRunTestOn)
             {
-                PerformScenarios(runners);
-            }
-            finally
-            {
-                foreach (var runner in runners)
+                Console.Out.WriteLine("Running test for transport: {0}",string.IsNullOrEmpty(transport)?"User defined":transport.Split(',').FirstOrDefault());
+
+                var runners = InitatializeRunners(scenarioFactory, transport);
+
+                try
                 {
-                    AppDomain.Unload(runner.AppDomain);
+                    PerformScenarios(runners);
+
+                    Console.Out.WriteLine("Result: Successfull");
+                    Console.Out.WriteLine("------------------------------------------------------");
                 }
+                finally
+                {
+                    foreach (var runner in runners)
+                    {
+                        AppDomain.Unload(runner.AppDomain);
+                    }
+                }    
             }
+        }
+
+        static List<string> GetTransportsToRunTestOn()
+        {
+            var transportsToRunTestOn = new List<string>();
+
+            //------------- this part is NSB specific, we should create an extension point to not interfer with users 
+            var frame = new StackFrame(2);
+            var method = frame.GetMethod();
+            var type = method.DeclaringType;
+            var attribute =
+                type.GetCustomAttributes(typeof (ForAllTransportsAttribute), true).FirstOrDefault() as ForAllTransportsAttribute;
+
+            if (attribute != null)
+            {
+                transportsToRunTestOn = attribute.Transports.Select(t => t.GetType().AssemblyQualifiedName).ToList();
+            }
+
+            // -----------------------
+
+            if (!transportsToRunTestOn.Any())
+                transportsToRunTestOn.Add(null);
+            return transportsToRunTestOn;
         }
 
         static void PerformScenarios(List<ActiveRunner> runners)
@@ -128,7 +163,7 @@
             }
         }
 
-        static List<ActiveRunner> InitatializeRunners(IEnumerable<IScenarioFactory> scenarioFactory)
+        static List<ActiveRunner> InitatializeRunners(IEnumerable<IScenarioFactory> scenarioFactory,string transport)
         {
             var runners = new List<ActiveRunner>();
 
@@ -136,7 +171,7 @@
             {
                 var runner = PrepareRunner(endpointScenario.Get());
 
-                Assert.True(runner.Instance.Initialize(endpointScenario.GetType().AssemblyQualifiedName),
+                Assert.True(runner.Instance.Initialize(endpointScenario.GetType().AssemblyQualifiedName, transport),
                             "Endpoint {0} failed to initalize", runner.Instance.Name());
 
                 runners.Add(runner);
