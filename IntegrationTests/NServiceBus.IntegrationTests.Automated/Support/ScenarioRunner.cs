@@ -11,9 +11,27 @@
 
     public class ScenarioRunner
     {
+
         public static void Run(params IScenarioFactory[] scenarioFactory)
         {
-            var endpoints = InitatializeRunners(scenarioFactory);
+            var runners = InitatializeRunners(scenarioFactory);
+
+            try
+            {
+                PerformScenarios(runners);
+            }
+            finally
+            {
+                foreach (var runner in runners)
+                {
+                    AppDomain.Unload(runner.AppDomain);
+                }
+            }
+        }
+
+        static void PerformScenarios(List<ActiveRunner> runners)
+        {
+            var endpoints = runners.Select(r => r.Instance).ToList();
 
             StartEndpoints(endpoints);
 
@@ -38,7 +56,7 @@
 
                         if (endpointFailures.Any())
                         {
-                            failures.Add(endpoint.Name(),endpointFailures);
+                            failures.Add(endpoint.Name(), endpointFailures);
                             done = true;
                             break;
                         }
@@ -47,16 +65,13 @@
                     {
                         done = false;
                     }
-
-
                 }
                 Thread.Sleep(500);
 
                 if ((DateTime.UtcNow - startTime) > maxTime)
                     Assert.Fail(GenerateTestTimedOutMessage(endpoints, maxTime));
-
             }
-           
+
             if (failures.Any())
                 Assert.Fail(GenerateTestFailedMessage(failures));
         }
@@ -70,11 +85,11 @@
 
             foreach (var failure in failures)
             {
-                sb.AppendLine(string.Format("Endpoint: {0}",failure.Key));
+                sb.AppendLine(string.Format("Endpoint: {0}", failure.Key));
 
                 foreach (var assertionFailed in failure.Value)
                 {
-                    sb.AppendLine("    " + assertionFailed);                    
+                    sb.AppendLine("    " + assertionFailed);
                 }
                 sb.AppendLine("");
                 sb.AppendLine("****************************************************************************");
@@ -113,23 +128,23 @@
             }
         }
 
-        static List<EndpointRunner> InitatializeRunners(IEnumerable<IScenarioFactory> scenarioFactory)
+        static List<ActiveRunner> InitatializeRunners(IEnumerable<IScenarioFactory> scenarioFactory)
         {
-            var endpoints = new List<EndpointRunner>();
+            var runners = new List<ActiveRunner>();
 
             foreach (var endpointScenario in scenarioFactory)
             {
                 var runner = PrepareRunner(endpointScenario.Get());
 
-                Assert.True(runner.Initialize(endpointScenario.GetType().AssemblyQualifiedName),
-                            "Endpoint {0} failed to initalize", runner.Name());
+                Assert.True(runner.Instance.Initialize(endpointScenario.GetType().AssemblyQualifiedName),
+                            "Endpoint {0} failed to initalize", runner.Instance.Name());
 
-                endpoints.Add(runner);
+                runners.Add(runner);
             }
-            return endpoints;
+            return runners;
         }
 
-        static EndpointRunner PrepareRunner(EndpointScenario endpointScenario)
+        static ActiveRunner PrepareRunner(EndpointScenario endpointScenario)
         {
 
             var domainSetup = new AppDomainSetup
@@ -141,9 +156,17 @@
 
             var appDomain = AppDomain.CreateDomain(endpointScenario.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 
-            return (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName);
-
-
+            return new ActiveRunner
+                {
+                    Instance = (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName),
+                    AppDomain = appDomain
+                };
         }
+    }
+
+    class ActiveRunner
+    {
+        public EndpointRunner Instance { get; set; }
+        public AppDomain AppDomain { get; set; }
     }
 }

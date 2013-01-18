@@ -13,6 +13,15 @@ namespace NServiceBus.IntegrationTests.Automated
         [Test]
         public void Should_receive_the_message()
         {
+            MyMessageHandler.WasCalled = false;
+            ScenarioRunner.Run(new SendScenario(), new ReceiveScenario());
+        }
+
+
+        [Test]
+        public void Should_receive_the_message_2()
+        {
+            MyMessageHandler.WasCalled = false;
             ScenarioRunner.Run(new SendScenario(), new ReceiveScenario());
         }
 
@@ -36,8 +45,8 @@ namespace NServiceBus.IntegrationTests.Automated
 
                 return new ScenarioBuilder("Receiver")
                  .EndpointSetup<DefaultServer>()
-                 .Done(() => MyMessageHandler.Called)
-                 .Assert(() => Assert.Fail("The y was wrong"))
+                 .Done(() => MyMessageHandler.WasCalled)
+                 .Assert(() => Assert.True(MyMessageHandler.WasCalled))
 
                  .CreateScenario();
             }
@@ -49,13 +58,12 @@ namespace NServiceBus.IntegrationTests.Automated
         {
         }
 
-        public class MyMessageHandler : IHandleMessages<MyMessage>
+        public class MyMessageHandler :IHandleMessages<MyMessage>
         {
-            public static bool Called;
-
+            public static bool WasCalled;
             public void Handle(MyMessage message)
             {
-                Called = true;
+                WasCalled = true;
             }
         }
     }

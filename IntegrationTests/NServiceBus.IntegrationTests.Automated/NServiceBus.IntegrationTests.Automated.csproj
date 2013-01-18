@@ -59,6 +59,7 @@
     <Compile Include="Support\ScenarioBuilder.cs" />
     <Compile Include="Support\ScenarioConfigSource.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
+    <Compile Include="Support\VerifyingHandler.cs" />
     <Compile Include="When_sending_a_message_to_another_endpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
