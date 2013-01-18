@@ -157,7 +157,15 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void ProcessInActiveMqTransaction(TransportMessage transportMessage)
         {
-            if (!this.TryProcessMessage(transportMessage))
+            this.sessionFactory.SetSessionForCurrentThread(this.session);
+            var success = this.TryProcessMessage(transportMessage);
+            this.sessionFactory.RemoveSessionForCurrentThread();
+
+            if (success)
+            {
+                this.session.Commit();
+            }
+            else
             {
                 this.session.Rollback();
             }
@@ -167,11 +175,7 @@ namespace NServiceBus.Transport.ActiveMQ
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, this.transactionOptions))
             {
-                this.sessionFactory.SetSessionForCurrentTransaction(this.session);
-                var success = this.TryProcessMessage(transportMessage);
-                this.sessionFactory.RemoveSessionForCurrentTransaction();
-
-                if (success)
+                if (this.TryProcessMessage(transportMessage))
                 {
                     scope.Complete();
                 }

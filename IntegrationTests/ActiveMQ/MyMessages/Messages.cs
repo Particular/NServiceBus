@@ -115,6 +115,13 @@ namespace MyMessages.Publisher
         public Guid OrderId { get; set; }
     }
 
+    public class CompleteSagaMessage : IMessage
+    {
+        public Guid OrderId { get; set; }
+
+        public bool ThrowDuringCompletion { get; set; }
+    }
+    
     public class StartedSaga : IMessage
     {
         public Guid OrderId { get; set; }
