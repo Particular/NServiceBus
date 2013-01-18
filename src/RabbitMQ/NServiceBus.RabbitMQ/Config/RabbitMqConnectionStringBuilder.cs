@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.RabbitMq.Config
 {
-    using System.Configuration;
     using System.Data.Common;
     using global::RabbitMQ.Client;
 
