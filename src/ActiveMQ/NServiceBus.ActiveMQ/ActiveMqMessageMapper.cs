@@ -57,7 +57,7 @@ namespace NServiceBus.Transport.ActiveMQ
 
             foreach (var header in message.Headers)
             {
-                jmsmessage.Properties[header.Key] = header.Value;
+                jmsmessage.Properties[ConvertMessageHeaderKeyToActiveMQ(header.Key)] = header.Value;
             }
 
             return jmsmessage;
@@ -87,10 +87,10 @@ namespace NServiceBus.Transport.ActiveMQ
                 {
                     continue;
                 }
-
-                transportMessage.Headers[keyString] = message.Properties[keyString] != null
-                                                          ? message.Properties[keyString].ToString()
-                                                          : null;
+                
+                transportMessage.Headers[ConvertMessageHeaderKeyFromActiveMQ(keyString)] = message.Properties[keyString] != null 
+                                                                                               ? message.Properties[keyString].ToString() 
+                                                                                               : null;
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
@@ -116,6 +116,16 @@ namespace NServiceBus.Transport.ActiveMQ
             }
 
             return transportMessage;
+        }
+
+        public static string ConvertMessageHeaderKeyToActiveMQ(string headerKey)
+        {
+            return headerKey.Replace(".", "_DOT_").Replace("-", "_HYPHEN_");
+        }
+
+        public static string ConvertMessageHeaderKeyFromActiveMQ(string headerKey)
+        {
+            return headerKey.Replace("_DOT_", ".").Replace("_HYPHEN_", "-");
         }
 
         private MessageIntentEnum GetIntent(IMessage message)
