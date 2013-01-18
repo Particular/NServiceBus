@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace NServiceBus.IntegrationTests.Automated
 {
-    using System;
-    using Config;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using Support;
 
     [TestFixture]
+    //[ForAllTransports(Except="RabbitMQ")]
     public class When_sending_a_message_to_another_endpoint
     {
         [Test]
@@ -22,30 +22,30 @@ namespace NServiceBus.IntegrationTests.Automated
             public EndpointScenario Get()
             {
                 return new ScenarioBuilder("Sender")
-                .AddMapping<MyMessage>("Receiver")
-                 .Given(bus=> bus.Send(new MyMessage()))
-                 .CreateScenario();
+                    .EndpointSetup<DefaultServer>()
+                    .AddMapping<MyMessage>("Receiver")
+                    .When(bus => bus.Send(new MyMessage()))
+                    .CreateScenario();
             }
         }
 
-        public class ReceiveScenario:IScenarioFactory
+        public class ReceiveScenario : IScenarioFactory
         {
             public EndpointScenario Get()
             {
+
                 return new ScenarioBuilder("Receiver")
-                 .RegisterHandler<MyMessageHandler>()
-                 .Done(()=>MyMessageHandler.Called)
-                 .Assert(() =>
-                 {
-                     Assert.True(MyMessageHandler.Called);
-                 })
+                 .EndpointSetup<DefaultServer>()
+                 .Done(() => MyMessageHandler.Called)
+                 .Assert(() => Assert.Fail("The y was wrong"))
+
                  .CreateScenario();
             }
         }
 
 
 
-        public class MyMessage:IMessage
+        public class MyMessage : IMessage
         {
         }
 
@@ -58,22 +58,5 @@ namespace NServiceBus.IntegrationTests.Automated
                 Called = true;
             }
         }
-    }
-
-    public interface IScenarioFactory
-
-    {
-        EndpointScenario Get();
-    }
-
-    public class EndpointScenario
-    {
-        public string EndpointName { get; set; }
-
-        public IList<Action<IBus>> InitialBusActions { get; set; }
-
-        public MessageEndpointMappingCollection EndpointMappings { get; set; }
-
-        public Func<bool> Done { get; set; }
     }
 }

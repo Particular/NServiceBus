@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.IntegrationTests.Automated
+﻿namespace NServiceBus.IntegrationTests.Automated.Support
 {
-    using Config;
-    using Config.ConfigurationSource;
+    using NServiceBus.Config;
+    using NServiceBus.Config.ConfigurationSource;
 
     public class ScenarioConfigSource : IConfigurationSource
     {
