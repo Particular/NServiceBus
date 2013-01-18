@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Configuration;
     using Transport.SqlServer;
     using Unicast.Queuing.Installers;
+    using Unicast.Transport;
 
     /// <summary>
     /// Default extension methods to configure the Sql Transport
@@ -38,7 +39,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure SqlServerTransport(this Configure configure)
         {
-            string defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Transport");
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
 
             if (defaultConnectionString == null)
             {
@@ -59,7 +60,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure SqlServerTransport(this Configure configure, string connectionStringName)
         {
-            string defaultConnectionString = GetConnectionStringOrNull(connectionStringName);
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
 
             if (defaultConnectionString == null)
             {
@@ -86,18 +87,6 @@ Here is an example of what is required:
         private static string GetConfigFileIfExists()
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
-        }
-
-        private static string GetConnectionStringOrNull(string name)
-        {
-            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings[name];
-
-            if (connectionStringSettings == null)
-            {
-                return null;
-            }
-
-            return connectionStringSettings.ConnectionString;
         }
 
         private static Configure InternalSqlServerTransport(this Configure configure, string connectionString)

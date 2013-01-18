@@ -26,8 +26,9 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <param name="transportDefinitionType"></param>
+        /// <param name="connectionString"></param>
         /// <returns></returns>
-        public static Configure UseTransport(this Configure config,Type transportDefinitionType)
+        public static Configure UseTransport(this Configure config,Type transportDefinitionType,string connectionString = null)
         {
             var transportConfigurerType =
               Configure.TypesToScan.SingleOrDefault(
@@ -37,6 +38,10 @@ namespace NServiceBus
                 throw new InvalidOperationException("We couldn't find a IConfigureTransports implementation for your selected transport: " + transportDefinitionType.Name);
 
             var transportConfigurer = Activator.CreateInstance(transportConfigurerType) as IConfigureTransport;
+
+
+            if(!string.IsNullOrEmpty(connectionString))
+                TransportConnectionString.Override(()=>connectionString);
 
             transportConfigurer.Configure(config);
 

@@ -8,7 +8,7 @@ namespace NServiceBus
 
     using NServiceBus.Transport.ActiveMQ;
     using NServiceBus.Unicast.Queuing.Installers;
-
+    using Unicast.Transport;
     using MessageProducer = NServiceBus.Transport.ActiveMQ.MessageProducer;
 
     public static class ConfigureActiveMqMessageQueue
@@ -41,7 +41,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure ActiveMQTransport(this Configure config)
         {
-            string defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Transport");
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
 
             if (defaultConnectionString == null)
             {
