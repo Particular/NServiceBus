@@ -11,10 +11,10 @@
 
         public void Handle(MyCommand message)
         {
-            Console.Out.WriteLine("MyCommand message received, Description: " + message.Description);
+            Console.Out.WriteLine("MyCommand message received, from {0}", message.Name);
 
-            //send out a request (a event will be pushlished when the response comes back)
-            Bus.Send<MyRequest>(r => r.RequestData = "The server is making a request");
+            //send out a request (a event will be published when the response comes back)
+            Bus.Send<MyRequest>(r => r.RequestData = string.Format("Send a present to {0}", message.Name));
 
             //tell the client that we accepted the command
             Bus.Return(CommandStatus.Ok);
