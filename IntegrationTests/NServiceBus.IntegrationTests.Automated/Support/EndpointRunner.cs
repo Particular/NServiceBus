@@ -11,20 +11,20 @@
         IBus bus;
         Configure config;
 
-        EndpointScenario scenario;
+        EndpointBehaviour behaviour;
 
 
         public bool Initialize(string assemblyQualifiedName, string transport)
         {
-            scenario = ((IScenarioFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
+            behaviour = ((BehaviourFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
 
 
 
             config = Configure.With()
-                .DefineEndpointName(scenario.EndpointName)
-                .CustomConfigurationSource(new ScenarioConfigSource(scenario));
+                .DefineEndpointName(behaviour.EndpointName)
+                .CustomConfigurationSource(new ScenarioConfigSource(behaviour));
 
-            scenario.SetupActions.ForEach(setup=> setup(config));
+            behaviour.SetupActions.ForEach(setup=> setup(config));
 
             ConfigureTransport(transport);
             
@@ -55,7 +55,7 @@
         {
             bus = startableBus.Start();
 
-            scenario.Givens.ForEach(a=>a(bus));
+            behaviour.Givens.ForEach(a=>a(bus));
 
             return true;
 
@@ -64,7 +64,7 @@
 
         public void ApplyWhens()
         {
-            scenario.Whens.ForEach(a => a(bus));
+            behaviour.Whens.ForEach(a => a(bus));
         }
 
         public string Name()
@@ -75,13 +75,13 @@
       
         public bool Done()
         {
-            return scenario.Done();
+            return behaviour.Done();
         }
 
         public string[] VerifyAssertions()
         {
             var failures = new List<string>();
-            foreach (var assertion in scenario.Assertions)
+            foreach (var assertion in behaviour.Assertions)
             {
                 var failure = "";
                 try

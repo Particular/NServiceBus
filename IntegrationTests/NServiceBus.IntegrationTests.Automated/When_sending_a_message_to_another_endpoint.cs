@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated
 {
+    using System;
+    using System.Collections.Generic;
     using EndpointTemplates;
     using NUnit.Framework;
     using Support;
@@ -11,13 +13,20 @@
         [Test]
         public void Should_receive_the_message()
         {
+            //this sucks, we need a better way to assert on things
             MyMessageHandler.WasCalled = false;
-            ScenarioRunner.Run(new SendScenario(), new ReceiveScenario());
+
+            Scenario.Define()
+                .WithEndpointBehaviour<SendBehaviour>()
+                .WithEndpointBehaviour<ReceiveBehaviour>()
+              .Run();
+            
+           
         }
 
-        public class SendScenario : IScenarioFactory
+        public class SendBehaviour : BehaviourFactory
         {
-            public EndpointScenario Get()
+            public EndpointBehaviour Get()
             {
                 return new ScenarioBuilder("Sender")
                     .EndpointSetup<DefaultServer>()
@@ -27,21 +36,17 @@
             }
         }
 
-        public class ReceiveScenario : IScenarioFactory
+        public class ReceiveBehaviour : BehaviourFactory
         {
-            public EndpointScenario Get()
+            public EndpointBehaviour Get()
             {
-
                 return new ScenarioBuilder("Receiver")
                     .EndpointSetup<DefaultServer>()
                     .Done(() => MyMessageHandler.WasCalled)
                     .Assert(() => Assert.True(MyMessageHandler.WasCalled))
-
                     .CreateScenario();
             }
         }
-
-
 
         public class MyMessage : IMessage
         {
@@ -55,6 +60,28 @@
             {
                 WasCalled = true;
             }
+        }
+    }
+
+    public class Scenario
+    {
+        readonly IList<BehaviourFactory> behaviours = new List<BehaviourFactory>();
+
+        public static Scenario Define()
+        {
+            return new Scenario();
+        }
+
+        public  Scenario WithEndpointBehaviour<T>() where T:BehaviourFactory
+        {
+            behaviours.Add(Activator.CreateInstance<T>() as BehaviourFactory);
+            return this;
+        }
+
+
+        public void Run()
+        {
+            ScenarioRunner.Run(behaviours);
         }
     }
 }

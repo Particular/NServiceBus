@@ -70,9 +70,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ForAllTransportsAttribute.cs" />
-    <Compile Include="Support\EndpointScenario.cs" />
+    <Compile Include="Support\EndpointBehaviour.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="Support\IScenarioFactory.cs" />
+    <Compile Include="Support\BehaviourFactory.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\ScenarioBuilder.cs" />

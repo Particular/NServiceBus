@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using NServiceBus.Config;
 
-    public class EndpointScenario
+    public class EndpointBehaviour
     {
         public string EndpointName { get; set; }
 

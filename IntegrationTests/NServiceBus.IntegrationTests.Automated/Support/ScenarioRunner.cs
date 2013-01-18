@@ -13,7 +13,7 @@
     public class ScenarioRunner
     {
 
-        public static void Run(params IScenarioFactory[] scenarioFactory)
+        public static void Run(IEnumerable<BehaviourFactory> behaviourFactories)
         {
             var transportsToRunTestOn = GetTransportsToRunTestOn();
 
@@ -22,7 +22,7 @@
             {
                 Console.Out.WriteLine("Running test for transport: {0}",string.IsNullOrEmpty(transport)?"User defined":transport.Split(',').FirstOrDefault());
 
-                var runners = InitatializeRunners(scenarioFactory, transport);
+                var runners = InitatializeRunners(behaviourFactories, transport);
 
                 try
                 {
@@ -46,7 +46,7 @@
             var transportsToRunTestOn = new List<string>();
 
             //------------- this part is NSB specific, we should create an extension point to not interfer with users 
-            var frame = new StackFrame(2);
+            var frame = new StackFrame(3);
             var method = frame.GetMethod();
             var type = method.DeclaringType;
             var attribute =
@@ -163,7 +163,7 @@
             }
         }
 
-        static List<ActiveRunner> InitatializeRunners(IEnumerable<IScenarioFactory> scenarioFactory,string transport)
+        static List<ActiveRunner> InitatializeRunners(IEnumerable<BehaviourFactory> scenarioFactory,string transport)
         {
             var runners = new List<ActiveRunner>();
 
@@ -179,7 +179,7 @@
             return runners;
         }
 
-        static ActiveRunner PrepareRunner(EndpointScenario endpointScenario)
+        static ActiveRunner PrepareRunner(EndpointBehaviour endpointBehaviour)
         {
 
             var domainSetup = new AppDomainSetup
@@ -189,7 +189,7 @@
 
 
 
-            var appDomain = AppDomain.CreateDomain(endpointScenario.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
+            var appDomain = AppDomain.CreateDomain(endpointBehaviour.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 
             return new ActiveRunner
                 {
