@@ -21,9 +21,7 @@
                     {
                         ErrorQueue = "error"
                     } as T;
-
-
-
+            
             if (type == typeof(UnicastBusConfig))
                 return new UnicastBusConfig
                     {

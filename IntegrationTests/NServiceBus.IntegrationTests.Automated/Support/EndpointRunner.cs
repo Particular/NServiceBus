@@ -35,8 +35,7 @@
             startableBus = config.CreateBus();
 
             Configure.Instance.ForInstallationOn<Windows>().Install();
-
-
+            
             return true;
         }
 

@@ -12,7 +12,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IEnumerable<BehaviorDescriptor> behaviourFactories)
+        public static void Run(IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var transportsToRunTestOn = GetTransportsToRunTestOn();
             
@@ -20,7 +20,7 @@
             {
                 Console.Out.WriteLine("Running test for transport: {0}",string.IsNullOrEmpty(transport)?"User defined":transport.Split(',').FirstOrDefault());
 
-                var runners = InitatializeRunners(behaviourFactories, transport);
+                var runners = InitatializeRunners(behaviorDescriptors, transport);
 
                 try
                 {
@@ -68,52 +68,21 @@
 
             StartEndpoints(endpoints);
 
-            bool done = false;
-
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(30);
 
-            while (!done)
+            var tasks = new List<Task>();
+
+            foreach (var endpoint in endpoints)
             {
-                done = true;
-
-                foreach (var endpoint in endpoints)
-                {
-                    var endpointIsDone = endpoint.Done();
-
-                    if (!endpointIsDone)
-                    {
-                        done = false;
-                    }
-                }
-                Thread.Sleep(500);
-
-                if ((DateTime.UtcNow - startTime) > maxTime)
-                    Assert.Fail(GenerateTestTimedOutMessage(endpoints, maxTime));
-            }
-        }
-
-        static string GenerateTestFailedMessage(Dictionary<string, IEnumerable<string>> failures)
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("The test failed because of the following assertions not beeing met");
-            sb.AppendLine("----------------------------------------------------------------------------");
-
-            foreach (var failure in failures)
-            {
-                sb.AppendLine(string.Format("Endpoint: {0}", failure.Key));
-
-                foreach (var assertionFailed in failure.Value)
-                {
-                    sb.AppendLine("    " + assertionFailed);
-                }
-                sb.AppendLine("");
-                sb.AppendLine("****************************************************************************");
-                sb.AppendLine("");
+                // Should I define task creation options long running?
+                tasks.Add(Task.Factory.StartNew(() => SpinWait.SpinUntil(() => endpoint.Done(), maxTime)));
             }
 
-            return sb.ToString();
+            Task.WaitAll(tasks.ToArray());
+
+            if ((DateTime.UtcNow - startTime) > maxTime)
+                Assert.Fail(GenerateTestTimedOutMessage(endpoints, maxTime));
         }
 
         static string GenerateTestTimedOutMessage(List<EndpointRunner> endpoints, TimeSpan maxTime)
