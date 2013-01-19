@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using NServiceBus.Config;
 
-    public class EndpointBehaviour
+    public class EndpointBehavior
     {
         public string EndpointName { get; set; }
 
@@ -12,12 +12,10 @@
 
         public MessageEndpointMappingCollection EndpointMappings { get; set; }
 
-        public Func<bool> Done { get; set; }
+        public Func<BehaviorContext, bool> Done { get; set; }
 
         public List<Action<IBus>> Whens { get; set; }
 
-        public List<Action<Configure>> SetupActions { get; set; }
-
-        public List<Action> Assertions { get; set; }
+        public List<Action<Configure>> Setups { get; set; }
     }
 }

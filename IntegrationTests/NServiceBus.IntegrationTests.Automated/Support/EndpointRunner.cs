@@ -4,27 +4,31 @@
     using System.Collections.Generic;
     using Installation.Environments;
 
+    using NServiceBus.ObjectBuilder;
+
     [Serializable]
-    public class EndpointRunner:MarshalByRefObject
+    public class EndpointRunner : MarshalByRefObject
     {
         IStartableBus startableBus;
         IBus bus;
         Configure config;
 
-        EndpointBehaviour behaviour;
+        EndpointBehavior behavior;
+        BehaviorContext behaviorContext;
 
 
-        public bool Initialize(string assemblyQualifiedName, string transport)
+        public bool Initialize(string assemblyQualifiedName, BehaviorContext context, string transport)
         {
-            behaviour = ((BehaviourFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
-
-
-
+            behaviorContext = context;
+            this.behavior = ((BehaviorFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
+            
             config = Configure.With()
-                .DefineEndpointName(behaviour.EndpointName)
-                .CustomConfigurationSource(new ScenarioConfigSource(behaviour));
+                .DefineEndpointName(this.behavior.EndpointName)
+                .CustomConfigurationSource(new ScenarioConfigSource(this.behavior));
 
-            behaviour.SetupActions.ForEach(setup=> setup(config));
+            this.behavior.Setups.ForEach(setup=> setup(config));
+
+            config.Configurer.RegisterSingleton(context.GetType(), context);
 
             ConfigureTransport(transport);
             
@@ -55,7 +59,7 @@
         {
             bus = startableBus.Start();
 
-            behaviour.Givens.ForEach(a=>a(bus));
+            this.behavior.Givens.ForEach(a=>a(bus));
 
             return true;
 
@@ -64,7 +68,7 @@
 
         public void ApplyWhens()
         {
-            behaviour.Whens.ForEach(a => a(bus));
+            this.behavior.Whens.ForEach(a => a(bus));
         }
 
         public string Name()
@@ -72,32 +76,9 @@
             return AppDomain.CurrentDomain.FriendlyName;
         }
 
-      
         public bool Done()
         {
-            return behaviour.Done();
-        }
-
-        public string[] VerifyAssertions()
-        {
-            var failures = new List<string>();
-            foreach (var assertion in behaviour.Assertions)
-            {
-                var failure = "";
-                try
-                {
-                    assertion();
-                }
-                catch (Exception ex)
-                {
-                    failure = ex.Message;
-                }
-
-                if(!string.IsNullOrEmpty(failure))
-                    failures.Add(failure);
-            }
-
-            return failures.ToArray();
+            return this.behavior.Done(behaviorContext);
         }
 
         static Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>

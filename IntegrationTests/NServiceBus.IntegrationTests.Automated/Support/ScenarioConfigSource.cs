@@ -5,11 +5,11 @@
 
     public class ScenarioConfigSource : IConfigurationSource
     {
-        readonly EndpointBehaviour behaviour;
+        readonly EndpointBehavior behavior;
 
-        public ScenarioConfigSource(EndpointBehaviour behaviour)
+        public ScenarioConfigSource(EndpointBehavior behavior)
         {
-            this.behaviour = behaviour;
+            this.behavior = behavior;
         }
 
         public T GetConfiguration<T>() where T : class, new()
@@ -27,7 +27,7 @@
             if (type == typeof(UnicastBusConfig))
                 return new UnicastBusConfig
                     {
-                        MessageEndpointMappings = behaviour.EndpointMappings
+                        MessageEndpointMappings = this.behavior.EndpointMappings
                     }as T;
 
 

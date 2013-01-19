@@ -12,12 +12,10 @@
 
     public class ScenarioRunner
     {
-
-        public static void Run(IEnumerable<BehaviourFactory> behaviourFactories)
+        public static void Run(IEnumerable<BehaviorDescriptor> behaviourFactories)
         {
             var transportsToRunTestOn = GetTransportsToRunTestOn();
-
-
+            
             foreach (var transport in transportsToRunTestOn)
             {
                 Console.Out.WriteLine("Running test for transport: {0}",string.IsNullOrEmpty(transport)?"User defined":transport.Split(',').FirstOrDefault());
@@ -73,9 +71,7 @@
             bool done = false;
 
             var startTime = DateTime.UtcNow;
-            var maxTime = TimeSpan.FromSeconds(10);
-
-            var failures = new Dictionary<string, IEnumerable<string>>();
+            var maxTime = TimeSpan.FromSeconds(30);
 
             while (!done)
             {
@@ -85,18 +81,7 @@
                 {
                     var endpointIsDone = endpoint.Done();
 
-                    if (endpointIsDone)
-                    {
-                        var endpointFailures = endpoint.VerifyAssertions().ToList();
-
-                        if (endpointFailures.Any())
-                        {
-                            failures.Add(endpoint.Name(), endpointFailures);
-                            done = true;
-                            break;
-                        }
-                    }
-                    else
+                    if (!endpointIsDone)
                     {
                         done = false;
                     }
@@ -106,9 +91,6 @@
                 if ((DateTime.UtcNow - startTime) > maxTime)
                     Assert.Fail(GenerateTestTimedOutMessage(endpoints, maxTime));
             }
-
-            if (failures.Any())
-                Assert.Fail(GenerateTestFailedMessage(failures));
         }
 
         static string GenerateTestFailedMessage(Dictionary<string, IEnumerable<string>> failures)
@@ -163,15 +145,15 @@
             }
         }
 
-        static List<ActiveRunner> InitatializeRunners(IEnumerable<BehaviourFactory> scenarioFactory,string transport)
+        static List<ActiveRunner> InitatializeRunners(IEnumerable<BehaviorDescriptor> behaviorDescriptors, string transport)
         {
             var runners = new List<ActiveRunner>();
 
-            foreach (var endpointScenario in scenarioFactory)
+            foreach (var descriptor in behaviorDescriptors)
             {
-                var runner = PrepareRunner(endpointScenario.Get());
+                var runner = PrepareRunner(descriptor.Factory.Get());
 
-                Assert.True(runner.Instance.Initialize(endpointScenario.GetType().AssemblyQualifiedName, transport),
+                Assert.True(runner.Instance.Initialize(descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, transport),
                             "Endpoint {0} failed to initalize", runner.Instance.Name());
 
                 runners.Add(runner);
@@ -179,17 +161,14 @@
             return runners;
         }
 
-        static ActiveRunner PrepareRunner(EndpointBehaviour endpointBehaviour)
+        static ActiveRunner PrepareRunner(EndpointBehavior endpointBehavior)
         {
-
             var domainSetup = new AppDomainSetup
                 {
                     ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase
                 };
 
-
-
-            var appDomain = AppDomain.CreateDomain(endpointBehaviour.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
+            var appDomain = AppDomain.CreateDomain(endpointBehavior.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 
             return new ActiveRunner
                 {

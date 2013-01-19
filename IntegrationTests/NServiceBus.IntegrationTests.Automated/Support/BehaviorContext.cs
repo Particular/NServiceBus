@@ -2,8 +2,7 @@
 {
     using System;
 
-    public interface IEndpointSetupTemplate
+    public class BehaviorContext : MarshalByRefObject
     {
-        Action<Configure> Setup();
     }
 }

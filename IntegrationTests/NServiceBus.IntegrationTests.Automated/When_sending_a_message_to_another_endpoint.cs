@@ -13,20 +13,24 @@
         [Test]
         public void Should_receive_the_message()
         {
-            //this sucks, we need a better way to assert on things
-            MyMessageHandler.WasCalled = false;
+            var context = new ReceiveContext();
 
             Scenario.Define()
-                .WithEndpointBehaviour<SendBehaviour>()
-                .WithEndpointBehaviour<ReceiveBehaviour>()
+                .WithEndpointBehaviour<SendBehavior>()
+                .WithEndpointBehaviour<ReceiveBehavior>(context)
               .Run();
-            
-           
+
+            Assert.True(context.WasCalled);
         }
 
-        public class SendBehaviour : BehaviourFactory
+        public class ReceiveContext : BehaviorContext
         {
-            public EndpointBehaviour Get()
+            public bool WasCalled { get; set; }
+        }
+
+        public class SendBehavior : BehaviorFactory
+        {
+            public EndpointBehavior Get()
             {
                 return new ScenarioBuilder("Sender")
                     .EndpointSetup<DefaultServer>()
@@ -36,14 +40,13 @@
             }
         }
 
-        public class ReceiveBehaviour : BehaviourFactory
+        public class ReceiveBehavior : BehaviorFactory
         {
-            public EndpointBehaviour Get()
+            public EndpointBehavior Get()
             {
                 return new ScenarioBuilder("Receiver")
                     .EndpointSetup<DefaultServer>()
-                    .Done(() => MyMessageHandler.WasCalled)
-                    .Assert(() => Assert.True(MyMessageHandler.WasCalled))
+                    .Done((ReceiveContext context) => context.WasCalled)
                     .CreateScenario();
             }
         }
@@ -54,34 +57,61 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public static bool WasCalled;
+            private readonly ReceiveContext context;
+
+            public MyMessageHandler(ReceiveContext context)
+            {
+                this.context = context;
+            }
 
             public void Handle(MyMessage message)
             {
-                WasCalled = true;
+                this.context.WasCalled = true;
             }
         }
     }
 
     public class Scenario
     {
-        readonly IList<BehaviourFactory> behaviours = new List<BehaviourFactory>();
+        readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
+
+        private Scenario()
+        {
+        }
 
         public static Scenario Define()
         {
             return new Scenario();
         }
 
-        public  Scenario WithEndpointBehaviour<T>() where T:BehaviourFactory
+        public  Scenario WithEndpointBehaviour<T>() where T:BehaviorFactory
         {
-            behaviours.Add(Activator.CreateInstance<T>() as BehaviourFactory);
+            behaviours.Add(new BehaviorDescriptor(new BehaviorContext(), Activator.CreateInstance<T>()));
             return this;
         }
 
+        public Scenario WithEndpointBehaviour<T>(BehaviorContext context) where T : BehaviorFactory
+        {
+            behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
+            return this;
+        }
 
         public void Run()
         {
             ScenarioRunner.Run(behaviours);
         }
+    }
+
+    public class BehaviorDescriptor
+    {
+        public BehaviorDescriptor(BehaviorContext context, BehaviorFactory factory)
+        {
+            this.Context = context;
+            this.Factory = factory;
+        }
+
+        public BehaviorContext Context { get; private set; }
+
+        public BehaviorFactory Factory { get; private set; }
     }
 }

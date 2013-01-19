@@ -8,18 +8,17 @@
     {
         public ScenarioBuilder(string name)
         {
-            behaviour.Givens = new List<Action<IBus>>();
-            behaviour.Whens = new List<Action<IBus>>();
-            behaviour.Assertions = new List<Action>();
-            behaviour.SetupActions = new List<Action<Configure>>();
-            behaviour.EndpointMappings = new MessageEndpointMappingCollection();
-            behaviour.EndpointName = name;
-            behaviour.Done = () => true;
+            this.behavior.Givens = new List<Action<IBus>>();
+            this.behavior.Whens = new List<Action<IBus>>();
+            this.behavior.Setups = new List<Action<Configure>>();
+            this.behavior.EndpointMappings = new MessageEndpointMappingCollection();
+            this.behavior.EndpointName = name;
+            this.behavior.Done = context => true;
         }
 
         public ScenarioBuilder AddMapping<T>(string endpoint)
         {
-            behaviour.EndpointMappings.Add(new MessageEndpointMapping
+            this.behavior.EndpointMappings.Add(new MessageEndpointMapping
                 {
                     AssemblyName = typeof(T).Assembly.FullName,
                     TypeFullName = typeof(T).FullName,Endpoint = endpoint
@@ -31,41 +30,41 @@
 
         public ScenarioBuilder Given(Action<IBus> action)
         {
-            behaviour.Givens.Add(action);
+            this.behavior.Givens.Add(action);
 
             return this;
         }
 
-        public EndpointBehaviour CreateScenario()
+        public EndpointBehavior CreateScenario()
         {
-            return behaviour;
+            return this.behavior;
         }
 
-        
-        public ScenarioBuilder Assert(Action action)
+        public ScenarioBuilder Done<TContext>(Func<TContext, bool> func)
+            where TContext : BehaviorContext
         {
-            behaviour.Assertions.Add(action);
+            this.behavior.Done = context => func((TContext)context);
             return this;
         }
 
         public ScenarioBuilder Done(Func<bool> func)
         {
-            behaviour.Done = func;
+            this.behavior.Done = context => func();
             return this;
         }
 
         public ScenarioBuilder When(Action<IBus> func)
         {
-            behaviour.Whens.Add(func);
+            this.behavior.Whens.Add(func);
 
             return this;
         }
 
-        readonly EndpointBehaviour behaviour = new EndpointBehaviour();
+        readonly EndpointBehavior behavior = new EndpointBehavior();
 
         public ScenarioBuilder EndpointSetup<T>() where T: IEndpointSetupTemplate
         {
-            behaviour.SetupActions.Add(((IEndpointSetupTemplate) Activator.CreateInstance<T>()).GetSetupAction());
+            this.behavior.Setups.Add(((IEndpointSetupTemplate) Activator.CreateInstance<T>()).Setup());
             return this;
         }
     }

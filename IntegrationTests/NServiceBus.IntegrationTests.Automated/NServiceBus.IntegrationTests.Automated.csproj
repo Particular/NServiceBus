@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ForAllTransportsAttribute.cs" />
+    <Compile Include="Support\BehaviorContext.cs" />
     <Compile Include="Support\EndpointBehaviour.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Support\BehaviourFactory.cs" />
