@@ -16,6 +16,6 @@
 
         public List<Action<IBus>> Whens { get; set; }
 
-        public List<Action<Configure>> Setups { get; set; }
+        public List<Action<IDictionary<string, string>, Configure>> Setups { get; set; }
     }
 }

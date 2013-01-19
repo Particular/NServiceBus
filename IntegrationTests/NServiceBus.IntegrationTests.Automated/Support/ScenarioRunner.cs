@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Text;
@@ -12,15 +11,14 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        public static void Run(ScenarioDescriptor scenarioDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
-            var transportsToRunTestOn = GetTransportsToRunTestOn();
-            
-            foreach (var transport in transportsToRunTestOn)
+            foreach (RunDescriptor runDescriptor in scenarioDescriptor)
             {
-                Console.Out.WriteLine("Running test for transport: {0}",string.IsNullOrEmpty(transport)?"User defined":transport.Split(',').FirstOrDefault());
+                Console.Out.WriteLine("Running test for : {0}", runDescriptor.Name);
+                PrintSettings(runDescriptor.Settings);
 
-                var runners = InitatializeRunners(behaviorDescriptors, transport);
+                var runners = InitatializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
                 {
@@ -39,30 +37,17 @@
             }
         }
 
-        static List<string> GetTransportsToRunTestOn()
+        private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
         {
-            var transportsToRunTestOn = new List<string>();
-
-            //------------- this part is NSB specific, we should create an extension point to not interfer with users 
-            var frame = new StackFrame(3);
-            var method = frame.GetMethod();
-            var type = method.DeclaringType;
-            var attribute =
-                type.GetCustomAttributes(typeof (ForAllTransportsAttribute), true).FirstOrDefault() as ForAllTransportsAttribute;
-
-            if (attribute != null)
+            Console.WriteLine("Using settings:");
+            foreach (KeyValuePair<string, string> pair in settings)
             {
-                transportsToRunTestOn = attribute.Transports.Select(t => t.GetType().AssemblyQualifiedName).ToList();
+                Console.Out.WriteLine("   {0}: {1}", pair.Key, pair.Value);
             }
-
-            // -----------------------
-
-            if (!transportsToRunTestOn.Any())
-                transportsToRunTestOn.Add(null);
-            return transportsToRunTestOn;
+            Console.WriteLine();
         }
 
-        static void PerformScenarios(List<ActiveRunner> runners)
+        static void PerformScenarios(IEnumerable<ActiveRunner> runners)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
@@ -103,26 +88,25 @@
 
         static void StartEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            foreach (var endpoint in endpoints)
-            {
-                Task.Factory.StartNew(
-                    () =>
-                    {
-                        endpoint.Start();
-                        endpoint.ApplyWhens();
-                    });
-            }
+            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
+                {
+                    endpoint.Start();
+                    endpoint.ApplyWhens();
+                })).ToArray();
+
+            Task.WaitAll(tasks);
         }
 
-        static List<ActiveRunner> InitatializeRunners(IEnumerable<BehaviorDescriptor> behaviorDescriptors, string transport)
+        static List<ActiveRunner> InitatializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
 
             foreach (var descriptor in behaviorDescriptors)
             {
+                // Pretty weird here. Get is done twice but here only for the endpoint name...
                 var runner = PrepareRunner(descriptor.Factory.Get());
 
-                Assert.True(runner.Instance.Initialize(descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, transport),
+                Assert.True(runner.Instance.Initialize(descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings),
                             "Endpoint {0} failed to initalize", runner.Instance.Name());
 
                 runners.Add(runner);

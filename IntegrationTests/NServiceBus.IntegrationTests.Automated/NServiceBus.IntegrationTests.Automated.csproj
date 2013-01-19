@@ -69,17 +69,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ForAllTransportsAttribute.cs" />
     <Compile Include="Support\BehaviorContext.cs" />
+    <Compile Include="Support\BehaviorDescriptor.cs" />
     <Compile Include="Support\EndpointBehaviour.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Support\BehaviourFactory.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
+    <Compile Include="Support\RunDescriptor.cs" />
+    <Compile Include="Support\Scenario.cs" />
     <Compile Include="Support\ScenarioBuilder.cs" />
     <Compile Include="Support\ScenarioConfigSource.cs" />
+    <Compile Include="Support\ScenarioDescriptor.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
-    <Compile Include="Support\VerifyingHandler.cs" />
     <Compile Include="When_sending_a_message_to_another_endpoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

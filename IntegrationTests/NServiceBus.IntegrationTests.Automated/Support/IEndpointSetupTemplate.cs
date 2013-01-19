@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.Support
 {
-    using System;
+    using System.Collections.Generic;
 
     public interface IEndpointSetupTemplate
     {
-        Action<Configure> Setup();
+        void Setup(Configure config, IDictionary<string, string> settings);
     }
 }

@@ -10,7 +10,7 @@
         {
             this.behavior.Givens = new List<Action<IBus>>();
             this.behavior.Whens = new List<Action<IBus>>();
-            this.behavior.Setups = new List<Action<Configure>>();
+            this.behavior.Setups = new List<Action<IDictionary<string, string>, Configure>>();
             this.behavior.EndpointMappings = new MessageEndpointMappingCollection();
             this.behavior.EndpointName = name;
             this.behavior.Done = context => true;
@@ -64,7 +64,7 @@
 
         public ScenarioBuilder EndpointSetup<T>() where T: IEndpointSetupTemplate
         {
-            this.behavior.Setups.Add(((IEndpointSetupTemplate) Activator.CreateInstance<T>()).Setup());
+            this.behavior.Setups.Add((settings, conf) => ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).Setup(conf, settings));
             return this;
         }
     }

@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated
 {
-    using System;
     using System.Collections.Generic;
+
     using EndpointTemplates;
     using NUnit.Framework;
     using Support;
 
     [TestFixture]
-    [ForAllTransports]
     public class When_sending_a_message_to_another_endpoint
     {
         [Test]
@@ -15,12 +14,46 @@
         {
             var context = new ReceiveContext();
 
-            Scenario.Define()
+            Scenario.For<AllTransports>()
                 .WithEndpointBehaviour<SendBehavior>()
                 .WithEndpointBehaviour<ReceiveBehavior>(context)
               .Run();
 
             Assert.True(context.WasCalled);
+        }
+
+        public class AllTransports : ScenarioDescriptor
+        {
+            public AllTransports()
+            {
+                this.Add(
+                    new RunDescriptor
+                        {
+                            Name = "Msmq Transport",
+                            Settings =
+                                new Dictionary<string, string>
+                                    {
+                                        {
+                                            "Transport",
+                                            typeof(Msmq).AssemblyQualifiedName
+                                        }
+                                    }
+                        });
+
+                this.Add(
+                    new RunDescriptor
+                        {
+                            Name = "ActiveMQ Transport",
+                            Settings =
+                                new Dictionary<string, string>
+                                    {
+                                        {
+                                            "Transport",
+                                            typeof(ActiveMQ).AssemblyQualifiedName
+                                        }
+                                    }
+                        });
+            }
         }
 
         public class ReceiveContext : BehaviorContext
@@ -69,49 +102,5 @@
                 this.context.WasCalled = true;
             }
         }
-    }
-
-    public class Scenario
-    {
-        readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
-
-        private Scenario()
-        {
-        }
-
-        public static Scenario Define()
-        {
-            return new Scenario();
-        }
-
-        public  Scenario WithEndpointBehaviour<T>() where T:BehaviorFactory
-        {
-            behaviours.Add(new BehaviorDescriptor(new BehaviorContext(), Activator.CreateInstance<T>()));
-            return this;
-        }
-
-        public Scenario WithEndpointBehaviour<T>(BehaviorContext context) where T : BehaviorFactory
-        {
-            behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
-            return this;
-        }
-
-        public void Run()
-        {
-            ScenarioRunner.Run(behaviours);
-        }
-    }
-
-    public class BehaviorDescriptor
-    {
-        public BehaviorDescriptor(BehaviorContext context, BehaviorFactory factory)
-        {
-            this.Context = context;
-            this.Factory = factory;
-        }
-
-        public BehaviorContext Context { get; private set; }
-
-        public BehaviorFactory Factory { get; private set; }
     }
 }

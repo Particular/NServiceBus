@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using Installation.Environments;
 
-    using NServiceBus.ObjectBuilder;
-
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
@@ -16,8 +14,7 @@
         EndpointBehavior behavior;
         BehaviorContext behaviorContext;
 
-
-        public bool Initialize(string assemblyQualifiedName, BehaviorContext context, string transport)
+        public bool Initialize(string assemblyQualifiedName, BehaviorContext context, IDictionary<string, string> settings)
         {
             behaviorContext = context;
             this.behavior = ((BehaviorFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
@@ -26,33 +23,16 @@
                 .DefineEndpointName(this.behavior.EndpointName)
                 .CustomConfigurationSource(new ScenarioConfigSource(this.behavior));
 
-            this.behavior.Setups.ForEach(setup=> setup(config));
+            this.behavior.Setups.ForEach(setup=> setup(settings, config));
 
             config.Configurer.RegisterSingleton(context.GetType(), context);
 
-            ConfigureTransport(transport);
-            
             startableBus = config.CreateBus();
 
             Configure.Instance.ForInstallationOn<Windows>().Install();
             
             return true;
         }
-
-        void ConfigureTransport(string transport)
-        {
-            if (string.IsNullOrEmpty(transport))
-                return;
-
-
-            var transportType = Type.GetType(transport);
-
-            if(DefaultConnectionStrings.ContainsKey(transportType))
-                config.UseTransport(transportType, DefaultConnectionStrings[transportType]);
-            else
-                config.UseTransport(transportType);
-        }
-
 
         public bool Start()
         {
@@ -63,7 +43,6 @@
             return true;
 
         }
-
 
         public void ApplyWhens()
         {
@@ -79,13 +58,5 @@
         {
             return this.behavior.Done(behaviorContext);
         }
-
-        static Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
-            {
-                { typeof(RabbitMQ), "host=localhost" },
-                { typeof(SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;" },
-                { typeof(ActiveMQ),  @"activemq:tcp://localhost:61616" },
-               
-            };
     }
 }
