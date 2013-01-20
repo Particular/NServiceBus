@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    public class Scenario
+    public class Scenario : IScenarioWithEndpointBehavior
     {
         private readonly ScenarioDescriptor descriptor;
 
@@ -14,19 +14,24 @@
             this.descriptor = descriptor;
         }
 
-        public static Scenario For<TDescriptor>()
+        public static IScenarioWithEndpointBehavior Define()
+        {
+            return For<DefaultScenarioDescriptor>();
+        }
+
+        public static IScenarioWithEndpointBehavior For<TDescriptor>()
             where TDescriptor : ScenarioDescriptor
         {
             return new Scenario(Activator.CreateInstance<TDescriptor>());
         }
 
-        public  Scenario WithEndpointBehaviour<T>() where T:BehaviorFactory
+        public IScenarioWithEndpointBehavior WithEndpointBehaviour<T>() where T : BehaviorFactory
         {
             this.behaviours.Add(new BehaviorDescriptor(new BehaviorContext(), Activator.CreateInstance<T>()));
             return this;
         }
 
-        public Scenario WithEndpointBehaviour<T>(BehaviorContext context) where T : BehaviorFactory
+        public IScenarioWithEndpointBehavior WithEndpointBehaviour<T>(BehaviorContext context) where T : BehaviorFactory
         {
             this.behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
             return this;

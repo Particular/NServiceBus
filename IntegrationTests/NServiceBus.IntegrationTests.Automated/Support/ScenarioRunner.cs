@@ -7,7 +7,6 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using NUnit.Framework;
 
     public class ScenarioRunner
     {
@@ -56,18 +55,19 @@
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(30);
 
-            var tasks = new List<Task>();
+            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(endpoint.Done, maxTime))).Cast<Task>().ToArray());
 
-            foreach (var endpoint in endpoints)
+            try
             {
-                // Should I define task creation options long running?
-                tasks.Add(Task.Factory.StartNew(() => SpinWait.SpinUntil(() => endpoint.Done(), maxTime)));
+                if ((DateTime.UtcNow - startTime) > maxTime)
+                {
+                    throw new ScenarioException(GenerateTestTimedOutMessage(endpoints, maxTime));
+                }
             }
-
-            Task.WaitAll(tasks.ToArray());
-
-            if ((DateTime.UtcNow - startTime) > maxTime)
-                Assert.Fail(GenerateTestTimedOutMessage(endpoints, maxTime));
+            finally
+            {
+                StopEndpoints(endpoints);
+            }
         }
 
         static string GenerateTestTimedOutMessage(List<EndpointRunner> endpoints, TimeSpan maxTime)
@@ -97,17 +97,26 @@
             Task.WaitAll(tasks);
         }
 
+        static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
+        {
+            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(endpoint.Stop)).ToArray();
+
+            Task.WaitAll(tasks);
+        }
+
         static List<ActiveRunner> InitatializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
 
             foreach (var descriptor in behaviorDescriptors)
             {
-                // Pretty weird here. Get is done twice but here only for the endpoint name...
                 var runner = PrepareRunner(descriptor.Factory.Get());
 
-                Assert.True(runner.Instance.Initialize(descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings),
-                            "Endpoint {0} failed to initalize", runner.Instance.Name());
+                if (!runner.Instance.Initialize(
+                        descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings))
+                {
+                    throw new ScenarioException(string.Format("Endpoint {0} failed to initalize", runner.Instance.Name()));
+                }
 
                 runners.Add(runner);
             }

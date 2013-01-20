@@ -41,7 +41,11 @@
             this.behavior.Givens.ForEach(a=>a(bus));
 
             return true;
+        }
 
+        public void Stop()
+        {
+            bus.Shutdown();
         }
 
         public void ApplyWhens()
