@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMqMessageDecoderPipelineTest.cs" />
+    <Compile Include="ActiveMQMessageDeferTests.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategyTests.cs" />
     <Compile Include="ActiveMqMessageEncoderPipelineTest.cs" />
     <Compile Include="ActiveMqMessageMapperTest.cs" />
