@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated
 {
-    using System.Collections.Generic;
-
+    using System;
     using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
     using Support;
 
     [TestFixture]
@@ -14,48 +14,17 @@
         {
             var context = new ReceiveContext();
 
-            Scenario.For<AllTransports>()
+            Scenario.Define()
                 .WithEndpointBehaviour<SendBehavior>()
                 .WithEndpointBehaviour<ReceiveBehavior>(context)
-              .Run();
+                .Run(r => r.For<AllTransports>().Except("activemq")
+                         .For<AllSerializers>()
+                         .For<AllBuilders>());
 
             Assert.True(context.WasCalled);
         }
 
-        public class AllTransports : ScenarioDescriptor
-        {
-            public AllTransports()
-            {
-                this.Add(
-                    new RunDescriptor
-                        {
-                            Name = "Msmq Transport",
-                            Settings =
-                                new Dictionary<string, string>
-                                    {
-                                        {
-                                            "Transport",
-                                            typeof(Msmq).AssemblyQualifiedName
-                                        }
-                                    }
-                        });
-
-                this.Add(
-                    new RunDescriptor
-                        {
-                            Name = "ActiveMQ Transport",
-                            Settings =
-                                new Dictionary<string, string>
-                                    {
-                                        {
-                                            "Transport",
-                                            typeof(ActiveMQ).AssemblyQualifiedName
-                                        }
-                                    }
-                        });
-            }
-        }
-
+     
         public class ReceiveContext : BehaviorContext
         {
             public bool WasCalled { get; set; }
@@ -84,6 +53,7 @@
             }
         }
 
+        [Serializable]
         public class MyMessage : IMessage
         {
         }

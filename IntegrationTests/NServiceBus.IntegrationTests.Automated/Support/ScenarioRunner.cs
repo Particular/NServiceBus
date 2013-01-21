@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Text;
@@ -10,20 +11,33 @@
 
     public class ScenarioRunner
     {
-        public static void Run(ScenarioDescriptor scenarioDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        public static void Run(IEnumerable<RunDescriptor> runDescriptors, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
-            foreach (RunDescriptor runDescriptor in scenarioDescriptor)
+            var totalRuns = runDescriptors.Count();
+
+            var runNumber = 1;
+
+            foreach (var runDescriptor in runDescriptors)
             {
                 Console.Out.WriteLine("Running test for : {0}", runDescriptor.Name);
+
+                if(totalRuns > 1)
+                    Console.Out.Write(" - Permutation: {0}({1})", runNumber, totalRuns);
+
                 PrintSettings(runDescriptor.Settings);
 
+                var runTimer = new Stopwatch();
+
+                runTimer.Start();
                 var runners = InitatializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
                 {
                     PerformScenarios(runners);
 
-                    Console.Out.WriteLine("Result: Successfull");
+                    runTimer.Stop();
+
+                    Console.Out.WriteLine("Result: Successfull - Duration: {0}",runTimer.Elapsed);
                     Console.Out.WriteLine("------------------------------------------------------");
                 }
                 finally
@@ -32,7 +46,10 @@
                     {
                         AppDomain.Unload(runner.AppDomain);
                     }
-                }    
+                }
+
+
+                runNumber++;
             }
         }
 
