@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<div class="hero-unit" style="background-color: #2E2E2E; color: white;">
+<h1>Welcome to NService Bus</h1>
+    <p>In this sample you will learn quite a few interesting things about using NServiceBus to do pub/sub, request/response, ...</p>
+    <p>So what you waiting for send us a message!</p>
+</div>
+
+<div class="alert alert-info">
+  Text that explain what is going on
+</div>
+
+<form id="searchForm">
+    <label>Type your name on this box:</label>
+    <input id="someText" class="input-large" type="text" placeholder="Type something…">
+    <a id="sendMessage" class="btn btn-large btn-success" href="#">Send a message</a>
+</form>
+<div id="result" style="display: none;" class="alert alert-success">
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#sendMessage').click(function() {
+            $('#result').hide();
+            $.post('/SendMessage', { text: $('#someText').val() }, function(data) {
+                $('#result').html('<strong>Response: </strong>' + data.Message).show();
+            }, "json");
+        });
+    });
+</script>

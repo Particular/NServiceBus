@@ -1,10 +1,10 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en" ng-app>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>@ViewBag.Title</title>
-    <link href="/Content/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <style type="text/css">
         body {
             font-family: Calibri, sans;
@@ -12,8 +12,9 @@
             padding-bottom: 40px;
         }
     </style>
-    <script src="/Content/js/jquery-1.8.3.min.js"></script>
-    <link href="/Content/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+    <script src="~/Content/js/angular.min.js"></script>
+    <script src="~/Content/js/jquery-1.8.3.min.js"></script>
+    <link href="~/Content/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="/Content/js/html5.js"></script>
@@ -29,9 +30,9 @@
           </div>
         </div>
 
-        <div class="container">
+        <div class="container" ng-controller="VideoCtrl">
             @RenderBody()
         </div>
-        <script src="/Content/js/bootstrap.min.js"></script>
+        <script src="~/Content/js/bootstrap.min.js"></script>
     </body>
 </html>

@@ -1,32 +1,56 @@
 ﻿@{
     ViewBag.Title = "Home";
 }
+<script src="~/Content/js/video.js"></script>
 
 <div class="hero-unit" style="background-color: #2E2E2E; color: white;">
-<h1>Welcome to NService Bus</h1>
-    <p>In this sample you will learn quite a few interesting things about using NServiceBus to do pub/sub, request/response, ...</p>
-    <p>So what you waiting for send us a message!</p>
+    <h1>Welcome to NService Bus Video Store!</h1>
+    <p>Select what videos you would like to watch</p>
 </div>
 
-<div class="alert alert-info">
-  Text that explain what is going on
+<div>
+    <form name="videosList">
+        <ul class="unstyled">
+            <li ng-repeat="video in videos">
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="video.selected">
+                    {{video.title}}
+                    <div class="description">{{video.description}}</div>
+                </label>
+            </li>
+        </ul>
+
+        <button ng-click="placeOrder()" ng-disabled="nothingSelected()" class="btn btn-primary">Place Order</button>
+        <label class="checkbox">
+            <input type="checkbox" ng-model="debug">
+            tick to debug endpoints</label>
+        <div class="alert alert-error" ng-show="errors">
+            <strong>Order failed!</strong> {{errorMessage}}
+        </div>
+    </form>
+</div>
+<div class="row">
+    <div class="span6">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Video</th>
+                    <th>Status</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="order in orders">
+                    <td>{{order.number}}</td>
+                    <td>{{order.title}}</td>
+                    <td>{{order.status}}</td>
+                    <td><a href="/cancel/{{order.number}}"><i class="icon-remove"></i></a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="span6">
+    </div>
 </div>
 
-<form id="searchForm">
-    <label>Type your name on this box:</label>
-    <input id="someText" class="input-large" type="text" placeholder="Type something…">
-    <a id="sendMessage" class="btn btn-large btn-success" href="#">Send a message</a>
-</form>
-<div id="result" style="display: none;" class="alert alert-success">
-</div>
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#sendMessage').click(function() {
-            $('#result').hide();
-            $.post('/SendMessage', { text: $('#someText').val() }, function(data) {
-                $('#result').html('<strong>Response: </strong>' + data.Message).show();
-            }, "json");
-        });
-    });
-</script>

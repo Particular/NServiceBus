@@ -1,23 +1,26 @@
 ﻿namespace MyServer
 {
-    using System;
     using MyMessages.Commands;
     using MyMessages.RequestResponse;
     using NServiceBus;
 
-    public class MyCommandHandler : IHandleMessages<MyCommand>
+    public class MyCommandHandler : IHandleMessages<OrderCommand>
     {
         public IBus Bus { get; set; }
 
-        public void Handle(MyCommand message)
+        public void Handle(OrderCommand message)
         {
-            Console.Out.WriteLine("MyCommand message received, from {0}", message.Name);
-
+            if ((message.OrderNumber % 2) == 0)
+            {
+                //Simulates a failure
+                Bus.Return(OrderStatus.Failed);
+                return;
+            }
             //send out a request (a event will be published when the response comes back)
-            Bus.Send<MyRequest>(r => r.RequestData = string.Format("Send a present to {0}", message.Name));
+            Bus.Send<MyRequest>(r => r.RequestData = string.Format("Send a present to {0}", message.OrderNumber));
 
             //tell the client that we accepted the command
-            Bus.Return(CommandStatus.Ok);
+            Bus.Return(OrderStatus.Ok);
         }
     }
 }

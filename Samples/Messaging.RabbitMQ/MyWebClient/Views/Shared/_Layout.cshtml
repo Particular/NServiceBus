@@ -1,0 +1,37 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="/Content/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <style type="text/css">
+        body {
+            font-family: Calibri, sans;
+            padding-top: 100px;
+            padding-bottom: 40px;
+        }
+    </style>
+    <script src="/Content/js/jquery-1.8.3.min.js"></script>
+    <link href="/Content/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="/Content/js/html5.js"></script>
+    <![endif]-->
+    @RenderSection("head", required: false)
+  </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <a class="brand" href="#"><img src="http://images.nservicebus.com/NServiceBusLogo_black.png" alt="NServiceBus Logo" /></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+            @RenderBody()
+        </div>
+        <script src="/Content/js/bootstrap.min.js"></script>
+    </body>
+</html>

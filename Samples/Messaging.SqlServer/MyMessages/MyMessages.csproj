@@ -37,8 +37,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CommandStatus.cs" />
-    <Compile Include="Commands\MyCommand.cs" />
+    <Compile Include="Commands\OrderStatus.cs" />
+    <Compile Include="Commands\OrderCommand.cs" />
     <Compile Include="Events\MyEvent.cs" />
     <Compile Include="RequestResponse\MyRequest.cs" />
     <Compile Include="RequestResponse\MyResponse.cs" />

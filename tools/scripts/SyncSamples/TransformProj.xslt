@@ -3,9 +3,10 @@
     xmlns:msxsl="urn:schemas-microsoft-com:xslt" exclude-result-prefixes="msxsl"
 >
   <xsl:output method="xml" indent="yes" encoding="utf-8"/>
-  <xsl:variable name="references" select="document('MSMQ.xml')"/>
+  <xsl:param name="fileName" />
 
   <xsl:template name="AddReferences">
+    <xsl:variable name="references" select="document($fileName)"/>
     <xsl:for-each select="$references/ItemGroup/*">
         <xsl:copy-of select="." />
     </xsl:for-each>
@@ -14,7 +15,8 @@
   <xsl:template match="@*|node()">
     <xsl:choose>
       <xsl:when test="local-name() = 'Reference' and ./@Include='NServiceBus.SqlServer'">
-        <xsl:call-template name="AddReferences"/>
+        <xsl:call-template name="AddReferences">
+        </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>
         <xsl:copy>
