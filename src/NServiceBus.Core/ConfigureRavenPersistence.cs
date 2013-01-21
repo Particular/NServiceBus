@@ -7,8 +7,10 @@ namespace NServiceBus
     using Logging;
     using Persistence.Raven;
     using Raven.Abstractions.Data;
+    using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
+    using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>
     /// Extension methods to configure RavenDB persister.
@@ -217,6 +219,8 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
 
+            Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
+
             return config;
         }
 
@@ -348,5 +352,23 @@ namespace NServiceBus
         static Func<string> databaseNamingConvention = () => Configure.EndpointName;
         static Func<Type, string> tagNameConvention;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+
+        class NoOpLogManager : ILogManager
+        {
+            public Raven.Abstractions.Logging.ILog GetLogger(string name)
+            {
+                return new Raven.Abstractions.Logging.LogManager.NoOpLogger();
+            }
+
+            public IDisposable OpenNestedConext(string message)
+            {
+                return new DisposableAction(() => { });
+            }
+
+            public IDisposable OpenMappedContext(string key, string value)
+            {
+                return new DisposableAction(() => { });
+            }
+        }
     }
 }
