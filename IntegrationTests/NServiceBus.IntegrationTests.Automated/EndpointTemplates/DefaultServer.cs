@@ -11,6 +11,7 @@
             config.DefineBuilder(settings.GetOrNull("Builder"))
                     .DefineSerializer(settings.GetOrNull("Serializer"))
                     .DefineTransport(settings.GetOrNull("Transport"))
+                    .PurgeOnStartup(true)//not default but we need this to make sure that no leftover messages are left from a previous run. We can improve on this later
                     .UnicastBus();
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.IntegrationTests.Support
 {
-    public interface BehaviorFactory
+    public interface IEndpointBehaviorFactory
     {
         EndpointBehavior Get();
     }

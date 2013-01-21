@@ -68,6 +68,7 @@
 
         private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
         {
+            Console.WriteLine("");
             Console.WriteLine("Using settings:");
             foreach (KeyValuePair<string, string> pair in settings)
             {

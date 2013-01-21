@@ -17,17 +17,25 @@
         }
 
 
-        public IScenarioWithEndpointBehavior WithEndpointBehaviour<T>() where T : BehaviorFactory
+        public IScenarioWithEndpointBehavior WithEndpoint<T>() where T : EndpointBuilder
         {
-            this.behaviours.Add(new BehaviorDescriptor(() => new BehaviorContext(), Activator.CreateInstance<T>()));
+            return WithEndpoint<T>(() => new BehaviorContext());
+        }
+
+        public IScenarioWithEndpointBehavior WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder
+        {
+            return WithEndpoint<T>(() => context);
+        }
+
+        public IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
+        {
+            behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
+
             return this;
         }
 
-        public IScenarioWithEndpointBehavior WithEndpointBehaviour<T>(Func<BehaviorContext> contextBuilder) where T : BehaviorFactory
-        {
-            this.behaviours.Add(new BehaviorDescriptor(contextBuilder, Activator.CreateInstance<T>()));
-            return this;
-        }
+
+       
 
         public void Run()
         {
@@ -42,8 +50,8 @@
                 {
                     Name = "Default"
                 });
-            
-            ScenarioRunner.Run(runDescriptors, behaviours, shoulds);
+
+            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds);
         }
 
         public IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> action)

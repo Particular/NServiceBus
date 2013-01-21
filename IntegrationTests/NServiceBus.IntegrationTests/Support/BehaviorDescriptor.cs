@@ -6,7 +6,7 @@
     {
         private readonly Func<BehaviorContext> behaviorContextBuilder;
 
-        public BehaviorDescriptor(Func<BehaviorContext> behaviorContextBuilder, BehaviorFactory factory)
+        public BehaviorDescriptor(Func<BehaviorContext> behaviorContextBuilder, EndpointBuilder factory)
         {
             this.behaviorContextBuilder = behaviorContextBuilder;
             this.Factory = factory;
@@ -18,6 +18,6 @@
 
         public BehaviorContext Context { get; private set; }
 
-        public BehaviorFactory Factory { get; private set; }
+        public IEndpointBehaviorFactory Factory { get; private set; }
     }
 }

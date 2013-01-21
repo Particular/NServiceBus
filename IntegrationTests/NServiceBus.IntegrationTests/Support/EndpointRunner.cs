@@ -17,7 +17,7 @@
         public bool Initialize(string assemblyQualifiedName, BehaviorContext context, IDictionary<string, string> settings)
         {
             behaviorContext = context;
-            this.behavior = ((BehaviorFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
+            this.behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
             
             config = Configure.With()
                 .DefineEndpointName(this.behavior.EndpointName)

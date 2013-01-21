@@ -13,9 +13,9 @@
         public void Should_receive_the_message()
         {
             Scenario.Define()
-                .WithEndpointBehaviour<SendBehavior>()
-                .WithEndpointBehaviour<ReceiveBehavior>(() => new ReceiveContext())
-                .Repeat(r => r.For<AllTransports>().Except("ActiveMQ")
+                .WithEndpoint<Sender>()
+                .WithEndpoint<Receiver>(()=>new ReceiveContext())
+                .Repeat(r => r.For<AllTransports>().Except("activemq")
                          .For<AllSerializers>()
                          .For<AllBuilders>())
                 .Should<ReceiveContext>(c =>
@@ -25,7 +25,8 @@
                     })
                 .Run();
         }
-     
+
+
         public class ReceiveContext : BehaviorContext
         {
             public bool WasCalled { get; set; }
@@ -33,27 +34,24 @@
             public int TimesCalled { get; set; }
         }
 
-        public class SendBehavior : BehaviorFactory
+        public class Sender : EndpointBuilder
         {
-            public EndpointBehavior Get()
+            public Sender()
             {
-                return new ScenarioBuilder("Sender")
-                    .EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>()
                     .AddMapping<MyMessage>("Receiver")
-                    .When(bus => bus.Send(new MyMessage()))
-                    .CreateScenario();
+                    .When(bus => bus.Send(new MyMessage()));
             }
         }
 
-        public class ReceiveBehavior : BehaviorFactory
+        public class Receiver : EndpointBuilder
         {
-            public EndpointBehavior Get()
+            public Receiver()
             {
-                return new ScenarioBuilder("Receiver")
-                    .EndpointSetup<DefaultServer>()
-                    .Done((ReceiveContext context) => context.WasCalled)
-                    .CreateScenario();
+                EndpointSetup<DefaultServer>()
+                    .Done((ReceiveContext context) => context.WasCalled);
             }
+
         }
 
         [Serializable]
@@ -72,7 +70,7 @@
 
             public void Handle(MyMessage message)
             {
-                context.WasCalled = true;
+                this.context.WasCalled = true;
                 context.TimesCalled++;
             }
         }

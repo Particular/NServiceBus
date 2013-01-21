@@ -4,19 +4,20 @@
     using System.Collections.Generic;
     using NServiceBus.Config;
 
-    public class ScenarioBuilder
+    public class EndpointBuilder : IEndpointBehaviorFactory
     {
-        public ScenarioBuilder(string name)
+        public EndpointBuilder()
         {
             this.behavior.Givens = new List<Action<IBus>>();
             this.behavior.Whens = new List<Action<IBus>>();
             this.behavior.Setups = new List<Action<IDictionary<string, string>, Configure>>();
             this.behavior.EndpointMappings = new MessageEndpointMappingCollection();
-            this.behavior.EndpointName = name;
+            this.behavior.EndpointName = GetType().Name;
             this.behavior.Done = context => true;
+            
         }
-
-        public ScenarioBuilder AddMapping<T>(string endpoint)
+     
+        public EndpointBuilder AddMapping<T>(string endpoint)
         {
             this.behavior.EndpointMappings.Add(new MessageEndpointMapping
                 {
@@ -28,32 +29,40 @@
         }
 
 
-        public ScenarioBuilder Given(Action<IBus> action)
+        public EndpointBuilder Given(Action<IBus> action)
         {
             this.behavior.Givens.Add(action);
 
             return this;
         }
 
-        public EndpointBehavior CreateScenario()
+        EndpointBehavior CreateScenario()
         {
             return this.behavior;
         }
 
-        public ScenarioBuilder Done<TContext>(Func<TContext, bool> func)
+        public EndpointBuilder Done<TContext>(Func<TContext, bool> func)
             where TContext : BehaviorContext
         {
             this.behavior.Done = context => func((TContext)context);
             return this;
         }
 
-        public ScenarioBuilder Done(Func<bool> func)
+        public EndpointBuilder Done(Func<bool> func)
         {
             this.behavior.Done = context => func();
             return this;
         }
 
-        public ScenarioBuilder When(Action<IBus> func)
+
+        public EndpointBuilder Name(string name)
+        {
+            this.behavior.EndpointName = name;
+            return this;
+        }
+
+
+        public EndpointBuilder When(Action<IBus> func)
         {
             this.behavior.Whens.Add(func);
 
@@ -62,12 +71,12 @@
 
         readonly EndpointBehavior behavior = new EndpointBehavior();
 
-        public ScenarioBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
+        public EndpointBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
         {
             this.behavior.Setups.Add((settings, conf) => ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).Setup(conf, settings));
             return this;
         }
-        public ScenarioBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate
+        public EndpointBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate
         {
             this.behavior.Setups.Add((settings, conf) =>
                 {
@@ -76,6 +85,11 @@
                     configCustomization(conf);
                 });
             return this;
+        }
+
+        EndpointBehavior IEndpointBehaviorFactory.Get()
+        {
+            return CreateScenario();
         }
     }
 }

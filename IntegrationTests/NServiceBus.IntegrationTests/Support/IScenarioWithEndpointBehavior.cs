@@ -4,9 +4,11 @@
 
     public interface IScenarioWithEndpointBehavior
     {
-        IScenarioWithEndpointBehavior WithEndpointBehaviour<T>() where T:BehaviorFactory;
+        IScenarioWithEndpointBehavior WithEndpoint<T>() where T:EndpointBuilder;
 
-        IScenarioWithEndpointBehavior WithEndpointBehaviour<T>(Func<BehaviorContext> context) where T : BehaviorFactory;
+        IScenarioWithEndpointBehavior WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder;
+
+        IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder;
 
         void Run();
 
