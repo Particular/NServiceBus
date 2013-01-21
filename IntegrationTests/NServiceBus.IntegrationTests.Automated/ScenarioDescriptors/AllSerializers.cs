@@ -3,8 +3,8 @@
     using System.Collections.Generic;
     using Serializers.Binary;
     using Serializers.Json;
-    using Support;
     using Serializers.XML;
+    using Support;
 
     public class AllSerializers : ScenarioDescriptor
     {

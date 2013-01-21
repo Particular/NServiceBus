@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.IntegrationTests.Automated.Support
+﻿namespace NServiceBus.IntegrationTests.Support
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,9 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IEnumerable<RunDescriptor> runDescriptors, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        public static void Run(IEnumerable<RunDescriptor> runDescriptors, 
+            IEnumerable<BehaviorDescriptor> behaviorDescriptors,
+            IList<IScenarioVerification> shoulds)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -35,10 +37,6 @@
                 {
                     PerformScenarios(runners);
 
-                    runTimer.Stop();
-
-                    Console.Out.WriteLine("Result: Successfull - Duration: {0}",runTimer.Elapsed);
-                    Console.Out.WriteLine("------------------------------------------------------");
                 }
                 finally
                 {
@@ -48,6 +46,19 @@
                     }
                 }
 
+                runTimer.Stop();
+
+                foreach (var descriptor in behaviorDescriptors)
+                {
+                    if (descriptor.Context == null)
+                        continue;
+
+                    shoulds.Where(s=>s.ContextType == descriptor.Context.GetType()).ToList()
+                        .ForEach(v => v.Verify(descriptor.Context));
+                }
+
+                Console.Out.WriteLine("Result: Successfull - Duration: {0}", runTimer.Elapsed);
+                Console.Out.WriteLine("------------------------------------------------------");
 
                 runNumber++;
             }

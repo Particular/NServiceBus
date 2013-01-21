@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.IntegrationTests.Automated.Support
+﻿namespace NServiceBus.IntegrationTests.Support
 {
     using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;

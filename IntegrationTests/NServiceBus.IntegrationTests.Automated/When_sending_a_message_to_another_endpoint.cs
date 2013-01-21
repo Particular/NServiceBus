@@ -17,17 +17,23 @@
             Scenario.Define()
                 .WithEndpointBehaviour<SendBehavior>()
                 .WithEndpointBehaviour<ReceiveBehavior>(context)
-                .Run(r => r.For<AllTransports>().Except("activemq")
+                .Repeat(r => r.For<AllTransports>().Except("activemq")
                          .For<AllSerializers>()
-                         .For<AllBuilders>());
-
-            Assert.True(context.WasCalled);
+                         .For<AllBuilders>())
+                .Should<ReceiveContext>(c =>
+                    {
+                        Assert.True(c.WasCalled);
+                        Assert.AreEqual(1, c.TimesCalled);
+                    })
+                .Run();
         }
 
      
         public class ReceiveContext : BehaviorContext
         {
             public bool WasCalled { get; set; }
+
+            public int TimesCalled { get; set; }
         }
 
         public class SendBehavior : BehaviorFactory
@@ -70,6 +76,7 @@
             public void Handle(MyMessage message)
             {
                 this.context.WasCalled = true;
+                context.TimesCalled++;
             }
         }
     }

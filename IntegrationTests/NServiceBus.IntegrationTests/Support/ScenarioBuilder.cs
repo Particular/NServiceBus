@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.IntegrationTests.Automated.Support
+﻿namespace NServiceBus.IntegrationTests.Support
 {
     using System;
     using System.Collections.Generic;
@@ -62,9 +62,19 @@
 
         readonly EndpointBehavior behavior = new EndpointBehavior();
 
-        public ScenarioBuilder EndpointSetup<T>() where T: IEndpointSetupTemplate
+        public ScenarioBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
         {
             this.behavior.Setups.Add((settings, conf) => ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).Setup(conf, settings));
+            return this;
+        }
+        public ScenarioBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate
+        {
+            this.behavior.Setups.Add((settings, conf) =>
+                {
+                    ((IEndpointSetupTemplate) Activator.CreateInstance<T>()).Setup(conf, settings);
+
+                    configCustomization(conf);
+                });
             return this;
         }
     }

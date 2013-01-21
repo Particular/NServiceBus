@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.IntegrationTests.Automated.Support
+﻿namespace NServiceBus.IntegrationTests.Support
 {
     using System;
     using System.Collections.Generic;
-    using Installation.Environments;
+    using NServiceBus.Installation.Environments;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject

@@ -21,19 +21,19 @@
                                 }
                     });
 
-            //this.Add(
-            //    new RunDescriptor
-            //        {
-            //            Name = "ActiveMQ Transport",
-            //            Settings =
-            //                new Dictionary<string, string>
-            //                    {
-            //                        {
-            //                            "Transport",
-            //                            typeof(ActiveMQ).AssemblyQualifiedName
-            //                        }
-            //                    }
-            //        });
+            this.Add(
+                new RunDescriptor
+                    {
+                        Name = "ActiveMQ Transport",
+                        Settings =
+                            new Dictionary<string, string>
+                                {
+                                    {
+                                        "Transport",
+                                        typeof(ActiveMQ).AssemblyQualifiedName
+                                    }
+                                }
+                    });
 
             this.Add(
               new RunDescriptor
