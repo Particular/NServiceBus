@@ -1,13 +1,12 @@
 ﻿using System;
-using NHibernate;
-using NHibernate.Drivers.Azure.TableStorage;
 using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
 using NServiceBus.SagaPersisters.NHibernate;
 using NServiceBus.SagaPersisters.Azure.Config.Internal;
 
 namespace NServiceBus
 {
+    using UnitOfWork.NHibernate;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister on top of Azure table storage.
     /// </summary>
@@ -61,8 +60,10 @@ namespace NServiceBus
             if (sessionFactory == null)
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
 
-            config.Configurer.RegisterSingleton<ISessionFactory>(sessionFactory);
-            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
+            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
 
             return config;
         }

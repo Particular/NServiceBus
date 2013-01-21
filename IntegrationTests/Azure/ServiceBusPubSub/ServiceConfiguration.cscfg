@@ -1,11 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2012-05.1.7">
+<ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2012-10.1.8">
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!-- Http if behind proxy -->
+      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
+      <!-- Http if behind proxy -->
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
       <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
@@ -25,7 +26,8 @@
     <ConfigurationSettings>
       <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourServiceNamespace].servicebus.windows.net/;SharedSecretIssuer=[issuerName];SharedSecretValue=[yourDefaultKey]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" /> <!--Http if behind proxy--> 
+      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
+      <!--Http if behind proxy-->
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />

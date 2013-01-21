@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using UnitOfWork.NHibernate;
-
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate unit of work manager.
     /// </summary>
@@ -12,12 +10,9 @@
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
+        [ObsoleteEx(Message = "You no longer need to call this method, a UoW is automatically created as part of the NServiceBus NHibernate Saga persister.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public static Configure NHibernateUnitOfWork(this Configure config)
         {
-            if (config.Configurer.HasComponent<UnitOfWorkManager>())
-                return config;
-
-            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance);
             return config;
         }
     }

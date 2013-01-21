@@ -1,6 +1,7 @@
 using Cashier;
 using NServiceBus;
 using NServiceBus.Config;
+using NServiceBus.Timeout.Hosting.Azure;
 using StructureMap;
 
 namespace Customer
@@ -29,6 +30,8 @@ namespace Customer
                
                .AzureMessageQueue().JsonSerializer()
                .Sagas().AzureSagaPersister()
+               
+               .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
                
                .UnicastBus()
                     .DoNotAutoSubscribe()
