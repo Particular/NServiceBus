@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config
     using Msmq = NServiceBus.Msmq;
 
     /// <summary>
-    /// Configures MSMQ as the underlying trasnports
+    /// Configures MSMQ as the underlying transport.
     /// </summary>
     public class MsmqTransportConfigurer : IConfigureTransport<Msmq>
     {

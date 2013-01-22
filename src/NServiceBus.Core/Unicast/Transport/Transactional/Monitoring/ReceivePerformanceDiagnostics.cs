@@ -2,10 +2,9 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
 {
     using System;
     using System.Diagnostics;
-    using System.Threading;
     using Logging;
 
-    public class ReceivePerformanceDiagnostics
+    class ReceivePerformanceDiagnostics
     {
         public ReceivePerformanceDiagnostics(Address receiveAddress)
         {
@@ -17,8 +16,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
             if (!InstantiateCounter())
                 return;
 
-            timer = new Timer(UpdateCounters, null, 0, 1000);
-
             enabled = true;
         }
 
@@ -27,7 +24,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
             if (!enabled)
                 return;
 
-            Interlocked.Increment(ref numberOfSuccessfullMessages);
+            successRateCounter.Increment();
         }
 
         public void MessageFailed()
@@ -35,28 +32,23 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
             if (!enabled)
                 return;
 
-            Interlocked.Increment(ref numberOfFailedMessages);
+            failureRateCounter.Increment();
         }
 
-        void UpdateCounters(object state)
+        public void MessageDequeued()
         {
-            var currentThroughput = Interlocked.Exchange(ref numberOfSuccessfullMessages, 0);
+            if (!enabled)
+                return;
 
-            currentThroughputCounter.RawValue = currentThroughput;
-
-            var currentFailureRate = Interlocked.Exchange(ref numberOfFailedMessages, 0);
-
-            failureRateCounter.RawValue = currentFailureRate;
-
-            dequeueRateCounter.RawValue = currentThroughput + currentFailureRate;
+            throughputCounter.Increment();
         }
 
 
         bool InstantiateCounter()
         {
-            return SetupCounter("Current Throughput",ref currentThroughputCounter)
-                && SetupCounter("Dequeue rate", ref dequeueRateCounter)
-                && SetupCounter("Failure rate", ref failureRateCounter);
+            return SetupCounter("# of msgs successfully processed / sec", ref successRateCounter)
+                && SetupCounter("# of msgs pulled from the input queue /sec", ref throughputCounter)
+                && SetupCounter("# of msgs failures / sec", ref failureRateCounter);
         }
 
         bool SetupCounter(string counterName,ref PerformanceCounter counter)
@@ -66,7 +58,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
                 counter = new PerformanceCounter(CategoryName, counterName, receiveAddress.Queue, false);
 
                 //access the counter type to force a exception to be thrown if the counter doesn't exists
-                var t = currentThroughputCounter.CounterType;
+                var t = successRateCounter.CounterType;
             }
             catch (Exception)
             {
@@ -83,13 +75,9 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
 
         bool enabled;
 
-        PerformanceCounter currentThroughputCounter;
-        PerformanceCounter dequeueRateCounter;
+        PerformanceCounter successRateCounter;
+        PerformanceCounter throughputCounter;
         PerformanceCounter failureRateCounter;
-
-        int numberOfSuccessfullMessages;
-        int numberOfFailedMessages;
-        Timer timer;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
 

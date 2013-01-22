@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
-    using System.Configuration;
     using Config;
     using Logging;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.Msmq;
+    using Unicast.Transport;
 
     /// <summary>
     /// Configuration class for MSMQ transport.
@@ -50,7 +50,7 @@ Here is an example of what is required:
             }
             else
             {
-                var connectionString = GetConnectionStringOrNull("NServiceBus/Transport");
+                var connectionString = TransportConnectionString.GetConnectionStringOrNull();
 
                 if (connectionString != null)
                 {
@@ -65,18 +65,6 @@ Here is an example of what is required:
             EndpointInputQueueCreator.Enabled = true;
 
             return config;
-        }
-
-        private static string GetConnectionStringOrNull(string name)
-        {
-            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings[name];
-
-            if (connectionStringSettings == null)
-            {
-                return null;
-            }
-
-            return connectionStringSettings.ConnectionString;
         }
     }
 }
