@@ -15,14 +15,15 @@
             Scenario.Define()
                 .WithEndpoint<Sender>()
                 .WithEndpoint<Receiver>(() => new ReceiveContext())
-                .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
+                .Repeat(r => 
+                         r.For<AllTransports>()
                          .For<AllSerializers>()
-                         .For<AllBuilders>()
+                         //.For<AllBuilders>()
                          )
                 .Should<ReceiveContext>(c =>
                     {
-                        Assert.True(c.WasCalled);
-                        Assert.AreEqual(1, c.TimesCalled);
+                        Assert.True(c.WasCalled,"Message handler was not called as expected");
+                        Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
                     })
                 .Run();
         }
@@ -41,7 +42,7 @@
             {
                 EndpointSetup<DefaultServer>()
                     .AddMapping<MyMessage>(typeof(Receiver))
-                    .When(bus => bus.Send(new MyMessage()));
+                    .When(bus =>bus.Send(new MyMessage()));
             }
         }
 

@@ -11,7 +11,6 @@
         readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
-        Func<Type, string> endpointNamingConvention = (t) => t.Name;
 
         public static IScenarioWithEndpointBehavior Define()
         {
@@ -35,9 +34,6 @@
 
             return this;
         }
-
-
-       
 
         public void Run()
         {
@@ -68,13 +64,6 @@
 
             return this;
         }
-
-        public IScenarioWithEndpointBehavior WithEndpointNamingConvention(Func<Type, string> customConvention)
-        {
-            endpointNamingConvention = customConvention;
-            return this;
-        }
-
 
         public IAdvancedScenarioWithEndpointBehavior Should<T>(Action<T> should) where T : BehaviorContext
         {
