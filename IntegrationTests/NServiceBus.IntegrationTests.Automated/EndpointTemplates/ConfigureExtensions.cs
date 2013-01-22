@@ -29,7 +29,7 @@
             var transportType = Type.GetType(transport);
 
             if (DefaultConnectionStrings.ContainsKey(transportType))
-                return config.UseTransport(transportType, DefaultConnectionStrings[transportType]);
+                return config.UseTransport(transportType, () => DefaultConnectionStrings[transportType]);
             else
                 return config.UseTransport(transportType);
         }

@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Configuration;
     using Transport.SqlServer;
     using Unicast.Queuing.Installers;
     using Unicast.Transport;
@@ -60,7 +59,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure SqlServerTransport(this Configure configure, string connectionStringName)
         {
-            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull(connectionStringName);
 
             if (defaultConnectionString == null)
             {

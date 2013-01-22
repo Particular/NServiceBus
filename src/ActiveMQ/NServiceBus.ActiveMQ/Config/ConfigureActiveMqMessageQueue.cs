@@ -62,7 +62,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure ActiveMQTransport(this Configure configure, string connectionStringName)
         {
-            string defaultConnectionString = GetConnectionStringOrNull(connectionStringName);
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull(connectionStringName);
 
             if (defaultConnectionString == null)
             {
@@ -137,18 +137,6 @@ Here is an example of what is required:
         private static string GetConfigFileIfExists()
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
-        }
-
-        private static string GetConnectionStringOrNull(string name)
-        {
-            ConnectionStringSettings connectionStringSettings = ConfigurationManager.ConnectionStrings[name];
-
-            if (connectionStringSettings == null)
-            {
-                return null;
-            }
-
-            return connectionStringSettings.ConnectionString;
         }
     }
 }

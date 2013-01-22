@@ -3,20 +3,21 @@
     using System;
     using System.Configuration;
 
-    public class TransportConnectionString
+    public static class TransportConnectionString
     {
         public static void Override(Func<string> func)
         {
-            GetValue = func;
-        }
-        public static string GetConnectionStringOrNull()
-        {
-            return GetValue();
+            GetValue = _ => func();
         }
 
-        static Func<string> GetValue = () =>
+        public static string GetConnectionStringOrNull(string connectionStringName = null)
+        {
+            return GetValue(connectionStringName ?? DefaultConnectionStringName);
+        }
+
+        static Func<string, string> GetValue = connectionStringName =>
             {
-                var connectionStringSettings = ConfigurationManager.ConnectionStrings["NServiceBus/Transport"];
+                var connectionStringSettings = ConfigurationManager.ConnectionStrings[connectionStringName];
 
                 if (connectionStringSettings == null)
                 {
@@ -25,5 +26,7 @@
 
                 return connectionStringSettings.ConnectionString;
             };
+
+        public static string DefaultConnectionStringName = "NServiceBus/Transport";
     }
 }

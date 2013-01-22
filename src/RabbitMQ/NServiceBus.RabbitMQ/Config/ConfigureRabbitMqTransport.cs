@@ -59,7 +59,7 @@ Here is an example of what is required:
         /// <returns>The configuration object.</returns>
         public static Configure RabbitMQTransport(this Configure configure, string connectionStringName)
         {
-            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
+            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull(connectionStringName);
 
             if (defaultConnectionString == null)
             {
