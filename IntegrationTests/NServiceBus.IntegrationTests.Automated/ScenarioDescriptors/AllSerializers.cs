@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.ScenarioDescriptors
 {
     using System.Collections.Generic;
-    using Serializers.Binary;
-    using Serializers.Json;
-    using Serializers.XML;
+    using NServiceBus.Serializers.Binary;
+    using NServiceBus.Serializers.Json;
+    using NServiceBus.Serializers.XML;
     using Support;
 
     public class AllSerializers : ScenarioDescriptor
@@ -35,17 +35,7 @@
             });
 
 
-            Add(new RunDescriptor
-            {
-                Key = "Bson",
-                Settings =
-                    new Dictionary<string, string>
-                                {
-                                    {
-                                        "Serializer",typeof(BsonMessageSerializer).AssemblyQualifiedName
-                                    }
-                                }
-            });
+            Add(Serializers.Bson);
 
 
             Add(new RunDescriptor
@@ -60,5 +50,20 @@
                                 }
             });
         }
+    }
+
+    public class Serializers
+    {
+        public static RunDescriptor Bson = new RunDescriptor
+            {
+                Key = "Bson",
+                Settings =
+                    new Dictionary<string, string>
+                        {
+                            {
+                                "Serializer", typeof (BsonMessageSerializer).AssemblyQualifiedName
+                            }
+                        }
+            };
     }
 }

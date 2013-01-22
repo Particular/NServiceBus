@@ -74,18 +74,23 @@
                                 }
             });
 
-            Add(new RunDescriptor
+            Add(Builders.Unity);
+
+        }
+    }
+
+    public class Builders
+    {
+        public static RunDescriptor Unity = new RunDescriptor
             {
                 Key = "Unity",
                 Settings =
                     new Dictionary<string, string>
-                                {
-                                    {
-                                        "Builder",typeof(UnityObjectBuilder).AssemblyQualifiedName
-                                    }
-                                }
-            });
-
-        }
+                        {
+                            {
+                                "Builder", typeof (UnityObjectBuilder).AssemblyQualifiedName
+                            }
+                        }
+            };
     }
 }

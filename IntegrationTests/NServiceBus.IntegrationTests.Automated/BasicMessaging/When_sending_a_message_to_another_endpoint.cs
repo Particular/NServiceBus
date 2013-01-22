@@ -14,7 +14,7 @@
         {
             Scenario.Define()
                 .WithEndpoint<Sender>()
-                .WithEndpoint<Receiver>(()=>new ReceiveContext())
+                .WithEndpoint<Receiver>(() => new ReceiveContext())
                 .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
                          .For<AllSerializers>()
                          .For<AllBuilders>()

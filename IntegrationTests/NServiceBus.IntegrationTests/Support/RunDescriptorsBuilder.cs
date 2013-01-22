@@ -14,16 +14,29 @@
         {
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
+            return For(sd.ToList());
+        }
+
+
+        public RunDescriptorsBuilder For(RunDescriptor descriptor)
+        {
+            return For(new[] {descriptor});
+        }
+
+        public RunDescriptorsBuilder For(IEnumerable<RunDescriptor> descriptorsToAdd)
+        {
             if (!descriptors.Any())
             {
-                descriptors = sd.ToList();
+                descriptors = descriptorsToAdd.ToList();
                 return this;
             }
+
+
             var result = new List<RunDescriptor>();
 
             foreach (var existingDescriptor in descriptors)
             {
-                foreach (var descriptorToAdd in sd.ToList())
+                foreach (var descriptorToAdd in descriptorsToAdd.ToList())
                 {
                     var nd = new RunDescriptor(existingDescriptor);
                     nd.Merge(descriptorToAdd);
@@ -36,6 +49,8 @@
 
             return this;
         }
+        
+       
 
         public IList<RunDescriptor> Descriptors
         {

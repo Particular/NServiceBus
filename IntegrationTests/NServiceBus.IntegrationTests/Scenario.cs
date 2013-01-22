@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Support;
 
@@ -51,8 +52,14 @@
                 {
                     Key = "Default"
                 });
+            var sw = new Stopwatch();
 
+            sw.Start();
             ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds);
+
+            sw.Stop();
+
+            Console.Out.WriteLine("Total time for testrun: {0}",sw.Elapsed);
         }
 
         public IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> action)
