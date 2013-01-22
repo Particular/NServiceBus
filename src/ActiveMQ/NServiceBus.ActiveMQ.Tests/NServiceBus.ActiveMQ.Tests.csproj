@@ -71,7 +71,6 @@
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
-    <Compile Include="ActiveMqConnectionStarterTest.cs" />
     <Compile Include="Decoders\ByteMessageDecoderTest.cs" />
     <Compile Include="Decoders\ControlMessageDecoderTest.cs" />
     <Compile Include="Decoders\TestMessageDecoderTest.cs" />
