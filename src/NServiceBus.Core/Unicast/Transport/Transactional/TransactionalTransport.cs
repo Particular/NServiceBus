@@ -226,6 +226,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         [DebuggerNonUserCode]
         bool TryProcess(TransportMessage message)
         {
+            currentReceivePerformanceDiagnostics.MessageDequeued();
+
             needToAbort = false;
 
             if (TransactionSettings.SuppressDTC)
@@ -250,7 +252,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void EndProcess(string messageId, Exception ex)
         {
-
+            throughputLimiter.MessageProcessed();
             
             if (ex == null)
             {
@@ -260,7 +262,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 }
 
                 currentReceivePerformanceDiagnostics.MessageProcessed();
-                throughputLimiter.MessageProcessed();
             
                 return;
             }
