@@ -16,8 +16,8 @@
                 .WithEndpoint<Sender>()
                 .WithEndpoint<Receiver>(()=>new ReceiveContext())
                 .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
-                         //.For<AllSerializers>()
-                         //.For<AllBuilders>()
+                         .For<AllSerializers>()
+                         .For<AllBuilders>()
                          )
                 .Should<ReceiveContext>(c =>
                     {
@@ -40,7 +40,7 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(Conventions.DefaultNameFor<Receiver>())
+                    .AddMapping<MyMessage>(typeof(Receiver))
                     .When(bus => bus.Send(new MyMessage()));
             }
         }

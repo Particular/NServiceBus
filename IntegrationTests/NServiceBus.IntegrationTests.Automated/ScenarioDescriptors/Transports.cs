@@ -8,7 +8,7 @@
 
         public static RunDescriptor ActiveMQ = new RunDescriptor
             {
-                Name = "ActiveMQ",
+                Key = "ActiveMQ",
                 Settings =
                     new Dictionary<string, string>
                         {
@@ -22,7 +22,7 @@
 
         public static RunDescriptor Msmq = new RunDescriptor
             {
-                Name = "Msmq",
+                Key = "Msmq",
                 Settings =
                     new Dictionary<string, string>
                         {
@@ -37,7 +37,7 @@
 
         public static RunDescriptor RabbitMQ = new RunDescriptor
         {
-            Name = "RabbitMQ",
+            Key = "RabbitMQ",
             Settings =
                 new Dictionary<string, string>
                                 {
@@ -51,7 +51,7 @@
 
         public static RunDescriptor SqlServer = new RunDescriptor
         {
-            Name = "SqlServer",
+            Key = "SqlServer",
             Settings =
                 new Dictionary<string, string>
                                 {

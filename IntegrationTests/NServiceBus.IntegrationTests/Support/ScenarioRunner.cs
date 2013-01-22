@@ -21,16 +21,14 @@
 
             foreach (var runDescriptor in runDescriptors)
             {
-
-
-                Console.Out.Write("Running test for : {0}", runDescriptor.Name);
+             
+                Console.Out.Write("Running test for : {0}", runDescriptor.Key);
 
                 if (totalRuns > 1)
                     Console.Out.WriteLine(" - Permutation: {0}({1})", runNumber, totalRuns);
                 Console.Out.Write("");
 
                 PrintSettings(runDescriptor.Settings);
-                PrintBehaviours(behaviorDescriptors);
 
                 var runTimer = new Stopwatch();
 
@@ -68,16 +66,16 @@
             }
         }
 
-        static void PrintBehaviours(IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
-            Console.WriteLine("");
-            Console.WriteLine("Endpoints:");
+            var routingTable = new Dictionary<Type, string>();
 
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                Console.Out.WriteLine("     - {0}",behaviorDescriptor.Factory.Get().EndpointName);
+                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(runDescriptor,behaviorDescriptor);
             }
-         
+
+            return routingTable;
         }
 
         private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
@@ -152,24 +150,39 @@
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
+            var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
 
-            foreach (var descriptor in behaviorDescriptors)
+            Console.WriteLine("");
+            Console.WriteLine("Endpoints:");
+
+            foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                var runner = PrepareRunner(descriptor.Factory.Get());
-                descriptor.Init();
+                var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
+          
+                Console.Out.WriteLine("     - {0}", endpointName);
+          
+                var runner = PrepareRunner(endpointName);
+                behaviorDescriptor.Init();
 
-                if (!runner.Instance.Initialize(
-                        descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings))
+                if (!runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable))
                 {
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
 
                 runners.Add(runner);
+
             }
             return runners;
         }
 
-        static ActiveRunner PrepareRunner(EndpointBehavior endpointBehavior)
+        static string GetEndpointNameForRun(RunDescriptor runDescriptor, BehaviorDescriptor behaviorDescriptor)
+        {
+            var endpointName = Conventions.EndpointNamingConvention(behaviorDescriptor.EndpointBuilderType) + "." + runDescriptor.Key + "." + 
+                               runDescriptor.Permutation;
+            return endpointName;
+        }
+
+        static ActiveRunner PrepareRunner(string appDomainName)
         {
             var domainSetup = new AppDomainSetup
                 {
@@ -177,8 +190,8 @@
                     LoaderOptimization = LoaderOptimization.SingleDomain
                 };
 
-            var appDomain = AppDomain.CreateDomain(endpointBehavior.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
-            
+            var appDomain = AppDomain.CreateDomain(appDomainName, AppDomain.CurrentDomain.Evidence, domainSetup);
+
             return new ActiveRunner
                 {
                     Instance = (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName),

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Installation.Environments;
+    using Installation.Environments;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -14,23 +14,21 @@
         EndpointBehavior behavior;
         BehaviorContext behaviorContext;
 
-        public bool Initialize(string assemblyQualifiedName, BehaviorContext context, IDictionary<string, string> settings)
+        public bool Initialize(RunDescriptor runDescriptor, BehaviorDescriptor behaviorDescriptor, IDictionary<Type, string> routingTable)
         {
-            behaviorContext = context;
-            this.behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(Type.GetType(assemblyQualifiedName))).Get();
-            
-            config = Configure.With()
-                .DefineEndpointName(this.behavior.EndpointName)
-                .CustomConfigurationSource(new ScenarioConfigSource(this.behavior));
 
-            this.behavior.Setups.ForEach(setup=> setup(settings, config));
+            behaviorContext = behaviorDescriptor.Context;
+            behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(behaviorDescriptor.EndpointBuilderType)).Get();
+            behavior.EndpointName = behaviorDescriptor.EndpointName + "." + runDescriptor.Key + "." + runDescriptor.Permutation;
 
-            config.Configurer.RegisterSingleton(context.GetType(), context);
+            config = behavior.GetConfiguration(runDescriptor, routingTable);
+
+            config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
 
             startableBus = config.CreateBus();
 
             Configure.Instance.ForInstallationOn<Windows>().Install();
-            
+
             return true;
         }
 
@@ -38,7 +36,7 @@
         {
             bus = startableBus.Start();
 
-            this.behavior.Givens.ForEach(a=>a(bus));
+            this.behavior.Givens.ForEach(a => a(bus));
 
             return true;
         }

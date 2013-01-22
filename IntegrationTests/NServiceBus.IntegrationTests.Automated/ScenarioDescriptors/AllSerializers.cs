@@ -12,7 +12,7 @@
         {
             Add(new RunDescriptor
                     {
-                        Name = "Xml serialization",
+                        Key = "Xml",
                         Settings =
                             new Dictionary<string, string>
                                 {
@@ -24,7 +24,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Json serialization",
+                Key = "Json",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -37,7 +37,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Bson serialization",
+                Key = "Bson",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -50,7 +50,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Binary serialization",
+                Key = "Binary",
                 Settings =
                     new Dictionary<string, string>
                                 {

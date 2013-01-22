@@ -8,9 +8,9 @@
     {
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
-        IList<string> excludes = new List<string>(); 
-      
-        public RunDescriptorsBuilder For<T>() where T:ScenarioDescriptor
+        IList<string> excludes = new List<string>();
+
+        public RunDescriptorsBuilder For<T>() where T : ScenarioDescriptor
         {
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
@@ -20,15 +20,16 @@
                 return this;
             }
             var result = new List<RunDescriptor>();
-                
+
             foreach (var existingDescriptor in descriptors)
             {
                 foreach (var descriptorToAdd in sd.ToList())
                 {
                     var nd = new RunDescriptor(existingDescriptor);
                     nd.Merge(descriptorToAdd);
+                    nd.Permutation = (result.Count + 1).ToString();
                     result.Add(nd);
-                }    
+                }
             }
 
             descriptors = result;
@@ -40,7 +41,7 @@
         {
             get
             {
-                return descriptors.Where(d => !excludes.Any(e => d.Name.ToLower().Contains(e))).ToList();
+                return descriptors.Where(d => !excludes.Any(e => d.Key.ToLower().Contains(e))).ToList();
             }
         }
 
@@ -52,7 +53,7 @@
 
         public RunDescriptorsBuilder Except(RunDescriptor runToExclude)
         {
-            excludes.Add(runToExclude.Name.ToLowerInvariant());
+            excludes.Add(runToExclude.Key.ToLowerInvariant());
             return this;
         }
     }

@@ -10,20 +10,13 @@
         {
             behavior.Givens = new List<Action<IBus>>();
             behavior.Whens = new List<Action<IBus>>();
-            behavior.Setups = new List<Action<IDictionary<string, string>, Configure>>();
-            behavior.EndpointMappings = new MessageEndpointMappingCollection();
-            behavior.EndpointName = Conventions.EndpointNamingConvention(GetType());
+            behavior.EndpointMappings = new Dictionary<Type, Type>();
             behavior.Done = context => true;
-            
         }
      
-        public EndpointBuilder AddMapping<T>(string endpoint)
+        public EndpointBuilder AddMapping<T>(Type endpoint)
         {
-            this.behavior.EndpointMappings.Add(new MessageEndpointMapping
-                {
-                    AssemblyName = typeof(T).Assembly.FullName,
-                    TypeFullName = typeof(T).FullName,Endpoint = endpoint
-                });
+            this.behavior.EndpointMappings.Add(typeof(T),endpoint);
 
             return this;
         }
@@ -54,14 +47,6 @@
             return this;
         }
 
-
-        public EndpointBuilder Name(string name)
-        {
-            this.behavior.EndpointName = name;
-            return this;
-        }
-
-
         public EndpointBuilder When(Action<IBus> func)
         {
             this.behavior.Whens.Add(func);
@@ -73,19 +58,24 @@
 
         public EndpointBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
         {
-            this.behavior.Setups.Add((settings, conf) => ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).Setup(conf, settings));
-            return this;
+            return EndpointSetup<T>(c => { });
         }
+
         public EndpointBuilder EndpointSetup<T>(Action<Configure> configCustomization) where T: IEndpointSetupTemplate
         {
-            this.behavior.Setups.Add((settings, conf) =>
+            behavior.GetConfiguration = (settings,routingTable) =>
                 {
-                    ((IEndpointSetupTemplate) Activator.CreateInstance<T>()).Setup(conf, settings);
+                    var config = ((IEndpointSetupTemplate)Activator.CreateInstance<T>()).GetConfiguration(settings, behavior, new ScenarioConfigSource(behavior, routingTable));
 
-                    configCustomization(conf);
-                });
+                    configCustomization(config);
+
+                    return config;
+                };
+
             return this;
         }
+
+
 
         EndpointBehavior IEndpointBehaviorFactory.Get()
         {

@@ -3,11 +3,11 @@
     using System.Collections.Generic;
     using Support;
 
-    public class NHibernateSetup : IEndpointSetupTemplate
-    {
-        public void Setup(Configure config, IDictionary<string, string> settings)
-        {
-            config.UseNHibernateTimeoutPersister();
-        }
-    }
+    //public class NHibernateSetup : IEndpointSetupTemplate
+    //{
+    //    public void GetConfiguration(Configure config, IDictionary<string, string> settings)
+    //    {
+    //        config.UseNHibernateTimeoutPersister();
+    //    }
+    //}
 }

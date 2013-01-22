@@ -13,6 +13,7 @@
         void Run();
 
         IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
+        IScenarioWithEndpointBehavior WithEndpointNamingConvention(Func<Type,string> customConvention);
     }
 
     public interface IAdvancedScenarioWithEndpointBehavior

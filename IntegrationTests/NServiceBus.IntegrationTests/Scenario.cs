@@ -10,6 +10,7 @@
         readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
+        Func<Type, string> endpointNamingConvention = (t) => t.Name;
 
         public static IScenarioWithEndpointBehavior Define()
         {
@@ -29,7 +30,7 @@
 
         public IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
         {
-            behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
+            behaviours.Add(new BehaviorDescriptor(context, typeof (T)));
 
             return this;
         }
@@ -48,7 +49,7 @@
             if (!runDescriptors.Any())
                 runDescriptors.Add(new RunDescriptor
                 {
-                    Name = "Default"
+                    Key = "Default"
                 });
 
             ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds);
@@ -58,6 +59,12 @@
         {
             runDescriptorsBuilderAction = action;
 
+            return this;
+        }
+
+        public IScenarioWithEndpointBehavior WithEndpointNamingConvention(Func<Type, string> customConvention)
+        {
+            endpointNamingConvention = customConvention;
             return this;
         }
 
