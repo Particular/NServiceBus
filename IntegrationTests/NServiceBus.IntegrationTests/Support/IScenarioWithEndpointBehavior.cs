@@ -6,7 +6,7 @@
     {
         IScenarioWithEndpointBehavior WithEndpointBehaviour<T>() where T:BehaviorFactory;
 
-        IScenarioWithEndpointBehavior WithEndpointBehaviour<T>(BehaviorContext context) where T : BehaviorFactory;
+        IScenarioWithEndpointBehavior WithEndpointBehaviour<T>(Func<BehaviorContext> context) where T : BehaviorFactory;
 
         void Run();
 

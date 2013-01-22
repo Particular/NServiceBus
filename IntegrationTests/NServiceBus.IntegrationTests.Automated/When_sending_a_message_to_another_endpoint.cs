@@ -12,12 +12,10 @@
         [Test]
         public void Should_receive_the_message()
         {
-            var context = new ReceiveContext();
-
             Scenario.Define()
                 .WithEndpointBehaviour<SendBehavior>()
-                .WithEndpointBehaviour<ReceiveBehavior>(context)
-                .Repeat(r => r.For<AllTransports>().Except("activemq")
+                .WithEndpointBehaviour<ReceiveBehavior>(() => new ReceiveContext())
+                .Repeat(r => r.For<AllTransports>().Except("ActiveMQ")
                          .For<AllSerializers>()
                          .For<AllBuilders>())
                 .Should<ReceiveContext>(c =>
@@ -27,7 +25,6 @@
                     })
                 .Run();
         }
-
      
         public class ReceiveContext : BehaviorContext
         {
@@ -75,7 +72,7 @@
 
             public void Handle(MyMessage message)
             {
-                this.context.WasCalled = true;
+                context.WasCalled = true;
                 context.TimesCalled++;
             }
         }

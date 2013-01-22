@@ -40,13 +40,13 @@
         {
             get
             {
-                return descriptors.Where(d => !excludes.Any(e => e.Contains(d.Name.ToLower()))).ToList();
+                return descriptors.Where(d => !excludes.Any(e => d.Name.ToLower().Contains(e))).ToList();
             }
         }
 
         public RunDescriptorsBuilder Except(string nameOfRunToExclude)
         {
-            excludes.Add(nameOfRunToExclude);
+            excludes.Add(nameOfRunToExclude.ToLowerInvariant());
             return this;
         }
     }

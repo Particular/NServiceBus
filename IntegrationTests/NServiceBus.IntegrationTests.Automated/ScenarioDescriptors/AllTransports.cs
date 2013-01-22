@@ -10,7 +10,7 @@
             this.Add(
                 new RunDescriptor
                     {
-                        Name = "Msmq Transport",
+                        Name = "Msmq",
                         Settings =
                             new Dictionary<string, string>
                                 {
@@ -24,7 +24,7 @@
             this.Add(
                 new RunDescriptor
                     {
-                        Name = "ActiveMQ Transport",
+                        Name = "ActiveMQ",
                         Settings =
                             new Dictionary<string, string>
                                 {
@@ -38,7 +38,7 @@
             this.Add(
               new RunDescriptor
               {
-                  Name = "RabbitMQ Transport",
+                  Name = "RabbitMQ",
                   Settings =
                       new Dictionary<string, string>
                                 {
@@ -52,7 +52,7 @@
             this.Add(
               new RunDescriptor
               {
-                  Name = "SqlServer Transport",
+                  Name = "SqlServer",
                   Settings =
                       new Dictionary<string, string>
                                 {

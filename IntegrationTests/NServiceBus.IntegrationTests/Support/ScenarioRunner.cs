@@ -11,9 +11,9 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IEnumerable<RunDescriptor> runDescriptors, 
-            IEnumerable<BehaviorDescriptor> behaviorDescriptors,
-            IList<IScenarioVerification> shoulds)
+        public static void Run(IEnumerable<RunDescriptor> runDescriptors,
+                               IEnumerable<BehaviorDescriptor> behaviorDescriptors,
+                               IList<IScenarioVerification> shoulds)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -21,9 +21,11 @@
 
             foreach (var runDescriptor in runDescriptors)
             {
+
+
                 Console.Out.WriteLine("Running test for : {0}", runDescriptor.Name);
 
-                if(totalRuns > 1)
+                if (totalRuns > 1)
                     Console.Out.Write(" - Permutation: {0}({1})", runNumber, totalRuns);
 
                 PrintSettings(runDescriptor.Settings);
@@ -31,7 +33,7 @@
                 var runTimer = new Stopwatch();
 
                 runTimer.Start();
-                var runners = InitatializeRunners(runDescriptor, behaviorDescriptors);
+                var runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
                 {
@@ -53,11 +55,11 @@
                     if (descriptor.Context == null)
                         continue;
 
-                    shoulds.Where(s=>s.ContextType == descriptor.Context.GetType()).ToList()
-                        .ForEach(v => v.Verify(descriptor.Context));
+                    shoulds.Where(s => s.ContextType == descriptor.Context.GetType()).ToList()
+                           .ForEach(v => v.Verify(descriptor.Context));
                 }
 
-                Console.Out.WriteLine("Result: Successfull - Duration: {0}", runTimer.Elapsed);
+                Console.Out.WriteLine("Result: Successful - Duration: {0}", runTimer.Elapsed);
                 Console.Out.WriteLine("------------------------------------------------------");
 
                 runNumber++;
@@ -132,18 +134,19 @@
             Task.WaitAll(tasks);
         }
 
-        static List<ActiveRunner> InitatializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
 
             foreach (var descriptor in behaviorDescriptors)
             {
                 var runner = PrepareRunner(descriptor.Factory.Get());
+                descriptor.Init();
 
                 if (!runner.Instance.Initialize(
                         descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings))
                 {
-                    throw new ScenarioException(string.Format("Endpoint {0} failed to initalize", runner.Instance.Name()));
+                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
 
                 runners.Add(runner);
@@ -155,11 +158,12 @@
         {
             var domainSetup = new AppDomainSetup
                 {
-                    ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase
+                    ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
+                    LoaderOptimization = LoaderOptimization.SingleDomain
                 };
 
             var appDomain = AppDomain.CreateDomain(endpointBehavior.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
-
+            
             return new ActiveRunner
                 {
                     Instance = (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName),

@@ -27,7 +27,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Name = "Windsor builder",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -39,7 +39,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Name = "Ninject builder",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -52,7 +52,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Name = "Spring builder",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -64,7 +64,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Name = "StructureMap builder",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -76,7 +76,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Name = "Unity builder",
                 Settings =
                     new Dictionary<string, string>
                                 {
