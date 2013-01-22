@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conventions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Support\BehaviorContext.cs" />
     <Compile Include="Support\BehaviorDescriptor.cs" />

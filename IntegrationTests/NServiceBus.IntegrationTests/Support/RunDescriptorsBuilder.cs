@@ -49,5 +49,11 @@
             excludes.Add(nameOfRunToExclude.ToLowerInvariant());
             return this;
         }
+
+        public RunDescriptorsBuilder Except(RunDescriptor runToExclude)
+        {
+            excludes.Add(runToExclude.Name.ToLowerInvariant());
+            return this;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.IntegrationTests.Automated
+﻿namespace NServiceBus.IntegrationTests.Automated.BasicMessaging
 {
     using System;
     using EndpointTemplates;
@@ -7,7 +7,7 @@
     using Support;
 
     [TestFixture]
-    public class When_sending_a_message_to_another_endpoint
+    public class When_sending_a_message_to_another_endpoint : NServiceBusIntegrationTest
     {
         [Test]
         public void Should_receive_the_message()
@@ -15,9 +15,10 @@
             Scenario.Define()
                 .WithEndpoint<Sender>()
                 .WithEndpoint<Receiver>(()=>new ReceiveContext())
-                .Repeat(r => r.For<AllTransports>().Except("activemq")
-                         .For<AllSerializers>()
-                         .For<AllBuilders>())
+                .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
+                         //.For<AllSerializers>()
+                         //.For<AllBuilders>()
+                         )
                 .Should<ReceiveContext>(c =>
                     {
                         Assert.True(c.WasCalled);
@@ -39,7 +40,7 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>("Receiver")
+                    .AddMapping<MyMessage>(Conventions.DefaultNameFor<Receiver>())
                     .When(bus => bus.Send(new MyMessage()));
             }
         }

@@ -2,18 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Config;
+    using Config;
 
     public class EndpointBuilder : IEndpointBehaviorFactory
     {
         public EndpointBuilder()
         {
-            this.behavior.Givens = new List<Action<IBus>>();
-            this.behavior.Whens = new List<Action<IBus>>();
-            this.behavior.Setups = new List<Action<IDictionary<string, string>, Configure>>();
-            this.behavior.EndpointMappings = new MessageEndpointMappingCollection();
-            this.behavior.EndpointName = GetType().Name;
-            this.behavior.Done = context => true;
+            behavior.Givens = new List<Action<IBus>>();
+            behavior.Whens = new List<Action<IBus>>();
+            behavior.Setups = new List<Action<IDictionary<string, string>, Configure>>();
+            behavior.EndpointMappings = new MessageEndpointMappingCollection();
+            behavior.EndpointName = Conventions.EndpointNamingConvention(GetType());
+            behavior.Done = context => true;
             
         }
      
@@ -91,5 +91,6 @@
         {
             return CreateScenario();
         }
+
     }
 }

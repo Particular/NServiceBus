@@ -23,12 +23,14 @@
             {
 
 
-                Console.Out.WriteLine("Running test for : {0}", runDescriptor.Name);
+                Console.Out.Write("Running test for : {0}", runDescriptor.Name);
 
                 if (totalRuns > 1)
-                    Console.Out.Write(" - Permutation: {0}({1})", runNumber, totalRuns);
+                    Console.Out.WriteLine(" - Permutation: {0}({1})", runNumber, totalRuns);
+                Console.Out.Write("");
 
                 PrintSettings(runDescriptor.Settings);
+                PrintBehaviours(behaviorDescriptors);
 
                 var runTimer = new Stopwatch();
 
@@ -64,6 +66,18 @@
 
                 runNumber++;
             }
+        }
+
+        static void PrintBehaviours(IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Endpoints:");
+
+            foreach (var behaviorDescriptor in behaviorDescriptors)
+            {
+                Console.Out.WriteLine("     - {0}",behaviorDescriptor.Factory.Get().EndpointName);
+            }
+         
         }
 
         private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
