@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.ActiveMQ
 {
+    using System.Collections.Generic;
+
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Transactions;
 
     using Apache.NMS;
-    using Apache.NMS.ActiveMQ;
-
     using FluentAssertions;
-
     using Moq;
-
     using NServiceBus.Transport.ActiveMQ;
-
     using NUnit.Framework;
 
     [TestFixture]
@@ -107,6 +100,75 @@ namespace NServiceBus.ActiveMQ
             session1.Should().NotBeSameAs(session2);
         }
 
+        [Test]
+        public void GetSession_WhenInTransaction_ThenSameSessionIsUsed()
+        {
+            INetTxSession session1;
+            INetTxSession session2;
+
+            using (var tx = new TransactionScope())
+            {
+                session1 = this.testee.GetSession();
+                this.testee.Release(session1);
+
+                session2 = this.testee.GetSession();
+                this.testee.Release(session2);
+
+                tx.Complete();
+            }
+
+            session1.Should().BeSameAs(session2);
+        }
+
+        [Test]
+        public void GetSession_WhenInDifferentTransaction_ThenDifferentSessionAreUsed()
+        {
+            INetTxSession session1;
+            INetTxSession session2;
+
+            using (var tx1 = new TransactionScope())
+            {
+                session1 = this.testee.GetSession();
+                this.testee.Release(session1);
+
+                using (var tx2 = new TransactionScope(TransactionScopeOption.RequiresNew))
+                {
+                    session2 = this.testee.GetSession();
+                    this.testee.Release(session2);
+
+                    tx2.Complete();
+                }
+
+                tx1.Complete();
+            }
+
+            session1.Should().NotBeSameAs(session2);
+        }
+
+        [Test]
+        public void GetSession_WhenInDifferentCompletedTransaction_ThenSessionIsReused()
+        {
+            INetTxSession session1;
+            INetTxSession session2;
+            using (var tx1 = new TransactionScope())
+            {
+                session1 = this.testee.GetSession();
+                this.testee.Release(session1);
+
+                tx1.Complete();
+            }
+
+            using (var tx2 = new TransactionScope())
+            {
+                session2 = this.testee.GetSession();
+                this.testee.Release(session2);
+
+                tx2.Complete();
+            }
+
+            session1.Should().BeSameAs(session2);
+        }
+        
         private INetTxConnection CreateConnectionMock()
         {
             var connectionMock = new Mock<INetTxConnection>();

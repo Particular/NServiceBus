@@ -2,33 +2,42 @@
 {
     using System.Collections.Concurrent;
     using System.Threading;
+    using System.Transactions;
+
     using Apache.NMS;
 
     public class SessionFactory : ISessionFactory
     {
-        private readonly INetTxConnectionFactory connectionFactroy;
-        
+        private readonly INetTxConnectionFactory connectionFactory;
+
         private readonly ConcurrentBag<INetTxSession> sessionPool = new ConcurrentBag<INetTxSession>();
         private readonly ConcurrentDictionary<INetTxSession, INetTxConnection> connections = new ConcurrentDictionary<INetTxSession, INetTxConnection>();
-        private readonly ConcurrentDictionary<int, INetTxSession> sessions = new ConcurrentDictionary<int, INetTxSession>();
+        private readonly ConcurrentDictionary<int, INetTxSession> sessionsForThreads = new ConcurrentDictionary<int, INetTxSession>();
+        private readonly ConcurrentDictionary<string, INetTxSession> sessionsForTransactions = new ConcurrentDictionary<string, INetTxSession>();
 
-        public SessionFactory(INetTxConnectionFactory connectionFactroy)
+        public SessionFactory(INetTxConnectionFactory connectionFactory)
         {
-            this.connectionFactroy = connectionFactroy;
+            this.connectionFactory = connectionFactory;
         }
 
         public INetTxSession GetSession()
         {
             INetTxSession session;
-            if (this.sessions.TryGetValue(Thread.CurrentThread.ManagedThreadId, out session))
+            if (this.sessionsForThreads.TryGetValue(Thread.CurrentThread.ManagedThreadId, out session))
             {
                 return session;
             }
 
-            // Currently in case of DTC the consumer and produce of messages use an own session due to a bug in the ActiveMQ NMS client:
-            // https://issues.apache.org/jira/browse/AMQNET-405 . When this issue is resolved then we should return the same session within
-            // a DTC transaction to be able to use Single Phase Commits in case no other systems are involved in the transaction for better
-            // performance.
+            if (Transaction.Current != null)
+            {
+                // Currently in case of DTC the consumer and produce of messages use an own session due to a bug in the ActiveMQ NMS client:
+                // https://issues.apache.org/jira/browse/AMQNET-405 . When this issue is resolved then we should return the same session within
+                // a DTC transaction to be able to use Single Phase Commits in case no other systems are involved in the transaction for better
+                // performance.
+                return this.sessionsForTransactions.GetOrAdd(
+                    Transaction.Current.TransactionInformation.LocalIdentifier, id => this.GetSessionForTransaction());
+            }
+
             return this.GetSessionFromPool();
         }
 
@@ -39,21 +48,44 @@
 
         public void Release(INetTxSession session)
         {
-            if (!this.sessions.ContainsKey(Thread.CurrentThread.ManagedThreadId))
+            if (this.sessionsForThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
             {
-                this.sessionPool.Add(session);
+                return;
             }
+
+            if (Transaction.Current != null)
+            {
+                return;
+            }
+
+            this.sessionPool.Add(session);
         }
 
         public void SetSessionForCurrentThread(INetTxSession session)
         {
-            this.sessions.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, session, (key, value)  => session);
+            this.sessionsForThreads.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, session, (key, value)  => session);
         }
 
         public void RemoveSessionForCurrentThread()
         {
             INetTxSession session;
-            this.sessions.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
+            this.sessionsForThreads.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
+        }
+
+        private INetTxSession GetSessionForTransaction()
+        {
+            var session = this.GetSessionFromPool();
+
+            Transaction.Current.TransactionCompleted += (s, e) => this.ReleaseSessionForTransaction(e.Transaction);
+            
+            return session;
+        }
+
+        private void ReleaseSessionForTransaction(Transaction transaction)
+        {
+            INetTxSession session;
+            this.sessionsForTransactions.TryRemove(transaction.TransactionInformation.LocalIdentifier, out session);
+            this.sessionPool.Add(session);
         }
 
         private INetTxSession GetSessionFromPool()
@@ -69,7 +101,7 @@
 
         private INetTxSession CreateNewSession()
         {
-            var connection = this.connectionFactroy.CreateNetTxConnection();
+            var connection = this.connectionFactory.CreateNetTxConnection();
             connection.Start();
 
             var session = connection.CreateNetTxSession();
