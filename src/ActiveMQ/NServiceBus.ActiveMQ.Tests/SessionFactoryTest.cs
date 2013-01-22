@@ -18,12 +18,12 @@
         private Mock<INetTxConnectionFactory> connectionFactoryMock;
         private SessionFactory testee;
 
-        private IDictionary<INetTxSession, INetTxConnection> connectionForSession;
+        private IDictionary<ISession, INetTxConnection> connectionForSession;
 
         [SetUp]
         public void SetUp()
         {
-            this.connectionForSession = new Dictionary<INetTxSession, INetTxConnection>();
+            this.connectionForSession = new Dictionary<ISession, INetTxConnection>();
             this.connectionFactoryMock = new Mock<INetTxConnectionFactory>();
             this.connectionFactoryMock.Setup(cf => cf.CreateNetTxConnection()).Returns(this.CreateConnectionMock);
 
@@ -82,7 +82,7 @@
         [Test]
         public void WhenSessionIsPinnedForThread_ANewOneShouldBeReturnedOnAnotherThread()
         {
-            INetTxSession session2 = null;
+            ISession session2 = null;
             var autoResetEvent = new AutoResetEvent(false);
 
             var session1 = this.testee.GetSession();
@@ -103,8 +103,8 @@
         [Test]
         public void GetSession_WhenInTransaction_ThenSameSessionIsUsed()
         {
-            INetTxSession session1;
-            INetTxSession session2;
+            ISession session1;
+            ISession session2;
 
             using (var tx = new TransactionScope())
             {
@@ -123,8 +123,8 @@
         [Test]
         public void GetSession_WhenInDifferentTransaction_ThenDifferentSessionAreUsed()
         {
-            INetTxSession session1;
-            INetTxSession session2;
+            ISession session1;
+            ISession session2;
 
             using (var tx1 = new TransactionScope())
             {
@@ -148,8 +148,8 @@
         [Test]
         public void GetSession_WhenInDifferentCompletedTransaction_ThenSessionIsReused()
         {
-            INetTxSession session1;
-            INetTxSession session2;
+            ISession session1;
+            ISession session2;
             using (var tx1 = new TransactionScope())
             {
                 session1 = this.testee.GetSession();

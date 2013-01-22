@@ -13,7 +13,7 @@ namespace NServiceBus.Transport.ActiveMQ
                        : destinationPrefix + destination;
         }
 
-        public IDestination GetDestination(INetTxSession session, string destination, string prefix)
+        public IDestination GetDestination(ISession session, string destination, string prefix)
         {
             destination = AddPrefix(destination, prefix);
 

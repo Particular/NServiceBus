@@ -18,7 +18,7 @@
     public class ActiveMqMessageMapperTest
     {
         private ActiveMqMessageMapper testee;
-        private Mock<INetTxSession> session;
+        private Mock<ISession> session;
         private Mock<IMessageTypeInterpreter> messageTypeInterpreter;
 
         private Mock<IActiveMqMessageDecoderPipeline> decoderPipeline;
@@ -28,7 +28,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<INetTxSession>();
+            this.session = new Mock<ISession>();
             this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
             this.encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
             this.decoderPipeline = new Mock<IActiveMqMessageDecoderPipeline>();

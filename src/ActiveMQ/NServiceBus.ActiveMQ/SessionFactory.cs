@@ -10,19 +10,19 @@
     {
         private readonly INetTxConnectionFactory connectionFactory;
 
-        private readonly ConcurrentBag<INetTxSession> sessionPool = new ConcurrentBag<INetTxSession>();
-        private readonly ConcurrentDictionary<INetTxSession, INetTxConnection> connections = new ConcurrentDictionary<INetTxSession, INetTxConnection>();
-        private readonly ConcurrentDictionary<int, INetTxSession> sessionsForThreads = new ConcurrentDictionary<int, INetTxSession>();
-        private readonly ConcurrentDictionary<string, INetTxSession> sessionsForTransactions = new ConcurrentDictionary<string, INetTxSession>();
+        private readonly ConcurrentBag<ISession> sessionPool = new ConcurrentBag<ISession>();
+        private readonly ConcurrentDictionary<ISession, INetTxConnection> connections = new ConcurrentDictionary<ISession, INetTxConnection>();
+        private readonly ConcurrentDictionary<int, ISession> sessionsForThreads = new ConcurrentDictionary<int, ISession>();
+        private readonly ConcurrentDictionary<string, ISession> sessionsForTransactions = new ConcurrentDictionary<string, ISession>();
 
         public SessionFactory(INetTxConnectionFactory connectionFactory)
         {
             this.connectionFactory = connectionFactory;
         }
 
-        public INetTxSession GetSession()
+        public ISession GetSession()
         {
-            INetTxSession session;
+            ISession session;
             if (this.sessionsForThreads.TryGetValue(Thread.CurrentThread.ManagedThreadId, out session))
             {
                 return session;
@@ -41,12 +41,12 @@
             return this.GetSessionFromPool();
         }
 
-        public INetTxSession GetOwnSession()
+        public ISession GetOwnSession()
         {
             return this.GetSessionFromPool();
         }
 
-        public void Release(INetTxSession session)
+        public void Release(ISession session)
         {
             if (this.sessionsForThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
             {
@@ -61,18 +61,18 @@
             this.sessionPool.Add(session);
         }
 
-        public void SetSessionForCurrentThread(INetTxSession session)
+        public void SetSessionForCurrentThread(ISession session)
         {
             this.sessionsForThreads.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, session, (key, value)  => session);
         }
 
         public void RemoveSessionForCurrentThread()
         {
-            INetTxSession session;
+            ISession session;
             this.sessionsForThreads.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
         }
 
-        private INetTxSession GetSessionForTransaction()
+        private ISession GetSessionForTransaction()
         {
             var session = this.GetSessionFromPool();
 
@@ -83,14 +83,14 @@
 
         private void ReleaseSessionForTransaction(Transaction transaction)
         {
-            INetTxSession session;
+            ISession session;
             this.sessionsForTransactions.TryRemove(transaction.TransactionInformation.LocalIdentifier, out session);
             this.sessionPool.Add(session);
         }
 
-        private INetTxSession GetSessionFromPool()
+        private ISession GetSessionFromPool()
         {
-            INetTxSession session;
+            ISession session;
             if (this.sessionPool.TryTake(out session))
             {
                 return session;
@@ -99,7 +99,7 @@
             return this.CreateNewSession();
         }
 
-        private INetTxSession CreateNewSession()
+        private ISession CreateNewSession()
         {
             var connection = this.connectionFactory.CreateNetTxConnection();
             connection.Start();

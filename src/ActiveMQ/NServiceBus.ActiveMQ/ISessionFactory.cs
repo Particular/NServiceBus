@@ -4,11 +4,11 @@
 
     public interface ISessionFactory
     {
-        INetTxSession GetSession();
+        ISession GetSession();
 
-        void Release(INetTxSession session);
+        void Release(ISession session);
 
-        void SetSessionForCurrentThread(INetTxSession session);
+        void SetSessionForCurrentThread(ISession session);
 
         void RemoveSessionForCurrentThread();
     }

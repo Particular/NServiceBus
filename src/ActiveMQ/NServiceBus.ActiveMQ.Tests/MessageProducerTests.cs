@@ -73,7 +73,7 @@
             producerMock.Verify(p => p.Send(destination, jmsMessage));
         }
 
-        private IDestination SetupGetDestination(Mock<INetTxSession> sessionMock, string Destination, string DestinationPrefix)
+        private IDestination SetupGetDestination(Mock<ISession> sessionMock, string Destination, string DestinationPrefix)
         {
             var destination = new Mock<IDestination>().Object;
             this.destinationEvaluatorMock.Setup(de => de.GetDestination(sessionMock.Object, Destination, DestinationPrefix))
@@ -81,22 +81,22 @@
             return destination;
         }
 
-        private Mock<INetTxSession> SetupCreateSession()
+        private Mock<ISession> SetupCreateSession()
         {
-            var sessionMock = new Mock<INetTxSession>();
+            var sessionMock = new Mock<ISession>();
             this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             this.SetupCreateProducer(sessionMock);
             return sessionMock;
         }
 
-        private IMessage SetupCreateJmsMessageFromTransportMessage(TransportMessage message, INetTxSession session)
+        private IMessage SetupCreateJmsMessageFromTransportMessage(TransportMessage message, ISession session)
         {
             var jmsMessage = new Mock<IMessage>().Object;
             this.activeMqMessageMapperMock.Setup(m => m.CreateJmsMessage(message, session)).Returns(jmsMessage);
             return jmsMessage;
         }
 
-        private Mock<Apache.NMS.IMessageProducer> SetupCreateProducer(Mock<INetTxSession> sessionMock)
+        private Mock<Apache.NMS.IMessageProducer> SetupCreateProducer(Mock<ISession> sessionMock)
         {
             var producerMock = new Mock<Apache.NMS.IMessageProducer>();
             sessionMock.Setup(s => s.CreateProducer()).Returns(producerMock.Object);

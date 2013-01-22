@@ -19,7 +19,7 @@ namespace NServiceBus.Transport.ActiveMQ
         private readonly ISessionFactory sessionFactory;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
-        private INetTxSession session;
+        private ISession session;
         private IMessageConsumer defaultConsumer;
         private TransactionSettings transactionSettings;
         private TransactionOptions transactionOptions;
