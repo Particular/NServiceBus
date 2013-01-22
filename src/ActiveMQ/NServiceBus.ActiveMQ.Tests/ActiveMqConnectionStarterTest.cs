@@ -9,14 +9,14 @@
     [TestFixture]
     public class ActiveMqConnectionStarterTest
     {
-        private Mock<INetTxConnection> connection;
+        private Mock<IConnection> connection;
 
         private ActiveMqConnectionStarter testee;
 
         [SetUp]
         public void SetUp()
         {
-            this.connection = new Mock<INetTxConnection>();
+            this.connection = new Mock<IConnection>();
 
             this.testee = new ActiveMqConnectionStarter { Connection = this.connection.Object };
         }

@@ -126,10 +126,8 @@ Here is an example of what is required:
                         Endpoint.IsVolatile ? AcknowledgementMode.AutoAcknowledge : AcknowledgementMode.Transactional,
                 };
 
-            config.Configurer.ConfigureComponent<INetTxConnectionFactory>(
-                () => factory, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent(
-                () => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<IConnectionFactory>(() => factory, DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent(factory.CreateConnection, DependencyLifecycle.SingleInstance);
 
             EndpointInputQueueCreator.Enabled = true;
 

@@ -15,17 +15,17 @@
     [TestFixture]
     public class SessionFactoryTest
     {
-        private Mock<INetTxConnectionFactory> connectionFactoryMock;
+        private Mock<IConnectionFactory> connectionFactoryMock;
         private SessionFactory testee;
 
-        private IDictionary<ISession, INetTxConnection> connectionForSession;
+        private IDictionary<ISession, IConnection> connectionForSession;
 
         [SetUp]
         public void SetUp()
         {
-            this.connectionForSession = new Dictionary<ISession, INetTxConnection>();
-            this.connectionFactoryMock = new Mock<INetTxConnectionFactory>();
-            this.connectionFactoryMock.Setup(cf => cf.CreateNetTxConnection()).Returns(this.CreateConnectionMock);
+            this.connectionForSession = new Dictionary<ISession, IConnection>();
+            this.connectionFactoryMock = new Mock<IConnectionFactory>();
+            this.connectionFactoryMock.Setup(cf => cf.CreateConnection()).Returns(this.CreateConnectionMock);
 
             this.testee = new SessionFactory(this.connectionFactoryMock.Object);
         }
@@ -168,19 +168,19 @@
 
             session1.Should().BeSameAs(session2);
         }
-        
-        private INetTxConnection CreateConnectionMock()
+
+        private IConnection CreateConnectionMock()
         {
-            var connectionMock = new Mock<INetTxConnection>();
+            var connectionMock = new Mock<IConnection>();
             
-            connectionMock.Setup(c => c.CreateNetTxSession()).Returns(() => this.CreateSessionMock(connectionMock.Object));
+            connectionMock.Setup(c => c.CreateSession()).Returns(() => this.CreateSessionMock(connectionMock.Object));
 
             return connectionMock.Object;
         }
 
-        private INetTxSession CreateSessionMock(INetTxConnection connection)
+        private ISession CreateSessionMock(IConnection connection)
         {
-            var session = new Mock<INetTxSession>().Object;
+            var session = new Mock<ISession>().Object;
 
             this.connectionForSession[session] = connection;
 

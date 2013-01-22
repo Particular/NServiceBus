@@ -6,7 +6,7 @@ namespace NServiceBus.Transport.ActiveMQ
     public class ActiveMqConnectionStarter : IWantToRunWhenBusStartsAndStops, IWantToRunWhenConfigurationIsComplete
     {
 
-        public INetTxConnection Connection { get; set; }
+        public IConnection Connection { get; set; }
 
         public void Start()
         {

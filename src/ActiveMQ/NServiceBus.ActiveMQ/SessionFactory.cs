@@ -8,14 +8,14 @@
 
     public class SessionFactory : ISessionFactory
     {
-        private readonly INetTxConnectionFactory connectionFactory;
+        private readonly IConnectionFactory connectionFactory;
 
         private readonly ConcurrentBag<ISession> sessionPool = new ConcurrentBag<ISession>();
-        private readonly ConcurrentDictionary<ISession, INetTxConnection> connections = new ConcurrentDictionary<ISession, INetTxConnection>();
+        private readonly ConcurrentDictionary<ISession, IConnection> connections = new ConcurrentDictionary<ISession, IConnection>();
         private readonly ConcurrentDictionary<int, ISession> sessionsForThreads = new ConcurrentDictionary<int, ISession>();
         private readonly ConcurrentDictionary<string, ISession> sessionsForTransactions = new ConcurrentDictionary<string, ISession>();
 
-        public SessionFactory(INetTxConnectionFactory connectionFactory)
+        public SessionFactory(IConnectionFactory connectionFactory)
         {
             this.connectionFactory = connectionFactory;
         }
@@ -101,10 +101,10 @@
 
         private ISession CreateNewSession()
         {
-            var connection = this.connectionFactory.CreateNetTxConnection();
+            var connection = this.connectionFactory.CreateConnection();
             connection.Start();
 
-            var session = connection.CreateNetTxSession();
+            var session = connection.CreateSession();
             this.connections.TryAdd(session, connection);
 
             return session;
