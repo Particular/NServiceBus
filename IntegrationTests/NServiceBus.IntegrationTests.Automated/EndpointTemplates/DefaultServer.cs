@@ -1,6 +1,10 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.EndpointTemplates
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
     using Config.ConfigurationSource;
     using NServiceBus;
     using Support;
@@ -13,7 +17,11 @@
             var settings = runDescriptor.Settings;
             SetupLogging(endpointBehavior);
 
-            return Configure.With()
+            var types = GetTypesToUse(endpointBehavior);
+
+                
+
+            return Configure.With(types)
                     .DefineEndpointName(endpointBehavior.EndpointName)
                     .Log4Net()
                     .DefineBuilder(settings.GetOrNull("Builder"))
@@ -22,6 +30,18 @@
                     .DefineTransport(settings.GetOrNull("Transport"))
                     .UnicastBus();
 
+        }
+
+        static IEnumerable<Type> GetTypesToUse(EndpointBehavior endpointBehavior)
+        {
+            var types = Configure.FindAssemblies(AppDomain.CurrentDomain.BaseDirectory, false, null, null)
+                                 .SelectMany(a => a.GetTypes())
+                                 .Where(
+                                     t =>
+                                     t.Assembly != Assembly.GetExecutingAssembly() || //exlude all test types by default
+                                     t.DeclaringType == endpointBehavior.BuilderType.DeclaringType || //but include types on the test level
+                                     t.DeclaringType == endpointBehavior.BuilderType); //and the specific types for this endpoint
+            return types;
         }
 
         static void SetupLogging(EndpointBehavior endpointBehavior)

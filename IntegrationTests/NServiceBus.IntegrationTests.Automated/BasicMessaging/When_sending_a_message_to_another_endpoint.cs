@@ -17,8 +17,8 @@
                 .WithEndpoint<Receiver>(() => new ReceiveContext())
                 .Repeat(r => 
                          r.For<AllTransports>().Except(Transports.ActiveMQ)
-                         .For<AllSerializers>().Except(Serializers.Bson)
-                         //.For<AllBuilders>()
+                         .For<AllSerializers>()
+                         .For<AllBuilders>()
                          )
                 .Should<ReceiveContext>(c =>
                     {

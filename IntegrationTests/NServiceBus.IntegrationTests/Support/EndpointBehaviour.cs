@@ -12,10 +12,12 @@
 
         public Func<BehaviorContext, bool> Done { get; set; }
 
-        public List<Action<IBus>> Whens { get; set; }
+        public List<Action<IBus,BehaviorContext>> Whens { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
 
         public string EndpointName{ get; set; }
+
+        public Type BuilderType { get; set; }
     }
 }

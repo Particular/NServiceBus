@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
 
     public class EndpointBuilder : IEndpointBehaviorFactory
     {
         public EndpointBuilder()
         {
             behavior.Givens = new List<Action<IBus>>();
-            behavior.Whens = new List<Action<IBus>>();
+            behavior.Whens = new List<Action<IBus,BehaviorContext>>();
             behavior.EndpointMappings = new Dictionary<Type, Type>();
             behavior.Done = context => true;
         }
@@ -31,11 +30,12 @@
 
         EndpointBehavior CreateScenario()
         {
+            behavior.BuilderType = GetType();
+
             return this.behavior;
         }
 
-        public EndpointBuilder Done<TContext>(Func<TContext, bool> func)
-            where TContext : BehaviorContext
+        public EndpointBuilder Done<TContext>(Func<TContext, bool> func) where TContext : BehaviorContext
         {
             this.behavior.Done = context => func((TContext)context);
             return this;
@@ -49,10 +49,18 @@
 
         public EndpointBuilder When(Action<IBus> func)
         {
-            this.behavior.Whens.Add(func);
+            this.behavior.Whens.Add((bus,c)=>func(bus));
 
             return this;
         }
+
+        public EndpointBuilder When<TContext>(Action<IBus,TContext> func) where TContext : BehaviorContext
+        {
+            this.behavior.Whens.Add((bus,c)=>func(bus,(TContext)c));
+
+            return this;
+        }
+
 
         readonly EndpointBehavior behavior = new EndpointBehavior();
 

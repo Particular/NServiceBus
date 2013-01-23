@@ -48,7 +48,7 @@
 
         public void ApplyWhens()
         {
-            this.behavior.Whens.ForEach(a => a(bus));
+            this.behavior.Whens.ForEach(a => a(bus,behaviorContext));
         }
 
         public string Name()

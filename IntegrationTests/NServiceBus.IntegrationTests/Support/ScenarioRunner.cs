@@ -38,6 +38,8 @@
 
                     var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
 
+                    Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
+
                     results.Add(new RunSummary
                         {
                             Result = runResult,
