@@ -15,6 +15,7 @@ namespace Runner
         {
             var numberOfThreads = int.Parse(args[0]);
             bool volatileMode = (args[4].ToLower() == "volatile");
+            bool suppressDTC = (args[4].ToLower() == "suppressdtc");
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
@@ -24,6 +25,9 @@ namespace Runner
 
             if (volatileMode)
                 endpointName += ".Volatile";
+
+            if (suppressDTC)
+                endpointName += ".SuppressDTC";
 
             var config = Configure.With()
                                   .DefineEndpointName(endpointName)
@@ -54,6 +58,9 @@ namespace Runner
 
             if (volatileMode)
                 config.Volatile();
+
+            if (suppressDTC)
+                config.SuppressDTC();
 
             switch (args[3].ToLower())
             {
