@@ -17,7 +17,7 @@
                 .WithEndpoint<Receiver>(() => new ReceiveContext())
                 .Repeat(r => 
                          r.For<AllTransports>().Except(Transports.ActiveMQ)
-                       //  .For<AllSerializers>()
+                         .For<AllSerializers>().Except(Serializers.Bson)
                          //.For<AllBuilders>()
                          )
                 .Should<ReceiveContext>(c =>
@@ -51,7 +51,7 @@
             public Receiver()
             {
                 EndpointSetup<DefaultServer>()
-                    .Done((ReceiveContext context) => context.WasCalled);
+                    .Done<ReceiveContext>(context => context.WasCalled);
             }
 
         }

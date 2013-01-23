@@ -44,15 +44,7 @@
                 }
             }
 
-            int permutation = 1;
-            foreach (var run in result)
-            {
-                run.Permutation = permutation;
-
-                permutation++;
-
-            }
-
+         
             descriptors = result;
 
             return this;
@@ -64,7 +56,18 @@
         {
             get
             {
-                return descriptors.Where(d => !excludes.Any(e => d.Key.ToLower().Contains(e))).ToList();
+                var activeDescriptors = descriptors.Where(d => !excludes.Any(e => d.Key.ToLower().Contains(e))).ToList();
+
+                int permutation = 1;
+                foreach (var run in activeDescriptors)
+                {
+                    run.Permutation = permutation;
+
+                    permutation++;
+
+                }
+
+                return activeDescriptors;
             }
         }
 

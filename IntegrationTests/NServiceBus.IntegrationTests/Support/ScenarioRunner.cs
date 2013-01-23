@@ -22,8 +22,7 @@
 
             var po = new ParallelOptions
                 {
-                    CancellationToken = cts.Token,
-                    MaxDegreeOfParallelism = Environment.ProcessorCount
+                    CancellationToken = cts.Token
                 };
 
             var results = new ConcurrentBag<RunSummary>();
@@ -126,7 +125,7 @@
             var runTimer = new Stopwatch();
 
             runTimer.Start();
-            List<ActiveRunner> runners = new List<ActiveRunner>();
+            var runners = new List<ActiveRunner>();
             try
             {
                 try
@@ -147,13 +146,13 @@
 
                 runTimer.Stop();
 
-                foreach (var descriptor in behaviorDescriptors)
+                foreach (var runner in runners)
                 {
-                    if (descriptor.Context == null)
+                    if (runner.BehaviourContext == null)
                         continue;
 
-                    shoulds.Where(s => s.ContextType == descriptor.Context.GetType()).ToList()
-                           .ForEach(v => v.Verify(descriptor.Context));
+                    shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
+                           .ForEach(v => v.Verify(runner.BehaviourContext));
                 }
             }
             catch (Exception ex)
@@ -260,12 +259,14 @@
 
 
                 var runner = PrepareRunner(endpointName);
-                behaviorDescriptor.Init();
+                runner.BehaviourContext = behaviorDescriptor.CreateContext();
 
-                if (!runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable))
+                if (!runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType, routingTable, endpointName, runner.BehaviourContext))
                 {
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
+
+
 
                 runners.Add(runner);
 

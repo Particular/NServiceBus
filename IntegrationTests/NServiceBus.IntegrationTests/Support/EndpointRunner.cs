@@ -14,12 +14,12 @@
         EndpointBehavior behavior;
         BehaviorContext behaviorContext;
 
-        public bool Initialize(RunDescriptor runDescriptor, BehaviorDescriptor behaviorDescriptor, IDictionary<Type, string> routingTable)
+        public bool Initialize(RunDescriptor runDescriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
         {
 
-            behaviorContext = behaviorDescriptor.Context;
-            behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(behaviorDescriptor.EndpointBuilderType)).Get();
-            behavior.EndpointName = behaviorDescriptor.EndpointName + "." + runDescriptor.Key + "." + runDescriptor.Permutation;
+            behaviorContext = context;
+            behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
+            behavior.EndpointName = endpointName;
 
             config = behavior.GetConfiguration(runDescriptor, routingTable);
 
@@ -58,7 +58,12 @@
 
         public bool Done()
         {
-            return this.behavior.Done(behaviorContext);
+            var isDone =behavior.Done(behaviorContext);
+
+            if(isDone)
+                Console.Out.WriteLine("Endpoint is done");
+
+            return isDone;
         }
     }
 }

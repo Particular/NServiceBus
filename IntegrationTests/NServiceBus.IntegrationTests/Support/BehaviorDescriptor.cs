@@ -5,7 +5,7 @@
     [Serializable]
     public class BehaviorDescriptor : MarshalByRefObject
     {
-        private readonly Func<BehaviorContext> behaviorContextBuilder;
+        readonly Func<BehaviorContext> behaviorContextBuilder;
 
         public BehaviorDescriptor(Func<BehaviorContext> contextBuilder, Type builderType)
         {
@@ -13,12 +13,10 @@
             EndpointBuilderType = builderType;
             EndpointName = Conventions.EndpointNamingConvention(builderType);
         }
-        public void Init()
+        public BehaviorContext CreateContext()
         {
-            Context = behaviorContextBuilder();
+            return behaviorContextBuilder();
         }
-
-        public BehaviorContext Context { get; private set; }
 
         public string EndpointName { get; private set; }
 
