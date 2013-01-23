@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using Config.ConfigurationSource;
+    using Hosting.Helpers;
     using NServiceBus;
     using Support;
 
@@ -19,7 +20,7 @@
 
             var types = GetTypesToUse(endpointBehavior);
 
-                
+
 
             return Configure.With(types)
                     .DefineEndpointName(endpointBehavior.EndpointName)
@@ -34,7 +35,9 @@
 
         static IEnumerable<Type> GetTypesToUse(EndpointBehavior endpointBehavior)
         {
-            var types = Configure.FindAssemblies(AppDomain.CurrentDomain.BaseDirectory, false, null, null)
+            var assemblies = AssemblyScanner.GetScannableAssemblies();
+
+            var types = assemblies.Assemblies
                                  .SelectMany(a => a.GetTypes())
                                  .Where(
                                      t =>
@@ -42,6 +45,7 @@
                                      t.DeclaringType == endpointBehavior.BuilderType.DeclaringType || //but include types on the test level
                                      t.DeclaringType == endpointBehavior.BuilderType); //and the specific types for this endpoint
             return types;
+
         }
 
         static void SetupLogging(EndpointBehavior endpointBehavior)
