@@ -23,7 +23,7 @@
             var po = new ParallelOptions
                 {
                     CancellationToken = cts.Token,
-                    MaxDegreeOfParallelism = 1//Environment.ProcessorCount
+                    MaxDegreeOfParallelism = Environment.ProcessorCount
                 };
 
             var results = new ConcurrentBag<RunSummary>();

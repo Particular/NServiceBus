@@ -23,19 +23,7 @@
 
         public IDictionary<string, string> Settings { get; set; }
 
-        public string Permutation
-        {
-            get
-            {
-                if (permutation == "0")
-                    return "";
-
-                return permutation;
-            }
-            set { permutation = value; }
-        }
-
-        string permutation;
+        public int Permutation { get; set; }
 
         public void Merge(RunDescriptor descriptorToAdd)
         {

@@ -40,9 +40,17 @@
                 {
                     var nd = new RunDescriptor(existingDescriptor);
                     nd.Merge(descriptorToAdd);
-                    nd.Permutation = (result.Count + 1).ToString();
                     result.Add(nd);
                 }
+            }
+
+            int permutation = 1;
+            foreach (var run in result)
+            {
+                run.Permutation = permutation;
+
+                permutation++;
+
             }
 
             descriptors = result;
