@@ -18,7 +18,7 @@
                 .Repeat(r => 
                          r.For<AllTransports>().Except(Transports.ActiveMQ)
                          .For<AllSerializers>()
-                         .For<AllBuilders>()
+                         .For<AllBuilders>().Except("autofac")
                          )
                 .Should<ReceiveContext>(c =>
                     {

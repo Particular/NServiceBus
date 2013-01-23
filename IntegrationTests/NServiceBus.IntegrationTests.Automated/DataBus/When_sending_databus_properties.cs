@@ -17,8 +17,7 @@
             Scenario.Define()
                     .WithEndpoint<Sender>(new SendContext{PayloadToSend = payloadToSend})
                     .WithEndpoint<Receiver>(new ReceiveContext())
-                    .Repeat(r => 
-                                r.For<AllTransports>().Except(Transports.ActiveMQ)
+                    .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
                                 .For<AllSerializers>()
                             )
                     .Should<ReceiveContext>(c => Assert.AreEqual(payloadToSend, c.ReceivedPayload))

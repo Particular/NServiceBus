@@ -29,6 +29,7 @@
                     .CustomConfigurationSource(configSource)
                     .DefineSerializer(settings.GetOrNull("Serializer"))
                     .DefineTransport(settings.GetOrNull("Transport"))
+                    .UseInMemoryTimeoutPersister()
                     .UnicastBus();
 
         }
