@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.IntegrationTests.Support
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -17,26 +18,79 @@
         {
             var totalRuns = runDescriptors.Count();
 
-            Parallel.ForEach(runDescriptors,new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = 4
-                }, runDescriptor =>
-                {
+            var cts = new CancellationTokenSource();
 
-                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, totalRuns);
+            var po = new ParallelOptions
+                {
+                    CancellationToken = cts.Token,
+                    MaxDegreeOfParallelism = 1//Environment.ProcessorCount
+                };
 
-                    DisplayRunResult(runResult, runDescriptor, totalRuns);
+            var results = new ConcurrentBag<RunSummary>();
+
+            bool canceled;
+            try
+            {
+                Parallel.ForEach(runDescriptors, po, runDescriptor =>
+                {
+                    po.CancellationToken.ThrowIfCancellationRequested();
+
+                    Console.Out.WriteLine("{0} - Started",runDescriptor.Key);
+
+                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
+
+                    results.Add(new RunSummary
+                        {
+                            Result = runResult,
+                            RunDescriptor = runDescriptor,
+                            Endpoints = behaviorDescriptors
+                        });
+
 
                     if (runResult.Failed)
                     {
-                        throw runResult.Exception;
+                        cts.Cancel();
                     }
-                }
-             );
+                });
+
+            }
+            catch (OperationCanceledException)
+            {
+                canceled = true;
+                Console.Out.WriteLine("Testrun aborted due to test failures");
+            }
+
+            var failedRuns = results.Where(s => s.Result.Failed).ToList();
+
+            foreach (var runSummary in failedRuns)
+            {
+                DisplayRunResult(runSummary, totalRuns);    
+            }
+
+            if(failedRuns.Any())
+                throw new AggregateException("Test run failed due to one or more exception",failedRuns.Select(f=>f.Result.Exception));
+
+
+            foreach (var runSummary in results.Where(s => !s.Result.Failed))
+            {
+                DisplayRunResult(runSummary, totalRuns);
+            }
         }
 
-        static void DisplayRunResult(RunResult runResult, RunDescriptor runDescriptor, int totalRuns)
+        class RunSummary
         {
+            public RunResult Result { get; set; }
+
+            public RunDescriptor RunDescriptor { get; set; }
+
+            public IEnumerable<BehaviorDescriptor> Endpoints { get; set; }
+        }
+
+        static void DisplayRunResult(RunSummary summary, int totalRuns)
+        {
+            var runDescriptor = summary.RunDescriptor;
+            var runResult = summary.Result;
+
             Console.Out.WriteLine("------------------------------------------------------");
             Console.Out.WriteLine("Test summary for: {0}", runDescriptor.Key);
             if (totalRuns > 1)
@@ -65,7 +119,7 @@
             }
         }
 
-        static RunResult PerformTestRun(IEnumerable<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, int totalRuns)
+        static RunResult PerformTestRun(IEnumerable<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor)
         {
             var runResult = new RunResult();
 
@@ -253,6 +307,17 @@
 
         public TimeSpan TotalTime { get; set; }
 
-        public IEnumerable<string> ActiveEndpoints { get; set; }
+        public IEnumerable<string> ActiveEndpoints
+        {
+            get
+            {
+                if(activeEndpoints == null) 
+                    activeEndpoints = new List<string>();
+
+                return activeEndpoints;
+            } set { activeEndpoints = value.ToList(); }
+        }
+
+        IList<string> activeEndpoints;
     }
 }

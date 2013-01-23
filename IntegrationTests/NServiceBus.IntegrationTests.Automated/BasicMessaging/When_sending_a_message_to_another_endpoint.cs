@@ -16,7 +16,7 @@
                 .WithEndpoint<Sender>()
                 .WithEndpoint<Receiver>(() => new ReceiveContext())
                 .Repeat(r => 
-                         r.For<AllTransports>()
+                         r.For<AllTransports>().Except(Transports.ActiveMQ)
                          .For<AllSerializers>()
                          //.For<AllBuilders>()
                          )
@@ -63,17 +63,12 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            private readonly ReceiveContext context;
-
-            public MyMessageHandler(ReceiveContext context)
-            {
-                this.context = context;
-            }
+            public ReceiveContext Context { get; set; }
 
             public void Handle(MyMessage message)
             {
-                this.context.WasCalled = true;
-                context.TimesCalled++;
+                Context.WasCalled = true;
+                Context.TimesCalled++;
             }
         }
     }
