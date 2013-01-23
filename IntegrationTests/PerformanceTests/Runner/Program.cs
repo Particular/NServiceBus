@@ -52,6 +52,9 @@ namespace Runner
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
 
+            if (volatileMode)
+                config.Volatile();
+
             switch (args[3].ToLower())
             {
                 case "msmq":
@@ -72,9 +75,6 @@ namespace Runner
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
-
-            if (volatileMode)
-                config.Volatile();
 
             var startableBus = config
                      .InMemoryFaultManagement()
