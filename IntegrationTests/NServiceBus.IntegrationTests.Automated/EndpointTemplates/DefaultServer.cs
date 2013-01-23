@@ -24,7 +24,6 @@
 
             return Configure.With(types)
                     .DefineEndpointName(endpointBehavior.EndpointName)
-                    .Log4Net()
                     .DefineBuilder(settings.GetOrNull("Builder"))
                     .CustomConfigurationSource(configSource)
                     .DefineSerializer(settings.GetOrNull("Serializer"))
@@ -62,7 +61,7 @@
                 File.Delete(logFile);
 
             SetLoggingLibrary.Log4Net(null,
-                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender(null, logFile));
+                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender("WARN", logFile));
         }
     }
 }

@@ -33,6 +33,14 @@
                     }as T;
 
 
+
+            if (type == typeof(Logging))
+                return new Logging()
+                {
+                    Threshold = "WARN"
+                } as T;
+
+
             return null;
         }
 

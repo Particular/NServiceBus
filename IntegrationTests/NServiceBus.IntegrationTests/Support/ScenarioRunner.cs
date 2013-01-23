@@ -130,10 +130,10 @@
             var runners = new List<ActiveRunner>();
             try
             {
-                try
-                {
-                    runners = InitializeRunners(runDescriptor, behaviorDescriptors);
+                runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
+                try
+                {                 
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
                     PerformScenarios(runners);
