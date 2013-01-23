@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
+    using System.IO;
     using NServiceBus.DataBus;
     using NUnit.Framework;
     using System;
@@ -15,12 +16,11 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
-
-            var bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
 
         	Configure.Instance.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            bootStrapper.Init();
+            bootStrapper.Run();
 
             Assert.True(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
         }
@@ -32,9 +32,9 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
-            var bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
 
-            bootStrapper.Init();
+            bootStrapper.Run();
 
             Assert.False(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
         }
@@ -53,9 +53,45 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefaultBuilder()
                 .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
-            var bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
 
-            Assert.Throws<InvalidOperationException>(bootStrapper.Init);
+            Assert.Throws<InvalidOperationException>(bootStrapper.Run);
+        }
+
+        [Test]
+        public void Should_not_throw_propertytype_is_not_serializable_if_a_IDataBusSerializer_is_already_registered()
+        {
+            if (!System.Diagnostics.Debugger.IsAttached)
+            {
+                Assert.Ignore("This only work in debug mode.");
+            }
+
+            Configure.With(new[] { typeof(MessageWithNonSerializableDataBusProperty) })
+                .DefineEndpointName("xyz")
+                .DefiningDataBusPropertiesAs(p => p.Name.EndsWith("DataBus"))
+                .DefaultBuilder()
+                .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
+
+            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
+
+            Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(),DependencyLifecycle.SingleInstance);
+
+            Assert.DoesNotThrow(bootStrapper.Run);
+        }
+
+        class MyDataBusSerializer : IDataBusSerializer
+        {
+            public void Serialize(object databusProperty, Stream stream)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object Deserialize(Stream stream)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
+
+    
 }

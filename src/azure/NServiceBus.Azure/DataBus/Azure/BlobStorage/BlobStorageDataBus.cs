@@ -11,7 +11,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
     using Microsoft.WindowsAzure.StorageClient.Protocol;
     using log4net;
 
-    public class BlobStorageDataBus : IDataBus
+    public class BlobStorageDataBus : IDataBus, IDisposable
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
         private readonly CloudBlobContainer container;
