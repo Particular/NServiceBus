@@ -177,34 +177,34 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 task CopyBinaries -depends Merge {
 	
 	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
-	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.SqlServer.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
-	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.SqlServer.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **.Tests.*, *.config
+	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\autofac"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\castle"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\structuremap"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\spring"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude **.Tests.*
 			
 	Create-Directory "$binariesDir\containers\unity"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude **.Tests.*
 		
 	Create-Directory "$binariesDir\containers\ninject"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force	-Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force	-Exclude **.Tests.*
 }
 
 task CreateReleaseFolder {
