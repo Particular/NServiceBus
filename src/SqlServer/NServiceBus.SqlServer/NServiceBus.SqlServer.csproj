@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureSqlServerTransport.cs" />
     <Compile Include="Config\SqlServer.cs" />
     <Compile Include="Config\SqlServerTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

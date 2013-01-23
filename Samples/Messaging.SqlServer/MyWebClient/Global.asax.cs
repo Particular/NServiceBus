@@ -19,7 +19,7 @@ namespace MyWebClient
                .DefaultBuilder()
                .ForMvc()
                .XmlSerializer()
-               .SqlServerTransport()
+               .UseTransport<SqlServer>()
                    .PurgeOnStartup(true)
                .UnicastBus()
                    .ImpersonateSender(false)

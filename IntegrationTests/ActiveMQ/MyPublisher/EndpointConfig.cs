@@ -12,7 +12,7 @@
                 //this overrides the NServiceBus default convention of IEvent
                 .DefaultBuilder()
                 .FileShareDataBus(BasePath)
-                .ActiveMQTransport(() => "activemq:tcp://localhost:61616")
+                .UseTransport<ActiveMQ>(() => "activemq:tcp://localhost:61616")
                 .XmlSerializer(dontWrapSingleMessages: true);
 
             Configure.Instance.DisableSecondLevelRetries();
