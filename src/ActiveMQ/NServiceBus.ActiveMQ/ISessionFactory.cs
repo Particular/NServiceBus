@@ -8,8 +8,8 @@
 
         void Release(INetTxSession session);
 
-        void SetSessionForCurrentTransaction(INetTxSession session);
+        void SetSessionForCurrentThread(INetTxSession session);
 
-        void RemoveSessionForCurrentTransaction();
+        void RemoveSessionForCurrentThread();
     }
 }

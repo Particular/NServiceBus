@@ -91,11 +91,18 @@
                             var destination = message.NMSReplyTo;
 
                             producer.Send(destination, responseMessage);
+                            Console.WriteLine("Sent response: "  + responseMessage.Properties["ErrorCode"]);
                         }
                     }
                 }
                 catch (Exception e)
                 {
+                }
+
+                if (messageContent.ThrowExceptionDuringProcessing)
+                {
+                    Console.WriteLine("Throwing Exception");
+                    throw new Exception();
                 }
 
                 scope.Complete();

@@ -11,6 +11,12 @@ namespace MyPublisher
         public void Handle(LocalCommand message)
         {
             Console.WriteLine("Received local command {0}.", message.CommandId);
+
+            if (message.ThrowExceptionDuringProcessing)
+            {
+                Console.WriteLine("Throwing Exception");
+                throw new Exception();
+            }
         }
     }
 }

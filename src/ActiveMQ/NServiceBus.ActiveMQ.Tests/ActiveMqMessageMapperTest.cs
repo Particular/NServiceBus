@@ -192,7 +192,63 @@
             result.Headers[Headers.ReturnMessageErrorCodeHeader].Should().Be(Error);
             result.Headers[Headers.ControlMessageHeader].Should().Be("true");
         }
-        
+
+        [Test]
+        public void CreateTransportMessage_WhenHeaderWith_DOT_ThenConvertedtoDot()
+        {
+            const string Value = "Value";
+            var message = CreateTextMessage(string.Empty);
+            message.Properties["NSB_DOT_Feature"] = Value;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers["NSB.Feature"].Should().Be(Value);
+        }
+
+        [Test]
+        public void CreateTransportMessage_WhenHeaderWith_HYPHEN_ThenConvertedtoHyphen()
+        {
+            const string Value = "Value";
+            var message = CreateTextMessage(string.Empty);
+            message.Properties["NSB_HYPHEN_Feature"] = Value;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers["NSB-Feature"].Should().Be(Value);
+        }
+
+        [Test]
+        public void ConvertMessageHeaderKeyFromActiveMQ_Converts_DOT_toDot()
+        {
+            var header = ActiveMqMessageMapper.ConvertMessageHeaderKeyFromActiveMQ("NSB_DOT_Feature");
+
+            header.Should().Be("NSB.Feature");
+        }
+
+        [Test]
+        public void ConvertMessageHeaderKeyFromActiveMQ_Converts_HYPHEN_toHyphen()
+        {
+            var header = ActiveMqMessageMapper.ConvertMessageHeaderKeyFromActiveMQ("NSB_HYPHEN_Feature");
+
+            header.Should().Be("NSB-Feature");
+        }
+
+        [Test]
+        public void ConvertMessageHeaderKeyToActiveMQ_ConvertsDot_to_DOT_()
+        {
+            var header = ActiveMqMessageMapper.ConvertMessageHeaderKeyToActiveMQ("NSB.Feature");
+
+            header.Should().Be("NSB_DOT_Feature");
+        }
+
+        [Test]
+        public void ConvertMessageHeaderKeyToActiveMQ_Converts_Hyphen_to_HYPHEN_()
+        {
+            var header = ActiveMqMessageMapper.ConvertMessageHeaderKeyToActiveMQ("NSB-Feature");
+
+            header.Should().Be("NSB_HYPHEN_Feature");
+        }
+
         private static ITextMessage CreateTextMessage(string body)
         {
             var message = new Mock<ITextMessage>();

@@ -4,11 +4,14 @@
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
+        public static string BasePath = "..\\..\\..\\storage";
+        
         public void Init()
         {
             var config = Configure.With()
                 //this overrides the NServiceBus default convention of IEvent
                 .CastleWindsorBuilder() // just to show we can mix and match containers
+                .FileShareDataBus(BasePath)
                 .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
                 .ActiveMQTransport(() => "activemq:tcp://localhost:61616")
                 .UnicastBus()
