@@ -24,12 +24,20 @@ namespace Subscriber2
             Logger.Info(string.Format("Message duration: {0}.", message.Duration));
             Console.WriteLine("==========================================================================");
 
+            Guid result = Guid.NewGuid();
             this.bus.Reply<ResponseToPublisher>(m =>
                 {
-                    m.ResponseId = Guid.NewGuid();
+                    m.ResponseId = result;
                     m.Time = DateTime.Now.Second > -1 ? (DateTime?)DateTime.Now : null;
                     m.Duration = TimeSpan.FromSeconds(99999D);
                 });
+            Console.WriteLine("Replied with response {0}", result);
+
+            if (message.ThrowExceptionDuringProcessing)
+            {
+                Console.WriteLine("Throwing Exception");
+                throw new Exception();
+            }
         }
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(CommandMessageHandler));

@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Transactions;
 
     using Apache.NMS;
     using FluentAssertions;
@@ -200,6 +201,108 @@
             this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
         }
 
+        [Test]
+        public void WhenUsingActiveMqTransaction_OnErrorDuringProcessing_ThenSessionIsRolledBack()
+        {
+            this.testee.TryProcessMessage = m => false;
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            session.Verify(s => s.Rollback());
+        }
+
+        [Test]
+        public void WhenUsingActiveMqTransaction_WhenMessageIsProcessedSuccessfully_ThenSessionIsCommit()
+        {
+            this.testee.TryProcessMessage = m => true;
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            session.Verify(s => s.Commit());
+        }
+
+        [Test]
+        public void WhenUsingActiveMqTransaction_SessionIsSetAsSessionForCurrentThreadDuringProcessing()
+        {
+            string executionOrder = string.Empty;
+
+            this.testee.TryProcessMessage = m =>
+                {
+                    executionOrder += "ProcessMessage;";
+                    return true;
+                };
+            this.sessionFactoryMock.Setup(sf => sf.SetSessionForCurrentThread(It.IsAny<INetTxSession>()))
+                .Callback(() => executionOrder += "SetSessionForCurrentThread;");
+            this.sessionFactoryMock.Setup(sf => sf.RemoveSessionForCurrentThread())
+                .Callback(() => executionOrder += "RemoveSessionForCurrentThread;");
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            executionOrder.Should().Be("SetSessionForCurrentThread;ProcessMessage;RemoveSessionForCurrentThread;");
+        }
+
+        [Test]
+        public void WhenUsingDTCTransaction_OnErrorDuringProcessing_ThenTransactionIsRolledback()
+        {
+            var transactionStatus = TransactionStatus.InDoubt;
+
+            this.testee.TryProcessMessage = m => false;
+            this.StartTestee(
+                new Address("queue", "machine"),
+                new TransactionSettings
+                    {
+                        IsTransactional = true,
+                        SuppressDTC = false,
+                        IsolationLevel = IsolationLevel.Serializable
+                    });
+
+            Action action = () =>
+                {
+                    using (var transaction = new TransactionScope())
+                    {
+                        Transaction.Current.TransactionCompleted +=
+                            (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
+
+                        this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+                        transaction.Complete();
+                    }
+                };
+
+            action.ShouldThrow<TransactionAbortedException>();
+            transactionStatus.Should().Be(TransactionStatus.Aborted);
+        }
+        
+        [Test]
+        public void WhenUsingDTCTransaction_ProcessedSuccefully_ThenTransactionIsCommited()
+        {
+            var transactionStatus = TransactionStatus.InDoubt;
+
+            this.testee.TryProcessMessage = m => true;
+            this.StartTestee(
+                new Address("queue", "machine"),
+                new TransactionSettings
+                {
+                    IsTransactional = true,
+                    SuppressDTC = false,
+                    IsolationLevel = IsolationLevel.Serializable
+                });
+
+            using (var transaction = new TransactionScope())
+            {
+                Transaction.Current.TransactionCompleted += (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
+
+                this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+                transaction.Complete();
+            }
+
+            transactionStatus.Should().Be(TransactionStatus.Committed);
+        }
+        
         private void StartTesteeWithLocalAddress()
         {
             Address.InitializeLocalAddress("somequeue");
@@ -208,11 +311,23 @@
         
         private void StartTestee(Address address)
         {
+            this.StartTestee(
+                address,
+                new TransactionSettings
+                    {
+                        IsTransactional = false,
+                        SuppressDTC = false,
+                        IsolationLevel = IsolationLevel.Serializable
+                    });
+        }
+
+        private void StartTestee(Address address, TransactionSettings transactionSettings)
+        {
             this.session = this.SetupCreateSession();
 
             this.consumer = this.SetupCreateConsumer(this.session, address.Queue);
 
-            this.testee.Start(address, new TransactionSettings());
+            this.testee.Start(address, transactionSettings);
         }
 
         private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)

@@ -6,6 +6,8 @@ using NServiceBus;
 
 namespace MyPublisher
 {
+    using System.Threading;
+
     using MyMessages.Publisher;
     using MyMessages.Subscriber1;
     using MyMessages.Subscriber2;
@@ -19,6 +21,8 @@ namespace MyPublisher
 
         private int nextEventToPublish = 0;
         private int nextCommandToPublish = 0;
+        private bool failSagaCompletion = false;
+
         public IBus Bus { get; set; }
 
         public void Start()
@@ -27,6 +31,7 @@ namespace MyPublisher
             Console.WriteLine("Press 'b' to send a command with large payload to Subscriber1");
             Console.WriteLine("Press 'c' to send a command to Subscriber1, Subscriber2, SubscriberNMS alternately");
             Console.WriteLine("Press 's' to start a saga locally");
+            Console.WriteLine("Press 'x' to start a saga locally and complete it before timeout. Completion fails every second time");
             Console.WriteLine("Press 'd' to defer a command locally");
             Console.WriteLine("Press 'l' to send a command locally");
             Console.WriteLine("Press 'n' to send a notification.");
@@ -51,6 +56,10 @@ namespace MyPublisher
                         break;
                     case 's':
                         this.StartSaga();
+                        break;
+                    case 'x':
+                        this.StartSagaAndCompleteBeforeTimeout(this.failSagaCompletion);
+                        this.failSagaCompletion = !this.failSagaCompletion;
                         break;
                     case 'd':
                         this.DeferCommand();
@@ -100,6 +109,26 @@ namespace MyPublisher
             Console.WriteLine("==========================================================================");
         }
 
+        private void StartSagaAndCompleteBeforeTimeout(bool fail)
+        {
+            var startSagaMessage = new StartSagaMessage { OrderId = Guid.NewGuid() };
+            this.Bus.SendLocal(startSagaMessage);
+
+            Console.WriteLine("Starting saga with for order id {0}.", startSagaMessage.OrderId);
+            Console.WriteLine("==========================================================================");
+
+            Thread.Sleep(1000);
+
+            var completeSagaMessage = new CompleteSagaMessage
+                {
+                    OrderId = startSagaMessage.OrderId,
+                    ThrowDuringCompletion = fail
+                };
+
+            this.Bus.SendLocal(completeSagaMessage);
+
+        }
+
         private void SendCommandLocal()
         {
             var localCommand = new LocalCommand { CommandId = Guid.NewGuid(), };
@@ -136,8 +165,13 @@ namespace MyPublisher
                     commandMessage = this.Bus.CreateInstance<IMyRequest2>();
                     nextCommandToPublish = 2;
                     break;
-                default:
+                case 2:
                     commandMessage = new MyRequestNMS();
+                    nextCommandToPublish = 3;
+                    break;
+                default:
+                    commandMessage = new MyRequest1();
+                    commandMessage.ThrowExceptionDuringProcessing = true;
                     nextCommandToPublish = 0;
                     break;
             }
