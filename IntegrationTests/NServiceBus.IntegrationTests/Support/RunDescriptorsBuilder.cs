@@ -8,39 +8,66 @@
     {
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
-        IList<string> excludes = new List<string>(); 
-      
-        public RunDescriptorsBuilder For<T>() where T:ScenarioDescriptor
+        IList<string> excludes = new List<string>();
+
+        public RunDescriptorsBuilder For<T>() where T : ScenarioDescriptor
         {
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
+            return For(sd.ToList());
+        }
+
+
+        public RunDescriptorsBuilder For(RunDescriptor descriptor)
+        {
+            return For(new[] {descriptor});
+        }
+
+        public RunDescriptorsBuilder For(IEnumerable<RunDescriptor> descriptorsToAdd)
+        {
             if (!descriptors.Any())
             {
-                descriptors = sd.ToList();
+                descriptors = descriptorsToAdd.ToList();
                 return this;
             }
+
+
             var result = new List<RunDescriptor>();
-                
+
             foreach (var existingDescriptor in descriptors)
             {
-                foreach (var descriptorToAdd in sd.ToList())
+                foreach (var descriptorToAdd in descriptorsToAdd.ToList())
                 {
                     var nd = new RunDescriptor(existingDescriptor);
                     nd.Merge(descriptorToAdd);
                     result.Add(nd);
-                }    
+                }
             }
 
+         
             descriptors = result;
 
             return this;
         }
+        
+       
 
         public IList<RunDescriptor> Descriptors
         {
             get
             {
-                return descriptors.Where(d => !excludes.Any(e => d.Name.ToLower().Contains(e))).ToList();
+                var activeDescriptors = descriptors.Where(d => !excludes.Any(e => d.Key.ToLower().Contains(e))).ToList();
+
+                int permutation = 1;
+                foreach (var run in activeDescriptors)
+                {
+                    run.Permutation = permutation;
+
+                    permutation++;
+
+                }
+
+                return activeDescriptors;
             }
         }
 
@@ -52,7 +79,7 @@
 
         public RunDescriptorsBuilder Except(RunDescriptor runToExclude)
         {
-            excludes.Add(runToExclude.Name.ToLowerInvariant());
+            excludes.Add(runToExclude.Key.ToLowerInvariant());
             return this;
         }
     }

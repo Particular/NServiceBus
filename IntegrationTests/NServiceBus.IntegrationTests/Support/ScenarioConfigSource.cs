@@ -1,15 +1,19 @@
 ﻿namespace NServiceBus.IntegrationTests.Support
 {
-    using NServiceBus.Config;
-    using NServiceBus.Config.ConfigurationSource;
+    using System;
+    using System.Collections.Generic;
+    using Config;
+    using Config.ConfigurationSource;
 
     public class ScenarioConfigSource : IConfigurationSource
     {
         readonly EndpointBehavior behavior;
+        readonly IDictionary<Type, string> routingTable;
 
-        public ScenarioConfigSource(EndpointBehavior behavior)
+        public ScenarioConfigSource(EndpointBehavior behavior, IDictionary<Type, string> routingTable)
         {
             this.behavior = behavior;
+            this.routingTable = routingTable;
         }
 
         public T GetConfiguration<T>() where T : class, new()
@@ -25,11 +29,39 @@
             if (type == typeof(UnicastBusConfig))
                 return new UnicastBusConfig
                     {
-                        MessageEndpointMappings = this.behavior.EndpointMappings
+                        MessageEndpointMappings = GenerateMappings()
                     }as T;
 
 
+
+            if (type == typeof(Logging))
+                return new Logging()
+                {
+                    Threshold = "WARN"
+                } as T;
+
+
             return null;
+        }
+
+        MessageEndpointMappingCollection GenerateMappings()
+        {
+            var mappings = new MessageEndpointMappingCollection();
+
+            foreach (var templateMapping in behavior.EndpointMappings)
+            {
+                var messageType = templateMapping.Key;
+                var endpoint = templateMapping.Value;
+
+               mappings.Add( new MessageEndpointMapping
+                    {
+                        AssemblyName = messageType.Assembly.FullName,
+                        TypeFullName = messageType.FullName,
+                        Endpoint = routingTable[endpoint]
+                    });
+            }
+
+            return mappings;
         }
     }
 }

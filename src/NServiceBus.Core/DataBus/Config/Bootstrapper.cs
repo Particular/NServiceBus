@@ -4,11 +4,13 @@ namespace NServiceBus.DataBus.Config
     using System.Linq;
     using NServiceBus.Config;
 
-    public class Bootstrapper : NServiceBus.INeedInitialization, IWantToRunWhenConfigurationIsComplete
+    public class Bootstrapper : IWantToRunBeforeConfigurationIsFinalized, IWantToRunWhenConfigurationIsComplete
 	{
-		public void Init()
+        static bool dataBusPropertyFound;
+
+        void IWantToRunBeforeConfigurationIsFinalized.Run()
 		{
-            if (System.Diagnostics.Debugger.IsAttached)
+            if (!Configure.Instance.Configurer.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
             {
                 var properties = Configure.TypesToScan
                     .Where(MessageConventionExtensions.IsMessageType)
@@ -39,28 +41,33 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
 
 		    if (!dataBusPropertyFound)
-				return;
+		    {
+		        return;
+		    }
 
 			if (!Configure.Instance.Configurer.HasComponent<IDataBus>())
-				throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
+			{
+			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
+			}
 
 			Configure.Instance.Configurer.ConfigureComponent<DataBusMessageMutator>(
                 DependencyLifecycle.InstancePerCall);
 
-			Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
-				DependencyLifecycle.SingleInstance);
+            if (!Configure.Instance.Configurer.HasComponent<IDataBusSerializer>())
+            {
+                Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
+                    DependencyLifecycle.SingleInstance);
+            }
 		}
 
-	    public void Run()
-	    {
-            if (!dataBusPropertyFound)
-                return;
-
-            Bus.Started += (sender, eventargs) => Configure.Instance.Builder.Build<IDataBus>().Start();
-	    }
+        void IWantToRunWhenConfigurationIsComplete.Run()
+        {
+            if (dataBusPropertyFound)
+            {
+                Bus.Started += (sender, eventargs) => Configure.Instance.Builder.Build<IDataBus>().Start();
+            }
+        }
 
         public IStartableBus Bus { get; set; }
-
-	    private static bool dataBusPropertyFound;
 	}
 }

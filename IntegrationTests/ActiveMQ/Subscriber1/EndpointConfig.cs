@@ -12,7 +12,7 @@
                 .DefaultBuilder()
                 .PurgeOnStartup(true)
                 .FileShareDataBus(BasePath)
-                .ActiveMQTransport(() => "activemq:tcp://localhost:61616")
+                .UseTransport<ActiveMQ>(() => "activemq:tcp://localhost:61616")
                 .XmlSerializer(dontWrapSingleMessages: true);
 
             Configure.Instance.DisableSecondLevelRetries();

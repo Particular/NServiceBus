@@ -67,18 +67,18 @@ namespace Runner
             switch (args[3].ToLower())
             {
                 case "msmq":
-                    config.MsmqTransport();
+                    config.UseTransport<Msmq>();
                     break;
 
                 case "sqlserver":
-                    config.SqlServerTransport(() => @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
+                    config.UseTransport<SqlServer>(() => @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
                     break;
 
                 case "activemq":
-                    config.ActiveMQTransport(() => "activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
+                    config.UseTransport<ActiveMQ>(() => "activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
                     break;
                 case "rabbitmq":
-                    config.RabbitMQTransport(() => "host=localhost");
+                    config.UseTransport<RabbitMQ>(() => "host=localhost");
                     break;
 
                 default:

@@ -2,7 +2,7 @@ namespace NServiceBus.IntegrationTests
 {
     using System;
 
-    public static class Conventions
+    public class Conventions
     {
         static Conventions()
         {

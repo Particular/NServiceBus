@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.IntegrationTests.Support
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
@@ -17,30 +18,125 @@
         {
             var totalRuns = runDescriptors.Count();
 
-            var runNumber = 1;
+            var cts = new CancellationTokenSource();
 
-            foreach (var runDescriptor in runDescriptors)
+            var po = new ParallelOptions
+                {
+                    CancellationToken = cts.Token
+                };
+
+            var results = new ConcurrentBag<RunSummary>();
+
+            bool canceled;
+            try
             {
+                Parallel.ForEach(runDescriptors, po, runDescriptor =>
+                {
+                    po.CancellationToken.ThrowIfCancellationRequested();
+
+                    Console.Out.WriteLine("{0} - Started",runDescriptor.Key);
+
+                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
+
+                    Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
+
+                    results.Add(new RunSummary
+                        {
+                            Result = runResult,
+                            RunDescriptor = runDescriptor,
+                            Endpoints = behaviorDescriptors
+                        });
 
 
-                Console.Out.Write("Running test for : {0}", runDescriptor.Name);
+                    if (runResult.Failed)
+                    {
+                        cts.Cancel();
+                    }
+                });
 
-                if (totalRuns > 1)
-                    Console.Out.WriteLine(" - Permutation: {0}({1})", runNumber, totalRuns);
-                Console.Out.Write("");
+            }
+            catch (OperationCanceledException)
+            {
+                canceled = true;
+                Console.Out.WriteLine("Testrun aborted due to test failures");
+            }
 
-                PrintSettings(runDescriptor.Settings);
-                PrintBehaviours(behaviorDescriptors);
+            var failedRuns = results.Where(s => s.Result.Failed).ToList();
 
-                var runTimer = new Stopwatch();
+            foreach (var runSummary in failedRuns)
+            {
+                DisplayRunResult(runSummary, totalRuns);    
+            }
 
-                runTimer.Start();
-                var runners = InitializeRunners(runDescriptor, behaviorDescriptors);
+            if(failedRuns.Any())
+                throw new AggregateException("Test run failed due to one or more exception",failedRuns.Select(f=>f.Result.Exception));
+
+
+            foreach (var runSummary in results.Where(s => !s.Result.Failed))
+            {
+                DisplayRunResult(runSummary, totalRuns);
+            }
+        }
+
+        class RunSummary
+        {
+            public RunResult Result { get; set; }
+
+            public RunDescriptor RunDescriptor { get; set; }
+
+            public IEnumerable<BehaviorDescriptor> Endpoints { get; set; }
+        }
+
+        static void DisplayRunResult(RunSummary summary, int totalRuns)
+        {
+            var runDescriptor = summary.RunDescriptor;
+            var runResult = summary.Result;
+
+            Console.Out.WriteLine("------------------------------------------------------");
+            Console.Out.WriteLine("Test summary for: {0}", runDescriptor.Key);
+            if (totalRuns > 1)
+                Console.Out.WriteLine(" - Permutation: {0}({1})", runDescriptor.Permutation, totalRuns);
+            Console.Out.WriteLine("");
+
+
+            PrintSettings(runDescriptor.Settings);
+
+            Console.WriteLine("");
+            Console.WriteLine("Endpoints:");
+
+            foreach (var endpoint in runResult.ActiveEndpoints)
+            {
+                Console.Out.WriteLine("     - {0}", endpoint);
+            }
+
+
+            if (runResult.Failed)
+                Console.Out.WriteLine("Test failed: {0}", runResult.Exception);
+            else
+            {
+                Console.Out.WriteLine("Result: Successfull - Duration: {0}", runResult.TotalTime);
+                Console.Out.WriteLine("------------------------------------------------------");
+
+            }
+        }
+
+        static RunResult PerformTestRun(IEnumerable<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor)
+        {
+            var runResult = new RunResult();
+
+            var runTimer = new Stopwatch();
+
+            runTimer.Start();
+            var runners = new List<ActiveRunner>();
+            try
+            {
+                runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
-                {
-                    PerformScenarios(runners);
+                {                 
+                    runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
+                    PerformScenarios(runners);
                 }
                 finally
                 {
@@ -52,32 +148,36 @@
 
                 runTimer.Stop();
 
-                foreach (var descriptor in behaviorDescriptors)
+                foreach (var runner in runners)
                 {
-                    if (descriptor.Context == null)
+                    if (runner.BehaviourContext == null)
                         continue;
 
-                    shoulds.Where(s => s.ContextType == descriptor.Context.GetType()).ToList()
-                           .ForEach(v => v.Verify(descriptor.Context));
+                    shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
+                           .ForEach(v => v.Verify(runner.BehaviourContext));
                 }
-
-                Console.Out.WriteLine("Result: Successful - Duration: {0}", runTimer.Elapsed);
-                Console.Out.WriteLine("------------------------------------------------------");
-
-                runNumber++;
             }
+            catch (Exception ex)
+            {
+                runResult.Failed = true;
+                runResult.Exception = ex;
+            }
+
+            runResult.TotalTime = runTimer.Elapsed;
+
+            return runResult;
         }
 
-        static void PrintBehaviours(IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
-            Console.WriteLine("");
-            Console.WriteLine("Endpoints:");
+            var routingTable = new Dictionary<Type, string>();
 
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                Console.Out.WriteLine("     - {0}",behaviorDescriptor.Factory.Get().EndpointName);
+                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
             }
-         
+
+            return routingTable;
         }
 
         private static void PrintSettings(IEnumerable<KeyValuePair<string, string>> settings)
@@ -98,7 +198,7 @@
             StartEndpoints(endpoints);
 
             var startTime = DateTime.UtcNow;
-            var maxTime = TimeSpan.FromSeconds(30);
+            var maxTime = TimeSpan.FromSeconds(60);
 
             Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(endpoint.Done, maxTime))).Cast<Task>().ToArray());
 
@@ -152,24 +252,38 @@
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
+            var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
 
-            foreach (var descriptor in behaviorDescriptors)
+
+            foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                var runner = PrepareRunner(descriptor.Factory.Get());
-                descriptor.Init();
+                var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
 
-                if (!runner.Instance.Initialize(
-                        descriptor.Factory.GetType().AssemblyQualifiedName, descriptor.Context, runDescriptor.Settings))
+
+                var runner = PrepareRunner(endpointName);
+                runner.BehaviourContext = behaviorDescriptor.CreateContext();
+
+                if (!runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType, routingTable, endpointName, runner.BehaviourContext))
                 {
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
 
+
+
                 runners.Add(runner);
+
             }
             return runners;
         }
 
-        static ActiveRunner PrepareRunner(EndpointBehavior endpointBehavior)
+        static string GetEndpointNameForRun(RunDescriptor runDescriptor, BehaviorDescriptor behaviorDescriptor)
+        {
+            var endpointName = Conventions.EndpointNamingConvention(behaviorDescriptor.EndpointBuilderType) + "." + runDescriptor.Key + "." +
+                               runDescriptor.Permutation;
+            return endpointName;
+        }
+
+        static ActiveRunner PrepareRunner(string endpointName)
         {
             var domainSetup = new AppDomainSetup
                 {
@@ -177,19 +291,36 @@
                     LoaderOptimization = LoaderOptimization.SingleDomain
                 };
 
-            var appDomain = AppDomain.CreateDomain(endpointBehavior.EndpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
-            
+            var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
+
             return new ActiveRunner
                 {
                     Instance = (EndpointRunner)appDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, typeof(EndpointRunner).FullName),
-                    AppDomain = appDomain
+                    AppDomain = appDomain,
+                    EndpointName = endpointName
                 };
         }
     }
 
-    class ActiveRunner
+    public class RunResult
     {
-        public EndpointRunner Instance { get; set; }
-        public AppDomain AppDomain { get; set; }
+        public bool Failed { get; set; }
+
+        public Exception Exception { get; set; }
+
+        public TimeSpan TotalTime { get; set; }
+
+        public IEnumerable<string> ActiveEndpoints
+        {
+            get
+            {
+                if(activeEndpoints == null) 
+                    activeEndpoints = new List<string>();
+
+                return activeEndpoints;
+            } set { activeEndpoints = value.ToList(); }
+        }
+
+        IList<string> activeEndpoints;
     }
 }

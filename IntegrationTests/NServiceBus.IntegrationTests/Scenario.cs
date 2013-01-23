@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Support;
 
@@ -29,13 +30,10 @@
 
         public IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
         {
-            behaviours.Add(new BehaviorDescriptor(context, Activator.CreateInstance<T>()));
+            behaviours.Add(new BehaviorDescriptor(context, typeof (T)));
 
             return this;
         }
-
-
-       
 
         public void Run()
         {
@@ -48,10 +46,16 @@
             if (!runDescriptors.Any())
                 runDescriptors.Add(new RunDescriptor
                 {
-                    Name = "Default"
+                    Key = "Default"
                 });
+            var sw = new Stopwatch();
 
+            sw.Start();
             ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds);
+
+            sw.Stop();
+
+            Console.Out.WriteLine("Total time for testrun: {0}",sw.Elapsed);
         }
 
         public IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> action)
@@ -60,7 +64,6 @@
 
             return this;
         }
-
 
         public IAdvancedScenarioWithEndpointBehavior Should<T>(Action<T> should) where T : BehaviorContext
         {

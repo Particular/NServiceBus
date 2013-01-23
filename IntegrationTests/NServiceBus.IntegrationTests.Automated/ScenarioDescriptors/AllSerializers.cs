@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.ScenarioDescriptors
 {
     using System.Collections.Generic;
-    using Serializers.Binary;
-    using Serializers.Json;
-    using Serializers.XML;
+    using NServiceBus.Serializers.Binary;
+    using NServiceBus.Serializers.Json;
+    using NServiceBus.Serializers.XML;
     using Support;
 
     public class AllSerializers : ScenarioDescriptor
@@ -12,7 +12,7 @@
         {
             Add(new RunDescriptor
                     {
-                        Name = "Xml serialization",
+                        Key = "Xml",
                         Settings =
                             new Dictionary<string, string>
                                 {
@@ -24,7 +24,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Json serialization",
+                Key = "Json",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -35,22 +35,12 @@
             });
 
 
-            Add(new RunDescriptor
-            {
-                Name = "Bson serialization",
-                Settings =
-                    new Dictionary<string, string>
-                                {
-                                    {
-                                        "Serializer",typeof(BsonMessageSerializer).AssemblyQualifiedName
-                                    }
-                                }
-            });
+            Add(Serializers.Bson);
 
 
             Add(new RunDescriptor
             {
-                Name = "Binary serialization",
+                Key = "Binary",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -60,5 +50,20 @@
                                 }
             });
         }
+    }
+
+    public class Serializers
+    {
+        public static RunDescriptor Bson = new RunDescriptor
+            {
+                Key = "Bson",
+                Settings =
+                    new Dictionary<string, string>
+                        {
+                            {
+                                "Serializer", typeof (BsonMessageSerializer).AssemblyQualifiedName
+                            }
+                        }
+            };
     }
 }

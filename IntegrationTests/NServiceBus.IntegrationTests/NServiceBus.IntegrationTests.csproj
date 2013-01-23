@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Conventions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Support\ActiveRunner.cs" />
     <Compile Include="Support\BehaviorContext.cs" />
     <Compile Include="Support\BehaviorDescriptor.cs" />
     <Compile Include="Support\BehaviourFactory.cs" />

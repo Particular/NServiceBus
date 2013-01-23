@@ -4,24 +4,44 @@ namespace NServiceBus.DataBus.FileShare
     using System.IO;
     using Logging;
 
+    /// <summary>
+    /// File share implementation of <see cref="IDataBus"/>.
+    /// </summary>
     public class FileShareDataBus : IDataBus
 	{
 		readonly string basePath;
 		private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
 
+		/// <summary>
+        /// Create a <see cref="FileShareDataBus"/> with the specified <paramref name="basePath"/>.
+		/// </summary>
+		/// <param name="basePath">The path to save files on.</param>
 		public FileShareDataBus(string basePath)
 		{
 			this.basePath = basePath;
 		}
 
+        /// <summary>
+        /// Gets/Sets the maximum message TTL.
+        /// </summary>
 		public TimeSpan MaxMessageTimeToLive { get; set; }
 
-		public Stream Get(string key)
+        /// <summary>
+        /// Gets a data item from the bus.
+        /// </summary>
+        /// <param name="key">The key to look for.</param>
+        /// <returns>The data <see cref="Stream"/>.</returns>
+        public Stream Get(string key)
 		{
 			return new FileStream(Path.Combine(basePath, key), FileMode.Open);
 		}
 
-		public string Put(Stream stream, TimeSpan timeToBeReceived)
+        /// <summary>
+        /// Adds a data item to the bus and returns the assigned key.
+        /// </summary>
+        /// <param name="stream">A create containing the data to be sent on the databus.</param>
+        /// <param name="timeToBeReceived">The time to be received specified on the message type. TimeSpan.MaxValue is the default.</param>
+        public string Put(Stream stream, TimeSpan timeToBeReceived)
 		{
 			var key = GenerateKey(timeToBeReceived);
 
@@ -42,7 +62,10 @@ namespace NServiceBus.DataBus.FileShare
 			return key;
 		}
 
-		public void Start()
+        /// <summary>
+        /// Called when the bus starts up to allow the data bus to active background tasks.
+        /// </summary>
+        public void Start()
 		{
 			logger.Info("File share data bus started. Location: " + basePath);
 
@@ -60,11 +83,6 @@ namespace NServiceBus.DataBus.FileShare
 				keepMessageUntil = DateTime.Now + timeToBeReceived;
 
 			return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_hh"), Guid.NewGuid().ToString());
-		}
-
-		public void Dispose()
-		{
-			logger.Info("File share data bus started. Location: " + basePath);
 		}
 	}
 }

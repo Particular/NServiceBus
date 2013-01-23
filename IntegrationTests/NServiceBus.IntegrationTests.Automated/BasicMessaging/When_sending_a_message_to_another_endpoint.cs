@@ -14,15 +14,16 @@
         {
             Scenario.Define()
                 .WithEndpoint<Sender>()
-                .WithEndpoint<Receiver>(()=>new ReceiveContext())
-                .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
-                         //.For<AllSerializers>()
-                         //.For<AllBuilders>()
+                .WithEndpoint<Receiver>(() => new ReceiveContext())
+                .Repeat(r => 
+                         r.For<AllTransports>().Except(Transports.ActiveMQ)
+                         .For<AllSerializers>()
+                         .For<AllBuilders>().Except("autofac")
                          )
                 .Should<ReceiveContext>(c =>
                     {
-                        Assert.True(c.WasCalled);
-                        Assert.AreEqual(1, c.TimesCalled);
+                        Assert.True(c.WasCalled,"Message handler was not called as expected");
+                        Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
                     })
                 .Run();
         }
@@ -40,8 +41,8 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(Conventions.DefaultNameFor<Receiver>())
-                    .When(bus => bus.Send(new MyMessage()));
+                    .AddMapping<MyMessage>(typeof(Receiver))
+                    .When(bus =>bus.Send(new MyMessage()));
             }
         }
 
@@ -50,7 +51,7 @@
             public Receiver()
             {
                 EndpointSetup<DefaultServer>()
-                    .Done((ReceiveContext context) => context.WasCalled);
+                    .Done<ReceiveContext>(context => context.WasCalled);
             }
 
         }
@@ -62,17 +63,12 @@
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            private readonly ReceiveContext context;
-
-            public MyMessageHandler(ReceiveContext context)
-            {
-                this.context = context;
-            }
+            public ReceiveContext Context { get; set; }
 
             public void Handle(MyMessage message)
             {
-                this.context.WasCalled = true;
-                context.TimesCalled++;
+                Context.WasCalled = true;
+                Context.TimesCalled++;
             }
         }
     }

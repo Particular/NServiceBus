@@ -48,7 +48,6 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureRabbitMqTransport.cs" />
     <Compile Include="Config\RabbitMQ.cs" />
     <Compile Include="Config\RabbitMqConnectionStringBuilder.cs" />
     <Compile Include="Config\RabbitMqTransportConfigurer.cs" />

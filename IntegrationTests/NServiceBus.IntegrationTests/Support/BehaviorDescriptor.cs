@@ -2,22 +2,39 @@
 {
     using System;
 
-    public class BehaviorDescriptor
+    [Serializable]
+    public class BehaviorDescriptor : MarshalByRefObject
     {
-        private readonly Func<BehaviorContext> behaviorContextBuilder;
+        readonly Func<BehaviorContext> behaviorContextBuilder;
 
-        public BehaviorDescriptor(Func<BehaviorContext> behaviorContextBuilder, EndpointBuilder factory)
+        public BehaviorDescriptor(Func<BehaviorContext> contextBuilder, Type builderType)
         {
-            this.behaviorContextBuilder = behaviorContextBuilder;
-            this.Factory = factory;
+            behaviorContextBuilder = contextBuilder;
+            EndpointBuilderType = builderType;
+            EndpointName = Conventions.EndpointNamingConvention(builderType);
         }
-        public void Init()
+        public BehaviorContext CreateContext()
         {
-            Context = behaviorContextBuilder();
+            return behaviorContextBuilder();
         }
 
-        public BehaviorContext Context { get; private set; }
+        public string EndpointName { get; private set; }
 
-        public IEndpointBehaviorFactory Factory { get; private set; }
+        public Type EndpointBuilderType { get; private set; }
+
+        public object GetEndpointBehaviour()
+        {
+            if (behaviour == null)
+            {
+                behaviour = ((IEndpointBehaviorFactory)Activator.CreateInstance(EndpointBuilderType)).Get();
+
+                behaviour.EndpointName = EndpointName;
+            }
+                
+            return behaviour;
+        }
+
+        EndpointBehavior behaviour;
+
     }
 }

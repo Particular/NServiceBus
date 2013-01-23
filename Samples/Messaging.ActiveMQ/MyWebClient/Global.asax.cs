@@ -18,7 +18,7 @@
                .DefaultBuilder()
                .ForMvc()
                .XmlSerializer(dontWrapSingleMessages:true)
-               .ActiveMQTransport()
+               .UseTransport<ActiveMQ>()
                    .DontUseTransactions()
                    .PurgeOnStartup(true)
                .UnicastBus()

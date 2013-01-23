@@ -228,14 +228,14 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
+            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
             if (HttpRuntime.AppDomainAppId == null)
             {
                 var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
-                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath)));
+                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
 
@@ -348,7 +348,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns types in assemblies found in the current directory.
         /// </summary>
-        public static IEnumerable<Type> TypesToScan { get; private set; }
+        public static IList<Type> TypesToScan { get; private set; }
 
         /// <summary>
         /// Returns the requested config section using the current configuration source

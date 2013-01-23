@@ -15,7 +15,7 @@
         {
             Add(new RunDescriptor
             {
-                Name = "Autofac builder",
+                Key = "Autofac",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -27,7 +27,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Windsor builder",
+                Key = "Windsor",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -39,7 +39,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Ninject builder",
+                Key = "Ninject",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -52,7 +52,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "Spring builder",
+                Key = "Spring",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -64,7 +64,7 @@
 
             Add(new RunDescriptor
             {
-                Name = "StructureMap builder",
+                Key = "StructureMap",
                 Settings =
                     new Dictionary<string, string>
                                 {
@@ -74,18 +74,23 @@
                                 }
             });
 
-            Add(new RunDescriptor
-            {
-                Name = "Unity builder",
-                Settings =
-                    new Dictionary<string, string>
-                                {
-                                    {
-                                        "Builder",typeof(UnityObjectBuilder).AssemblyQualifiedName
-                                    }
-                                }
-            });
+            Add(Builders.Unity);
 
         }
+    }
+
+    public class Builders
+    {
+        public static RunDescriptor Unity = new RunDescriptor
+            {
+                Key = "Unity",
+                Settings =
+                    new Dictionary<string, string>
+                        {
+                            {
+                                "Builder", typeof (UnityObjectBuilder).AssemblyQualifiedName
+                            }
+                        }
+            };
     }
 }

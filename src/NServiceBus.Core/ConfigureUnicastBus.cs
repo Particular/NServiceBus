@@ -20,11 +20,15 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
-            Instance = new ConfigUnicastBus();
-            Instance.Configure(config);
+            if (Instance == null)
+            {
+                Instance = new ConfigUnicastBus();
+                Instance.Configure(config);
+            }
 
             return Instance;
         }
+
         /// <summary>
         /// Return Timeout Manager Address. Uses "TimeoutManagerAddress" parameter form config file if defined, if not, uses "EndpointName.Timeouts".
         /// </summary>

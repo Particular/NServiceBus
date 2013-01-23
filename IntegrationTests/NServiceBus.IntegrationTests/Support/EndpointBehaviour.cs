@@ -2,20 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Config;
+    using Config;
 
     public class EndpointBehavior
     {
-        public string EndpointName { get; set; }
-
         public List<Action<IBus>> Givens { get; set; }
 
-        public MessageEndpointMappingCollection EndpointMappings { get; set; }
+        public IDictionary<Type,Type> EndpointMappings { get; set; }
 
         public Func<BehaviorContext, bool> Done { get; set; }
 
-        public List<Action<IBus>> Whens { get; set; }
+        public List<Action<IBus,BehaviorContext>> Whens { get; set; }
 
-        public List<Action<IDictionary<string, string>, Configure>> Setups { get; set; }
+        public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
+
+        public string EndpointName{ get; set; }
+
+        public Type BuilderType { get; set; }
     }
 }
