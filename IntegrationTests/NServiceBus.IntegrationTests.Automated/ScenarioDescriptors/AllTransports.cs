@@ -11,6 +11,5 @@
             Add(Transports.RabbitMQ);
             Add(Transports.SqlServer);
         }
-
     }
 }

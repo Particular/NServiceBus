@@ -5,8 +5,7 @@
 
     public static class Transports
     {
-
-        public static RunDescriptor ActiveMQ = new RunDescriptor
+        public static readonly RunDescriptor ActiveMQ = new RunDescriptor
             {
                 Key = "ActiveMQ",
                 Settings =
@@ -20,7 +19,7 @@
             };
 
 
-        public static RunDescriptor Msmq = new RunDescriptor
+        public static readonly RunDescriptor Msmq = new RunDescriptor
             {
                 Key = "Msmq",
                 Settings =
@@ -35,7 +34,7 @@
 
 
 
-        public static RunDescriptor RabbitMQ = new RunDescriptor
+        public static readonly RunDescriptor RabbitMQ = new RunDescriptor
         {
             Key = "RabbitMQ",
             Settings =
@@ -49,7 +48,7 @@
         };
 
 
-        public static RunDescriptor SqlServer = new RunDescriptor
+        public static readonly RunDescriptor SqlServer = new RunDescriptor
         {
             Key = "SqlServer",
             Settings =

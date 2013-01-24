@@ -7,9 +7,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Text;
     using Core;
     using Logging;
-    using Raven.Abstractions.Indexing;
     using Raven.Client;
-    using Raven.Client.Indexes;
     using Raven.Client.Linq;
 
     public class RavenTimeoutPersistence : IPersistTimeouts
@@ -19,45 +17,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         public RavenTimeoutPersistence(IDocumentStore store)
         {
             this.store = store;
-
-            try
-            {
-                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutData/BySagaId",
-                                                new IndexDefinitionBuilder<TimeoutData>
-                                                    {
-                                                        Map = docs => from doc in docs
-                                                                      select new {doc.SagaId}
-                                                    }, true);
-
-                store.DatabaseCommands.PutIndex("RavenTimeoutPersistence/TimeoutDataSortedByTime",
-                                                new IndexDefinitionBuilder<TimeoutData>
-                                                    {
-                                                        Map = docs => from doc in docs
-                                                                      select
-                                                                          new
-                                                                              {
-                                                                                  doc.Time,
-                                                                                  OwningTimeoutManager =
-                                                                          doc.OwningTimeoutManager ?? String.Empty
-                                                                              },
-                                                        SortOptions =
-                                                            {
-                                                                {doc => doc.Time, SortOptions.String}
-                                                            },
-                                                        Indexes =
-                                                            {
-                                                                {doc => doc.Time, FieldIndexing.Default}
-                                                            },
-                                                        Stores =
-                                                            {
-                                                                {doc => doc.Time, FieldStorage.No}
-                                                            }
-                                                    }, true);
-            }
-            catch (WebException)
-            {
-                LogRavenConnectionFailure();
-            }
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
@@ -76,7 +35,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     {
                         session.Advanced.AllowNonAuthoritativeInformation = true;
 
-                        var query = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                        var query = session.Query<TimeoutData>()
                             .Where(
                                 t =>
                                     t.OwningTimeoutManager == String.Empty ||
@@ -108,7 +67,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
 
                     //Retrieve next time we need to run query
                     var startOfNextChunk =
-                        session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutDataSortedByTime")
+                        session.Query<TimeoutData>()
                             .Where(
                                 t =>
                                 t.OwningTimeoutManager == String.Empty ||
@@ -172,7 +131,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
         {
             using (var session = OpenSession())
             { 
-                var items = session.Query<TimeoutData>("RavenTimeoutPersistence/TimeoutData/BySagaId").Where(x => x.SagaId == sagaId);
+                var items = session.Query<TimeoutData>().Where(x => x.SagaId == sagaId);
                 foreach (var item in items)
                     session.Delete(item);
 

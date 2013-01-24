@@ -12,8 +12,8 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IEnumerable<RunDescriptor> runDescriptors,
-                               IEnumerable<BehaviorDescriptor> behaviorDescriptors,
+        public static void Run(IList<RunDescriptor> runDescriptors,
+                               IList<BehaviorDescriptor> behaviorDescriptors,
                                IList<IScenarioVerification> shoulds)
         {
             var totalRuns = runDescriptors.Count();
@@ -27,37 +27,37 @@
 
             var results = new ConcurrentBag<RunSummary>();
 
-            bool canceled;
             try
             {
                 Parallel.ForEach(runDescriptors, po, runDescriptor =>
-                {
-                    po.CancellationToken.ThrowIfCancellationRequested();
-
-                    Console.Out.WriteLine("{0} - Started",runDescriptor.Key);
-
-                    var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
-
-                    Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
-
-                    results.Add(new RunSummary
-                        {
-                            Result = runResult,
-                            RunDescriptor = runDescriptor,
-                            Endpoints = behaviorDescriptors
-                        });
-
-
-                    if (runResult.Failed)
                     {
-                        cts.Cancel();
-                    }
-                });
+                        if (po.CancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
 
+                        Console.Out.WriteLine("{0} - Started", runDescriptor.Key);
+
+                        var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
+
+                        Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
+
+                        results.Add(new RunSummary
+                            {
+                                Result = runResult,
+                                RunDescriptor = runDescriptor,
+                                Endpoints = behaviorDescriptors
+                            });
+
+
+                        if (runResult.Failed)
+                        {
+                            cts.Cancel();
+                        }
+                    });
             }
             catch (OperationCanceledException)
             {
-                canceled = true;
                 Console.Out.WriteLine("Testrun aborted due to test failures");
             }
 
@@ -120,17 +120,17 @@
             }
         }
 
-        static RunResult PerformTestRun(IEnumerable<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor)
+        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor)
         {
             var runResult = new RunResult();
 
             var runTimer = new Stopwatch();
 
             runTimer.Start();
-            var runners = new List<ActiveRunner>();
+
             try
             {
-                runners = InitializeRunners(runDescriptor, behaviorDescriptors);
+                List<ActiveRunner> runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
                 {                 
@@ -223,10 +223,7 @@
                                         maxTime.TotalSeconds));
             sb.AppendLine("----------------------------------------------------------------------------");
             sb.AppendLine("Endpoint statuses:");
-            endpoints.ForEach(e =>
-                {
-                    sb.AppendLine(string.Format("{0} - {1}", e.Name(), e.Done() ? "Done" : "Not done"));
-                });
+            endpoints.ForEach(e => sb.AppendLine(string.Format("{0} - {1}", e.Name(), e.Done() ? "Done" : "Not done")));
 
             return sb.ToString();
         }
@@ -249,7 +246,7 @@
             Task.WaitAll(tasks);
         }
 
-        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<BehaviorDescriptor> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);

@@ -8,22 +8,18 @@
     {
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
-        IList<string> excludes = new List<string>();
+        readonly List<string> excludes = new List<string>();
 
-        public RunDescriptorsBuilder For<T>() where T : ScenarioDescriptor
+        public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor
         {
+            excludes.AddRange(runDescriptorsToExclude.Select(r => r.Key.ToLowerInvariant()).ToArray());
+            
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
-            return For(sd.ToList());
+            return For(sd.ToArray());
         }
 
-
-        public RunDescriptorsBuilder For(RunDescriptor descriptor)
-        {
-            return For(new[] {descriptor});
-        }
-
-        public RunDescriptorsBuilder For(IEnumerable<RunDescriptor> descriptorsToAdd)
+        public RunDescriptorsBuilder For(params RunDescriptor[] descriptorsToAdd)
         {
             if (!descriptors.Any())
             {
@@ -49,8 +45,6 @@
 
             return this;
         }
-        
-       
 
         public IList<RunDescriptor> Descriptors
         {
@@ -69,18 +63,6 @@
 
                 return activeDescriptors;
             }
-        }
-
-        public RunDescriptorsBuilder Except(string nameOfRunToExclude)
-        {
-            excludes.Add(nameOfRunToExclude.ToLowerInvariant());
-            return this;
-        }
-
-        public RunDescriptorsBuilder Except(RunDescriptor runToExclude)
-        {
-            excludes.Add(runToExclude.Key.ToLowerInvariant());
-            return this;
         }
     }
 }

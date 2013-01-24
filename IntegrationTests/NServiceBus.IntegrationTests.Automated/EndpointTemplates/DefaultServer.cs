@@ -20,17 +20,14 @@
 
             var types = GetTypesToUse(endpointBehavior);
 
-
-
             return Configure.With(types)
-                    .DefineEndpointName(endpointBehavior.EndpointName)
-                    .DefineBuilder(settings.GetOrNull("Builder"))
-                    .CustomConfigurationSource(configSource)
-                    .DefineSerializer(settings.GetOrNull("Serializer"))
-                    .DefineTransport(settings.GetOrNull("Transport"))
-                    .UseInMemoryTimeoutPersister()
-                    .UnicastBus();
-
+                            .DefineEndpointName(endpointBehavior.EndpointName)
+                            .DefineBuilder(settings.GetOrNull("Builder"))
+                            .CustomConfigurationSource(configSource)
+                            .DefineSerializer(settings.GetOrNull("Serializer"))
+                            .DefineTransport(settings.GetOrNull("Transport"))
+                            .UseInMemoryTimeoutPersister()
+                            .UnicastBus();
         }
 
         static IEnumerable<Type> GetTypesToUse(EndpointBehavior endpointBehavior)
