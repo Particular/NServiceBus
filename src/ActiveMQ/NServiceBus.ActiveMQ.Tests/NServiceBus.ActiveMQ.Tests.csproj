@@ -71,7 +71,6 @@
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
-    <Compile Include="ActiveMqConnectionStarterTest.cs" />
     <Compile Include="Decoders\ByteMessageDecoderTest.cs" />
     <Compile Include="Decoders\ControlMessageDecoderTest.cs" />
     <Compile Include="Decoders\TestMessageDecoderTest.cs" />
@@ -82,7 +81,10 @@
     <Compile Include="MessageProducerTests.cs" />
     <Compile Include="MessageTypeInterpreterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SessionFactoryTest.cs" />
+    <Compile Include="SessionFactories\ActiveMqTransactionSessionFactoryTest.cs" />
+    <Compile Include="SessionFactories\PooledSessionFactoryTest.cs" />
+    <Compile Include="SessionFactories\PooledSessionFactoryMock.cs" />
+    <Compile Include="SessionFactories\DtcTransactionSessionFactoryTest.cs" />
     <Compile Include="SubscriptionManagerTests.cs" />
     <Compile Include="TopicEvaluatorTests.cs" />
   </ItemGroup>

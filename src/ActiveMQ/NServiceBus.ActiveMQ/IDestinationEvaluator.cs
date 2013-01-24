@@ -4,6 +4,6 @@ namespace NServiceBus.Transport.ActiveMQ
 
     public interface IDestinationEvaluator
     {
-        IDestination GetDestination(INetTxSession session, string destination, string prefix);
+        IDestination GetDestination(ISession session, string destination, string prefix);
     }
 }

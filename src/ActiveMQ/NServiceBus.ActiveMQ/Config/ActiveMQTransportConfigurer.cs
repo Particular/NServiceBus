@@ -3,6 +3,8 @@
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using NServiceBus.Config;
+    using NServiceBus.Transport.ActiveMQ.SessionFactories;
+
     using Unicast.Queuing.Installers;
     using MessageProducer = NServiceBus.Transport.ActiveMQ.MessageProducer;
 
@@ -21,6 +23,7 @@
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
+            //config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
@@ -36,20 +39,60 @@
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<SessionFactory>(DependencyLifecycle.SingleInstance);
 
-            var factory = new NetTxConnectionFactory(brokerUri)
+            if (Endpoint.IsVolatile)
             {
-                AcknowledgementMode =
-                    Endpoint.IsVolatile ? AcknowledgementMode.AutoAcknowledge : AcknowledgementMode.Transactional,
-            };
-
-            config.Configurer.ConfigureComponent<INetTxConnectionFactory>(
-                () => factory, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent(
-                () => (INetTxConnection)factory.CreateConnection(), DependencyLifecycle.SingleInstance);
+                RegisterNoneTransactionSessionFactory(config, brokerUri);
+            }
+            else
+            {
+                if (Endpoint.DontUseDistributedTransactions)
+                {
+                    RegisterActiveMQManagedTransactionSessionFactory(config, brokerUri);
+                }
+                else
+                {
+                    RegisterDTCManagedTransactionSessionFactory(config, brokerUri);
+                }
+            }
 
             EndpointInputQueueCreator.Enabled = true;
+        }
+
+        private static void RegisterNoneTransactionSessionFactory(Configure config, string brokerUri)
+        {
+            var connectionFactory = new ConnectionFactory(brokerUri)
+                {
+                    AcknowledgementMode = AcknowledgementMode.AutoAcknowledge, 
+                    AsyncSend = true
+                };
+            var sessionFactory = new PooledSessionFactory(connectionFactory);
+
+            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
+        }
+
+        private static void RegisterActiveMQManagedTransactionSessionFactory(Configure config, string brokerUri)
+        {
+            var connectionFactory = new ConnectionFactory(brokerUri)
+                {
+                    AcknowledgementMode = AcknowledgementMode.Transactional
+                };
+            var pooledSessionFactory = new PooledSessionFactory(connectionFactory);
+            var sessionFactory = new ActiveMqTransactionSessionFactory(pooledSessionFactory);
+
+            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
+        }
+
+        private static void RegisterDTCManagedTransactionSessionFactory(Configure config, string brokerUri)
+        {
+            var connectionFactory = new NetTxConnectionFactory(brokerUri)
+            {
+                AcknowledgementMode = AcknowledgementMode.Transactional
+            };
+            var pooledSessionFactory = new PooledSessionFactory(connectionFactory);
+            var sessionFactory = new DTCTransactionSessionFactory(pooledSessionFactory);
+
+            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
         }
 
         protected override string ExampleConnectionStringForErrorMessage

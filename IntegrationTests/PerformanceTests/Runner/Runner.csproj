@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestSuites\Transports-SuppressDTC.ps1" />
     <None Include="TestSuites\Transports-Volatile.ps1" />
     <None Include="TestSuites\RabbitMQ.ps1" />
     <None Include="TestSuites\TestSupport.ps1" />
