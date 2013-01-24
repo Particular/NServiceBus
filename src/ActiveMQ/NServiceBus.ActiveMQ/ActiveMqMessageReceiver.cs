@@ -131,7 +131,7 @@ namespace NServiceBus.Transport.ActiveMQ
 
                 if (this.transactionSettings.IsTransactional)
                 {
-                    if (!this.transactionSettings.SuppressDTC)
+                    if (!this.transactionSettings.DontUseDistributedTransactions)
                     {
                         this.ProcessInDTCTransaction(transportMessage);
                     }

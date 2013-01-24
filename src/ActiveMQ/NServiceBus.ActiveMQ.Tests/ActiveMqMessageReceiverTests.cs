@@ -206,7 +206,7 @@
         {
             this.testee.TryProcessMessage = m => false;
 
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
             this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
 
             session.Verify(s => s.Rollback());
@@ -217,7 +217,7 @@
         {
             this.testee.TryProcessMessage = m => true;
 
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
             this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
 
             session.Verify(s => s.Commit());
@@ -238,7 +238,7 @@
             this.sessionFactoryMock.Setup(sf => sf.RemoveSessionForCurrentThread())
                 .Callback(() => executionOrder += "RemoveSessionForCurrentThread;");
 
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, SuppressDTC = true });
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
             this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
 
             executionOrder.Should().Be("SetSessionForCurrentThread;ProcessMessage;RemoveSessionForCurrentThread;");
@@ -255,7 +255,7 @@
                 new TransactionSettings
                     {
                         IsTransactional = true,
-                        SuppressDTC = false,
+                        DontUseDistributedTransactions = false,
                         IsolationLevel = IsolationLevel.Serializable
                     });
 
@@ -287,7 +287,7 @@
                 new TransactionSettings
                 {
                     IsTransactional = true,
-                    SuppressDTC = false,
+                    DontUseDistributedTransactions = false,
                     IsolationLevel = IsolationLevel.Serializable
                 });
 
@@ -316,7 +316,7 @@
                 new TransactionSettings
                     {
                         IsTransactional = false,
-                        SuppressDTC = false,
+                        DontUseDistributedTransactions = false,
                         IsolationLevel = IsolationLevel.Serializable
                     });
         }

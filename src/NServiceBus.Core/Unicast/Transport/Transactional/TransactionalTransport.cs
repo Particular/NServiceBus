@@ -230,7 +230,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             needToAbort = false;
 
-            if (TransactionSettings.SuppressDTC)
+            if (TransactionSettings.DontUseDistributedTransactions)
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {

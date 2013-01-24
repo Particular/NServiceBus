@@ -120,7 +120,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (!transactionSettings.IsTransactional)
                 return MessageQueueTransactionType.None;
 
-            if (Endpoint.DontUseDistributedTransactions)
+            if (transactionSettings.DontUseDistributedTransactions)
                 return MessageQueueTransactionType.Single;
 
             return MessageQueueTransactionType.Automatic;
