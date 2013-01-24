@@ -16,7 +16,8 @@
                     .WithEndpoint<Sender>()
                     .WithEndpoint<Receiver>(() => new ReceiveContext())
                     .Repeat(r =>
-                            r.For<AllTransports>(Transports.ActiveMQ)
+                            r
+                            .For<AllTransports>(Transports.ActiveMQ)
                              .For<AllBuilders>()
                              .For<AllSerializers>()
                 )
@@ -40,7 +41,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<MyMessage>(typeof(Receiver))
                     .When(bus =>bus.Send(new MyMessage()));
             }
@@ -50,13 +51,13 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>()
                     .Done<ReceiveContext>(context => context.WasCalled);
             }
         }
 
         [Serializable]
-        public class MyMessage : IMessage
+        public class MyMessage : ICommand
         {
         }
 

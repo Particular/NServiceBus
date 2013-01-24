@@ -135,6 +135,7 @@
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="EndpointTemplates\NHibernateSetup.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
