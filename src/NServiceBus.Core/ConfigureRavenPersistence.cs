@@ -204,16 +204,23 @@ namespace NServiceBus
 
                     //We need to turn compression off to make us compatible with Raven616
                     store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
-                    
-                    if (unsafeAuthenticatedConnectionSharingAndPreAuthenticate)
-                    {
-                        store.JsonRequestFactory.ConfigureRequest += (sender, e) =>
+
+
+                    store.JsonRequestFactory.ConfigureRequest += (sender, e) =>
+                        {
+                            var httpWebRequest = ((HttpWebRequest) e.Request);
+
+                            if (unsafeAuthenticatedConnectionSharingAndPreAuthenticate)
                             {
-                                var httpWebRequest = ((HttpWebRequest) e.Request);
                                 httpWebRequest.UnsafeAuthenticatedConnectionSharing = true;
                                 httpWebRequest.PreAuthenticate = true;
-                            };
-                    }
+                            }
+
+                            //Workaround to support ilmerging!
+                            //If we don't do this the "Raven-Client-Version" header will be set to whatever our assembly version is.
+                            httpWebRequest.Headers["Raven-Client-Version"] = "2.0.0.0";
+                        };
+
                     return store;
                 }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
