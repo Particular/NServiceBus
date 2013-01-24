@@ -15,15 +15,14 @@
             var payloadToSend = new byte[1024*1024*10];
 
             Scenario.Define()
-                    .WithEndpoint<Sender>(new SendContext{PayloadToSend = payloadToSend})
+                    .WithEndpoint<Sender>(new SendContext {PayloadToSend = payloadToSend})
                     .WithEndpoint<Receiver>(new ReceiveContext())
-                    .Repeat(r => r.For<AllTransports>().Except(Transports.ActiveMQ)
-                                .For<AllSerializers>()
-                            )
+                    .Repeat(r => r.For<AllTransports>(Transports.ActiveMQ)
+                                  .For<AllSerializers>()
+                )
                     .Should<ReceiveContext>(c => Assert.AreEqual(payloadToSend, c.ReceivedPayload))
                     .Run();
         }
-
 
         public class ReceiveContext : BehaviorContext
         {

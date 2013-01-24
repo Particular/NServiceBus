@@ -13,19 +13,19 @@
         public void Should_receive_the_message()
         {
             Scenario.Define()
-                .WithEndpoint<Sender>()
-                .WithEndpoint<Receiver>(() => new ReceiveContext())
-                .Repeat(r => 
-                         r.For<AllTransports>().Except(Transports.ActiveMQ)
-                         .For<AllSerializers>()
-                         .For<AllBuilders>().Except("autofac")
-                         )
-                .Should<ReceiveContext>(c =>
-                    {
-                        Assert.True(c.WasCalled,"Message handler was not called as expected");
-                        Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
-                    })
-                .Run();
+                    .WithEndpoint<Sender>()
+                    .WithEndpoint<Receiver>(() => new ReceiveContext())
+                    .Repeat(r =>
+                            r.For<AllTransports>(Transports.ActiveMQ)
+                             .For<AllBuilders>()
+                             .For<AllSerializers>()
+                )
+                    .Should<ReceiveContext>(c =>
+                        {
+                            Assert.True(c.WasCalled, "Message handler was not called as expected");
+                            Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
+                        })
+                    .Run();
         }
 
 
@@ -40,7 +40,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
                     .AddMapping<MyMessage>(typeof(Receiver))
                     .When(bus =>bus.Send(new MyMessage()));
             }
@@ -50,10 +50,9 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
                     .Done<ReceiveContext>(context => context.WasCalled);
             }
-
         }
 
         [Serializable]

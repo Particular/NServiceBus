@@ -10,60 +10,10 @@
     {
         public AllSerializers()
         {
-            Add(new RunDescriptor
-                    {
-                        Key = "Xml",
-                        Settings =
-                            new Dictionary<string, string>
-                                {
-                                    {
-                                        "Serializer",typeof(XmlMessageSerializer).AssemblyQualifiedName
-                                    }
-                                }
-                    });
-
-            Add(new RunDescriptor
-            {
-                Key = "Json",
-                Settings =
-                    new Dictionary<string, string>
-                                {
-                                    {
-                                        "Serializer",typeof(JsonMessageSerializer).AssemblyQualifiedName
-                                    }
-                                }
-            });
-
-
             Add(Serializers.Bson);
-
-
-            Add(new RunDescriptor
-            {
-                Key = "Binary",
-                Settings =
-                    new Dictionary<string, string>
-                                {
-                                    {
-                                        "Serializer",typeof(MessageSerializer).AssemblyQualifiedName
-                                    }
-                                }
-            });
+            Add(Serializers.Json);
+            Add(Serializers.Xml);
+            Add(Serializers.Binary);
         }
-    }
-
-    public class Serializers
-    {
-        public static RunDescriptor Bson = new RunDescriptor
-            {
-                Key = "Bson",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (BsonMessageSerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
     }
 }
