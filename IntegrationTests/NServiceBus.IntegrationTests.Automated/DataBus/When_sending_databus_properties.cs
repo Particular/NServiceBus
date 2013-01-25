@@ -20,7 +20,7 @@
                     .Repeat(r => r.For<AllTransports>()
                                   .For<AllSerializers>()
                 )
-                    .Should<ReceiveContext>(c => Assert.AreEqual(payloadToSend, c.ReceivedPayload))
+                    .Should<ReceiveContext>(c => Assert.AreEqual(payloadToSend, c.ReceivedPayload,"The large payload should be marshalled correctly using the databus"))
                     .Run();
         }
 

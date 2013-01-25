@@ -19,7 +19,7 @@
                     .Repeat(r => r.For<AllBuilders>())
                     .Should<SagaEndpointContext>(c =>
                     {
-                        Assert.True(c.InterceptingHandlerCalled, "Message handler was called as expected");
+                        Assert.True(c.InterceptingHandlerCalled, "The message handler should be called");
                         Assert.True(c.SagaStarted, "The saga should have been started");
                     })
                     .Run();
@@ -38,8 +38,8 @@
                    .Repeat(r => r.For<AllBuilders>())
                    .Should<SagaEndpointContext>(c =>
                         {
-                            Assert.True(c.InterceptingHandlerCalled, "Message handler was called as expected");
-                            Assert.False(c.SagaStarted, "The saga should not have been started");
+                            Assert.True(c.InterceptingHandlerCalled, "The intercepting handler should be called");
+                            Assert.False(c.SagaStarted, "The saga should not have been started since the intercepting handler stops the pipeline");
                         })
                     .Run();
         }

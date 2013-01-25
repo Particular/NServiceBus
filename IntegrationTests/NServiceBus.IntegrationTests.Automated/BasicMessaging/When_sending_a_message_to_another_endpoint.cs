@@ -23,8 +23,8 @@
                 )
                     .Should<ReceiveContext>(c =>
                         {
-                            Assert.True(c.WasCalled, "Message handler was not called as expected");
-                            Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
+                            Assert.True(c.WasCalled, "The message handler should be called");
+                            Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");
                         })
                     .Run();
         }
