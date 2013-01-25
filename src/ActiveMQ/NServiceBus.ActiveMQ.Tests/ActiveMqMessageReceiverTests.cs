@@ -20,7 +20,7 @@
         private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private NotifyTopicSubscriptionsMock subscriptionManagerMock;
-        private Mock<INetTxSession> session;
+        private Mock<ISession> session;
         private Mock<IActiveMqPurger> purger;
         private Mock<IMessageConsumer> consumer;
 
@@ -233,7 +233,7 @@
                     executionOrder += "ProcessMessage;";
                     return true;
                 };
-            this.sessionFactoryMock.Setup(sf => sf.SetSessionForCurrentThread(It.IsAny<INetTxSession>()))
+            this.sessionFactoryMock.Setup(sf => sf.SetSessionForCurrentThread(It.IsAny<ISession>()))
                 .Callback(() => executionOrder += "SetSessionForCurrentThread;");
             this.sessionFactoryMock.Setup(sf => sf.RemoveSessionForCurrentThread())
                 .Callback(() => executionOrder += "RemoveSessionForCurrentThread;");
@@ -330,30 +330,30 @@
             this.testee.Start(address, transactionSettings);
         }
 
-        private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
+        private IQueue SetupGetQueue(Mock<ISession> sessionMock, string queue)
         {
             var destinationMock = new Mock<IQueue>();
             sessionMock.Setup(s => s.GetQueue(queue)).Returns(destinationMock.Object);
             destinationMock.Setup(destination => destination.QueueName).Returns(queue);
             return destinationMock.Object;
         }
-        
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<INetTxSession> sessionMock, IDestination destination)
+
+        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, IDestination destination)
         {
             var consumerMock = new Mock<IMessageConsumer>();
             sessionMock.Setup(s => s.CreateConsumer(destination)).Returns(consumerMock.Object);
             return consumerMock;
         }
 
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<INetTxSession> sessionMock, string queue)
+        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, string queue)
         {
             var destination = this.SetupGetQueue(this.session, queue);
             return this.SetupCreateConsumer(sessionMock, destination);
         }
 
-        private Mock<INetTxSession> SetupCreateSession()
+        private Mock<ISession> SetupCreateSession()
         {
-            var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
+            var sessionMock = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
             this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }

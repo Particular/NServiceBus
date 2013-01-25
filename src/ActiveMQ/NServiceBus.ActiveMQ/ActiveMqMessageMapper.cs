@@ -25,7 +25,7 @@ namespace NServiceBus.Transport.ActiveMQ
             this.decoderPipeline = decoderPipeline;
         }
 
-        public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
+        public IMessage CreateJmsMessage(TransportMessage message, ISession session)
         {
             IMessage jmsmessage = this.encoderPipeline.Encode(message, session);
 
