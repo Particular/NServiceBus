@@ -11,6 +11,7 @@
         readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
+        public Func<BehaviorContext, bool> done = context => true;
 
         public static IScenarioWithEndpointBehavior Define()
         {
@@ -20,7 +21,7 @@
 
         public IScenarioWithEndpointBehavior WithEndpoint<T>() where T : EndpointBuilder
         {
-            return WithEndpoint<T>(() => new BehaviorContext());
+            return WithEndpoint<T>(() => null);
         }
 
         public IScenarioWithEndpointBehavior WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder
@@ -31,6 +32,13 @@
         public IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
         {
             behaviours.Add(new BehaviorDescriptor(context, typeof (T)));
+
+            return this;
+        }
+
+        public IScenarioWithEndpointBehavior Done<T>(Func<T, bool> func) where T:BehaviorContext
+        {
+            done = (c)=>func((T)c);
 
             return this;
         }
@@ -51,7 +59,7 @@
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds);
+            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds,this.done);
 
             sw.Stop();
 

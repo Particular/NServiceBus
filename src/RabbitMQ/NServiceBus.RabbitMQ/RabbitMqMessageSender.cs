@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.RabbitMq
 {
+    using System;
     using System.Transactions;
     using Unicast.Queuing;
     using global::RabbitMQ.Client;
@@ -8,14 +9,26 @@
     {
         public IConnection Connection { get; set; }
 
+
         public void Send(TransportMessage message, Address address)
         {
             if (Transaction.Current == null)
             {
-                PublishToRabbit(message,address);
+                PublishToRabbit(message, address);
             }
             else
-                Transaction.Current.EnlistVolatile(new RabbitMqSendResourceManager(()=>PublishToRabbit(message,address)), EnlistmentOptions.None);
+            {
+                if (resourceManager == null)
+                {
+                    resourceManager = new RabbitMqSendResourceManager();
+
+                    Transaction.Current.EnlistVolatile(resourceManager, EnlistmentOptions.None);
+                }
+
+
+                resourceManager.Add(() => PublishToRabbit(message, address));
+            }
+
         }
 
         void PublishToRabbit(TransportMessage message, Address address)
@@ -28,5 +41,8 @@
                 channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
             }
         }
+
+        [ThreadStatic]
+        static RabbitMqSendResourceManager resourceManager;
     }
 }
