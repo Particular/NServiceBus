@@ -4,18 +4,14 @@ namespace NServiceBus.Transport.SqlServer
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
-    using System.IO;
-    using System.Text;
     using System.Threading;
     using Logging;
     using Serialization;
-    using Serializers.Binary;
     using Serializers.Json;
     using Unicast.Queuing;
 
     public class SqlServerMessageQueue : ISendMessages, IReceiveMessages
     {
-     
         public string ConnectionString { get; set; }
         public IMessageSerializer MessageSerializer { get; set; }
         public bool PurgeOnStartup { get; set; }
@@ -23,21 +19,6 @@ namespace NServiceBus.Transport.SqlServer
 
         public void Send(TransportMessage message, Address address)
         {
-            string body = string.Empty;
-
-            if (MessageSerializer is MessageSerializer)
-            {
-                body = Convert.ToBase64String(message.Body);
-            }
-            else if (message.Body != null)
-            {
-                var stream = new MemoryStream(message.Body) { Position = 0 };
-                using (TextReader textReader = new StreamReader(stream))
-                {
-                    body = textReader.ReadToEnd();
-                }
-            }
-
             using (var connection = new SqlConnection(ConnectionString))
             {
                 var sql = string.Format(SqlSend, address);
@@ -54,14 +35,13 @@ namespace NServiceBus.Transport.SqlServer
                     command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString());
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
                     command.Parameters.AddWithValue("Headers", Serializer.SerializeObject(message.Headers));
-                    command.Parameters.AddWithValue("Body", body);
+                    command.Parameters.AddWithValue("Body", message.Body);
 
                     command.ExecuteNonQuery();
                 }
             }
         }
 
-        
         public void Init(Address address, bool transactional)
         {
             currentEndpointName = address.ToString();
@@ -80,9 +60,7 @@ namespace NServiceBus.Transport.SqlServer
                     }
                 }
             }
-
         }
-
 
         public TransportMessage Receive()
         {
@@ -107,18 +85,7 @@ namespace NServiceBus.Transport.SqlServer
 
                             var timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(5));
                             var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(6));
-                            var tmpBody = dataReader.GetString(7);
-
-                            byte[] body;
-
-                            if (MessageSerializer is MessageSerializer)
-                            {
-                                body = Convert.FromBase64String(tmpBody);
-                            }
-                            else
-                            {
-                                body = Encoding.UTF8.GetBytes(tmpBody);
-                            }
+                            byte[] body = dataReader.GetSqlBinary(7).Value;
 
                             var message = new TransportMessage
                             {
@@ -148,7 +115,6 @@ namespace NServiceBus.Transport.SqlServer
         {
             return value ?? DBNull.Value;
         }
-
 
         string currentEndpointName;
         static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);

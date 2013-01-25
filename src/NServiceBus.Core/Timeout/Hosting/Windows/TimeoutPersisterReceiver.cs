@@ -46,7 +46,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
             workerThread.Start();
         }
 
-
         public void Stop()
         {
             stopRequested = true;

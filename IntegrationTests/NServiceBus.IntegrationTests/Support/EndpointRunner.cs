@@ -23,7 +23,8 @@
 
             config = behavior.GetConfiguration(runDescriptor, routingTable);
 
-            config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
+            if (behaviorContext!= null)
+                config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
 
             startableBus = config.CreateBus();
 

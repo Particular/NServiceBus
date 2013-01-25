@@ -69,6 +69,9 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\NServiceBus.Core\ObjectBuilder\Autofac\AutofacObjectBuilder.cs">
+      <Link>AutofacObjectBuilder.cs</Link>
+    </Compile>
     <Compile Include="Config\ConfigureAutofacBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

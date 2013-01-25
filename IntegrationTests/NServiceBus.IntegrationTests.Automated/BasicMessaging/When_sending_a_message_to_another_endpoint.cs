@@ -16,18 +16,18 @@
                     .WithEndpoint<Sender>()
                     .WithEndpoint<Receiver>(() => new ReceiveContext())
                     .Repeat(r =>
-                            r.For<AllTransports>(Transports.ActiveMQ)
-                             .For<AllBuilders>()
-                             .For<AllSerializers>()
+                            r
+                                .For<AllTransports>()
+                                .For<AllBuilders>()
+                                .For<AllSerializers>()
                 )
                     .Should<ReceiveContext>(c =>
                         {
-                            Assert.True(c.WasCalled, "Message handler was not called as expected");
-                            Assert.AreEqual(1, c.TimesCalled, "Message handler should only be invoked once");
+                            Assert.True(c.WasCalled, "The message handler should be called");
+                            Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");
                         })
                     .Run();
         }
-
 
         public class ReceiveContext : BehaviorContext
         {
@@ -40,7 +40,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>()
                     .AddMapping<MyMessage>(typeof(Receiver))
                     .When(bus =>bus.Send(new MyMessage()));
             }
@@ -50,13 +50,13 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>()
                     .Done<ReceiveContext>(context => context.WasCalled);
             }
         }
 
         [Serializable]
-        public class MyMessage : IMessage
+        public class MyMessage : ICommand
         {
         }
 

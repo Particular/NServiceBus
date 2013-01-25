@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
@@ -30,7 +30,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
@@ -302,8 +302,6 @@
     <Compile Include="Notifications\RegisterSystemMessages.cs" />
     <Compile Include="Notifications\SendEmail.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\ContainerExtensions.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\TypeExtensions.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
     <Compile Include="ObjectBuilder\Common\Config\ConfigureCommon.cs" />
@@ -496,7 +494,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gateway\Installation\" />
-    <Folder Include="ObjectBuilder\Autofac\Config\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
     <Folder Include="Unicast\Queuing\SQLServer\" />

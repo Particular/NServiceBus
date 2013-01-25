@@ -124,6 +124,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -135,15 +136,17 @@
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="EndpointTemplates\NHibernateSetup.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
+    <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.IntegrationTests\NServiceBus.IntegrationTests.csproj">

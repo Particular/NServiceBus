@@ -2,8 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using Autofac;
+    using Autofac.Core;
+    using Autofac.Core.Lifetime;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.CastleWindsor;
+    using ObjectBuilder.Common.Config;
     using ObjectBuilder.Ninject;
     using ObjectBuilder.Spring;
     using ObjectBuilder.StructureMap;
@@ -66,9 +70,13 @@
 
             var type = Type.GetType(builder);
 
-            if (type == typeof(AutofacObjectBuilder))
-                return config.AutofacBuilder();
+            if (type == typeof (AutofacObjectBuilder))
+            {
+                ConfigureCommon.With(config, new AutofacObjectBuilder(null));
 
+                return config;
+            }
+             
             if (type == typeof(WindsorObjectBuilder))
                 return config.CastleWindsorBuilder();
 

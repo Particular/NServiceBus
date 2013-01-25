@@ -12,9 +12,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors,
-                               IList<BehaviorDescriptor> behaviorDescriptors,
-                               IList<IScenarioVerification> shoulds)
+        public static void Run(IList<RunDescriptor> runDescriptors, IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<BehaviorContext, bool> done)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -38,7 +36,7 @@
 
                         Console.Out.WriteLine("{0} - Started", runDescriptor.Key);
 
-                        var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor);
+                        var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done);
 
                         Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
 
@@ -120,7 +118,7 @@
             }
         }
 
-        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor)
+        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<BehaviorContext, bool> done)
         {
             var runResult = new RunResult();
 
@@ -133,29 +131,26 @@
                 List<ActiveRunner> runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
-                {                 
+                {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runners);
+                    PerformScenarios(runners, done);
                 }
                 finally
                 {
-                    foreach (var runner in runners)
-                    {
-                        AppDomain.Unload(runner.AppDomain);
-                    }
+                    Parallel.ForEach(runners, runner => AppDomain.Unload(runner.AppDomain));
                 }
 
                 runTimer.Stop();
 
-                foreach (var runner in runners)
-                {
-                    if (runner.BehaviourContext == null)
-                        continue;
+                Parallel.ForEach(runners, runner =>
+                    {
+                        if (runner.BehaviourContext == null)
+                            return;
 
-                    shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
-                           .ForEach(v => v.Verify(runner.BehaviourContext));
-                }
+                        shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
+                               .ForEach(v => v.Verify(runner.BehaviourContext));
+                    });
             }
             catch (Exception ex)
             {
@@ -191,16 +186,19 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(IEnumerable<ActiveRunner> runners)
+        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<BehaviorContext, bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
+
+            //hack until we move the context to the scenario level
+            var context = runners.FirstOrDefault(r => r.BehaviourContext != null).BehaviourContext;
 
             StartEndpoints(endpoints);
 
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(60);
 
-            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(endpoint.Done, maxTime))).Cast<Task>().ToArray());
+            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(() => endpoint.Done() || done(context), maxTime))).Cast<Task>().ToArray());
 
             try
             {
@@ -251,7 +249,6 @@
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
 
-
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
@@ -265,11 +262,9 @@
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
 
-
-
                 runners.Add(runner);
-
             }
+
             return runners;
         }
 

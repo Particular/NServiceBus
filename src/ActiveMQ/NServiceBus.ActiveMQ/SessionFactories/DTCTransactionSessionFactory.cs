@@ -66,5 +66,9 @@
         {
             throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
         }
+        public void Dispose()
+        {
+            this.pooledSessionFactory.Dispose();
+        }
     }
 }

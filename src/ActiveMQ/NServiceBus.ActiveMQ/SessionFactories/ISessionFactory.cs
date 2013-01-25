@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ
 {
+    using System;
     using Apache.NMS;
 
-    public interface ISessionFactory
+    public interface ISessionFactory : IDisposable
     {
         ISession GetSession();
 

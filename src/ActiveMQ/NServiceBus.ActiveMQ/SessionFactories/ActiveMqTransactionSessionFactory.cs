@@ -47,5 +47,10 @@
             ISession session;
             this.sessionsForThreads.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
         }
+
+        public void Dispose()
+        {
+            this.pooledSessionFactory.Dispose();
+        }
     }
 }
