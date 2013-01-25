@@ -133,29 +133,26 @@
                 List<ActiveRunner> runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
-                {                 
+                {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
                     PerformScenarios(runners);
                 }
                 finally
                 {
-                    foreach (var runner in runners)
-                    {
-                        AppDomain.Unload(runner.AppDomain);
-                    }
+                    Parallel.ForEach(runners, runner => AppDomain.Unload(runner.AppDomain));
                 }
 
                 runTimer.Stop();
 
-                foreach (var runner in runners)
-                {
-                    if (runner.BehaviourContext == null)
-                        continue;
+                Parallel.ForEach(runners, runner =>
+                    {
+                        if (runner.BehaviourContext == null)
+                            return;
 
-                    shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
-                           .ForEach(v => v.Verify(runner.BehaviourContext));
-                }
+                        shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
+                               .ForEach(v => v.Verify(runner.BehaviourContext));
+                    });
             }
             catch (Exception ex)
             {
@@ -251,7 +248,6 @@
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
 
-
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
@@ -265,11 +261,9 @@
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
                 }
 
-
-
                 runners.Add(runner);
-
             }
+
             return runners;
         }
 

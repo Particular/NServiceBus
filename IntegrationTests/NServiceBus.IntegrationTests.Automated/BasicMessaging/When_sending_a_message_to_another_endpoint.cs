@@ -17,9 +17,9 @@
                     .WithEndpoint<Receiver>(() => new ReceiveContext())
                     .Repeat(r =>
                             r
-                            .For<AllTransports>(Transports.ActiveMQ)
-                             .For<AllBuilders>()
-                             .For<AllSerializers>()
+                                .For<AllTransports>()
+                                .For<AllBuilders>()
+                                .For<AllSerializers>()
                 )
                     .Should<ReceiveContext>(c =>
                         {
@@ -28,7 +28,6 @@
                         })
                     .Run();
         }
-
 
         public class ReceiveContext : BehaviorContext
         {
