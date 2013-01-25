@@ -818,23 +818,19 @@ namespace NServiceBus.Unicast
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
 
-            foreach (var thingToRunAtStartup in thingsToRunAtStartup)
-            {
-                var runAtStartup = thingToRunAtStartup;
-                Task.Factory.StartNew(() =>
-                                          {
-                                              try
-                                              {
-                                                  Log.DebugFormat("Calling {0}", runAtStartup.GetType().Name);
-                                                  runAtStartup.Start();
-                                              }
-                                              catch (Exception ex)
-                                              {
-                                                  Log.Error("Problem occurred when starting the endpoint.", ex);
-                                                  //don't rethrow so that thread doesn't die before log message is shown.
-                                              }
-                                          });
-            }
+            thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
+                                        {
+                                            try
+                                            {
+                                                Log.DebugFormat("Calling {0}", toRun.GetType().Name);
+                                                toRun.Start();
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Log.Error("Problem occurred when starting the endpoint.", ex);
+                                                //don't rethrow so that thread doesn't die before log message is shown.
+                                            }
+                                        })).ToArray();
 
             return this;
         }
@@ -844,23 +840,30 @@ namespace NServiceBus.Unicast
             if (thingsToRunAtStartup == null)
                 return;
 
+            //Ensure Start has been called on all thingsToRunAtStartup
+            Task.WaitAll(thingsToRunAtStartupTask);
+
             var tasks = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-                                                                                              {
-                                                                                                  Log.DebugFormat("Stopping {0}", toRun.GetType().Name);
-                                                                                                  try
-                                                                                                  {
-                                                                                                      toRun.Stop();
-                                                                                                  }
-                                                                                                  catch (Exception ex)
-                                                                                                  {
-                                                                                                      Log.ErrorFormat("{0} could not be stopped.", ex, toRun.GetType().Name);
-                                                                                                      // no need to rethrow, closing the process anyway
-                                                                                                  }
-                                                                                              })).ToArray();
+                {
+                    Log.DebugFormat("Stopping {0}", toRun.GetType().Name);
+                    try
+                    {
+                        toRun.Stop();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.ErrorFormat("{0} could not be stopped.", ex, toRun.GetType().Name);
+                        // no need to rethrow, closing the process anyway
+                    }
+                })).ToArray();
 
 
             // Wait for a period here otherwise the process may be killed too early!
-            Task.WaitAll(tasks, TimeSpan.FromSeconds(20));
+            var timeout = TimeSpan.FromSeconds(20);
+            if (!Task.WaitAll(tasks, timeout))
+            {
+                Log.WarnFormat("Not all IWantToRunWhenBusStartsAndStops.Stop methods were successfully called within {0}secs", timeout.Seconds);
+            }
         }
 
 
@@ -1403,7 +1406,7 @@ namespace NServiceBus.Unicast
         /// <param name="rawMessages">The messages to wrap.</param>
         /// /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
-        void MapTransportMessageFor(IEnumerable<object> rawMessages, TransportMessage result)
+        void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {
             if (!Endpoint.IsSendOnly)
             {
@@ -1660,8 +1663,6 @@ namespace NServiceBus.Unicast
 
         private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 
-        IManageSubscriptions subscriptionManager;
-
         [ThreadStatic]
         private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
         /// <summary>
@@ -1675,6 +1676,8 @@ namespace NServiceBus.Unicast
         bool autoSubscribe = true;
 
         IMessageMapper messageMapper;
+        Task[] thingsToRunAtStartupTask = new Task[0];
+
     }
 
     /// <summary>
