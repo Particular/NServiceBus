@@ -17,7 +17,7 @@ namespace NServiceBus.Transport.SqlServer
 	                    [MessageIntent] [varchar](16) NOT NULL,
 	                    [TimeToBeReceived] [bigint] NULL,
 	                    [Headers] [varchar](8000) NOT NULL,
-	                    [Body] [varchar](max) NOT NULL,
+	                    [Body] [varbinary](max) NOT NULL,
 	                    [TimeStamp] [timestamp]
                     ) ON [PRIMARY];                    
 
