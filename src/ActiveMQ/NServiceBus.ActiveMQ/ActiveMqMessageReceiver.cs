@@ -79,6 +79,7 @@ namespace NServiceBus.Transport.ActiveMQ
             this.defaultConsumer.Dispose();
 
             this.sessionFactory.Release(this.session);
+            this.sessionFactory.Dispose();
         }
 
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)

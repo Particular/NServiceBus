@@ -52,5 +52,13 @@
 
             return session;
         }
+
+        public void Dispose()
+        {
+            foreach (var connection in connections)
+            {
+                connection.Value.Close();
+            }
+        }
     }
 }
