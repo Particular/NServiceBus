@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.IntegrationTests.Automated.BasicMessaging
+﻿namespace NServiceBus.IntegrationTests.Automated.Sagas
 {
     using System;
     using EndpointTemplates;
