@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.RabbitMq.Config
 {
+    using System;
+    using Logging;
     using NServiceBus.Config;
     using Unicast.Queuing.Installers;
 
@@ -16,7 +18,18 @@
 
             var connectionFactory = builder.BuildConnectionFactory();
 
-            config.Configurer.ConfigureComponent(connectionFactory.CreateConnection, DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent(() =>
+                {
+                    try
+                    {
+                        return connectionFactory.CreateConnection();
+                    }
+                    catch (Exception ex)
+                    {
+                        NServiceBus.Configure.Instance.OnCriticalError("Failed to connect to the RabbitMq broker", ex);
+                        throw;
+                    }
+                }, DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);

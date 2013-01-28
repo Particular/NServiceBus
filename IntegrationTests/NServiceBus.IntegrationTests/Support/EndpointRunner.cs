@@ -14,42 +14,67 @@
         EndpointBehavior behavior;
         BehaviorContext behaviorContext;
 
-        public bool Initialize(RunDescriptor runDescriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
+        public Result Initialize(RunDescriptor runDescriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
         {
+            try
+            {
 
-            behaviorContext = context;
-            behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
-            behavior.EndpointName = endpointName;
+                behaviorContext = context;
+                behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
+                behavior.EndpointName = endpointName;
 
-            config = behavior.GetConfiguration(runDescriptor, routingTable);
+                config = behavior.GetConfiguration(runDescriptor, routingTable);
 
-            if (behaviorContext!= null)
-                config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
+                if (behaviorContext != null)
+                    config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
 
-            startableBus = config.CreateBus();
+                startableBus = config.CreateBus();
 
-            Configure.Instance.ForInstallationOn<Windows>().Install();
+                Configure.Instance.ForInstallationOn<Windows>().Install();
 
-            return true;
+                return Result.Success();
+
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(ex);
+            }
+
         }
 
-        public bool Start()
+        public Result Start()
         {
-            bus = startableBus.Start();
+            try
+            {
+                bus = startableBus.Start();
 
-            this.behavior.Givens.ForEach(a => a(bus));
+                behavior.Givens.ForEach(a => a(bus));
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(ex); 
+            }
+           
 
-            return true;
         }
 
-        public void Stop()
+        public Result Stop()
         {
-            bus.Shutdown();
+            try
+            {
+                bus.Shutdown();
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure(ex);
+            }  
         }
 
         public void ApplyWhens()
         {
-            this.behavior.Whens.ForEach(a => a(bus,behaviorContext));
+            this.behavior.Whens.ForEach(a => a(bus, behaviorContext));
         }
 
         public string Name()
@@ -59,12 +84,42 @@
 
         public bool Done()
         {
-            var isDone =behavior.Done(behaviorContext);
+            var isDone = behavior.Done(behaviorContext);
 
-            if(isDone)
+            if (isDone)
                 Console.Out.WriteLine("Endpoint is done");
 
             return isDone;
         }
+
+        [Serializable]
+        public class Result : MarshalByRefObject
+        {
+            public string ExceptionMessage { get; set; }
+
+            public bool Failed
+            {
+                get { return ExceptionMessage != null; }
+
+            }
+
+            public static Result Success()
+            {
+                return new Result();
+            }
+
+            public static Result Failure(Exception ex)
+            {
+                return new Result
+                    {
+                        ExceptionMessage = ex.ToString(),
+                        ExceptionType = ex.GetType()
+                    };
+            }
+
+            public Type ExceptionType { get; set; }
+        }
     }
+
+
 }
