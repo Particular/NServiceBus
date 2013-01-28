@@ -23,6 +23,15 @@
                     CancellationToken = cts.Token
                 };
 
+            var maxParallelismSetting = Environment.GetEnvironmentVariable("max_test_parallelism");
+            int maxParallelism;
+            if (int.TryParse(maxParallelismSetting, out maxParallelism))
+            {
+                Console.Out.WriteLine("Parallelism limited to: {0}",maxParallelism);
+
+                po.MaxDegreeOfParallelism = maxParallelism;
+            }
+
             var results = new ConcurrentBag<RunSummary>();
 
             try
