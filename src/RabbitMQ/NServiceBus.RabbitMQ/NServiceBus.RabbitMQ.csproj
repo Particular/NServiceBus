@@ -56,10 +56,10 @@
     <Compile Include="RabbitMqMessagePublisher.cs" />
     <Compile Include="RabbitMqMessageSender.cs" />
     <Compile Include="RabbitMqQueueCreator.cs" />
-    <Compile Include="RabbitMqSendResourceManager.cs" />
     <Compile Include="RabbitMqSubscriptionManager.cs" />
     <Compile Include="RabbitMqTopicBuilder.cs" />
     <Compile Include="RabbitMqTransportMessageExtensions.cs" />
+    <Compile Include="RabbitMqUnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
