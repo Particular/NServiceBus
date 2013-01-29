@@ -57,6 +57,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
 
         /// <summary>
+        /// Set this one to false to avoid wrapping the message pipeline in a transaction scope
+        /// </summary>
+        public bool DontProvideAmbientTransaction { get; set; }
+
+
+        /// <summary>
         /// Gets/sets the number of concurrent threads that should be
         /// created for processing the queue.
         /// 
@@ -230,25 +236,28 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             needToAbort = false;
 
-            if (TransactionSettings.DontUseDistributedTransactions)
-            {
-                using (new TransactionScope(TransactionScopeOption.Suppress))
-                {
-                    ProcessMessage(message);
-                }
-            }
-            else
+            using (var tx = GetTransactionScope())
             {
                 ProcessMessage(message);
+                
+                tx.Complete();
             }
-
-            if (needToAbort)
-            {
-                return false;
-            }
-
-            return true;
+            
+            return !needToAbort;
         }
+
+        TransactionScope GetTransactionScope()
+        {
+            if (DontProvideAmbientTransaction)
+                return new TransactionScope(TransactionScopeOption.Suppress);
+
+            return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+                {
+                    IsolationLevel = TransactionSettings.IsolationLevel,
+                    Timeout = TransactionSettings.TransactionTimeout
+                });
+        }
+
 
         void EndProcess(string messageId, Exception ex)
         {

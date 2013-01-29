@@ -56,7 +56,10 @@
             receivedMessages = new BlockingCollection<TransportMessage>();
             factory = new ConnectionFactory { HostName = "localhost" };
             connection = factory.CreateConnection();
-            sender = new RabbitMqMessageSender { Connection = connection };
+
+            unitOfWork = new RabbitMqUnitOfWork { Connection = connection };
+
+            sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 
             dequeueStrategy = new RabbitMqDequeueStrategy { Connection = connection, PurgeOnStartup = true };
 
@@ -66,7 +69,7 @@
 
             MessagePublisher = new RabbitMqMessagePublisher
                 {
-                    Connection = connection,
+                    UnitOfWork = unitOfWork,
                     EndpointQueueName = PUBLISHERNAME
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
@@ -114,5 +117,6 @@
         protected RabbitMqMessageSender sender;
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
+        protected RabbitMqUnitOfWork unitOfWork;
     }
 }

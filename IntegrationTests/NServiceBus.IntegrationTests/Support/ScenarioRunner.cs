@@ -23,6 +23,15 @@
                     CancellationToken = cts.Token
                 };
 
+            var maxParallelismSetting = Environment.GetEnvironmentVariable("max_test_parallelism");
+            int maxParallelism;
+            if (int.TryParse(maxParallelismSetting, out maxParallelism))
+            {
+                Console.Out.WriteLine("Parallelism limited to: {0}",maxParallelism);
+
+                po.MaxDegreeOfParallelism = maxParallelism;
+            }
+
             var results = new ConcurrentBag<RunSummary>();
 
             try
@@ -63,11 +72,11 @@
 
             foreach (var runSummary in failedRuns)
             {
-                DisplayRunResult(runSummary, totalRuns);    
+                DisplayRunResult(runSummary, totalRuns);
             }
 
-            if(failedRuns.Any())
-                throw new AggregateException("Test run failed due to one or more exception",failedRuns.Select(f=>f.Result.Exception));
+            if (failedRuns.Any())
+                throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception));
 
 
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
@@ -230,8 +239,13 @@
         {
             var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
                 {
-                    endpoint.Start();
+                    var result = endpoint.Start();
+
+                    if (result.Failed)
+                        throw new ScenarioException(string.Format("Endpoint failed to start - {0}", result.ExceptionMessage));
+
                     endpoint.ApplyWhens();
+
                 })).ToArray();
 
             Task.WaitAll(tasks);
@@ -239,7 +253,13 @@
 
         static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
         {
-            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(endpoint.Stop)).ToArray();
+            var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
+                {
+                    var result = endpoint.Stop();
+                    if (result.Failed)
+                        throw new ScenarioException(string.Format("Endpoint failed to stop - {0}", result.ExceptionMessage));
+
+                })).ToArray();
 
             Task.WaitAll(tasks);
         }
@@ -256,11 +276,12 @@
 
                 var runner = PrepareRunner(endpointName);
                 runner.BehaviourContext = behaviorDescriptor.CreateContext();
+                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType,
+                                                        routingTable, endpointName, runner.BehaviourContext);
 
-                if (!runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType, routingTable, endpointName, runner.BehaviourContext))
-                {
-                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()));
-                }
+
+                if (result.Failed)
+                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize - {1}", runner.Instance.Name(), result.ExceptionMessage));
 
                 runners.Add(runner);
             }
@@ -306,11 +327,12 @@
         {
             get
             {
-                if(activeEndpoints == null) 
+                if (activeEndpoints == null)
                     activeEndpoints = new List<string>();
 
                 return activeEndpoints;
-            } set { activeEndpoints = value.ToList(); }
+            }
+            set { activeEndpoints = value.ToList(); }
         }
 
         IList<string> activeEndpoints;

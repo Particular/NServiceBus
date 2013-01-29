@@ -2,10 +2,10 @@
 {
     using System;
     using System.Transactions;
-    using NServiceBus.IntegrationTests.Automated.EndpointTemplates;
+    using EndpointTemplates;
     using NUnit.Framework;
-    using NServiceBus.IntegrationTests.Automated.ScenarioDescriptors;
-    using NServiceBus.IntegrationTests.Support;
+    using ScenarioDescriptors;
+    using Support;
 
     [TestFixture]
     public class When_sending_messages_within_an_ambient_transaction : NServiceBusIntegrationTest

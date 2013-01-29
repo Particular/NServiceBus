@@ -36,9 +36,11 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure OnCriticalError(this Configure config, string errorMessage, Exception exception)
         {
+            LogManager.GetLogger("NServiceBus").Error(errorMessage, exception);
+
             CircuitBreaker.Execute(() =>
                 {
-                    LogManager.GetLogger(typeof (ConfigureCriticalErrorAction)).Fatal(errorMessage, exception);
+                    LogManager.GetLogger("NServiceBus").Fatal(errorMessage, exception);
                     ThreadPool.UnsafeQueueUserWorkItem(state => onCriticalErrorAction(errorMessage, exception), null);
                 });
             return config;

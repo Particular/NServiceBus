@@ -11,7 +11,7 @@
         readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
-        public Func<BehaviorContext, bool> done = context => true;
+        public Func<BehaviorContext, bool> done = context => false;
 
         public static IScenarioWithEndpointBehavior Define()
         {
