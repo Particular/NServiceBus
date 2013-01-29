@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.Transactions
 {
     using System;
+    using System.Threading;
     using System.Transactions;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -27,22 +28,20 @@
                                     using (new TransactionScope(TransactionScopeOption.Suppress))
                                         bus.Send(new MessageThatIsNotEnlisted());
 
-
+                                    //to allow the sqlserver transport to do a poll before we commit
+                                    Thread.Sleep(1000);
 
                                     tx.Complete();
                                 }
                             }
                         })
-                     .Done<Context>(c => c.TimesCalled == 2)
+                     .Done<Context>(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.MessageThatIsEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllTransports>())
                     .Should<Context>(c =>
                         {
-                            Assert.True(c.MessageThatIsNotEnlistedHandlerWasCalled, "The non transactional handler should be called");
-                            Assert.True(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should be called");
-                            Assert.False(Context.NonTransactionalHandlerCalledFirst, "The handler for the transactional messages should have been called");
+                            Assert.True(c.NonTransactionalHandlerCalledFirst, "The non transactional handler should have been called first");
                             Assert.AreEqual(2, c.TimesCalled, "The transactional handler should be called twice");
                             Assert.AreEqual(1, c.SequenceNumberOfFirstMessage, "The transport should preserve the order in in which the transactional messages are delivered to the queuing system");
-
                         })
 
                     .Run();
@@ -58,7 +57,7 @@
                         {
                             using (new TransactionScope())
                             {
-                                bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                                bus.Send(new MessageThatIsEnlisted());
 
                                 //rollback
                             }
@@ -71,7 +70,6 @@
                     .Repeat(r => r.For<AllTransports>())
                     .Should<Context>(c =>
                     {
-                        Assert.True(c.MessageThatIsNotEnlistedHandlerWasCalled, "The non transactional handler should be called");
                         Assert.False(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called");
                     })
                     .Run();
@@ -86,7 +84,7 @@
 
             public int SequenceNumberOfFirstMessage { get; set; }
 
-            public static bool NonTransactionalHandlerCalledFirst { get; set; }
+            public bool NonTransactionalHandlerCalledFirst { get; set; }
 
             public Action<IBus> WhenBehaviour { get; set; }
         }

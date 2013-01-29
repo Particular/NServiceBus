@@ -9,30 +9,25 @@
     [TestFixture]
     public class When_sending_databus_properties:NServiceBusIntegrationTest
     {
+        static byte[] PayloadToSend = new byte[1024 * 1024 * 10];
         [Test]
         public void Should_receive_the_message_the_largeproperty_correctly()
         {
-            var payloadToSend = new byte[1024*1024*10];
-
-            Scenario.Define()
-                    .WithEndpoint<Sender>(new SendContext {PayloadToSend = payloadToSend})
-                    .WithEndpoint<Receiver>(new ReceiveContext())
+             Scenario.Define()
+                    .WithEndpoint<Sender>()
+                    .WithEndpoint<Receiver>(new Context())
+                    .Done<Context>(context => context.ReceivedPayload != null)
                     .Repeat(r => r.For<AllTransports>()
-                                  .For<AllSerializers>()
-                )
-                    .Should<ReceiveContext>(c => Assert.AreEqual(payloadToSend, c.ReceivedPayload,"The large payload should be marshalled correctly using the databus"))
+                                  .For<AllSerializers>())
+                    .Should<Context>(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
                     .Run();
         }
 
-        public class ReceiveContext : BehaviorContext
+        public class Context : BehaviorContext
         {
             public byte[] ReceivedPayload { get; set; }
         }
 
-        public class SendContext : BehaviorContext
-        {
-            public byte[] PayloadToSend { get; set; }
-        }
 
         public class Sender : EndpointBuilder
         {
@@ -40,9 +35,9 @@
             {
                 EndpointSetup<DefaultServer>(c => c.FileShareDataBus(@".\databus\sender"))
                     .AddMapping<MyMessageWithLargePayload>(typeof(Receiver))
-                    .When<SendContext>((bus,context) => bus.Send(new MyMessageWithLargePayload
+                    .When(bus => bus.Send(new MyMessageWithLargePayload
                         {
-                            Payload = new DataBusProperty<byte[]>(context.PayloadToSend) 
+                            Payload = new DataBusProperty<byte[]>(PayloadToSend) 
                         }));
             }
         }
@@ -51,19 +46,16 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.FileShareDataBus(@".\databus\sender"))
-                    .Done<ReceiveContext>(context => context.ReceivedPayload != null);
+                EndpointSetup<DefaultServer>(c => c.FileShareDataBus(@".\databus\sender"));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessageWithLargePayload>
             {
-                public ReceiveContext Context { get; set; }
+                public Context Context { get; set; }
 
                 public void Handle(MyMessageWithLargePayload messageWithLargePayload)
                 {
                     Context.ReceivedPayload = messageWithLargePayload.Payload.Value;
-
-                    Context.ReceivedPayload[5] = 3;
                 }
             }
         }

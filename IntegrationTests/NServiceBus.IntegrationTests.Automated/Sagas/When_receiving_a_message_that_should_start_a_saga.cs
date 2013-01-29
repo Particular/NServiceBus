@@ -16,6 +16,7 @@
             Scenario.Define()
                     .WithEndpoint<SagaStarter>()
                     .WithEndpoint<SagaEndpoint>(() => new SagaEndpointContext())
+                    .Done<SagaEndpointContext>(context => context.InterceptingHandlerCalled && context.SagaStarted)
                     .Repeat(r => r.For<AllBuilders>())
                     .Should<SagaEndpointContext>(c =>
                     {
@@ -35,6 +36,7 @@
                         {
                             InterceptSaga = true
                         })
+                   .Done<SagaEndpointContext>(context => context.InterceptingHandlerCalled)
                    .Repeat(r => r.For<AllBuilders>())
                    .Should<SagaEndpointContext>(c =>
                         {
@@ -71,8 +73,7 @@
                 EndpointSetup<DefaultServer>(c => c.Sagas()
                     .InMemorySagaPersister()
                     .UnicastBus()
-                    .LoadMessageHandlers<First<InterceptingHandler>>())
-                    .Done<SagaEndpointContext>(context => context.InterceptingHandlerCalled);
+                    .LoadMessageHandlers<First<InterceptingHandler>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>

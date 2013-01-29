@@ -207,7 +207,7 @@
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(60);
 
-            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(() => endpoint.Done() || done(context), maxTime))).Cast<Task>().ToArray());
+            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(() => done(context), maxTime))).Cast<Task>().ToArray());
 
             try
             {
@@ -229,8 +229,6 @@
             sb.AppendLine(string.Format("The maximum time limit for this test({0}s) has been reached",
                                         maxTime.TotalSeconds));
             sb.AppendLine("----------------------------------------------------------------------------");
-            sb.AppendLine("Endpoint statuses:");
-            endpoints.ForEach(e => sb.AppendLine(string.Format("{0} - {1}", e.Name(), e.Done() ? "Done" : "Not done")));
 
             return sb.ToString();
         }

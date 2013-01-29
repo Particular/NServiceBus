@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Installation.Environments;
 
     [Serializable]
@@ -13,17 +14,18 @@
 
         EndpointBehavior behavior;
         BehaviorContext behaviorContext;
+        RunDescriptor runDescriptor;
 
-        public Result Initialize(RunDescriptor runDescriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
+        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
         {
             try
             {
-
+                runDescriptor = descriptor;
                 behaviorContext = context;
                 behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
                 behavior.EndpointName = endpointName;
 
-                config = behavior.GetConfiguration(runDescriptor, routingTable);
+                config = behavior.GetConfiguration(descriptor, routingTable);
 
                 if (behaviorContext != null)
                     config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
@@ -49,6 +51,7 @@
                 bus = startableBus.Start();
 
                 behavior.Givens.ForEach(a => a(bus));
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -63,6 +66,10 @@
         {
             try
             {
+                //hack until we can get ActiveMq to shutdown gracefully we sleep so that the messages inflight can complete
+                if (runDescriptor.Key.ToLower().Contains("activemq"))
+                    Thread.Sleep(1000);
+
                 bus.Shutdown();
                 return Result.Success();
             }
@@ -82,15 +89,6 @@
             return AppDomain.CurrentDomain.FriendlyName;
         }
 
-        public bool Done()
-        {
-            var isDone = behavior.Done(behaviorContext);
-
-            if (isDone)
-                Console.Out.WriteLine("Endpoint is done");
-
-            return isDone;
-        }
 
         [Serializable]
         public class Result : MarshalByRefObject

@@ -15,6 +15,7 @@
             Scenario.Define()
                     .WithEndpoint<Sender>()
                     .WithEndpoint<Receiver>(() => new ReceiveContext())
+                    .Done<ReceiveContext>(c=>c.WasCalled)
                     .Repeat(r =>
                             r
                                 .For<AllTransports>()
@@ -50,8 +51,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>()
-                    .Done<ReceiveContext>(context => context.WasCalled);
+                EndpointSetup<DefaultServer>();
             }
         }
 

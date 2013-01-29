@@ -15,7 +15,6 @@
             Scenario.Define()
                     .WithEndpoint<TransactionalEndpoint>(() => new Context())
                     .Done<Context>(c => c.HandlerInvoked)
-                    //.Repeat(r => r.For(Transports.RabbitMQ))
                     .Repeat(r => r.For<AllTransports>())
                     .Should<Context>(c =>
                     {
