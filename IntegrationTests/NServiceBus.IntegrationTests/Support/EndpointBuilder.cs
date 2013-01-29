@@ -10,7 +10,6 @@
             behavior.Givens = new List<Action<IBus>>();
             behavior.Whens = new List<Action<IBus,BehaviorContext>>();
             behavior.EndpointMappings = new Dictionary<Type, Type>();
-            behavior.Done = context => true;
         }
      
         public EndpointBuilder AddMapping<T>(Type endpoint)
@@ -35,17 +34,6 @@
             return this.behavior;
         }
 
-        public EndpointBuilder Done<TContext>(Func<TContext, bool> func) where TContext : BehaviorContext
-        {
-            this.behavior.Done = context => func((TContext)context);
-            return this;
-        }
-
-        public EndpointBuilder Done(Func<bool> func)
-        {
-            this.behavior.Done = context => func();
-            return this;
-        }
 
         public EndpointBuilder When(Action<IBus> func)
         {
@@ -60,9 +48,6 @@
 
             return this;
         }
-
-
-        readonly EndpointBehavior behavior = new EndpointBehavior();
 
         public EndpointBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
         {
@@ -90,5 +75,7 @@
             return CreateScenario();
         }
 
+
+        readonly EndpointBehavior behavior = new EndpointBehavior();
     }
 }

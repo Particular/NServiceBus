@@ -49,6 +49,7 @@
                 bus = startableBus.Start();
 
                 behavior.Givens.ForEach(a => a(bus));
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -82,15 +83,6 @@
             return AppDomain.CurrentDomain.FriendlyName;
         }
 
-        public bool Done()
-        {
-            var isDone = behavior.Done(behaviorContext);
-
-            if (isDone)
-                Console.Out.WriteLine("Endpoint is done");
-
-            return isDone;
-        }
 
         [Serializable]
         public class Result : MarshalByRefObject
