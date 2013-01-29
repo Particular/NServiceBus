@@ -13,7 +13,7 @@
                 .CastleWindsorBuilder() // just to show we can mix and match containers
                 .FileShareDataBus(BasePath)
                 .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
-                .UseTransport<ActiveMQ>(() => "activemq:tcp://localhost:61616")
+                .UseTransport<ActiveMQ>(() => "failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000")
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
 
