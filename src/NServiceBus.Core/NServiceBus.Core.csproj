@@ -68,15 +68,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.Licensing">
-      <HintPath>..\..\lib\rhino.licensing\Rhino.Licensing.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -323,6 +321,21 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Rhino.Licensing\AbstractLicenseValidator.cs" />
+    <Compile Include="Rhino.Licensing\FloatingLicenseNotAvailableException.cs" />
+    <Compile Include="Rhino.Licensing\ILicensingService.cs" />
+    <Compile Include="Rhino.Licensing\InvalidationType.cs" />
+    <Compile Include="Rhino.Licensing\ISubscriptionLicensingService.cs" />
+    <Compile Include="Rhino.Licensing\LicenseExpiredException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseFileNotFoundException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseGenerator.cs" />
+    <Compile Include="Rhino.Licensing\LicenseNotFoundException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseType.cs" />
+    <Compile Include="Rhino.Licensing\LicenseValidator.cs" />
+    <Compile Include="Rhino.Licensing\LicensingService.cs" />
+    <Compile Include="Rhino.Licensing\RhinoLicensingException.cs" />
+    <Compile Include="Rhino.Licensing\SntpClient.cs" />
+    <Compile Include="Rhino.Licensing\StringLicenseValidator.cs" />
     <Compile Include="SagaPersisters\InMemory\InMemorySagaPersister.cs" />
     <Compile Include="SagaPersisters\Raven\RavenSagaPersister.cs" />
     <Compile Include="Sagas\Impl\AutoCorrelateSagaOnReplyMutator.cs" />
