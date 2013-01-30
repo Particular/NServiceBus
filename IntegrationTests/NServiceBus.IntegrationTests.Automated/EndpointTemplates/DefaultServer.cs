@@ -58,7 +58,7 @@
                 File.Delete(logFile);
 
             SetLoggingLibrary.Log4Net(null,
-                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender("WARN", logFile));
+                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender("DEBUG", logFile));
         }
     }
 }

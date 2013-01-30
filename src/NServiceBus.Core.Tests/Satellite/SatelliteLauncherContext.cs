@@ -6,7 +6,6 @@
     using NServiceBus.Config;
     using NUnit.Framework;
     using Satellites;
-    using Satellites.Config;
     using Unicast.Transport;
 
     public abstract class SatelliteLauncherContext
@@ -34,7 +33,7 @@
             var configurer = new SatelliteConfigurer();
             configurer.Init();
 
-            var launcher = new NonThreadingSatelliteLauncher
+            var launcher = new SatelliteLauncher
                                {
                                    Builder = Builder,
                                };
@@ -45,13 +44,5 @@
 
         public abstract void BeforeRun();
         public abstract void RegisterTypes();
-    }
-
-    public class NonThreadingSatelliteLauncher : SatelliteLauncher
-    {
-        protected override void StartSatellite(SatelliteContext ctx)
-        {
-            Execute(ctx);
-        }
     }
 }
