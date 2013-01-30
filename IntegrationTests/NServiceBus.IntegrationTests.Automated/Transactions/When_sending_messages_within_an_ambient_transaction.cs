@@ -35,15 +35,13 @@
                                 }
                             }
                         })
-                     .Done<Context>(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.MessageThatIsEnlistedHandlerWasCalled)
+                     .Done<Context>(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled == 2)
                     .Repeat(r => r.For<AllTransports>())
                     .Should<Context>(c =>
                         {
                             Assert.True(c.NonTransactionalHandlerCalledFirst, "The non transactional handler should have been called first");
-                            Assert.AreEqual(2, c.TimesCalled, "The transactional handler should be called twice");
                             Assert.AreEqual(1, c.SequenceNumberOfFirstMessage, "The transport should preserve the order in in which the transactional messages are delivered to the queuing system");
                         })
-
                     .Run();
         }
 

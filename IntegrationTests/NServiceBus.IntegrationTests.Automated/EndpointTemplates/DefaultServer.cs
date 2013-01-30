@@ -57,8 +57,14 @@
             if (File.Exists(logFile))
                 File.Delete(logFile);
 
+            var logLevel = "WARN";
+            var logLevelOverride =  Environment.GetEnvironmentVariable("tests_loglevel");
+
+            if (!string.IsNullOrEmpty(logLevelOverride))
+                logLevel = logLevelOverride;
+
             SetLoggingLibrary.Log4Net(null,
-                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender("DEBUG", logFile));
+                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender(logLevel, logFile));
         }
     }
 }
