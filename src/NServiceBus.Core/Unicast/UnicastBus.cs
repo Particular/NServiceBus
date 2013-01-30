@@ -911,7 +911,7 @@ namespace NServiceBus.Unicast
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t)).ToList();
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t) && !MessageConventionExtensions.IsInSystemConventionList(t)).ToList();
 
             if (AllowSubscribeToSelf)
                 return eventsHandled;
