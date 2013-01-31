@@ -1,11 +1,12 @@
 namespace NServiceBus.Unicast.Monitoring
 {
+    using IdGeneration;
     using MessageMutator;
 
     /// <summary>
     /// Mutator to set the related to header
     /// </summary>
-    public class RelatedToMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
+    public class CausationMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// The bus is needed to get access to the current message id
@@ -19,8 +20,17 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
+            var conversationId = CombGuid.Generate().ToString();
+
             if (Bus.CurrentMessageContext != null)
+            {
                 transportMessage.Headers[Headers.RelatedTo] = Bus.CurrentMessageContext.Id;
+
+                if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.ConversationId))
+                    conversationId = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
+            }
+
+            transportMessage.Headers[Headers.ConversationId] = conversationId;
         }
 
         /// <summary>
@@ -28,7 +38,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// </summary>
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<RelatedToMessageMutator>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<CausationMutator>(DependencyLifecycle.InstancePerCall);
         }
     }
 }

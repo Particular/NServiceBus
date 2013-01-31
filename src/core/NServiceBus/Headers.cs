@@ -178,6 +178,12 @@
         /// </summary>
         public const string OriginatingEndpoint = " NSericeBus.OriginatingEndpoint";
 
+
+        /// <summary>
+        /// The id of the message conversation that this message is part of
+        /// </summary>
+        public const string ConversationId = " NSericeBus.ConversationId";
+
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
