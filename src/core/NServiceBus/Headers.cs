@@ -174,6 +174,11 @@
         public const string IsDeferedMessage = "NServiceBus.IsDeferedMessage";
 
         /// <summary>
+        /// Name of the endpoint where the given message originated
+        /// </summary>
+        public const string OriginatingEndpoint = " NSericeBus.OriginatingEndpoint";
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>

@@ -22,6 +22,7 @@ namespace NServiceBus
         public TransportMessage()
         {
             Id = CombGuid.Generate().ToString();
+            Headers.Add(NServiceBus.Headers.OriginatingEndpoint,Configure.EndpointName);
         }
 
         /// <summary>
