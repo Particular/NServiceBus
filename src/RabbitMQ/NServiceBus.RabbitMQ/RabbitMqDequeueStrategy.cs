@@ -6,6 +6,7 @@
     using System.Threading.Tasks.Schedulers;
     using Unicast.Transport.Transactional;
     using Unicast.Queuing;
+    using Utils;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
@@ -78,12 +79,14 @@
                 .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
                 .ContinueWith(t =>
                     {
-                        if (t.Exception != null)
-                        {
-                            Configure.Instance.OnCriticalError("Failed to start consumer.", t.Exception);
-                            StartConsumer();
-                        }
-                    });
+                        t.Exception.Handle(ex =>
+                            {
+                                circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Failed to start consumer.", ex));
+                                return true;
+                            });
+                        
+                        StartConsumer();
+                    }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private void Action(object obj)
@@ -152,6 +155,7 @@
             }
         }
 
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Func<TransportMessage, bool> tryProcessMessage;
         bool autoAck;
         MTATaskScheduler scheduler;

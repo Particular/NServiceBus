@@ -26,7 +26,7 @@
                     }
                     catch (Exception ex)
                     {
-                        NServiceBus.Configure.Instance.OnCriticalError("Failed to connect to the RabbitMq broker", ex);
+                        NServiceBus.Configure.Instance.RaiseCriticalError("Failed to connect to the RabbitMq broker.", ex);
                         throw;
                     }
                 }, DependencyLifecycle.SingleInstance);
