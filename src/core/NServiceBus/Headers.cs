@@ -176,7 +176,7 @@
         /// <summary>
         /// Name of the endpoint where the given message originated
         /// </summary>
-        public const string OriginatingEndpoint = "NSericeBus.OriginatingEndpoint";
+        public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
 
 
         /// <summary>
