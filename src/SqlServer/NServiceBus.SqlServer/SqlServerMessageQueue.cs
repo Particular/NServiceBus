@@ -35,7 +35,7 @@ namespace NServiceBus.Transport.SqlServer
                     command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString());
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
                     command.Parameters.AddWithValue("Headers", Serializer.SerializeObject(message.Headers));
-                    command.Parameters.AddWithValue("Body", message.Body);
+                    command.Parameters.AddWithValue("Body", message.Body ?? new byte[0]);
 
                     command.ExecuteNonQuery();
                 }
