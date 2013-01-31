@@ -99,12 +99,19 @@ namespace NServiceBus.Config.Conventions
                         targetFrame =
                             stackFrames.FirstOrDefault(
                                 f => f.GetMethod().DeclaringType != typeof(NServiceBus.Configure));
+
+                      
                     }
                 }
+
+                if (targetFrame == null)
+                    targetFrame = stackFrames.FirstOrDefault(
+                       f => f.GetMethod().DeclaringType.Assembly != typeof(NServiceBus.Configure).Assembly);
 
                 if (targetFrame != null)
                 {
                     entryType = targetFrame.GetMethod().ReflectedType;
+                    return;
                 }
             }
             finally
