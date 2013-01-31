@@ -1,0 +1,785 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">            
+           
+  <xs:annotation>
+    <xs:documentation>
+      NServiceBus Configuration Schema.      
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:element name="AzureDataBusConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Azure Data Bus configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="BasePath" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="BlockSize" type="xs:int" use="optional" default="4194304">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ConnectionString" type="xs:string" use="optional" default="UseDevelopmentStorage=true">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="Container" type="xs:string" use="optional" default="databus">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="MaxRetries" type="xs:int" use="optional" default="5">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="NumberOfIOThreads" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="AzureProfileConfig">
+  <xs:annotation>
+    <xs:documentation>
+      NServiceBus Azure Profile configuration section.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:attribute name="Profiles" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>    
+  </xs:complexType>
+</xs:element>
+
+  <xs:element name="AzureQueueConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Azure Queue configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="BatchSize" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ConnectionString" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="MaximumWaitTimeWhenIdle" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="MessageInvisibleTime" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="PeekInterval" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="PurgeOnStartup" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="QueueName" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="QueuePerInstance" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="AzureSagaPersisterConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Azure Saga Persister configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="ConnectionString" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="CreateSchema" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="AzureServiceBusQueueConfig">
+  <xs:annotation>
+    <xs:documentation>
+      NServiceBus Azure Service Bus Queue configuration section.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:attribute name="DefaultMessageTimeToLive" type="xs:long" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="DuplicateDetectionHistoryTimeWindow" type="xs:int" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="EnableBatchedOperations" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="EnableDeadLetteringOnMessageExpiration" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="IssuerKey" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Issuer Key.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="IssuerName" type="xs:string" use="optional" default="owner">
+      <xs:annotation>
+        <xs:documentation>
+          Issuer Name.
+          Defaults to "owner".
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="LockDuration" type="xs:int" use="optional" default="3000">
+      <xs:annotation>
+        <xs:documentation>
+          
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="MaxDeliveryCount" type="xs:int" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="MaxSizeInMegabytes" type="xs:int" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="QueueName" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="QueuePerInstance" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="RequiresDuplicateDetection" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="RequiresSession" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="ServiceNamespace" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Service Namespace.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+</xs:element>
+
+  <xs:element name="AzureSubscriptionStorageConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Azure Subscription Storage configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="ConnectionString" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="CreateSchema" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="TableName" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>      
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="AzureTimeoutPersisterConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Azure Timeout Persister configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="ConnectionString" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>      
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="DBSubscriptionStorageConfig" type="NHibernatePersister_Type" >
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus DB Subscription Storage configuration section.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+  
+  <xs:element name="FtpQueueConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Ftp Queue configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Password" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ReceiveDirectory" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="SendDirectory" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Obsolete
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>      
+      <xs:attribute name="UserName" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="GatewayConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Gateway configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Channels" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Channel " minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attributeGroup ref="Channel_Type" />
+                  <xs:attribute name="Deault" type="xs:boolean" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="NumberOfWorkerThreads" type="xs:int" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Sites" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Site" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="Key" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>
+
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attributeGroup ref="Channel_Type" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>        
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="MasterNodeConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Master Node configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Node" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+    
+  <xs:element name="MessageForwardingInCaseOfFaultConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Message Forwarding In Case Of Fault configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="ErrorQueue" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            The queue to which to forward messages that could not be processed. In the format "queue@machine".
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="MsmqMessageQueueConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Msmq Message Queue configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="UseDeadLetterQueue" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="UseJournalQueue" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="MsmqSubscriptionStorageConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Msmq Subscription Storage configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Queue" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            The queue where subscription data will be stored. Use the "queue@machine" convention.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="MsmqTransportConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Msmq Transport configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="ErrorQueue" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            The queue to which to forward messages that could not be processed in the format "queue@machine".
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="InputQueue" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Obsolete
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="NumberOfWorkerThreads" type="xs:int" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            The number of worker threads that can process messages in parallel.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="MaxRetries" type="xs:int" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            The maximum number of times to retry processing a message when it fails before moving it to the error queue.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>      
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="NHibernateSagaPersisterConfig" type="NHibernatePersister_Type">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus NHibernate Saga Persister configuration section.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+    
+  <xs:element name="RijndaelEncryptionServiceConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Rijndael Encryption Service configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Key" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Encryption Key.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+    
+  <xs:element name="SecondLevelRetriesConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Second Level Retries configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="Enabled" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Enable or disable Second Level Retries.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="NumberOfRetries" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Number of retries.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="TimeIncrease" type="xs:duration" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Time increase between each retry.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="TimeoutPersisterConfig" type="NHibernatePersister_Type">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Timeout Persister configuration section.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+    
+  <xs:element name="UnicastBusConfig">
+    <xs:annotation>
+      <xs:documentation>
+        NServiceBus Unicast Bus configuration section.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="MessageEndpointMappings">
+          <xs:annotation>
+            <xs:documentation>
+              Contains the mappings from message types (or groups of them) to endpoints.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="add" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="AssemblyName" type="xs:string" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+                        The message assembly for the endpoint mapping.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="Endpoint" type="xs:string" use="required">
+                    <xs:annotation>
+                      <xs:documentation>
+                        The endpoint named according to "queue@machine".
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="Messages" type="xs:string" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+                        A string defining the message assembly, or single message type.
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="Namespace" type="xs:string" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+                        The message type. Define this if you want to map all the types in the namespace to the endpoint.
+                        (Sub-namespaces will not be mapped)
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="TypeFullName" type="xs:string" use="optional">
+                    <xs:annotation>
+                      <xs:documentation>
+                        The fully qualified name of the message type. Define this if you want to map a single message type to the endpoint.
+                        (Type will take preference above namespace)
+                      </xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="DistributorControlAddress" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            The address for sending control messages to the distributor.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="DistributorDataAddress" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            The distributor's data address - used as the return address of messages sent by this endpoint.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="ForwardReceivedMessagesTo" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            The address to which messages received will be forwarded.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="TimeoutManagerAddress" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            The address that the timeout manager will use to send and receive.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="TimeToBeReceivedOnForwardedMessages" type="xs:duration" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+
+  <xs:attributeGroup name="Channel_Type">
+    <xs:attribute name="Address" use="required">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:anyURI">
+          <xs:pattern value="(http|https)://.*" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="ChannelType" use="required">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Http" />
+          <xs:enumeration value="Https" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:complexType name="NHibernatePersister_Type">
+    <xs:all>
+      <xs:element name="NHibernateProperties" minOccurs="0" maxOccurs="1">        
+        <xs:annotation>          
+          <xs:documentation>
+            NHibernate properties.            
+          </xs:documentation>          
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="add" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:attribute name="Key" type="xs:string" use="required">
+                  <xs:annotation>
+                    <xs:documentation>
+                      
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="Value" type="xs:string" use="required">
+                  <xs:annotation>
+                    <xs:documentation>
+
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="UpdateSchema" type="xs:boolean" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+</xs:schema>
