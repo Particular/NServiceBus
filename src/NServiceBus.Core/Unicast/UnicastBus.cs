@@ -990,6 +990,8 @@ namespace NServiceBus.Unicast
                 transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
 
                 transport.Dispose();
+
+                Configure.Instance.Builder.Dispose();
             }
             // free native resources if there are any.
         }
