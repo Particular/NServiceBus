@@ -23,6 +23,7 @@
         private Mock<ISession> session;
         private Mock<IActiveMqPurger> purger;
         private Mock<IMessageConsumer> consumer;
+        private Mock<IMessageCounter> pendingMessageCounterMock;
 
         [SetUp] 
         public void SetUp()
@@ -31,12 +32,14 @@
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
             this.purger = new Mock<IActiveMqPurger>();
+            this.pendingMessageCounterMock = new Mock<IMessageCounter>();
 
             this.testee = new ActiveMqMessageReceiver(
                 this.sessionFactoryMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
                 this.subscriptionManagerMock,
-                this.purger.Object);
+                this.purger.Object,
+                this.pendingMessageCounterMock.Object);
 
             testee.EndProcessMessage = (s, exception) => { };
         }
@@ -60,6 +63,28 @@
             this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
             receivedMessage.Should().Be(transportMessage);
+        }
+
+        [Test]
+        public void WhenMessageIsReceivedAfterStop_ThenMessageReceivedIsNotRaised()
+        {
+            const string Queue = "somequeue";
+            var messageMock = new Mock<IMessage>();
+            var transportMessage = new TransportMessage();
+            TransportMessage receivedMessage = null;
+
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            };
+            this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
+
+            this.StartTestee(new Address(Queue, "machine"));
+            this.testee.Stop();
+            this.consumer.Raise(c => c.Listener += null, messageMock.Object);
+
+            receivedMessage.Should().BeNull();
         }
 
         [Test]
@@ -191,7 +216,7 @@
 
             this.RaiseTopicSubscribed(Topic);
 
-            this.testee.Stop();
+            this.testee.Dispose();
 
             topicConsumer.Verify(c => c.Close());
             topicConsumer.Verify(c => c.Dispose());

@@ -66,6 +66,8 @@
     <Compile Include="ActiveMqMessageReceiver.cs" />
     <Compile Include="ActiveMqMessageSender.cs" />
     <Compile Include="ActiveMqSubscriptionStorage.cs" />
+    <Compile Include="IMessageCounter.cs" />
+    <Compile Include="MessageCounter.cs" />
     <Compile Include="SessionFactories\ActiveMqTransactionSessionFactory.cs" />
     <Compile Include="Config\ActiveMQTransportConfigurer.cs" />
     <Compile Include="Decoders\ByteMessageDecoder.cs" />

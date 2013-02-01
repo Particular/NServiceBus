@@ -2,6 +2,7 @@ namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Transactions;
 
     using Apache.NMS;
@@ -12,6 +13,7 @@ namespace NServiceBus.Transport.ActiveMQ
     public class ActiveMqMessageReceiver : INotifyMessageReceived, ITopicSubscriptionListener
     {
         private readonly IActiveMqPurger purger;
+        private readonly IMessageCounter pendingMessagesCounter;
         private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
 
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
@@ -23,18 +25,26 @@ namespace NServiceBus.Transport.ActiveMQ
         private IMessageConsumer defaultConsumer;
         private TransactionSettings transactionSettings;
         private TransactionOptions transactionOptions;
+        private volatile bool stop = false;
 
         public ActiveMqMessageReceiver(
             ISessionFactory sessionFactory, 
             IActiveMqMessageMapper activeMqMessageMapper, 
             INotifyTopicSubscriptions notifyTopicSubscriptions, 
-            IActiveMqPurger purger)
+            IActiveMqPurger purger,
+            IMessageCounter pendingMessagesCounter)
         {
             this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.notifyTopicSubscriptions = notifyTopicSubscriptions;
             this.purger = purger;
+            this.pendingMessagesCounter = pendingMessagesCounter;
         }
+
+        ~ActiveMqMessageReceiver()
+        {
+            this.Disposing(true);
+        }             
 
         public string ConsumerName { get; set; }
 
@@ -53,7 +63,7 @@ namespace NServiceBus.Transport.ActiveMQ
             this.transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
 
             this.session = this.sessionFactory.GetSession();
-            IDestination destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
+            var destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
             PurgeIfNecessary(session, destination);
 
@@ -68,18 +78,21 @@ namespace NServiceBus.Transport.ActiveMQ
 
         public void Stop()
         {
+            this.stop = true;
+            Thread.MemoryBarrier(); // Full fence to prevent writing of stop and reading of pending message count to be reordered. 
+
             this.notifyTopicSubscriptions.Unregister(this);
+            this.defaultConsumer.Listener -= this.OnMessageReceived;
             foreach (var messageConsumer in this.topicConsumers)
             {
-                messageConsumer.Value.Close();
-                messageConsumer.Value.Dispose();
+                messageConsumer.Value.Listener -= this.OnMessageReceived;
             }
+        }
 
-            this.defaultConsumer.Close();
-            this.defaultConsumer.Dispose();
-
-            this.sessionFactory.Release(this.session);
-            this.sessionFactory.Dispose();
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            this.Disposing(true);
         }
 
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
@@ -96,6 +109,20 @@ namespace NServiceBus.Transport.ActiveMQ
         {
             string topic = e.Topic;
             Subscribe(topic);
+        }
+
+        private void Disposing(bool disposing)
+        {
+            foreach (var messageConsumer in this.topicConsumers)
+            {
+                messageConsumer.Value.Close();
+                messageConsumer.Value.Dispose();
+            }
+
+            this.defaultConsumer.Close();
+            this.defaultConsumer.Dispose();
+
+            this.sessionFactory.Release(this.session);
         }
 
         private void SubscribeTopics()
@@ -123,6 +150,21 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void OnMessageReceived(IMessage message)
         {
+            try
+            {
+                this.pendingMessagesCounter.Increment();
+
+                Thread.MemoryBarrier(); // Full fence to prevent writing pending message count and reading of stop to be reordered. 
+                this.ProcessMessage(message);
+            }
+            finally
+            {
+                this.pendingMessagesCounter.Decrement();
+            }
+        }
+
+        private void ProcessMessage(IMessage message)
+        {
             TransportMessage transportMessage = null;
             Exception exception = null;
 
@@ -143,7 +185,7 @@ namespace NServiceBus.Transport.ActiveMQ
                 }
                 else
                 {
-                    this.TryProcessMessage(transportMessage);
+                    ProcessWithoutTransaction(transportMessage, message);
                 }
             }
             catch (Exception ex)
@@ -156,10 +198,19 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
+        private void ProcessWithoutTransaction(TransportMessage transportMessage, IMessage message)
+        {
+            if (!this.stop)
+            {
+                this.TryProcessMessage(transportMessage);
+                message.Acknowledge();
+            }
+        }
+
         private void ProcessInActiveMqTransaction(TransportMessage transportMessage)
         {
             this.sessionFactory.SetSessionForCurrentThread(this.session);
-            var success = this.TryProcessMessage(transportMessage);
+            var success = !this.stop && this.TryProcessMessage(transportMessage);
             this.sessionFactory.RemoveSessionForCurrentThread();
 
             if (success)
@@ -176,7 +227,7 @@ namespace NServiceBus.Transport.ActiveMQ
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, this.transactionOptions))
             {
-                if (this.TryProcessMessage(transportMessage))
+                if (!this.stop && this.TryProcessMessage(transportMessage))
                 {
                     scope.Complete();
                 }
