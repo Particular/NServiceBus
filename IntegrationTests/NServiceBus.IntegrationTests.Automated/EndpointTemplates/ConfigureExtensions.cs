@@ -2,9 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Autofac;
-    using Autofac.Core;
-    using Autofac.Core.Lifetime;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.CastleWindsor;
     using ObjectBuilder.Common.Config;
@@ -21,21 +18,27 @@
           public static string GetOrNull(this IDictionary<string,string> dictionary, string key)
           {
               if (!dictionary.ContainsKey(key))
+              {
                   return null;
+              }
 
               return dictionary[key];
           }
         public static Configure DefineTransport(this Configure config, string transport)
         {
             if (string.IsNullOrEmpty(transport))
-                return config.MsmqTransport();
+            {
+                return config.UseTransport<Msmq>();
+            }
 
             var transportType = Type.GetType(transport);
 
             if (DefaultConnectionStrings.ContainsKey(transportType))
+            {
                 return config.UseTransport(transportType, () => DefaultConnectionStrings[transportType]);
-            else
-                return config.UseTransport(transportType);
+            }
+            
+            return config.UseTransport(transportType);
         }
 
         public static Configure DefineSerializer(this Configure config, string serializer)
@@ -96,7 +99,7 @@
             throw new InvalidOperationException("Unknown builder:" + builder);
         }
 
-        static Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
+        static readonly Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
             {
                 { typeof(RabbitMQ), "host=localhost" },
                 { typeof(SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;" },

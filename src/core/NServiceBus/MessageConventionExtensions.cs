@@ -42,7 +42,12 @@
             }
         }
 
-        private static bool IsInSystemConventionList(Type t)
+        /// <summary>
+        /// Returns true is message is a system message type.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static bool IsInSystemConventionList(Type t)
         {
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
         }

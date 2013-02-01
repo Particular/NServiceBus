@@ -95,7 +95,6 @@
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="MessageMutator\IMessageMutator.cs" />
-    <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\HasCompleted.cs" />
     <Compile Include="Saga\IConfigurable.cs" />
@@ -115,7 +114,6 @@
     <Compile Include="Saga\TimeoutMessage.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
-    <Compile Include="TransportMessage.cs" />
     <Compile Include="WireEncryptedString.cs" />
   </ItemGroup>
   <ItemGroup>

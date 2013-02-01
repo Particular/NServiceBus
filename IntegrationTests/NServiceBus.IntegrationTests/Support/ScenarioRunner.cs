@@ -147,7 +147,7 @@
                 }
                 finally
                 {
-                    Parallel.ForEach(runners, runner => AppDomain.Unload(runner.AppDomain));
+                    UnloadAppDomains(runners);
                 }
 
                 runTimer.Stop();
@@ -170,6 +170,23 @@
             runResult.TotalTime = runTimer.Elapsed;
 
             return runResult;
+        }
+
+        static void UnloadAppDomains(IEnumerable<ActiveRunner> runners)
+        {
+            Parallel.ForEach(runners, runner =>
+                {
+                    try
+                    {
+                        AppDomain.Unload(runner.AppDomain);
+                    }
+                    catch (CannotUnloadAppDomainException ex)
+                    {
+                        Console.Out.WriteLine("Failed to unload appdomain {0}, reason: {1}",runner.AppDomain.FriendlyName,ex.ToString());
+                        throw;
+                    }
+                    
+                });
         }
 
         static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)

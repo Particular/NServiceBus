@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Transactions;
     using Logging;
     using Transport.Transactional;
+    using Utils;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
@@ -138,11 +139,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 .StartNew(Action, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
                     {
-                        if (task.Exception != null)
-                        {
-                            Logger.Error("Error processing message.", task.Exception.GetBaseException());
-                        }
-                    });
+                        task.Exception.Handle(ex =>
+                            {
+                                Logger.Error("Error processing message.", ex);
+                                return true;
+                            });
+                    }, TaskContinuationOptions.OnlyOnFaulted);
 
             //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
             peekResetEvent.WaitOne();
@@ -294,11 +296,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             return message;
         }
 
-        static void OnCriticalExceptionEncountered(Exception ex)
+        void OnCriticalExceptionEncountered(Exception ex)
         {
-            Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
+            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", ex));
         }
 
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Func<TransportMessage, bool> tryProcessMessage;
         static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
         readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);

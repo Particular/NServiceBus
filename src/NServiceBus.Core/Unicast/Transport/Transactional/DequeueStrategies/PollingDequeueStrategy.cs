@@ -6,6 +6,7 @@
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using Queuing;
+    using Utils;
 
     /// <summary>
     /// A polling implementation of <see cref="IDequeueMessages"/>.
@@ -65,17 +66,19 @@
         void StartThread()
         {
             var token = tokenSource.Token;
-            
+
             Task.Factory
                 .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
                 .ContinueWith(t =>
-                {
-                    if (t.Exception != null)
                     {
-                        Configure.Instance.OnCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), t.Exception);
+                        t.Exception.Handle(ex =>
+                            {
+                                circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError(string.Format("Failed to receive message from '{0}'.", MessageReceiver), ex));
+                                return true;
+                            });
+
                         StartThread();
-                    }
-                });
+                    }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private void Action(object obj)
@@ -125,6 +128,7 @@
             }
         }
 
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Func<TransportMessage, bool> tryProcessMessage;
         CancellationTokenSource tokenSource;
         Address addressToPoll;

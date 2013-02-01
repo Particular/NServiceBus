@@ -114,7 +114,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             };
             bus = unicastBus;
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;

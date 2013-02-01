@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
@@ -10,6 +11,7 @@ namespace NServiceBus.Unicast
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Security.Principal;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Impersonation;
@@ -820,17 +822,20 @@ namespace NServiceBus.Unicast
 
             thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
                                         {
+                                            var name = toRun.GetType().AssemblyQualifiedName;
+
                                             try
                                             {
-                                                Log.DebugFormat("Calling {0}", toRun.GetType().Name);
+                                                Log.DebugFormat("Starting {0}.", name);
                                                 toRun.Start();
+                                                Log.DebugFormat("Started {0}.", name);
                                             }
                                             catch (Exception ex)
                                             {
-                                                Log.Error("Problem occurred when starting the endpoint.", ex);
+                                                Log.ErrorFormat("{0} could not be started.", ex, name);
                                                 //don't rethrow so that thread doesn't die before log message is shown.
                                             }
-                                        })).ToArray();
+                                        }, TaskCreationOptions.LongRunning)).ToArray();
 
             return this;
         }
@@ -841,29 +846,55 @@ namespace NServiceBus.Unicast
                 return;
 
             //Ensure Start has been called on all thingsToRunAtStartup
+            Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
             Task.WaitAll(thingsToRunAtStartupTask);
+            Log.DebugFormat("All IWantToRunAtStartup.Start should have completed now.");
 
-            var tasks = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
+            var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
+
+            var tasks = thingsToRunAtStartup.Select(toRun =>
                 {
-                    Log.DebugFormat("Stopping {0}", toRun.GetType().Name);
-                    try
-                    {
-                        toRun.Stop();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.ErrorFormat("{0} could not be stopped.", ex, toRun.GetType().Name);
-                        // no need to rethrow, closing the process anyway
-                    }
-                })).ToArray();
+                    var name = toRun.GetType().AssemblyQualifiedName;
+                    
+                    var task = new Task(() =>
+                        {
+                            try
+                            {
+                                Log.DebugFormat("Stopping {0}.", name);
+                                toRun.Stop();
+                                Log.DebugFormat("Stopped {0}.", name);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.ErrorFormat("{0} could not be stopped.", ex, name);
+                                // no need to rethrow, closing the process anyway
+                            }
+                        }, TaskCreationOptions.LongRunning);
 
+                    mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
+
+                    task.Start();
+
+                    return task;
+
+                }).ToArray();
 
             // Wait for a period here otherwise the process may be killed too early!
             var timeout = TimeSpan.FromSeconds(20);
-            if (!Task.WaitAll(tasks, timeout))
+            if (Task.WaitAll(tasks, timeout))
             {
-                Log.WarnFormat("Not all IWantToRunWhenBusStartsAndStops.Stop methods were successfully called within {0}secs", timeout.Seconds);
+                return;
             }
+
+            Log.WarnFormat("Not all IWantToRunWhenBusStartsAndStops.Stop methods were successfully called within {0}secs", timeout.Seconds);
+
+            var sb = new StringBuilder();
+            foreach (var task in tasks.Where(task => !task.IsCompleted))
+            {
+                sb.AppendLine(mapTaskToThingsToRunAtStartup[task.Id]);
+            }
+
+            Log.WarnFormat("List of tasks that did not finish within {0}secs:\n{1}", timeout.Seconds, sb.ToString());
         }
 
 
@@ -911,7 +942,7 @@ namespace NServiceBus.Unicast
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t)).ToList();
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t) && !MessageConventionExtensions.IsInSystemConventionList(t)).ToList();
 
             if (AllowSubscribeToSelf)
                 return eventsHandled;

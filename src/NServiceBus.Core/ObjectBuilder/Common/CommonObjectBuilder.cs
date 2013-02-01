@@ -70,6 +70,13 @@ namespace NServiceBus.ObjectBuilder.Common
             return new ComponentConfig<T>(Container);
         }
 
+        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle instanceLifecycle)
+        {
+            Container.Configure(() => componentFactory(this), instanceLifecycle);
+
+            return new ComponentConfig<T>(Container);
+        }
+
         IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
         {
             var lifecycle = MapToDependencyLifecycle(callModel);

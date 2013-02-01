@@ -50,8 +50,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             stopRequested = true;
 
-            if (workerThread != null)
-                workerThread.Join();
+            workerThread.Join();
         }
 
         void Poll()

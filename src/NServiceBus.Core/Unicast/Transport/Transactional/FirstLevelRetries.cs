@@ -73,7 +73,7 @@
             }
             catch (Exception ex)
             {
-                Configure.Instance.OnCriticalError(
+                Configure.Instance.RaiseCriticalError(
                     String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
             }
 

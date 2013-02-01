@@ -174,6 +174,17 @@
         public const string IsDeferedMessage = "NServiceBus.IsDeferedMessage";
 
         /// <summary>
+        /// Name of the endpoint where the given message originated
+        /// </summary>
+        public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
+
+
+        /// <summary>
+        /// The id of the message conversation that this message is part of
+        /// </summary>
+        public const string ConversationId = "NServiceBus.ConversationId";
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>
