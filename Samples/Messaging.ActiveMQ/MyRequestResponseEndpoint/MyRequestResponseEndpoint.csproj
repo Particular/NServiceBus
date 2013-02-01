@@ -36,13 +36,7 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core">
-      <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Host">
-      <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
-    </Reference>
-    <Reference Include="Apache.NMS" >
+<Reference Include="Apache.NMS" >
     <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
   </Reference>
 <Reference Include="Apache.NMS.ActiveMQ" >
@@ -51,6 +45,13 @@
 <Reference Include="NServiceBus.ActiveMQ" >
     <HintPath>..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
   </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Host">
+      <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
+    </Reference>
+    
     <Reference Include="System">
 </Reference>
     <Reference Include="System.Core">
@@ -61,7 +62,7 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
 </Compile>
-    <Compile Include="MyResponseHandler.cs">
+    <Compile Include="CheckInventoryHandler.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>

@@ -61,7 +61,7 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
 </Compile>
-    <Compile Include="MyEventHandler.cs">
+    <Compile Include="CoolDownPeriodElapsedHandler.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>

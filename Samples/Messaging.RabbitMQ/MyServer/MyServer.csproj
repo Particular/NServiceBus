@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')">
-  </Import>
+</Import>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -36,42 +36,42 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+<Reference Include="RabbitMQ.Client" >
+    <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+  </Reference>
+<Reference Include="NServiceBus.RabbitMQ" >
+    <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
+  </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
-      <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.RabbitMQ">
-      <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
-    </Reference>
+    
     <Reference Include="System">
-    </Reference>
+</Reference>
     <Reference Include="System.Core">
-    </Reference>
+</Reference>
     <Reference Include="Microsoft.CSharp">
-    </Reference>
+</Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
-    </Compile>
-    <Compile Include="MyCommandHandler.cs">
-    </Compile>
-    <Compile Include="MyResponseHandler.cs">
-    </Compile>
+</Compile>
+    <Compile Include="OrderCommandHandler.cs">
+</Compile>
+    <Compile Include="ProcessOrderSaga.cs">
+</Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
-    </Compile>
+</Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+</None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">
@@ -80,11 +80,11 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets">
-  </Import>
+</Import>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets">
-  </Import>
+</Import>
 </Project>

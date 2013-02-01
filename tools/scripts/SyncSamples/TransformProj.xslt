@@ -14,8 +14,11 @@
 
   <xsl:template match="@*|node()">
     <xsl:choose>
-      <xsl:when test="local-name() = 'Reference' and ./@Include='NServiceBus.SqlServer'">
-        <xsl:call-template name="AddReferences">
+      <xsl:when test="local-name() = 'Reference' and ./@Include='NServiceBus'">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+		<xsl:call-template name="AddReferences">
         </xsl:call-template>
       </xsl:when>
       <xsl:otherwise>

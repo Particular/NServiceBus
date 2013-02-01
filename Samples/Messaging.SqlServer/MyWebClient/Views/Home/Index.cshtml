@@ -2,55 +2,90 @@
     ViewBag.Title = "Home";
 }
 <script src="~/Content/js/video.js"></script>
+<script src="~/Scripts/jquery.signalR-1.0.0-rc2.min.js" type="text/javascript"></script>
 
-<div class="hero-unit" style="background-color: #2E2E2E; color: white;">
+<div class="hero-unit" style="background-color: #2E2E2E; color: white; margin-top:5px; padding-bottom: 10px; padding-top: 10px;">
     <h1>Welcome to NService Bus Video Store!</h1>
     <p>Select what videos you would like to watch</p>
 </div>
 
 <div>
-    <form name="videosList">
-        <ul class="unstyled">
-            <li ng-repeat="video in videos">
-                <label class="checkbox">
-                    <input type="checkbox" ng-model="video.selected">
-                    {{video.title}}
-                    <div class="description">{{video.description}}</div>
-                </label>
-            </li>
-        </ul>
-
-        <button ng-click="placeOrder()" ng-disabled="nothingSelected()" class="btn btn-primary">Place Order</button>
-        <label class="checkbox">
-            <input type="checkbox" ng-model="debug">
-            tick to debug endpoints</label>
-        <div class="alert alert-error" ng-show="errors">
-            <strong>Order failed!</strong> {{errorMessage}}
-        </div>
-    </form>
+    <fieldset>
+        <legend>List of available NServiceBus videos</legend>
+        <form name="videosList">
+            <table class="table table-hover">
+                <tr ng-repeat="video in videos">
+                    <td>
+                        <label class="checkbox">
+                            <input type="checkbox" ng-model="video.selected">
+                            <h5>{{video.title}}</h5>
+                            <div class="description">{{video.description}}</div>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+            
+            <button style="margin-bottom: 50px;" ng-click="placeOrder()" class="btn btn-primary">Place Order</button>
+            <span class="pull-right"><span class="label label-success">Debug me!</span> <label style="width: 80%;" class="checkbox"><input type="checkbox" ng-model="debug"><p class="text-success">Tick this box if you want to debug the code behind. We have placed breakpoints in specific places in the code to help you out become familiar with the NServiceBus way of doing things!</p></label></span>
+            
+            <div class="alert alert-error" ng-show="errorMessage">
+                <span class="label label-important">Order failed</span> {{errorMessage}}
+            </div>
+        </form>
+    </fieldset>
 </div>
 <div class="row">
     <div class="span6">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Video</th>
-                    <th>Status</th>
-                    <th>&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="order in orders">
-                    <td>{{order.number}}</td>
-                    <td>{{order.title}}</td>
-                    <td>{{order.status}}</td>
-                    <td><a href="/cancel/{{order.number}}"><i class="icon-remove"></i></a></td>
-                </tr>
-            </tbody>
-        </table>
+        <fieldset>
+            <legend>List of orders</legend>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Video(s)</th>
+                        <th>Status</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-hide="orders.length > 0">
+                        <td colspan="4">
+                            <div class="alert alert-info"><strong>No order yet!</strong> Place some order above.</div>
+                         </td>
+                    </tr>
+                    <tr ng-repeat="order in orders">
+                        <td>{{order.number}}</td>
+                        <td><div ng-repeat="title in order.titles">{{title}}</div></td>
+                        <td>{{order.status}}</td>
+                        <td><button type="button" ng-click="cancelOrder(order.number)" class="btn btn-small btn-danger">Cancel</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
     </div>
     <div class="span6">
+        <fieldset>
+            <legend>Orders Received</legend>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Video(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-hide="ordersReceived.length > 0">
+                        <td colspan="2">
+                            <div class="alert alert-info"><strong>Empty!</strong> No urls to videos yet :-(</div>
+                         </td>
+                    </tr>
+                    <tr ng-repeat="order in ordersReceived">
+                        <td>{{order.number}}</td>
+                        <td><div ng-repeat="item in order.items"><a target="_blank" href="{{item.url}}">{{item.title}}</a></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
     </div>
 </div>
 

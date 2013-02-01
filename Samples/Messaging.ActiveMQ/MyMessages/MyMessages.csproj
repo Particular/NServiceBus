@@ -34,21 +34,34 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+<Reference Include="Apache.NMS" >
+    <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
+  </Reference>
+<Reference Include="Apache.NMS.ActiveMQ" >
+    <HintPath>..\packages\Apache.NMS.ActiveMQ.1.5.6\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
+  </Reference>
+<Reference Include="NServiceBus.ActiveMQ" >
+    <HintPath>..\..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
+  </Reference>
     <Reference Include="System">
 </Reference>
     <Reference Include="Microsoft.CSharp">
 </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CommandStatus.cs">
+    <Compile Include="Commands\CancelOrder.cs">
 </Compile>
-    <Compile Include="Commands\MyCommand.cs">
+    <Compile Include="Commands\OrderStatus.cs">
 </Compile>
-    <Compile Include="Events\MyEvent.cs">
+    <Compile Include="Commands\OrderCommand.cs">
 </Compile>
-    <Compile Include="RequestResponse\MyRequest.cs">
+    <Compile Include="Events\CooldownPeriodElapsed.cs">
 </Compile>
-    <Compile Include="RequestResponse\MyResponse.cs">
+    <Compile Include="Events\OrderIsReady.cs">
+</Compile>
+    <Compile Include="RequestResponse\CheckInventoryRequest.cs">
+</Compile>
+    <Compile Include="RequestResponse\InventoryResponse.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>

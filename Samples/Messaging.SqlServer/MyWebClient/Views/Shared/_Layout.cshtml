@@ -8,8 +8,17 @@
     <style type="text/css">
         body {
             font-family: Calibri, sans;
-            padding-top: 100px;
-            padding-bottom: 40px;
+        }
+        legend
+        {
+            font-size: 21px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding-left: 5px;
+            padding-right: 5px;
+            width: auto;
         }
     </style>
     <script src="~/Content/js/angular.min.js"></script>
@@ -22,11 +31,16 @@
     @RenderSection("head", required: false)
   </head>
     <body>
-        <div class="navbar navbar-inverse navbar-fixed-top">
-          <div class="navbar-inner">
-            <div class="container">
-              <a class="brand" href="#"><img src="http://images.nservicebus.com/NServiceBusLogo_black.png" alt="NServiceBus Logo" /></a>
-            </div>
+        <div class="navbar navbar-inverse">
+          <div class="navbar-inner"> 
+              <div class="container">
+                  <a class="brand" href="http://www.nservicebus.com"><img src="http://images.nservicebus.com/NServiceBusLogo_black.png" alt="NServiceBus" /></a>
+                  <ul class="nav pull-right">
+                    <li><a href="http://support.nservicebus.com/">Documentation</a></li>
+                    <li><a href="http://tech.groups.yahoo.com/group/nservicebus/">Discussion Group</a></li>
+                    <li><a href="http://nservicebus.com/Training.aspx">Training</a></li>
+                  </ul>
+              </div>
           </div>
         </div>
 

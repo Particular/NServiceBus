@@ -5,17 +5,17 @@
     [string]$connectionString
 )
 {
-    robocopy Messaging.SqlServer Messaging.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config
-	Rename-Item Messaging.$transport\Messaging.SqlServer.sln Messaging.$transport.sln
+    robocopy Messaging.Msmq Messaging.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config
+	Rename-Item Messaging.$transport\Messaging.Msmq.sln Messaging.$transport.sln
     
     (dir -Path .\Messaging.$transport -Filter *.config -Recurse) | foreach {  
-        Replace $_.FullName "Data Source=\.\\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True" $connectionString
+        Replace $_.FullName "cache=true" $connectionString
     }
         
-    Replace "Messaging.$transport\MyWebClient\Global.asax.cs" "UseTransport<SqlServer>" "UseTransport<$transport>"
+    Replace "Messaging.$transport\MyWebClient\Global.asax.cs" "UseTransport<Msmq>" "UseTransport<$transport>"
     
     (dir -Path .\Messaging.$transport -Filter EndpointConfig.cs -Recurse) | foreach {  
-        Replace $_.FullName "SqlServer" $transport
+        Replace $_.FullName "UsingTransport<Msmq>" "UsingTransport<$transport>"
     }
     
     (dir -Path .\Messaging.$transport -Filter *.csproj -Recurse) | foreach {  
@@ -45,5 +45,5 @@ $script:baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
 cd $script:baseDir
 cd ..\..\..\Samples
 Sync -transport "RabbitMQ" -connectionString "host=localhost"
-Sync -transport "Msmq" -connectionString "cache=true"
+Sync -transport "SqlServer" -connectionString "Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"
 Sync -transport "ActiveMQ" -connectionString "activemq:tcp://localhost:61616"

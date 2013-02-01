@@ -36,18 +36,19 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+<Reference Include="RabbitMQ.Client" >
+    <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+  </Reference>
+<Reference Include="NServiceBus.RabbitMQ" >
+    <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
+  </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client" >
-    <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
-  </Reference>
-<Reference Include="NServiceBus.RabbitMQ" >
-    <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
-  </Reference>
+    
     <Reference Include="System">
 </Reference>
     <Reference Include="System.Core">
@@ -66,7 +67,7 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
 </Compile>
-    <Compile Include="MyEventHandler.cs">
+    <Compile Include="CoolDownPeriodElapsedHandler.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>

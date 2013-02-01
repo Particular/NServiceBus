@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')">
+</Import>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -33,18 +34,34 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+<Reference Include="NServiceBus.SqlServer" >
+    <HintPath>..\..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
+  </Reference>
+    <Reference Include="System">
+</Reference>
+    <Reference Include="Microsoft.CSharp">
+</Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\OrderStatus.cs" />
-    <Compile Include="Commands\OrderCommand.cs" />
-    <Compile Include="Events\MyEvent.cs" />
-    <Compile Include="RequestResponse\MyRequest.cs" />
-    <Compile Include="RequestResponse\MyResponse.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Commands\CancelOrder.cs">
+</Compile>
+    <Compile Include="Commands\OrderStatus.cs">
+</Compile>
+    <Compile Include="Commands\OrderCommand.cs">
+</Compile>
+    <Compile Include="Events\CooldownPeriodElapsed.cs">
+</Compile>
+    <Compile Include="Events\OrderIsReady.cs">
+</Compile>
+    <Compile Include="RequestResponse\CheckInventoryRequest.cs">
+</Compile>
+    <Compile Include="RequestResponse\InventoryResponse.cs">
+</Compile>
+    <Compile Include="Properties\AssemblyInfo.cs">
+</Compile>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets">
+</Import>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

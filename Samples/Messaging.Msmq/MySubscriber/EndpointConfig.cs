@@ -3,7 +3,7 @@ namespace MySubscriber
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<Msmq> { }
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<Msmq> { }
 
     public class MyClass : IWantToRunWhenBusStartsAndStops
     {

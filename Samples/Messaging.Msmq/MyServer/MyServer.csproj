@@ -53,9 +53,9 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
 </Compile>
-    <Compile Include="MyCommandHandler.cs">
+    <Compile Include="OrderCommandHandler.cs">
 </Compile>
-    <Compile Include="MyResponseHandler.cs">
+    <Compile Include="ProcessOrderSaga.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>

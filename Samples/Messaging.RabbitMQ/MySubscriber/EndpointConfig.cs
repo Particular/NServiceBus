@@ -3,7 +3,7 @@ namespace MySubscriber
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<RabbitMQ> { }
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<RabbitMQ> { }
 
     public class MyClass : IWantToRunWhenBusStartsAndStops
     {

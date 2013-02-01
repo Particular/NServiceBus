@@ -1,9 +1,9 @@
-﻿namespace MySubscriber
+namespace MySubscriber
 {
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<SqlServer> { }
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<SqlServer> { }
 
     public class MyClass : IWantToRunWhenBusStartsAndStops
     {

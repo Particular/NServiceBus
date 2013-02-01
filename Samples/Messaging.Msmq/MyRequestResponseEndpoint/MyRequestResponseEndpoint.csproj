@@ -53,7 +53,7 @@
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
 </Compile>
-    <Compile Include="MyResponseHandler.cs">
+    <Compile Include="CheckInventoryHandler.cs">
 </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
 </Compile>
