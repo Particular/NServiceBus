@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NServiceBus.Logging.Loggers.NLogAdapter
 {
     using System;
@@ -20,35 +22,50 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
             get { return Type.GetType("NLog.LogManager, NLog") != null; }
         }
 
-        public static void Configure(object target, string level = null)
+        public static void Configure(object targetForNServiceBusToLogTo, string levelForNServiceBusToLogWith = null)
         {
-            Configure(new [] { target}, level);
+            if (targetForNServiceBusToLogTo == null)
+            {
+                throw new ArgumentNullException("targetForNServiceBusToLogTo");
+            }
+            Configure(new[] { targetForNServiceBusToLogTo }, levelForNServiceBusToLogWith);
         }
 
-        public static void Configure(object[] targets, string level = null)
+        public static void Configure(object[] targetsForNServiceBusToLogTo, string levelForNServiceBusToLogWith = null)
         {
             EnsureNLogExists();
 
-            if (!targets.All(x => TargetType.IsInstanceOfType(x)))
+            if (!targetsForNServiceBusToLogTo.All(x => TargetType.IsInstanceOfType(x)))
                 throw new ArgumentException("The objects provided must inherit from NLog.Targets.Target.");
 
-            Configure();
             
-            var loggingConfiguration = Activator.CreateInstance(LoggingConfigurationType);
-
-            object loggingRule = Activator.CreateInstance(LoggingRuleType, "*", LogLevelType.GetStaticField(level ?? "Info"), targets.First());
-
-            foreach (var target in targets.Skip(1))
+            dynamic loggingConfiguration = LogManagerType.GetStaticProperty("Configuration");
+            if (loggingConfiguration == null)
             {
-                loggingRule.GetProperty("Targets")
-                    .InvokeMethod("Add", target);
+                loggingConfiguration = Activator.CreateInstance(LoggingConfigurationType);
+            }
+            foreach (dynamic target in targetsForNServiceBusToLogTo)
+            {
+                //TODO:check if target is owned by another config
+                if (target.Name == null)
+                {
+                    var name = target.GetType().Name;
+                    loggingConfiguration.AddTarget(name, target);
+                }
             }
 
-            loggingConfiguration
-                .GetProperty("LoggingRules")
-                .InvokeMethod("Add", loggingRule);
+            var logLevel = LogLevelType.GetStaticField(levelForNServiceBusToLogWith ?? "Info", true);
+            dynamic loggingRule = Activator.CreateInstance(LoggingRuleType, "*", logLevel, targetsForNServiceBusToLogTo.First());
 
-            LogManagerType.SetStaticProperty("Configuration", loggingConfiguration);
+            foreach (dynamic target in targetsForNServiceBusToLogTo.Skip(1))
+            {
+                loggingRule.Targets.Add(target);
+            }
+
+            loggingConfiguration.LoggingRules.Add(loggingRule);
+            LogManagerType.SetStaticProperty("Configuration", (object)loggingConfiguration);
+            Configure();
+
         }
 
         /// <summary>

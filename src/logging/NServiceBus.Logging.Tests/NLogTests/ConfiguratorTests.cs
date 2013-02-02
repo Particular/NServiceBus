@@ -9,10 +9,6 @@ namespace NServiceBus.Logging.Tests.NLogTests
     [TestFixture]
     public class ConfiguratorTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
 
         [Test]
         public void Threshold_should_be_All()
@@ -71,7 +67,8 @@ namespace NServiceBus.Logging.Tests.NLogTests
         {
             NLogConfigurator.Configure(new Target[] { new ConsoleTarget(), new ColoredConsoleTarget()});
 
-            Assert.AreEqual(2, NLog.LogManager.Configuration.LoggingRules[0].Targets.Count);
+            var loggingConfiguration = NLog.LogManager.Configuration;
+            Assert.AreEqual(2, loggingConfiguration.LoggingRules[0].Targets.Count);
         }
     }
 }
