@@ -23,20 +23,20 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 
         public static object CreateConsoleAppender(string level)
         {
-            var appender = Activator.CreateInstance(ConsoleAppenderType);
+            dynamic appender = Activator.CreateInstance(ConsoleAppenderType);
 
             if (level != null)
-                SetThreshold(appender, level);
+                appender.Threshold = ConvertToLogLevel(level);
 
             return appender;
         }
 
         public static object CreateColoredConsoleAppender(string level)
         {
-            var appender = Activator.CreateInstance(ColoredConsoleAppenderType);
+            dynamic appender = Activator.CreateInstance(ColoredConsoleAppenderType);
 
             if (level != null)
-                SetThreshold(appender, level);
+                appender.Threshold = ConvertToLogLevel(level);
 
             AddMapping(appender, "Debug", "White");
             AddMapping(appender, "Info", "Green");
@@ -48,36 +48,41 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
 
         public static object CreateRollingFileAppender(string level, string filename)
         {
-            var appender = Activator.CreateInstance(RollingFileAppenderType);
+            dynamic appender = Activator.CreateInstance(RollingFileAppenderType);
 
             if (level != null)
-                SetThreshold(appender, level);
+                appender.Threshold = ConvertToLogLevel(level);
 
-            appender.SetProperty("CountDirection", 1);
-            appender.SetProperty("DatePattern", "yyyy-MM-dd");
+            appender.CountDirection = 1;
+            appender.DatePattern = "yyyy-MM-dd";
 
-            appender.SetProperty("RollingStyle", Enum.Parse(RollingModeType, "Composite"));
-            appender.SetProperty("MaxFileSize", 1024*1024);
-            appender.SetProperty("MaxSizeRollBackups", 10);
-            appender.SetProperty("LockingModel", Activator.CreateInstance(MinimalLockType));
-            appender.SetProperty("StaticLogFileName", true);
-            appender.SetProperty("File", filename);
-            appender.SetProperty("AppendToFile", true);
+            appender.RollingStyle = (dynamic)Enum.Parse(RollingModeType, "Composite");
+            appender.MaxFileSize = 1024*1024;
+            appender.MaxSizeRollBackups = 10;
+            appender.LockingModel = (dynamic)Activator.CreateInstance(MinimalLockType);
+            appender.StaticLogFileName = true;
+            appender.File =filename;
+            appender.AppendToFile = true;
 
             return appender;
         }
 
-        private static void AddMapping(object appender, string level, string color1, string color2 = null)
+        internal static dynamic ConvertToLogLevel(string level)
         {
-            var levelColors = Activator.CreateInstance(LevelColorsType);
-
-            levelColors.SetProperty("Level", LevelType.GetStaticField(level));
-            levelColors.SetProperty("ForeColor", GetColors(color1, color2));
-
-            appender.InvokeMethod("AddMapping", levelColors);
+            return LevelType.GetStaticField(level, true);
         }
 
-        private static object GetColors(string color1, string color2)
+        private static void AddMapping(dynamic appender, string level, string color1, string color2 = null)
+        {
+            dynamic levelColors = Activator.CreateInstance(LevelColorsType);
+
+            levelColors.Level = ConvertToLogLevel(level);
+            levelColors.ForeColor = GetColors(color1, color2);
+
+            appender.AddMapping(levelColors);
+        }
+
+        private static dynamic GetColors(string color1, string color2)
         {
             var colorsValue = (int)Enum.Parse(ColorsType, color1);
 
@@ -87,14 +92,5 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
             return Enum.ToObject(ColorsType, colorsValue);
         }
 
-        public static void SetThreshold(object appender, string threshold)
-        {
-            appender.SetProperty("Threshold", LevelType.GetStaticField(threshold, true));
-        }
-
-        public static object GetThreshold(object appender)
-        {
-            return appender.GetProperty("Threshold");
-        }
     }
 }

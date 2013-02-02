@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
+using NServiceBus.Logging.Loggers.NLogAdapter;
+
 namespace NServiceBus
 {
     using System;
@@ -76,8 +80,21 @@ namespace NServiceBus
             config();
         }
 
-        public static Configure NLog(this Configure config, params object[] targets)
+        public static Configure NLog(this Configure config, params object[] targetsForNServiceBusToLogTo)
         {
+
+            if (targetsForNServiceBusToLogTo == null)
+            {
+                throw new ArgumentNullException("targetsForNServiceBusToLogTo");
+            }
+            if (targetsForNServiceBusToLogTo.Length == 0)
+            {
+                throw new ArgumentException("Must not be empty.", "targetsForNServiceBusToLogTo");
+            }
+            if (targetsForNServiceBusToLogTo.Any(x=>x == null))
+            {
+                throw new ArgumentNullException("targetsForNServiceBusToLogTo", "Must not contain null values.");
+            }
             string threshold = null;
 
             var cfg = Configure.GetConfigSection<Config.Logging>();
@@ -86,14 +103,14 @@ namespace NServiceBus
                 threshold = cfg.Threshold;
             }
 
-            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure(targets, threshold);
+            NLogConfigurator.Configure(targetsForNServiceBusToLogTo, threshold);
 
             return config;
         }
 
         public static void NLog()
         {
-            Logging.Loggers.NLogAdapter.NLogConfigurator.Configure();
+            NLogConfigurator.Configure();
         }
 
         public static void Custom(ILoggerFactory loggerFactory)

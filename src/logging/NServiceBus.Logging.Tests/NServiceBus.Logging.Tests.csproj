@@ -55,6 +55,7 @@
     <Compile Include="Log4Net\LoggerFactoryTests.cs" />
     <Compile Include="NLogTests\ConfiguratorTests.cs" />
     <Compile Include="NLogTests\LoggerFactoryTests.cs" />
+    <Compile Include="NLogTests\NLogTargetFactoryTests.cs" />
     <Compile Include="NLogTests\TargetFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
