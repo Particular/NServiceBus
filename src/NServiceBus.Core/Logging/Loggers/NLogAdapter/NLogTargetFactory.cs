@@ -35,9 +35,9 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
 
         public static object CreateColoredConsoleTarget(string layout = null)
         {
-            var target = Activator.CreateInstance(ColoredConsoleTargetType);
+            dynamic target = Activator.CreateInstance(ColoredConsoleTargetType);
 
-            target.SetProperty("UseDefaultRowHighlightingRules", true);
+            target.UseDefaultRowHighlightingRules = true;
 
             SetLayout(layout, target);
 
@@ -47,28 +47,28 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
 
         public static object CreateRollingFileTarget(string filename, string layout = null)
         {
-            var target = Activator.CreateInstance(FileTargetType);
+            dynamic target = Activator.CreateInstance(FileTargetType);
 
-            string archiveFilename = string.Format("{0}.{{#}}", filename);
+            var archiveFilename = string.Format("{0}.{{#}}", filename);
 
-            target.SetProperty("FileName", LayoutType.InvokeStaticMethod("FromString", filename));
-            target.SetProperty("ArchiveFileName", LayoutType.InvokeStaticMethod("FromString", archiveFilename));
-            target.SetProperty("ArchiveAboveSize", 1024 * 1024);
-            target.SetProperty("ArchiveEvery", Enum.Parse(FileArchivePeriodType, "Day"));
-            target.SetProperty("ArchiveNumbering", Enum.Parse(ArchiveNumberingModeType, "Rolling"));
-            target.SetProperty("MaxArchiveFiles", 10);
-            target.SetProperty("KeepFileOpen", false);
+            target.FileName = (dynamic)LayoutType.InvokeStaticMethod("FromString", filename);
+            target.ArchiveFileName = (dynamic)LayoutType.InvokeStaticMethod("FromString", archiveFilename);
+            target.ArchiveAboveSize = 1024 * 1024;
+            target.ArchiveEvery = (dynamic)Enum.Parse(FileArchivePeriodType, "Day");
+            target.ArchiveNumbering = (dynamic)Enum.Parse(ArchiveNumberingModeType, "Rolling");
+            target.MaxArchiveFiles = 10;
+            target.KeepFileOpen = false;
 
             SetLayout(layout, target);
 
             return target;
         }
 
-        private static void SetLayout(string layout, object target)
+        private static void SetLayout(string layout, dynamic target)
         {
             if (layout != null)
             {
-                target.SetProperty("Layout", Activator.CreateInstance(SimpleLayoutType, layout));
+                target.Layout= (dynamic)Activator.CreateInstance(SimpleLayoutType, layout);
             }
         }
     }
