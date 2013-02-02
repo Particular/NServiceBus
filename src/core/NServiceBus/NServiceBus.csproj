@@ -112,7 +112,6 @@
     <Compile Include="Saga\ITimeoutable.cs" />
     <Compile Include="Saga\ITimeoutState.cs" />
     <Compile Include="Saga\Saga.cs" />
-    <Compile Include="Saga\TimeoutMessage.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="TransportMessage.cs" />
