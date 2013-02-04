@@ -43,15 +43,22 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -143,7 +150,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
+            builder.RegisterInstance(instance).As(lookupType).PropertiesAutowired();
             builder.Update(this.container.ComponentRegistry);
         }
 

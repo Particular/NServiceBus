@@ -1,9 +1,9 @@
 namespace ObjectBuilder.Tests
 {
     using System;
+    using System.Threading.Tasks;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
+    using NServiceBus.ObjectBuilder.Common;
     using NServiceBus.ObjectBuilder.Spring;
     using NUnit.Framework;
 
@@ -15,24 +15,70 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders(builder =>
                 {
-                    SingletonComponent.DisposeCalled = false;
+                    DisposableComponent.DisposeCalled = false;
                     AnotherSingletonComponent.DisposeCalled = false;
 
-                    builder.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
-                    builder.RegisterSingleton(typeof(AnotherSingletonComponent),new AnotherSingletonComponent());
+                    builder.Configure(typeof(DisposableComponent), DependencyLifecycle.SingleInstance);
+                    builder.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
 
-                    builder.Build(typeof(SingletonComponent));
+                    builder.Build(typeof(DisposableComponent));
                     builder.Build(typeof(AnotherSingletonComponent));
                     builder.Dispose();
 
-                    Assert.True(SingletonComponent.DisposeCalled, "Dispose should be called on SingletonComponent");
+                    Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
                     Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
-                }, typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder), typeof(SpringObjectBuilder));
-
-
+                });
         }
 
-        public class SingletonComponent :  IDisposable
+        [Test]
+        public void Should_dispose_all_IDisposable_components_in_child_container()
+        {
+            ForAllBuilders(main =>
+            {
+                DisposableComponent.DisposeCalled = false;
+                AnotherSingletonComponent.DisposeCalled = false;
+
+                main.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+                main.Configure(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                using (var builder = main.BuildChildContainer())
+                {
+                    builder.Build(typeof(DisposableComponent));
+                }
+
+                Assert.False(AnotherSingletonComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
+                Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
+            }, typeof(SpringObjectBuilder));
+        }
+
+        [Test, Ignore]
+        public void Spring_only_Should_dispose_all_IDisposable_components_when_only_then_main_container_is_disposed()
+        {
+            using (var container = (IContainer) new SpringObjectBuilder())
+            {
+                DisposableComponent.DisposeCalled = false;
+                AnotherSingletonComponent.DisposeCalled = false;
+
+                container.RegisterSingleton(typeof(AnotherSingletonComponent), new AnotherSingletonComponent());
+                container.Configure(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                Task.Factory.StartNew(
+                    () =>
+                        {
+                            using (var builder = container.BuildChildContainer())
+                            {
+                                builder.Build(typeof (DisposableComponent));
+                            }
+                        }, TaskCreationOptions.LongRunning).Wait();
+
+                Assert.False(DisposableComponent.DisposeCalled, "Dispose should not be called on DisposableComponent because Spring does not support child containers!");
+            }
+
+            Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
+            Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
+        }
+
+        public class DisposableComponent :  IDisposable
         {
             public static bool DisposeCalled;
 
