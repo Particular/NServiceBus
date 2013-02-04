@@ -995,7 +995,7 @@ namespace NServiceBus.Unicast
                 transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
                 transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
 
-                transport.Dispose();
+                Configure.Instance.Builder.Dispose();
             }
 
             disposed = true;
