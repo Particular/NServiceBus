@@ -229,16 +229,6 @@ namespace NServiceBus.ObjectBuilder.Ninject
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         /// Gets all service types of a given component.
         /// </summary>
         /// <param name="component">The component.</param>
@@ -261,23 +251,34 @@ namespace NServiceBus.ObjectBuilder.Ninject
         }
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (disposed)
             {
-                if (disposing)
-                {
-                    if (!this.kernel.IsDisposed)
-                    {
-                        this.kernel.Dispose();
-                    }
-                }
-
-                this.disposed = true;
+                return;
             }
+
+            if (disposing)
+            {
+                if (!kernel.IsDisposed)
+                {
+                    kernel.Dispose();
+                }
+            }
+
+            disposed = true;
         }
 
         /// <summary>

@@ -23,7 +23,6 @@ namespace ObjectBuilder.Tests
                 Assert.True(InstancePerUoWComponent.DisposeCalled);
             },
             typeof(SpringObjectBuilder));
-
         }
 
         [Test]
@@ -43,8 +42,7 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreNotSame(task1.Result, task2.Result);
 
-            },
-                           typeof(SpringObjectBuilder));
+            }, typeof(SpringObjectBuilder));
         }
 
         [Test]
@@ -59,7 +57,6 @@ namespace ObjectBuilder.Tests
 
                 Assert.AreNotSame(nestedContainer.Build(typeof(InstancePerCallComponent)), anotherNestedContainer.Build(typeof(InstancePerCallComponent)));
             });
-
         }
 
         [Test]
@@ -103,14 +100,8 @@ namespace ObjectBuilder.Tests
 
     public class ComponentThatDependsOfSingleton : IDisposable
     {
-
-        public ISingletonComponent SingletonComponent { get; set; }
-
-        public static bool DisposeCalled;
-
         public void Dispose()
         {
-            DisposeCalled = true;
         }
     }
 
@@ -136,11 +127,8 @@ namespace ObjectBuilder.Tests
 
     public class AnotherSingletonComponent : ISingletonComponent, IDisposable
     {
-        public static bool DisposeCalled;
-
         public void Dispose()
         {
-            DisposeCalled = true;
         }
     }
 
