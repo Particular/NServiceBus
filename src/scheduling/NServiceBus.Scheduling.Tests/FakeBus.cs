@@ -214,5 +214,17 @@ namespace NServiceBus.Scheduling.Tests
         {
             throw new NotImplementedException();
         }
+
+        public IBus Start(Action startupAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IBus Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler Started;
     }
 }

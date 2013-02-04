@@ -262,12 +262,14 @@ namespace NServiceBus
         /// Provides an instance to a startable bus.
         /// </summary>
         /// <returns></returns>
-        public IStartableBus CreateBus()
+        public IBus CreateBus()
         {
             Initialize();
 
-            if (Configurer.HasComponent<IStartableBus>())
-                return Builder.Build<IStartableBus>();
+            if (Configurer.HasComponent<IBus>())
+            {
+                return Builder.Build<IBus>();
+            }
 
             return null;
         }

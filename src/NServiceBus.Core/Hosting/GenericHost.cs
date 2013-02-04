@@ -26,9 +26,11 @@ namespace NServiceBus.Hosting
             {
                 PerformConfiguration();
 
-                startableBus = Configure.Instance.CreateBus();
-                if ((startableBus != null) && (!Endpoint.IsSendOnly))
-                    bus = startableBus.Start();
+                bus = Configure.Instance.CreateBus();
+                if (bus != null && !Endpoint.IsSendOnly)
+                {
+                    bus.Start();
+                }
 
                 configManager.Startup();
                 wcfManager.Startup();
@@ -52,21 +54,17 @@ namespace NServiceBus.Hosting
                 configManager.Shutdown();
                 wcfManager.Shutdown();
 
-
                 if (bus != null)
                 {
                     bus.Shutdown();
 
+                    if (bus is IDisposable)
+                    {
+                        ((IDisposable)bus).Dispose();
+                    }
+
                     bus = null;
                 }
-                    
-                if (startableBus != null)
-                {
-                    startableBus.Dispose();
-                    startableBus = null;
-                }
-                
-
             }
             catch (Exception ex)
             {
@@ -182,7 +180,6 @@ namespace NServiceBus.Hosting
             roleManager = new RoleManager(assembliesToScan);
         }
 
-        IStartableBus startableBus;
         IBus bus;
         readonly IConfigureThisEndpoint specifier;
         readonly ProfileManager profileManager;

@@ -220,6 +220,18 @@ namespace NServiceBus.Testing
             throw new NotImplementedException();
         }
 
+        public IBus Start(Action startupAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IBus Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler Started;
+
         public T CreateInstance<T>()
         {
             return messageCreator.CreateInstance<T>();

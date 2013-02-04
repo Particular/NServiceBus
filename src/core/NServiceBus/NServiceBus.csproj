@@ -89,7 +89,6 @@
     <Compile Include="IMessageModule.cs" />
     <Compile Include="INeedInitialization.cs" />
     <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
-    <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="MessageConventionException.cs" />
     <Compile Include="MessageConventionExtensions.cs" />

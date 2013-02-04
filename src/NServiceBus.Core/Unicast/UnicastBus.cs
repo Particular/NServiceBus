@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IUnicastBus, IStartableBus, IInMemoryOperations
+    public class UnicastBus : IUnicastBus, IInMemoryOperations, IDisposable
     {
 
         /// <summary>
@@ -773,12 +773,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler Started;
 
-        IBus IStartableBus.Start()
+        public IBus Start()
         {
-            return (this as IStartableBus).Start(null);
+            return Start(() => {});
         }
 
-        IBus IStartableBus.Start(Action startupAction)
+        public IBus Start(Action startupAction)
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
