@@ -13,12 +13,12 @@
         [Test]
         public void Should_start_the_saga_and_call_all_messagehandlers_for_the_given_message()
         {
-            Scenario.Define()
+            Scenario.Define<SagaEndpointContext>()
                     .WithEndpoint<SagaStarter>()
-                    .WithEndpoint<SagaEndpoint>(() => new SagaEndpointContext())
-                    .Done<SagaEndpointContext>(context => context.InterceptingHandlerCalled && context.SagaStarted)
+                    .WithEndpoint<SagaEndpoint>()
+                    .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
                     .Repeat(r => r.For<AllBuilders>())
-                    .Should<SagaEndpointContext>(c =>
+                    .Should(c =>
                     {
                         Assert.True(c.InterceptingHandlerCalled, "The message handler should be called");
                         Assert.True(c.SagaStarted, "The saga should have been started");
@@ -30,15 +30,12 @@
         [Test]
         public void Should_not_start_saga_if_a_interception_handler_has_been_invoked()
         {
-            Scenario.Define()
+            Scenario.Define(() => new SagaEndpointContext{InterceptSaga = true})
                     .WithEndpoint<SagaStarter>()
-                    .WithEndpoint<SagaEndpoint>(() => new SagaEndpointContext
-                        {
-                            InterceptSaga = true
-                        })
-                   .Done<SagaEndpointContext>(context => context.InterceptingHandlerCalled)
+                    .WithEndpoint<SagaEndpoint>()
+                   .Done(context => context.InterceptingHandlerCalled)
                    .Repeat(r => r.For<AllBuilders>())
-                   .Should<SagaEndpointContext>(c =>
+                   .Should(c =>
                         {
                             Assert.True(c.InterceptingHandlerCalled, "The intercepting handler should be called");
                             Assert.False(c.SagaStarted, "The saga should not have been started since the intercepting handler stops the pipeline");

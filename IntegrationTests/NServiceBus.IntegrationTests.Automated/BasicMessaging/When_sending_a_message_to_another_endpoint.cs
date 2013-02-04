@@ -13,17 +13,17 @@
         [Test]
         public void Should_receive_the_message()
         {
-            Scenario.Define()
+            Scenario.Define<ReceiveContext>()
                     .WithEndpoint<Sender>()
-                    .WithEndpoint<Receiver>(() => new ReceiveContext())
-                    .Done<ReceiveContext>(c=>c.WasCalled)
+                    .WithEndpoint<Receiver>()
+                    .Done(c=>c.WasCalled)
                     .Repeat(r =>
                             r
                                 .For<AllTransports>()
                                 .For<AllBuilders>()
                                 .For<AllSerializers>()
                 )
-                    .Should<ReceiveContext>(c =>
+                    .Should(c =>
                         {
                             Assert.True(c.WasCalled, "The message handler should be called");
                             Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");

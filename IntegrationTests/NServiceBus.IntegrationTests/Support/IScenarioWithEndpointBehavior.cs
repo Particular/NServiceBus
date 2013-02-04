@@ -2,24 +2,21 @@
 {
     using System;
 
-    public interface IScenarioWithEndpointBehavior
+    public interface IScenarioWithEndpointBehavior<TContext> where TContext : BehaviorContext
     {
-        IScenarioWithEndpointBehavior WithEndpoint<T>() where T:EndpointBuilder;
+        IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointBuilder;
 
-        IScenarioWithEndpointBehavior WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder;
-
-        IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder;
-        IScenarioWithEndpointBehavior Done<T>(Func<T, bool> func) where T : BehaviorContext;
+        IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
         void Run();
 
-        IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
+        IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
 
     }
 
-    public interface IAdvancedScenarioWithEndpointBehavior
+    public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : BehaviorContext
     {
-        IAdvancedScenarioWithEndpointBehavior Should<T>(Action<T> should) where T : BehaviorContext;
+        IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should);
 
         void Run();
     }

@@ -6,39 +6,52 @@
     using System.Linq;
     using Support;
 
-    public class Scenario : IScenarioWithEndpointBehavior, IAdvancedScenarioWithEndpointBehavior
+    public class Scenario
     {
-        readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
-        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
-        IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
-        public Func<BehaviorContext, bool> done = context => true;
-
-        public static IScenarioWithEndpointBehavior Define()
+        public static IScenarioWithEndpointBehavior<BehaviorContext> Define()
         {
-            return new Scenario();
+            return Define<BehaviorContext>();
         }
 
+        public static IScenarioWithEndpointBehavior<T> Define<T>() where T : BehaviorContext
+        {
+            return new ScenarioWithContext<T>(Activator.CreateInstance<T>);
+        }
 
-        public IScenarioWithEndpointBehavior WithEndpoint<T>() where T : EndpointBuilder
+        public static IScenarioWithEndpointBehavior<T> Define<T>(Func<T> contextFactory) where T : BehaviorContext
+        {
+            return new ScenarioWithContext<T>(contextFactory);
+        }
+
+    }
+
+    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext :BehaviorContext
+    {
+        public ScenarioWithContext(Func<TContext> factory)
+        {
+            contextFactory = factory;
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointBuilder
         {
             return WithEndpoint<T>(() => null);
         }
 
-        public IScenarioWithEndpointBehavior WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder
         {
             return WithEndpoint<T>(() => context);
         }
 
-        public IScenarioWithEndpointBehavior WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
         {
-            behaviours.Add(new BehaviorDescriptor(context, typeof (T)));
+            behaviours.Add(new BehaviorDescriptor(() => scenarioContext, typeof(T)));
 
             return this;
         }
 
-        public IScenarioWithEndpointBehavior Done<T>(Func<T, bool> func) where T:BehaviorContext
+        public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
         {
-            done = (c)=>func((T)c);
+            done = (c) => func((TContext)c);
 
             return this;
         }
@@ -56,6 +69,9 @@
                 {
                     Key = "Default"
                 });
+
+            scenarioContext = contextFactory();
+
             var sw = new Stopwatch();
 
             sw.Start();
@@ -66,23 +82,33 @@
             Console.Out.WriteLine("Total time for testrun: {0}",sw.Elapsed);
         }
 
-        public IAdvancedScenarioWithEndpointBehavior Repeat(Action<RunDescriptorsBuilder> action)
+        public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
         {
             runDescriptorsBuilderAction = action;
 
             return this;
         }
 
-        public IAdvancedScenarioWithEndpointBehavior Should<T>(Action<T> should) where T : BehaviorContext
+        public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)
         {
-           shoulds.Add(new ScenarioVerification<T>
+           shoulds.Add(new ScenarioVerification<TContext>
                 {
-                    ContextType = typeof (T),
+                    ContextType = typeof(TContext),
                     Should = should
                 });
 
             return this;
         }
+
+        readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
+        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
+        IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
+        public Func<BehaviorContext, bool> done = context => true;
+
+        Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
+
+        TContext scenarioContext;
+
     }
 
     public class ScenarioVerification<T> : IScenarioVerification where T : BehaviorContext

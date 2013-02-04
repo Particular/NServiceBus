@@ -13,13 +13,13 @@
         [Test]
         public void Should_receive_the_message_the_largeproperty_correctly()
         {
-             Scenario.Define()
+            Scenario.Define<Context>()
                     .WithEndpoint<Sender>()
-                    .WithEndpoint<Receiver>(new Context())
-                    .Done<Context>(context => context.ReceivedPayload != null)
+                    .WithEndpoint<Receiver>()
+                    .Done(context => context.ReceivedPayload != null)
                     .Repeat(r => r.For<AllTransports>()
                                   .For<AllSerializers>())
-                    .Should<Context>(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
+                    .Should(c => Assert.AreEqual(PayloadToSend, c.ReceivedPayload, "The large payload should be marshalled correctly using the databus"))
                     .Run();
         }
 

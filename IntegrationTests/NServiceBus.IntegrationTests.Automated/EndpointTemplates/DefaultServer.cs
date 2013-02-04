@@ -20,14 +20,22 @@
 
             var types = GetTypesToUse(endpointBehavior);
 
-            return Configure.With(types)
+            var transportToUse = settings.GetOrNull("Transport");
+
+            var config = Configure.With(types)
                             .DefineEndpointName(endpointBehavior.EndpointName)
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .CustomConfigurationSource(configSource)
                             .DefineSerializer(settings.GetOrNull("Serializer"))
-                            .DefineTransport(settings.GetOrNull("Transport"))
-                            .UseInMemoryTimeoutPersister()
-                            .UnicastBus();
+                            .DefineTransport(transportToUse);
+
+            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer") || transportToUse.Contains("RabbitMq"))
+                config.UseInMemoryTimeoutPersister();
+
+            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
+                config.InMemorySubscriptionStorage();
+
+            return config.UnicastBus();
         }
 
         static IEnumerable<Type> GetTypesToUse(EndpointBehavior endpointBehavior)

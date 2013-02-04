@@ -12,11 +12,11 @@
         [Test]
         public void Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
-            Scenario.Define()
-                    .WithEndpoint<TransactionalEndpoint>(() => new Context())
-                    .Done<Context>(c => c.HandlerInvoked)
+            Scenario.Define<Context>()
+                    .WithEndpoint<TransactionalEndpoint>()
+                    .Done(c => c.HandlerInvoked)
                     .Repeat(r => r.For<AllTransports>())
-                    .Should<Context>(c =>
+                    .Should(c =>
                     {
                         Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction");
                     })
