@@ -12,7 +12,7 @@ namespace NServiceBus.Saga
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
     public abstract class
-        Saga<T> : IConfigurable, ISaga<T>, IHandleMessages<TimeoutMessage> where T : ISagaEntity
+        Saga<T> : IConfigurable, ISaga<T> where T : ISagaEntity
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -131,14 +131,9 @@ namespace NServiceBus.Saga
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
-            object toSend = timeoutMessage;
+            SetHeaders(timeoutMessage);
 
-            if (!MessageConventionExtensions.IsMessageType(typeof(TTimeoutmessageType)))
-                toSend = new TimeoutMessage(at, Data, toSend);
-
-            SetHeaders(toSend);
-
-            Bus.Defer(at, toSend);
+            Bus.Defer(at, timeoutMessage);
         }
 
         /// <summary>
@@ -167,14 +162,9 @@ namespace NServiceBus.Saga
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
         protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
         {
-            object toSend = timeoutMessage;
+            SetHeaders(timeoutMessage);
 
-            if (!MessageConventionExtensions.IsMessageType(typeof(TTimeoutmessageType)))
-                toSend = new TimeoutMessage(within, Data, toSend);
-
-            SetHeaders(toSend);
-
-            Bus.Defer(within, toSend);
+            Bus.Defer(within, timeoutMessage);
         }
 
         #region Obsoleted RequestUtcTimeout
@@ -296,13 +286,5 @@ namespace NServiceBus.Saga
         {
         }
 
-        /// <summary>
-        /// Message handler for Timeout Message 
-        /// </summary>
-        /// <param name="message">The <see cref="TimeoutMessage"/> to be handled.</param>
-        public void Handle(TimeoutMessage message)
-        {
-            Timeout(message.State);
-        }
     }
 }
