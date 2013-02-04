@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.IntegrationTests.Automated.BasicMessaging
 {
     using System;
+    using System.Collections.Generic;
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -26,6 +27,8 @@
                         {
                             Assert.True(c.WasCalled, "The message handler should be called");
                             Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");
+                            Assert.AreEqual(Environment.MachineName, c.ReceivedHeaders[Headers.OriginatingMachine], "The sender should attach the machine name as a header");
+                            Assert.True(c.ReceivedHeaders[Headers.OriginatingEndpoint].Contains("Sender"), "The sender should attach its endpoint name as a header");
                         })
                     .Run();
         }
@@ -35,6 +38,8 @@
             public bool WasCalled { get; set; }
 
             public int TimesCalled { get; set; }
+
+            public IDictionary<string, string> ReceivedHeaders { get; set; }
         }
 
         public class Sender : EndpointBuilder
@@ -64,10 +69,14 @@
         {
             public ReceiveContext Context { get; set; }
 
+            public IBus Bus { get; set; }
+
             public void Handle(MyMessage message)
             {
                 Context.WasCalled = true;
                 Context.TimesCalled++;
+
+                Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
             }
         }
     }

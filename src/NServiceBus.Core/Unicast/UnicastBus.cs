@@ -1410,7 +1410,7 @@ namespace NServiceBus.Unicast
                                  TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
                              };
             if (m.ReplyToAddress != null)
-                toSend.Headers["NServiceBus.OriginatingAddress"] = m.ReplyToAddress.ToString();
+                toSend.Headers[Headers.OriginatingAddress] = m.ReplyToAddress.ToString();
 
             MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }

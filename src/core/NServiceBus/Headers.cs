@@ -180,6 +180,17 @@
 
 
         /// <summary>
+        /// Machine name of the endpoint where the given message originated
+        /// </summary>
+        public const string OriginatingMachine = "NServiceBus.OriginatingMachine";
+
+
+        /// <summary>
+        /// The original reply to address for successfully processed messages
+        /// </summary>
+        public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
+
+        /// <summary>
         /// The id of the message conversation that this message is part of
         /// </summary>
         public const string ConversationId = "NServiceBus.ConversationId";
