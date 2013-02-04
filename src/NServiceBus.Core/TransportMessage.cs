@@ -23,6 +23,7 @@ namespace NServiceBus
         {
             Id = CombGuid.Generate().ToString();
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint,Configure.EndpointName);
+            Headers.Add(NServiceBus.Headers.OriginatingMachine, Environment.MachineName);
         }
 
         /// <summary>
