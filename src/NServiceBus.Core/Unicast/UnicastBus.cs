@@ -979,9 +979,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
+
+            if (disposed)
+            {
+                return;
+            }
+
             if (disposing)
             {
-                ExecuteIWantToRunAtStartupStopMethods();
+                Shutdown();
 
                 // free managed resources
                 transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
@@ -993,7 +999,9 @@ namespace NServiceBus.Unicast
 
                 Configure.Instance.Builder.Dispose();
             }
-            // free native resources if there are any.
+
+            disposed = true;
+
         }
 
         void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -1025,11 +1033,16 @@ namespace NServiceBus.Unicast
 
         public void Shutdown()
         {
+            if (!started)
+                return;
+
             Log.Info("Initiating shutdown.");
 
-            Dispose();
+            ExecuteIWantToRunAtStartupStopMethods();
 
             Log.Info("Shutdown complete.");
+
+            started = false;
         }
 
         void IInMemoryOperations.Raise<T>(T @event)
@@ -1710,7 +1723,7 @@ namespace NServiceBus.Unicast
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
-
+        bool disposed;
     }
 
     /// <summary>
