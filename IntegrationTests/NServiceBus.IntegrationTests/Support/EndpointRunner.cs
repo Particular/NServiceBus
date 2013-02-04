@@ -71,6 +71,7 @@
                     Thread.Sleep(1000);
 
                 bus.Shutdown();
+                startableBus.Dispose();
                 return Result.Success();
             }
             catch (Exception ex)
