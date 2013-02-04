@@ -37,10 +37,11 @@
 
             config.Configurer.ConfigureComponent<ActiveMqQueueCreator>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MessageCounter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
 
-            if (Endpoint.IsVolatile)
+            if (!Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional)
             {
                 RegisterNoneTransactionSessionFactory(config, brokerUri);
             }

@@ -12,20 +12,26 @@
     {
         private readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
         private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
+        private readonly IMessageCounter pendingMessageCounter;
+        private readonly ISessionFactory sessionFactory;
 
         private Address address;
         private TransactionSettings settings;
         private Func<TransportMessage, bool> tryProcessMessage;
         private Action<string, Exception> endProcessMessage;
 
-
         /// <summary>
         ///     Default constructor.
         /// </summary>
         /// <param name="notifyMessageReceivedFactory"></param>
-        public ActiveMqMessageDequeueStrategy(INotifyMessageReceivedFactory notifyMessageReceivedFactory)
+        public ActiveMqMessageDequeueStrategy(
+            INotifyMessageReceivedFactory notifyMessageReceivedFactory, 
+            IMessageCounter pendingMessageCounter,
+            ISessionFactory sessionFactory)
         {
             this.notifyMessageReceivedFactory = notifyMessageReceivedFactory;
+            this.pendingMessageCounter = pendingMessageCounter;
+            this.sessionFactory = sessionFactory;
         }
 
         /// <summary>
@@ -65,7 +71,15 @@
                 messageReceiver.Stop();
             }
 
+            this.pendingMessageCounter.Wait(60000);
+
+            foreach (INotifyMessageReceived messageReceiver in messageReceivers)
+            {
+                messageReceiver.Dispose();
+            }
+
             messageReceivers.Clear();
+            sessionFactory.Dispose();
         }
         
         void CreateAndStartMessageReceiver()

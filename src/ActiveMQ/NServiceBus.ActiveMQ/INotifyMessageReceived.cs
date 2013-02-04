@@ -3,7 +3,7 @@ namespace NServiceBus.Transport.ActiveMQ
     using System;
     using NServiceBus.Unicast.Transport.Transactional;
 
-    public interface INotifyMessageReceived
+    public interface INotifyMessageReceived : IDisposable
     {
         Action<string, Exception> EndProcessMessage { get; set; }
         Func<TransportMessage, bool> TryProcessMessage { get; set; }
