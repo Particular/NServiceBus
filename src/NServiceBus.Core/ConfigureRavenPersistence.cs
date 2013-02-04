@@ -91,7 +91,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
@@ -103,13 +103,24 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
             return RavenPersistenceWithConnectionString(config, connectionString, database);
+        }
+
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure RavenPersistence(this Configure config, dynamic documentStore)
+        {
+            return config.RavenPersistence((IDocumentStore)documentStore);
         }
 
         /// <summary>
@@ -236,6 +247,12 @@ namespace NServiceBus
             try
             {
                 store.Initialize();
+
+                if (store.Url == null)
+                {
+                    return;
+                }
+
                 var request = WebRequest.Create(string.Format("{0}/build/version", store.Url));
                 request.Timeout = 2000;
                 using (var response = request.GetResponse())
