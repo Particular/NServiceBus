@@ -1,6 +1,7 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
     using System;
+
     using NServiceBus.Unicast.Transport.Transactional;
 
     public interface INotifyMessageReceived : IDisposable

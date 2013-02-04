@@ -63,7 +63,7 @@
     <Compile Include="ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
-    <Compile Include="ActiveMqMessageReceiver.cs" />
+    <Compile Include="Receivers\ActiveMqMessageReceiver.cs" />
     <Compile Include="ActiveMqMessageSender.cs" />
     <Compile Include="ActiveMqSubscriptionStorage.cs" />
     <Compile Include="IMessageCounter.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="IDestinationEvaluator.cs" />
     <Compile Include="IMessageProducer.cs" />
     <Compile Include="IMessageTypeInterpreter.cs" />
-    <Compile Include="INotifyMessageReceived.cs" />
+    <Compile Include="Receivers\INotifyMessageReceived.cs" />
     <Compile Include="INotifyMessageReceivedFactory.cs" />
     <Compile Include="SessionFactories\DTCTransactionSessionFactory.cs" />
     <Compile Include="SessionFactories\ISessionFactory.cs" />

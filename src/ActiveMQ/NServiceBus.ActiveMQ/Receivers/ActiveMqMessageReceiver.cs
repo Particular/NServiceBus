@@ -1,4 +1,4 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
     using System;
     using System.Collections.Generic;
@@ -65,14 +65,14 @@ namespace NServiceBus.Transport.ActiveMQ
             this.session = this.sessionFactory.GetSession();
             var destination = SessionUtil.GetDestination(this.session, "queue://" + address.Queue);
 
-            PurgeIfNecessary(session, destination);
+            this.PurgeIfNecessary(this.session, destination);
 
-            defaultConsumer = session.CreateConsumer(destination);
-            defaultConsumer.Listener += OnMessageReceived;
+            this.defaultConsumer = this.session.CreateConsumer(destination);
+            this.defaultConsumer.Listener += this.OnMessageReceived;
 
             if (address == Address.Local)
             {
-                SubscribeTopics();
+                this.SubscribeTopics();
             }
         }
 
@@ -98,17 +98,17 @@ namespace NServiceBus.Transport.ActiveMQ
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
         {
             IMessageConsumer consumer;
-            if (topicConsumers.TryGetValue(e.Topic, out consumer))
+            if (this.topicConsumers.TryGetValue(e.Topic, out consumer))
             {
                 consumer.Dispose();
-                topicConsumers.Remove(e.Topic);
+                this.topicConsumers.Remove(e.Topic);
             }
         }
 
         public void TopicSubscribed(object sender, SubscriptionEventArgs e)
         {
             string topic = e.Topic;
-            Subscribe(topic);
+            this.Subscribe(topic);
         }
 
         private void Disposing(bool disposing)
@@ -131,21 +131,21 @@ namespace NServiceBus.Transport.ActiveMQ
             {
                 foreach (string topic in this.notifyTopicSubscriptions.Register(this))
                 {
-                    Subscribe(topic);
+                    this.Subscribe(topic);
                 }
             }
         }
 
         private void Subscribe(string topic)
         {
-            IDestination destination = SessionUtil.GetDestination(session,
-                                                                  string.Format("queue://Consumer.{0}.{1}", ConsumerName,
+            IDestination destination = SessionUtil.GetDestination(this.session,
+                                                                  string.Format("queue://Consumer.{0}.{1}", this.ConsumerName,
                                                                                 topic));
-            PurgeIfNecessary(session, destination);
+            this.PurgeIfNecessary(this.session, destination);
 
-            IMessageConsumer consumer = session.CreateConsumer(destination);
-            consumer.Listener += OnMessageReceived;
-            topicConsumers[topic] = consumer;
+            IMessageConsumer consumer = this.session.CreateConsumer(destination);
+            consumer.Listener += this.OnMessageReceived;
+            this.topicConsumers[topic] = consumer;
         }
 
         private void OnMessageReceived(IMessage message)
@@ -185,7 +185,7 @@ namespace NServiceBus.Transport.ActiveMQ
                 }
                 else
                 {
-                    ProcessWithoutTransaction(transportMessage, message);
+                    this.ProcessWithoutTransaction(transportMessage, message);
                 }
             }
             catch (Exception ex)
@@ -194,7 +194,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
             finally
             {
-                EndProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
+                this.EndProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
             }
         }
 
@@ -240,9 +240,9 @@ namespace NServiceBus.Transport.ActiveMQ
 
         private void PurgeIfNecessary(ISession session, IDestination destination)
         {
-            if (PurgeOnStartup)
+            if (this.PurgeOnStartup)
             {
-                purger.Purge(session, destination);
+                this.purger.Purge(session, destination);
             }
         }
     }

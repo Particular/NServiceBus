@@ -6,6 +6,9 @@
 
     using FluentAssertions;
     using Moq;
+
+    using NServiceBus.Transport.ActiveMQ.Receivers;
+
     using NUnit.Framework;
     using Unicast.Transport.Transactional;
 

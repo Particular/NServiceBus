@@ -9,6 +9,8 @@
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
+
+    using NServiceBus.Transport.ActiveMQ.Receivers;
     using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
 

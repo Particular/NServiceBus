@@ -2,6 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+
+    using NServiceBus.Transport.ActiveMQ.Receivers;
+
     using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 

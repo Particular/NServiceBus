@@ -3,6 +3,7 @@
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using NServiceBus.Config;
+    using NServiceBus.Transport.ActiveMQ.Receivers;
     using NServiceBus.Transport.ActiveMQ.SessionFactories;
 
     using Unicast.Queuing.Installers;
