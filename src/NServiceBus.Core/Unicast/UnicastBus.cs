@@ -621,14 +621,6 @@ namespace NServiceBus.Unicast
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
-            if (destination == null)
-            {
-                var tm = messages[0] as TimeoutMessage;
-                if (tm != null)
-                    if (tm.ClearTimeout)
-                        return null;
-            }
-
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
