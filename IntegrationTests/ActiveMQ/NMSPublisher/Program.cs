@@ -17,7 +17,7 @@ namespace NMSPublisher
 
         static void Main(string[] args)
         {
-            var connectionFactory = new NetTxConnectionFactory("activemq:tcp://localhost:61616")
+            var connectionFactory = new NetTxConnectionFactory("failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000")
             {
                 AcknowledgementMode = AcknowledgementMode.Transactional,
                 PrefetchPolicy = { QueuePrefetch = 1, TopicPrefetch = 1, DurableTopicPrefetch = 1 }
