@@ -59,7 +59,7 @@ foreach($PropertyGroup in $prjXml.project.ChildNodes)
 {
 	if($PropertyGroup.StartAction -ne $null)
 	{
-		Break
+		exit
 	}
 }
 
