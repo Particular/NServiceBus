@@ -10,7 +10,7 @@
 
     public class When_publishing_an_event : NServiceBusIntegrationTest
     {
-        [Test,Explicit("Not stable for automatic runs yet")]
+        [Test]
         public void Should_be_delivered_to_allsubscribers()
         {
             Scenario.Define<Context>()

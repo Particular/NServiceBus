@@ -61,10 +61,6 @@
         {
             try
             {
-                //hack until we can get ActiveMq to shutdown gracefully we sleep so that the messages inflight can complete
-                if (runDescriptor.Key.ToLower().Contains("activemq"))
-                    Thread.Sleep(1000);
-
                 ((IDisposable)bus).Dispose();
 
                 return Result.Success();

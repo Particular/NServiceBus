@@ -183,7 +183,6 @@
                     catch (CannotUnloadAppDomainException ex)
                     {
                         Console.Out.WriteLine("Failed to unload appdomain {0}, reason: {1}",runner.AppDomain.FriendlyName,ex.ToString());
-                        throw;
                     }
                     
                 });
