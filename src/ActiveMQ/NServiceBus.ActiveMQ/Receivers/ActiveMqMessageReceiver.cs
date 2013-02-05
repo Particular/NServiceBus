@@ -1,7 +1,6 @@
 namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Transactions;
 
@@ -10,14 +9,11 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
 
     using NServiceBus.Unicast.Transport.Transactional;
 
-    public class ActiveMqMessageReceiver : INotifyMessageReceived, ITopicSubscriptionListener
+    public class ActiveMqMessageReceiver : INotifyMessageReceived, IProcessMessages
     {
         private readonly IActiveMqPurger purger;
         private readonly IMessageCounter pendingMessagesCounter;
-        private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
-
-        private readonly IDictionary<string, IMessageConsumer> topicConsumers = 
-            new Dictionary<string, IMessageConsumer>();
+        private readonly IConsumeEvents eventConsumer;
         private readonly ISessionFactory sessionFactory;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
 
@@ -30,15 +26,15 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         public ActiveMqMessageReceiver(
             ISessionFactory sessionFactory, 
             IActiveMqMessageMapper activeMqMessageMapper, 
-            INotifyTopicSubscriptions notifyTopicSubscriptions, 
             IActiveMqPurger purger,
-            IMessageCounter pendingMessagesCounter)
+            IMessageCounter pendingMessagesCounter,
+            IConsumeEvents eventConsumer)
         {
             this.sessionFactory = sessionFactory;
             this.activeMqMessageMapper = activeMqMessageMapper;
-            this.notifyTopicSubscriptions = notifyTopicSubscriptions;
             this.purger = purger;
             this.pendingMessagesCounter = pendingMessagesCounter;
+            this.eventConsumer = eventConsumer;
         }
 
         ~ActiveMqMessageReceiver()
@@ -72,7 +68,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
 
             if (address == Address.Local)
             {
-                this.SubscribeTopics();
+                this.eventConsumer.Start(this.session, this);
             }
         }
 
@@ -81,12 +77,8 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             this.stop = true;
             Thread.MemoryBarrier(); // Full fence to prevent writing of stop and reading of pending message count to be reordered. 
 
-            this.notifyTopicSubscriptions.Unregister(this);
+            this.eventConsumer.Stop();
             this.defaultConsumer.Listener -= this.OnMessageReceived;
-            foreach (var messageConsumer in this.topicConsumers)
-            {
-                messageConsumer.Value.Listener -= this.OnMessageReceived;
-            }
         }
 
         public void Dispose()
@@ -95,57 +87,12 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             this.Disposing(true);
         }
 
-        public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
-        {
-            IMessageConsumer consumer;
-            if (this.topicConsumers.TryGetValue(e.Topic, out consumer))
-            {
-                consumer.Dispose();
-                this.topicConsumers.Remove(e.Topic);
-            }
-        }
-
-        public void TopicSubscribed(object sender, SubscriptionEventArgs e)
-        {
-            string topic = e.Topic;
-            this.Subscribe(topic);
-        }
-
         private void Disposing(bool disposing)
         {
-            foreach (var messageConsumer in this.topicConsumers)
-            {
-                messageConsumer.Value.Close();
-                messageConsumer.Value.Dispose();
-            }
-
+            this.eventConsumer.Dispose();
             this.defaultConsumer.Close();
             this.defaultConsumer.Dispose();
-
             this.sessionFactory.Release(this.session);
-        }
-
-        private void SubscribeTopics()
-        {
-            lock (this.notifyTopicSubscriptions)
-            {
-                foreach (string topic in this.notifyTopicSubscriptions.Register(this))
-                {
-                    this.Subscribe(topic);
-                }
-            }
-        }
-
-        private void Subscribe(string topic)
-        {
-            IDestination destination = SessionUtil.GetDestination(this.session,
-                                                                  string.Format("queue://Consumer.{0}.{1}", this.ConsumerName,
-                                                                                topic));
-            this.PurgeIfNecessary(this.session, destination);
-
-            IMessageConsumer consumer = this.session.CreateConsumer(destination);
-            consumer.Listener += this.OnMessageReceived;
-            this.topicConsumers[topic] = consumer;
         }
 
         private void OnMessageReceived(IMessage message)
@@ -163,7 +110,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             }
         }
 
-        private void ProcessMessage(IMessage message)
+        public void ProcessMessage(IMessage message)
         {
             TransportMessage transportMessage = null;
             Exception exception = null;
