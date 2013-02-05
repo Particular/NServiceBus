@@ -8,7 +8,6 @@
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
-        IStartableBus startableBus;
         IBus bus;
         Configure config;
 
@@ -30,25 +29,23 @@
                 if (behaviorContext != null)
                     config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
 
-                startableBus = config.CreateBus();
+                bus = config.CreateBus();
 
                 Configure.Instance.ForInstallationOn<Windows>().Install();
 
                 return Result.Success();
-
             }
             catch (Exception ex)
             {
                 return Result.Failure(ex);
             }
-
         }
 
         public Result Start()
         {
             try
             {
-                bus = startableBus.Start();
+                bus.Start();
 
                 behavior.Givens.ForEach(a => a(bus));
 
@@ -58,8 +55,6 @@
             {
                 return Result.Failure(ex); 
             }
-           
-
         }
 
         public Result Stop()
@@ -70,8 +65,8 @@
                 if (runDescriptor.Key.ToLower().Contains("activemq"))
                     Thread.Sleep(1000);
 
-                bus.Shutdown();
-                startableBus.Dispose();
+                ((IDisposable)bus).Dispose();
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -82,7 +77,7 @@
 
         public void ApplyWhens()
         {
-            this.behavior.Whens.ForEach(a => a(bus, behaviorContext));
+            behavior.Whens.ForEach(a => a(bus, behaviorContext));
         }
 
         public string Name()
