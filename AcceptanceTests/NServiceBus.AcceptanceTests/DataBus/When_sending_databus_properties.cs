@@ -24,7 +24,7 @@
                     .Run();
         }
 
-        public class Context : BehaviorContext
+        public class Context : ScenarioContext
         {
             public byte[] ReceivedPayload { get; set; }
         }

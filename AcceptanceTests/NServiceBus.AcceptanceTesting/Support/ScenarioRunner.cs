@@ -13,7 +13,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors, IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<BehaviorContext, bool> done)
+        public static void Run(IList<RunDescriptor> runDescriptors, IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -128,7 +128,7 @@
             }
         }
 
-        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<BehaviorContext, bool> done)
+        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult();
 
@@ -212,7 +212,7 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<BehaviorContext, bool> done)
+        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<ScenarioContext, bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 

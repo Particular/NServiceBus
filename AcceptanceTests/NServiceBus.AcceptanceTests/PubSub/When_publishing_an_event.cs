@@ -26,7 +26,7 @@
                     .Run();
         }
 
-        public class Context : BehaviorContext
+        public class Context : ScenarioContext
         {
             public bool Subscriber1GotTheEvent { get; set; }
 

@@ -11,22 +11,22 @@
         Configure config;
 
         EndpointBehavior behavior;
-        BehaviorContext behaviorContext;
+        ScenarioContext scenarioContext;
         RunDescriptor runDescriptor;
 
-        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, BehaviorContext context)
+        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, ScenarioContext context)
         {
             try
             {
                 runDescriptor = descriptor;
-                behaviorContext = context;
+                scenarioContext = context;
                 behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
                 behavior.EndpointName = endpointName;
 
                 config = behavior.GetConfiguration(descriptor, routingTable);
 
-                if (behaviorContext != null)
-                    config.Configurer.RegisterSingleton(behaviorContext.GetType(), behaviorContext);
+                if (scenarioContext != null)
+                    config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
 
                 bus = config.CreateBus();
 
@@ -72,7 +72,7 @@
 
         public void ApplyWhens()
         {
-            behavior.Whens.ForEach(a => a(bus, behaviorContext));
+            behavior.Whens.ForEach(a => a(bus, scenarioContext));
         }
 
         public string Name()

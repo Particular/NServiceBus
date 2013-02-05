@@ -1,14 +1,15 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Collections.Generic;
+    using Support;
 
     public class EndpointBuilder : IEndpointBehaviorFactory
     {
         public EndpointBuilder()
         {
             behavior.Givens = new List<Action<IBus>>();
-            behavior.Whens = new List<Action<IBus,BehaviorContext>>();
+            behavior.Whens = new List<Action<IBus,ScenarioContext>>();
             behavior.EndpointMappings = new Dictionary<Type, Type>();
         }
      
@@ -42,7 +43,7 @@
             return this;
         }
 
-        public EndpointBuilder When<TContext>(Action<IBus,TContext> func) where TContext : BehaviorContext
+        public EndpointBuilder When<TContext>(Action<IBus,TContext> func) where TContext : ScenarioContext
         {
             this.behavior.Whens.Add((bus,c)=>func(bus,(TContext)c));
 

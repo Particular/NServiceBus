@@ -8,6 +8,6 @@
         public AppDomain AppDomain { get; set; }
         public string EndpointName { get; set; }
 
-        public BehaviorContext BehaviourContext { get; set; }
+        public ScenarioContext BehaviourContext { get; set; }
     }
 }

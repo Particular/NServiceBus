@@ -9,7 +9,7 @@
 
         public IDictionary<Type,Type> EndpointMappings { get; set; }
 
-        public List<Action<IBus,BehaviorContext>> Whens { get; set; }
+        public List<Action<IBus,ScenarioContext>> Whens { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
 

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IScenarioWithEndpointBehavior<TContext> where TContext : BehaviorContext
+    public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
         IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointBuilder;
 
@@ -14,7 +14,7 @@
 
     }
 
-    public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : BehaviorContext
+    public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
         IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should);
 

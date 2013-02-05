@@ -74,7 +74,7 @@
                     .Run();
         }
 
-        public class Context : BehaviorContext
+        public class Context : ScenarioContext
         {
             public bool MessageThatIsEnlistedHandlerWasCalled { get; set; }
 

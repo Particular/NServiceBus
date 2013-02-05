@@ -25,7 +25,7 @@
                     .Run();
         }
 
-        public class Context : BehaviorContext
+        public class Context : ScenarioContext
         {
             public bool AmbientTransactionExists { get; set; }
             public bool HandlerInvoked { get; set; }

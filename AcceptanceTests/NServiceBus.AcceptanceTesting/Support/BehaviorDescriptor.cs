@@ -6,15 +6,15 @@
     [Serializable]
     public class BehaviorDescriptor : MarshalByRefObject
     {
-        readonly Func<BehaviorContext> behaviorContextBuilder;
+        readonly Func<ScenarioContext> behaviorContextBuilder;
 
-        public BehaviorDescriptor(Func<BehaviorContext> contextBuilder, Type builderType)
+        public BehaviorDescriptor(Func<ScenarioContext> contextBuilder, Type builderType)
         {
             behaviorContextBuilder = contextBuilder;
             EndpointBuilderType = builderType;
             EndpointName = Conventions.EndpointNamingConvention(builderType);
         }
-        public BehaviorContext CreateContext()
+        public ScenarioContext CreateContext()
         {
             return behaviorContextBuilder();
         }

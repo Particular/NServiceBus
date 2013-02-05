@@ -34,7 +34,7 @@
                     .Run();
         }
 
-        public class ReceiveContext : BehaviorContext
+        public class ReceiveContext : ScenarioContext
         {
             public bool WasCalled { get; set; }
 

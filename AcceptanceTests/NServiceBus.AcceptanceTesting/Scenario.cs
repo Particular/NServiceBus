@@ -8,24 +8,24 @@
 
     public class Scenario
     {
-        public static IScenarioWithEndpointBehavior<BehaviorContext> Define()
+        public static IScenarioWithEndpointBehavior<ScenarioContext> Define()
         {
-            return Define<BehaviorContext>();
+            return Define<ScenarioContext>();
         }
 
-        public static IScenarioWithEndpointBehavior<T> Define<T>() where T : BehaviorContext
+        public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext
         {
             return new ScenarioWithContext<T>(Activator.CreateInstance<T>);
         }
 
-        public static IScenarioWithEndpointBehavior<T> Define<T>(Func<T> contextFactory) where T : BehaviorContext
+        public static IScenarioWithEndpointBehavior<T> Define<T>(Func<T> contextFactory) where T : ScenarioContext
         {
             return new ScenarioWithContext<T>(contextFactory);
         }
 
     }
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext :BehaviorContext
+    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext :ScenarioContext
     {
         public ScenarioWithContext(Func<TContext> factory)
         {
@@ -37,12 +37,12 @@
             return WithEndpoint<T>(() => null);
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(BehaviorContext context) where T : EndpointBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(ScenarioContext context) where T : EndpointBuilder
         {
             return WithEndpoint<T>(() => context);
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Func<BehaviorContext> context) where T : EndpointBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Func<ScenarioContext> context) where T : EndpointBuilder
         {
             behaviours.Add(new BehaviorDescriptor(() => scenarioContext, typeof(T)));
 
@@ -103,7 +103,7 @@
         readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
-        public Func<BehaviorContext, bool> done = context => true;
+        public Func<ScenarioContext, bool> done = context => true;
 
         Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
 
@@ -111,12 +111,12 @@
 
     }
 
-    public class ScenarioVerification<T> : IScenarioVerification where T : BehaviorContext
+    public class ScenarioVerification<T> : IScenarioVerification where T : ScenarioContext
     {
         public Action<T> Should { get; set; }
         public Type ContextType { get; set; }
 
-        public void Verify(BehaviorContext context)
+        public void Verify(ScenarioContext context)
         {
            Should(((T)context));
         }
@@ -125,6 +125,6 @@
     public interface IScenarioVerification
     {
         Type ContextType { get; set; }
-        void Verify(BehaviorContext context);
+        void Verify(ScenarioContext context);
     }
 }

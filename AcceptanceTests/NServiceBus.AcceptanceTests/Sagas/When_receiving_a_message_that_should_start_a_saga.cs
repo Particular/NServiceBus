@@ -45,7 +45,7 @@
         }
 
 
-        public class SagaEndpointContext : BehaviorContext
+        public class SagaEndpointContext : ScenarioContext
         {
             public bool InterceptingHandlerCalled { get; set; }
 
