@@ -19,5 +19,7 @@
         public Type BuilderType { get; set; }
 
         public string AppConfigPath { get; set; }
+
+        public Address AddressOfAuditQueue { get; set; }
     }
 }

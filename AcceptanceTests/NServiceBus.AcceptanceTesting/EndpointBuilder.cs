@@ -13,6 +13,14 @@
             behavior.EndpointMappings = new Dictionary<Type, Type>();
         }
 
+        public EndpointBuilder AuditTo(Address addressOfAuditQueue)
+        {
+            behavior.AddressOfAuditQueue = addressOfAuditQueue;
+
+            return this;
+        }
+
+
         public EndpointBuilder AppConfig(string path)
         {
             behavior.AppConfigPath = path;

@@ -29,6 +29,7 @@
             if (type == typeof(UnicastBusConfig))
                 return new UnicastBusConfig
                     {
+                        ForwardReceivedMessagesTo = behavior.AddressOfAuditQueue != null ? behavior.AddressOfAuditQueue.ToString() : null,
                         MessageEndpointMappings = GenerateMappings()
                     }as T;
 
