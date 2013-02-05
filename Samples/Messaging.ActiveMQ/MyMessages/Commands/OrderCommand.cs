@@ -1,0 +1,10 @@
+﻿namespace MyMessages.Commands
+{
+    using NServiceBus;
+
+    public class OrderCommand:ICommand
+    {
+        public int OrderNumber { get; set; }
+        public string[] VideoIds { get; set; }
+    }
+}

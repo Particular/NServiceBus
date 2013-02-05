@@ -1,4 +1,4 @@
-﻿namespace MyServer
+namespace MyServer
 {
     using System;
     using NServiceBus;
