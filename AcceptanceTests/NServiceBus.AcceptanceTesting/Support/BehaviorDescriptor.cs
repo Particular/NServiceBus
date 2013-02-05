@@ -23,19 +23,5 @@
 
         public Type EndpointBuilderType { get; private set; }
 
-        public object GetEndpointBehaviour()
-        {
-            if (behaviour == null)
-            {
-                behaviour = ((IEndpointBehaviorFactory)Activator.CreateInstance(EndpointBuilderType)).Get();
-
-                behaviour.EndpointName = EndpointName;
-            }
-                
-            return behaviour;
-        }
-
-        EndpointBehavior behaviour;
-
     }
 }

@@ -289,7 +289,7 @@
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
 
 
-                var runner = PrepareRunner(endpointName);
+                var runner = PrepareRunner(endpointName, behaviorDescriptor);
                 runner.BehaviourContext = behaviorDescriptor.CreateContext();
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType,
                                                         routingTable, endpointName, runner.BehaviourContext);
@@ -311,13 +311,18 @@
             return endpointName;
         }
 
-        static ActiveRunner PrepareRunner(string endpointName)
+        static ActiveRunner PrepareRunner(string endpointName, BehaviorDescriptor behaviorDescriptor)
         {
             var domainSetup = new AppDomainSetup
                 {
                     ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase,
                     LoaderOptimization = LoaderOptimization.SingleDomain
                 };
+
+            var endpoint = ((IEndpointBehaviorFactory) Activator.CreateInstance(behaviorDescriptor.EndpointBuilderType)).Get();
+           
+            if (endpoint.AppConfigPath != null)
+                domainSetup.ConfigurationFile = endpoint.AppConfigPath;
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
 

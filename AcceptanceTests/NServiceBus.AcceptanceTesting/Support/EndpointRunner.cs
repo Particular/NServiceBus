@@ -12,13 +12,11 @@
 
         EndpointBehavior behavior;
         ScenarioContext scenarioContext;
-        RunDescriptor runDescriptor;
 
         public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, ScenarioContext context)
         {
             try
             {
-                runDescriptor = descriptor;
                 scenarioContext = context;
                 behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
                 behavior.EndpointName = endpointName;

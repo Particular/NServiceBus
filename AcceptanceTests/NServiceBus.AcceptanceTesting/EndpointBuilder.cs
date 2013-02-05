@@ -12,7 +12,15 @@
             behavior.Whens = new List<Action<IBus,ScenarioContext>>();
             behavior.EndpointMappings = new Dictionary<Type, Type>();
         }
-     
+
+        public EndpointBuilder AppConfig(string path)
+        {
+            behavior.AppConfigPath = path;
+
+            return this;
+        }
+
+
         public EndpointBuilder AddMapping<T>(Type endpoint)
         {
             this.behavior.EndpointMappings.Add(typeof(T),endpoint);

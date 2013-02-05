@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     public class EndpointBehavior
     {
@@ -16,5 +17,7 @@
         public string EndpointName{ get; set; }
 
         public Type BuilderType { get; set; }
+
+        public string AppConfigPath { get; set; }
     }
 }
