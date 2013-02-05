@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
     /// </summary>
-    public class UnicastBus : IUnicastBus, IStartableBus, IInMemoryOperations
+    public class UnicastBus : IUnicastBus, IInMemoryOperations, IDisposable
     {
 
         /// <summary>
@@ -621,14 +621,6 @@ namespace NServiceBus.Unicast
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
-            if (destination == null)
-            {
-                var tm = messages[0] as TimeoutMessage;
-                if (tm != null)
-                    if (tm.ClearTimeout)
-                        return null;
-            }
-
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
 
@@ -773,12 +765,12 @@ namespace NServiceBus.Unicast
         /// </summary>
         public event EventHandler Started;
 
-        IBus IStartableBus.Start()
+        public IBus Start()
         {
-            return (this as IStartableBus).Start(null);
+            return Start(() => {});
         }
 
-        IBus IStartableBus.Start(Action startupAction)
+        public IBus Start(Action startupAction)
         {
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
@@ -979,9 +971,15 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {
+
+            if (disposed)
+            {
+                return;
+            }
+
             if (disposing)
             {
-                ExecuteIWantToRunAtStartupStopMethods();
+                Shutdown();
 
                 // free managed resources
                 transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
@@ -989,9 +987,11 @@ namespace NServiceBus.Unicast
                 transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
                 transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
 
-                transport.Dispose();
+                Configure.Instance.Builder.Dispose();
             }
-            // free native resources if there are any.
+
+            disposed = true;
+
         }
 
         void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -1023,11 +1023,16 @@ namespace NServiceBus.Unicast
 
         public void Shutdown()
         {
+            if (!started)
+                return;
+
             Log.Info("Initiating shutdown.");
 
-            Dispose();
+            ExecuteIWantToRunAtStartupStopMethods();
 
             Log.Info("Shutdown complete.");
+
+            started = false;
         }
 
         void IInMemoryOperations.Raise<T>(T @event)
@@ -1708,7 +1713,7 @@ namespace NServiceBus.Unicast
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
-
+        bool disposed;
     }
 
     /// <summary>

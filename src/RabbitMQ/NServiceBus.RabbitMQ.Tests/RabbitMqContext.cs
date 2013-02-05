@@ -12,7 +12,7 @@
     {
         protected void MakeSureQueueExists(string queueName)
         {
-            using (var channel = connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection().CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
@@ -21,6 +21,7 @@
 
         protected void MakeSureExchangeExists(string exchangeName)
         {
+            var connection = ConnectionManager.GetConnection();
             using (var channel = connection.CreateModel())
             {
                 try
@@ -29,10 +30,10 @@
                 }
                 catch (Exception)
                 {
-                    
+
                 }
-           
-              
+
+
             }
 
             using (var channel = connection.CreateModel())
@@ -54,8 +55,8 @@
         public void SetUp()
         {
             receivedMessages = new BlockingCollection<TransportMessage>();
-            factory = new ConnectionFactory { HostName = "localhost" };
-            connection = factory.CreateConnection();
+            ConnectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
+            var connection = ConnectionManager.GetConnection();
 
             unitOfWork = new RabbitMqUnitOfWork { Connection = connection };
 
@@ -82,7 +83,7 @@
             {
                 receivedMessages.Add(m);
                 return true;
-            }, (s, exception) => {});
+            }, (s, exception) => { });
 
             dequeueStrategy.Start(1);
         }
@@ -91,9 +92,11 @@
         [TearDown]
         public void TearDown()
         {
-            dequeueStrategy.Stop();
-            connection.Close();
-            connection.Dispose();
+            ConnectionManager.Dispose();
+
+            if (dequeueStrategy != null)
+                dequeueStrategy.Stop();
+
         }
 
 
@@ -112,8 +115,7 @@
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
-        protected ConnectionFactory factory;
-        protected IConnection connection;
+        protected RabbitMqConnectionManager ConnectionManager;
         protected RabbitMqMessageSender sender;
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;

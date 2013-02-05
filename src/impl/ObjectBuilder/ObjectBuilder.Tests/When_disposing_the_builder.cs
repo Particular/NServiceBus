@@ -52,7 +52,7 @@ namespace ObjectBuilder.Tests
         }
 
         [Test, Ignore]
-        public void Spring_only_Should_dispose_all_IDisposable_components_when_only_then_main_container_is_disposed()
+        public void Spring_only_Should_dispose_all_IDisposable_components_only_when_then_main_container_is_disposed()
         {
             using (var container = (IContainer) new SpringObjectBuilder())
             {

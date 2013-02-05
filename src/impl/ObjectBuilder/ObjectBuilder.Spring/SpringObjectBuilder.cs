@@ -168,8 +168,8 @@ namespace NServiceBus.ObjectBuilder.Spring
                 }
             }
 
-            context.Refresh();
             initialized = true;
+            context.Refresh();
         }
 
         ThreadLocal<bool> scope = new ThreadLocal<bool>();

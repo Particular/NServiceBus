@@ -1,4 +1,4 @@
-﻿namespace MyRequestResponseEndpoint
+namespace MyRequestResponseEndpoint
 {
     using System;
     using NServiceBus;

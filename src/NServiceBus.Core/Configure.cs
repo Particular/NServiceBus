@@ -166,7 +166,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpRuntime.AppDomainAppId != null)
-                return With((string) HttpRuntime.BinDirectory);
+                return With((string)HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -262,14 +262,14 @@ namespace NServiceBus
         /// Provides an instance to a startable bus.
         /// </summary>
         /// <returns></returns>
-        public IStartableBus CreateBus()
+        public IBus CreateBus()
         {
             Initialize();
 
-            if (Configurer.HasComponent<IStartableBus>())
-                return Builder.Build<IStartableBus>();
+            if (!Configurer.HasComponent<IBus>())
+                throw new InvalidOperationException("No IBus implementation was registered, make sure that you have a call to .UnicastBus() in your configuration code");
 
-            return null;
+            return Builder.Build<IBus>();
         }
 
         private static bool beforeConfigurationInitializersCalled;
@@ -299,7 +299,7 @@ namespace NServiceBus
                 return;
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            
+
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             InvokeBeforeConfigurationInitializers();
@@ -324,7 +324,7 @@ namespace NServiceBus
 
             ForAllTypes<INeedToInstallSomething<Windows>>(
                 t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            
+
             initialized = true;
 
             if (ConfigurationComplete != null)
@@ -377,7 +377,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            Predicate<string> exclude = 
+            Predicate<string> exclude =
                 f => assembliesToSkip.Any(skip => distillLowerAssemblyName(skip) == f);
 
             return FindAssemblies(path, false, null, exclude);
@@ -410,7 +410,7 @@ namespace NServiceBus
                 var yetLoadedMatchingAssemblies =
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      where IsIncluded(assembly.GetName().Name, includeAssemblyNames, excludeAssemblyNames)
-                    select assembly).ToArray();
+                     select assembly).ToArray();
 
                 foreach (var a in yetLoadedMatchingAssemblies)
                 {
@@ -435,7 +435,7 @@ namespace NServiceBus
                 yield return a;
         }
 
-        
+
 
         /// <summary>
         /// The name of this endpoint
@@ -528,8 +528,8 @@ namespace NServiceBus
 
         private static bool IsIncluded(string assemblyNameOrFileName, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
-            
-            if (includeAssemblyNames != null 
+
+            if (includeAssemblyNames != null
                 && !includeAssemblyNames(assemblyNameOrFileName)
                 && !defaultAssemblyInclusionOverrides.Any(s => IsMatch(s, assemblyNameOrFileName)))
                 return false;
@@ -569,7 +569,7 @@ namespace NServiceBus
 
             var args = t.GetGenericArguments();
             if (args.Length != 1)
-                return false;  
+                return false;
 
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
@@ -577,11 +577,11 @@ namespace NServiceBus
         static string lastProbeDirectory;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
-        
+
         static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
 
         // TODO: rename to defaultAssemblyAndNamespaceExclusions
-        static readonly IEnumerable<string> defaultAssemblyExclusions 
+        static readonly IEnumerable<string> defaultAssemblyExclusions
             = new[]
               {
 

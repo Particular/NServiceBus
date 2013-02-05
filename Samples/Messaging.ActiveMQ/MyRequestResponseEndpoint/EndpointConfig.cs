@@ -1,4 +1,4 @@
-﻿namespace MyRequestResponseEndpoint
+namespace MyRequestResponseEndpoint
 {
     using System;
     using NServiceBus;
@@ -7,7 +7,7 @@
     {
     }
 
-    public class MyClass:IWantToRunWhenBusStartsAndStops
+    public class MyClass : IWantToRunWhenBusStartsAndStops
     {
         public void Start()
         {
@@ -16,7 +16,7 @@
 
         public void Stop()
         {
-            
+
         }
     }
 }

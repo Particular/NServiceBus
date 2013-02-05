@@ -10,7 +10,8 @@ namespace Barista
 {
     public class BaristaMessageHandler : Saga<BaristaSagaData>,
                                          IAmStartedByMessages<PrepareOrderMessage>,
-                                         IHandleMessages<PaymentCompleteMessage>
+                                         IHandleMessages<PaymentCompleteMessage>,
+        IHandleTimeouts<CleanUpOrders>
     {
         private readonly IStarbucksBaristaView _view;
 
@@ -38,8 +39,8 @@ namespace Barista
             Data.OrderId = message.OrderId;
             Data.Size = message.DrinkSize;
 
-            RequestTimeout(TimeSpan.FromMinutes(1), new TimeoutMessage(TimeSpan.FromMinutes(1), Data, null));
-            
+            RequestTimeout<CleanUpOrders>(TimeSpan.FromMinutes(1));
+                        
             for(var i=0; i<10; i++)
             {
                 Thread.Sleep(1000);
@@ -60,19 +61,18 @@ namespace Barista
 
         private void DeliverOrder()
         {
-            if(!Data.OrderIsReady || !Data.OrderIsPaid)
+            if (!Data.OrderIsReady || !Data.OrderIsPaid)
                 return;
 
             var viewData = new DeliverOrderView(Data.Drink, Data.Size);
             _view.DeliverOrder(viewData);
 
-            Bus.Send(new OrderReadyMessage(Data.CustomerName, Data.Drink));
+            Bus.Send(new OrderReadyMessage(Data.Drink,Data.CustomerName));
 
             MarkAsComplete();
         }
 
-        [Obsolete("Should be refactored to use the new timeout support", false)]
-        public override void Timeout(object state)
+        public void Timeout(CleanUpOrders state)
         {
             if (!Data.OrderIsReady || !Data.OrderIsPaid)
             {
@@ -85,5 +85,9 @@ namespace Barista
                 DeliverOrder();
             }
         }
+    }
+
+    public class CleanUpOrders
+    {
     }
 }

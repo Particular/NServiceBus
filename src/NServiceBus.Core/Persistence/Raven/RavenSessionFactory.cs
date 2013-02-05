@@ -1,7 +1,3 @@
-namespace NServiceBus.Persistence
-{
-}
-
 namespace NServiceBus.Persistence.Raven
 {
     using System;

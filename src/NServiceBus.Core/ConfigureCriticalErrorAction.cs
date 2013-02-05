@@ -8,7 +8,17 @@ namespace NServiceBus
     /// </summary>
     public static class ConfigureCriticalErrorAction
     {
-        private static Action<string, Exception> onCriticalErrorAction = (errorMessage, exception) => Configure.Instance.Builder.Build<IBus>().Shutdown();
+        private static Action<string, Exception> onCriticalErrorAction = (errorMessage, exception) =>
+            {
+                if (!Configure.BuilderIsConfigured())
+                    return;
+
+                if (!Configure.Instance.Configurer.HasComponent<IBus>())
+                    return;
+
+                Configure.Instance.Builder.Build<IBus>()
+                    .Shutdown();
+            };
 
         /// <summary>
         ///     Sets the function to be used when critical error occurs.

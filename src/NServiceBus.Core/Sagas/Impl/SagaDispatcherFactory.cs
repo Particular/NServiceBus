@@ -68,7 +68,7 @@ namespace NServiceBus.Sagas.Impl
                                          {
                                              SagaContext.Current = saga;
 
-                                             if (IsTimeoutMessage(message) && !(message is TimeoutMessage))
+                                             if (IsTimeoutMessage(message))
                                                  HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>),saga, message);
                                              else
                                                  HandlerInvocationCache.Invoke(typeof(IMessageHandler<>),saga, message);

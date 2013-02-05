@@ -1,11 +1,11 @@
-﻿namespace MySubscriber
+namespace MySubscriber
 {
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<ActiveMQ>{}
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<ActiveMQ> { }
 
-    public class MyClass:IWantToRunWhenBusStartsAndStops
+    public class MyClass : IWantToRunWhenBusStartsAndStops
     {
         public void Start()
         {
@@ -14,7 +14,7 @@
 
         public void Stop()
         {
-            
+
         }
     }
 }
