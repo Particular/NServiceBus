@@ -11,7 +11,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
     using Microsoft.WindowsAzure.StorageClient.Protocol;
     using log4net;
 
-    public class BlobStorageDataBus : IDataBus, IDisposable
+    public class BlobStorageDataBus : IDataBus
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
         private readonly CloudBlobContainer container;
@@ -78,6 +78,10 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
                         blockBlob.DeleteIfExists();
                 }
             }
+            catch (StorageClientException ex) // to handle race conditions between multiple active instances.
+            {
+                logger.Warn(ex.Message);
+            }
             catch (StorageServerException ex) // prevent azure hickups from hurting us.
             {
                 logger.Warn(ex.Message);
@@ -137,22 +141,33 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 
         private void DownloadBlobInParallel(CloudBlob blob, Stream stream)
         {
-            blob.FetchAttributes();
-            var order = new List<string>();
-            var blocksToDownload = new Queue<Block>();
-            CalculateBlocks(blocksToDownload, (int)blob.Properties.Length, order);
-            ExecuteInParallel(() => AsLongAsThereAre(blocksToDownload, block =>
+            try
             {
-                var s = DownloadBlockFromBlob(blob, block, blocksToDownload); if (s == null) return;
-                var buffer = new byte[BlockSize];
-                ExtractBytesFromBlockIntoBuffer(buffer, s, block);
-                lock (stream)
+                blob.FetchAttributes();
+                var order = new List<string>();
+                var blocksToDownload = new Queue<Block>();
+                CalculateBlocks(blocksToDownload, (int)blob.Properties.Length, order);
+                ExecuteInParallel(() => AsLongAsThereAre(blocksToDownload, block =>
                 {
-                    stream.Position = block.Offset;
-                    stream.Write(buffer, 0,block.Length);
-                }
-            }));
-            stream.Seek(0, SeekOrigin.Begin);
+                    var s = DownloadBlockFromBlob(blob, block, blocksToDownload); if (s == null) return;
+                    var buffer = new byte[BlockSize];
+                    ExtractBytesFromBlockIntoBuffer(buffer, s, block);
+                    lock (stream)
+                    {
+                        stream.Position = block.Offset;
+                        stream.Write(buffer, 0,block.Length);
+                    }
+                }));
+                stream.Seek(0, SeekOrigin.Begin);
+            }
+            catch (StorageClientException ex) // to handle race conditions between multiple active instances.
+            {
+                logger.Warn(ex.Message);
+            }
+            catch (StorageServerException ex) // prevent azure hickups from hurting us.
+            {
+                logger.Warn(ex.Message);
+            }
         }
 
         private void CalculateBlocks(Queue<Block> blocksToUpload, int blobLength, ICollection<string> order)
