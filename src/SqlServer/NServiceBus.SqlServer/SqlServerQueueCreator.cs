@@ -32,7 +32,7 @@ namespace NServiceBus.Transport.SqlServer
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                var sql = string.Format(Ddl, address);
+                var sql = string.Format(Ddl, address.Queue);
                 connection.Open();
 
                 using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })

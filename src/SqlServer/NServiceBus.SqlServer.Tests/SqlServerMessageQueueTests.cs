@@ -1,58 +1,26 @@
 ﻿namespace NServiceBus.SqlServer.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Text;
     using System.Threading;
     using NUnit.Framework;
     using System.Threading.Tasks;
-    using MessageInterfaces.MessageMapper.Reflection;
-    using Serializers.XML;
     using Transport.SqlServer;
 
     [TestFixture, Category("Integration")]
     public class SqlServerMessageQueueTests
     {
-        private SqlServerMessageQueue _mq;
-        private XmlMessageSerializer _xmlMessageSerializer;
-        private MessageMapper _messageMapper;
-
-        private const string ConStr = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=NServiceBus.SqlTransportTests;Integrated Security=True;";
-
-        [SetUp]
-        public void SetUp()
-        {
-            var listOfTypes = new List<Type> {typeof (object)};
-
-            _messageMapper = new MessageMapper();
-            _messageMapper.Initialize(listOfTypes);
-
-            _xmlMessageSerializer = new XmlMessageSerializer(_messageMapper);
-            _xmlMessageSerializer.Initialize(listOfTypes);
-
-            _mq = new SqlServerMessageQueue
-                      {
-                          ConnectionString = ConStr,
-                          MessageSerializer = _xmlMessageSerializer,
-                          PurgeOnStartup = true
-                      };
-
-            var creator = new SqlServerQueueCreator {ConnectionString = ConStr};
-            creator.CreateQueueIfNecessary(_address, "test");
-        }
-
-        private readonly Address _address = new Address("send", "testhost");
-
+        
         [Test]
         public void Init()
         {
-            _mq.Init(_address, true);            
+            receiver.Init(address, true);            
         }
 
         [Test]
         public void Send()
         {
-            _mq.Send(CreateNewTransportMessage(), _address);
+            sender.Send(CreateNewTransportMessage(), address);
         }
 
         [Test]
@@ -60,7 +28,7 @@
         {
             Init();
             Send();
-            _mq.Receive();
+            receiver.Receive();
         }
 
         [Test]
@@ -70,7 +38,7 @@
 
             Init();
             Send();
-            _mq.Receive();
+            receiver.Receive();
             received = true;
             Assert.That(received, Is.True);
         }
@@ -99,7 +67,7 @@
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             for (int i = 0; i < 1000; i++)
             {
-                _mq.Receive();
+                receiver.Receive();
             }
             stopwatch.Stop();
             Console.WriteLine("stopwatch: " + stopwatch.Elapsed);
@@ -110,7 +78,7 @@
         {
             Init();
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-                _mq.Receive();
+                receiver.Receive();
             stopwatch.Stop();
             Console.WriteLine("stopwatch: " + stopwatch.Elapsed);
         }
@@ -149,7 +117,7 @@
             for (int i = 0; i < threads.Length; i++ )
             {
                 bool more = moreMessages;
-                threads[i] = new Thread(x => { while (more) { moreMessages = _mq.Receive() != null; } });
+                threads[i] = new Thread(x => { while (more) { moreMessages = receiver.Receive() != null; } });
             }
            
             foreach (var thread in threads)
@@ -170,8 +138,8 @@
             Init();
 
             var m1 = CreateNewTransportMessage();
-            _mq.Send(m1, _address);
-            var m2 = _mq.Receive();
+            sender.Send(m1, address);
+            var m2 = receiver.Receive();
 
             Assert.AreEqual(m1.Body, m2.Body);
             Assert.AreEqual(m1.CorrelationId, m2.CorrelationId);
@@ -194,7 +162,7 @@
 
             Parallel.For(0, expects + expects, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
             {
-                if (_mq.Receive() != null)
+                if (receiver.Receive() != null)
                 {
                     Interlocked.Increment(ref result);
                 };
@@ -218,5 +186,32 @@
 
             return message;
         }
+
+
+
+        [SetUp]
+        public void SetUp()
+        {
+            receiver = new SqlServerMessageReceiver
+            {
+                ConnectionString = ConStr,
+                PurgeOnStartup = true
+            };
+
+            sender = new SqlServerMessageSender
+            {
+                ConnectionString = ConStr
+            };
+
+            var creator = new SqlServerQueueCreator { ConnectionString = ConStr };
+            creator.CreateQueueIfNecessary(address, "test");
+        }
+
+        SqlServerMessageReceiver receiver;
+        SqlServerMessageSender sender;
+
+        const string ConStr = @"Data Source=localhost\SQLEXPRESS;Initial Catalog=NServiceBus.SqlTransportTests;Integrated Security=True;";
+
+        readonly Address address = new Address("send", "testhost");
     }
 }

@@ -47,7 +47,8 @@
     <Compile Include="Config\SqlServer.cs" />
     <Compile Include="Config\SqlServerTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlServerMessageQueue.cs" />
+    <Compile Include="SqlServerMessageReceiver.cs" />
+    <Compile Include="SqlServerMessageSender.cs" />
     <Compile Include="SqlServerQueueCreator.cs" />
   </ItemGroup>
   <ItemGroup>
