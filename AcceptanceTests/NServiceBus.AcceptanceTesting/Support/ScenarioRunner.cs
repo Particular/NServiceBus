@@ -144,7 +144,7 @@
                 {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runners, done);
+                    PerformScenarios(runners, ()=>done(runDescriptor.ScenarioContext));
                 }
                 finally
                 {
@@ -155,11 +155,8 @@
 
                 Parallel.ForEach(runners, runner =>
                     {
-                        if (runner.BehaviourContext == null)
-                            return;
-
-                        shoulds.Where(s => s.ContextType == runner.BehaviourContext.GetType()).ToList()
-                               .ForEach(v => v.Verify(runner.BehaviourContext));
+                        shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()).ToList()
+                               .ForEach(v => v.Verify(runDescriptor.ScenarioContext));
                     });
             }
             catch (Exception ex)
@@ -212,19 +209,16 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<ScenarioContext, bool> done)
+        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
-
-            //hack until we move the context to the scenario level
-            var context = runners.FirstOrDefault(r => r.BehaviourContext != null).BehaviourContext;
 
             StartEndpoints(endpoints);
 
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(60);
 
-            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(() => done(context), maxTime))).Cast<Task>().ToArray());
+            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray());
 
             try
             {
@@ -290,9 +284,7 @@
 
 
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);
-                runner.BehaviourContext = behaviorDescriptor.CreateContext();
-                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType,
-                                                        routingTable, endpointName, runner.BehaviourContext);
+                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType, routingTable, endpointName);
 
 
                 if (result.Failed)

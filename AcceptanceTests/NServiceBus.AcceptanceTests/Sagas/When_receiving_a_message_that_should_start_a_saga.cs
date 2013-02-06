@@ -2,10 +2,9 @@
 {
     using System;
     using EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting;
     using NUnit.Framework;
-    using NServiceBus.Saga;
+    using Saga;
     using ScenarioDescriptors;
 
     [TestFixture]
@@ -68,10 +67,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Sagas()
-                    .InMemorySagaPersister()
-                    .UnicastBus()
-                    .LoadMessageHandlers<First<InterceptingHandler>>());
+                EndpointSetup<DefaultServer>(c =>c.UnicastBus().LoadMessageHandlers<First<InterceptingHandler>>());
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>

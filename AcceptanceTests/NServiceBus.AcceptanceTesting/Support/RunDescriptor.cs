@@ -23,6 +23,8 @@
 
         public IDictionary<string, string> Settings { get; set; }
 
+        public ScenarioContext ScenarioContext { get; set; }
+
         public int Permutation { get; set; }
 
         public void Merge(RunDescriptor descriptorToAdd)

@@ -61,6 +61,22 @@ namespace NServiceBus.Saga
             SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
         }
 
+        /// <summary>
+        /// When the infrastructure is handling a message of the given type
+        /// this specifies which message property should be matched to 
+        /// which saga entity property in the persistent saga store.
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="messageProperty"></param>
+        /// <returns></returns>
+        protected virtual ToSagaExpression<T, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        {
+            if (!configuring)
+                throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
+
+            return new ToSagaExpression<T,TMessage>(SagaMessageFindingConfiguration,messageProperty);
+        }
+
 
         /// <summary>
         /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
@@ -286,5 +302,22 @@ namespace NServiceBus.Saga
         {
         }
 
+    }
+
+    public class ToSagaExpression<TSaga,TMessage> where TSaga : ISagaEntity
+    {
+        readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
+        readonly Expression<Func<TMessage, object>> messageProperty;
+
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
+        {
+            this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
+            this.messageProperty = messageProperty;
+        }
+
+        public void ToSaga(Expression<Func<TSaga, object>> sagaEntityProperty)
+        {
+            sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
+        }
     }
 }

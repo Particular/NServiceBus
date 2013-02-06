@@ -4,7 +4,6 @@
     using System.Transactions;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using AcceptanceTesting.Support;
     using NUnit.Framework;
     using ScenarioDescriptors;
 

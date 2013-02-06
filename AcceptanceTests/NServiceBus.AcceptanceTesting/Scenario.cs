@@ -60,6 +60,10 @@
                     Key = "Default"
                 });
 
+            foreach (var runDescriptor in runDescriptors)
+            {
+                runDescriptor.ScenarioContext = contextFactory();
+            }
            
             var sw = new Stopwatch();
 

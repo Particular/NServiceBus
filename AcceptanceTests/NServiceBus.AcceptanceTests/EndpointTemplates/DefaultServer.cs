@@ -27,7 +27,9 @@
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .CustomConfigurationSource(configSource)
                             .DefineSerializer(settings.GetOrNull("Serializer"))
-                            .DefineTransport(transportToUse);
+                            .DefineTransport(transportToUse)
+                            .Sagas()
+                            .InMemorySagaPersister();
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer") || transportToUse.Contains("RabbitMq"))
                 config.UseInMemoryTimeoutPersister();

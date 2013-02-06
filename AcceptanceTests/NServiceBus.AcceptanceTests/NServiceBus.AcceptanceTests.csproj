@@ -138,6 +138,7 @@
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_with_the_default_settings.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
