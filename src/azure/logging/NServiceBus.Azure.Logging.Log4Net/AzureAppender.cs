@@ -1,15 +1,16 @@
-namespace NServiceBus.Integration.Azure
-{
-    using System;
-    using System.Diagnostics;
-    using Microsoft.WindowsAzure;
-    using Microsoft.WindowsAzure.Diagnostics;
-    using Microsoft.WindowsAzure.Diagnostics.Management;
-    using Microsoft.WindowsAzure.ServiceRuntime;
-    using log4net.Appender;
-    using log4net.Core;
-    using log4net.Repository.Hierarchy;
+using System.Linq;
+using System;
+using System.Diagnostics;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.WindowsAzure.Diagnostics.Management;
+using Microsoft.WindowsAzure.ServiceRuntime;
+using log4net.Appender;
+using log4net.Core;
+using log4net.Repository.Hierarchy;
 
+namespace NServiceBus.Azure.Logging.Log4Net
+{
     public sealed class AzureAppender : AppenderSkeleton
     {
         private const string ConnectionStringKey = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
@@ -77,7 +78,8 @@ namespace NServiceBus.Integration.Azure
         {
             if (!RoleEnvironment.IsAvailable) return;
 
-            Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
+            var exists = Trace.Listeners.Cast<TraceListener>().Count(tracelistener => tracelistener.GetType().IsAssignableFrom(typeof (DiagnosticMonitorTraceListener))) > 0;
+            if(!exists) Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
 
             if (!InitializeDiagnostics) return;
             
