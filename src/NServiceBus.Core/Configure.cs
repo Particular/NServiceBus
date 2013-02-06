@@ -435,6 +435,20 @@ namespace NServiceBus
                 yield return a;
         }
 
+        /// <summary>
+        /// Configures the given type with the given lifecycle
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lifecycle"></param>
+        /// <returns></returns>
+        public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
+        {
+            if(Instance == null)
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+
+            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
+        }
+
 
 
         /// <summary>
