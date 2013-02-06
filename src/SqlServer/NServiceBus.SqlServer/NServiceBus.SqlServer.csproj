@@ -7,8 +7,8 @@
     <ProjectGuid>{FA1193BF-325C-4201-BB78-484032E09809}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.SqlServer</RootNamespace>
-    <AssemblyName>NServiceBus.SqlServer</AssemblyName>
+    <RootNamespace>NServiceBus.SQLServer</RootNamespace>
+    <AssemblyName>NServiceBus.SQLServer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\binaries\NServiceBus.SqlServer.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.SQLServer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\binaries\NServiceBus.SqlServer.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.SQLServer.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -44,12 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\SqlServer.cs" />
-    <Compile Include="Config\SqlServerTransportConfigurer.cs" />
+    <Compile Include="Transport\Config\SqlServer.cs" />
+    <Compile Include="Transport\Config\SqlServerTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlServerMessageReceiver.cs" />
-    <Compile Include="SqlServerMessageSender.cs" />
-    <Compile Include="SqlServerQueueCreator.cs" />
+    <Compile Include="Transport\SqlServerMessageReceiver.cs" />
+    <Compile Include="Transport\SqlServerMessageSender.cs" />
+    <Compile Include="Transport\SqlServerQueueCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\NServiceBus\NServiceBus.csproj">

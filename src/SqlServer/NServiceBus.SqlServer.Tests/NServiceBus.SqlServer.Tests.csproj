@@ -49,9 +49,9 @@
     <Compile Include="SqlServerMessageQueueTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.SqlServer\NServiceBus.SqlServer.csproj">
+    <ProjectReference Include="..\NServiceBus.SqlServer\NServiceBus.SQLServer.csproj">
       <Project>{fa1193bf-325c-4201-bb78-484032e09809}</Project>
-      <Name>NServiceBus.SqlServer</Name>
+      <Name>NServiceBus.SQLServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\core\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>

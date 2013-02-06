@@ -1,12 +1,11 @@
 namespace NServiceBus
 {
-    using Unicast.Transport;
+    using NServiceBus.Unicast.Transport;
 
     /// <summary>
     /// TransportDefinition for SqlServer
     /// </summary>
     public class SqlServer : ITransportDefinition
     {
-
     }
 }

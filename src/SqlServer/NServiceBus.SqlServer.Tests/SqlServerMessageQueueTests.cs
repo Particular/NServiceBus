@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.SqlServer.Tests
+﻿namespace NServiceBus.SQLServer.Tests
 {
     using System;
     using System.Text;
     using System.Threading;
     using NUnit.Framework;
     using System.Threading.Tasks;
-    using Transport.SqlServer;
+    using Transport;
 
     [TestFixture, Category("Integration")]
     public class SqlServerMessageQueueTests
@@ -73,7 +73,7 @@
             Console.WriteLine("stopwatch: " + stopwatch.Elapsed);
         }
 
-        [Test]
+        [Test,Explicit("Unstable")]
         public void ReceiveAll()
         {
             Init();

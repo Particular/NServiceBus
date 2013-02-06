@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport.SqlServer
+﻿namespace NServiceBus.SQLServer.Transport
 {
     using System;
     using System.Data;
@@ -8,9 +8,8 @@
 
     public class SqlServerMessageSender : ISendMessages
     {
-
         public string ConnectionString { get; set; }
-  
+
 
         public void Send(TransportMessage message, Address address)
         {
@@ -18,7 +17,7 @@
             {
                 var sql = string.Format(SqlSend, address.Queue);
                 connection.Open();
-                using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
+                using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
                 {
                     command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = Guid.Parse(message.Id);
                     command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
@@ -44,8 +43,9 @@
         {
             return value ?? DBNull.Value;
         }
-        const string SqlSend = @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
 
+        const string SqlSend =
+            @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
     }
 }

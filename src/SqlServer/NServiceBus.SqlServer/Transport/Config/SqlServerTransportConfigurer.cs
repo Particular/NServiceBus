@@ -1,14 +1,13 @@
-namespace NServiceBus.Transport.SqlServer.Config
+namespace NServiceBus.SQLServer.Transport.Config
 {
     using System;
     using NServiceBus.Config;
-    using NServiceBus.Transport.SqlServer;
     using NServiceBus.Unicast.Queuing.Installers;
 
     /// <summary>
     /// Configures NServiceBus to use SqlServer as the default transport
     /// </summary>
-    public class SqlServerTransportConfigurer : ConfigureTransport<NServiceBus.SqlServer>
+    public class SqlServerTransportConfigurer : ConfigureTransport<SqlServer>
     {
         protected override string ExampleConnectionStringForErrorMessage
         {
@@ -23,11 +22,11 @@ namespace NServiceBus.Transport.SqlServer.Config
             }
 
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
-                     .ConfigureProperty(p => p.ConnectionString, connectionString);
+                  .ConfigureProperty(p => p.ConnectionString, connectionString);
 
             config.Configurer.ConfigureComponent<SqlServerMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                     .ConfigureProperty(p => p.ConnectionString, connectionString)
-                     .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+                  .ConfigureProperty(p => p.ConnectionString, connectionString)
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
             config.Configurer.ConfigureComponent<SqlServerMessageSender>(DependencyLifecycle.SingleInstance)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);

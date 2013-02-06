@@ -1,4 +1,4 @@
-namespace NServiceBus.Transport.SqlServer
+namespace NServiceBus.SQLServer.Transport
 {
     using System.Data;
     using System.Data.SqlClient;
@@ -6,8 +6,8 @@ namespace NServiceBus.Transport.SqlServer
 
     public class SqlServerQueueCreator : ICreateQueues
     {
-        private const string Ddl =
-                @"IF NOT  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{0}]') AND type in (N'U'))
+        const string Ddl =
+            @"IF NOT  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{0}]') AND type in (N'U'))
                   BEGIN
                     CREATE TABLE [dbo].[{0}](
 	                    [Id] [uniqueidentifier] NOT NULL,
@@ -35,11 +35,11 @@ namespace NServiceBus.Transport.SqlServer
                 var sql = string.Format(Ddl, address.Queue);
                 connection.Open();
 
-                using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
+                using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
                 {
                     command.ExecuteNonQuery();
                 }
-            }            
+            }
         }
 
         public string ConnectionString { get; set; }
