@@ -35,7 +35,7 @@ task Pack {
 			
 			if($PreRelease -ne '') {
 				$nuspec.package.metadata.title += ' (' + $PreRelease + ')'
-				$nugetVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 
+				$nugetVersion = "{0}.{1}-{2}{3}" -f $ProductVersion, $PatchVersion, $PreRelease, ($BuildNumber).PadLeft(4, '0')
 			}
 	
 			$nuspec.package.metadata.version = $nugetVersion
