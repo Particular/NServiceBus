@@ -296,7 +296,7 @@ namespace NServiceBus.Serializers.XML
 
                     string nodeTypeString = null;
 
-                    if (messageTypesToDeserialize != null && position < messageTypes.Count())
+                    if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count())
                         nodeTypeString = messageTypesToDeserialize.ElementAt(position);
 
 
