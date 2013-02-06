@@ -36,7 +36,7 @@ namespace NServiceBus.Serializers.Binary
         /// Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream">Stream that contains messages.</param>
-        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<string> messageTypes = null)
         {
