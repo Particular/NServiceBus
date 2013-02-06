@@ -30,11 +30,16 @@ namespace NServiceBus.Gateway.Sending
             var channelSender = channelFactory.GetSender(targetSite.Channel.Type);
 
             using (var messagePayload = new MemoryStream(message.Body))
+            {
                 Transmit(channelSender, targetSite, CallType.Submit, headers, messagePayload);
+            }
 
             TransmittDataBusProperties(channelSender, targetSite, headers);
 
-            Transmit(channelSender, targetSite, CallType.Ack, headers, new MemoryStream());
+            using (var stream = new MemoryStream(0))
+            {
+                Transmit(channelSender, targetSite, CallType.Ack, headers, stream);
+            }
         }
 
         private void Transmit(IChannelSender channelSender, Site targetSite, CallType callType,

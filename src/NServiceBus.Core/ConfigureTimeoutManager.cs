@@ -37,26 +37,65 @@ namespace NServiceBus
             return config;
         }
 
+        public static Address TimeoutManagerAddress { get; set; }
+
+        private static void SetupTimeoutManager(Configure config)
+        {
+            TimeoutManagerAddress = config.GetTimeoutManagerAddress();
+        }
 
         /// <summary>
         /// As Timeout manager is turned on by default for server roles, use DisableTimeoutManager method to turn off Timeout manager
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        [ObsoleteEx(Message = "As Timeout manager is a core functionality of NServiceBus it will be impossible to disable it beginning version 4.0.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]        
         public static Configure DisableTimeoutManager(this Configure config)
+        {
+            TimeoutManager.Enabled = false;
+            return config;
+        }
+
+        public static bool IsTimeoutManagerEnabled(this Configure config)
+        {
+            return TimeoutManager.Enabled;
+        }
+
+        [ObsoleteEx(Message = "As Timeout Manager is part of the core NServiceBus functionality, it is not required to call this method any longer.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure RunTimeoutManager(this Configure config)
         {
             return config;
         }
 
-        public static Address TimeoutManagerAddress { get; set; }
-
-        private static void SetupTimeoutManager(Configure config)
+        /// <summary>
+        /// Sets the default persistence to InMemory.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [ObsoleteEx(Replacement = "UseInMemoryTimeoutPersister()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure RunTimeoutManagerWithInMemoryPersistence(this Configure config)
         {
-            TimeoutManagerAddress = config.GetTimeoutManagerAddress();
-
-            config.Configurer.ConfigureComponent<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<DefaultTimeoutManager>(DependencyLifecycle.SingleInstance);
+            return config;
         }
+
+        /// <summary>
+        /// Sets the default persistence to InMemory.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        [ObsoleteEx(Replacement = "UseInMemoryTimeoutPersister()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure DefaultToInMemoryTimeoutPersistence(this Configure config)
+        {
+            return config;
+        }
+    }
+
+    public class TimeoutManager
+    {
+        static TimeoutManager()
+        {
+            Enabled = true;
+        }
+
+        public static bool Enabled { get; set; }
     }
 }

@@ -31,10 +31,5 @@
         {
             //no-op
         }
-
-        public void Dispose()
-        {
-            //no-op
-        }
     }
 }

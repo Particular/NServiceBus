@@ -1,13 +1,11 @@
-namespace NServiceBus.ActiveMQ
+namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
     using Apache.NMS;
-
-    using NServiceBus.Unicast.Transport;
+    using Apache.NMS.Util;
 
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
@@ -16,16 +14,20 @@ namespace NServiceBus.ActiveMQ
         
         private readonly IMessageTypeInterpreter messageTypeInterpreter;
 
-        public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter)
+        private readonly IActiveMqMessageEncoderPipeline encoderPipeline;
+
+        private readonly IActiveMqMessageDecoderPipeline decoderPipeline;
+
+        public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter, IActiveMqMessageEncoderPipeline encoderPipeline, IActiveMqMessageDecoderPipeline decoderPipeline)
         {
             this.messageTypeInterpreter = messageTypeInterpreter;
+            this.encoderPipeline = encoderPipeline;
+            this.decoderPipeline = decoderPipeline;
         }
 
-        public IMessage CreateJmsMessage(TransportMessage message, INetTxSession session)
+        public IMessage CreateJmsMessage(TransportMessage message, ISession session)
         {
-            string messageBody = Encoding.UTF8.GetString(message.Body);
-            IMessage jmsmessage = session.CreateTextMessage(messageBody);
-
+            IMessage jmsmessage = this.encoderPipeline.Encode(message, session);
 
             jmsmessage.NMSMessageId = message.Id;
 
@@ -39,18 +41,23 @@ namespace NServiceBus.ActiveMQ
                 jmsmessage.NMSTimeToLive = message.TimeToBeReceived;
             }
 
-            if (message.Headers != null && message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
                 jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             }
 
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
-            jmsmessage.NMSReplyTo = session.GetQueue(message.ReplyToAddress.Queue);
+
+            if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
+            {
+                jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
+            }
+
             jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
 
             foreach (var header in message.Headers)
             {
-                jmsmessage.Properties[header.Key] = header.Value;
+                jmsmessage.Properties[ConvertMessageHeaderKeyToActiveMQ(header.Key)] = header.Value;
             }
 
             return jmsmessage;
@@ -58,19 +65,20 @@ namespace NServiceBus.ActiveMQ
 
         public TransportMessage CreateTransportMessage(IMessage message)
         {
-            var replyToAddress = message.NMSReplyTo == null ? null : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
-            byte[] body = Encoding.UTF8.GetBytes(((ITextMessage)message).Text);
+            var transportMessage = new TransportMessage();
 
-            var transportMessage = new TransportMessage
-                {
-                    MessageIntent = this.GetIntent(message),
-                    ReplyToAddress = replyToAddress,
-                    CorrelationId = message.NMSCorrelationID,
-                    TimeToBeReceived = message.NMSTimeToLive,
-                    Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent,
-                    Id = message.NMSMessageId,
-                    Body = body
-                };
+            this.decoderPipeline.Decode(transportMessage, message);
+
+            var replyToAddress = message.NMSReplyTo == null
+                                     ? null
+                                     : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
+
+            transportMessage.MessageIntent = this.GetIntent(message);
+            transportMessage.ReplyToAddress = replyToAddress;
+            transportMessage.CorrelationId = message.NMSCorrelationID;
+            transportMessage.TimeToBeReceived = message.NMSTimeToLive;
+            transportMessage.Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent;
+            transportMessage.Id = message.NMSMessageId;
 
             foreach (var key in message.Properties.Keys)
             {
@@ -79,8 +87,10 @@ namespace NServiceBus.ActiveMQ
                 {
                     continue;
                 }
-
-                transportMessage.Headers[keyString] = message.Properties[keyString].ToString();
+                
+                transportMessage.Headers[ConvertMessageHeaderKeyFromActiveMQ(keyString)] = message.Properties[keyString] != null 
+                                                                                               ? message.Properties[keyString].ToString() 
+                                                                                               : null;
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
@@ -92,11 +102,12 @@ namespace NServiceBus.ActiveMQ
                 }
             }
 
-            if (!transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader) &&
-                message.Properties.Contains(ErrorCodeKey))
+            if (!transportMessage.Headers.ContainsKey(Headers.ControlMessageHeader)
+                && message.Properties.Contains(ErrorCodeKey))
             {
                 transportMessage.Headers[Headers.ControlMessageHeader] = "true";
-                transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = message.Properties[ErrorCodeKey].ToString();
+                transportMessage.Headers[Headers.ReturnMessageErrorCodeHeader] =
+                    message.Properties[ErrorCodeKey].ToString();
             }
 
             if (!transportMessage.Headers.ContainsKey(Headers.NServiceBusVersion))
@@ -105,6 +116,16 @@ namespace NServiceBus.ActiveMQ
             }
 
             return transportMessage;
+        }
+
+        public static string ConvertMessageHeaderKeyToActiveMQ(string headerKey)
+        {
+            return headerKey.Replace(".", "_DOT_").Replace("-", "_HYPHEN_");
+        }
+
+        public static string ConvertMessageHeaderKeyFromActiveMQ(string headerKey)
+        {
+            return headerKey.Replace("_DOT_", ".").Replace("_HYPHEN_", "-");
         }
 
         private MessageIntentEnum GetIntent(IMessage message)

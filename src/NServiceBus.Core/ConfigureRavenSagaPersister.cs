@@ -7,8 +7,15 @@ namespace NServiceBus
     {
         public static Configure RavenSagaPersister(this Configure config)
         {
+            if (!Sagas.Impl.Configure.SagasWereFound)
+            {
+                return config;
+            }
+
             if (!config.Configurer.HasComponent<IDocumentStore>())
+            {
                 config.RavenPersistence();
+            }
 
             config.Configurer.ConfigureComponent<RavenSagaPersister>(DependencyLifecycle.InstancePerCall);
 

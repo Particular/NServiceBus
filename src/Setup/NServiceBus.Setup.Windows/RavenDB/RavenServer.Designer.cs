@@ -63,9 +63,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] BouncyCastle_Crypto {
+        internal static byte[] Esent_Interop {
             get {
-                object obj = ResourceManager.GetObject("BouncyCastle_Crypto", resourceCulture);
+                object obj = ResourceManager.GetObject("Esent_Interop", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Esent_Interop {
+        internal static byte[] GeoAPI {
             get {
-                object obj = ResourceManager.GetObject("Esent_Interop", resourceCulture);
+                object obj = ResourceManager.GetObject("GeoAPI", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -93,6 +93,26 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ICSharpCode_NRefactory_CSharp {
+            get {
+                object obj = ResourceManager.GetObject("ICSharpCode_NRefactory_CSharp", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] Jint_Raven {
+            get {
+                object obj = ResourceManager.GetObject("Jint_Raven", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Lucene_Net {
             get {
                 object obj = ResourceManager.GetObject("Lucene_Net", resourceCulture);
@@ -103,9 +123,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Lucene_Net_Contrib_Spatial {
+        internal static byte[] Lucene_Net_Contrib_Spatial_NTS {
             get {
-                object obj = ResourceManager.GetObject("Lucene_Net_Contrib_Spatial", resourceCulture);
+                object obj = ResourceManager.GetObject("Lucene_Net_Contrib_Spatial_NTS", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -113,9 +133,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Lucene_Net_Contrib_SpellChecker {
+        internal static byte[] Mono_Cecil {
             get {
-                object obj = ResourceManager.GetObject("Lucene_Net_Contrib_SpellChecker", resourceCulture);
+                object obj = ResourceManager.GetObject("Mono_Cecil", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -123,9 +143,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Newtonsoft_Json {
+        internal static byte[] NetTopologySuite {
             get {
-                object obj = ResourceManager.GetObject("Newtonsoft_Json", resourceCulture);
+                object obj = ResourceManager.GetObject("NetTopologySuite", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -136,6 +156,16 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         internal static byte[] NLog {
             get {
                 object obj = ResourceManager.GetObject("NLog", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] PowerCollections {
+            get {
+                object obj = ResourceManager.GetObject("PowerCollections", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -163,16 +193,6 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Raven_Munin {
-            get {
-                object obj = ResourceManager.GetObject("Raven_Munin", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] Raven_Server {
             get {
                 object obj = ResourceManager.GetObject("Raven_Server", resourceCulture);
@@ -185,7 +205,7 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         ///&lt;configuration&gt;
         ///  &lt;appSettings&gt;
         ///    &lt;add key=&quot;Raven/Port&quot; value=&quot;*&quot;/&gt;
-        ///    &lt;add key=&quot;Raven/DataDir&quot; value=&quot;~\Data&quot;/&gt;
+        ///    &lt;add key=&quot;Raven/DataDir&quot; value=&quot;~\Database\System&quot;/&gt;
         ///    &lt;add key=&quot;Raven/AnonymousAccess&quot; value=&quot;Get&quot;/&gt;
         ///  &lt;/appSettings&gt;
         ///	&lt;runtime&gt;
@@ -205,39 +225,9 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] Raven_Storage_Esent {
+        internal static byte[] Spatial4n_Core_NTS {
             get {
-                object obj = ResourceManager.GetObject("Raven_Storage_Esent", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Raven_Storage_Managed {
-            get {
-                object obj = ResourceManager.GetObject("Raven_Storage_Managed", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Raven_Studio {
-            get {
-                object obj = ResourceManager.GetObject("Raven_Studio", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] Spatial4n_Core {
-            get {
-                object obj = ResourceManager.GetObject("Spatial4n_Core", resourceCulture);
+                object obj = ResourceManager.GetObject("Spatial4n_Core_NTS", resourceCulture);
                 return ((byte[])(obj));
             }
         }

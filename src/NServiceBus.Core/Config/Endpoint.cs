@@ -20,7 +20,7 @@ namespace NServiceBus
         /// <summary>
         /// True queues should be created as Transactional (hence also sending will be within a transaction).
         /// </summary>
-        public static bool IsVolatile { get; private set; }
+        public static bool IsVolatile { get;  set; }
 
         /// <summary>
         /// Initialized the bus in send only mode

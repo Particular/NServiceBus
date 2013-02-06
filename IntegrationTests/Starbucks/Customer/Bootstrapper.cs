@@ -28,7 +28,7 @@ namespace Customer
                 .UseInMemoryTimeoutPersister()
                 .MsmqSubscriptionStorage()
                 .XmlSerializer()
-                .MsmqTransport()
+                .UseTransport<Msmq>()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()

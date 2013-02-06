@@ -52,6 +52,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -60,16 +61,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveMqMessageDecoderPipelineTest.cs" />
+    <Compile Include="ActiveMQMessageDeferTests.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategyTests.cs" />
+    <Compile Include="ActiveMqMessageEncoderPipelineTest.cs" />
     <Compile Include="ActiveMqMessageMapperTest.cs" />
+    <Compile Include="ActiveMqMessagePublisherTests.cs" />
     <Compile Include="ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
     <Compile Include="ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
-    <Compile Include="ActiveMqConnectionStarterTest.cs" />
+    <Compile Include="Decoders\ByteMessageDecoderTest.cs" />
+    <Compile Include="Decoders\ControlMessageDecoderTest.cs" />
+    <Compile Include="Decoders\TestMessageDecoderTest.cs" />
     <Compile Include="DestinationEvaluatorTests.cs" />
+    <Compile Include="Encoders\ByteMessageEncoderTest.cs" />
+    <Compile Include="Encoders\ControlMessageEncoderTest.cs" />
+    <Compile Include="Encoders\TextMessageEncoderTest.cs" />
+    <Compile Include="MessageProducerTests.cs" />
     <Compile Include="MessageTypeInterpreterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionFactories\ActiveMqTransactionSessionFactoryTest.cs" />
+    <Compile Include="SessionFactories\DtcTransactionSessionFactoryTest.cs" />
+    <Compile Include="SessionFactories\PooledSessionFactoryMock.cs" />
+    <Compile Include="SessionFactories\PooledSessionFactoryTest.cs" />
     <Compile Include="SubscriptionManagerTests.cs" />
     <Compile Include="TopicEvaluatorTests.cs" />
   </ItemGroup>
@@ -90,6 +105,7 @@
       <Name>NServiceBus.ActiveMQ</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

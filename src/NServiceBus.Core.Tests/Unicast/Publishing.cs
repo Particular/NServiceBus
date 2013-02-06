@@ -21,16 +21,39 @@
     public class When_publishing_a_event_messages : using_the_unicastbus
     {
         [Test]
-        public void Should_not_get_an_error_messages()
+        public void Should_send_a_message_to_each_subscriber()
         {
-            var subscriberAddress = new Address("sub1", ".");
+            var subscriber1 = new Address("sub1", ".");
+            var subscriber2 = new Address("sub2", ".");
 
             RegisterMessageType<EventMessage>();
-            subscriptionStorage.FakeSubscribe<EventMessage>(subscriberAddress);
+            subscriptionStorage.FakeSubscribe<EventMessage>(subscriber1);
+            subscriptionStorage.FakeSubscribe<EventMessage>(subscriber2);
 
             bus.Publish(new EventMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriberAddress)));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriber1)));
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(subscriber2)));
         }
+
+        [Test]
+        public void Should_fire_the_no_subscribers_for_message_if_no_subscribers_exists()
+        {
+          
+            RegisterMessageType<EventMessage>();
+
+            var eventFired = false;
+            var eventMessage = new EventMessage();
+
+            unicastBus.NoSubscribersForMessage += (sender, args) =>
+                {
+                    eventFired = true;
+                    Assert.AreSame(eventMessage,args.Message);
+                };
+            bus.Publish(eventMessage);
+
+            Assert.True(eventFired);
+         }
     }
 }

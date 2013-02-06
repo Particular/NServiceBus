@@ -2,8 +2,11 @@
 {
     using System;
     using System.Text;
-    using NUnit.Framework;
+    using System.Transactions;
+    using NServiceBus;
+    using RabbitMq;
     using Unicast.Queuing;
+    using NUnit.Framework;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
@@ -27,8 +30,8 @@
         public void Should_set_the_content_type()
         {
             VerifyRabbit(new TransportMessageBuilder().WithHeader(Headers.ContentType, "application/json"),
-                received => Assert.AreEqual("application/json", received.BasicProperties.ContentType ));
- 
+                received => Assert.AreEqual("application/json", received.BasicProperties.ContentType));
+
         }
 
         [Test]
@@ -49,10 +52,10 @@
 
             Verify(new TransportMessageBuilder().ReplyToAddress(address),
                 (t, r) =>
-                    {
-                        Assert.AreEqual(address, t.ReplyToAddress);
-                        Assert.AreEqual(address.Queue, r.BasicProperties.ReplyTo);
-                    });
+                {
+                    Assert.AreEqual(address, t.ReplyToAddress);
+                    Assert.AreEqual(address.Queue, r.BasicProperties.ReplyTo);
+                });
 
         }
 
@@ -60,7 +63,7 @@
         public void Should_set_the_message_intent()
         {
             Verify(new TransportMessageBuilder().Intent(MessageIntentEnum.Publish),
-                result =>Assert.AreEqual(MessageIntentEnum.Publish, result.MessageIntent)
+                result => Assert.AreEqual(MessageIntentEnum.Publish, result.MessageIntent)
                 );
 
         }
@@ -83,12 +86,52 @@
 
             Verify(new TransportMessageBuilder().WithHeader("h1", "v1").WithHeader("h2", "v2"),
                 result =>
-                    {
-                        Assert.AreEqual("v1",result.Headers["h1"]);
-                        Assert.AreEqual("v2", result.Headers["h2"]);
-                    });
+                {
+                    Assert.AreEqual("v1", result.Headers["h1"]);
+                    Assert.AreEqual("v2", result.Headers["h2"]);
+                });
 
         }
+        [Test]
+        public void Should_defer_the_send_until_tx_commit_if_ambient_tx_exists()
+        {
+            var body = Encoding.UTF8.GetBytes("<TestMessage/>");
+            var body2 = Encoding.UTF8.GetBytes("<TestMessage2/>");
+
+            var message = new TransportMessageBuilder().WithBody(body).Build();
+            var message2 = new TransportMessageBuilder().WithBody(body2).Build();
+
+            using (var tx = new TransactionScope())
+            {
+                SendMessage(message);
+                SendMessage(message2);
+                Assert.Throws<InvalidOperationException>(()=>Consume(message.Id));
+               
+                tx.Complete();
+            }
+
+            Assert.AreEqual(body, Consume(message.Id).Body,"Message should be in the queue");
+            Assert.AreEqual(body2, Consume(message2.Id).Body, "Message2 should be in the queue");
+        }
+
+        [Test]
+        public void Should_not_send_message_if_ambient_tx_is_rolled_back()
+        {
+            var body = Encoding.UTF8.GetBytes("<TestMessage/>");
+
+            var message = new TransportMessageBuilder().WithBody(body).Build();
+
+            using (var tx = new TransactionScope())
+            {
+                SendMessage(message);
+                Assert.Throws<InvalidOperationException>(() => Consume(message.Id));
+            }
+
+            Assert.Throws<InvalidOperationException>(() => Consume(message.Id));
+
+        }
+
+
 
         [Test, Ignore("Not sure we should enforce this")]
         public void Should_throw_when_sending_to_a_nonexisting_queue()
@@ -110,9 +153,9 @@
 
             assertion(RabbitMqTransportMessageExtensions.ToTransportMessage(result), result);
         }
-        void Verify(TransportMessageBuilder builder, Action< TransportMessage> assertion)
+        void Verify(TransportMessageBuilder builder, Action<TransportMessage> assertion)
         {
-            Verify(builder,(t,r)=>assertion(t));           
+            Verify(builder, (t, r) => assertion(t));
         }
 
         void VerifyRabbit(TransportMessageBuilder builder, Action<BasicDeliverEventArgs> assertion)
@@ -121,7 +164,7 @@
         }
 
 
-        
+
         void SendMessage(TransportMessage message)
         {
             MakeSureQueueExists(TESTQUEUE);
@@ -132,11 +175,11 @@
         BasicDeliverEventArgs Consume(string id)
         {
 
-            using (var channel = connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection().CreateModel())
             {
                 var consumer = new QueueingBasicConsumer(channel);
 
-                channel.BasicConsume(TESTQUEUE, true, consumer);
+                channel.BasicConsume(TESTQUEUE, false, consumer);
 
                 object message;
 
@@ -147,6 +190,8 @@
 
                 if (e.BasicProperties.MessageId != id)
                     throw new InvalidOperationException("Unexpected message found in queue");
+
+                channel.BasicAck(e.DeliveryTag,false);
 
                 return e;
             }

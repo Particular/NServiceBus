@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Globalization;
+using System.Threading;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Timeout.Hosting.Azure
@@ -28,24 +29,43 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 TimeoutManagerDataEntity lastSuccessfullReadEntity;
                 var lastSuccessfullRead = TryGetLastSuccessfullRead(context, out lastSuccessfullReadEntity)
                                               ? lastSuccessfullReadEntity.LastSuccessfullRead
-                                              : DateTime.UtcNow;
+                                              : default(DateTime?);
 
+                IOrderedEnumerable<TimeoutDataEntity> result;
 
-                var result = (from c in context.TimeoutData
-                              where c.PartitionKey == lastSuccessfullRead.ToString(partitionKeyScope)
+                if (lastSuccessfullRead.HasValue)
+                {
+                    result = (from c in context.TimeoutData
+                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(partitionKeyScope)) > 0
+                              && c.PartitionKey.CompareTo(DateTime.UtcNow.ToString(partitionKeyScope)) <= 0
                                     && c.OwningTimeoutManager == Configure.EndpointName
-                              select c).ToList().OrderBy(c => c.Time);
+                              select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
+                }
+                else
+                {
+                    result = (from c in context.TimeoutData
+                              where c.OwningTimeoutManager == Configure.EndpointName
+                              select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
+                }
 
                 var allTimeouts = result.ToList();
                 var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= DateTime.UtcNow).ToList();
                 var futureTimeouts = allTimeouts.Where(c => c.Time > DateTime.UtcNow).ToList();
 
-                nextTimeToRunQuery = futureTimeouts.Count == 0
-                                         ? lastSuccessfullRead.AddMinutes(1)
-                                         : futureTimeouts.First().Time;
+                if (lastSuccessfullReadEntity != null && lastSuccessfullRead.HasValue)
+                {
+                    lastSuccessfullRead = lastSuccessfullRead.Value.AddMinutes(1);
+                    lastSuccessfullReadEntity.LastSuccessfullRead = lastSuccessfullRead.Value;
+                }
 
+                var future = futureTimeouts.FirstOrDefault();
+                nextTimeToRunQuery = lastSuccessfullRead.HasValue ? lastSuccessfullRead.Value
+                                         : future != null ? future.Time : DateTime.UtcNow;
+                
                 results = pastTimeouts
-                   .Select(c => new Tuple<String, DateTime>(c.RowKey, c.Time))
+                   .Where(c => string.IsNullOrEmpty(c.RowKey))
+                   .Select(c => new Tuple<String, DateTime>(c.PartitionKey, c.Time))
+                   .Distinct()
                    .ToList();
 
                 UpdateSuccesfullRead(context, lastSuccessfullReadEntity);
@@ -309,7 +329,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
             return stateAddress;
         }
 
-
         private byte[] Download(string stateAddress)
         {
             var blob = container.GetBlockBlobReference(stateAddress);
@@ -381,16 +400,12 @@ namespace NServiceBus.Timeout.Hosting.Azure
             {
                 if (read == null)
                 {
-                    read = new TimeoutManagerDataEntity(GetUniqueEndpointName(), string.Empty)
-                               {
-                                   LastSuccessfullRead = DateTime.UtcNow
-                               };
+                    read = new TimeoutManagerDataEntity(GetUniqueEndpointName(), string.Empty){LastSuccessfullRead = DateTime.UtcNow};
 
                     context.AddObject(ServiceContext.TimeoutManagerDataTableName, read);
                 }
                 else
                 {
-                    read.LastSuccessfullRead = DateTime.UtcNow;
                     context.Detach(read);
                     context.AttachTo(ServiceContext.TimeoutManagerDataTableName, read, "*");
                     context.UpdateObject(read);

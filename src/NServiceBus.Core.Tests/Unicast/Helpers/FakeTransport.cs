@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
             get { return MaximumConcurrencyLevel; }
         }
 
-        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
+        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
             throw new NotImplementedException();
         }
@@ -78,6 +78,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
         /// </summary>
         public int MaxThroughputPerSecond { get; set; }
 
-        public int MaximumThroughputPerSecond { get; private set; }
+        public int MaximumMessageThroughputPerSecond { get; private set; }
     }
 }

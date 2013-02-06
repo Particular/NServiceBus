@@ -7,13 +7,18 @@ namespace NServiceBus
     using Logging;
     using Persistence.Raven;
     using Raven.Abstractions.Data;
+    using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
+    using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
+    /// <summary>
+    /// Extension methods to configure RavenDB persister.
+    /// </summary>
     public static class ConfigureRavenPersistence
     {
         /// <summary>
-        /// Configures Raven Persister.
+        /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <remarks>
         /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/ms228154.aspx">&lt;appSettings&gt; config section</a> and <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
@@ -22,13 +27,13 @@ namespace NServiceBus
         /// An example that shows the configuration:
         /// <code lang="XML" escaped="true">
         ///  <appSettings>
-        ///    <!-- Optional overrider for number of requests that each RavenDB session is allowed to make -->
+        ///    <!-- Optional overwrites for number of requests that each RavenDB session is allowed to make -->
         ///    <add key="NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession" value="50"/>
         ///  </appSettings>
         ///  
         ///  <connectionStrings>
         ///    <!-- Default connection string name -->
-        ///    <add name="NServiceBus.Persistence" connectionString="http://localhost:8080" />
+        ///    <add name="NServiceBus/Persistence" connectionString="http://localhost:8080" />
         ///  </connectionStrings>
         /// </code>
         /// </example>
@@ -41,7 +46,7 @@ namespace NServiceBus
                 return config;
             }
 
-            var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"];
+            var connectionStringEntry = ConfigurationManager.ConnectionStrings["NServiceBus.Persistence"] ?? ConfigurationManager.ConnectionStrings["NServiceBus/Persistence"];
 
             //use existing config if we can find one
             if (connectionStringEntry != null)
@@ -57,30 +62,73 @@ namespace NServiceBus
             return RavenPersistence(config, store);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
             var connectionStringEntry = GetRavenConnectionString(connectionStringName);
             return RavenPersistenceWithConnectionString(config, connectionStringEntry, null);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="database">The database name to use.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
         {
             var connectionString = GetRavenConnectionString(connectionStringName);
             return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
             return RavenPersistenceWithConnectionString(config, connectionString, null);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="database">The database name to use.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
         {
             var connectionString = GetRavenConnectionString(getConnectionString);
             return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure RavenPersistence(this Configure config, dynamic documentStore)
+        {
+            return config.RavenPersistence((IDocumentStore)documentStore);
+        }
+
+        /// <summary>
+        /// Specifies the mapping to use for when resolving the database name to use for each message.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="convention">The method referenced by a Func delegate for finding the database name for the specified message.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
         {
             RavenSessionFactory.GetDatabaseName = convention;
@@ -167,11 +215,29 @@ namespace NServiceBus
 
                     //We need to turn compression off to make us compatible with Raven616
                     store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
-                    
+
+
+                    store.JsonRequestFactory.ConfigureRequest += (sender, e) =>
+                        {
+                            var httpWebRequest = ((HttpWebRequest) e.Request);
+
+                            if (unsafeAuthenticatedConnectionSharingAndPreAuthenticate)
+                            {
+                                httpWebRequest.UnsafeAuthenticatedConnectionSharing = true;
+                                httpWebRequest.PreAuthenticate = true;
+                            }
+
+                            //Workaround to support ilmerging!
+                            //If we don't do this the "Raven-Client-Version" header will be set to whatever our assembly version is.
+                            httpWebRequest.Headers["Raven-Client-Version"] = "2.0.0.0";
+                        };
+
                     return store;
                 }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
+
+            Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
 
             return config;
         }
@@ -181,7 +247,21 @@ namespace NServiceBus
             try
             {
                 store.Initialize();
-                store.DatabaseCommands.GetDatabaseNames(1);
+
+                if (store.Url == null)
+                {
+                    return;
+                }
+
+                var request = WebRequest.Create(string.Format("{0}/build/version", store.Url));
+                request.Timeout = 2000;
+                using (var response = request.GetResponse())
+                {
+                    if (response.Headers.Get("Raven-Server-Build") == null)
+                    {
+                        ShowUncontactableRavenWarning(store);
+                    }
+                }
             }
             catch (WebException)
             {
@@ -211,24 +291,44 @@ namespace NServiceBus
             Logger.Warn(sb.ToString());
         }
 
+        /// <summary>
+        /// Disables RavenDB installation.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         [ObsoleteEx(Message = "You don't need to call this since Raven is now installed via powershell cmdlet, see http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DisableRavenInstall(this Configure config)
         {
             return config;
         }
 
+        /// <summary>
+        /// Installs RavenDB if needed.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         [ObsoleteEx(Message = "Use the powershell cmdlet to install Raven instead. See http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure InstallRavenIfNeeded(this Configure config)
         {
             return config;
         }
 
+        /// <summary>
+        /// Disables the Raven compression.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         [ObsoleteEx(Replacement = "DisableRavenRequestCompression()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DisableRequestCompression(this Configure config)
         {
             return config.DisableRavenRequestCompression();
         }
-         
+        
+        /// <summary>
+        /// Disables the Raven compression.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure DisableRavenRequestCompression(this Configure config)
         {
             enableRequestCompression = false;
@@ -236,6 +336,25 @@ namespace NServiceBus
             return config;
         }
 
+        /// <summary>
+        /// Use this setting if you are experiencing error like:
+        /// An operation on a socket could not be performed because the system lacked sufficient buffer space or because a queue was full 127.0.0.1:8080
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure EnableRavenRequestsWithUnsafeAuthenticatedConnectionSharingAndPreAuthenticate(this Configure config)
+        {
+            unsafeAuthenticatedConnectionSharingAndPreAuthenticate = true;
+
+            return config;
+        }
+
+        /// <summary>
+        /// Allows to override the default RavenDB database naming convention.
+        /// </summary>
+        /// <param name="convention">The mapping convention to use instead.</param>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
             databaseNamingConvention = convention;
@@ -243,14 +362,37 @@ namespace NServiceBus
             return config;
         }
 
+        /// <summary>
+        /// Allows to override the default RavenDB tag name convention for the specified type.
+        /// </summary>
+        /// <param name="convention">The method referenced by a Func delegate for finding the tag name for the specified type.</param>
         public static void DefineRavenTagNameConvention(Func<Type, string> convention)
         {
             tagNameConvention = convention;
         }
 
+        static bool unsafeAuthenticatedConnectionSharingAndPreAuthenticate;
         static bool enableRequestCompression = true;
         static Func<string> databaseNamingConvention = () => Configure.EndpointName;
         static Func<Type, string> tagNameConvention;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+
+        class NoOpLogManager : ILogManager
+        {
+            public Raven.Abstractions.Logging.ILog GetLogger(string name)
+            {
+                return new Raven.Abstractions.Logging.LogManager.NoOpLogger();
+            }
+
+            public IDisposable OpenNestedConext(string message)
+            {
+                return new DisposableAction(() => { });
+            }
+
+            public IDisposable OpenMappedContext(string key, string value)
+            {
+                return new DisposableAction(() => { });
+            }
+        }
     }
 }

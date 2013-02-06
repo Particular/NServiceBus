@@ -1,15 +1,15 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Transactions;
 
     using Apache.NMS;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Unicast.Transport;
-
+    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
 
     [TestFixture]
@@ -17,29 +17,31 @@
     {
         private ActiveMqMessageReceiver testee;
 
-        private Mock<INetTxConnection> connectionMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
-        private Mock<ISubscriptionManager> subscriptionManagerMock;
-
-        private Mock<INetTxSession> session;
-
+        private NotifyTopicSubscriptionsMock subscriptionManagerMock;
+        private Mock<ISession> session;
         private Mock<IActiveMqPurger> purger;
-
         private Mock<IMessageConsumer> consumer;
+        private Mock<IMessageCounter> pendingMessageCounterMock;
 
         [SetUp] 
         public void SetUp()
         {
-            this.connectionMock = new Mock<INetTxConnection>();
+            this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
-            this.subscriptionManagerMock = new Mock<ISubscriptionManager>();
+            this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
             this.purger = new Mock<IActiveMqPurger>();
+            this.pendingMessageCounterMock = new Mock<IMessageCounter>();
 
             this.testee = new ActiveMqMessageReceiver(
-                this.connectionMock.Object, 
+                this.sessionFactoryMock.Object, 
                 this.activeMqMessageMapperMock.Object, 
-                this.subscriptionManagerMock.Object,
-                this.purger.Object);
+                this.subscriptionManagerMock,
+                this.purger.Object,
+                this.pendingMessageCounterMock.Object);
+
+            testee.EndProcessMessage = (s, exception) => { };
         }
 
         [Test]
@@ -48,16 +50,41 @@
             const string Queue = "somequeue";
             var messageMock = new Mock<IMessage>();
             var transportMessage = new TransportMessage();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+                {
+                    receivedMessage = m; 
+                    return true; 
+                };
             this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
 
             this.StartTestee(new Address(Queue, "machine"));
             this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
+        }
+
+        [Test]
+        public void WhenMessageIsReceivedAfterStop_ThenMessageReceivedIsNotRaised()
+        {
+            const string Queue = "somequeue";
+            var messageMock = new Mock<IMessage>();
+            var transportMessage = new TransportMessage();
+            TransportMessage receivedMessage = null;
+
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            };
+            this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
+
+            this.StartTestee(new Address(Queue, "machine"));
+            this.testee.Stop();
+            this.consumer.Raise(c => c.Listener += null, messageMock.Object);
+
+            receivedMessage.Should().BeNull();
         }
 
         [Test]
@@ -66,10 +93,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
-            TransportMessageReceivedEventArgs receivedEvent = null;
             var transportMessage = new TransportMessage();
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            };
             this.testee.ConsumerName = ConsumerName;
             this.StartTesteeWithLocalAddress();
 
@@ -79,8 +110,7 @@
             this.RaiseTopicSubscribed(Topic);
             this.RaiseEventReceived(topicConsumer, message);
 
-            receivedEvent.Should().NotBeNull();
-            receivedEvent.Message.Should().Be(transportMessage);
+            receivedMessage.Should().Be(transportMessage);
         }
 
         [Test]
@@ -117,9 +147,14 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
             var messageMock = new Mock<IMessage>();
-            TransportMessageReceivedEventArgs receivedEvent = null;
+            TransportMessage receivedMessage = null;
 
-            this.testee.MessageReceived += (sender, e) => receivedEvent = e;
+            this.testee.TryProcessMessage = m =>
+            {
+                receivedMessage = m;
+                return true;
+            }; 
+            
             this.testee.ConsumerName = ConsumerName;
             this.StartTestee(new Address("queue", "machine"));
 
@@ -128,7 +163,7 @@
             this.RaiseTopicSubscribed(Topic);
             topicConsumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedEvent.Should().BeNull();
+            receivedMessage.Should().BeNull();
         }
 
         [Test]
@@ -188,11 +223,111 @@
 
             this.consumer.Verify(c => c.Close());
             this.consumer.Verify(c => c.Dispose());
-
-            this.session.Verify(s => s.Close());
-            this.session.Verify(s => s.Dispose());
+            this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
         }
 
+        [Test]
+        public void WhenUsingActiveMqTransaction_OnErrorDuringProcessing_ThenSessionIsRolledBack()
+        {
+            this.testee.TryProcessMessage = m => false;
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            session.Verify(s => s.Rollback());
+        }
+
+        [Test]
+        public void WhenUsingActiveMqTransaction_WhenMessageIsProcessedSuccessfully_ThenSessionIsCommit()
+        {
+            this.testee.TryProcessMessage = m => true;
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            session.Verify(s => s.Commit());
+        }
+
+        [Test]
+        public void WhenUsingActiveMqTransaction_SessionIsSetAsSessionForCurrentThreadDuringProcessing()
+        {
+            string executionOrder = string.Empty;
+
+            this.testee.TryProcessMessage = m =>
+                {
+                    executionOrder += "ProcessMessage;";
+                    return true;
+                };
+            this.sessionFactoryMock.Setup(sf => sf.SetSessionForCurrentThread(It.IsAny<ISession>()))
+                .Callback(() => executionOrder += "SetSessionForCurrentThread;");
+            this.sessionFactoryMock.Setup(sf => sf.RemoveSessionForCurrentThread())
+                .Callback(() => executionOrder += "RemoveSessionForCurrentThread;");
+
+            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
+            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+            executionOrder.Should().Be("SetSessionForCurrentThread;ProcessMessage;RemoveSessionForCurrentThread;");
+        }
+
+        [Test]
+        public void WhenUsingDTCTransaction_OnErrorDuringProcessing_ThenTransactionIsRolledback()
+        {
+            var transactionStatus = TransactionStatus.InDoubt;
+
+            this.testee.TryProcessMessage = m => false;
+            this.StartTestee(
+                new Address("queue", "machine"),
+                new TransactionSettings
+                    {
+                        IsTransactional = true,
+                        DontUseDistributedTransactions = false,
+                        IsolationLevel = IsolationLevel.Serializable
+                    });
+
+            Action action = () =>
+                {
+                    using (var transaction = new TransactionScope())
+                    {
+                        Transaction.Current.TransactionCompleted +=
+                            (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
+
+                        this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+                        transaction.Complete();
+                    }
+                };
+
+            action.ShouldThrow<TransactionAbortedException>();
+            transactionStatus.Should().Be(TransactionStatus.Aborted);
+        }
+        
+        [Test]
+        public void WhenUsingDTCTransaction_ProcessedSuccefully_ThenTransactionIsCommited()
+        {
+            var transactionStatus = TransactionStatus.InDoubt;
+
+            this.testee.TryProcessMessage = m => true;
+            this.StartTestee(
+                new Address("queue", "machine"),
+                new TransactionSettings
+                {
+                    IsTransactional = true,
+                    DontUseDistributedTransactions = false,
+                    IsolationLevel = IsolationLevel.Serializable
+                });
+
+            using (var transaction = new TransactionScope())
+            {
+                Transaction.Current.TransactionCompleted += (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
+
+                this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
+
+                transaction.Complete();
+            }
+
+            transactionStatus.Should().Be(TransactionStatus.Committed);
+        }
+        
         private void StartTesteeWithLocalAddress()
         {
             Address.InitializeLocalAddress("somequeue");
@@ -201,38 +336,50 @@
         
         private void StartTestee(Address address)
         {
+            this.StartTestee(
+                address,
+                new TransactionSettings
+                    {
+                        IsTransactional = false,
+                        DontUseDistributedTransactions = false,
+                        IsolationLevel = IsolationLevel.Serializable
+                    });
+        }
+
+        private void StartTestee(Address address, TransactionSettings transactionSettings)
+        {
             this.session = this.SetupCreateSession();
 
             this.consumer = this.SetupCreateConsumer(this.session, address.Queue);
 
-            this.testee.Start(address);
+            this.testee.Start(address, transactionSettings);
         }
 
-        private IQueue SetupGetQueue(Mock<INetTxSession> sessionMock, string queue)
+        private IQueue SetupGetQueue(Mock<ISession> sessionMock, string queue)
         {
             var destinationMock = new Mock<IQueue>();
             sessionMock.Setup(s => s.GetQueue(queue)).Returns(destinationMock.Object);
             destinationMock.Setup(destination => destination.QueueName).Returns(queue);
             return destinationMock.Object;
         }
-        
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<INetTxSession> sessionMock, IDestination destination)
+
+        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, IDestination destination)
         {
             var consumerMock = new Mock<IMessageConsumer>();
             sessionMock.Setup(s => s.CreateConsumer(destination)).Returns(consumerMock.Object);
             return consumerMock;
         }
 
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<INetTxSession> sessionMock, string queue)
+        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, string queue)
         {
             var destination = this.SetupGetQueue(this.session, queue);
             return this.SetupCreateConsumer(sessionMock, destination);
         }
 
-        private Mock<INetTxSession> SetupCreateSession()
+        private Mock<ISession> SetupCreateSession()
         {
-            var sessionMock = new Mock<INetTxSession> { DefaultValue = DefaultValue.Mock };
-            this.connectionMock.Setup(c => c.CreateNetTxSession()).Returns(sessionMock.Object);
+            var sessionMock = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
+            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
 
@@ -243,17 +390,47 @@
 
         private void RaiseTopicSubscribed(string topic)
         {
-            this.subscriptionManagerMock.Raise(sm => sm.TopicSubscribed += null, new SubscriptionEventArgs(topic));
+            this.subscriptionManagerMock.RaiseTopicSubscribed(topic);
         }
 
         private void RaiseTopicUnsubscribed(string topic)
         {
-            this.subscriptionManagerMock.Raise(sm => sm.TopicUnsubscribed += null, new SubscriptionEventArgs(topic));
+            this.subscriptionManagerMock.RaiseTopicUnsubscribed(topic);
         }
 
         private void RaiseEventReceived(Mock<IMessageConsumer> topicConsumer, IMessage message)
         {
             topicConsumer.Raise(c => c.Listener += null, message);
+        }
+
+        private class NotifyTopicSubscriptionsMock : INotifyTopicSubscriptions
+        {
+            public event EventHandler<SubscriptionEventArgs> TopicSubscribed = delegate { };
+            public event EventHandler<SubscriptionEventArgs> TopicUnsubscribed = delegate { };
+            
+            public IEnumerable<string> Register(ITopicSubscriptionListener listener)
+            {
+                this.TopicSubscribed += listener.TopicSubscribed;
+                this.TopicUnsubscribed += listener.TopicUnsubscribed;
+
+                return Enumerable.Empty<string>();
+            }
+
+            public void Unregister(ITopicSubscriptionListener listener)
+            {
+                this.TopicSubscribed -= listener.TopicSubscribed;
+                this.TopicUnsubscribed -= listener.TopicUnsubscribed;
+            }
+
+            public void RaiseTopicSubscribed(string topic)
+            {
+                this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+            }
+
+            public void RaiseTopicUnsubscribed(string topic)
+            {
+                this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+            }
         }
     }
 }

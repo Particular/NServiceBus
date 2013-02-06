@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
-    using Unicast.Transport;
+    using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 
     /// <summary>
@@ -10,24 +10,42 @@
     /// </summary>
     public class ActiveMqMessageDequeueStrategy : IDequeueMessages
     {
+        private readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
+        private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
+        private readonly IMessageCounter pendingMessageCounter;
+        private readonly ISessionFactory sessionFactory;
+
+        private Address address;
+        private TransactionSettings settings;
+        private Func<TransportMessage, bool> tryProcessMessage;
+        private Action<string, Exception> endProcessMessage;
+
         /// <summary>
         ///     Default constructor.
         /// </summary>
         /// <param name="notifyMessageReceivedFactory"></param>
-        public ActiveMqMessageDequeueStrategy(INotifyMessageReceivedFactory notifyMessageReceivedFactory)
+        public ActiveMqMessageDequeueStrategy(
+            INotifyMessageReceivedFactory notifyMessageReceivedFactory, 
+            IMessageCounter pendingMessageCounter,
+            ISessionFactory sessionFactory)
         {
             this.notifyMessageReceivedFactory = notifyMessageReceivedFactory;
+            this.pendingMessageCounter = pendingMessageCounter;
+            this.sessionFactory = sessionFactory;
         }
 
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="tryProcessMessage"></param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            settings = transactionSettings;
+            this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
             this.address = address;
         }
 
@@ -50,29 +68,27 @@
         {
             foreach (INotifyMessageReceived messageReceiver in messageReceivers)
             {
+                messageReceiver.Stop();
+            }
+
+            this.pendingMessageCounter.Wait(60000);
+
+            foreach (INotifyMessageReceived messageReceiver in messageReceivers)
+            {
                 messageReceiver.Dispose();
             }
 
             messageReceivers.Clear();
+            sessionFactory.Dispose();
         }
-
         
         void CreateAndStartMessageReceiver()
         {
             INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.MessageReceived += OnMessageReceived;
-            receiver.Start(address);
+            receiver.TryProcessMessage = tryProcessMessage;
+            receiver.EndProcessMessage = endProcessMessage;
+            receiver.Start(address, settings);
             messageReceivers.Add(receiver);
         }
-
-        void OnMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            TryProcessMessage(e.Message);
-        }
-
-        Func<TransportMessage, bool> TryProcessMessage;
-        readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
-        readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
-        Address address;
     }
 }

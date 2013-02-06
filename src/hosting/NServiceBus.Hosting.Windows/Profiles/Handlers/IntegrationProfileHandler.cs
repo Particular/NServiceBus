@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NServiceBus.Hosting.Windows.Profiles.Handlers
+﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using System;
+    using System.Collections.Generic;
     using Faults;
     using Hosting.Profiles;
     using Saga;
@@ -13,13 +11,15 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance.RavenPersistence();
-
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            {
                 Configure.Instance.MessageForwardingInCaseOfFault();
+            }
 
             if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
+            {
                 Configure.Instance.RavenSagaPersister();
+            }
 
 
             if (Config is AsA_Publisher && !Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
@@ -28,7 +28,6 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             }
 
             WindowsInstallerRunner.RunInstallers = true;
-            WindowsInstallerRunner.RunInfrastructureInstallers = false;
         }
 
         public IConfigureThisEndpoint Config { get; set; }

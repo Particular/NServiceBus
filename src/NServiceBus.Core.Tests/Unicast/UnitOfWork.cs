@@ -25,7 +25,7 @@
             };
 
             RegisterUow(uow);
-            ReceiveMessage(Helpers.Helpers.EmptySubscribeTransportMessage());
+            ReceiveMessage(Helpers.Helpers.EmptySubscriptionMessage());
 
             Assert.True(beginCalled);
             Assert.True(endCalled);
@@ -93,7 +93,6 @@
             RegisterUow(secondUoW);
             RegisterUow(thirdUoW);
             ReceiveMessage(Helpers.Helpers.EmptyTransportMessage());
-            Console.Out.WriteLine(FuncBuilder);
             Assert.AreEqual(firstUoW.ExpectedEndOrder, firstUoWEndOrder);
             Assert.AreEqual(secondUoW.ExpectedEndOrder, secondUoWEndOrder);
             Assert.AreEqual(thirdUoW.ExpectedEndOrder, thirdUoWEndOrder);

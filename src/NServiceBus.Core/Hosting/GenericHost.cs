@@ -1,18 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using NServiceBus.Hosting.Configuration;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Hosting.Profiles;
-using NServiceBus.Hosting.Roles;
-using NServiceBus.Hosting.Wcf;
-using NServiceBus.Logging;
-
 namespace NServiceBus.Hosting
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Config;
+    using System.Reflection;
+    using Configuration;
+    using Helpers;
     using Installation;
+    using Logging;
+    using Profiles;
+    using Roles;
+    using Wcf;
 
     /// <summary>
     /// A generic host that can be used to provide hosting services in different environments
@@ -29,8 +27,10 @@ namespace NServiceBus.Hosting
                 PerformConfiguration();
 
                 bus = Configure.Instance.CreateBus();
-                if ((bus != null) && (!Endpoint.IsSendOnly))
+                if (bus != null && !Endpoint.IsSendOnly)
+                {
                     bus.Start();
+                }
 
                 configManager.Startup();
                 wcfManager.Startup();
@@ -56,14 +56,21 @@ namespace NServiceBus.Hosting
 
                 if (bus != null)
                 {
-                    bus.Dispose();
+                    bus.Shutdown();
+
+                    if (bus is IDisposable)
+                    {
+                        ((IDisposable)bus).Dispose();
+                    }
+
+                    bus = null;
                 }
             }
             catch (Exception ex)
             {
                 //we log the error here in order to avoid issues with non serializable exceptions
                 //going across the appdomain back to topshelf
-                LogManager.GetLogger(typeof (GenericHost)).Fatal("Exception when stopping endpoint.", ex);
+                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when stopping endpoint.", ex);
                 Environment.FailFast("Exception when stopping endpoint.", ex);
             }
         }
@@ -72,10 +79,10 @@ namespace NServiceBus.Hosting
         /// When installing as windows service (/install), run infrastructure installers
         /// </summary>
         /// <typeparam name="TEnvironment"></typeparam>
-        public void Install<TEnvironment>() where TEnvironment : IEnvironment
+        public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             PerformConfiguration();
-            Configure.Instance.ForInstallationOn<TEnvironment>().Install();
+            Configure.Instance.ForInstallationOn<TEnvironment>(username).Install();
         }
 
         void PerformConfiguration()
@@ -96,7 +103,7 @@ namespace NServiceBus.Hosting
                     {
                         bool called = false;
                         //make sure we don't call the Init method again, unless there's an explicit impl
-                        var initMap = specifier.GetType().GetInterfaceMap(typeof (IWantCustomInitialization));
+                        var initMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomInitialization));
                         foreach (var m in initMap.TargetMethods)
                             if (!m.IsPublic && m.Name == "NServiceBus.IWantCustomInitialization.Init")
                             {
@@ -107,7 +114,7 @@ namespace NServiceBus.Hosting
                         if (!called)
                         {
                             //call the regular Init method if IWantCustomLogging was an explicitly implemented method
-                            var logMap = specifier.GetType().GetInterfaceMap(typeof (IWantCustomLogging));
+                            var logMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomLogging));
                             foreach (var tm in logMap.TargetMethods)
                                 if (!tm.IsPublic && tm.Name == "NServiceBus.IWantCustomLogging.Init")
                                     (specifier as IWantCustomInitialization).Init();
@@ -150,7 +157,7 @@ namespace NServiceBus.Hosting
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles, string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
         {
             this.specifier = specifier;
-            
+
             if (String.IsNullOrEmpty(endpointName))
             {
                 endpointName = specifier.GetType().Namespace ?? specifier.GetType().Assembly.GetName().Name;
@@ -169,11 +176,11 @@ namespace NServiceBus.Hosting
             ProfileActivator.ProfileManager = profileManager;
 
             configManager = new ConfigManager(assembliesToScan, specifier);
-            wcfManager = new WcfManager(assembliesToScan);
+            wcfManager = new WcfManager();
             roleManager = new RoleManager(assembliesToScan);
         }
 
-        IStartableBus bus;
+        IBus bus;
         readonly IConfigureThisEndpoint specifier;
         readonly ProfileManager profileManager;
         readonly ConfigManager configManager;

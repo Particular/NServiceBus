@@ -9,6 +9,7 @@ namespace NServiceBus.Serializers.XML
     using System.Runtime.Serialization;
     using System.Text;
     using System.Xml;
+    using System.Xml.Linq;
     using System.Xml.Serialization;
     using Logging;
     using MessageInterfaces;
@@ -38,7 +39,7 @@ namespace NServiceBus.Serializers.XML
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        /// Removes the wrapping "<Messages>" element if serializing a single message 
+        /// Removes the wrapping "<Messages/>" element if serializing a single message 
         /// </summary>
         public bool SkipWrappingElementForSingleMessages { get; set; }
 
@@ -52,6 +53,13 @@ namespace NServiceBus.Serializers.XML
 
             if (t.IsSimpleType())
                 return;
+
+            if (typeof(XContainer).IsAssignableFrom(t))
+            {
+                typesBeingInitialized.Add(t);
+
+                return;
+            }
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
@@ -165,6 +173,16 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var prop in t.GetProperties())
             {
+                if (!prop.CanWrite && !isKeyValuePair)
+                {
+                    continue;
+                }
+
+                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
+                {
+                    continue;
+                }
+
                 if (typeof(IList) == prop.PropertyType)
                     throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
 
@@ -185,14 +203,7 @@ namespace NServiceBus.Serializers.XML
 
                     if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
                         throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
-
-
                 }
-
-                if (!prop.CanWrite && !isKeyValuePair)
-                    continue;
-                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
-                    continue;
 
                 result.Add(prop);
             }
@@ -204,11 +215,6 @@ namespace NServiceBus.Serializers.XML
             return result.Distinct();
         }
 
-        /// <summary>
-        /// Gets a FieldInfo for each field in the given type.
-        /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
@@ -217,11 +223,12 @@ namespace NServiceBus.Serializers.XML
         #region Deserialize
 
         /// <summary>
-        /// Deserializes the given stream to an array of messages which are returned.
+        /// Deserializes from the given stream a set of messages.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
-        public object[] Deserialize(Stream stream, IEnumerable<string> messageTypesToDeserialize = null)
+        /// <param name="stream">Stream that contains messages.</param>
+        /// <param name="messageTypesToDeserialize">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <returns>Deserialized messages.</returns>
+        public object[] Deserialize(Stream stream, IList<string> messageTypesToDeserialize = null)
         {
             if (stream == null)
                 return null;
@@ -289,7 +296,7 @@ namespace NServiceBus.Serializers.XML
 
                     string nodeTypeString = null;
 
-                    if (messageTypesToDeserialize != null && position < messageTypes.Count())
+                    if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count())
                         nodeTypeString = messageTypesToDeserialize.ElementAt(position);
 
 
@@ -424,7 +431,6 @@ namespace NServiceBus.Serializers.XML
                     if (val != null)
                     {
                         fieldInfoToLateBoundFieldSet[field].Invoke(result, val);
-                        continue;
                     }
                 }
             }
@@ -567,6 +573,18 @@ namespace NServiceBus.Serializers.XML
                 }
             }
 
+            if (typeof(XContainer).IsAssignableFrom(type))
+            {
+                var reader = new StringReader(n.InnerXml);
+
+                if (type == typeof(XDocument))
+                {
+                    return XDocument.Load(reader);
+                }
+
+                return XElement.Load(reader);
+            }
+
             //Handle dictionaries
             if (typeof(IDictionary).IsAssignableFrom(type))
             {
@@ -671,53 +689,32 @@ namespace NServiceBus.Serializers.XML
         public void Serialize(object[] messages, Stream stream)
         {
             var namespaces = InitializeNamespaces(messages);
-
             var messageBuilder = SerializeMessages(messages);
 
             var builder = new StringBuilder();
 
-            List<string> baseTypes = GetBaseTypes(messages);
 
             builder.AppendLine("<?xml version=\"1.0\" ?>");
 
-            if (SkipWrappingElementForSingleMessages && messages.Count() == 1)
+            if (SkipWrappingElementForSingleMessages && messages.Length == 1)
+            {
                 builder.Append(messageBuilder);
+            }
             else
-                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
+            {
+                List<string> baseTypes = GetBaseTypes(messages);
 
+                WrapMessages(builder, namespaces, baseTypes, messageBuilder);
+            }
             byte[] buffer = Encoding.UTF8.GetBytes(builder.ToString());
             stream.Write(buffer, 0, buffer.Length);
         }
 
-        public string ContentType { get { return "text/xml"; } }
+        public string ContentType { get { return ContentTypes.Xml; } }
 
         void WrapMessages(StringBuilder builder, List<string> namespaces, List<string> baseTypes, StringBuilder messageBuilder)
         {
-            builder.Append(
-                "<Messages xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"");
-
-            for (int i = 0; i < namespaces.Count; i++)
-            {
-                string prefix = "q" + i;
-                if (i == 0)
-                    prefix = "";
-
-                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace, namespaces[i]);
-            }
-
-            foreach (var type in namespacesToAdd)
-                builder.AppendFormat(" xmlns:{0}=\"{1}\"", type.Name.ToLower(), type.Name);
-
-            for (int i = 0; i < baseTypes.Count; i++)
-            {
-                string prefix = BASETYPE;
-                if (i != 0)
-                    prefix += i;
-
-                builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
-            }
-
-            builder.Append(">\n");
+            CreateStartElementWithNamespaces(namespaces, baseTypes, builder, "Messages");
 
             builder.Append(messageBuilder);
 
@@ -732,7 +729,7 @@ namespace NServiceBus.Serializers.XML
             {
                 var t = mapper.GetMappedTypeFor(m.GetType());
 
-                WriteObject(t.Name, t, m, messageBuilder);
+                WriteObject(t.Name, t, m, messageBuilder, SkipWrappingElementForSingleMessages && messages.Length == 1);
             }
             return messageBuilder;
         }
@@ -786,7 +783,7 @@ namespace NServiceBus.Serializers.XML
             return false;
         }
 
-        private void WriteObject(string name, Type type, object value, StringBuilder builder)
+        private void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
         {
             string element = name;
             string prefix;
@@ -795,8 +792,10 @@ namespace NServiceBus.Serializers.XML
             if (string.IsNullOrEmpty(prefix) && type == typeof(object) && (value.GetType().IsSimpleType()))
             {
                 if (!namespacesToAdd.Contains(value.GetType()))
+                {
                     namespacesToAdd.Add(value.GetType());
-
+                }
+                
                 builder.AppendFormat("<{0}>{1}</{0}>\n",
                     value.GetType().Name.ToLower() + ":" + name,
                     FormatAsString(value));
@@ -807,11 +806,53 @@ namespace NServiceBus.Serializers.XML
             if (!string.IsNullOrEmpty(prefix))
                 element = prefix + ":" + name;
 
-            builder.AppendFormat("<{0}>\n", element);
+            if (useNS)
+            {
+                var namespaces = InitializeNamespaces(new[] {value});
+                var baseTypes = GetBaseTypes(new[] {value});
+                CreateStartElementWithNamespaces(namespaces, baseTypes, builder, element);
+            }
+            else
+            {
+                builder.AppendFormat("<{0}>\n", element);
+            }
 
             Write(builder, type, value);
 
             builder.AppendFormat("</{0}>\n", element);
+        }
+
+        private void CreateStartElementWithNamespaces(List<string> namespaces, List<string> baseTypes, StringBuilder builder, string element)
+        {
+            string prefix;
+
+            builder.AppendFormat(
+                "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
+                element);
+
+            for (int i = 0; i < namespaces.Count; i++)
+            {
+                prefix = "q" + i;
+                if (i == 0)
+                    prefix = "";
+
+                builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace,
+                                     namespaces[i]);
+            }
+
+            foreach (var t in namespacesToAdd)
+                builder.AppendFormat(" xmlns:{0}=\"{1}\"", t.Name.ToLower(), t.Name);
+
+            for (int i = 0; i < baseTypes.Count; i++)
+            {
+                prefix = BASETYPE;
+                if (i != 0)
+                    prefix += i;
+
+                builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
+            }
+
+            builder.Append(">\n");
         }
 
         private void WriteEntry(string name, Type type, object value, StringBuilder builder)
@@ -835,7 +876,14 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            if (type.IsValueType || type == typeof(string) || type == typeof(Uri))
+            if (typeof(XContainer).IsAssignableFrom(type))
+            {
+                var container = (XContainer)value;
+                builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
+                return;
+            }
+
+            if (type.IsValueType || type == typeof(string) || type == typeof(Uri) || type == typeof(char))
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, FormatAsString(value));
                 return;
@@ -892,7 +940,7 @@ namespace NServiceBus.Serializers.XML
             if (value is byte)
                 return XmlConvert.ToString((byte)value);
             if (value is char)
-                return XmlConvert.ToString((char)value);
+                return Escape((char)value);
             if (value is double)
                 return XmlConvert.ToString((double)value);
             if (value is ulong)
@@ -925,6 +973,47 @@ namespace NServiceBus.Serializers.XML
                 return Escape(value as string);
 
             return value.ToString();
+        }
+
+        private static string Escape(char c)
+        {
+            if (c == 0x9 || c == 0xA || c == 0xD
+                    || (0x20 <= c && c <= 0xD7FF)
+                    || (0xE000 <= c && c <= 0xFFFD)
+                    || (0x10000 <= c && c <= 0x10ffff)
+                    )
+            {
+                string ss = null;
+                switch (c)
+                {
+                    case '<':
+                        ss = "&lt;";
+                        break;
+                    case '>':
+                        ss = "&gt;";
+                        break;
+                    case '"':
+                        ss = "&quot;";
+                        break;
+                    case '\'':
+                        ss = "&apos;";
+                        break;
+                    case '&':
+                        ss = "&amp;";
+                        break;
+                }
+                if (ss != null)
+                {
+                    return ss;
+                }
+            }
+            else
+            {
+                return String.Format("&#x{0:X};", (int)c);
+            }
+
+            //Should not get here but just in case!
+            return c.ToString();
         }
 
         private static string Escape(string str)

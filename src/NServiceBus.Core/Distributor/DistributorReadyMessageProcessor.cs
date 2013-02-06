@@ -33,12 +33,14 @@ namespace NServiceBus.Distributor
         /// <param name="message">
         ///     The <see cref="TransportMessage" /> received.
         /// </param>
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             if (!message.IsControlMessage())
-                return;
+                return true;
 
             HandleControlMessage(message);
+
+            return true;
         }
 
         /// <summary>

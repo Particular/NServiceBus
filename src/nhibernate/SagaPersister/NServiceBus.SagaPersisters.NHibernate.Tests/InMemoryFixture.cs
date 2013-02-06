@@ -6,6 +6,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using System.IO;
     using System.Security.Principal;
     using Config.Installer;
+    using Config.Internal;
     using NUnit.Framework;
     using Persistence.NHibernate;
     using UnitOfWork;
@@ -46,13 +47,16 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
                 .Sagas()
                 .UseNHibernateSagaPersister();
 
-            SessionFactory = Configure.Instance.Builder.Build<ISessionFactory>();
+            var builder = new SessionFactoryBuilder(Configure.TypesToScan);
+            var properties = ConfigureNHibernate.SagaPersisterProperties;
+
+            SessionFactory = builder.Build(ConfigureNHibernate.CreateConfigurationWith(properties));
 
             SagaPersister = new SagaPersister { SessionFactory = SessionFactory };
 
             UnitOfWork = new UnitOfWorkManager { SessionFactory = SessionFactory };
 
-            new Installer().Install(WindowsIdentity.GetCurrent());
+            new Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
 
         [TearDown]

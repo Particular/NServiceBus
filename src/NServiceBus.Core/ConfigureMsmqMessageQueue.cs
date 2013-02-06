@@ -1,21 +1,34 @@
 namespace NServiceBus
 {
     using Config;
+    using Logging;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.Msmq;
+    using Unicast.Transport;
 
+    /// <summary>
+    /// Configuration class for MSMQ transport.
+    /// </summary>
     public static class ConfigureMsmqMessageQueue
     {
-        /// <summary>
-        /// Indicates that MsmqMessageQueue has been selected.
-        /// </summary>
-        public static bool Selected { get; set; }
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (ConfigureMsmqMessageQueue));
+
+        private const string Message =
+            @"
+MsmqMessageQueueConfig section has been deprecated in favor of using a connectionString instead.
+Here is an example of what is required:
+  <connectionStrings>
+    <add name=""NServiceBus/Transport"" connectionString=""cacheSendConnection=true;journal=false;deadLetter=true"" />
+  </connectionStrings>";
+
+        internal static bool Selected { get; set; }
 
         /// <summary>
         /// Use MSMQ for your queuing infrastructure.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
+        [ObsoleteEx(Message = "Please use UsingTransport<Msmq> on your IConfigureThisEndpoint class or the other option is using the fluent API .UseTransport<Msmq>()")]
         public static Configure MsmqTransport(this Configure config)
         {
             Selected = true;
@@ -25,19 +38,30 @@ namespace NServiceBus
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.SingleInstance);
 
-            var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
+            var settings = new MsmqSettings();
 
-            var useJournalQueue = false;
-            var useDeadLetterQueue = true;
+            var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 
             if (cfg != null)
             {
-                useJournalQueue = cfg.UseJournalQueue;
-                useDeadLetterQueue = cfg.UseDeadLetterQueue;
+                settings.UseJournalQueue = cfg.UseJournalQueue;
+                settings.UseDeadLetterQueue = cfg.UseDeadLetterQueue;
+
+                Logger.Warn(Message);
+            }
+            else
+            {
+                var connectionString = TransportConnectionString.GetConnectionStringOrNull();
+
+                if (connectionString != null)
+                {
+                    settings = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
+                }
             }
 
-            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, useDeadLetterQueue);
-            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, useJournalQueue);
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, settings.UseDeadLetterQueue);
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, settings.UseJournalQueue);
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseConnectionCache, settings.UseConnectionCache);
 
             EndpointInputQueueCreator.Enabled = true;
 

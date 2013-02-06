@@ -1,14 +1,14 @@
 namespace NServiceBus.Unicast.Transport.Transactional
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Threading;
     using System.Transactions;
     using Faults;
     using Logging;
     using System.Runtime.Serialization;
+    using Management.Retries;
     using Monitoring;
+    using Queuing;
 
     /// <summary>
     /// An implementation of <see cref="ITransport"/> that supports transactions.
@@ -55,6 +55,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Event which indicates that message processing failed for some reason.
         /// </summary>
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
+
+        /// <summary>
+        /// Set this one to false to avoid wrapping the message pipeline in a transaction scope
+        /// </summary>
+        public bool DontProvideAmbientTransaction { get; set; }
+
 
         /// <summary>
         /// Gets/sets the number of concurrent threads that should be
@@ -117,9 +123,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// <summary>
         /// Gets the receiving messages rate.
         /// </summary>
-        public int MaximumThroughputPerSecond
+        public int MaximumMessageThroughputPerSecond
         {
-            get { return maxThroughputPerSecond; }
+            get { return maxMessageThroughputPerSecond; }
         }
 
         /// <summary>
@@ -127,39 +133,39 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public int MaxThroughputPerSecond
         {
-            get { return maxThroughputPerSecond; }
+            get { return maxMessageThroughputPerSecond; }
             set
             {
                 if (isStarted)
-                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond) instead.");
+                    throw new InvalidOperationException("Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) instead.");
 
-                maxThroughputPerSecond = value;
+                maxMessageThroughputPerSecond = value;
             }
         }
 
-        int maxThroughputPerSecond;
+        int maxMessageThroughputPerSecond;
 
-        public void ChangeMaximumThroughputPerSecond(int maximumThroughputPerSecond)
+        public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
-            if (maximumThroughputPerSecond == maxThroughputPerSecond)
+            if (maximumMessageThroughputPerSecond == maxMessageThroughputPerSecond)
             {
                 return;
             }
 
-            maxThroughputPerSecond = maximumThroughputPerSecond;
+            maxMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
             if (throughputLimiter != null)
             {
                 throughputLimiter.Stop();
-                throughputLimiter.Start(maximumThroughputPerSecond);
+                throughputLimiter.Start(maximumMessageThroughputPerSecond);
             }
-            if (maximumThroughputPerSecond <= 0)
+            if (maximumMessageThroughputPerSecond <= 0)
             {
                 Logger.InfoFormat("Throughput limit for {0} disabled.", receiveAddress);
             }
             else
             {
                 Logger.InfoFormat("Throughput limit for {0} changed to {1} msg/sec", receiveAddress,
-                                  maximumThroughputPerSecond);
+                                  maximumMessageThroughputPerSecond);
             }
         }
 
@@ -192,98 +198,117 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             FailureManager.Init(address);
 
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
+
             InitializePerformanceCounters();
 
             throughputLimiter = new ThroughputLimiter();
 
-            throughputLimiter.Start(maxThroughputPerSecond);
+            throughputLimiter.Start(maxMessageThroughputPerSecond);
 
             StartReceiver();
 
-            if(maxThroughputPerSecond > 0)
-                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxThroughputPerSecond);
+            if(maxMessageThroughputPerSecond > 0)
+                Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress, maxMessageThroughputPerSecond);
 
             isStarted = true;
         }
 
         void InitializePerformanceCounters()
         {
-            currentThroughputPerformanceCounter = new ThroughputPerformanceCounter(receiveAddress);
+            currentReceivePerformanceDiagnostics = new ReceivePerformanceDiagnostics(receiveAddress);
 
-            currentThroughputPerformanceCounter.Initialize();
+            currentReceivePerformanceDiagnostics.Initialize();
         }
 
-        ThroughputPerformanceCounter currentThroughputPerformanceCounter;
+        ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings,Process);
+            Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
             Receiver.Start(maximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
-        private bool Process(TransportMessage message)
+        bool TryProcess(TransportMessage message)
         {
+            currentReceivePerformanceDiagnostics.MessageDequeued();
+
             needToAbort = false;
 
-            try
+            using (var tx = GetTransactionScope())
             {
-                if (TransactionSettings.SuppressDTC)
-                {
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
-                    {
-                        ProcessMessage(message);
-                    }
-                }
-                else
-                {
-                    ProcessMessage(message);
-                }
-
-                if (needToAbort)
-                {
-                    return false;
-                }
-
-                ClearFailuresForMessage(message.Id);
-
-                throughputLimiter.MessageProcessed();
-                currentThroughputPerformanceCounter.MessageProcessed();
-                return true;
+                ProcessMessage(message);
+                
+                tx.Complete();
             }
-            catch (Exception ex)
-            {
-                if (ex is AggregateException)
-                {
-                    ex = ex.GetBaseException();
-                }
-
-                using (new TransactionScope(TransactionScopeOption.Suppress))
-                {
-                    if (TransactionSettings.IsTransactional)
-                    {
-                        IncrementFailuresForMessage(message.Id, ex);
-                    }
-
-                    OnFailedMessageProcessing(ex);
-                }
-
-                Logger.Info("Failed to process message", ex);
-
-                return false;
-            }
+            
+            return !needToAbort;
         }
 
-        [DebuggerNonUserCode]
+        TransactionScope GetTransactionScope()
+        {
+            if (DontProvideAmbientTransaction)
+                return new TransactionScope(TransactionScopeOption.Suppress);
+
+            return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
+                {
+                    IsolationLevel = TransactionSettings.IsolationLevel,
+                    Timeout = TransactionSettings.TransactionTimeout
+                });
+        }
+
+
+        void EndProcess(string messageId, Exception ex)
+        {
+            throughputLimiter.MessageProcessed();
+            
+            if (ex == null)
+            {
+                if (messageId != null)
+                {
+                    firstLevelRetries.ClearFailuresForMessage(messageId);
+                }
+
+                currentReceivePerformanceDiagnostics.MessageProcessed();
+            
+                return;
+            }
+
+            currentReceivePerformanceDiagnostics.MessageFailed();
+
+            if (ex is AggregateException)
+            {
+                ex = ex.GetBaseException();
+            }
+
+            if (TransactionSettings.IsTransactional && messageId != null)
+            {
+                firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
+            }
+
+            OnFailedMessageProcessing(ex);
+            
+            Logger.Info("Failed to process message", ex);
+        }
+
         void ProcessMessage(TransportMessage m)
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
             if (TransactionSettings.IsTransactional)
             {
-                if (HandledMaxRetries(m))
+                if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(m))
                 {
-                    Logger.Warn(string.Format("Message has failed the maximum number of times allowed, message will be handed over to SLR if enabled, ID={0}.", m.IdForCorrelation));
+                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransactionalTransport
+                    if (Configure.Instance.Builder.Build<SecondLevelRetries>().Disabled)
+                    {
+                        Logger.ErrorFormat("Message has failed the maximum number of times allowed, ID={0}.", m.IdForCorrelation);
+                    }
+                    else
+                    {
+                        Logger.WarnFormat("Message has failed the maximum number of times allowed, message will be handed over to SLR, ID={0}.", m.IdForCorrelation);
+                    }
 
                     OnFinishedMessageProcessing();
 
@@ -326,91 +351,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 {
                     throw exceptionFromMessageHandling;//cause rollback    
                 }
-
             }
 
             if (exceptionFromMessageModules != null) //cause rollback
             {
                 throw exceptionFromMessageModules;
-            }
-        }
-
-        private bool HandledMaxRetries(TransportMessage message)
-        {
-            string messageId = message.Id;
-            failuresPerMessageLocker.EnterReadLock();
-
-            if (failuresPerMessage.ContainsKey(messageId) &&
-                (failuresPerMessage[messageId] >= TransactionSettings.MaxRetries))
-            {
-                failuresPerMessageLocker.ExitReadLock();
-                failuresPerMessageLocker.EnterWriteLock();
-
-                var ex = exceptionsForMessages[messageId];
-                if (TryInvokeFaultManager(message, ex))
-                {
-                    failuresPerMessage.Remove(messageId);
-                    exceptionsForMessages.Remove(messageId);
-                }
-
-                failuresPerMessageLocker.ExitWriteLock();
-
-                return true;
-            }
-
-            failuresPerMessageLocker.ExitReadLock();
-            return false;
-        }
-
-        bool TryInvokeFaultManager(TransportMessage message, Exception exception)
-        {
-            try
-            {
-                FailureManager.ProcessingAlwaysFailsForMessage(message, exception);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Configure.Instance.OnCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
-            }
-
-            return false;
-        }
-
-        private void ClearFailuresForMessage(string messageId)
-        {
-            failuresPerMessageLocker.EnterReadLock();
-            if (failuresPerMessage.ContainsKey(messageId))
-            {
-                failuresPerMessageLocker.ExitReadLock();
-                failuresPerMessageLocker.EnterWriteLock();
-
-                failuresPerMessage.Remove(messageId);
-                exceptionsForMessages.Remove(messageId);
-
-                failuresPerMessageLocker.ExitWriteLock();
-            }
-            else
-                failuresPerMessageLocker.ExitReadLock();
-        }
-
-        private void IncrementFailuresForMessage(string messageId, Exception e)
-        {
-            try
-            {
-                failuresPerMessageLocker.EnterWriteLock();
-
-                if (!failuresPerMessage.ContainsKey(messageId))
-                    failuresPerMessage[messageId] = 1;
-                else
-                    failuresPerMessage[messageId] = failuresPerMessage[messageId] + 1;
-
-                exceptionsForMessages[messageId] = e;
-            }
-            catch { } //intentionally swallow exceptions here
-            finally
-            {
-                failuresPerMessageLocker.ExitWriteLock();
             }
         }
 
@@ -485,17 +430,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         Address receiveAddress;
         bool isStarted;
         ThroughputLimiter throughputLimiter;
-
-        private readonly ReaderWriterLockSlim failuresPerMessageLocker = new ReaderWriterLockSlim();
-        /// <summary>
-        /// Accessed by multiple threads - lock using failuresPerMessageLocker.
-        /// </summary>
-        private readonly IDictionary<string, int> failuresPerMessage = new Dictionary<string, int>();
-
-        /// <summary>
-        /// Accessed by multiple threads, manage together with failuresPerMessage.
-        /// </summary>
-        private readonly IDictionary<string, Exception> exceptionsForMessages = new Dictionary<string, Exception>();
+        FirstLevelRetries firstLevelRetries;
 
         [ThreadStatic]
         private static volatile bool needToAbort;

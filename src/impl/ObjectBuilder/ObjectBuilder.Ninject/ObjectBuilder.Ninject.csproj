@@ -60,6 +60,7 @@
     <Compile Include="Internal\ObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="NinjectObjectBuilder.cs" />
     <Compile Include="Internal\NinjectWhenExtensions.cs" />
+    <Compile Include="NinjectObjectBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

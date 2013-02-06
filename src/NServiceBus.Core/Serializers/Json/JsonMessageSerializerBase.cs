@@ -3,72 +3,87 @@ namespace NServiceBus.Serializers.Json
     using System.Globalization;
     using System.IO;
     using System.Runtime.Serialization.Formatters;
+
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Bson;
     using Newtonsoft.Json.Converters;
     using Serialization;
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <summary>
+    /// JSON and BSON base class for <see cref="IMessageSerializer"/>.
+    /// </summary>
     public abstract class JsonMessageSerializerBase : IMessageSerializer
     {
-        private readonly IMessageMapper _messageMapper;
+        private readonly IMessageMapper messageMapper;
+
+        readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        {
+            TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+            TypeNameHandling = TypeNameHandling.Auto,
+            Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
+        };
 
         protected JsonMessageSerializerBase(IMessageMapper messageMapper)
         {
-            _messageMapper = messageMapper;
+            this.messageMapper = messageMapper;
         }
-
-        public JsonSerializerSettings JsonSerializerSettings
-        {
-            get
-            {
-                var serializerSettings = new JsonSerializerSettings
-                                             {
-                                                 TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
-                                                 TypeNameHandling = TypeNameHandling.Auto,
-                                                 Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind} }
-                                             };
-                return serializerSettings;
-            }
-        }
-
+        
         /// <summary>
         /// Removes the wrapping array if serializing a single message 
         /// </summary>
         public bool SkipArrayWrappingForSingleMessages { get; set; }
 
+        /// <summary>
+        /// Serializes the given set of messages into the given stream.
+        /// </summary>
+        /// <param name="messages">Messages to serialize.</param>
+        /// <param name="stream">Stream for <paramref name="messages"/> to be serialized into.</param>
         public void Serialize(object[] messages, Stream stream)
         {
-            JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
-            jsonSerializer.Binder = new MessageSerializationBinder(_messageMapper);
+            var jsonSerializer = JsonSerializer.Create(serializerSettings);
+            jsonSerializer.Binder = new MessageSerializationBinder(messageMapper);
 
-            JsonWriter jsonWriter = CreateJsonWriter(stream);
+            var jsonWriter = CreateJsonWriter(stream);
 
-            if(SkipArrayWrappingForSingleMessages && messages.Length == 1)
+            if (SkipArrayWrappingForSingleMessages && messages.Length == 1)
                 jsonSerializer.Serialize(jsonWriter, messages[0]);
             else
                 jsonSerializer.Serialize(jsonWriter, messages);
+
             jsonWriter.Flush();
         }
 
-        public object[] Deserialize(Stream stream,IEnumerable<string> messageTypes = null)
+        /// <summary>
+        /// Deserializes from the given stream a set of messages.
+        /// </summary>
+        /// <param name="stream">Stream that contains messages.</param>
+        /// <param name="messageTypes">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <returns>Deserialized messages.</returns>
+        public object[] Deserialize(Stream stream, IList<string> messageTypes = null)
         {
-            JsonSerializer jsonSerializer = JsonSerializer.Create(JsonSerializerSettings);
-            jsonSerializer.ContractResolver = new MessageContractResolver(_messageMapper);
+            var jsonSerializer = JsonSerializer.Create(serializerSettings);
+            jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
 
-            JsonReader reader = CreateJsonReader(stream);
-            
-            if(SkipArrayWrappingForSingleMessages && messageTypes != null && messageTypes.Count() == 1)
-                return new[] { jsonSerializer.Deserialize(reader,Type.GetType(messageTypes.First())) };
+            var reader = CreateJsonReader(stream);
+            reader.Read();
 
-            return jsonSerializer.Deserialize<object[]>(reader);
+            var firstTokenType = reader.TokenType;
+
+            if (firstTokenType == JsonToken.StartArray)
+            {
+                return jsonSerializer.Deserialize<object[]>(reader);
+            }
+
+            return new[] {jsonSerializer.Deserialize(reader, Type.GetType(messageTypes.First()))};
         }
 
-
+        /// <summary>
+        /// Gets the content type into which this serializer serializes the content to 
+        /// </summary>
         public string ContentType { get { return GetContentType(); } }
 
         protected abstract string GetContentType();

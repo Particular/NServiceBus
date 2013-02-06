@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ.Config
+﻿namespace NServiceBus.RabbitMq.Config
 {
     using System.Data.Common;
     using global::RabbitMQ.Client;
@@ -6,38 +6,35 @@
     public class RabbitMqConnectionStringBuilder : DbConnectionStringBuilder
     {
 
-        public RabbitMqConnectionStringBuilder()
-        {
-        }
-
         public RabbitMqConnectionStringBuilder(string connectionString)
         {
             this.ConnectionString = connectionString;
         }
 
-        public override bool ShouldSerialize(string keyword)
-        {
-            switch (keyword.ToLower())
-            {
-                case "host":
-                    return true;
-            }
-            return false;
-        }
-
-
-        public string Host
-        {
-            get { return (string)this["host"]; }
-            set { this["host"] = value; }
-        }
-
         public ConnectionFactory BuildConnectionFactory()
         {
-            return new ConnectionFactory
-                {
-                    HostName = Host
-                };
+            var factory = new ConnectionFactory();
+
+            if (ContainsKey("host"))
+                factory.HostName = this["host"] as string;
+
+            if (ContainsKey("virtualHost"))
+                factory.VirtualHost = this["virtualHost"] as string;
+
+            if (ContainsKey("username"))
+                factory.UserName = this["username"] as string;
+
+            if (ContainsKey("password"))
+                factory.Password = this["password"] as string;
+
+            if (ContainsKey("port"))
+                factory.Port = int.Parse(this["port"] as string);
+
+            if (ContainsKey("requestedHeartbeat"))
+                factory.RequestedHeartbeat = ushort.Parse(this["requestedHeartbeat"] as string);
+
+
+            return factory;
         }
     }
 }

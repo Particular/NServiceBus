@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ
 {
     using FluentAssertions;
 
@@ -18,7 +18,7 @@
         [Test]
         public void GetTopicFromMessageType_ShouldReturnTheFirstMessageTypePreceededByVirtualTopic()
         {
-            var topic = this.testee.GetTopicFromMessageType(typeof(ISimpleMessage).AssemblyQualifiedName + ";" + typeof(TopicEvaluatorTests).AssemblyQualifiedName);
+            var topic = this.testee.GetTopicFromMessageType(typeof(ISimpleMessage));
 
             topic.Should().Be("VirtualTopic." + typeof(ISimpleMessage).Name);
         }

@@ -15,31 +15,19 @@ namespace NServiceBus
         private static bool preventChanges;
 
         /// <summary>
+        /// Undefined address.
+        /// </summary>
+        public static readonly Address Undefined = new Address(String.Empty, String.Empty);
+
+        /// <summary>
+        /// Self address.
+        /// </summary>
+        public static readonly Address Self = new Address("__self", "localhost");
+        
+        /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
         public static Address Local { get; private set; }
-
-        /// <summary>
-        /// Get the address of this endpoint.
-        /// </summary>
-        public static Address Self
-        {
-            get
-            {
-                return new Address("__self", "localhost");
-            }
-        }
-
-        /// <summary>
-        /// Get the address of this endpoint.
-        /// </summary>
-        public static Address Undefined
-        {
-            get
-            {
-                return new Address("", "");
-            }
-        }
 
         /// <summary>
         /// Sets the address of this endpoint.
@@ -227,7 +215,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="other">refrence addressed to be checked with this</param>
         /// <returns>true if this is equal to other</returns>
-        public bool Equals(Address other)
+        private bool Equals(Address other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;

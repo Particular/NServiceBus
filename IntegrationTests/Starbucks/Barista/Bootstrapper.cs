@@ -32,7 +32,7 @@ namespace Barista
                 .InMemorySagaPersister()
                 //.RavenSagaPersister()
                 // End
-                .MsmqTransport()
+                .UseTransport<Msmq>()
                     .IsTransactional(true)
                     .PurgeOnStartup(false)
                 .UnicastBus()

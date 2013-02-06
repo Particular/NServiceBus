@@ -9,6 +9,8 @@ using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
+    using System.Threading;
+
     /// <summary>
     /// Implementation of IBuilderInternal using the Spring Framework container
     /// </summary>
@@ -37,13 +39,20 @@ namespace NServiceBus.ObjectBuilder.Spring
         /// </summary>
         public void Dispose()
         {
-            // no-op
+            //This is to figure out if Dispose was called from a child container or not
+            if (!scope.IsValueCreated)
+            {
+                context.Dispose();
+            }
         }
 
         IContainer IContainer.BuildChildContainer()
         {
             //return this until we can get the child containers to work properly
             //return new SpringObjectBuilder(new GenericApplicationContext(context));
+            
+            scope.Value = true;
+
             return this;
         }
 
@@ -159,13 +168,14 @@ namespace NServiceBus.ObjectBuilder.Spring
                 }
             }
 
-            context.Refresh();
             initialized = true;
+            context.Refresh();
         }
 
+        ThreadLocal<bool> scope = new ThreadLocal<bool>();
         private readonly Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
         private readonly Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
         private bool initialized;
-        private DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
+        private readonly DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }

@@ -55,6 +55,9 @@
     <Reference Include="NServiceBus.RabbitMQ">
       <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.SqlServer">
+      <HintPath>..\..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="RabbitMQ.Client">
       <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
@@ -62,6 +65,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -69,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestSuites\Transports-SuppressDTC.ps1" />
     <None Include="TestSuites\Transports-Volatile.ps1" />
     <None Include="TestSuites\RabbitMQ.ps1" />
     <None Include="TestSuites\TestSupport.ps1" />

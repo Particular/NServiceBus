@@ -17,27 +17,31 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
             get { return Type.GetType("log4net.LogManager, log4net") != null; }
         }
 
-        public static void Configure(object appenderSkeleton, string threshold = null)
+        public static void Configure(dynamic appenderForNServiceBusToLogTo, string thresholdForNServiceBusToLogWith = null)
         {
+           if (appenderForNServiceBusToLogTo == null)
+            {
+                throw new ArgumentNullException("appenderForNServiceBusToLogTo");
+            }
             EnsureLog4NetExists();
 
-            if (!AppenderSkeletonType.IsInstanceOfType(appenderSkeleton))
+            if (!AppenderSkeletonType.IsInstanceOfType(appenderForNServiceBusToLogTo))
                 throw new ArgumentException("The object provided must inherit from log4net.Appender.AppenderSkeleton.");
 
             Configure();
 
-            if (appenderSkeleton.GetProperty("Layout") == null)
-                appenderSkeleton.SetProperty("Layout", Activator.CreateInstance(PatternLayoutType, "%d [%t] %-5p %c [%x] <%X{auth}> - %m%n"));
+            if (appenderForNServiceBusToLogTo.Layout == null)
+                appenderForNServiceBusToLogTo.Layout = (dynamic)Activator.CreateInstance(PatternLayoutType, "%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
 
-            if (threshold != null)
-                Log4NetAppenderFactory.SetThreshold(appenderSkeleton, threshold);
+            if (thresholdForNServiceBusToLogWith != null)
+                appenderForNServiceBusToLogTo.Threshold = Log4NetAppenderFactory.ConvertToLogLevel(thresholdForNServiceBusToLogWith);
 
-            if (Log4NetAppenderFactory.GetThreshold(appenderSkeleton) == null)
-                Log4NetAppenderFactory.SetThreshold(appenderSkeleton, "Info");
+            if (appenderForNServiceBusToLogTo.Threshold == null)
+                appenderForNServiceBusToLogTo.Threshold =Log4NetAppenderFactory.ConvertToLogLevel("Info");
 
-            appenderSkeleton.InvokeMethod("ActivateOptions");
+            appenderForNServiceBusToLogTo.ActivateOptions();
 
-            BasicConfiguratorType.InvokeStaticMethod("Configure", appenderSkeleton);
+            BasicConfiguratorType.InvokeStaticMethod("Configure", (object)appenderForNServiceBusToLogTo);
         }
 
         /// <summary>

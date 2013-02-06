@@ -220,6 +220,18 @@ namespace NServiceBus.Testing
             throw new NotImplementedException();
         }
 
+        public IBus Start(Action startupAction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IBus Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public event EventHandler Started;
+
         public T CreateInstance<T>()
         {
             return messageCreator.CreateInstance<T>();
@@ -298,21 +310,6 @@ namespace NServiceBus.Testing
 
         private ICallback ProcessDefer<T>(object delayOrProcessAt, params object[] messages)
         {
-            if (messages.Length == 1)
-                if (messages[0] is TimeoutMessage)
-                {
-                    timeoutManager.Push(delayOrProcessAt, (messages[0] as TimeoutMessage).State);
-                    if(typeof(T) == typeof(DateTime))
-                        return ProcessInvocation<DateTime>(typeof(DeferMessageInvocation<,>),
-                                                       new Dictionary<string, object> { { "Value", delayOrProcessAt } },
-                                                       (messages[0] as TimeoutMessage).State);
-
-                    if(typeof(T) == typeof(TimeSpan))
-                        return ProcessInvocation<TimeSpan>(typeof(DeferMessageInvocation<,>),
-                                                       new Dictionary<string, object> { { "Value", delayOrProcessAt } },
-                                                       (messages[0] as TimeoutMessage).State);
-                }
-
             timeoutManager.Push(delayOrProcessAt, messages[0]);
             return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delayOrProcessAt } }, messages);
         }

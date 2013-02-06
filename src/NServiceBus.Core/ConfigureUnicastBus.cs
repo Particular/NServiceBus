@@ -2,7 +2,11 @@ namespace NServiceBus
 {
     using System;
     using Config;
+    using Timeout;
     using Unicast.Config;
+    using Unicast.Publishing;
+    using Unicast.Queuing;
+    using Unicast.Subscriptions;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -16,11 +20,15 @@ namespace NServiceBus
         /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
-            Instance = new ConfigUnicastBus();
-            Instance.Configure(config);
+            if (Instance == null)
+            {
+                Instance = new ConfigUnicastBus();
+                Instance.Configure(config);
+            }
 
             return Instance;
         }
+
         /// <summary>
         /// Return Timeout Manager Address. Uses "TimeoutManagerAddress" parameter form config file if defined, if not, uses "EndpointName.Timeouts".
         /// </summary>
@@ -32,7 +40,7 @@ namespace NServiceBus
 
             if ((unicastConfig != null) && (!String.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
-            
+
             return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
         }
 
@@ -46,6 +54,48 @@ namespace NServiceBus
             if (ConfigureUnicastBus.Instance != null)
                 if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
                     ConfigureUnicastBus.Instance.LoadMessageHandlers();
+        }
+    }
+
+    class EnsureDefaultSubscriptionManager : IWantToRunBeforeConfigurationIsFinalized
+    {
+
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IManageSubscriptions>())
+                Configure.Instance.Configurer.ConfigureComponent<MessageDrivenSubscriptionManager>(
+                    DependencyLifecycle.SingleInstance);
+
+        }
+    }
+
+
+    class EnsureDefaultPublisher : IWantToRunBeforeConfigurationIsFinalized
+    {
+
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
+                Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+
+        }
+    }
+
+    class EnsureDefaultDeferrer : IWantToRunBeforeConfigurationIsFinalized
+    {
+
+        public void Run()
+        {
+            if (!Configure.Instance.Configurer.HasComponent<IDeferMessages>())
+            {
+                Configure.Instance.Configurer.ConfigureComponent<TimeoutManagerBasedDeferral>(DependencyLifecycle.InstancePerCall)
+                    .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());                
+            }
+            else
+            {
+                Configure.Instance.DisableTimeoutManager();
+            }
+
         }
     }
 }

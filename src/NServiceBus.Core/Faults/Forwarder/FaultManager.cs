@@ -3,7 +3,6 @@ namespace NServiceBus.Faults.Forwarder
     using System;
     using Logging;
     using Unicast.Queuing;
-    using Unicast.Transport;
 
     /// <summary>
     /// Implementation of IManageMessageFailures by forwarding messages
@@ -13,15 +12,12 @@ namespace NServiceBus.Faults.Forwarder
     {
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            SendFailureMessage(message, e, "SerializationFailed");
+            SendFailureMessage(message, e, true);
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            if (SanitizeProcessingExceptions)
-                e = ExceptionSanitizer.Sanitize(e);
-
-            SendFailureMessage(message, e, "ProcessingFailed");
+            SendFailureMessage(message, e);
         }
 
         void IManageMessageFailures.Init(Address address)
@@ -29,9 +25,10 @@ namespace NServiceBus.Faults.Forwarder
             localAddress = address;
         }
 
-        void SendFailureMessage(TransportMessage message, Exception e, string reason)
+        void SendFailureMessage(TransportMessage message, Exception e, bool serializationException = false)
         {
-            SetExceptionHeaders(message, e, reason);
+            SetExceptionHeaders(message, e);
+
             try
             {
                 var destinationQ = RetriesErrorQueue ?? ErrorQueue;
@@ -40,7 +37,7 @@ namespace NServiceBus.Faults.Forwarder
                 // resolution problem in the container
                 var sender = Configure.Instance.Builder.Build<ISendMessages>();
 
-                if (MessageWasSentFromSLR(message) || reason == "SerializationFailed")
+                if (serializationException || MessageWasSentFromSLR(message))
                 {
                     sender.Send(message, ErrorQueue);
                     return;
@@ -80,19 +77,8 @@ namespace NServiceBus.Faults.Forwarder
             return TransportMessageHelpers.GetReplyToAddress(message) == RetriesErrorQueue;
         }
 
-        void SetExceptionHeaders(TransportMessage message, Exception e, string reason)
+        void SetExceptionHeaders(TransportMessage message, Exception e)
         {
-            if (e is AggregateException)
-            {
-                e = e.GetBaseException();
-            }
-
-            if (e is TransportMessageHandlingFailedException)
-            {
-                e = e.GetBaseException();
-            }
-
-            message.Headers["NServiceBus.ExceptionInfo.Reason"] = reason;
             message.Headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
             if (e.InnerException != null)
@@ -100,11 +86,9 @@ namespace NServiceBus.Faults.Forwarder
                 message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
             }
 
-            message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-
+            message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
        
             var failedQ = localAddress ?? Address.Local;
 
@@ -122,14 +106,7 @@ namespace NServiceBus.Faults.Forwarder
         /// </summary>
         public Address RetriesErrorQueue { get; set; }
 
-        /// <summary>
-        /// Indicates of exceptions should be sanitized before sending them on
-        /// </summary>
-        public bool SanitizeProcessingExceptions { get; set; }
-
         Address localAddress;
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
-
-
     }
 }

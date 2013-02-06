@@ -2,8 +2,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 {
     using System;
     using System.Collections.Generic;
-    using Newtonsoft.Json;
     using NServiceBus.Saga;
+    using Raven.Imports.Newtonsoft.Json;
 
     [JsonObject(IsReference = true)]
     public class TestSaga : ISagaEntity

@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
     using System;
+    using Unicast;
     using Unicast.Subscriptions;
     using global::RabbitMQ.Client;
 
@@ -12,7 +13,7 @@
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = eventType.Name;
+            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
             using (var channel = Connection.CreateModel())
             {
@@ -22,12 +23,13 @@
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = eventType.Name;
+            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
             using (var channel = Connection.CreateModel())
             {
                 channel.QueueUnbind(EndpointQueueName, publisherAddress.Queue + ".events", routingKey,null);
             }
         }
+
     }
 }

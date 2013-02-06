@@ -1,4 +1,4 @@
-﻿using System.Web.Mvc;
+using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace MyWebClient
@@ -18,9 +18,8 @@ namespace MyWebClient
             Configure.With()
                .DefaultBuilder()
                .ForMvc()
-               .XmlSerializer(dontWrapSingleMessages:true)
-               .ActiveMqTransport()
-                   .DontUseTransactions()
+               .XmlSerializer()
+               .UseTransport<ActiveMQ>()
                    .PurgeOnStartup(true)
                .UnicastBus()
                    .ImpersonateSender(false)

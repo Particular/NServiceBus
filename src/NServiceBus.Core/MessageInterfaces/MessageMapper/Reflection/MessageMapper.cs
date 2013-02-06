@@ -328,10 +328,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public Type GetMappedTypeFor(string typeName)
         {
-            if (nameToType.ContainsKey(typeName))
-                return nameToType[typeName];
+            string name = typeName;
+            if (typeName.EndsWith(SUFFIX, StringComparison.Ordinal))
+            {
+                name = typeName.Substring(0, typeName.Length - SUFFIX.Length);
+            }
 
-            return Type.GetType(typeName);
+            if (nameToType.ContainsKey(name))
+                return nameToType[name];
+
+            return Type.GetType(name);
         }
 
         /// <summary>
@@ -392,6 +398,5 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         private static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
         private static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
         private static ILog Logger = LogManager.GetLogger("MessageMapper");
- 
     }
 }

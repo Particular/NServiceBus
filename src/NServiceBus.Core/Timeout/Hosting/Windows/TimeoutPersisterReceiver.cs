@@ -22,7 +22,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
         public IManageTimeouts TimeoutManager { get; set; }
-       
+
         private void TimeoutsManagerOnTimeoutPushed(object sender, TimeoutData timeoutData)
         {
             lock (lockObject)
@@ -42,14 +42,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
             SecondsToSleepBetweenPolls = 5;
 
             workerThread = new Thread(Poll) { IsBackground = true };
-        
+
             workerThread.Start();
         }
-
 
         public void Stop()
         {
             stopRequested = true;
+
             workerThread.Join();
         }
 

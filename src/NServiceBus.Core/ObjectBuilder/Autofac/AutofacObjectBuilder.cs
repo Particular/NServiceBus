@@ -4,7 +4,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Internal;
     using global::Autofac;
     using global::Autofac.Builder;
     using global::Autofac.Core;
@@ -12,7 +11,11 @@ namespace NServiceBus.ObjectBuilder.Autofac
     ///<summary>
     /// Autofac implementation of IContainer.
     ///</summary>
+#if MAKE_AutofacObjectBuilder_INTERNAL
+    internal class AutofacObjectBuilder : Common.IContainer
+#else
     public class AutofacObjectBuilder : Common.IContainer
+#endif
     {
         private readonly ILifetimeScope container;
         private bool disposed;
@@ -40,15 +43,22 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -78,7 +88,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<returns></returns>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return ContainerExtensions.ResolveAll(container, typeToBuild);
+            return ResolveAll(container, typeToBuild);
         }
 
         void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
@@ -89,7 +99,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 return;
 
             var builder = new ContainerBuilder();
-            var services = component.GetAllServices().ToArray();
+            var services = GetAllServices(component).ToArray();
             var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();            
 
             SetLifetimeScope(dependencyLifecycle, registrationBuilder);
@@ -105,7 +115,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 return;
 
             var builder = new ContainerBuilder();
-            var services = typeof (T).GetAllServices().ToArray();
+            var services = GetAllServices(typeof(T)).ToArray();
             var registrationBuilder = builder.Register(c => componentFactory.Invoke()).As(services).PropertiesAutowired();            
 
             SetLifetimeScope(dependencyLifecycle, (IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle>) registrationBuilder);
@@ -140,7 +150,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterInstance(instance).As(lookupType).ExternallyOwned().PropertiesAutowired();
+            builder.RegisterInstance(instance).As(lookupType).PropertiesAutowired();
             builder.Update(this.container.ComponentRegistry);
         }
 
@@ -181,6 +191,30 @@ namespace NServiceBus.ObjectBuilder.Autofac
         private IComponentRegistration GetComponentRegistration(Type concreteComponent)
         {
             return this.container.ComponentRegistry.Registrations.FirstOrDefault(x => x.Activator.LimitType == concreteComponent);
+        }
+
+        static IEnumerable<Type> GetAllServices(Type type)
+        {
+            if (type == null)
+            {
+                return new List<Type>();
+            }
+
+            var result = new List<Type>(type.GetInterfaces()) {
+                type
+            };
+
+            foreach (Type interfaceType in type.GetInterfaces())
+            {
+                result.AddRange(GetAllServices(interfaceType));
+            }
+
+            return result.Distinct();
+        }
+
+        static IEnumerable<object> ResolveAll(IComponentContext container, Type componentType)
+        {
+            return container.Resolve(typeof(IEnumerable<>).MakeGenericType(componentType)) as IEnumerable<object>;
         }
     }
 }

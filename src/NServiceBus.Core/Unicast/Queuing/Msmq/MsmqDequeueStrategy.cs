@@ -9,8 +9,8 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using Logging;
-    using NServiceBus.Config;
     using Transport.Transactional;
+    using Utils;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
@@ -23,14 +23,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
-        /// Initialises the <see cref="IDequeueMessages"/>.
+        /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
-        /// <param name="tryProcessMessage"></param>
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage)
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
+        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
-            TryProcessMessage = tryProcessMessage;
+            this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
             endpointAddress = address;
             transactionSettings = settings;
      
@@ -98,7 +100,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             semaphore.Dispose();
             queue.Dispose();
         }
-
      
         private bool QueueIsTransactional()
         {
@@ -120,13 +121,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             if (!transactionSettings.IsTransactional)
                 return MessageQueueTransactionType.None;
 
-            if (Endpoint.DontUseDistributedTransactions)
+            if (transactionSettings.DontUseDistributedTransactions)
                 return MessageQueueTransactionType.Single;
 
             return MessageQueueTransactionType.Automatic;
         }
 
-        [DebuggerNonUserCode]
         private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
             stopResetEvent.Reset();
@@ -135,41 +135,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             semaphore.Wait();
 
-            Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        if (transactionSettings.IsTransactional)
-                        {
-                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                            {
-                               if (ReceiveAndFireEvent())
-                                {
-                                    scope.Complete();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            ReceiveAndFireEvent();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error("Error processing message.", ex.GetBaseException());
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }, CancellationToken.None, TaskCreationOptions.None, scheduler)
+            Task.Factory
+                .StartNew(Action, CancellationToken.None, TaskCreationOptions.None, scheduler)
                 .ContinueWith(task =>
                     {
-                        if (task.Exception != null)
-                        {
-                            Logger.Error("Error processing message.", task.Exception.GetBaseException());
-                        }
-                    });
+                        task.Exception.Handle(ex =>
+                            {
+                                Logger.Error("Error processing message.", ex);
+                                return true;
+                            });
+                    }, TaskContinuationOptions.OnlyOnFaulted);
 
             //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
             peekResetEvent.WaitOne();
@@ -177,6 +152,55 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             CallPeekWithExceptionHandling(() => queue.BeginPeek());
 
             stopResetEvent.Set();
+        }
+
+        private void Action()
+        {
+            Message message = null;
+            Exception exception = null;
+
+            try
+            {
+                if (transactionSettings.IsTransactional)
+                {
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                    {
+                        message = ReceiveMessage();
+
+                        if (message == null)
+                        {
+                            scope.Complete();
+                            return;
+                        }
+
+                        if (ProcessMessage(message))
+                        {
+                            scope.Complete();
+                        }
+                    }
+                }
+                else
+                {
+                    message = ReceiveMessage();
+
+                    if (message == null)
+                    {
+                        return;
+                    }
+
+                    ProcessMessage(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+            finally
+            {
+                endProcessMessage(message != null ? message.Id : null, exception);
+
+                semaphore.Release();
+            }
         }
 
         private void CallPeekWithExceptionHandling(Action action)
@@ -206,8 +230,31 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
+        bool ProcessMessage(Message message)
+        {
+            TransportMessage transportMessage;
+            try
+            {
+                transportMessage = MsmqUtilities.Convert(message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Error in converting message to TransportMessage.", ex);
+
+                //todo DeadLetter the message
+                return true;
+            }
+
+            if (transportMessage != null)
+            {
+                return tryProcessMessage(transportMessage);
+            }
+
+            return true;
+        }
+
         [DebuggerNonUserCode]
-        bool ReceiveAndFireEvent()
+        Message ReceiveMessage()
         {
             Message message = null;
             try
@@ -246,39 +293,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 peekResetEvent.Set();
             }
-
-            if (message == null)
-            {
-                return true;
-            }
-
-            TransportMessage transportMessage;
-            try
-            {
-                transportMessage = MsmqUtilities.Convert(message);
-            }
-            catch (Exception ex)
-            {
-                Logger.Error("Error in converting message to TransportMessage.", ex);
-
-                //todo DeadLetter the message
-                return true;
-            }
-
-            if (transportMessage != null)
-            {
-                return TryProcessMessage(transportMessage);
-            }
-
-            return true;
+            return message;
         }
 
-        static void OnCriticalExceptionEncountered(Exception ex)
+        void OnCriticalExceptionEncountered(Exception ex)
         {
-            Configure.Instance.OnCriticalError("Error in receiving messages.", ex);
+            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", ex));
         }
 
-        Func<TransportMessage, bool> TryProcessMessage;
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
+        Func<TransportMessage, bool> tryProcessMessage;
         static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
         readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
@@ -289,6 +313,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         TransactionSettings transactionSettings;
         Address endpointAddress;
         TransactionOptions transactionOptions;
-
+        Action<string, Exception> endProcessMessage;
     }
 }

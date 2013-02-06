@@ -4,7 +4,6 @@ namespace NServiceBus.Satellites
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using Config;
     using Logging;
     using ObjectBuilder;
@@ -18,9 +17,6 @@ namespace NServiceBus.Satellites
 
         public void Start()
         {
-            timer = new System.Timers.Timer(1000);
-            timer.Elapsed += (o, e) => StartSatellites();
-
             Build();
             Initialize();
             StartSatellites();
@@ -30,6 +26,8 @@ namespace NServiceBus.Satellites
         {
             foreach (var ctx in satellites.Where(ctx => ctx.Started))
             {
+                Logger.DebugFormat("Stoping satellite {0}.", ctx.Instance.GetType().AssemblyQualifiedName);
+
                 if (ctx.Transport != null)
                 {
                     ctx.Transport.Dispose();
@@ -64,11 +62,6 @@ namespace NServiceBus.Satellites
                 {
                     ctx.Transport = Builder.Build<ITransport>();
 
-                    if (ctx.Instance is IWantAccessToTransport)
-                    {
-                        ((IWantAccessToTransport) ctx.Instance).Transport = ctx.Transport;
-                    }
-
                     if (SatelliteTransportInitialized != null)
                     {
                         SatelliteTransportInitialized(null,
@@ -84,8 +77,6 @@ namespace NServiceBus.Satellites
 
         void StartSatellites()
         {
-            timer.Stop();
-
             var allSatellitesThatShouldBeStarted = AllSatellitesThatShouldBeStarted();
 
             if (!allSatellitesThatShouldBeStarted.Any())
@@ -95,81 +86,65 @@ namespace NServiceBus.Satellites
 
             foreach (var ctx in allSatellitesThatShouldBeStarted)
             {
-                ctx.Started = true;
                 StartSatellite(ctx);
             }
-            
-            timer.Start();
         }        
         
         IList<SatelliteContext> AllSatellitesThatShouldBeStarted()
         {
-            return satellites.Where(sat => 
-                sat.Instance != null && 
-                !sat.Instance.Disabled && 
-                !sat.Started &&                 
-                sat.FailedAttempts < 3).ToList();
-        }
-
-        protected virtual void StartSatellite(SatelliteContext ctx)
-        {
-            var thread = new Thread(Execute) {IsBackground = true};
-            thread.Start(ctx);
+            return satellites
+                .Where(sat => sat.Instance != null && !sat.Instance.Disabled)
+                .ToList();
         }
 
         void HandleMessageReceived(object sender, TransportMessageReceivedEventArgs e, ISatellite satellite)
         {
             try
             {
-                satellite.Handle(e.Message);
+                if (!satellite.Handle(e.Message))
+                {
+                    ((ITransport)sender).AbortHandlingCurrentMessage();
+                }
             }
             catch (Exception ex)
             {
-                Logger.ErrorFormat("{0} could not handle message. Exception: {1}", satellite.GetType().Name, ex.Message);
+                Logger.Error(string.Format("{0} satellite could not handle message.", satellite.GetType().AssemblyQualifiedName), ex);
                 throw;
             }            
         }
-                
-        protected void Execute(object data)
+
+        void StartSatellite(SatelliteContext ctx)
         {
-            SatelliteContext ctx = null;
+            Logger.DebugFormat("Starting satellite {0} for {1}.", ctx.Instance.GetType().AssemblyQualifiedName, ctx.Instance.InputAddress);
+
             try
             {
-                ctx = (SatelliteContext)data;
                 if (ctx.Transport != null)
                 {
                     ctx.Transport.TransportMessageReceived += (o, e) => HandleMessageReceived(o, e, ctx.Instance);
                     ctx.Transport.Start(ctx.Instance.InputAddress);
-
-                    Logger.DebugFormat("Starting transport {0} for satellite {1} using {2} as the limit of concurrent operations(s).", ctx.Instance.InputAddress, ctx.Instance.GetType().Name, ctx.Transport.MaximumConcurrencyLevel);
                 }
                 else
                 {
-                    Logger.DebugFormat("No input queue configured for {0}", ctx.Instance.GetType().Name);
+                    Logger.DebugFormat("No input queue configured for {0}", ctx.Instance.GetType().AssemblyQualifiedName);
                 }
+
                 ctx.Instance.Start();
             }
             catch (Exception ex)
             {
-                if (ctx != null)
+                Logger.Error(string.Format("Satellite {0} failed to start.", ctx.Instance.GetType().AssemblyQualifiedName), ex);
+
+                ctx.Started = false;
+
+                if (ctx.Transport != null)
                 {
-                    Logger.WarnFormat("Satellite {0} failed because of {1}", ctx.Instance.GetType().Name, ex.Message);
-
-                    ctx.Started = false;
-
-                    if (ctx.Transport != null)
-                    {
-                        ctx.Transport.ChangeMaximumConcurrencyLevel(0);                        
-                    }
-
-                    ctx.FailedAttempts++;
+                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);                        
                 }
             }
         }
      
         static readonly ILog Logger = LogManager.GetLogger("SatelliteLauncher");
-
-        System.Timers.Timer timer;
 
         private readonly ConcurrentBag<SatelliteContext> satellites = new ConcurrentBag<SatelliteContext>();
     }

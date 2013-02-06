@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ
 {
     using Apache.NMS;
 
@@ -22,7 +22,7 @@
         public void GetDestination_ForQueue_ShouldGetQueueDestinationFromSession()
         {
             const string QueueName = "Queue";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
             var destination = new Mock<IQueue>().Object;
 
             session.Setup(s => s.GetQueue(QueueName)).Returns(destination);
@@ -36,7 +36,7 @@
         public void GetDestination_ForQueueWithQueuePrefix_ShouldGetQueueDestinationFromSession()
         {
             const string QueueName = "Queue";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
             var destination = new Mock<IQueue>().Object;
 
             session.Setup(s => s.GetQueue(QueueName)).Returns(destination);
@@ -50,7 +50,7 @@
         public void GetDestination_ForQueueWithTempQueuePrefix_ShouldReturnTemporaryQueueDestination()
         {
             const string QueueName = "temp-queue://Queue";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
 
             var result = this.testee.GetDestination(session.Object, QueueName, "queue://");
 
@@ -63,7 +63,7 @@
         public void GetDestination_ForTopic_ShouldGetTopicDestinationFromSession()
         {
             const string TopicName = "Topic";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
             var destination = new Mock<ITopic>().Object;
 
             session.Setup(s => s.GetTopic(TopicName)).Returns(destination);
@@ -77,7 +77,7 @@
         public void GetDestination_ForTopicWithQueuePrefix_ShouldGetTopicDestinationFromSession()
         {
             const string TopicName = "Topic";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
             var destination = new Mock<ITopic>().Object;
 
             session.Setup(s => s.GetTopic(TopicName)).Returns(destination);
@@ -91,7 +91,7 @@
         public void GetDestination_ForTopicWithTempQueuePrefix_ShouldReturnTemporaryTopicDestination()
         {
             const string TopicName = "temp-topic://Topic";
-            var session = new Mock<INetTxSession>();
+            var session = new Mock<ISession>();
 
             var result = this.testee.GetDestination(session.Object, TopicName, "topic://");
 

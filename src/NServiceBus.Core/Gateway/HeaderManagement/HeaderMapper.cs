@@ -24,7 +24,7 @@ namespace NServiceBus.Gateway.HeaderManagement
 
             foreach (string header in from.Keys)
                 if (header.Contains(NServiceBus + Headers.HeaderName))
-                    to.Headers.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""), from[header]);
+                    to.Headers[header.Replace(NServiceBus + Headers.HeaderName + ".", "")] =  from[header];
         }
 
         public static void Map(TransportMessage from, IDictionary<string,string> to)
@@ -46,10 +46,9 @@ namespace NServiceBus.Gateway.HeaderManagement
         public const string NServiceBus = "NServiceBus.";
         public const string Id = "Id";
         public const string CallType = "CallType";
-        private const string IdForCorrelation = "IdForCorrelation";
-        private const string CorrelationId = "CorrelationId";
-        private const string Recoverable = "Recoverable";
-        private const string ReplyToAddress = "ReplyToAddress";
-        private const string TimeToBeReceived = "TimeToBeReceived";
+        const string CorrelationId = "CorrelationId";
+        const string Recoverable = "Recoverable";
+        const string ReplyToAddress = "ReplyToAddress";
+        const string TimeToBeReceived = "TimeToBeReceived";
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
+    using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 
     public class FakeReceiver : IDequeueMessages
@@ -13,7 +14,7 @@
                 NumMessagesReceived++;
         }
 
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
             TryProcessMessage = tryProcessMessage;
         }

@@ -34,15 +34,23 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>

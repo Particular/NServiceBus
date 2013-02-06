@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.RabbitMQ
+﻿namespace NServiceBus.RabbitMq
 {
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using global::RabbitMQ.Client;
@@ -22,26 +21,18 @@
 
             properties.SetPersistent(message.Recoverable);
 
-            if (message.Headers != null)
+            properties.Headers = message.Headers;
+
+            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                properties.Headers = message.Headers;
-
-                if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-                {
-                    properties.Type = message.Headers[Headers.EnclosedMessageTypes];
-                }
-
-                if (message.Headers.ContainsKey(Headers.ContentType))
-                    properties.ContentType = message.Headers[Headers.ContentType];
-
-                if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
-                    properties.ReplyTo = message.ReplyToAddress.Queue;
-
+                properties.Type = message.Headers[Headers.EnclosedMessageTypes];
             }
-            else
-            {
-                properties.Headers = new Dictionary<string, string>();
-            }
+
+            if (message.Headers.ContainsKey(Headers.ContentType))
+                properties.ContentType = message.Headers[Headers.ContentType];
+
+            if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
+                properties.ReplyTo = message.ReplyToAddress.Queue;
 
             properties.AppId = message.MessageIntent.ToString();
 
@@ -50,7 +41,6 @@
 
         public static TransportMessage ToTransportMessage(BasicDeliverEventArgs message)
         {
-
             var properties = message.BasicProperties;
             var result = new TransportMessage
                 {
@@ -64,7 +54,8 @@
             result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
                                         .ToDictionary(
                                         kvp => (string)kvp.Key, 
-                                        kvp => Encoding.UTF8.GetString((byte[])kvp.Value));
+                                        kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[]) kvp.Value));
+
             if (properties.IsAppIdPresent())
                 result.MessageIntent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), properties.AppId);
 

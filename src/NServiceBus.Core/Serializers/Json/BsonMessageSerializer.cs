@@ -6,8 +6,15 @@ namespace NServiceBus.Serializers.Json
     using Newtonsoft.Json;
     using Newtonsoft.Json.Bson;
 
+    /// <summary>
+    /// BSON message serializer.
+    /// </summary>
     public class BsonMessageSerializer : JsonMessageSerializerBase
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="messageMapper"></param>
         public BsonMessageSerializer(IMessageMapper messageMapper): base(messageMapper)
         {
         }
@@ -24,7 +31,7 @@ namespace NServiceBus.Serializers.Json
 
         protected override string GetContentType()
         {
-            return "application/bson";
+            return ContentTypes.Bson;
         }
     }
 }

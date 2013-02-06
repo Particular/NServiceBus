@@ -12,13 +12,6 @@ namespace NServiceBus
     public static class Install
     {
         /// <summary>
-        /// Test Method for Installation
-        /// </summary>
-        public static void Test()
-        {
-            Configure.With().ForInstallationOn<IEnvironment>();
-        }
-        /// <summary>
         /// Indicates which environment is going to be installed, specifying that resources 
         /// to be created will be provided permissions for the currently logged on user.
         /// </summary>
@@ -27,7 +20,6 @@ namespace NServiceBus
         /// <returns>An Installer object whose Install method should be invoked.</returns>
         public static Installer<T> ForInstallationOn<T>(this Configure config) where T : IEnvironment
         {
-            // todo When code is .Net 4.0 Only, remove this method in favor of optional parameters
             return ForInstallationOn<T>(config, null);
         }
 
@@ -38,21 +30,25 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The environment type.</typeparam>
         /// <param name="config">Extension method object.</param>
-        /// <param name="userToken">A token that will be used to create a <see cref="WindowsIdentity"/>.</param>
+        /// <param name="username">The username.</param>
         /// <returns>An Installer object whose Install method should be invoked.</returns>
-        public static Installer<T> ForInstallationOn<T>(this Configure config, IntPtr? userToken) where T : IEnvironment
+        public static Installer<T> ForInstallationOn<T>(this Configure config, string username) where T : IEnvironment
         {
             if (config.Configurer == null)
                 throw new InvalidOperationException("No container found. Please call '.DefaultBuilder()' after 'Configure.With()' before calling this method (or provide an alternative container).");
 
-            WindowsIdentity identity;
+            IIdentity identity;
            
             // Passing a token results in a duplicate identity exception in some cases, you can't compare tokens so this could
             // still happen but at least the explicit WindowsIdentity.GetCurrent().Token is avoided now.
-            if (userToken.HasValue)
-                identity = new WindowsIdentity(userToken.Value);
-            else
+            if (String.IsNullOrEmpty(username))
+            {
                 identity = WindowsIdentity.GetCurrent();
+            }
+            else
+            {
+                identity = new GenericIdentity(username);
+            }
 
             return new Installer<T>(identity);
         }
@@ -72,25 +68,20 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a new instance of the Installer
         /// </summary>
-        /// <param name="identity">WindowsIdentity</param>
-        public Installer(WindowsIdentity identity)
+        /// <param name="identity">Identity of the user to be used to setup installer.</param>
+        public Installer(IIdentity identity)
         {
-            winIdentity = identity;
+            this.identity = identity;
         }
 
-        private WindowsIdentity winIdentity;
+        private readonly IIdentity identity;
 
-        /// <summary>
-        /// Gets or sets RunInfrastructureInstallers 
-        /// </summary>
-        public static bool RunInfrastructureInstallers { get; set; }
         /// <summary>
         /// Gets or sets RunOtherInstallers 
         /// </summary>
         public static bool RunOtherInstallers { private get; set; }
 
-        private static bool installedInfrastructureInstallers = false;
-        private static bool installedOthersInstallers = false;
+        private static bool installedOthersInstallers;
 
         /// <summary>
         /// Invokes installers for the given environment
@@ -99,25 +90,8 @@ namespace NServiceBus
         {
             Configure.Instance.Initialize();
 
-            if(RunInfrastructureInstallers)
-                InstallInfrastructureInstallers();
-            
             if(RunOtherInstallers)            
                 InstallOtherInstallers();
-        }
-
-        /// <summary>
-        /// Invokes only Infrastructure installers for the given environment.
-        /// </summary>
-        public void InstallInfrastructureInstallers()
-        {
-            if (installedInfrastructureInstallers)
-                return;
-
-            GetInstallers<T>(typeof(INeedToInstallInfrastructure<>))
-                .ForEach(t => ((INeedToInstallInfrastructure)Activator.CreateInstance(t)).Install(winIdentity));
-            
-            installedInfrastructureInstallers = true;
         }
 
         /// <summary>
@@ -129,7 +103,7 @@ namespace NServiceBus
                 return;
 
             Configure.Instance.Builder.BuildAll<INeedToInstallSomething>().ToList()
-                .ForEach(i=>i.Install(winIdentity));
+                .ForEach(i=>i.Install(identity.Name));
 
             installedOthersInstallers = true;
         }

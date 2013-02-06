@@ -3,17 +3,16 @@ namespace NServiceBus.Unicast.Distributor
     using Logging;
     using Queuing;
     using Satellites;
-    using Transport;
 
     /// <summary>
     ///     Provides functionality for distributing messages from a bus
     ///     to multiple workers when using a unicast transport.
     /// </summary>
-    public class DistributorSatellite : ISatellite, IWantAccessToTransport
+    public class DistributorSatellite : ISatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (DistributorSatellite));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorSatellite));
 
-         private static readonly Address Address;
+        private static readonly Address Address;
         private static readonly bool Disable;
 
         static DistributorSatellite()
@@ -69,27 +68,17 @@ namespace NServiceBus.Unicast.Distributor
         /// This method is called when a message is available to be processed.
         /// </summary>
         /// <param name="message">The <see cref="TransportMessage"/> received.</param>
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             var destination = WorkerManager.PopAvailableWorker();
 
             if (destination == null)
-                Rollback();
-            else
-            {
-                Logger.Debug("Sending message to: " + destination);
-                MessageSender.Send(message, destination);
-            }
-        }
+                return false;
 
-        ITransport IWantAccessToTransport.Transport { get; set; }
+            Logger.Debug("Sending message to: " + destination);
+            MessageSender.Send(message, destination);
 
-        /// <summary>
-        ///     Rolls back the message that arrived on the MessageBusTransport.
-        /// </summary>
-        void Rollback()
-        {
-            ((IWantAccessToTransport)this).Transport.AbortHandlingCurrentMessage();
+            return true;
         }
     }
 }

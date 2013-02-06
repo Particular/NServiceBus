@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Config
     using System.Configuration;
     using System.Linq;
     using Logging;
+    using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
 
@@ -28,18 +29,48 @@ namespace NServiceBus.Unicast.Config
             Builder = config.Builder;
             Configurer = config.Configurer;
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress())
-                .ConfigureProperty(p => p.TimeoutManagerAddress, config.GetTimeoutManagerAddress());
+                .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress());
+
+            var knownMessages = TypesToScan
+                .Where(MessageConventionExtensions.IsMessageType)
+                .ToList();
 
             ConfigureSubscriptionAuthorization();
 
             RegisterMessageModules();
 
-            RegisterLocalMessages();
+            MapMessagesToAddresses(knownMessages);
 
             RegisterMessageOwnersAndBusAddress();
 
             busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
+
+            ConfigureMessageRegistry(knownMessages);
+        }
+
+        void ConfigureMessageRegistry(List<Type> knownMessages)
+        {
+            var messageRegistry = new DefaultMessageRegistry
+                {
+                    DefaultToNonPersistentMessages = Endpoint.IsVolatile
+                };
+
+            knownMessages.ForEach(messageRegistry.RegisterMessageType);
+            
+            Configurer.RegisterSingleton<IMessageRegistry>(messageRegistry);
+            
+            if(!Logger.IsInfoEnabled)
+                return;
+            
+            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
+
+            Logger.InfoFormat("Number of messages found: {0}" , messageDefinitions.Count());
+
+            if (!Logger.IsDebugEnabled)
+                return;
+
+
+            Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
         void RegisterMessageModules()
@@ -58,11 +89,9 @@ namespace NServiceBus.Unicast.Config
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
 
-        void RegisterLocalMessages()
+        void MapMessagesToAddresses(IEnumerable<Type> knownMessages)
         {
-            TypesToScan
-                .Where(MessageConventionExtensions.IsMessageType)
-                .ToList()
+                knownMessages.ToList()
                 .ForEach(t => MapTypeToAddress(t, Address.Undefined));
         }
 
@@ -85,6 +114,11 @@ namespace NServiceBus.Unicast.Config
         
         private void MapTypeToAddress(Type messagesType, Address address)
         {
+            if (!MessageConventionExtensions.IsMessageType(messagesType))
+            {
+                return;
+            }
+
             if (typesToEndpoints.ContainsKey(messagesType) && typesToEndpoints[messagesType] != Address.Undefined)
             {
                 return;
@@ -241,12 +275,25 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "PropagateReturnAddressOnSend")]
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
-            busConfig.ConfigureProperty(b => b.PropogateReturnAddressOnSend, value);
+            busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
             return this;
         }
-
+        
+        /// <summary>
+        /// Set this if you want this endpoint to serve as something of a proxy;
+        /// recipients of messages sent by this endpoint will see the address
+        /// of endpoints that sent the incoming messages.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public ConfigUnicastBus PropagateReturnAddressOnSend(bool value)
+        {
+            busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
+            return this;
+        }
         /// <summary>
         /// Forwards all received messages to a given endpoint (queue@machine).
         /// This is useful as an auditing/debugging mechanism.

@@ -7,7 +7,7 @@
     <ProjectGuid>{BA731749-22C7-4025-8A4D-465AE8E02E61}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.RabbitMQ</RootNamespace>
+    <RootNamespace>NServiceBus.RabbitMq</RootNamespace>
     <AssemblyName>NServiceBus.RabbitMQ</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -48,8 +48,8 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureRabbitMqTransport.cs" />
     <Compile Include="Config\RabbitMQ.cs" />
+    <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringBuilder.cs" />
     <Compile Include="Config\RabbitMqTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,7 +58,9 @@
     <Compile Include="RabbitMqMessageSender.cs" />
     <Compile Include="RabbitMqQueueCreator.cs" />
     <Compile Include="RabbitMqSubscriptionManager.cs" />
+    <Compile Include="RabbitMqTopicBuilder.cs" />
     <Compile Include="RabbitMqTransportMessageExtensions.cs" />
+    <Compile Include="RabbitMqUnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

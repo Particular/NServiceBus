@@ -12,7 +12,7 @@
             IsTransactional = !Endpoint.IsVolatile;
             TransactionTimeout = TransactionManager.DefaultTimeout;
             IsolationLevel = IsolationLevel.ReadCommitted;
-            SuppressDTC = Endpoint.DontUseDistributedTransactions;
+            DontUseDistributedTransactions = Endpoint.DontUseDistributedTransactions;
         }
 
         /// <summary>
@@ -43,8 +43,8 @@
 
 
         /// <summary>
-        /// If set to true the transaction scope will be suppressed to avoid the use of DTC
+        /// If true the transport won't enlist in distributed transactions
         /// </summary>
-        public bool SuppressDTC { get; set; }
+        public bool DontUseDistributedTransactions { get; set; }
     }
 }

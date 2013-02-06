@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System;
     using System.Messaging;
     using System.Transactions;
-    using NServiceBus.Config;
 
     public class MsmqMessageSender : ISendMessages
     {
@@ -12,7 +11,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
-                using (var q = new MessageQueue(queuePath, false, true,  QueueAccessMode.Send))
+                using (var q = new MessageQueue(queuePath, false, UseConnectionCache, QueueAccessMode.Send))
                 {
                     using (Message toSend = MsmqUtilities.Convert(message))
                     {
@@ -54,6 +53,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// Determines if the dead letter queue should be used
         /// </summary>
         public bool UseDeadLetterQueue { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a value that indicates whether a cache of connections will be maintained by the application.
+        /// </summary>
+        public bool UseConnectionCache { get; set; }
 
         private static void ThrowFailedToSendException(Address address, Exception ex)
         {

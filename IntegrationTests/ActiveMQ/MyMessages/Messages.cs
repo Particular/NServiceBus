@@ -23,6 +23,7 @@ namespace MyMessages
         Guid CommandId { get; set; }
         DateTime? Time { get; set; }
         TimeSpan Duration { get; set; }
+        bool ThrowExceptionDuringProcessing { get; set; }
     }
 }
 
@@ -44,6 +45,7 @@ namespace MyMessages.Subscriber1
         public Guid CommandId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
     }
 }
 
@@ -61,6 +63,17 @@ namespace MyMessages.SubscriberNMS
         public Guid CommandId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
+    }
+}
+
+namespace MyMessages.DataBus
+{
+    [TimeToBeReceived("00:01:00")]//the data bus is allowed to clean up transmitted properties older than the TTBR
+    public class MessageWithLargePayload : ICommand
+    {
+        public string SomeProperty { get; set; }
+        public DataBusProperty<byte[]> LargeBlob { get; set; }
     }
 }
 
@@ -77,5 +90,40 @@ namespace MyMessages.Publisher
         public Guid ResponseId { get; set; }
         public DateTime? Time { get; set; }
         public TimeSpan Duration { get; set; }
+    }
+
+    public class DeferedMessage : IMessage
+    {
+        public DeferedMessage()
+        {
+            this.Id = Guid.NewGuid();
+        }
+
+        public Guid Id { get; private set; }
+    }
+
+    public class LocalCommand : IMyCommand
+    {
+        public Guid CommandId { get; set; }
+        public DateTime? Time { get; set; }
+        public TimeSpan Duration { get; set; }
+        public bool ThrowExceptionDuringProcessing { get; set; }
+    }
+
+    public class StartSagaMessage : IMessage
+    {
+        public Guid OrderId { get; set; }
+    }
+
+    public class CompleteSagaMessage : IMessage
+    {
+        public Guid OrderId { get; set; }
+
+        public bool ThrowDuringCompletion { get; set; }
+    }
+    
+    public class StartedSaga : IMessage
+    {
+        public Guid OrderId { get; set; }
     }
 }

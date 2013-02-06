@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace NServiceBus.Testing
@@ -20,14 +19,12 @@ namespace NServiceBus.Testing
             bool success = calls.Any(c =>
                                          {
                                              var result = Validate(c as T);
-                                             if (!result)
-                                                 Console.Out.WriteLine("Check evaluated false for " + filter(GetType()));
-
+                                             
                                              return result;
                                          });
 
             if ((!success && !Negate) || (Negate && success))
-                throw new Exception(string.Format("{0} not fulfilled.\nCalls made:\n{1}",filter(GetType()), string.Join("\n", invocations.Select(i => filter(i.GetType())))));
+                throw new Exception(string.Format("{0} not fulfilled.\nCalls made:\n{1}", filter(GetType()), string.Join("\n", invocations.Select(i => filter(i.GetType())))));
         }
 
         protected abstract bool Validate(T invocation);
@@ -109,8 +106,8 @@ namespace NServiceBus.Testing
         public K Value { get; set; }
     }
 
-    public class ExpectedPublishInvocation<M> : SingleMessageExpectedInvocation<PublishInvocation<M>, M> {}
-    public class PublishInvocation<M> : MessageInvocation<M> {}
+    public class ExpectedPublishInvocation<M> : SingleMessageExpectedInvocation<PublishInvocation<M>, M> { }
+    public class PublishInvocation<M> : MessageInvocation<M> { }
 
     public class ExpectedSendInvocation<M> : SingleMessageExpectedInvocation<SendInvocation<M>, M> { }
     public class SendInvocation<M> : MessageInvocation<M> { }
@@ -124,28 +121,28 @@ namespace NServiceBus.Testing
     public class ExpectedForwardCurrentMessageToInvocation : SingleValueExpectedInvocation<ForwardCurrentMessageToInvocation, string> { }
     public class ForwardCurrentMessageToInvocation : SingleValueInvocation<string> { }
 
-    public class ExpectedReturnInvocation<T> : SingleValueExpectedInvocation<ReturnInvocation<T>, T> {}
-    public class ReturnInvocation<T> : SingleValueInvocation<T> {}
+    public class ExpectedReturnInvocation<T> : SingleValueExpectedInvocation<ReturnInvocation<T>, T> { }
+    public class ReturnInvocation<T> : SingleValueInvocation<T> { }
 
-    public class ExpectedDeferMessageInvocation<M, D> : ExpectedMessageAndValueInvocation<DeferMessageInvocation<M, D>, M, D> {}
-    public class DeferMessageInvocation<M, D> : MessageAndValueInvocation<M, D> {}
+    public class ExpectedDeferMessageInvocation<M, D> : ExpectedMessageAndValueInvocation<DeferMessageInvocation<M, D>, M, D> { }
+    public class DeferMessageInvocation<M, D> : MessageAndValueInvocation<M, D> { }
 
-    public class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> {}
+    public class ExpectedSendToDestinationInvocation<M> : ExpectedMessageAndValueInvocation<SendToDestinationInvocation<M>, M, Address> { }
 
     public class SendToDestinationInvocation<M> : MessageAndValueInvocation<M, Address>
     {
-		public Address Address { get { return Value; } set { Value = value; } }
+        public Address Address { get { return Value; } set { Value = value; } }
     }
 
     public class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> { }
     public class SendToSitesInvocation<M> : MessageAndValueInvocation<M, IEnumerable<string>> { }
 
     //Slightly abusing the single message model as these don't actually care about the message type.
-    public class ExpectedHandleCurrentMessageLaterInvocation<M> : SingleMessageExpectedInvocation<HandleCurrentMessageLaterInvocation<M>, M> {}
-    public class HandleCurrentMessageLaterInvocation<M> : MessageInvocation<M> {}
+    public class ExpectedHandleCurrentMessageLaterInvocation<M> : SingleMessageExpectedInvocation<HandleCurrentMessageLaterInvocation<M>, M> { }
+    public class HandleCurrentMessageLaterInvocation<M> : MessageInvocation<M> { }
 
-    public class ExpectedDoNotContinueDispatchingCurrentMessageToHandlersInvocation<M> : SingleMessageExpectedInvocation<DoNotContinueDispatchingCurrentMessageToHandlersInvocation<M>, M> {}
-    public class DoNotContinueDispatchingCurrentMessageToHandlersInvocation<M> : MessageInvocation<M> {}
+    public class ExpectedDoNotContinueDispatchingCurrentMessageToHandlersInvocation<M> : SingleMessageExpectedInvocation<DoNotContinueDispatchingCurrentMessageToHandlersInvocation<M>, M> { }
+    public class DoNotContinueDispatchingCurrentMessageToHandlersInvocation<M> : MessageInvocation<M> { }
 
     //other patterns
     public class ExpectedNotPublishInvocation<M> : ExpectedPublishInvocation<M>
@@ -167,6 +164,14 @@ namespace NServiceBus.Testing
     public class ExpectedNotSendLocalInvocation<M> : ExpectedSendLocalInvocation<M>
     {
         public ExpectedNotSendLocalInvocation()
+        {
+            Negate = true;
+        }
+    }
+
+    public class ExpectedNotReplyInvocation<M> : ExpectedReplyInvocation<M>
+    {
+        public ExpectedNotReplyInvocation()
         {
             Negate = true;
         }

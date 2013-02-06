@@ -1,10 +1,12 @@
 namespace NServiceBus.Config
 {
     using System.Configuration;
+    using System.Data.Common;
 
     /// <summary>
     /// Contains the properties representing the MsmqMessageQueue configuration section.
     /// </summary>
+    [ObsoleteEx(Message = "Use NServiceBus/Transport connectionString instead.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
     public class MsmqMessageQueueConfig : ConfigurationSection
     {
 
@@ -39,6 +41,43 @@ namespace NServiceBus.Config
                 this["UseJournalQueue"] = value;
             }
         }
+    }
 
+    class MsmqConnectionStringBuilder : DbConnectionStringBuilder
+    {
+        public MsmqConnectionStringBuilder(string connectionString)
+        {
+            
+            ConnectionString = connectionString;
+        }
+
+        public MsmqSettings RetrieveSettings()
+        {
+            var settings = new MsmqSettings();
+
+            if (ContainsKey("deadLetter"))
+                settings.UseDeadLetterQueue = bool.Parse((string)this["deadLetter"]);
+
+            if (ContainsKey("journal"))
+                settings.UseJournalQueue = bool.Parse((string) this["journal"]);
+
+            if (ContainsKey("cacheSendConnection"))
+                settings.UseConnectionCache = bool.Parse((string)this["cacheSendConnection"]);
+
+            return settings;
+        }
+    }
+
+    class MsmqSettings
+    {
+        public MsmqSettings()
+        {
+            UseDeadLetterQueue = true;
+            UseConnectionCache = true;
+        }
+
+        public bool UseDeadLetterQueue { get; set; }
+        public bool UseJournalQueue { get; set; }
+        public bool UseConnectionCache { get; set; }
     }
 }

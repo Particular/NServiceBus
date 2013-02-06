@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
@@ -30,19 +30,17 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=2.6.1.841, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.dll</HintPath>
+    <Reference Include="Autofac">
+      <HintPath>..\..\packages\Autofac.3.0.0\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac.Configuration, Version=2.6.1.841, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Autofac.2.6.1.841\lib\NET40\Autofac.Configuration.dll</HintPath>
+    <Reference Include="Autofac.Configuration">
+      <HintPath>..\..\packages\Autofac.3.0.0\lib\net40\Autofac.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Interop.MSMQ">
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
@@ -52,25 +50,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Obsolete, Version=1.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Obsolete.Fody.1.3.0.0\lib\NET40\Obsolete.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions">
-      <HintPath>..\..\packages\RavenDB.Client.1.0.992\lib\net40\Raven.Abstractions.dll</HintPath>
+    <Reference Include="Raven.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight">
-      <HintPath>..\..\packages\RavenDB.Client.1.0.992\lib\net40\Raven.Client.Lightweight.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino.Licensing">
-      <HintPath>..\..\lib\rhino.licensing\Rhino.Licensing.dll</HintPath>
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -78,6 +72,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -118,7 +113,6 @@
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
     <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
-    <Compile Include="ConfigureSqlServerTransport.cs" />
     <Compile Include="ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -176,7 +170,6 @@
     <Compile Include="EndpointConventions.cs" />
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
-    <Compile Include="Faults\Forwarder\ExceptionSanitizer.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
     <Compile Include="Faults\Forwarder\Helpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
@@ -300,13 +293,12 @@
     <Compile Include="MessageHeaders\MessageHeaderManager.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
+    <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="MonitoringConfig.cs" />
     <Compile Include="Notifications\NotificationSatellite.cs" />
     <Compile Include="Notifications\RegisterSystemMessages.cs" />
     <Compile Include="Notifications\SendEmail.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\ContainerExtensions.cs" />
-    <Compile Include="ObjectBuilder\Autofac\Internal\TypeExtensions.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
     <Compile Include="ObjectBuilder\Common\Config\ConfigureCommon.cs" />
@@ -328,6 +320,17 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Rhino.Licensing\AbstractLicenseValidator.cs" />
+    <Compile Include="Rhino.Licensing\ILicensingService.cs" />
+    <Compile Include="Rhino.Licensing\InvalidationType.cs" />
+    <Compile Include="Rhino.Licensing\ISubscriptionLicensingService.cs" />
+    <Compile Include="Rhino.Licensing\LicenseExpiredException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseFileNotFoundException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseNotFoundException.cs" />
+    <Compile Include="Rhino.Licensing\LicenseType.cs" />
+    <Compile Include="Rhino.Licensing\LicenseValidator.cs" />
+    <Compile Include="Rhino.Licensing\RhinoLicensingException.cs" />
+    <Compile Include="Rhino.Licensing\StringLicenseValidator.cs" />
     <Compile Include="SagaPersisters\InMemory\InMemorySagaPersister.cs" />
     <Compile Include="SagaPersisters\Raven\RavenSagaPersister.cs" />
     <Compile Include="Sagas\Impl\AutoCorrelateSagaOnReplyMutator.cs" />
@@ -343,7 +346,6 @@
     <Compile Include="Sagas\Impl\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
-    <Compile Include="Satellites\IWantAccessToTransport.cs" />
     <Compile Include="Satellites\SatelitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
     <Compile Include="Schedule.cs" />
@@ -358,9 +360,12 @@
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
     <Compile Include="Serializers\Binary\MessageSerializer.cs" />
     <Compile Include="Serializers\Binary\SimpleMessageMapper.cs" />
+    <Compile Include="Serializers\Binary\XContainerSurrogate.cs" />
+    <Compile Include="Serializers\Binary\XElementSurrogate.cs" />
     <Compile Include="Serializers\Json\BsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\Internal\MessageContractResolver.cs" />
     <Compile Include="Serializers\Json\Internal\MessageSerializationBinder.cs" />
+    <Compile Include="Serializers\Json\Internal\XContainerConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
@@ -376,7 +381,6 @@
     <Compile Include="Timeout\Core\IManageTimeouts.cs" />
     <Compile Include="Timeout\Core\IPersistTimeouts.cs" />
     <Compile Include="Timeout\Core\TimeoutData.cs" />
-    <Compile Include="Timeout\Core\TimeoutMessageConverter.cs" />
     <Compile Include="Timeout\Hosting\Windows\Config\TimeoutManagerDefaults.cs" />
     <Compile Include="Timeout\Hosting\Windows\Installer\TimeoutInstaller.cs" />
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
@@ -386,22 +390,22 @@
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
+    <Compile Include="Timeout\TimeoutManagerHeaders.cs" />
     <Compile Include="TransactionalConfigManager.cs" />
+    <Compile Include="TransportMessage.cs" />
     <Compile Include="TrialExpired.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="TrialExpired.Designer.cs">
       <DependentUpon>TrialExpired.cs</DependentUpon>
     </Compile>
-    <Compile Include="Unicast\BackwardCompatibility\ConfigureBackwardCompatilibity.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\IncomingReturnMessageMutator.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\IncomingSubscriptionMessageMutator.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\OutgoingSubscriptionMessageMutator.cs" />
+    <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
+    <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
@@ -410,18 +414,21 @@
     <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
+    <Compile Include="Unicast\Messages\DefaultMessageRegistry.cs" />
+    <Compile Include="Unicast\Messages\IMessageRegistry.cs" />
     <Compile Include="Unicast\MessagingBestPractices.cs" />
     <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
-    <Compile Include="Unicast\Monitoring\EnclosedMessageTypesMutator.cs" />
     <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Unicast\Monitoring\PerformanceCounterInitializer.cs" />
     <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
-    <Compile Include="Unicast\Monitoring\RelatedToMessageMutator.cs" />
+    <Compile Include="Unicast\Monitoring\CausationMutator.cs" />
     <Compile Include="Unicast\Monitoring\SentTimeMutator.cs" />
     <Compile Include="Unicast\Monitoring\VersionMutator.cs" />
+    <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
     <Compile Include="Unicast\Queuing\Ftp\FtpMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
+    <Compile Include="Unicast\Queuing\IDeferMessages.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\IPublishMessages.cs" />
@@ -438,22 +445,20 @@
     <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServer.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\Config\SqlServerTransportConfigurer.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\SqlServerMessageQueue.cs" />
-    <Compile Include="Unicast\Queuing\SQLServer\SqlServerQueueCreator.cs" />
-    <Compile Include="Unicast\SubscriptionEventArgs.cs" />
-    <Compile Include="Unicast\SubscriptionPredicatesManager.cs" />
-    <Compile Include="Unicast\Subscriptions\InMemory\InMemorySubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
+    <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
+    <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptionManager.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\InMemory\InMemorySubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />
-    <Compile Include="Unicast\Subscriptions\ISubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageType.cs" />
-    <Compile Include="Unicast\Subscriptions\Msmq\Config\SubscriptionsQueueCreator.cs" />
-    <Compile Include="Unicast\Subscriptions\Msmq\Entry.cs" />
-    <Compile Include="Unicast\Subscriptions\Msmq\MsmqSubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\Raven\RavenSubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\Raven\Subscription.cs" />
-    <Compile Include="Unicast\Transport\CompletionMessage.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\ISubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\MessageType.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\Msmq\Config\SubscriptionsQueueCreator.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\Msmq\Entry.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\Msmq\MsmqSubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\Raven\RavenSubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\Storage\Raven\Subscription.cs" />
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
@@ -464,12 +469,14 @@
     <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
-    <Compile Include="Unicast\Transport\Transactional\IDequeueMessages.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Monitoring\ThroughputPerformanceCounter.cs" />
+    <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
+    <Compile Include="Unicast\Queuing\IDequeueMessages.cs" />
+    <Compile Include="Unicast\Transport\Transactional\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransportMessageAvailableEventArgs.cs" />
+    <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
@@ -495,9 +502,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gateway\Installation\" />
-    <Folder Include="ObjectBuilder\Autofac\Config\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
+    <Folder Include="Unicast\Queuing\SQLServer\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />

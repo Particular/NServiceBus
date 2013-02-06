@@ -43,7 +43,7 @@
         public void Should_get_an_error_messages()
         {
             RegisterMessageType<EventMessage>();
-            Assert.Throws<InvalidOperationException>(() => bus.SendToSites(new []{"KeyA"}, new EventMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.SendToSites(new[] { "KeyA" }, new EventMessage()));
         }
     }
 
@@ -80,8 +80,107 @@
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ContentType] == "text/xml"), Arg<Address>.Is.Anything));
         }
+
+        [Test]
+        public void It_should_be_persistent_by_default()
+        {
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
+        }
+
+        [Test]
+        public void Should_set_the_reply_to_address()
+        {
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == Address.Local), Arg<Address>.Is.Anything));
+        }
+
+        [Test, Ignore("Needs refactoring to make testing possible")]
+        public void Should_propagate_the_incoming_replyto_address_if_requested()
+        {
+            var addressOfIncomingMessage = Address.Parse("Incoming");
+
+            //todo - add a way to set the context from out tests
+
+            unicastBus.PropagateReturnAddressOnSend = true;
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == addressOfIncomingMessage), Arg<Address>.Is.Anything));
+        }
     }
 
+    [TestFixture]
+    public class When_sending_multiple_messages_in_one_go : using_the_unicastbus
+    {
+
+        [Test]
+        public void Should_be_persistent_if_any_of_the_messages_is_persistent()
+        {
+            RegisterMessageType<NonPersistentMessage>();
+            RegisterMessageType<PersistentMessage>();
+            bus.Send(new NonPersistentMessage(), new PersistentMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
+        }
+
+
+        [Test]
+        public void Should_use_the_lovest_time_to_be_received()
+        {
+            RegisterMessageType<NonPersistentMessage>();
+            RegisterMessageType<PersistentMessage>();
+            bus.Send(new NonPersistentMessage(), new PersistentMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.TimeToBeReceived == TimeSpan.FromMinutes(45)), Arg<Address>.Is.Anything));
+        }
+
+        [Test]
+        public void Should_use_the_address_of_the_first_message()
+        {
+            var firstAddress = Address.Parse("first");
+            var secondAddress = Address.Parse("second");
+            RegisterMessageType<NonPersistentMessage>(firstAddress);
+            RegisterMessageType<PersistentMessage>(secondAddress);
+            bus.Send(new NonPersistentMessage(), new PersistentMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Equal(firstAddress)));
+        }
+
+
+        [TimeToBeReceived("00:45:00")]
+        class PersistentMessage { }
+
+        [Express]
+        class NonPersistentMessage { }
+    }
+
+
+
+    [TestFixture]
+    public class When_sending_any_message_from_a_volatile_endpoint : using_the_unicastbus
+    {
+        [Test]
+        public void It_should_be_non_persistent_by_default()
+        {
+            messageRegistry.DefaultToNonPersistentMessages = true;
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => !m.Recoverable), Arg<Address>.Is.Anything));
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Endpoint.IsVolatile = false;
+        }
+
+    }
 
     [TestFixture]
     public class When_sending_a_message_that_has_no_configured_address : using_the_unicastbus
@@ -89,7 +188,7 @@
         [Test]
         public void Should_throw()
         {
-            Assert.Throws<InvalidOperationException>(()=>bus.Send(new CommandMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandMessage()));
         }
     }
 
@@ -100,7 +199,7 @@
         public void Should_specify_the_message_to_be_recoverable()
         {
             RegisterMessageType<CommandMessage>();
-            
+
             bus.Send(new CommandMessage());
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
@@ -115,7 +214,7 @@
         {
             var defaultAddress = RegisterMessageType<InterfaceMessage>();
 
-            bus.Send<InterfaceMessage>(m=>{});            
+            bus.Send<InterfaceMessage>(m => { });
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Equal(defaultAddress)));
         }
@@ -134,8 +233,8 @@
 
             bus.InMemory.Raise(new TestMessage());
 
-            Assert.That(TestMessageHandler1.Called, Is.True);
-            Assert.That(TestMessageHandler2.Called, Is.True);
+            Assert.True(TestMessageHandler1.Called);
+            Assert.True(TestMessageHandler2.Called);
         }
 
         public class TestMessageHandler1 : IHandleMessages<TestMessage>

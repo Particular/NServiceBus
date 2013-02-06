@@ -105,7 +105,6 @@
         {
             var message = new TransportMessage
                               {
-                                  Id =  Guid.NewGuid().ToString(),
                                   Headers = headers,
                                   Body = new byte[500],
                                   TimeToBeReceived = TimeSpan.FromDays(1),

@@ -1,4 +1,4 @@
-namespace NServiceBus.ActiveMQ
+namespace NServiceBus.Transport.ActiveMQ
 {
     using Apache.NMS;
     using Apache.NMS.ActiveMQ.Commands;
@@ -13,7 +13,7 @@ namespace NServiceBus.ActiveMQ
                        : destinationPrefix + destination;
         }
 
-        public IDestination GetDestination(INetTxSession session, string destination, string prefix)
+        public IDestination GetDestination(ISession session, string destination, string prefix)
         {
             destination = AddPrefix(destination, prefix);
 

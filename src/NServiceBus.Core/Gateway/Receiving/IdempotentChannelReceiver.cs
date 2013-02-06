@@ -144,7 +144,6 @@ namespace NServiceBus.Gateway.Receiving
             var msg = new TransportMessage
                           {
                               Body = outMessage,
-                              Headers = new Dictionary<string, string>(),
                               MessageIntent = MessageIntentEnum.Send,
                               Recoverable = true
                           };

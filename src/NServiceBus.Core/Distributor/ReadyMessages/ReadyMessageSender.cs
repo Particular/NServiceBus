@@ -31,8 +31,10 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         void TransportOnFinishedMessageProcessing(object sender, EventArgs eventArgs)
         {
-            if (((IBus)Bus).CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
+            if (Bus.CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
+            {
                 return;
+            }
 
             SendReadyMessage(1);
         }
@@ -45,7 +47,7 @@ namespace NServiceBus.Distributor.ReadyMessages
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
 
             if (isStarting)
-                readyMessage.Headers.Add(Headers.WorkerStarting, true.ToString());
+                readyMessage.Headers.Add(Headers.WorkerStarting, Boolean.TrueString);
 
             MessageSender.Send(readyMessage, DistributorControlAddress);
         }

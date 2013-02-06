@@ -15,8 +15,8 @@
     <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="Unity.Interception" version="2.1.505.0" />
-      <dependency id="Unity" version="2.1.505.0" />
+      <dependency id="Unity.Interception" version="[2.1.505.0,3)" />
+      <dependency id="Unity" version="[2.1.505.0,3)" />
       <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>

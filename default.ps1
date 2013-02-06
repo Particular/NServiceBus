@@ -38,7 +38,7 @@ task Quick -depends CopyBinaries
 
 task PrepareBinaries -depends RunTests, CopyBinaries
 
-task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
+task CreateRelease -depends GenerateAssemblyInfo, PrepareBinaries, CompileIntegrationProjects, CreateReleaseFolder, CreateMSI, ZipOutput, CreatePackages
 
 task Clean { 
 	if(Test-Path $binariesDir){
@@ -177,33 +177,34 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 task CopyBinaries -depends Merge {
 	
 	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
-	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **Tests.dll, *.config
-	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **Tests.dll
-	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **Tests.dll
+	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.ActiveMQ.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.RabbitMQ.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.SqlServer.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **.Tests.*, *.config
+	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\autofac"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Autofac.*"  $binariesDir\containers\autofac -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\castle"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.CastleWindsor.*"  $binariesDir\containers\castle -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\structuremap"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.StructureMap.*"  $binariesDir\containers\structuremap -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\spring"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Spring.*"  $binariesDir\containers\spring -Force -Exclude **.Tests.*
 			
 	Create-Directory "$binariesDir\containers\unity"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Unity.*"  $binariesDir\containers\unity -Force -Exclude **.Tests.*
 		
 	Create-Directory "$binariesDir\containers\ninject"
-	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force	-Exclude **Tests.dll
+	Copy-Item "$outDir\NServiceBus.ObjectBuilder.Ninject.*"  $binariesDir\containers\ninject -Force	-Exclude **.Tests.*
 }
 
 task CreateReleaseFolder {
@@ -211,11 +212,11 @@ task CreateReleaseFolder {
 	Delete-Directory $releaseRoot
 	Create-Directory $releaseRoot
 
-	Copy-Item $binariesDir $releaseRoot\binaries -Force -Recurse
+	Copy-Item $binariesDir $releaseRoot -Force -Recurse
 
 	Copy-Item "$baseDir\acknowledgements.txt" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\README.md" $releaseRoot -Force -ErrorAction SilentlyContinue
-	Copy-Item "$baseDir\LICENSE" $releaseRoot -Force -ErrorAction SilentlyContinue
+	Copy-Item "$baseDir\LICENSE.md" $releaseRoot -Force -ErrorAction SilentlyContinue
 	Copy-Item "$baseDir\RunMeFirst.bat" $releaseRoot -Force -ErrorAction SilentlyContinue
 	
 	Create-Directory $releaseRoot\tools\licenseinstaller
@@ -232,7 +233,7 @@ task CreateReleaseFolder {
 	Copy-Item "$outDir\ReturnToSourceQueue.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	Copy-Item "$outDir\XsdGenerator.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	
-	Copy-Item -Force -Recurse "$baseDir\Samples" $releaseRoot\samples  -ErrorAction SilentlyContinue 
+	Copy-Item -Force -Recurse "$baseDir\samples" $releaseRoot  -ErrorAction SilentlyContinue 
 	dir "$releaseRoot\samples" -recurse -include ('bin', 'obj', 'packages') | ForEach-Object {
 		write-host deleting $_ 
 		Delete-Directory $_
@@ -266,10 +267,9 @@ task Merge -depends Build {
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll
 	$assemblies += dir $outDir\AutoFac.dll
-	$assemblies += dir $outDir\NLog.dll
+	$assemblies += dir $outDir\Autofac.Configuration.dll
 	$assemblies += dir $outDir\Raven.Abstractions.dll
 	$assemblies += dir $outDir\Raven.Client.Lightweight.dll
-	$assemblies += dir $outDir\rhino.licensing.dll
 	$assemblies += dir $outDir\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Core.dll" $assemblies "library" $script:ilmergeTargetFramework $ilMergeExclude
@@ -307,7 +307,20 @@ task CompileSamples -depends CopyBinaries {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
 				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
 					$solutionFile = $_.FullName
-					exec { &$script:msBuild /nr:true $solutionFile }
+					exec { &$script:msBuild  $solutionFile /t:"Clean,Build" /m }
+				}
+		}
+}
+
+task CompileIntegrationProjects -depends CompileSamples {
+	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
+						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
+	$solutions = ls -path $baseDir\IntegrationTests -include *.sln -recurse  
+		$solutions | % {
+			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
+				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
+					$solutionFile = $_.FullName
+					exec { &$script:msBuild $solutionFile /t:"Clean,Build" /m  }
 				}
 		}
 }

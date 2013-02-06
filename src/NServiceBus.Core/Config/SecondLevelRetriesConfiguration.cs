@@ -36,17 +36,14 @@ namespace NServiceBus.Config
             SetUpRetryPolicy(retriesConfig);
                             
             // and only when the retries satellite is running should we alter the FaultManager                              
-            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, RetriesQueueAddress);                
-                
-            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(rs => rs.InputAddress, RetriesQueueAddress)
-                .ConfigureProperty(rs => rs.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+            Configure.Instance.Configurer.ConfigureProperty<FaultManager>(fm => fm.RetriesErrorQueue, RetriesQueueAddress);
+
+            Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetries>(rs => rs.InputAddress, RetriesQueueAddress);
         }
 
         static void DisableSecondLevelRetries()
         {
-            Configure.Instance.Configurer.ConfigureComponent<SecondLevelRetries>(DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(rs => rs.Disabled, true);
+            Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetries>(rs => rs.Disabled, true);
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

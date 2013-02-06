@@ -27,7 +27,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
 
         public ILog GetLogger(string name)
         {
-            object logger = GetLoggerByStringDelegate(name);
+            var logger = GetLoggerByStringDelegate(name);
             return new NLogLogger(logger);
         }
     }

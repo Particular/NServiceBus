@@ -10,6 +10,7 @@ namespace NServiceBus.Sagas.Impl
     using ObjectBuilder;
     using Saga;
     using Unicast;
+    using Unicast.Queuing;
     using Utils;
 
     /// <summary>
@@ -26,14 +27,6 @@ namespace NServiceBus.Sagas.Impl
         /// <returns>Saga Dispatcher</returns>
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
         {
-            var isTimeoutMessage = IsTimeoutMessage(message);
-
-            if (isTimeoutMessage && !TimeoutHasExpired(message))
-            {
-                yield return () => Bus.HandleCurrentMessageLater();
-                yield break;
-            }
-
             var entitiesHandled = new List<ISagaEntity>();
             var sagaTypesHandled = new List<Type>();
 
@@ -75,7 +68,7 @@ namespace NServiceBus.Sagas.Impl
                                          {
                                              SagaContext.Current = saga;
 
-                                             if (isTimeoutMessage && !(message is TimeoutMessage))
+                                             if (IsTimeoutMessage(message))
                                                  HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>),saga, message);
                                              else
                                                  HandlerInvocationCache.Invoke(typeof(IMessageHandler<>),saga, message);
@@ -203,7 +196,7 @@ namespace NServiceBus.Sagas.Impl
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            Bus.ClearTimeoutsFor(saga.Entity.Id);
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         void LogIfSagaIsFinished(ISaga saga)
@@ -219,29 +212,7 @@ namespace NServiceBus.Sagas.Impl
         /// <returns></returns>
         static bool IsTimeoutMessage(object message)
         {
-            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.Expire)) && !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.SagaId));
-        }
-
-
-        /// <summary>
-        /// True if the timeout for this message has expired
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        static bool TimeoutHasExpired(object message)
-        {
-            var tm = message as TimeoutMessage;
-            if (tm != null)
-                return !tm.HasNotExpired();
-            try
-            {
-                return DateTime.UtcNow >= DateTimeExtensions.ToUtcDateTime(Headers.GetMessageHeader(message, Headers.Expire));
-            }
-            catch (Exception)
-            {
-                //for backwards compatibility
-                return DateTime.UtcNow >= DateTime.Parse(Headers.GetMessageHeader(message, Headers.Expire));
-            }
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
         }
 
         /// <summary>
@@ -254,6 +225,10 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         public IUnicastBus Bus { get; set; }
 
+        /// <summary>
+        /// A way to request the transport to defer the processing of a message
+        /// </summary>
+        public IDeferMessages MessageDeferrer { get; set; }
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaDispatcherFactory));
 

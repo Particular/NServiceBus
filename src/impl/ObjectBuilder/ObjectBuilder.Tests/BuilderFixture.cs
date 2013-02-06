@@ -30,7 +30,16 @@ namespace ObjectBuilder.Tests
         {
             foreach (var builder in objectBuilders.Where(b=>!containersToIgnore.Contains(b.GetType())))
             {
-                assertion(builder);
+                try
+                {
+                    assertion(builder);
+                }
+                catch (Exception)
+                {
+                    Console.Out.WriteLine("Assertion failed for builder: {0}",builder.GetType().Name);
+                    throw;
+                }
+                
             }
          }
 

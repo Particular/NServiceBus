@@ -2,12 +2,10 @@ namespace NServiceBus.Hosting.Tests
 {
     using Config;
     using NUnit.Framework;
-    using ObjectBuilder;
     using Roles;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
-    using Windows.Roles;
     using Windows.Roles.Handlers;
 
     [TestFixture]

@@ -5,6 +5,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// Contains the properties representing the MsmqTransport configuration section.
     /// </summary>
+    [ObsoleteEx(Message = "'MsmqTransportConfig' section is obsolete. Please update your configuration to use the new 'TransportConfig' section instead.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
     public class MsmqTransportConfig : ConfigurationSection
     {
         /// <summary>

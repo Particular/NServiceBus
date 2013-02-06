@@ -6,7 +6,6 @@ namespace NServiceBus.Gateway.Notifications
     {
         public event EventHandler<MessageReceivedOnChannelArgs> MessageForwarded;
         
-        
         void IMessageNotifier.RaiseMessageForwarded(string from, string to, TransportMessage message)
         {
             if (MessageForwarded != null)

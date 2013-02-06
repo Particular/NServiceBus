@@ -1,14 +1,13 @@
-﻿namespace MyRequestResponseEndpoint
+namespace MyRequestResponseEndpoint
 {
     using System;
     using NServiceBus;
-    using NServiceBus.ActiveMQ;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<ActiveMQ>
     {
     }
 
-    public class MyClass:IWantToRunWhenBusStartsAndStops
+    public class MyClass : IWantToRunWhenBusStartsAndStops
     {
         public void Start()
         {
@@ -17,7 +16,7 @@
 
         public void Stop()
         {
-            
+
         }
     }
 }

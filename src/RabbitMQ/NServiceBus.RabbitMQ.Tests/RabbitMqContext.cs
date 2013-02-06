@@ -1,15 +1,18 @@
 ﻿namespace NServiceBus.RabbitMQ.Tests
 {
-    using System.Threading;
+    using System;
+    using System.Collections.Concurrent;
+    using NServiceBus;
+    using NServiceBus.RabbitMq;
+    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
-    using Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
 
     public class RabbitMqContext
     {
         protected void MakeSureQueueExists(string queueName)
         {
-            using (var channel = connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection().CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
@@ -18,9 +21,32 @@
 
         protected void MakeSureExchangeExists(string exchangeName)
         {
+            var connection = ConnectionManager.GetConnection();
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchangeName,"topic",true);
+                try
+                {
+                    channel.ExchangeDelete(exchangeName);
+                }
+                catch (Exception)
+                {
+
+                }
+
+
+            }
+
+            using (var channel = connection.CreateModel())
+            {
+                try
+                {
+                    channel.ExchangeDeclare(exchangeName, "topic", true);
+                }
+                catch (Exception)
+                {
+
+                }
+
             }
         }
 
@@ -28,11 +54,15 @@
         [SetUp]
         public void SetUp()
         {
-            factory = new ConnectionFactory { HostName = "localhost" };
-            connection = factory.CreateConnection();
-            sender = new RabbitMqMessageSender { Connection = connection };
+            receivedMessages = new BlockingCollection<TransportMessage>();
+            ConnectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
+            var connection = ConnectionManager.GetConnection();
 
-            dequeueStrategy = new RabbitMqDequeueStrategy{Connection = connection,PurgeOnStartup = true};
+            unitOfWork = new RabbitMqUnitOfWork { Connection = connection };
+
+            sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
+
+            dequeueStrategy = new RabbitMqDequeueStrategy { Connection = connection, PurgeOnStartup = true };
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
@@ -40,7 +70,7 @@
 
             MessagePublisher = new RabbitMqMessagePublisher
                 {
-                    Connection = connection,
+                    UnitOfWork = unitOfWork,
                     EndpointQueueName = PUBLISHERNAME
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
@@ -51,47 +81,44 @@
 
             dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
             {
-                received = m;
-                messageReceived.Set();
+                receivedMessages.Add(m);
                 return true;
-            });
-
-            messageReceived = new ManualResetEvent(false);
+            }, (s, exception) => { });
 
             dequeueStrategy.Start(1);
-            
         }
 
 
         [TearDown]
         public void TearDown()
         {
-            dequeueStrategy.Stop();
-            connection.Close();
-            connection.Dispose();
+            ConnectionManager.Dispose();
+
+            if (dequeueStrategy != null)
+                dequeueStrategy.Stop();
+
         }
 
 
         protected TransportMessage WaitForMessage()
         {
-            messageReceived.WaitOne(2000);
 
-            Assert.NotNull(messageReceived);
+            TransportMessage message;
+            receivedMessages.TryTake(out message, TimeSpan.FromSeconds(1));
 
-  
-            return received;
+            return message;
 
         }
-        TransportMessage received = null;
 
-        ManualResetEvent messageReceived;
+        BlockingCollection<TransportMessage> receivedMessages;
+
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
-        protected ConnectionFactory factory;
-        protected IConnection connection;
+        protected RabbitMqConnectionManager ConnectionManager;
         protected RabbitMqMessageSender sender;
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
+        protected RabbitMqUnitOfWork unitOfWork;
     }
 }

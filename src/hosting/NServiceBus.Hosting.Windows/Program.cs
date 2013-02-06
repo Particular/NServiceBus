@@ -5,7 +5,6 @@
     using System.Configuration;
     using System.IO;
     using System.Linq;
-    using System.Security.Principal;
     using Arguments;
     using Helpers;
     using Installers;
@@ -34,15 +33,10 @@
 
             if (endpointConfigurationType == null)
             {
-                if (!arguments.InstallInfrastructure)
-                    throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
-                        "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
-                        " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
-                        "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
-                
-                Console.WriteLine("Running infrastructure installers and exiting (ignoring other command line parameters if exist).");
-                InstallInfrastructure();
-                return;
+                throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
+                    "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
+                    " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
+                    "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
             }
 
             AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
@@ -77,16 +71,11 @@
                 args = args.Concat(new[] { String.Format(@"/endpointConfigurationType={0}", endpointConfigurationType.AssemblyQualifiedName) }).ToArray();
             }
 
-            if (arguments.Install || arguments.InstallInfrastructure)
+            if (arguments.Install)
             {
                 WindowsInstaller.Install(args, endpointConfigurationFile);
             }
-
-            if (arguments.InstallInfrastructure)
-            {
-                return;
-            }
-
+            
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
                                                                {
                                                                    x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
@@ -149,14 +138,6 @@
         static void SetHostServiceLocatorArgs(string[] args)
         {
             HostServiceLocator.Args = args;
-        }
-
-        static void InstallInfrastructure()
-        {
-            Configure.With(AllAssemblies.Except("NServiceBus.Host32.exe"));
-
-            var installer = new Installer<Installation.Environments.Windows>(WindowsIdentity.GetCurrent());
-            installer.InstallInfrastructureInstallers();
         }
 
         static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)

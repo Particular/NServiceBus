@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("NServiceBus.Unicast.Queuing.ActiveMQ")]
+[assembly: AssemblyTitle("NServiceBus.ActiveMQ")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyVersion("4.0.0.0")]
 [assembly: AssemblyFileVersion("4.0.0.0")]
 [assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
-[assembly: AssemblyProduct("NServiceBus.Unicast.Queuing.ActiveMQ")]
+[assembly: AssemblyProduct("NServiceBus.ActiveMQ")]
 [assembly: AssemblyCompany("NServiceBus")]
 [assembly: AssemblyConfiguration("release")]
 [assembly: AssemblyInformationalVersion("4.0.0-alpha0")]

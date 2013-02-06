@@ -5,9 +5,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Unicast.Queuing;
 
     public class TimeoutDispatcherProcessor : ISatellite
-    {
-        private bool enabled = true;
-        
+    {  
         public static readonly Address TimeoutDispatcherAddress;
 
         public ISendMessages MessageSender { get; set; }
@@ -22,14 +20,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public Address InputAddress { get { return TimeoutDispatcherAddress; } }
 
-        public bool Disabled { get { return !enabled; } }
-
-        public void Disable()
+        public bool Disabled
         {
-            enabled = false;
+            get { return !TimeoutManager.Enabled; }
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             var timeoutId = message.Headers["Timeout.Id"];
             TimeoutData timeoutData;
@@ -38,6 +34,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 MessageSender.Send(timeoutData.ToTransportMessage(), timeoutData.Destination);
             }
+
+            return true;
         }
 
         public void Start()

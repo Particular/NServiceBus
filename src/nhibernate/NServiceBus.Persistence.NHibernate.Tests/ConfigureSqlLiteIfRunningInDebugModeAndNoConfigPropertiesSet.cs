@@ -16,7 +16,7 @@
                 Assert.Ignore("Can't run this unit test with debugger attached.");
                 return;
             }
-
+            
             var loggerFactory = new DynamicMock(typeof (ILoggerFactory));
             var log = new DynamicMock(typeof (ILog));
             loggerFactory.ExpectAndReturn("GetLogger", log.MockInstance, typeof(ConfigureNHibernate));

@@ -18,13 +18,13 @@ namespace NServiceBus.Notifications
             this.messageSerializer = messageSerializer;
         }
 
-        public void Handle(TransportMessage message)
+        public bool Handle(TransportMessage message)
         {
             SendEmail sendEmail;
 
             using (var stream = new MemoryStream(message.Body))
             {
-                sendEmail = (SendEmail)messageSerializer.Deserialize(stream).First();
+                sendEmail = (SendEmail)messageSerializer.Deserialize(stream, new[] { typeof(SendEmail).FullName }).First();
             }
 
             using (var c = new SmtpClient())
@@ -32,6 +32,8 @@ namespace NServiceBus.Notifications
             {
                 c.Send(mailMessage);
             }
+
+            return true;
         }
 
         public void Start()

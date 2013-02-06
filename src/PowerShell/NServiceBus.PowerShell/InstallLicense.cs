@@ -47,9 +47,9 @@
 
         static Version GetNServiceBusVersion()
         {
-            var assembyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-            return new Version(assembyVersion.Major, assembyVersion.Minor);
+            return new Version(assemblyVersion.Major, assemblyVersion.Minor);
         }
     }
 }

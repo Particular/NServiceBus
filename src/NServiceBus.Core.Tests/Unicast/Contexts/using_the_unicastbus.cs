@@ -3,18 +3,21 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Threading;
-    using Faults;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
-    using Licensing;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
+    using Publishing;
     using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
+    using Subscriptions;
+    using Subscriptions.SubcriberSideFiltering;
+    using Timeout;
+    using Unicast.Messages;
     using UnitOfWork;
 
     public class using_a_configured_unicastbus
@@ -34,6 +37,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FuncBuilder FuncBuilder;
         protected Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
+        protected DefaultMessageRegistry messageRegistry;
+        protected MessageDrivenSubscriptionManager subscriptionManager;
+        SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
 
         [SetUp]
         public void SetUp()
@@ -43,6 +49,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
+            subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
+
+            messageRegistry = new DefaultMessageRegistry
+                {
+                    DefaultToNonPersistentMessages = Endpoint.IsVolatile
+                };
 
             try
             {
@@ -57,10 +69,22 @@ namespace NServiceBus.Unicast.Tests.Contexts
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
-
             subscriptionStorage = new FakeSubscriptionStorage();
+
+            subscriptionManager = new MessageDrivenSubscriptionManager
+                {
+                    Builder = FuncBuilder,
+                    MessageSender = messageSender,
+                    SubscriptionStorage = subscriptionStorage
+                };
+
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
+            FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
+                {
+                    SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
+                });
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
+            FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<IImpersonateClients>(() => new WindowsImpersonator());
@@ -68,18 +92,29 @@ namespace NServiceBus.Unicast.Tests.Contexts
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
-                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts"),
                 MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
-                SubscriptionStorage = subscriptionStorage,
                 AutoSubscribe = true,
-                MessageMapper = MessageMapper
+                MessageMapper = MessageMapper,
+                MessagePublisher = new StorageDrivenPublisher
+                    {
+                        MessageSender = messageSender,
+                        SubscriptionStorage = subscriptionStorage
+                    },
+                MessageDeferrer = new TimeoutManagerBasedDeferral
+                    {
+                        MessageSender = messageSender,
+                        TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
+                    },
+                SubscriptionManager = subscriptionManager,
+                MessageRegistry = messageRegistry,
+                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
             };
             bus = unicastBus;
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new RelatedToMessageMutator { Bus = bus });
+            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
@@ -127,12 +162,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
             unicastBus.RegisterMessageType(typeof(T), address);
+            messageRegistry.RegisterMessageType(typeof(T));
 
         }
 
         protected void StartBus()
         {
-            ((IStartableBus)bus).Start();
+            bus.Start();
         }
 
         protected void AssertSubscription(Predicate<TransportMessage> condition, Address addressOfPublishingEndpoint)

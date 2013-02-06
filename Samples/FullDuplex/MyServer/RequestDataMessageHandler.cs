@@ -35,8 +35,6 @@ namespace MyServer
             response.SetHeader("2", "2");
 
             Bus.Reply(response); //Try experimenting with sending multiple responses
-
-            Logger.Fatal("Boo", new Exception("book"));
         }
 
         public static ILog Logger = LogManager.GetLogger("MyServer");

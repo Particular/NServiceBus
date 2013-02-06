@@ -1,6 +1,7 @@
 namespace NServiceBus.Utils.Reflection
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
 
     /// <summary>
@@ -112,6 +113,29 @@ namespace NServiceBus.Utils.Reflection
                 TypeToNameLookup[t] = t.Name;
 
             return t.Name;
+        }
+
+        private static readonly byte[] MsPublicKeyToken = typeof(string).Assembly.GetName().GetPublicKeyToken();
+
+        static bool IsClrType(byte[] a1)
+        {
+            IStructuralEquatable eqa1 = a1;
+            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+        }
+
+        public static bool IsSystemType(this Type type)
+        {
+            var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+
+            return IsClrType(nameOfContainingAssembly);
+        }
+
+
+        public static bool IsNServiceBusMarkerInterface(this Type type)
+        {
+            return type == typeof(IMessage) ||
+                   type == typeof(ICommand) ||
+                   type == typeof(IEvent);
         }
 
         private static readonly IDictionary<Type, string> TypeToNameLookup = new Dictionary<Type, string>();

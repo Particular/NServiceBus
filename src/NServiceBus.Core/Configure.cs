@@ -129,11 +129,11 @@ namespace NServiceBus
         }
 
         private IConfigureComponents configurer;
-        private static bool configSectionOverridesInitialised;
+        private static bool configSectionOverridesInitialized;
 
         void WireUpConfigSectionOverrides()
         {
-            if (configSectionOverridesInitialised)
+            if (configSectionOverridesInitialized)
             {
                 return;
             }
@@ -142,7 +142,7 @@ namespace NServiceBus
                 .Where(t => t.GetInterfaces().Any(IsGenericConfigSource))
                 .ToList().ForEach(t => configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
-            configSectionOverridesInitialised = true;
+            configSectionOverridesInitialized = true;
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpRuntime.AppDomainAppId != null)
-                return With((string) HttpRuntime.BinDirectory);
+                return With((string)HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -228,14 +228,14 @@ namespace NServiceBus
             if (instance == null)
                 instance = new Configure();
 
-            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly()));
+            TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
             if (HttpRuntime.AppDomainAppId == null)
             {
                 var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
-                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath)));
+                    TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
 
@@ -262,14 +262,14 @@ namespace NServiceBus
         /// Provides an instance to a startable bus.
         /// </summary>
         /// <returns></returns>
-        public IStartableBus CreateBus()
+        public IBus CreateBus()
         {
             Initialize();
 
-            if (Configurer.HasComponent<IStartableBus>())
-                return Builder.Build<IStartableBus>();
+            if (!Configurer.HasComponent<IBus>())
+                throw new InvalidOperationException("No IBus implementation was registered, make sure that you have a call to .UnicastBus() in your configuration code");
 
-            return null;
+            return Builder.Build<IBus>();
         }
 
         private static bool beforeConfigurationInitializersCalled;
@@ -299,7 +299,7 @@ namespace NServiceBus
                 return;
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            
+
             ForAllTypes<IWantToRunWhenBusStartsAndStops>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             InvokeBeforeConfigurationInitializers();
@@ -324,7 +324,7 @@ namespace NServiceBus
 
             ForAllTypes<INeedToInstallSomething<Windows>>(
                 t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-            
+
             initialized = true;
 
             if (ConfigurationComplete != null)
@@ -348,7 +348,7 @@ namespace NServiceBus
         /// <summary>
         /// Returns types in assemblies found in the current directory.
         /// </summary>
-        public static IEnumerable<Type> TypesToScan { get; private set; }
+        public static IList<Type> TypesToScan { get; private set; }
 
         /// <summary>
         /// Returns the requested config section using the current configuration source
@@ -377,13 +377,13 @@ namespace NServiceBus
         /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            Predicate<string> exclude = 
-                f => assembliesToSkip.Any(skip => destillLowerAssemblyName(skip) == f);
+            Predicate<string> exclude =
+                f => assembliesToSkip.Any(skip => distillLowerAssemblyName(skip) == f);
 
             return FindAssemblies(path, false, null, exclude);
         }
 
-        static string destillLowerAssemblyName(string assemblyOrFileName)
+        static string distillLowerAssemblyName(string assemblyOrFileName)
         {
             var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
             if (lowerAssemblyName.EndsWith(".dll"))
@@ -410,7 +410,7 @@ namespace NServiceBus
                 var yetLoadedMatchingAssemblies =
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      where IsIncluded(assembly.GetName().Name, includeAssemblyNames, excludeAssemblyNames)
-                    select assembly).ToArray();
+                     select assembly).ToArray();
 
                 foreach (var a in yetLoadedMatchingAssemblies)
                 {
@@ -435,7 +435,21 @@ namespace NServiceBus
                 yield return a;
         }
 
-        
+        /// <summary>
+        /// Configures the given type with the given lifecycle
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lifecycle"></param>
+        /// <returns></returns>
+        public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
+        {
+            if(Instance == null)
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+
+            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
+        }
+
+
 
         /// <summary>
         /// The name of this endpoint
@@ -528,8 +542,8 @@ namespace NServiceBus
 
         private static bool IsIncluded(string assemblyNameOrFileName, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
         {
-            
-            if (includeAssemblyNames != null 
+
+            if (includeAssemblyNames != null
                 && !includeAssemblyNames(assemblyNameOrFileName)
                 && !defaultAssemblyInclusionOverrides.Any(s => IsMatch(s, assemblyNameOrFileName)))
                 return false;
@@ -554,9 +568,9 @@ namespace NServiceBus
         /// <returns></returns>
         public static bool IsMatch(string expression, string scopedNameOrFileName)
         {
-            if (destillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
+            if (distillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
                 return true;
-            if (destillLowerAssemblyName(expression).TrimEnd('.') == destillLowerAssemblyName(scopedNameOrFileName))
+            if (distillLowerAssemblyName(expression).TrimEnd('.') == distillLowerAssemblyName(scopedNameOrFileName))
                 return true;
 
             return false;
@@ -569,7 +583,7 @@ namespace NServiceBus
 
             var args = t.GetGenericArguments();
             if (args.Length != 1)
-                return false;  
+                return false;
 
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
@@ -577,11 +591,11 @@ namespace NServiceBus
         static string lastProbeDirectory;
         static Configure instance;
         static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
-        
+
         static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
 
         // TODO: rename to defaultAssemblyAndNamespaceExclusions
-        static readonly IEnumerable<string> defaultAssemblyExclusions 
+        static readonly IEnumerable<string> defaultAssemblyExclusions
             = new[]
               {
 

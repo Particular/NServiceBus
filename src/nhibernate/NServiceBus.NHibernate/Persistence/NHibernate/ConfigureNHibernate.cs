@@ -4,11 +4,15 @@ namespace NServiceBus.Persistence.NHibernate
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Configuration;
+    using System.IO;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using Logging;
+    using global::NHibernate.Cfg;
+    using global::NHibernate.Cfg.ConfigurationSchema;
     using global::NHibernate.Mapping.ByCode;
     using Configuration = global::NHibernate.Cfg.Configuration;
-    using Environment = System.Environment;
+    using Environment = global::NHibernate.Cfg.Environment;
 
     /// <summary>
     /// Helper class to configure NHibernate persisters.
@@ -50,13 +54,24 @@ Here is an example of what is required:
             Init();
         }
 
+        /// <summary>
+        /// Initializes the <see cref="Configuration"/> NHibernate properties.
+        /// </summary>
+        /// <remarks>
+        /// Configure NHibernate using the <c>&lt;hibernate-configuration&gt;</c> section
+        /// from the application config file, if found, or the file <c>hibernate.cfg.xml</c> if the
+        /// <c>&lt;hibernate-configuration&gt;</c> section not include the session-factory configuration.
+        /// However those settings can be overwritten by our own configuration settings if specified.
+        /// </remarks>
         public static void Init()
         {
             connectionStringSettingsCollection = NHibernateSettingRetriever.ConnectionStrings() ??
                                                  new ConnectionStringSettingsCollection();
 
+            Configuration configuration = CreateNHibernateConfiguration();
+
             var defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence");
-            var configurationProperties = new Dictionary<string, string>(new Configuration().Properties);
+            var configurationProperties = configuration.Properties;
 
             var appSettingsSection = NHibernateSettingRetriever.AppSettings() ?? new NameValueCollection();
             foreach (string appSetting in appSettingsSection)
@@ -69,7 +84,7 @@ Here is an example of what is required:
             }
             if (!String.IsNullOrEmpty(defaultConnectionString))
             {
-                configurationProperties["connection.connection_string"] = defaultConnectionString;
+                configurationProperties[Environment.ConnectionString] = defaultConnectionString;
             }
 
             TimeoutPersisterProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
@@ -129,7 +144,7 @@ Here is an example of what is required:
         /// <param name="props">Properties to validate.</param>
         public static void ThrowIfRequiredPropertiesAreMissing(IDictionary<string, string> props)
         {
-            if (props.ContainsKey("connection.connection_string") && props.ContainsKey("dialect"))
+            if (props.ContainsKey(Environment.ConnectionString) && props.ContainsKey(Environment.Dialect))
             {
                 return;
             }
@@ -140,6 +155,10 @@ Here is an example of what is required:
             throw new InvalidOperationException(String.Format(errorMsg, GetConfigFileIfExists(), Message));
         }
 
+        /// <summary>
+        /// It ensures that in DEBUG mode SqlLite is configured if no other settings are specified.
+        /// </summary>
+        /// <param name="properties">The properties to use.</param>
         public static void ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(IDictionary<string, string> properties)
         {
             if (!System.Diagnostics.Debugger.IsAttached || properties.Count != 0) 
@@ -151,12 +170,17 @@ We have automatically fall back to use SQLite however this only happens while yo
 To run in this mode you need to reference the SQLite assembly, here is the NuGet package you need to install:
 PM> Install-Package System.Data.SQLite.{1}
 {2}";
-            Logger.WarnFormat(warningMsg, GetConfigFileIfExists(), Environment.Is64BitOperatingSystem ? "x64" : "x86", Message);
+            Logger.WarnFormat(warningMsg, GetConfigFileIfExists(), System.Environment.Is64BitOperatingSystem ? "x64" : "x86", Message);
 
             properties.Add("dialect", "NHibernate.Dialect.SQLiteDialect");
             properties.Add("connection.connection_string", @"Data Source=.\NServiceBus.sqllite;Version=3;New=True;");
         }
 
+        /// <summary>
+        /// Created and initializes a <see cref="Configuration"/> based on <paramref name="properties"/> specified.
+        /// </summary>
+        /// <param name="properties">The properties to use.</param>
+        /// <returns>A properly initialized <see cref="Configuration"/>.</returns>
         public static Configuration CreateConfigurationWith(IDictionary<string, string> properties)
         {
             return new Configuration().SetProperties(properties);
@@ -165,6 +189,33 @@ PM> Install-Package System.Data.SQLite.{1}
         private static string GetConfigFileIfExists()
         {
             return AppDomain.CurrentDomain.SetupInformation.ConfigurationFile ?? "App.config";
+        }
+
+        private static Configuration CreateNHibernateConfiguration()
+        {
+            var configuration = new Configuration();
+            var hc = ConfigurationManager.GetSection(CfgXmlHelper.CfgSectionName) as IHibernateConfiguration;
+            if (hc != null && hc.SessionFactory != null)
+            {
+                configuration = configuration.Configure();
+            }
+            else if (File.Exists(GetDefaultConfigurationFilePath()))
+            {
+                configuration = configuration.Configure();
+            }
+            return configuration;
+        }
+
+        private static string GetDefaultConfigurationFilePath()
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Note RelativeSearchPath can be null even if the doc say something else; don't remove the check
+            var searchPath = AppDomain.CurrentDomain.RelativeSearchPath ?? string.Empty;
+
+            string relativeSearchPath = searchPath.Split(';').First();
+            string binPath = Path.Combine(baseDir, relativeSearchPath);
+            return Path.Combine(binPath, Configuration.DefaultHibernateCfgFileName);
         }
 
         private static IDictionary<string, string> OverrideConnectionStringSettingIfNotNull(
@@ -178,7 +229,7 @@ PM> Install-Package System.Data.SQLite.{1}
             }
 
             var overriddenProperties = new Dictionary<string, string>(properties);
-            overriddenProperties["connection.connection_string"] = connectionStringOverride;
+            overriddenProperties[Environment.ConnectionString] = connectionStringOverride;
 
             return overriddenProperties;
         }

@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus
 {
     using Unicast.Transport;
 
-    public class ActiveMQ:ITransportDefinition
+    public class ActiveMQ : ITransportDefinition
     {
-         
+
     }
 }

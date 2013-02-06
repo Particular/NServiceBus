@@ -159,7 +159,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty);
 
-            Session.Advanced.DatabaseCommands.Delete(id, null);
+            Session.Advanced.DocumentStore.DatabaseCommands.Delete(id, null);
         }
 
         static readonly ConcurrentDictionary<string, bool> PropertyCache = new ConcurrentDictionary<string, bool>();
