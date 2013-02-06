@@ -5,7 +5,11 @@ if(!$toolsPath){
 	$toolsPath = ""
 }
 
-Import-Module (Join-Path $toolsPath nservicebus.powershell.dll)
+if (Get-Module NServiceBus.Powershell) {
+	Remove-Module NServiceBus.Powershell
+}
+
+Import-Module (Join-Path $toolsPath NServiceBus.Powershell.dll)
 
 Write-Host ""
 Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
