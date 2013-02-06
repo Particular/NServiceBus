@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Globalization;
+using System.Threading;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Timeout.Hosting.Azure
@@ -35,7 +36,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 if (lastSuccessfullRead.HasValue)
                 {
                     result = (from c in context.TimeoutData
-                              where c.PartitionKey == lastSuccessfullRead.Value.ToString(partitionKeyScope)
+                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(partitionKeyScope)) > 0
+                              && c.PartitionKey.CompareTo(DateTime.UtcNow.ToString(partitionKeyScope)) <= 0
                                     && c.OwningTimeoutManager == Configure.EndpointName
                               select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
                 }
@@ -61,7 +63,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                                          : future != null ? future.Time : DateTime.UtcNow;
                 
                 results = pastTimeouts
-                   .Select(c => new Tuple<String, DateTime>(c.Destination, c.Time))
+                   .Where(c => string.IsNullOrEmpty(c.RowKey))
+                   .Select(c => new Tuple<String, DateTime>(c.PartitionKey, c.Time))
                    .Distinct()
                    .ToList();
 
