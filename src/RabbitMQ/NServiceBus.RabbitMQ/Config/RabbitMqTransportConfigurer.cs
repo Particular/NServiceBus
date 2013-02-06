@@ -30,7 +30,7 @@
             config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue);
 
-            config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.SingleInstance)
              .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue);
 
             config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
