@@ -43,8 +43,10 @@
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<InventoryResponse>(s => s.OrderNumber, m => m.OrderNumber);
-            ConfigureMapping<CancelOrder>(s => s.OrderNumber, m => m.OrderNumber);
+            ConfigureMapping<InventoryResponse>(m => m.OrderNumber)
+                .ToSaga(s=>s.OrderNumber);
+            ConfigureMapping<CancelOrder>(m => m.OrderNumber)
+                .ToSaga(s=>s.OrderNumber);
         }
     }
 
