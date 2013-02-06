@@ -1,14 +1,11 @@
-﻿namespace NServiceBus.Core.Tests
+﻿namespace NServiceBus.Core.Tests.Conventions
 {
+    using NUnit.Framework;
+
     namespace NServiceBus.Config.UnitTests
     {
-        using System;
-        using System.Collections.Generic;
-        using System.Diagnostics;
-        using NUnit.Framework;
-
         [TestFixture]
-        public class When_applying_message_conventions_to_messages
+        public class When_applying_message_conventions_to_messages : MessageConventionTestBase
         {
             [Test]
             public void Should_cache_the_message_convention()
@@ -29,7 +26,7 @@
         }
 
         [TestFixture]
-        public class When_applying_message_conventions_to_events
+        public class When_applying_message_conventions_to_events:MessageConventionTestBase
         {
             [Test]
             public void Should_cache_the_message_convention()
@@ -50,7 +47,7 @@
         }
 
         [TestFixture]
-        public class When_applying_message_conventions_to_commands
+        public class When_applying_message_conventions_to_commands : MessageConventionTestBase
         {
             [Test]
             public void Should_cache_the_message_convention()
@@ -68,6 +65,37 @@
                 MessageConventionExtensions.IsCommand(this);
                 Assert.AreEqual(1, timesCalled);
             }
+        }
+    }
+}
+
+namespace NServiceBus.Core.Tests.Conventions.NServiceBus.Config.UnitTests
+{
+    using System;
+    using NUnit.Framework;
+
+    public class MessageConventionTestBase
+    {
+        Func<Type, bool> IsEventTypeAction;
+        Func<Type, bool> IsCommandTypeAction;
+        Func<Type, bool> IsMessageTypeAction;
+
+        [SetUp]
+        public void SetUp()
+        {
+            IsEventTypeAction = MessageConventionExtensions.IsEventTypeAction;
+            IsCommandTypeAction = MessageConventionExtensions.IsCommandTypeAction;
+            IsMessageTypeAction = MessageConventionExtensions.IsMessageTypeAction;
+
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            MessageConventionExtensions.IsEventTypeAction = IsEventTypeAction;
+            MessageConventionExtensions.IsCommandTypeAction = IsCommandTypeAction;
+            MessageConventionExtensions.IsMessageTypeAction = IsMessageTypeAction;
+
         }
     }
 }

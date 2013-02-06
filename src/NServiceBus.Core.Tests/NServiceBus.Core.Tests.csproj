@@ -76,6 +76,7 @@
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
+    <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
