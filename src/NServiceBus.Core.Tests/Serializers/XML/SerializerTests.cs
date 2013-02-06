@@ -21,8 +21,6 @@ namespace NServiceBus.Serializers.XML.Test
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
 
-    using NServiceBus.Serializers.Binary;
-
     using Serialization;
 
     [TestFixture]

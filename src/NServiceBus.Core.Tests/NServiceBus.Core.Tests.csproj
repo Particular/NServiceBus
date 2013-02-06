@@ -158,6 +158,7 @@
     <Compile Include="Serializers\XML\DictionaryTests.cs" />
     <Compile Include="Serializers\XML\IM1.cs" />
     <Compile Include="Serializers\XML\IM2.cs" />
+    <Compile Include="Serializers\XML\Issue_934.cs" />
     <Compile Include="Serializers\XML\ListTests.cs" />
     <Compile Include="Serializers\XML\M1.cs" />
     <Compile Include="Serializers\XML\M2.cs" />
