@@ -7,7 +7,7 @@ namespace NServiceBus.Transport.ActiveMQ
 
     using Apache.NMS;
     using Apache.NMS.Util;
-
+    using Logging;
     using NServiceBus.Unicast.Transport.Transactional;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived, ITopicSubscriptionListener
@@ -41,10 +41,6 @@ namespace NServiceBus.Transport.ActiveMQ
             this.pendingMessagesCounter = pendingMessagesCounter;
         }
 
-        ~ActiveMqMessageReceiver()
-        {
-            this.Disposing(true);
-        }             
 
         public string ConsumerName { get; set; }
 
@@ -89,12 +85,7 @@ namespace NServiceBus.Transport.ActiveMQ
             }
         }
 
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            this.Disposing(true);
-        }
-
+        
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
         {
             IMessageConsumer consumer;
@@ -110,21 +101,6 @@ namespace NServiceBus.Transport.ActiveMQ
             string topic = e.Topic;
             Subscribe(topic);
         }
-
-        private void Disposing(bool disposing)
-        {
-            foreach (var messageConsumer in this.topicConsumers)
-            {
-                messageConsumer.Value.Close();
-                messageConsumer.Value.Dispose();
-            }
-
-            this.defaultConsumer.Close();
-            this.defaultConsumer.Dispose();
-
-            this.sessionFactory.Release(this.session);
-        }
-
         private void SubscribeTopics()
         {
             lock (this.notifyTopicSubscriptions)
@@ -245,5 +221,53 @@ namespace NServiceBus.Transport.ActiveMQ
                 purger.Purge(session, destination);
             }
         }
+
+        ~ActiveMqMessageReceiver()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                try
+                {
+                    foreach (var messageConsumer in this.topicConsumers)
+                    {
+                        messageConsumer.Value.Close();
+                        messageConsumer.Value.Dispose();
+                    }
+
+                    defaultConsumer.Close();
+                    defaultConsumer.Dispose();
+
+                    sessionFactory.Release(session);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Failed to dispose the receiver",ex);
+                }
+            }
+
+            // release any unmanaged objects
+            // set the object references to null
+
+            disposed = true;
+        }
+
+        bool disposed;
+
+        static ILog Logger = LogManager.GetLogger("ActiveMq");
     }
 }
