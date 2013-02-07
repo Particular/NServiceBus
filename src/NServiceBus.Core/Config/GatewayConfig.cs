@@ -99,7 +99,10 @@ namespace NServiceBus.Config
             return ((ChannelConfig)element).Address;
         }
 
-
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
     }
 
     public class ChannelConfig : ConfigurationElement
@@ -194,7 +197,10 @@ namespace NServiceBus.Config
             return ((SiteConfig)element).Key;
         }
 
-
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
     }
 
     /// <summary>
