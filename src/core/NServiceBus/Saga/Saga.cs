@@ -53,6 +53,7 @@ namespace NServiceBus.Saga
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
+        [ObsoleteEx(Message = "Use the more explicit ConfigureMapping<T>.ToSaga<TSaga>(...) instead", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
         {
             if (!configuring)
@@ -74,7 +75,7 @@ namespace NServiceBus.Saga
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
 
-            return new ToSagaExpression<T,TMessage>(SagaMessageFindingConfiguration,messageProperty);
+            return new ToSagaExpression<T, TMessage>(SagaMessageFindingConfiguration, messageProperty);
         }
 
 
@@ -302,22 +303,5 @@ namespace NServiceBus.Saga
         {
         }
 
-    }
-
-    public class ToSagaExpression<TSaga,TMessage> where TSaga : ISagaEntity
-    {
-        readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
-        readonly Expression<Func<TMessage, object>> messageProperty;
-
-        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
-        {
-            this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
-            this.messageProperty = messageProperty;
-        }
-
-        public void ToSaga(Expression<Func<TSaga, object>> sagaEntityProperty)
-        {
-            sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
-        }
     }
 }
