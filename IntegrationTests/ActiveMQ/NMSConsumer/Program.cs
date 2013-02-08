@@ -8,7 +8,6 @@
 
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
-    using Apache.NMS.ActiveMQ.Commands;
     using Apache.NMS.Util;
 
     using MyMessages;
@@ -95,7 +94,7 @@
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
 

@@ -18,11 +18,14 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
+            {
                 Configure.Instance.MsmqTransport();
+            }
+
+            Configure.Transactions.Disable();
 
             return Configure.Instance
                             .PurgeOnStartup(true)
-                            .IsTransactional(false)
                             .DisableTimeoutManager()
                             .DisableNotifications()
                             .DisableSecondLevelRetries()

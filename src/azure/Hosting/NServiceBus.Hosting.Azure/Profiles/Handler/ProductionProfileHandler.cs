@@ -1,5 +1,6 @@
 ﻿using NServiceBus.Hosting.Profiles;
 using NServiceBus.Integration.Azure;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {
@@ -7,7 +8,8 @@ namespace NServiceBus.Hosting.Azure.Profiles.Handlers
     {
         void IHandleProfile.ProfileActivated()
         {
-           Configure.Instance.Log4Net<AzureAppender>(a =>{a.InitializeDiagnostics = !IsHostedIn.ChildHostProcess();});
+            if (LogManager.LoggerFactory == null)
+                Configure.Instance.AzureDiagnosticsLogger(true, !IsHostedIn.ChildHostProcess());
         }
     }
 }

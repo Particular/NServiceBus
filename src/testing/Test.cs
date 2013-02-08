@@ -7,6 +7,9 @@ using NServiceBus.Config.ConfigurationSource;
 
 namespace NServiceBus.Testing
 {
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Entry class used for unit testing
     /// </summary>
@@ -62,6 +65,30 @@ namespace NServiceBus.Testing
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
+            ExtensionMethods.GetHeaderAction = (msg, key) =>
+                {
+                    ConcurrentDictionary<string, string> kv;
+                    if (messageHeaders.TryGetValue(msg, out kv))
+                    {
+                        string val;
+                        if (kv.TryGetValue(key, out val))
+                        {
+                            return val;
+                        }
+                    }
+
+                    return null;
+                };
+            ExtensionMethods.SetHeaderAction = (msg, key, val) =>
+                    messageHeaders.AddOrUpdate(msg, 
+                        o => new ConcurrentDictionary<string, string>(new[]{new KeyValuePair<string, string>(key, val)}), 
+                        (o, dic) =>
+                            {
+                                dic.AddOrUpdate(key, val, (s, s1) => val);
+                                return dic;
+                            });
+                
+            ExtensionMethods.GetStaticOutgoingHeadersAction = () => staticOutgoingHeaders;
         }
 
         /// <summary>
@@ -194,12 +221,10 @@ namespace NServiceBus.Testing
             return messageCreator.CreateInstance(action);
         }
 
-        /// <summary>
-        /// Returns the message creator.
-        /// </summary>
         static IMessageCreator messageCreator;
-
-        static TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
+        static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
+        static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
+        static readonly IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
     }
 
     /// <summary>

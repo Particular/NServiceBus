@@ -68,6 +68,6 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
             }
         }
 
-        public IBus Bus { get; set; }
+        public IStartableBus Bus { get; set; }
 	}
 }

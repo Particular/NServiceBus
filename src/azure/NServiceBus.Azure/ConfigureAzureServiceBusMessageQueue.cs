@@ -66,7 +66,7 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.ServerWaitTime, configSection.ServerWaitTime);
 
             // make sure the transaction stays open a little longer than the long poll.
-            Configure.Instance.TransactionTimeout(TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1));
+            Configure.Transactions.Advanced().DefaultTimeout = TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1);
 
             if (!string.IsNullOrEmpty(configSection.QueueName))
             {

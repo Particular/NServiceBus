@@ -8,26 +8,20 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
     public class Bootstrapper : INeedInitialization
     {
-        static Bootstrapper()
-        {
-            TransactionSettings = new TransactionSettings();
-        }
-
         public void Init()
         {
-            var numberOfWorkerThreadsInAppConfig = ConfiguredMaximumConcurrencyLevel();
-            var throughput = MaximumThroughput;
+            ConfiguredMaximumConcurrencyLevel();
 
             if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
             {
-                if (throughput == 0 || LicenseManager.CurrentLicense.MaxThroughputPerSecond < throughput)
-                    throughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
+                if (maximumThroughput == 0 || LicenseManager.CurrentLicense.MaxThroughputPerSecond < maximumThroughput)
+                    maximumThroughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
             }
 
             Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.TransactionSettings, TransactionSettings)
+                .ConfigureProperty(t => t.MaximumNumberOfRetries, maximumNumberOfRetries)
                 .ConfigureProperty(t => t.MaximumConcurrencyLevel, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
-                .ConfigureProperty(t=> t.MaxThroughputPerSecond, throughput);
+                .ConfigureProperty(t => t.MaxThroughputPerSecond, maximumThroughput);
         }
 
         static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
@@ -37,7 +31,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
 
-        static int ConfiguredMaximumConcurrencyLevel()
+        void ConfiguredMaximumConcurrencyLevel()
         {
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
             var msmqTransportConfig = Configure.GetConfigSection<MsmqTransportConfig>();
@@ -47,15 +41,16 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
   
             if (transportConfig != null)
             {
-                TransactionSettings.MaxRetries = transportConfig.MaxRetries;
-                MaximumThroughput = transportConfig.MaximumMessageThroughputPerSecond;
+                maximumNumberOfRetries = transportConfig.MaxRetries;
+                maximumThroughput = transportConfig.MaximumMessageThroughputPerSecond;
 
-                return transportConfig.MaximumConcurrencyLevel;
+                numberOfWorkerThreadsInAppConfig = transportConfig.MaximumConcurrencyLevel;
+                return;
             }
 
             if (msmqTransportConfig != null)
             {
-                TransactionSettings.MaxRetries = msmqTransportConfig.MaxRetries;
+                maximumNumberOfRetries = msmqTransportConfig.MaxRetries;
 
                 if (!string.IsNullOrWhiteSpace(msmqTransportConfig.InputQueue))
                 {
@@ -67,13 +62,13 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                                       "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
                 }
 
-                return msmqTransportConfig.NumberOfWorkerThreads;
+                numberOfWorkerThreadsInAppConfig = msmqTransportConfig.NumberOfWorkerThreads;
+                return;
             }
-            return 1;
+            numberOfWorkerThreadsInAppConfig =  1;
         }
 
-        public static int MaximumThroughput { get; set; }
-        public static TransactionSettings TransactionSettings { get; set; }
+        private int maximumThroughput, maximumNumberOfRetries, numberOfWorkerThreadsInAppConfig;
 
         static readonly ILog Logger = LogManager.GetLogger("Configuration");
 

@@ -59,10 +59,14 @@ namespace Runner
             }
 
             if (volatileMode)
-                config.Volatile();
+            {
+                Configure.Endpoint.AsVolatile();
+            }
 
             if (suppressDTC)
-                config.SuppressDTC();
+            {
+                Configure.Transactions.Advanced().SuppressDistributedTransactions = true;
+            }
 
             switch (args[3].ToLower())
             {

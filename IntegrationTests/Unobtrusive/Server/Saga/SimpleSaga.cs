@@ -33,7 +33,7 @@ namespace Server.Saga
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<StartSagaMessage>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         void LogMessage(string message)

@@ -70,8 +70,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         private static MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if(Endpoint.IsVolatile)
+            if (!Configure.Transactions.Enabled)
+            {
                 return MessageQueueTransactionType.None;
+            }
             
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
         }

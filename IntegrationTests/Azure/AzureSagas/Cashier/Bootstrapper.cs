@@ -27,6 +27,8 @@ namespace Cashier
 
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
@@ -36,7 +38,6 @@ namespace Cashier
                 .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
                 .UnicastBus()
                 .LoadMessageHandlers()
-                .IsTransactional(true)
                 .CreateBus()
                 .Start();
         }

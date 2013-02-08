@@ -25,8 +25,8 @@ namespace Barista
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<PrepareOrderMessage>(s => s.OrderId, m => m.OrderId);
-            ConfigureMapping<PaymentCompleteMessage>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<PrepareOrderMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
+            ConfigureMapping<PaymentCompleteMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         public void Handle(PrepareOrderMessage message)

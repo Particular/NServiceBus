@@ -15,6 +15,7 @@ namespace NServiceBus
     using Installation.Environments;
     using Logging;
     using ObjectBuilder;
+    using Settings;
 
     /// <summary>
     /// Central configuration entry point for NServiceBus.
@@ -152,6 +153,14 @@ namespace NServiceBus
         {
         }
 
+        private static Endpoint endpoint;
+
+        public static Endpoint Endpoint { get { return endpoint ?? (endpoint = new Endpoint()); } }
+
+        private static TransactionSettings transactionSetting;
+
+        public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
+
         /// <summary>
         /// True if this endpoint is operating in send only mode
         /// </summary>
@@ -262,14 +271,16 @@ namespace NServiceBus
         /// Provides an instance to a startable bus.
         /// </summary>
         /// <returns></returns>
-        public IBus CreateBus()
+        public IStartableBus CreateBus()
         {
             Initialize();
 
-            if (!Configurer.HasComponent<IBus>())
-                throw new InvalidOperationException("No IBus implementation was registered, make sure that you have a call to .UnicastBus() in your configuration code");
+            if (!Configurer.HasComponent<IStartableBus>())
+            {
+                Instance.UnicastBus();
+            }
 
-            return Builder.Build<IBus>();
+            return Builder.Build<IStartableBus>();
         }
 
         private static bool beforeConfigurationInitializersCalled;
@@ -291,7 +302,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Finalizes the configuration by invoking all initializers.
+        /// Finalizes the configuration by invoking all initialisers.
         /// </summary>
         public void Initialize()
         {
@@ -433,6 +444,20 @@ namespace NServiceBus
                 yield return a;
             foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", includeAssemblyNames, possiblyChangedExcludePredicate))
                 yield return a;
+        }
+
+        /// <summary>
+        /// Configures the given type with the given lifecycle
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lifecycle"></param>
+        /// <returns></returns>
+        public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
+        {
+            if(Instance == null)
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+
+            return Instance.Configurer.ConfigureComponent<T>(lifecycle);
         }
 
 

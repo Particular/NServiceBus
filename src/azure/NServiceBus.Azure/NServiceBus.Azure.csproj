@@ -39,9 +39,6 @@
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.ServiceBus, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Azure\Microsoft.ServiceBus.dll</HintPath>
@@ -97,10 +94,12 @@
     <Compile Include="Config\QueueIndividualizer.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\BlobStorageDataBus.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\Block.cs" />
-    <Compile Include="Integration\Azure\AzureAppender.cs" />
     <Compile Include="Integration\Azure\AzureConfigurationSettings.cs" />
     <Compile Include="Integration\Azure\AzureConfigurationSource.cs" />
+    <Compile Include="Integration\Azure\AzureDiagnosticsLogger.cs" />
+    <Compile Include="Integration\Azure\AzureDiagnosticsLoggerFactory.cs" />
     <Compile Include="Integration\Azure\IAzureConfigurationSettings.cs" />
+    <Compile Include="Integration\Azure\SetLoggingLibrary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\BaseImmutableUserType.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\MsSqlConfiguration.cs" />

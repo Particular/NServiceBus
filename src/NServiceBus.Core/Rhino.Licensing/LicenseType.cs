@@ -24,15 +24,5 @@ namespace Rhino.Licensing
         /// For personal use
         /// </summary>
         Personal,
-
-        /// <summary>
-        /// Floating license
-        /// </summary>
-        Floating,
-
-        /// <summary>
-        /// Subscription based license
-        /// </summary>
-        Subscription
     }
 }

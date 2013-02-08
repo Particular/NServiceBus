@@ -173,13 +173,6 @@
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => !m.Recoverable), Arg<Address>.Is.Anything));
         }
-
-        [TearDown]
-        public void TearDown()
-        {
-            Endpoint.IsVolatile = false;
-        }
-
     }
 
     [TestFixture]

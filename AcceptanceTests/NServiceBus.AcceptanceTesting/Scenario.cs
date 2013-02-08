@@ -34,17 +34,7 @@
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointBuilder
         {
-            return WithEndpoint<T>(() => null);
-        }
-
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(ScenarioContext context) where T : EndpointBuilder
-        {
-            return WithEndpoint<T>(() => context);
-        }
-
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Func<ScenarioContext> context) where T : EndpointBuilder
-        {
-            behaviours.Add(new BehaviorDescriptor(() => scenarioContext, typeof(T)));
+            behaviours.Add(new BehaviorDescriptor(() => contextFactory(), typeof(T)));
 
             return this;
         }
@@ -62,7 +52,7 @@
 
             runDescriptorsBuilderAction(builder);
 
-            var runDescriptors = builder.Descriptors;
+            var runDescriptors = builder.Build();
 
             if (!runDescriptors.Any())
                 runDescriptors.Add(new RunDescriptor
@@ -70,8 +60,11 @@
                     Key = "Default"
                 });
 
-            scenarioContext = contextFactory();
-
+            foreach (var runDescriptor in runDescriptors)
+            {
+                runDescriptor.ScenarioContext = contextFactory();
+            }
+           
             var sw = new Stopwatch();
 
             sw.Start();
@@ -106,8 +99,6 @@
         public Func<ScenarioContext, bool> done = context => true;
 
         Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
-
-        TContext scenarioContext;
 
     }
 

@@ -1,5 +1,4 @@
 using NServiceBus;
-using NServiceBus.Config;
 using StructureMap;
 
 namespace Barista
@@ -22,6 +21,7 @@ namespace Barista
 
         private static void BootstrapNServiceBus()
         {
+             Configure.Transactions.Enable();
 
             Configure.With()
                 .Log4Net()
@@ -33,7 +33,6 @@ namespace Barista
                 .UseNHibernateTimeoutPersister()
                 .UnicastBus()
                 .LoadMessageHandlers()
-                .IsTransactional(true)
                 .CreateBus()
                 .Start();
         }

@@ -16,7 +16,7 @@ namespace NServiceBus
                 if (!Configure.Instance.Configurer.HasComponent<IBus>())
                     return;
 
-                Configure.Instance.Builder.Build<IBus>()
+                Configure.Instance.Builder.Build<IStartableBus>()
                     .Shutdown();
             };
 

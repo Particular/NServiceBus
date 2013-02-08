@@ -23,8 +23,8 @@ namespace Cashier
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<NewOrderMessage>(s => s.OrderId, m => m.OrderId);
-            ConfigureMapping<PaymentMessage>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<NewOrderMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
+            ConfigureMapping<PaymentMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
         
         public void Handle(NewOrderMessage message)

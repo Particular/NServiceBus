@@ -1,6 +1,10 @@
 namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
+    using System;
+
     using Apache.NMS;
+
+    using NServiceBus.Logging;
     using NServiceBus.Unicast.Transport.Transactional;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
@@ -8,6 +12,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         private readonly IConsumeEvents eventConsumer;
         private readonly IProcessMessages messageProcessor;
         private IMessageConsumer defaultConsumer;
+        private bool disposed;
 
         public ActiveMqMessageReceiver(
             IConsumeEvents eventConsumer,
@@ -15,6 +20,18 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         {
             this.eventConsumer = eventConsumer;
             this.messageProcessor = messageProcessor;
+        }
+
+        ~ActiveMqMessageReceiver()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
         }
 
         public void Start(Address address, TransactionSettings transactionSettings)
@@ -37,12 +54,26 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             this.defaultConsumer.Listener -= this.messageProcessor.ProcessMessage;
         }
 
-        public void Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            this.eventConsumer.Dispose();
-            this.defaultConsumer.Close();
-            this.defaultConsumer.Dispose();
-            this.messageProcessor.Dispose();
+            if (this.disposed) return;
+
+            try
+            {
+                if (disposing)
+                {
+                    this.eventConsumer.Dispose();
+                    this.defaultConsumer.Close();
+                    this.defaultConsumer.Dispose();
+                    this.messageProcessor.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to dispose the receiver",ex);
+            }
         }
+
+        static ILog Logger = LogManager.GetLogger("ActiveMq");
     }
 }

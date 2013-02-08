@@ -26,10 +26,13 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
             }
 
             if (!instance.Configurer.HasComponent<IMessageSerializer>())
+            {
                 instance.JsonSerializer();
+            }
+
+            Configure.Transactions.Enable();
 
             return instance
-                .IsTransactional(true)
                 .UnicastBus()
                 .ImpersonateSender(false);
         }

@@ -21,22 +21,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         public IDequeueMessages Receiver { get; set; }
 
         /// <summary>
-        /// Setings related to the transactionallity of the transport
-        /// </summary>
-        public TransactionSettings TransactionSettings
-        {
-            get
-            {
-                if (transactionSettings == null)
-                    transactionSettings = new TransactionSettings();
-
-                return transactionSettings;
-            }
-            set { transactionSettings = value; }
-        }
-        TransactionSettings transactionSettings;
-
-        /// <summary>
         /// Manages failed message processing.
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
@@ -55,12 +39,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Event which indicates that message processing failed for some reason.
         /// </summary>
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
-
-        /// <summary>
-        /// Set this one to false to avoid wrapping the message pipeline in a transaction scope
-        /// </summary>
-        public bool DontProvideAmbientTransaction { get; set; }
-
 
         /// <summary>
         /// Gets/sets the number of concurrent threads that should be
@@ -143,6 +121,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
+        /// <summary>
+        /// Sets the maximum number of times a message will be retried
+        /// when an exception is thrown as a result of handling the message.
+        /// </summary>
+        public int MaximumNumberOfRetries { get; set; }
+
         int maxMessageThroughputPerSecond;
 
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
@@ -198,7 +182,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             FailureManager.Init(address);
 
-            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
+            firstLevelRetries = new FirstLevelRetries(MaximumNumberOfRetries, FailureManager);
 
             InitializePerformanceCounters();
 
@@ -225,7 +209,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
+            Receiver.Init(receiveAddress, new TransactionSettings {MaxRetries = MaximumNumberOfRetries}, TryProcess, EndProcess);
             Receiver.Start(maximumConcurrencyLevel);
         }
 
@@ -248,13 +232,13 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         TransactionScope GetTransactionScope()
         {
-            if (DontProvideAmbientTransaction)
+            if (Configure.Transactions.Advanced().DoNotWrapHandlersExecutionInATransactionScope)
                 return new TransactionScope(TransactionScopeOption.Suppress);
 
             return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
                 {
-                    IsolationLevel = TransactionSettings.IsolationLevel,
-                    Timeout = TransactionSettings.TransactionTimeout
+                    IsolationLevel = Configure.Transactions.Advanced().IsolationLevel,
+                    Timeout = Configure.Transactions.Advanced().DefaultTimeout
                 });
         }
 
@@ -282,7 +266,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 ex = ex.GetBaseException();
             }
 
-            if (TransactionSettings.IsTransactional && messageId != null)
+            if (Configure.Transactions.Enabled && messageId != null)
             {
                 firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
             }
@@ -296,7 +280,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
-            if (TransactionSettings.IsTransactional)
+            if (Configure.Transactions.Enabled)
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(m))
                 {

@@ -93,6 +93,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     var rawMessage = message.GetBody<byte[]>();
                     var t = DeserializeMessage(rawMessage);
 
+                    if (t.Id == null) t.Id = Guid.NewGuid().ToString();
+
                     if (!useTransactions || Transaction.Current == null)
                     {
                         using (message)

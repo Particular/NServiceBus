@@ -9,7 +9,8 @@ namespace Customer
     public class Bootstrapper
     {
         private Bootstrapper()
-        {}
+        {
+        }
 
         public static void Bootstrap()
         {
@@ -24,21 +25,22 @@ namespace Customer
 
         private static void BootstrapNServiceBus()
         {
-           Configure.With()
-               .Log4Net()
-               .StructureMapBuilder(ObjectFactory.Container)
-               
-               .AzureMessageQueue().JsonSerializer()
-               .Sagas().AzureSagaPersister()
-               
-               .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
-               
-               .UnicastBus()
-                    .DoNotAutoSubscribe()
-                    .LoadMessageHandlers()
-               .IsTransactional(true)
-               .CreateBus()
-               .Start();
+            Configure.Transactions.Enable();
+
+            Configure.With()
+                     .Log4Net()
+                     .StructureMapBuilder(ObjectFactory.Container)
+
+                     .AzureMessageQueue().JsonSerializer()
+                     .Sagas().AzureSagaPersister()
+
+                     .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
+
+                     .UnicastBus()
+                     .DoNotAutoSubscribe()
+                     .LoadMessageHandlers()
+                     .CreateBus()
+                     .Start();
         }
     }
 }

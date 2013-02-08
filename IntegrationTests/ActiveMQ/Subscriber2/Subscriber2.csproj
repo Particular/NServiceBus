@@ -80,9 +80,6 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Hosting">
-      <HintPath>..\..\..\binaries\NServiceBus.Hosting.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor">
       <HintPath>..\..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
     </Reference>

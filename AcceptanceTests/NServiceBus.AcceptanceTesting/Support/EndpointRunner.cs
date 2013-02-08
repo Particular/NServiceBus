@@ -7,17 +7,17 @@
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
-        IBus bus;
+        IStartableBus bus;
         Configure config;
 
         EndpointBehavior behavior;
         ScenarioContext scenarioContext;
 
-        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName, ScenarioContext context)
+        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
-                scenarioContext = context;
+                scenarioContext = descriptor.ScenarioContext;
                 behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
                 behavior.EndpointName = endpointName;
 

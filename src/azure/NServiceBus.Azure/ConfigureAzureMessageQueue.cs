@@ -39,6 +39,7 @@ namespace NServiceBus
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MaximumWaitTimeWhenIdle, configSection.MaximumWaitTimeWhenIdle);
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.MessageInvisibleTime, configSection.MessageInvisibleTime);
                 Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.PeekInterval, configSection.PeekInterval);
+                Configure.Instance.Configurer.ConfigureProperty<AzureMessageQueueReceiver>(t => t.BatchSize, configSection.BatchSize);
             }
 
             if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))

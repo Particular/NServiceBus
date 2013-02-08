@@ -1,7 +1,4 @@
-using log4net.Core;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Integration.Azure;
 using StructureMap;
 
 namespace Cashier
@@ -24,6 +21,8 @@ namespace Cashier
 
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
@@ -35,7 +34,6 @@ namespace Cashier
                 .UseNHibernateTimeoutPersister()
                 .UnicastBus()
                 .LoadMessageHandlers()
-                .IsTransactional(true)
                 .CreateBus()
                 .Start();
         }

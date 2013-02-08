@@ -59,6 +59,8 @@ namespace MyServer
     
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             Bus = Configure.With()
                .DefineEndpointName("MyServer")
                .DefaultBuilder()
@@ -69,7 +71,6 @@ namespace MyServer
                .Sagas().AzureSagaPersister()
                .UnicastBus()
                     .LoadMessageHandlers()
-                    .IsTransactional(true)
                .CreateBus()
                .Start();
         }

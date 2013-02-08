@@ -21,8 +21,6 @@ namespace NServiceBus.Serializers.XML.Test
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
 
-    using NServiceBus.Serializers.Binary;
-
     using Serialization;
 
     [TestFixture]
@@ -715,6 +713,22 @@ namespace NServiceBus.Serializers.XML.Test
 
             Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());
             Assert.AreEqual(messageWithXElement.Document.ToString(), resultXElement.Document.ToString());
+        }
+
+        [Test]
+        public void Should_be_able_to_deserialize_many_messages_of_same_type()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { new EmptyMessage(), new EmptyMessage(), new EmptyMessage() }, stream);
+                stream.Position = 0;
+
+                var msgArray = serializer.Deserialize(stream, new[] { typeof(EmptyMessage).FullName });
+
+                Assert.AreEqual(3, msgArray.Length);
+            }
         }
     }
 

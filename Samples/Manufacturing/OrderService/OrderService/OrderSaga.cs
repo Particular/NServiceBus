@@ -16,8 +16,8 @@ namespace OrderService
     {
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<IOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
-            ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber, m => m.PurchaseOrderNumber);
+            ConfigureMapping<IOrderMessage>(s => s.PurchaseOrderNumber).ToSaga(m => m.PurchaseOrderNumber);
+            ConfigureMapping<CancelOrderMessage>(s => s.PurchaseOrderNumber).ToSaga(m => m.PurchaseOrderNumber);
             // Notice that we have no mappings for the OrderAuthorizationResponseMessage message. This is not needed since the HR
             // endpoint will do a Bus.Reply and NServiceBus will then automatically correlate the reply back to
             // the originating saga
@@ -47,7 +47,7 @@ namespace OrderService
                                                                    m.OrderLines = Convert<Messages.IOrderLine, IOrderLine>(status.OrderLines);
                                                                });
 
-                RequestUtcTimeout<DelayMessage>(Data.ProvideBy - TimeSpan.FromSeconds(2), delayMessage => delayMessage.State = "state");
+                RequestTimeout<DelayMessage>(Data.ProvideBy - TimeSpan.FromSeconds(2), delayMessage => delayMessage.State = "state");
             }
             else
             {

@@ -226,7 +226,7 @@ namespace NServiceBus.Serializers.XML
         /// Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream">Stream that contains messages.</param>
-        /// <param name="messageTypesToDeserialize">The list of message types to deserialize. If null the types must be infered from the serialized data.</param>
+        /// <param name="messageTypesToDeserialize">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<string> messageTypesToDeserialize = null)
         {
@@ -296,7 +296,7 @@ namespace NServiceBus.Serializers.XML
 
                     string nodeTypeString = null;
 
-                    if (messageTypesToDeserialize != null && position < messageTypes.Count())
+                    if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
                         nodeTypeString = messageTypesToDeserialize.ElementAt(position);
 
 
@@ -431,7 +431,6 @@ namespace NServiceBus.Serializers.XML
                     if (val != null)
                     {
                         fieldInfoToLateBoundFieldSet[field].Invoke(result, val);
-                        continue;
                     }
                 }
             }
@@ -884,7 +883,7 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            if (type.IsValueType || type == typeof(string) || type == typeof(Uri))
+            if (type.IsValueType || type == typeof(string) || type == typeof(Uri) || type == typeof(char))
             {
                 builder.AppendFormat("<{0}>{1}</{0}>\n", name, FormatAsString(value));
                 return;
@@ -941,7 +940,7 @@ namespace NServiceBus.Serializers.XML
             if (value is byte)
                 return XmlConvert.ToString((byte)value);
             if (value is char)
-                return XmlConvert.ToString((char)value);
+                return Escape((char)value);
             if (value is double)
                 return XmlConvert.ToString((double)value);
             if (value is ulong)
@@ -974,6 +973,47 @@ namespace NServiceBus.Serializers.XML
                 return Escape(value as string);
 
             return value.ToString();
+        }
+
+        private static string Escape(char c)
+        {
+            if (c == 0x9 || c == 0xA || c == 0xD
+                    || (0x20 <= c && c <= 0xD7FF)
+                    || (0xE000 <= c && c <= 0xFFFD)
+                    || (0x10000 <= c && c <= 0x10ffff)
+                    )
+            {
+                string ss = null;
+                switch (c)
+                {
+                    case '<':
+                        ss = "&lt;";
+                        break;
+                    case '>':
+                        ss = "&gt;";
+                        break;
+                    case '"':
+                        ss = "&quot;";
+                        break;
+                    case '\'':
+                        ss = "&apos;";
+                        break;
+                    case '&':
+                        ss = "&amp;";
+                        break;
+                }
+                if (ss != null)
+                {
+                    return ss;
+                }
+            }
+            else
+            {
+                return String.Format("&#x{0:X};", (int)c);
+            }
+
+            //Should not get here but just in case!
+            return c.ToString();
         }
 
         private static string Escape(string str)

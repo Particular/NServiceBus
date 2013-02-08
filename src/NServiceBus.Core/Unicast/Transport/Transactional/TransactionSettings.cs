@@ -2,23 +2,23 @@
 {
     using System;
     using System.Transactions;
-    using NServiceBus.Config;
 
     public class TransactionSettings
     {
         public TransactionSettings()
         {
             MaxRetries = 5;
-            IsTransactional = !Endpoint.IsVolatile;
-            TransactionTimeout = TransactionManager.DefaultTimeout;
-            IsolationLevel = IsolationLevel.ReadCommitted;
-            DontUseDistributedTransactions = Endpoint.DontUseDistributedTransactions;
+            IsTransactional = Configure.Transactions.Enabled;
+            TransactionTimeout = Configure.Transactions.Advanced().DefaultTimeout;
+            IsolationLevel = Configure.Transactions.Advanced().IsolationLevel;
+            DontUseDistributedTransactions = Configure.Transactions.Advanced().SuppressDistributedTransactions;
         }
 
         /// <summary>
         /// Sets whether or not the transport is transactional.
         /// </summary>
         public bool IsTransactional { get; set; }
+
         /// <summary>
         /// Property for getting/setting the period of time when the transaction times out.
         /// Only relevant when <see cref="IsTransactional"/> is set to true.

@@ -193,5 +193,10 @@ namespace NServiceBus.Config
         {
             BaseClear();
         }
+
+        public override bool IsReadOnly()
+        {
+            return false;
+        }
     }
 }

@@ -15,7 +15,6 @@
                 {
                     FailureManager = new FakeFailureManager(),
                     Receiver = fakeReceiver,
-                    TransactionSettings = new TransactionSettings()
                 };
 
         }

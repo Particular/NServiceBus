@@ -7,6 +7,7 @@
     using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
     using global::RabbitMQ.Client;
+    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     public class RabbitMqContext
     {
