@@ -10,10 +10,16 @@
         private readonly IConnectionFactory connectionFactory;
         private readonly ConcurrentBag<ISession> sessionPool = new ConcurrentBag<ISession>();
         private readonly ConcurrentDictionary<ISession, IConnection> connections = new ConcurrentDictionary<ISession, IConnection>();
+        private bool disposed;
 
         public PooledSessionFactory(IConnectionFactory connectionFactory)
         {
             this.connectionFactory = connectionFactory;
+        }
+
+        ~PooledSessionFactory()
+        {
+            this.Dispose(false);
         }
 
         public virtual ISession GetSession()
@@ -55,10 +61,26 @@
 
         public void Dispose()
         {
-            foreach (var connection in connections)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (this.disposed)
             {
-                connection.Value.Close();
+                return;
             }
+
+            if (disposing)
+            {
+                foreach (var connection in this.connections)
+                {
+                    connection.Value.Close();
+                }
+            }
+
+            this.disposed = true;
         }
     }
 }

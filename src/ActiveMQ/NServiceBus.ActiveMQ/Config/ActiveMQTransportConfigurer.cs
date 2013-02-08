@@ -3,6 +3,8 @@
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using NServiceBus.Config;
+    using NServiceBus.Transport.ActiveMQ.Receivers;
+    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Transport.ActiveMQ.SessionFactories;
 
     using Unicast.Queuing.Installers;
@@ -15,10 +17,6 @@
     {
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
-            config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
-                  .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
-
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
@@ -35,10 +33,16 @@
             config.Configurer.ConfigureComponent<DestinationEvaluator>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<ActiveMqQueueCreator>(DependencyLifecycle.InstancePerCall);
+
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<MessageProcessor>(DependencyLifecycle.InstancePerCall)
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MessageCounter>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall)
+                  .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<TransactionScopeFactory>(DependencyLifecycle.SingleInstance);
 
             if (!NServiceBus.Configure.Transactions.Enabled)
             {
@@ -63,7 +67,7 @@
         {
             var connectionFactory = new ConnectionFactory(brokerUri)
                 {
-                    AcknowledgementMode = AcknowledgementMode.AutoAcknowledge, 
+                    AcknowledgementMode = AcknowledgementMode.IndividualAcknowledge, 
                     AsyncSend = true
                 };
             var sessionFactory = new PooledSessionFactory(connectionFactory);
