@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {
-                throw new ArgumentException("Queue must be transactional (" + address + ").");
+                throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + address + ").");
             }
 
             var mpf = new MessagePropertyFilter();

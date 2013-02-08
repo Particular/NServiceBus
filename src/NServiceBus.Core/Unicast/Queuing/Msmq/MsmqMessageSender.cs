@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System;
     using System.Messaging;
     using System.Transactions;
+    using Config;
 
     public class MsmqMessageSender : ISendMessages
     {
@@ -11,12 +12,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
-                using (var q = new MessageQueue(queuePath, false, UseConnectionCache, QueueAccessMode.Send))
+                using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
                 {
                     using (Message toSend = MsmqUtilities.Convert(message))
                     {
-                        toSend.UseDeadLetterQueue = UseDeadLetterQueue;
-                        toSend.UseJournalQueue = UseJournalQueue;
+                        toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
+                        toSend.UseJournalQueue = Settings.UseJournalQueue;
 
                         if (message.ReplyToAddress != null)
                             toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
@@ -44,20 +45,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        /// <summary>
-        /// Determines if journaling should be activated
-        /// </summary>
-        public bool UseJournalQueue { get; set; }
 
         /// <summary>
-        /// Determines if the dead letter queue should be used
+        /// The current runtime settings for the transport
         /// </summary>
-        public bool UseDeadLetterQueue { get; set; }
-        
-        /// <summary>
-        /// Gets or sets a value that indicates whether a cache of connections will be maintained by the application.
-        /// </summary>
-        public bool UseConnectionCache { get; set; }
+        public MsmqSettings Settings{ get; set; }
 
         private static void ThrowFailedToSendException(Address address, Exception ex)
         {
@@ -68,11 +60,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
-        private static MessageQueueTransactionType GetTransactionTypeForSend()
+        MessageQueueTransactionType GetTransactionTypeForSend()
         {
-            if (!Configure.Transactions.Enabled)
+            if (!Settings.UseTransactionalQueues)
             {
                 return MessageQueueTransactionType.None;
+            }
+
+            if (Configure.Transactions.Advanced().SuppressDistributedTransactions)
+            {
+                return MessageQueueTransactionType.Single;
             }
             
             return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;

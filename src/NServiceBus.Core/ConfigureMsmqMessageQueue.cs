@@ -4,6 +4,7 @@ namespace NServiceBus
     using Logging;
     using Unicast.Queuing.Installers;
     using Unicast.Queuing.Msmq;
+    using Unicast.Queuing.Msmq.Config;
     using Unicast.Transport;
 
     /// <summary>
@@ -37,11 +38,13 @@ Here is an example of what is required:
             config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.SingleInstance);
+                
 
-            var settings = new MsmqSettings();
+
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 
+            var settings = new MsmqSettings();
             if (cfg != null)
             {
                 settings.UseJournalQueue = cfg.UseJournalQueue;
@@ -59,9 +62,8 @@ Here is an example of what is required:
                 }
             }
 
-            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseDeadLetterQueue, settings.UseDeadLetterQueue);
-            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseJournalQueue, settings.UseJournalQueue);
-            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.UseConnectionCache, settings.UseConnectionCache);
+            config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.Settings, settings);
+            config.Configurer.ConfigureProperty<MsmqQueueCreator>(t => t.Settings, settings);
 
             EndpointInputQueueCreator.Enabled = true;
 

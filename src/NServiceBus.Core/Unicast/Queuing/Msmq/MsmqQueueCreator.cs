@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
     using System;
     using System.Messaging;
     using System.Security.Principal;
+    using Config;
     using Logging;
 
     public class MsmqQueueCreator : ICreateQueues
@@ -12,18 +13,18 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         private static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         private static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
-        public void CreateQueueIfNecessary(Address address, string account)
-        {
-            CreateQueueIfNecessary(address, account, Configure.Transactions.Enabled);
-        }
-        
+        /// <summary>
+        /// The current runtime settings
+        /// </summary>
+        public MsmqSettings Settings { get; set; }
+
+     
         ///<summary>
         /// Utility method for creating a queue if it does not exist.
         ///</summary>
         ///<param name="address">Queue path to create</param>
         ///<param name="account">The account to be given permissions to the queue</param>
-        /// <param name="transactional">Determine if to create an MSMQ transactional queue</param>
-        private static void CreateQueueIfNecessary(Address address, string account, bool transactional = true)
+        public void CreateQueueIfNecessary(Address address, string account)
         {
             if (address == null)
                 return;
@@ -51,7 +52,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 Logger.Warn("Queue " + q + " does not exist.");
                 Logger.Debug("Going to create queue: " + q);
 
-                CreateQueue(q, account, transactional);
+                CreateQueue(q, account, Settings.UseTransactionalQueues);
             }
             catch (MessageQueueException ex)
             {

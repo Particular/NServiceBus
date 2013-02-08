@@ -135,6 +135,7 @@
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
+    <Compile Include="Unicast\Queuing\Msmq\Config\MsmqSettings.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
