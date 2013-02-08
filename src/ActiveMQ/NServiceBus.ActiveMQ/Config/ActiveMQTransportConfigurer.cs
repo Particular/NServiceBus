@@ -67,7 +67,7 @@
         {
             var connectionFactory = new ConnectionFactory(brokerUri)
                 {
-                    AcknowledgementMode = AcknowledgementMode.AutoAcknowledge, 
+                    AcknowledgementMode = AcknowledgementMode.IndividualAcknowledge, 
                     AsyncSend = true
                 };
             var sessionFactory = new PooledSessionFactory(connectionFactory);
