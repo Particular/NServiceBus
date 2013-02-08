@@ -17,13 +17,10 @@
         private EventConsumer testee;
         private Mock<IProcessMessages> messageProcessorMock;
         private NotifyTopicSubscriptionsMock subscriptionManagerMock;
-        private Mock<ISession> session;
-
+        
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<ISession>();
-
             this.messageProcessorMock = new Mock<IProcessMessages>();
             this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
 
@@ -37,7 +34,7 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
             this.testee.Start();
@@ -54,7 +51,7 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
             this.testee.Start();
@@ -72,7 +69,7 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
             this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
@@ -88,7 +85,7 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
             this.subscriptionManagerMock.InitialTopics.Add(Topic);
 
             this.testee.ConsumerName = ConsumerName;
@@ -104,7 +101,7 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
             this.testee.Start();
@@ -120,7 +117,7 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
 
-            var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
             this.testee.Start();
@@ -131,17 +128,29 @@
             topicConsumer.Verify(c => c.Dispose());
         }
 
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, IDestination destination)
+        [Test]
+        public void WhenConsumerNameHasDot_ThenItIsReplacedByDashForSubscriptions_SoThatTheVirtualTopicNamePatternIsNotBroken()
         {
-            var consumerMock = new Mock<IMessageConsumer>();
-            sessionMock.Setup(s => s.CreateConsumer(destination)).Returns(consumerMock.Object);
-            return consumerMock;
+            const string Topic = "Some.Topic";
+            const string ConsumerName = "A.B.C";
+            const string ExpectedConsumerName = "A-B-C";
+            var message = new Mock<IMessage>().Object;
+
+            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ExpectedConsumerName, Topic));
+
+            this.testee.ConsumerName = ConsumerName;
+            this.testee.Start();
+            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            this.RaiseEventReceived(topicConsumer, message);
+
+            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
         }
 
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, string queue)
+        private Mock<IMessageConsumer> SetupCreateConsumer(string queue)
         {
-            var destination = this.SetupGetQueue(this.session, queue);
-            return this.SetupCreateConsumer(sessionMock, destination);
+            var consumerMock = new Mock<IMessageConsumer>();
+            this.messageProcessorMock.Setup(mp => mp.CreateMessageConsumer(queue)).Returns(consumerMock.Object);
+            return consumerMock;
         }
 
         private IQueue SetupGetQueue(Mock<ISession> sessionMock, string queue)

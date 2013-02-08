@@ -10,6 +10,8 @@
         private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
         private readonly IProcessMessages messageProcessor;
         private bool disposed;
+        private string consumerName;
+        private string internalConsumerName;
 
         public EventConsumer(INotifyTopicSubscriptions notifyTopicSubscriptions, IProcessMessages messageProcessor)
         {
@@ -22,7 +24,18 @@
             this.Dispose(false);
         }
 
-        public string ConsumerName { get; set; }
+        public string ConsumerName
+        {
+            get
+            {
+                return this.consumerName;
+            }
+            set
+            {
+                this.consumerName = value;
+                this.internalConsumerName = value.Replace('.', '-');
+            }
+        }
 
         public void Start()
         {
@@ -91,7 +104,7 @@
 
         private void Subscribe(string topic)
         {
-            var consumer = this.messageProcessor.CreateMessageConsumer(string.Format("queue://Consumer.{0}.{1}", this.ConsumerName, topic));
+            var consumer = this.messageProcessor.CreateMessageConsumer(string.Format("queue://Consumer.{0}.{1}", this.internalConsumerName, topic));
             consumer.Listener += this.messageProcessor.ProcessMessage;
             this.topicConsumers[topic] = consumer;
         }
