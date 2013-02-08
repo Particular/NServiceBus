@@ -68,8 +68,10 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             storageQueue = new MessageQueue(path);
 
-            if ((!storageQueue.Transactional) && (!Endpoint.IsVolatile))
+            if ((!storageQueue.Transactional) && (Configure.Transactions.Enabled))
+            {
                 throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
+            }
         }
 
         public void Stop()

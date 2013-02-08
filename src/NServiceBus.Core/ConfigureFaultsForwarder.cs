@@ -22,8 +22,11 @@ namespace NServiceBus
             {
                  return config;
             }
-            if (Endpoint.IsSendOnly)
+            if (Configure.Endpoint.IsSendOnly)
+            {
                 return config;
+            }
+
             var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
             if (section != null)
             {
@@ -68,8 +71,10 @@ namespace NServiceBus
     {
         public void Init()
         {
-            if (!Endpoint.IsSendOnly && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!Configure.Endpoint.IsSendOnly && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            {
                 Configure.Instance.MessageForwardingInCaseOfFault();
+            }
         }
     }
 }

@@ -123,7 +123,7 @@
     <Compile Include="Config\ConfigureNotifications.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
-    <Compile Include="Config\Endpoint.cs" />
+    <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\FtpQueueConfig.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Config\IConfigureTransport.cs" />
@@ -139,7 +139,6 @@
     <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
-    <Compile Include="Config\SatelliteLauncherConfiguration.cs" />
     <Compile Include="Config\SecondLevelRetriesConfig.cs" />
     <Compile Include="Config\SecondLevelRetriesConfiguration.cs" />
     <Compile Include="Config\TransportConfig.cs" />
@@ -184,7 +183,6 @@
     <Compile Include="Gateway\Channels\Http\IHttpResponder.cs" />
     <Compile Include="Gateway\Channels\IChannelReceiver.cs" />
     <Compile Include="Gateway\Channels\IChannelSender.cs" />
-    <Compile Include="Gateway\HeaderManagement\Bootstrapper.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayReturnInfo.cs" />
@@ -374,6 +372,8 @@
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
     <Compile Include="SetLoggingLibrary.cs" />
+    <Compile Include="Settings\Endpoint.cs" />
+    <Compile Include="Settings\TransactionSettings.cs" />
     <Compile Include="SyncConfig.cs" />
     <Compile Include="TaskSchedulers\IOCompletionPortTaskScheduler.cs" />
     <Compile Include="TaskSchedulers\MTATaskScheduler.cs" />

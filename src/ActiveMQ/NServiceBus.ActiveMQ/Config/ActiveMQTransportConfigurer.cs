@@ -23,7 +23,6 @@
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
-            //config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
@@ -41,13 +40,13 @@
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
 
-            if (!Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional)
+            if (!NServiceBus.Configure.Transactions.Enabled)
             {
                 RegisterNoneTransactionSessionFactory(config, brokerUri);
             }
             else
             {
-                if (Endpoint.DontUseDistributedTransactions)
+                if (NServiceBus.Configure.Transactions.Advanced().SuppressDistributedTransactions)
                 {
                     RegisterActiveMQManagedTransactionSessionFactory(config, brokerUri);
                 }

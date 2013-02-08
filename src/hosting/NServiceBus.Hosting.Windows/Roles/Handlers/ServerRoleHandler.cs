@@ -20,7 +20,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
          
             return Configure.Instance
                 .Sagas()
-                .IsTransactional(!Endpoint.IsVolatile)
                 .PurgeOnStartup(false)
                 .UnicastBus()
                 .ImpersonateSender(true);

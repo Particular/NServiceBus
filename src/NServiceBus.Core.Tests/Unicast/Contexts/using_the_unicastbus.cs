@@ -53,7 +53,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = Endpoint.IsVolatile
+                    DefaultToNonPersistentMessages = !Configure.Endpoint.Advanced().DurableMessages
                 };
 
             try

@@ -14,7 +14,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
                 return;
             }
 
-            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !Endpoint.IsSendOnly)
+            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !Configure.Endpoint.IsSendOnly)
             {
                 DefaultPersistence();
             }

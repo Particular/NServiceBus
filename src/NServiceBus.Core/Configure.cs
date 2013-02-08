@@ -152,6 +152,14 @@ namespace NServiceBus
         {
         }
 
+        private static Endpoint endpoint;
+
+        public static Endpoint Endpoint { get { return endpoint ?? (endpoint = new Endpoint()); } }
+
+        private static TransactionSettings transactionSetting;
+
+        public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
+
         /// <summary>
         /// True if this endpoint is operating in send only mode
         /// </summary>

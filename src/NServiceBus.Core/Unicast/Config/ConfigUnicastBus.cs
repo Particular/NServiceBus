@@ -52,7 +52,7 @@ namespace NServiceBus.Unicast.Config
         {
             var messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = Endpoint.IsVolatile
+                    DefaultToNonPersistentMessages = !Endpoint.Advanced().DurableMessages
                 };
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);

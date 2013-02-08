@@ -5,7 +5,6 @@
 
     public class TransportConfig : ConfigurationSection
     {
-     
         /// <summary>
         /// Specifies the maximum concurrency level this <see cref="ITransport"/> is able to support.
         /// </summary>

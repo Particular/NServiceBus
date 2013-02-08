@@ -51,7 +51,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
             }
 
-            if (!transactional && !Endpoint.IsVolatile)
+            if (!transactional && Configure.Transactions.Enabled)
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
             var mpf = new MessagePropertyFilter();
@@ -174,15 +174,22 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
-            if(Endpoint.IsVolatile)
+            if (!Configure.Transactions.Enabled)
+            {
                 return MessageQueueTransactionType.None;
+            }
 
             if (ConfigurationIsWrong())
+            {
                 throw new InvalidOperationException("This endpoint is not configured to be transactional. Processing subscriptions on a non-transactional endpoint is not supported by default. If you still wish to do so, please set the 'DontUseExternalTransaction' property of MsmqSubscriptionStorage to 'true'.\n\nThe recommended solution to this problem is to include '.IsTransaction(true)' after '.MsmqTransport()' in your fluent initialization code, or if you're using NServiceBus.Host.exe to have the class which implements IConfigureThisEndpoint to also inherit AsA_Server or AsA_Publisher.");
+            }
 
 	        var t = MessageQueueTransactionType.Automatic;
 	        if (DontUseExternalTransaction)
+	        {
 	            t = MessageQueueTransactionType.Single;
+	        }
+
 	        return t;
 	    }
 

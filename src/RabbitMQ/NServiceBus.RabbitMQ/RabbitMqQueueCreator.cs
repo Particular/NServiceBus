@@ -10,7 +10,7 @@
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
-            var durable = !Endpoint.IsVolatile;
+            var durable = Configure.Endpoint.Advanced().DurableMessages;
 
             using (var channel = Connection.CreateModel())
             {
@@ -18,7 +18,9 @@
 
                 //only setup a exchange for the main endpoint queue
                 if (address == Address.Local)
+                {
                     channel.ExchangeDeclare(address.Queue + ".events", "topic", durable);
+                }
             }
 
         }

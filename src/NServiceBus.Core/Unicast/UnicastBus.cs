@@ -1444,7 +1444,7 @@ namespace NServiceBus.Unicast
         /// <returns>The envelope containing the messages.</returns>
         void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {
-            if (!Endpoint.IsSendOnly)
+            if (!Configure.Endpoint.IsSendOnly)
             {
                 result.ReplyToAddress = Address.Local;
 

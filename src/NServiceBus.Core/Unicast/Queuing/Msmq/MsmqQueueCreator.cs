@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
-            CreateQueueIfNecessary(address, account, !Endpoint.IsVolatile);
+            CreateQueueIfNecessary(address, account, Configure.Transactions.Enabled);
         }
         
         ///<summary>

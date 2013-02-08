@@ -19,17 +19,24 @@ namespace NServiceBus.Satellites
         /// <param name="identity">The user for whom permissions will be given.</param>
         public void Install(string identity)
         {
-            if (Endpoint.IsSendOnly)
+            if (Configure.Endpoint.IsSendOnly)
+            {
                 return;
+            }
 
             if (MsmqTransportConfig.DoNotCreateQueues)
+            {
                 return;
+            }
 
             var satellites = Configure.Instance.Builder
                  .BuildAll<ISatellite>()
                  .ToList();
+
             foreach (var satellite in satellites.Where(satellite => !satellite.Disabled && satellite.InputAddress != null))
+            {
                 QueueCreator.CreateQueueIfNecessary(satellite.InputAddress, identity);
+            }
         }
     }
 }

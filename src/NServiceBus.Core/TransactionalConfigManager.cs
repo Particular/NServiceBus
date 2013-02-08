@@ -1,9 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using System.Configuration;
     using System.Transactions;
-    using System.Transactions.Configuration;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
@@ -18,9 +16,18 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="value"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Configure.Transactions.Enable() or Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
         public static Configure IsTransactional(this Configure config, bool value)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional = value;
+            if (value)
+            {
+                Configure.Transactions.Enable();
+            }
+            else
+            {
+                Configure.Transactions.Disable();
+            }
+
             return config;
         }
 
@@ -32,9 +39,11 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public static Configure DontUseTransactions(this Configure config)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsTransactional = false;
+            Configure.Transactions.Disable();
+
             return config;
         }
 
@@ -50,9 +59,11 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="isolationLevel"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]        
         public static Configure IsolationLevel(this Configure config, IsolationLevel isolationLevel)
         {
-            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.IsolationLevel = isolationLevel;
+            Configure.Transactions.Advanced().IsolationLevel = isolationLevel;
+
             return config;
         }
 
@@ -64,35 +75,12 @@ namespace NServiceBus
         /// <param name="config"></param>
         /// <param name="transactionTimeout"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
         public static Configure TransactionTimeout(this Configure config, TimeSpan transactionTimeout)
         {
-            var maxTimeout = GetMaxTimeout();
+            Configure.Transactions.Advanced().DefaultTimeout = transactionTimeout;
 
-            if(transactionTimeout > maxTimeout)
-                throw new ConfigurationErrorsException("Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
-
-            Unicast.Transport.Transactional.Config.Bootstrapper.TransactionSettings.TransactionTimeout = transactionTimeout;
-         
             return config;
-        }
-
-        static TimeSpan GetMaxTimeout()
-        {
-            //default is 10 always 10 minutes
-            var maxTimeout = TimeSpan.FromMinutes(10);
-
-            var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
-                .GetSectionGroup("system.transactions");
-
-            if (systemTransactionsGroup != null)
-            {
-                var machineSettings = systemTransactionsGroup.Sections.Get("machineSettings") as MachineSettingsSection;
-               
-                if (machineSettings != null)
-                    maxTimeout = machineSettings.MaxTimeout;
-            }
-
-            return maxTimeout;
         }
     }
 }

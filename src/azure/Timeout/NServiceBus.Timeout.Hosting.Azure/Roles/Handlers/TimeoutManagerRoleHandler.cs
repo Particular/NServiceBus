@@ -29,15 +29,15 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 instance.AzureConfigurationSource();
             }
 
+            Configure.Transactions.Enable();
+            
             return instance
                 .JsonSerializer()
                 .UseAzureTimeoutPersister()
-                .IsTransactional(true)
                 .Sagas()
                 .UnicastBus()
                     .ImpersonateSender(false);
         }
-
 
         public IConfigureThisEndpoint Config { get; set; }
     }
