@@ -2,7 +2,6 @@
 {
     using System.Threading;
     using NServiceBus;
-    using NServiceBus.Config;
 
     public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
     {
@@ -14,7 +13,7 @@
             var bus = Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .MsmqTransport()
+                .UseTransport<Msmq>()
                 .UnicastBus()
                 .SendOnly();
 

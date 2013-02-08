@@ -23,6 +23,8 @@ namespace TimeoutManager
 
         private static void BootstrapNServiceBus()
         {
+            Configure.Transations.Enable();
+
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
@@ -32,7 +34,6 @@ namespace TimeoutManager
                 .ListenOnAzureStorageQueues()
                 .UnicastBus()
                     .LoadMessageHandlers()
-                    .IsTransactional(true)
                 .CreateBus()
                 .Start();
         }

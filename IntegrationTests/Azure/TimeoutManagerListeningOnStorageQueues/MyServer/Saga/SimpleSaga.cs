@@ -12,7 +12,7 @@
             Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
-            RequestUtcTimeout(TimeSpan.FromSeconds(10), someState);
+            RequestTimeout(TimeSpan.FromSeconds(10), someState);
             LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
         }
 
@@ -24,7 +24,7 @@
             var someState = new Random().Next(10);
 
             LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
-            RequestUtcTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
+            RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
                                                         {
                                                             SomeValue = someState
                                                         });
@@ -32,12 +32,12 @@
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<StartSagaMessage>(s => s.OrderId, m => m.OrderId);
+            ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         void LogMessage(string message)
         {
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(),message));
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(),message);
         }
 
         public void Timeout(MyTimeOutState state)

@@ -8,7 +8,8 @@ namespace Barista
     public class Bootstrapper
     {
         private Bootstrapper()
-        {}
+        {
+        }
 
         public static void Bootstrap()
         {
@@ -23,18 +24,19 @@ namespace Barista
 
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             Configure.With()
-               .Log4Net()
-               .StructureMapBuilder(ObjectFactory.Container)
-               .AzureMessageQueue().JsonSerializer()
-               .AzureSubcriptionStorage()
-               .Sagas().AzureSagaPersister()
-               .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
-               .UnicastBus()
-               .LoadMessageHandlers()
-               .IsTransactional(true)
-               .CreateBus()
-               .Start();
+                     .Log4Net()
+                     .StructureMapBuilder(ObjectFactory.Container)
+                     .AzureMessageQueue().JsonSerializer()
+                     .AzureSubcriptionStorage()
+                     .Sagas().AzureSagaPersister()
+                     .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
+                     .UnicastBus()
+                     .LoadMessageHandlers()
+                     .CreateBus()
+                     .Start();
         }
     }
 }

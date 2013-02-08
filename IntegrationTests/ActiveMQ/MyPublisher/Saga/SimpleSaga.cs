@@ -27,8 +27,8 @@
 
         public override void ConfigureHowToFindSaga()
         {
-            this.ConfigureMapping<StartSagaMessage>(s => s.OrderId, m => m.OrderId);
-            this.ConfigureMapping<CompleteSagaMessage>(s => s.OrderId, m => m.OrderId);
+            this.ConfigureMapping<StartSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
+            this.ConfigureMapping<CompleteSagaMessage>(s => s.OrderId).ToSaga(m => m.OrderId);
         }
 
         void LogMessage(string message)

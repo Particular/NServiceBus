@@ -15,7 +15,7 @@ namespace SiteB
             Configure.With()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .MsmqTransport()
+                .UseTransport<Msmq>()
                 .UnicastBus()
                 .FileShareDataBus(".\\databus")
                 .RunGateway()//this line configures the gateway.

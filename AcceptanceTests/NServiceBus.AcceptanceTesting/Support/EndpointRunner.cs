@@ -7,7 +7,7 @@
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
-        IBus bus;
+        IStartableBus bus;
         Configure config;
 
         EndpointBehavior behavior;

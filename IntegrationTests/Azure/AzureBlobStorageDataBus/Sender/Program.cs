@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus;
-using NServiceBus.Config;
 using Receiver.Messages;
 
 namespace Sender
@@ -55,15 +54,15 @@ namespace Sender
         }
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             bus = Configure.With()
                .DefaultBuilder()
-        //       .AzureConfigurationSource()
                .AzureMessageQueue()
                     .BinarySerializer()
                .AzureDataBus()
                .UnicastBus()
                     .LoadMessageHandlers()
-                    .IsTransactional(true)
                .CreateBus()
                .Start();
         }

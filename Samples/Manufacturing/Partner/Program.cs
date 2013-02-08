@@ -12,12 +12,13 @@ namespace Partner
         private static IBus bus;
         private static void BusBootstrap()
         {
+            Configure.Transactions.Enable();
+
             bus = Configure.With()
                 .Log4Net()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(true)
+                .UseTransport<Msmq>()
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .ImpersonateSender(false)

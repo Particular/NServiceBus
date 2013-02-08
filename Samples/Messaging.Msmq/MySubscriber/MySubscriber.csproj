@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')">
-</Import>
+  </Import>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NServiceBus">
@@ -42,36 +43,35 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    
     <Reference Include="System">
-</Reference>
+    </Reference>
     <Reference Include="System.Core">
-</Reference>
+    </Reference>
     <Reference Include="System.Xml.Linq">
-</Reference>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
-</Reference>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
-</Reference>
+    </Reference>
     <Reference Include="System.Data">
-</Reference>
+    </Reference>
     <Reference Include="System.Xml">
-</Reference>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs">
-</Compile>
+    </Compile>
     <Compile Include="CoolDownPeriodElapsedHandler.cs">
-</Compile>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
-</Compile>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config">
-</None>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">
@@ -80,11 +80,12 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets">
-</Import>
+  </Import>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets">
-</Import>
+  </Import>
 </Project>

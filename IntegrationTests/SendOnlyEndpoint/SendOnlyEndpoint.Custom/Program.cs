@@ -3,8 +3,6 @@ using NServiceBus;
 
 namespace SendOnlyEndpoint.Custom
 {
-    using NServiceBus.Config;
-
     public class Program
     {
         static void Main()
@@ -12,7 +10,7 @@ namespace SendOnlyEndpoint.Custom
             var bus = Configure.With()
                 .UnityBuilder()
                 .XmlSerializer()
-                .MsmqTransport()
+                .UseTransport<Msmq>()
                 .UnicastBus()
                 .SendOnly();
 

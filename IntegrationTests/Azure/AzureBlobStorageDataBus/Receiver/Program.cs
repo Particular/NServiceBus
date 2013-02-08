@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus;
-using NServiceBus.Config;
 
 namespace Receiver
 {
@@ -12,20 +11,19 @@ namespace Receiver
 
             Console.WriteLine("Press enter to stop receiving");
             Console.ReadLine();
-
         }
 
         private static void BootstrapNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             Configure.With()
                .DefaultBuilder()
-            //   .AzureConfigurationSource()
                .AzureMessageQueue()
                     .BinarySerializer()
                .AzureDataBus()
                .UnicastBus()
                     .LoadMessageHandlers()
-                    .IsTransactional(true)
                .CreateBus()
                .Start();
         }

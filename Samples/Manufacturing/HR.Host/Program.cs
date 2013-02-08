@@ -7,12 +7,13 @@ namespace HR.Host
     {
         static void Main()
         {
+            Configure.Transactions.Enable();
+
             Configure.With()
                 .Log4Net()
                 .DefaultBuilder()
                 .XmlSerializer()
-                .MsmqTransport()
-                    .IsTransactional(true)
+                .UseTransport<Msmq>()
                     .PurgeOnStartup(false)
                     .InMemorySubscriptionStorage()
                 .UnicastBus()
