@@ -13,7 +13,7 @@
         public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor
         {
             excludes.AddRange(runDescriptorsToExclude.Select(r => r.Key.ToLowerInvariant()).ToArray());
-            
+
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
             return For(sd.ToArray());
@@ -40,29 +40,41 @@
                 }
             }
 
-         
+
             descriptors = result;
 
             return this;
         }
 
-        public IList<RunDescriptor> Descriptors
+        public IList<RunDescriptor> Build()
         {
-            get
+            var environmentExcludes = GetEnvironmentExcludes();
+
+            var activeDescriptors = descriptors.Where(d =>
+                !excludes.Any(e => d.Key.ToLower().Contains(e)) &&
+                !environmentExcludes.Any(e => d.Key.ToLower().Contains(e))
+                ).ToList();
+
+            int permutation = 1;
+            foreach (var run in activeDescriptors)
             {
-                var activeDescriptors = descriptors.Where(d => !excludes.Any(e => d.Key.ToLower().Contains(e))).ToList();
+                run.Permutation = permutation;
 
-                int permutation = 1;
-                foreach (var run in activeDescriptors)
-                {
-                    run.Permutation = permutation;
+                permutation++;
 
-                    permutation++;
-
-                }
-
-                return activeDescriptors;
             }
+
+            return activeDescriptors;
+        }
+
+        static IList<string> GetEnvironmentExcludes()
+        {
+            var env = Environment.GetEnvironmentVariable("nservicebus_test_exclude_scenarios");
+            if (string.IsNullOrEmpty(env))
+                return new List<string>();
+
+            Console.Out.WriteLine("Scenarios excluded for this environment: " + env);
+            return env.ToLower().Split(';');
         }
     }
 }

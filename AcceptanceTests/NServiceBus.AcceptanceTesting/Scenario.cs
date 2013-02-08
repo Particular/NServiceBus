@@ -52,7 +52,7 @@
 
             runDescriptorsBuilderAction(builder);
 
-            var runDescriptors = builder.Descriptors;
+            var runDescriptors = builder.Build();
 
             if (!runDescriptors.Any())
                 runDescriptors.Add(new RunDescriptor
