@@ -6,7 +6,7 @@ namespace NServiceBus.Unicast
     /// <summary>
     /// Extension of the IBus interface for working with a distributor.
     /// </summary>
-    public interface IUnicastBus : IBus
+    public interface IUnicastBus : IStartableBus
     {
         /// <summary>
         /// Event raised by the Publish method when no subscribers are

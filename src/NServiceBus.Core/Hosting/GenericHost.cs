@@ -180,7 +180,7 @@ namespace NServiceBus.Hosting
             roleManager = new RoleManager(assembliesToScan);
         }
 
-        IBus bus;
+        IStartableBus bus;
         readonly IConfigureThisEndpoint specifier;
         readonly ProfileManager profileManager;
         readonly ConfigManager configManager;

@@ -168,7 +168,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected void StartBus()
         {
-            bus.Start();
+            ((IStartableBus)bus).Start();
         }
 
         protected void AssertSubscription(Predicate<TransportMessage> condition, Address addressOfPublishingEndpoint)

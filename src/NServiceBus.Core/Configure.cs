@@ -15,6 +15,7 @@ namespace NServiceBus
     using Installation.Environments;
     using Logging;
     using ObjectBuilder;
+    using Settings;
 
     /// <summary>
     /// Central configuration entry point for NServiceBus.
@@ -270,14 +271,16 @@ namespace NServiceBus
         /// Provides an instance to a startable bus.
         /// </summary>
         /// <returns></returns>
-        public IBus CreateBus()
+        public IStartableBus CreateBus()
         {
             Initialize();
 
-            if (!Configurer.HasComponent<IBus>())
-                throw new InvalidOperationException("No IBus implementation was registered, make sure that you have a call to .UnicastBus() in your configuration code");
+            if (!Configurer.HasComponent<IStartableBus>())
+            {
+                Instance.UnicastBus();
+            }
 
-            return Builder.Build<IBus>();
+            return Builder.Build<IStartableBus>();
         }
 
         private static bool beforeConfigurationInitializersCalled;
@@ -299,7 +302,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Finalizes the configuration by invoking all initializers.
+        /// Finalizes the configuration by invoking all initialisers.
         /// </summary>
         public void Initialize()
         {
