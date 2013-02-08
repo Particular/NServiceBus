@@ -3,6 +3,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
     using System;
     using System.Transactions;
     using Apache.NMS;
+    using Apache.NMS.ActiveMQ;
 
     public class DTCTransactionScope : ITransactionScope
     {
@@ -12,7 +13,6 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
         public DTCTransactionScope(ISession session, TransactionOptions transactionOptions)
         {
             this.transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
-            //((NetTxSession)session).Enlist(Transaction.Current);
         }
 
         public void Dispose()

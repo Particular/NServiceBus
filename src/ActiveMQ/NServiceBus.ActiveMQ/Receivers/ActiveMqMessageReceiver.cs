@@ -63,7 +63,6 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
                 if (disposing)
                 {
                     this.eventConsumer.Dispose();
-                    this.defaultConsumer.Close();
                     this.defaultConsumer.Dispose();
                     this.messageProcessor.Dispose();
                 }
@@ -72,6 +71,8 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             {
                 Logger.Warn("Failed to dispose the receiver",ex);
             }
+
+            disposed = true;
         }
 
         static ILog Logger = LogManager.GetLogger("ActiveMq");

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
+    using System;
     using System.Collections.Generic;
     using Apache.NMS;
 
@@ -8,11 +9,17 @@
         private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
         private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
         private readonly IProcessMessages messageProcessor;
+        private bool disposed;
 
         public EventConsumer(INotifyTopicSubscriptions notifyTopicSubscriptions, IProcessMessages messageProcessor)
         {
             this.notifyTopicSubscriptions = notifyTopicSubscriptions;
             this.messageProcessor = messageProcessor;
+        }
+
+        ~EventConsumer()
+        {
+            this.Dispose(false);
         }
 
         public string ConsumerName { get; set; }
@@ -33,11 +40,26 @@
 
         public void Dispose()
         {
-            foreach (var messageConsumer in this.topicConsumers)
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this.disposed)
             {
-                messageConsumer.Value.Close();
-                messageConsumer.Value.Dispose();
+                return;
             }
+
+            if (disposing)
+            {
+                foreach (var messageConsumer in this.topicConsumers)
+                {
+                    messageConsumer.Value.Dispose();
+                }
+            }
+
+            this.disposed = true;
         }
 
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)

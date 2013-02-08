@@ -18,12 +18,14 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         private readonly ITransactionScopeFactory transactionScopeFactory;
 
         private volatile bool stop = false;
-        public ISession session;
+        private ISession session;
         private TransactionSettings transactionSettings;
+        private bool disposed;
 
         public Action<string, Exception> EndProcessMessage { get; set; }
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
         public bool PurgeOnStartup { get; set; }
+
 
         public MessageProcessor(
             IMessageCounter pendingMessagesCounter,
@@ -37,6 +39,11 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
             this.sessionFactory = sessionFactory;
             this.purger = purger;
             this.transactionScopeFactory = transactionScopeFactory;
+        }
+
+        ~MessageProcessor()
+        {
+            this.Dispose(false);
         }
 
         public virtual void Start(TransactionSettings transactionSettings)
@@ -53,9 +60,25 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
 
         public void Dispose()
         {
-            this.sessionFactory.Release(this.session);
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
-        
+
+        private void Dispose(bool diposing)
+        {
+            if (this.disposed)
+            {
+                return;
+            }
+
+            if (diposing)
+            {
+                this.sessionFactory.Release(this.session);
+            }
+
+            this.disposed = true;
+        }
+
         public void ProcessMessage(IMessage message)
         {
             try
