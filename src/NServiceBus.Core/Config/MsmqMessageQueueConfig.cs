@@ -2,6 +2,7 @@ namespace NServiceBus.Config
 {
     using System.Configuration;
     using System.Data.Common;
+    using Unicast.Queuing.Msmq.Config;
 
     /// <summary>
     /// Contains the properties representing the MsmqMessageQueue configuration section.
@@ -64,20 +65,11 @@ namespace NServiceBus.Config
             if (ContainsKey("cacheSendConnection"))
                 settings.UseConnectionCache = bool.Parse((string)this["cacheSendConnection"]);
 
+            if (ContainsKey("useTransactionalQueues"))
+                settings.UseTransactionalQueues = bool.Parse((string)this["useTransactionalQueues"]);
+
+           
             return settings;
         }
-    }
-
-    class MsmqSettings
-    {
-        public MsmqSettings()
-        {
-            UseDeadLetterQueue = true;
-            UseConnectionCache = true;
-        }
-
-        public bool UseDeadLetterQueue { get; set; }
-        public bool UseJournalQueue { get; set; }
-        public bool UseConnectionCache { get; set; }
     }
 }

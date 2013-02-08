@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Queuing
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
             {
                 QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
-                Logger.InfoFormat("Created queue: [{0}], for identity: [{1}]", wantQueueCreatedInstance.Address, identity);
+                Logger.DebugFormat("Verified that the queue: [{0}] existed", wantQueueCreatedInstance.Address);
             }
         }
 
