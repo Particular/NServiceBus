@@ -5,7 +5,7 @@
 
     public interface IConsumeEvents : IDisposable
     {
-        void Start(ISession session, IProcessMessages messageProcessor);
+        void Start();
         void Stop();
     }
 }

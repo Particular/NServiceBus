@@ -1,17 +1,8 @@
 ﻿namespace NServiceBus.ActiveMQ.Receivers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Transactions;
-
     using Apache.NMS;
-
-    using FluentAssertions;
-
     using Moq;
 
-    using NServiceBus.Transport.ActiveMQ;
     using NServiceBus.Transport.ActiveMQ.Receivers;
     using NServiceBus.Unicast.Transport.Transactional;
 
@@ -22,272 +13,139 @@
     {
         private ActiveMqMessageReceiver testee;
 
-        private Mock<ISessionFactory> sessionFactoryMock;
-        private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
-        private Mock<ISession> session;
-        private Mock<IActiveMqPurger> purger;
-        private Mock<IMessageConsumer> consumer;
-        private Mock<IMessageCounter> pendingMessageCounterMock;
+        private Mock<IMessageConsumer> messageConsumerMock;
         private Mock<IConsumeEvents> eventConsumerMock;
+        private Mock<IProcessMessages> messageProcessorMock;
 
         [SetUp] 
         public void SetUp()
         {
-            this.sessionFactoryMock = new Mock<ISessionFactory>();
-            this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
-            this.purger = new Mock<IActiveMqPurger>();
-            this.pendingMessageCounterMock = new Mock<IMessageCounter>();
+            this.messageProcessorMock = new Mock<IProcessMessages>();
             this.eventConsumerMock = new Mock<IConsumeEvents>();
+            this.messageConsumerMock = new Mock<IMessageConsumer>();
 
             this.testee = new ActiveMqMessageReceiver(
-                this.sessionFactoryMock.Object, 
-                this.activeMqMessageMapperMock.Object, 
-                this.purger.Object,
-                this.pendingMessageCounterMock.Object,
-                this.eventConsumerMock.Object);
+                this.eventConsumerMock.Object,
+                this.messageProcessorMock.Object);
 
-            this.testee.EndProcessMessage = (s, exception) => { };
+            this.messageProcessorMock
+                .Setup(mp => mp.CreateMessageConsumer(It.IsAny<string>()))
+                .Returns(this.messageConsumerMock.Object);
+
+            Address.InitializeLocalAddress("local");
         }
 
         [Test]
-        public void WhenMessageIsReceived_ThenMessageReceivedIsRaised()
+        public void OnStart_MessageProcessorIsStarted()
         {
-            const string Queue = "somequeue";
-            var messageMock = new Mock<IMessage>();
-            var transportMessage = new TransportMessage();
-            TransportMessage receivedMessage = null;
+            var transactionSettings = new TransactionSettings();
 
-            this.testee.TryProcessMessage = m =>
-                {
-                    receivedMessage = m; 
-                    return true; 
-                };
-            this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
+            this.testee.Start(Address.Local, transactionSettings);
 
-            this.StartTestee(new Address(Queue, "machine"));
-            this.consumer.Raise(c => c.Listener += null, messageMock.Object);
-
-            receivedMessage.Should().Be(transportMessage);
+            this.messageProcessorMock.Verify(mp => mp.Start(transactionSettings));
         }
 
         [Test]
-        public void WhenMessageIsReceivedAfterStop_ThenMessageReceivedIsNotRaised()
+        public void OnStart_WhenLocalAddress_EventConsumerIsStarted()
         {
-            const string Queue = "somequeue";
-            var messageMock = new Mock<IMessage>();
-            var transportMessage = new TransportMessage();
-            TransportMessage receivedMessage = null;
+            var transactionSettings = new TransactionSettings();
 
-            this.testee.TryProcessMessage = m =>
-            {
-                receivedMessage = m;
-                return true;
-            };
-            this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
+            this.testee.Start(Address.Local, transactionSettings);
 
-            this.StartTestee(new Address(Queue, "machine"));
+            this.eventConsumerMock.Verify(mp => mp.Start());
+        }
+
+        [Test]
+        public void OnStart_WhenNotLocalAddress_EventConsumerIsNotStarted()
+        {
+            var transactionSettings = new TransactionSettings();
+
+            this.testee.Start(new Address("someOtherQueue", "localhost"), transactionSettings);
+
+            this.eventConsumerMock.Verify(mp => mp.Start(), Times.Never());
+        }
+
+        [Test]
+        public void OnStart_MessageConsumerForAddreddIsCreated()
+        {
+            var queue = "somequeue";
+            var transactionSettings = new TransactionSettings();
+
+            this.testee.Start(new Address(queue, "localhost"), transactionSettings);
+
+            this.messageProcessorMock.Verify(mp => mp.CreateMessageConsumer("queue://" + queue));
+        }
+
+        [Test]
+        public void WhenMessageReceived_MessageProcessorIsInvoked()
+        {
+            var message = new Mock<IMessage>().Object;
+
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
+
+            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
+        }
+
+        [Test]
+        public void OnStop_MessageProcessorIsStopped()
+        {
+            this.testee.Start(Address.Local, new TransactionSettings());
             this.testee.Stop();
-            this.consumer.Raise(c => c.Listener += null, messageMock.Object);
 
-            receivedMessage.Should().BeNull();
+            this.messageProcessorMock.Verify(mp => mp.Stop());
         }
 
         [Test]
-        public void Start_WhenPurgeRequired_ThenPurge()
+        public void OnStop_EventConsumerIsStopped()
         {
-            this.testee.PurgeOnStartup = true;
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Stop();
 
-            this.StartTestee(new Address("anyqueue", "anymachine"));
-
-            this.purger.Verify(s => s.Purge(this.session.Object, It.Is<IQueue>(d => d.QueueName.Contains("anyqueue"))));
+            this.eventConsumerMock.Verify(mp => mp.Stop());
         }
 
         [Test]
-        public void Start_WhenPurgeNotRequired_ThenNotPurge()
+        public void WhenMessageReceivedAfterStop_MessageProcessorIsNotInvoked()
         {
-            this.testee.PurgeOnStartup = false;
+            var message = new Mock<IMessage>().Object;
 
-            this.StartTestee(new Address("anyqueue", "anymachine"));
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Stop();
+            this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
 
-            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), It.IsAny<IDestination>()), Times.Never());
+            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message), Times.Never());
         }
 
         [Test]
-        public void Dispose_ShouldReleaseResources()
+        public void OnDispose_MessageProcessorIsDisposed()
         {
-            const string ConsumerName = "A";
-
-            this.testee.ConsumerName = ConsumerName;
-            this.StartTesteeWithLocalAddress();
-
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Stop();
             this.testee.Dispose();
 
-            this.consumer.Verify(c => c.Close());
-            this.consumer.Verify(c => c.Dispose());
-            this.eventConsumerMock.Verify(ec => ec.Dispose());
-            this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
+            this.messageProcessorMock.Verify(mp => mp.Dispose());
         }
 
         [Test]
-        public void WhenUsingActiveMqTransaction_OnErrorDuringProcessing_ThenSessionIsRolledBack()
+        public void OnDispose_EventConsumerIsDisposed()
         {
-            this.testee.TryProcessMessage = m => false;
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Stop();
+            this.testee.Dispose();
 
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
-            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
-
-            this.session.Verify(s => s.Rollback());
+            this.eventConsumerMock.Verify(mp => mp.Dispose());
         }
 
         [Test]
-        public void WhenUsingActiveMqTransaction_WhenMessageIsProcessedSuccessfully_ThenSessionIsCommit()
+        public void OnDispose_MessageConsumerIsDisposed()
         {
-            this.testee.TryProcessMessage = m => true;
+            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Stop();
+            this.testee.Dispose();
 
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
-            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
-
-            this.session.Verify(s => s.Commit());
-        }
-
-        [Test]
-        public void WhenUsingActiveMqTransaction_SessionIsSetAsSessionForCurrentThreadDuringProcessing()
-        {
-            string executionOrder = string.Empty;
-
-            this.testee.TryProcessMessage = m =>
-                {
-                    executionOrder += "ProcessMessage;";
-                    return true;
-                };
-            this.sessionFactoryMock.Setup(sf => sf.SetSessionForCurrentThread(It.IsAny<ISession>()))
-                .Callback(() => executionOrder += "SetSessionForCurrentThread;");
-            this.sessionFactoryMock.Setup(sf => sf.RemoveSessionForCurrentThread())
-                .Callback(() => executionOrder += "RemoveSessionForCurrentThread;");
-
-            this.StartTestee(new Address("queue", "machine"), new TransactionSettings() { IsTransactional = true, DontUseDistributedTransactions = true });
-            this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
-
-            executionOrder.Should().Be("SetSessionForCurrentThread;ProcessMessage;RemoveSessionForCurrentThread;");
-        }
-
-        [Test]
-        public void WhenUsingDTCTransaction_OnErrorDuringProcessing_ThenTransactionIsRolledback()
-        {
-            var transactionStatus = TransactionStatus.InDoubt;
-
-            this.testee.TryProcessMessage = m => false;
-            this.StartTestee(
-                new Address("queue", "machine"),
-                new TransactionSettings
-                    {
-                        IsTransactional = true,
-                        DontUseDistributedTransactions = false,
-                        IsolationLevel = IsolationLevel.Serializable
-                    });
-
-            Action action = () =>
-                {
-                    using (var transaction = new TransactionScope())
-                    {
-                        Transaction.Current.TransactionCompleted +=
-                            (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
-
-                        this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
-
-                        transaction.Complete();
-                    }
-                };
-
-            action.ShouldThrow<TransactionAbortedException>();
-            transactionStatus.Should().Be(TransactionStatus.Aborted);
-        }
-        
-        [Test]
-        public void WhenUsingDTCTransaction_ProcessedSuccefully_ThenTransactionIsCommited()
-        {
-            var transactionStatus = TransactionStatus.InDoubt;
-
-            this.testee.TryProcessMessage = m => true;
-            this.StartTestee(
-                new Address("queue", "machine"),
-                new TransactionSettings
-                {
-                    IsTransactional = true,
-                    DontUseDistributedTransactions = false,
-                    IsolationLevel = IsolationLevel.Serializable
-                });
-
-            using (var transaction = new TransactionScope())
-            {
-                Transaction.Current.TransactionCompleted += (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
-
-                this.consumer.Raise(c => c.Listener += null, new Mock<IMessage>().Object);
-
-                transaction.Complete();
-            }
-
-            transactionStatus.Should().Be(TransactionStatus.Committed);
-        }
-        
-        private void StartTesteeWithLocalAddress()
-        {
-            Address.InitializeLocalAddress("somequeue");
-            this.StartTestee(Address.Local);
-        }
-        
-        private void StartTestee(Address address)
-        {
-            this.StartTestee(
-                address,
-                new TransactionSettings
-                    {
-                        IsTransactional = false,
-                        DontUseDistributedTransactions = false,
-                        IsolationLevel = IsolationLevel.Serializable
-                    });
-        }
-
-        private void StartTestee(Address address, TransactionSettings transactionSettings)
-        {
-            this.session = this.SetupCreateSession();
-
-            this.consumer = this.SetupCreateConsumer(this.session, address.Queue);
-
-            this.testee.Start(address, transactionSettings);
-        }
-
-        private IQueue SetupGetQueue(Mock<ISession> sessionMock, string queue)
-        {
-            var destinationMock = new Mock<IQueue>();
-            sessionMock.Setup(s => s.GetQueue(queue)).Returns(destinationMock.Object);
-            destinationMock.Setup(destination => destination.QueueName).Returns(queue);
-            return destinationMock.Object;
-        }
-
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, IDestination destination)
-        {
-            var consumerMock = new Mock<IMessageConsumer>();
-            sessionMock.Setup(s => s.CreateConsumer(destination)).Returns(consumerMock.Object);
-            return consumerMock;
-        }
-
-        private Mock<IMessageConsumer> SetupCreateConsumer(Mock<ISession> sessionMock, string queue)
-        {
-            var destination = this.SetupGetQueue(this.session, queue);
-            return this.SetupCreateConsumer(sessionMock, destination);
-        }
-
-        private Mock<ISession> SetupCreateSession()
-        {
-            var sessionMock = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
-            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
-            return sessionMock;
-        }
-
-        private void SetupMapMessageToTransportMessage(IMessage messageMock, TransportMessage transportMessage)
-        {
-            this.activeMqMessageMapperMock.Setup(m => m.CreateTransportMessage(messageMock)).Returns(transportMessage);
+            this.messageConsumerMock.Verify(mp => mp.Close());
+            this.messageConsumerMock.Verify(mp => mp.Dispose());
         }
     }
 }

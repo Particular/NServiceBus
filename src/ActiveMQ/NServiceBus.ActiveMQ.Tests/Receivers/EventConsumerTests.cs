@@ -1,17 +1,13 @@
-﻿namespace NServiceBus.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Apache.NMS;
-
-    using FluentAssertions;
 
     using Moq;
 
     using NServiceBus.Transport.ActiveMQ;
-    using NServiceBus.Transport.ActiveMQ.Receivers;
 
     using NUnit.Framework;
 
@@ -19,7 +15,6 @@
     public class EventConsumerTests
     {
         private EventConsumer testee;
-        private Mock<IActiveMqPurger> purger;
         private Mock<IProcessMessages> messageProcessorMock;
         private NotifyTopicSubscriptionsMock subscriptionManagerMock;
         private Mock<ISession> session;
@@ -29,11 +24,10 @@
         {
             this.session = new Mock<ISession>();
 
-            this.purger = new Mock<IActiveMqPurger>();
             this.messageProcessorMock = new Mock<IProcessMessages>();
             this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
 
-            this.testee = new EventConsumer(this.subscriptionManagerMock, purger.Object);
+            this.testee = new EventConsumer(this.subscriptionManagerMock, this.messageProcessorMock.Object);
         }
 
         [Test]
@@ -46,7 +40,7 @@
             var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
+            this.testee.Start();
             this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
             this.RaiseEventReceived(topicConsumer, message);
 
@@ -63,7 +57,7 @@
             var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
+            this.testee.Start();
             this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
             this.testee.Stop();
             this.RaiseEventReceived(topicConsumer, message);
@@ -98,60 +92,10 @@
             this.subscriptionManagerMock.InitialTopics.Add(Topic);
 
             this.testee.ConsumerName = ConsumerName;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
+            this.testee.Start();
             this.RaiseEventReceived(topicConsumer, message);
 
             this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
-        }
-
-        [Test]
-        public void WhenSubscriptionIsAddedToStartedConsumer_WithPurgeOnStartup_ThenPurge()
-        {
-            const string Topic = "SomeTopic";
-            const string ConsumerName = "A";
-
-            var destination = this.SetupGetQueue(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
-            this.SetupCreateConsumer(this.session, destination);
-
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.PurgeOnStartup = true;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-
-            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), destination));
-        }
-
-        [Test]
-        public void WhenSubscriptionIsAddedToNotStartedConsumer_WithPurgeOnStartup_ThenDontPurge()
-        {
-            const string Topic = "SomeTopic";
-            const string ConsumerName = "A";
-
-            var destination = this.SetupGetQueue(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
-            this.SetupCreateConsumer(this.session, destination);
-
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.PurgeOnStartup = true;
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-
-            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), destination), Times.Never());
-        }
-
-        [Test]
-        public void WhenSubscriptionToStartedConsumer_WithoutPurgeOnStartup_ThenDontPurge()
-        {
-            const string Topic = "SomeTopic";
-            const string ConsumerName = "A";
-
-            var destination = this.SetupGetQueue(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
-            this.SetupCreateConsumer(this.session, destination);
-
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.PurgeOnStartup = false;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-
-            this.purger.Verify(s => s.Purge(It.IsAny<ISession>(), destination), Times.Never());
         }
 
         [Test]
@@ -163,7 +107,7 @@
             var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
+            this.testee.Start();
             this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
             this.subscriptionManagerMock.RaiseTopicUnsubscribed(Topic);
 
@@ -179,7 +123,7 @@
             var topicConsumer = this.SetupCreateConsumer(this.session, string.Format("Consumer.{0}.{1}", ConsumerName, Topic));
 
             this.testee.ConsumerName = ConsumerName;
-            this.testee.Start(this.session.Object, this.messageProcessorMock.Object);
+            this.testee.Start();
             this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
             this.testee.Stop();
             this.testee.Dispose();
@@ -224,7 +168,7 @@
                 this.TopicSubscribed += listener.TopicSubscribed;
                 this.TopicUnsubscribed += listener.TopicUnsubscribed;
 
-                return InitialTopics;
+                return this.InitialTopics;
             }
 
             public void Unregister(ITopicSubscriptionListener listener)

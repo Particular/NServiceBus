@@ -1,10 +1,13 @@
-﻿namespace NServiceBus.ActiveMQ
+﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
 {
     using System.Collections.Generic;
+
     using Apache.NMS;
+
     using FluentAssertions;
+
     using Moq;
-    using NServiceBus.Transport.ActiveMQ.SessionFactories;
+
     using NUnit.Framework;
 
     [TestFixture]

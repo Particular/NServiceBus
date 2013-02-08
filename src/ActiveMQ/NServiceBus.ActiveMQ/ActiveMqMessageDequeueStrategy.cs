@@ -87,9 +87,7 @@
         
         void CreateAndStartMessageReceiver()
         {
-            INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver();
-            receiver.TryProcessMessage = tryProcessMessage;
-            receiver.EndProcessMessage = endProcessMessage;
+            INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver(tryProcessMessage, endProcessMessage);
             receiver.Start(address, settings);
             messageReceivers.Add(receiver);
         }

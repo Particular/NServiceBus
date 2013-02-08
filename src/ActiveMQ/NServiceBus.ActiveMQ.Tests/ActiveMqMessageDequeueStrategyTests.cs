@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
 
     using FluentAssertions;
     using Moq;
@@ -25,6 +24,10 @@
             messageReceivers = new List<Mock<INotifyMessageReceived>>();
             stoppedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
             disposedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
+
+            notifyMessageReceivedFactoryMock
+                .Setup(f => f.CreateMessageReceiver(It.IsAny<Func<TransportMessage, bool>>(), It.IsAny<Action<string, Exception>>()))
+                .Returns(CreateMessageReceiver);
         }
 
         private Mock<INotifyMessageReceivedFactory> notifyMessageReceivedFactoryMock;
@@ -41,7 +44,6 @@
             foreach (var messageReceiver in messageReceivers)
             {
                 messageReceiver.Verify(mr => mr.Start(address, settings));
-                messageReceiver.Object.TryProcessMessage.Should().Be(this.tryReceiveMessage);
             }
         }
 
@@ -60,7 +62,7 @@
         {
             TransactionSettings settings = new TransactionSettings();
             const int NumberOfWorkers = 2;
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
+
             var address = new Address("someQueue", "machine");
 
             testee.Init(address, settings, this.tryReceiveMessage, (s, exception) => { });
@@ -74,7 +76,6 @@
         public void WhenStoped_ThenAllReceiversAreStopped()
         {
             const int InitialNumberOfWorkers = 5;
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
             testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
@@ -88,7 +89,6 @@
         public void WhenStoped_ThenAllReceiversAreDisposed()
         {
             const int InitialNumberOfWorkers = 5;
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
             testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
@@ -102,7 +102,6 @@
         public void WhenStoped_ThenReceiversAreNotDisposedUntilAllPendingMessagesAreProcessed()
         {
             const int InitialNumberOfWorkers = 5;
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             var address = new Address("someQueue", "machine");
 
             pendingMessagesCounterMock.Setup(mr => mr.Wait(It.IsAny<int>()))
@@ -120,11 +119,10 @@
         {
             const int InitialNumberOfWorkers = 5;
             int disposedReceivers = 0;
-            notifyMessageReceivedFactoryMock.Setup(f => f.CreateMessageReceiver()).Returns(CreateMessageReceiver);
             sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = this.disposedMessageReceivers.Count);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
+            testee.Init(address, new TransactionSettings(), m => true, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 
