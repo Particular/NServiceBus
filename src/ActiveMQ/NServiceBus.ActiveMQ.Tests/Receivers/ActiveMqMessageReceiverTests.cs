@@ -144,7 +144,6 @@
             this.testee.Stop();
             this.testee.Dispose();
 
-            this.messageConsumerMock.Verify(mp => mp.Close());
             this.messageConsumerMock.Verify(mp => mp.Dispose());
         }
     }
