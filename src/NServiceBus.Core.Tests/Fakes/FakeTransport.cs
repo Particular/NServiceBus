@@ -9,7 +9,11 @@
         {
             throw new NotImplementedException();
         }
-        
+
+        public void Stop()
+        {
+        }
+
         public void Start(string inputqueue)
         {
             Start(Address.Parse(inputqueue));
