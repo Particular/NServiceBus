@@ -102,6 +102,8 @@ namespace NServiceBus.Encryption
                 {
                     foreach (var item in items)
                     {
+                        if (item == null)
+                            continue;
                         //don't recurse over primitives or system types
                         if (item.GetType().IsPrimitive || item.GetType().IsSystemType())
                             break;
