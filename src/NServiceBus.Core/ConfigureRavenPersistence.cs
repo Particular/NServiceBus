@@ -112,16 +112,6 @@ namespace NServiceBus
             return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
-        /// <summary>
-        /// Configures RavenDB as the default persistence.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
-        /// <returns>The configuration object.</returns>
-        public static Configure RavenPersistence(this Configure config, dynamic documentStore)
-        {
-            return config.RavenPersistence((IDocumentStore)documentStore);
-        }
 
         /// <summary>
         /// Specifies the mapping to use for when resolving the database name to use for each message.
@@ -188,10 +178,17 @@ namespace NServiceBus
             return RavenPersistence(config, store);
         }
 
-        static Configure RavenPersistence(this Configure config, IDocumentStore store)
+
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure RavenPersistence(this Configure config, IDocumentStore documentStore)
         {
             if (config == null) throw new ArgumentNullException("config");
-            if (store == null) throw new ArgumentNullException("store");
+            if (documentStore == null) throw new ArgumentNullException("documentStore");
 
             var maxNumberOfRequestsPerSession = 100;
             var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
@@ -207,17 +204,17 @@ namespace NServiceBus
                 {
                     var conventions = new RavenConventions();
 
-                    store.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
+                    documentStore.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
 
-                    WarnUserIfRavenDatabaseIsNotReachable(store);
+                    WarnUserIfRavenDatabaseIsNotReachable(documentStore);
 
-                    store.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
+                    documentStore.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
 
                     //We need to turn compression off to make us compatible with Raven616
-                    store.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
+                    documentStore.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
 
 
-                    store.JsonRequestFactory.ConfigureRequest += (sender, e) =>
+                    documentStore.JsonRequestFactory.ConfigureRequest += (sender, e) =>
                         {
                             var httpWebRequest = ((HttpWebRequest) e.Request);
 
@@ -232,7 +229,7 @@ namespace NServiceBus
                             httpWebRequest.Headers["Raven-Client-Version"] = "2.0.0.0";
                         };
 
-                    return store;
+                    return documentStore;
                 }, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
