@@ -89,10 +89,14 @@ namespace NServiceBus.Encryption
 
                 //don't recurse over primitives or system types
                 if (member.ReflectedType.IsPrimitive || member.ReflectedType.IsSystemType())
+                {
                     continue;
+                }
 
                 if (IsIndexedProperty(member))
+                {
                     continue;
+                }
                 
                 var child = member.GetValue(root);
 
@@ -101,9 +105,16 @@ namespace NServiceBus.Encryption
                 {
                     foreach (var item in items)
                     {
+                        if (item == null)
+                        {
+                            continue;
+                        }
+
                         //don't recurse over primitives or system types
                         if (item.GetType().IsPrimitive || item.GetType().IsSystemType())
+                        {
                             break;
+                        }
 
                         ForEachMember(item, action, appliesTo);
                     }

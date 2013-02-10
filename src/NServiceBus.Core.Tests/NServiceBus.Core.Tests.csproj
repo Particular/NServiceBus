@@ -91,6 +91,7 @@
     <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
     <Compile Include="Encryption\FakeEncryptionService.cs" />
     <Compile Include="Encryption\Issue_701.cs" />
+    <Compile Include="Encryption\Issue_949.cs" />
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
