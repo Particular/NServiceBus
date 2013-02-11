@@ -37,6 +37,10 @@ namespace NServiceBus.Unicast.Tests.Helpers
            
         }
 
+        public void Stop()
+        {
+        }
+
         public int NumberOfWorkerThreads
         {
             get { return MaximumConcurrencyLevel; }

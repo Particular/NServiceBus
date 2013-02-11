@@ -351,6 +351,19 @@ namespace NServiceBus.Unicast.Transport.Transactional
             needToAbort = true;
         }
 
+        /// <summary>
+        /// Stops the transport.
+        /// </summary>
+        public void Stop()
+        {
+            if (!isStarted)
+                return;
+
+            Receiver.Stop();
+
+            isStarted = false;
+        }
+
         private Exception OnStartedMessageProcessing(TransportMessage msg)
         {
             try
@@ -426,12 +439,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// </summary>
         public void Dispose()
         {
-            if (!isStarted)
-                return;
-
-            Receiver.Stop();
-            isStarted = false;
         }
-
     }
 }

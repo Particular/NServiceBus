@@ -21,6 +21,8 @@
                     .Repeat(r => r.For<AllTransports>())
                     .Should(c =>
                     {
+                        Assert.True(c.Subscriber1GotTheEvent);
+                        Assert.True(c.Subscriber2GotTheEvent);
                     })
 
                     .Run();

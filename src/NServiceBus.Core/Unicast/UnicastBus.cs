@@ -982,6 +982,7 @@ namespace NServiceBus.Unicast
                 Shutdown();
 
                 // free managed resources
+                transport.Stop();
                 transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
                 transport.TransportMessageReceived -= TransportMessageReceived;
                 transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;

@@ -7,7 +7,7 @@
     <ProjectGuid>{88485CCA-BE4A-46D7-864A-2ABEF45074BF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.ActiveMQ</RootNamespace>
+    <RootNamespace>NServiceBus.Transport.ActiveMQ</RootNamespace>
     <AssemblyName>NServiceBus.ActiveMQ.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -67,9 +67,9 @@
     <Compile Include="ActiveMqMessageEncoderPipelineTest.cs" />
     <Compile Include="ActiveMqMessageMapperTest.cs" />
     <Compile Include="ActiveMqMessagePublisherTests.cs" />
-    <Compile Include="ActiveMqMessageReceiverTests.cs" />
+    <Compile Include="Receivers\ActiveMqMessageReceiverTests.cs" />
     <Compile Include="ActiveMqMessageSenderTests.cs" />
-    <Compile Include="ActiveMqPurgerTest.cs" />
+    <Compile Include="Receivers\ActiveMqPurgerTest.cs" />
     <Compile Include="ActiveMqSubscriptionStorageTests.cs" />
     <Compile Include="Decoders\ByteMessageDecoderTest.cs" />
     <Compile Include="Decoders\ControlMessageDecoderTest.cs" />
@@ -81,6 +81,11 @@
     <Compile Include="MessageProducerTests.cs" />
     <Compile Include="MessageTypeInterpreterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Receivers\EventConsumerTests.cs" />
+    <Compile Include="Receivers\MessageProcessorTest.cs" />
+    <Compile Include="Receivers\TransactionScopes\ActiveMqTransactionTests.cs" />
+    <Compile Include="Receivers\TransactionScopes\DTCTransactionScopeTests.cs" />
+    <Compile Include="Receivers\TransactionScopes\NoTransactionScopeTests.cs" />
     <Compile Include="SessionFactories\ActiveMqTransactionSessionFactoryTest.cs" />
     <Compile Include="SessionFactories\DtcTransactionSessionFactoryTest.cs" />
     <Compile Include="SessionFactories\PooledSessionFactoryMock.cs" />

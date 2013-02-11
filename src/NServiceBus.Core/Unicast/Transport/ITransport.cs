@@ -93,5 +93,10 @@ namespace NServiceBus.Unicast.Transport
 		/// Causes the current message being handled to return to the queue.
 		/// </summary>
 		void AbortHandlingCurrentMessage();
+
+        /// <summary>
+        /// Stops the transport.
+        /// </summary>
+	    void Stop();
 	}
 }
