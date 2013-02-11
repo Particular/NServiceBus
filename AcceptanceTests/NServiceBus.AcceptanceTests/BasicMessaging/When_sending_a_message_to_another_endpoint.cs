@@ -20,8 +20,8 @@
                     .Done(c=>c.WasCalled)
                     .Repeat(r =>
                             r
-                                .For(Transports.ActiveMQ)
-                                .For(Builders.Ninject)
+                                .For<AllTransports>()
+                                .For<AllBuilders>()
                                 .For<AllSerializers>()
                 )
                     .Should(c =>
