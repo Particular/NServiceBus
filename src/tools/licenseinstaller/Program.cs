@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using System.Windows.Forms;
     using Microsoft.Win32;
     using NDesk.Options;
 
@@ -21,23 +20,9 @@
                 return 0;
             }
 
-            if (licensePath == null)
+            if (!File.Exists(licensePath))
             {
-                using (var openDialog = new OpenFileDialog())
-                {
-                    openDialog.Filter = "License files (*.xml)|*.xml|All files (*.*)|*.*";
-                    openDialog.Title = "Select License file";
-
-                    if (openDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        licensePath = openDialog.FileName;
-                    }
-                }
-            }
-
-            if (String.IsNullOrWhiteSpace(licensePath))
-            {
-                Console.Out.WriteLine("License file not installed.");
+                Console.Out.WriteLine("License file '{0}' could not be installed.", licensePath);
                 return 1;
             }
 
@@ -97,6 +82,11 @@
                 {
                     licensePath = unparsedArgs[0];
                 }
+                else
+                {
+                    PrintUsage(optionSet);
+                    return false;
+                }
                 
                 return action();
             }
@@ -114,10 +104,12 @@
             Console.WriteLine(
                 @"
 NServiceBus license installer
--------------------------------------------
-Copyright (C) 2010 - {0} - NServiceBus Ltd.
--------------------------------------------
-Command line options:", DateTime.Now.Year);
+--------------------------------------------------------
+Copyright 2010 - {0} - NServiceBus. All rights reserved
+--------------------------------------------------------
+
+Usage: LicenseInstaller [options] license_path
+Options:", DateTime.Now.Year);
 
             optionSet.WriteOptionDescriptions(Console.Out);
 
