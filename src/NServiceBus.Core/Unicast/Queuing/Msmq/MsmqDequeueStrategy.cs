@@ -35,7 +35,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             this.endProcessMessage = endProcessMessage;
             endpointAddress = address;
             transactionSettings = settings;
-     
+
             if (address == null)
             {
                 throw new ArgumentException("Input queue must be specified");
@@ -100,7 +100,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             semaphore.Dispose();
             queue.Dispose();
         }
-     
+
         private bool QueueIsTransactional()
         {
             try
@@ -114,17 +114,6 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         "There is a problem with the input queue: {0}. See the enclosed exception for details.",
                         queue.Path), ex);
             }
-        }
-
-        private MessageQueueTransactionType GetTransactionTypeForReceive()
-        {
-            if (!transactionSettings.IsTransactional)
-                return MessageQueueTransactionType.None;
-
-            if (transactionSettings.DontUseDistributedTransactions)
-                return MessageQueueTransactionType.Single;
-
-            return MessageQueueTransactionType.Automatic;
         }
 
         private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
@@ -163,25 +152,53 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 if (transactionSettings.IsTransactional)
                 {
-                    using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                    if (transactionSettings.DontUseDistributedTransactions)
                     {
-                        message = ReceiveMessage();
-
-                        if (message == null)
+                        using (var msmqTransaction = new MessageQueueTransaction())
                         {
-                            scope.Complete();
-                            return;
+                            msmqTransaction.Begin();
+                            message = ReceiveMessage(()=>queue.Receive(receiveTimeout, msmqTransaction));
+
+                            if (message == null)
+                            {
+                                msmqTransaction.Commit();
+                                return;
+                            }
+
+                            if (ProcessMessage(message))
+                            {
+                                msmqTransaction.Commit();
+                            }
+                            else
+                            {
+                                msmqTransaction.Abort();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                        {
+
+                            message = ReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic));
+
+                            if (message == null)
+                            {
+                                scope.Complete();
+                                return;
+                            }
+
+                            if (ProcessMessage(message))
+                            {
+                                scope.Complete();
+                            }
                         }
 
-                        if (ProcessMessage(message))
-                        {
-                            scope.Complete();
-                        }
                     }
                 }
                 else
                 {
-                    message = ReceiveMessage();
+                    message = ReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None));
 
                     if (message == null)
                     {
@@ -203,7 +220,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-        private void CallPeekWithExceptionHandling(Action action)
+        void CallPeekWithExceptionHandling(Action action)
         {
             try
             {
@@ -254,12 +271,12 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         }
 
         [DebuggerNonUserCode]
-        Message ReceiveMessage()
+        Message ReceiveMessage(Func<Message> receive)
         {
             Message message = null;
             try
             {
-                message = queue.Receive(receiveTimeout, GetTransactionTypeForReceive());
+                message = receive();
             }
             catch (MessageQueueException mqe)
             {
