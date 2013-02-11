@@ -268,8 +268,6 @@ task Merge -depends Build {
 	$assemblies += dir $outDir\Interop.MSMQ.dll
 	$assemblies += dir $outDir\AutoFac.dll
 	$assemblies += dir $outDir\Autofac.Configuration.dll
-	$assemblies += dir $outDir\Raven.Abstractions.dll
-	$assemblies += dir $outDir\Raven.Client.Lightweight.dll
 	$assemblies += dir $outDir\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Core.dll" $assemblies "library" $script:ilmergeTargetFramework $ilMergeExclude

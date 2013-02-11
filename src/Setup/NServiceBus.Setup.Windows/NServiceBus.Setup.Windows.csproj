@@ -52,7 +52,9 @@
       <DependentUpon>RavenServer.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\Lucene.Net.Contrib.FastVectorHighlighter.dll" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="RavenDB\RavenServer.resx">
       <Generator>ResXFileCodeGenerator</Generator>
