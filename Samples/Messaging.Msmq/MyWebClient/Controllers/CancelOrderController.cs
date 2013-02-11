@@ -9,7 +9,7 @@
     {
         public IBus Bus { get; set; }
 
-        [AsyncTimeout(5000)]
+        [AsyncTimeout(30000)]
         public void IndexAsync(int orderNumber)
         {
             

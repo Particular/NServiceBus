@@ -17,7 +17,7 @@
             Data.OrderNumber = message.OrderNumber;
             Data.VideoIds = message.VideoIds;
 
-            RequestTimeout(TimeSpan.FromSeconds(30), new CoolDownPeriod());
+            RequestTimeout(TimeSpan.FromSeconds(20), new CoolDownPeriod());
             Console.Out.WriteLine("Starting cool down period for order #{0}.", Data.OrderNumber);
         }
 

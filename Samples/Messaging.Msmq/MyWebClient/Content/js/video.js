@@ -35,7 +35,10 @@
         }
         
         $scope.$apply(function (scope) {
-            removeOrder(scope, data.OrderNumber);
+            var idx = retrieveOrderIndex(scope, data.OrderNumber);
+            if (idx >= 0) {
+                scope.orders[idx].status = 'Complete';
+            }
             scope.ordersReceived.push({ number: data.OrderNumber, items: items });
         });
     });
@@ -43,9 +46,17 @@
     $scope.cancelOrder = function (number) {
         $scope.errorMessage = null;
         
-        $http.post('/CancelOrder', { orderNumber: number }, { timeout: 5000, headers: { 'Debug': $scope.debug } })
+        var idx = retrieveOrderIndex($scope, number);
+        if (idx >= 0) {
+            $scope.orders[idx].status = 'Cancelling';
+        }
+
+        $http.post('/CancelOrder', { orderNumber: number }, { timeout: 15000, headers: { 'Debug': $scope.debug } })
             .success(function (data, status) {
-                removeOrder($scope, data.OrderNumber);
+                var idx = retrieveOrderIndex($scope, data.OrderNumber);
+                if (idx >= 0) {
+                    scope.orders[idx].status = 'Cancelled';
+                }
             })
             .error(function (data, status) {
                 $scope.errorMessage = "Failed to cancel order!";
@@ -69,26 +80,32 @@
             return;
         }
         
-        $http.post('/PlaceOrder', { videoIds: selectedVideos }, { timeout: 5000, headers: { 'Debug': $scope.debug } })
+        $http.post('/PlaceOrder', { videoIds: selectedVideos }, { timeout: 15000, headers: { 'Debug': $scope.debug } })
             .success(function (data, status) {
                 $scope.orders.push({ number: data.OrderNumber, titles: selectedVideoTitles, status: 'Pending' });
 
                 angular.forEach($scope.videos, function (video) {
                     video.selected = false;
                 });
+
+                $('#userWarning')
+                    .css({ opacity: 0 })
+                    .animate({ opacity: 1 }, 700);
             })
             .error(function (data, status) {
                 $scope.errorMessage = "We couldn't place you order, ensure all endpoints are running and try again!";
             });
     };
     
-    function removeOrder(scope, orderNumber) {
+    function retrieveOrderIndex(scope, orderNumber) {
         var idx = 0;
+        
         for (; idx < scope.orders.length; idx++) {
             if (scope.orders[idx].number === orderNumber) {
-                break;
+                return idx;
             }
         }
-        scope.orders.splice(idx, 1);
+
+        return -1;
     }
 }
