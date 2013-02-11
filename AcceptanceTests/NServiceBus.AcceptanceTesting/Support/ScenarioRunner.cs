@@ -216,7 +216,7 @@
             StartEndpoints(endpoints);
 
             var startTime = DateTime.UtcNow;
-            var maxTime = TimeSpan.FromSeconds(60);
+            var maxTime = TimeSpan.FromSeconds(90);
 
             Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray());
 
