@@ -78,23 +78,73 @@ namespace ObjectBuilder.Tests
             Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
         }
 
-        public class DisposableComponent :  IDisposable
+        public class DisposableComponent : IDisposable
         {
+            private bool disposed;
+
             public static bool DisposeCalled;
 
             public void Dispose()
             {
                 DisposeCalled = true;
+
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposed)
+                {
+                    return;
+                }
+
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
+
+                disposed = true;
+            }
+
+            ~DisposableComponent()
+            {
+                Dispose(false);
             }
         }
 
         public class AnotherSingletonComponent : IDisposable
         {
+            private bool disposed;
+
             public static bool DisposeCalled;
 
             public void Dispose()
             {
                 DisposeCalled = true;
+
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposed)
+                {
+                    return;
+                }
+
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
+
+                disposed = true;
+            }
+
+            ~AnotherSingletonComponent()
+            {
+                Dispose(false);
             }
         }
     }

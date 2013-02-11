@@ -10,6 +10,7 @@
     {
         private readonly ISessionFactory pooledSessionFactory;
         private readonly ConcurrentDictionary<string, ISession> sessionsForTransactions = new ConcurrentDictionary<string, ISession>();
+        private bool disposed;
 
         public DTCTransactionSessionFactory(ISessionFactory pooledSessionFactory) 
         {
@@ -66,9 +67,32 @@
         {
             throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
         }
+
         public void Dispose()
         {
-            this.pooledSessionFactory.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                pooledSessionFactory.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~DTCTransactionSessionFactory()
+        {
+            Dispose(false);
         }
     }
 }

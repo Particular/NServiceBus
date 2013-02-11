@@ -281,6 +281,11 @@ namespace NServiceBus.ObjectBuilder.Ninject
             disposed = true;
         }
 
+        ~NinjectObjectBuilder()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Gets the instance scope from call model.
         /// </summary>

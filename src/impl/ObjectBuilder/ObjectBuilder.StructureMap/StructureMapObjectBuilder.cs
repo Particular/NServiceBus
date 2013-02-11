@@ -47,10 +47,14 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             if (disposing)
             {
                 container.Dispose();
-
             }
 
             disposed = true;
+        }
+
+        ~StructureMapObjectBuilder()
+        {
+            Dispose(false);
         }
 
         /// <summary>

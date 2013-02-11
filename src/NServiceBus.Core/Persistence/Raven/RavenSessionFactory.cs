@@ -5,6 +5,8 @@ namespace NServiceBus.Persistence.Raven
 
     public class RavenSessionFactory : IDisposable
     {
+        bool disposed;
+
         [ThreadStatic]
         static IDocumentSession session;
 
@@ -24,11 +26,35 @@ namespace NServiceBus.Persistence.Raven
 
         public void Dispose()
         {
-            if (session == null)
-                return;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-            session.Dispose();
-            session = null;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                if (session == null)
+                {
+                    return;
+                }
+
+                session.Dispose();
+                session = null;
+            }
+
+            disposed = true;
+        }
+
+        ~RavenSessionFactory()
+        {
+            Dispose(false);
         }
 
         IDocumentSession OpenSession()

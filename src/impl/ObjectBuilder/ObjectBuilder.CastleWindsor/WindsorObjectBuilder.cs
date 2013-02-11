@@ -66,6 +66,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             GC.SuppressFinalize(this);
         }
 
+        ~WindsorObjectBuilder()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Implements dispose
         /// </summary>

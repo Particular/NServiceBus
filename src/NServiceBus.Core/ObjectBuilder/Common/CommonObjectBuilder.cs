@@ -138,9 +138,31 @@ namespace NServiceBus.ObjectBuilder.Common
             };
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
-            Container.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                Container.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~CommonObjectBuilder()
+        {
+            Dispose(false);
         }
 
         T IBuilder.Build<T>()
@@ -192,7 +214,7 @@ namespace NServiceBus.ObjectBuilder.Common
             throw new ArgumentException("Unhandled component call model: " + callModel);
         }
 
-
+        private bool disposed;
         private static SynchronizedInvoker sync;
         private IContainer container;
     }

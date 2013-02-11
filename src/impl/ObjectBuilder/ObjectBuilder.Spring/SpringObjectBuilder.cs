@@ -40,10 +40,34 @@ namespace NServiceBus.ObjectBuilder.Spring
         public void Dispose()
         {
             //This is to figure out if Dispose was called from a child container or not
-            if (!scope.IsValueCreated)
+            if (scope.IsValueCreated)
             {
+                return;
+            }
+
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
                 context.Dispose();
             }
+
+            disposed = true;
+        }
+
+        ~SpringObjectBuilder()
+        {
+            Dispose(false);
         }
 
         IContainer IContainer.BuildChildContainer()
@@ -172,10 +196,11 @@ namespace NServiceBus.ObjectBuilder.Spring
             context.Refresh();
         }
 
-        ThreadLocal<bool> scope = new ThreadLocal<bool>();
+        readonly ThreadLocal<bool> scope = new ThreadLocal<bool>();
         private readonly Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
         private readonly Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
         private bool initialized;
+        bool disposed;
         private readonly DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }

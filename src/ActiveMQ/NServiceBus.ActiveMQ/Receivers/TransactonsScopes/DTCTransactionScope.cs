@@ -3,22 +3,47 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
     using System;
     using System.Transactions;
     using Apache.NMS;
-    using Apache.NMS.ActiveMQ;
 
     public class DTCTransactionScope : ITransactionScope
     {
         private readonly TransactionScope transactionScope;
         private bool complete;
+        bool disposed;
 
         public DTCTransactionScope(ISession session, TransactionOptions transactionOptions)
         {
-            this.transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
+            transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
         }
 
         public void Dispose()
         {
-            this.transactionScope.Dispose();
-            if (!this.complete) throw new Exception();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                transactionScope.Dispose();
+                if (!complete)
+                {
+                    throw new Exception();
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~DTCTransactionScope()
+        {
+            Dispose(false);
         }
 
         public void MessageAccepted(IMessage message)
@@ -27,8 +52,8 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
 
         public void Complete()
         {
-            this.complete = true;
-            this.transactionScope.Complete();
+            complete = true;
+            transactionScope.Complete();
         }
     }
 }

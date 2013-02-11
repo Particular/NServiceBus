@@ -248,7 +248,7 @@ namespace ObjectBuilder.Tests
     {
     }
 
-    public class ComponentWithSystemInterface : IGrouping<string, string>,IDisposable
+    public class ComponentWithSystemInterface : IGrouping<string, string>, IDisposable
     {
         public IEnumerator<string> GetEnumerator()
         {

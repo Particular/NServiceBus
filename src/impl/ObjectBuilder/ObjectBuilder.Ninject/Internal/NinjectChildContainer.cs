@@ -3,10 +3,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     using System;
     using System.Collections.Generic;
     using global::Ninject;
-    using global::Ninject.Activation;
     using global::Ninject.Extensions.NamedScope;
-    using global::Ninject.Parameters;
-    using global::Ninject.Planning.Bindings;
     using global::Ninject.Syntax;
     using NServiceBus.ObjectBuilder.Common;
 

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Threading;
 
@@ -9,6 +10,7 @@
     {
         private readonly ISessionFactory pooledSessionFactory;
         private readonly ConcurrentDictionary<int, ISession> sessionsForThreads = new ConcurrentDictionary<int, ISession>();
+        bool disposed;
 
         public ActiveMqTransactionSessionFactory(ISessionFactory pooledSessionFactory)
         {
@@ -50,7 +52,29 @@
 
         public void Dispose()
         {
-            this.pooledSessionFactory.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                pooledSessionFactory.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~ActiveMqTransactionSessionFactory()
+        {
+            Dispose(false);
         }
     }
 }

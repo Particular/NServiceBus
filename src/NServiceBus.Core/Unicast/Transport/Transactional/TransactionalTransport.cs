@@ -357,7 +357,9 @@ namespace NServiceBus.Unicast.Transport.Transactional
         public void Stop()
         {
             if (!isStarted)
+            {
                 return;
+            }
 
             Receiver.Stop();
 
@@ -424,21 +426,41 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                Stop();
+            }
+
+            disposed = true;
+        }
+
+        ~TransactionalTransport()
+        {
+            Dispose(false);
+        }
+
         Address receiveAddress;
         bool isStarted;
         ThroughputLimiter throughputLimiter;
         FirstLevelRetries firstLevelRetries;
+        bool disposed;
 
         [ThreadStatic]
         private static volatile bool needToAbort;
 
         static readonly ILog Logger = LogManager.GetLogger("Transport");
-
-        /// <summary>
-        /// Stops all worker threads.
-        /// </summary>
-        public void Dispose()
-        {
-        }
     }
 }

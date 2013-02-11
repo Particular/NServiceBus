@@ -15,6 +15,7 @@ namespace System.Threading.Tasks.Schedulers
     /// <summary>Provides a scheduler that uses MTA threads.</summary>
     public sealed class MTATaskScheduler : TaskScheduler, IDisposable
     {
+        private bool disposed;
         /// <summary>Stores the queued tasks to be executed by our pool of STA threads.</summary>
         private BlockingCollection<Task> _tasks;
         /// <summary>The MTA threads used by the scheduler.</summary>
@@ -90,21 +91,43 @@ namespace System.Threading.Tasks.Schedulers
         /// </summary>
         public void Dispose()
         {
-            if (_tasks != null)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (disposed)
             {
-                // Indicate that no new tasks will be coming in
-                _tasks.CompleteAdding();
-
-                // Wait for all threads to finish processing tasks
-                foreach (var thread in _threads)
-                {
-                    thread.Join();
-                }
-
-                // Cleanup
-                _tasks.Dispose();
-                _tasks = null;
+                return;
             }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                if (_tasks != null)
+                {
+                    // Indicate that no new tasks will be coming in
+                    _tasks.CompleteAdding();
+
+                    // Wait for all threads to finish processing tasks
+                    foreach (var thread in _threads)
+                    {
+                        thread.Join();
+                    }
+
+                    // Cleanup
+                    _tasks.Dispose();
+                    _tasks = null;
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~MTATaskScheduler()
+        {
+            Dispose(false);
         }
     }
 }

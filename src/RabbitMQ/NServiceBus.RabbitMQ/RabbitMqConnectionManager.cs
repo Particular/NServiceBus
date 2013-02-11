@@ -64,22 +64,36 @@
             GC.SuppressFinalize(this);
         }
 
-        /// <summary>
-        /// Tells the transport to dispose.
-        /// </summary>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing)
+            if (disposed)
+            {
                 return;
+            }
 
-            if (connection == null)
-                return;
+            if (disposing)
+            {
+                // Dispose managed resources.
+                if (connection == null)
+                {
+                    return;
+                }
 
-            if (connection.IsOpen)
-                connection.Close();
+                if (connection.IsOpen)
+                {
+                    connection.Close();
+                }
 
-            connection.Dispose();
-            connection = null;
+                connection.Dispose();
+                connection = null;
+            }
+
+            disposed = true;
+        }
+
+        ~RabbitMqConnectionManager()
+        {
+            Dispose(false);
         }
 
         readonly ConnectionFactory connectionFactory;
@@ -87,5 +101,6 @@
         static readonly ILog Logger = LogManager.GetLogger("RabbitMq");
         bool connectionFailed;
         Exception connectionFailedReason;
+        bool disposed;
     }
 }

@@ -19,7 +19,8 @@ namespace NServiceBus.Gateway.Channels.Http
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
         private TaskScheduler scheduler;
-       
+        private bool disposed;
+
         public void Start(string address, int numWorkerThreads)
         {
             listener = new HttpListener();
@@ -44,15 +45,37 @@ namespace NServiceBus.Gateway.Channels.Http
 
         public void Dispose()
         {
-            listener.Stop();
-
-            var disposableScheduler = scheduler as IDisposable;
-            if (disposableScheduler != null)
-            {
-                disposableScheduler.Dispose();
-            }
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                listener.Stop();
+
+                var disposableScheduler = scheduler as IDisposable;
+                if (disposableScheduler != null)
+                {
+                    disposableScheduler.Dispose();
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~HttpChannelReceiver()
+        {
+            Dispose(false);
+        }
+   
         public void Handle(HttpListenerContext ctx)
         {
             try

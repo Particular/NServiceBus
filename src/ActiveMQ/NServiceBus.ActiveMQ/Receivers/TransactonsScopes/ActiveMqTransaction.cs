@@ -1,5 +1,6 @@
 namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
+    using System;
     using Apache.NMS;
 
     using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
@@ -9,6 +10,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         private readonly ISessionFactory sessionFactory;
         private readonly ISession session;
 
+        bool disposed;
         private bool doRollback = true;
 
         public ActiveMqTransaction(ISessionFactory sessionFactory, ISession session)
@@ -25,18 +27,40 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
 
         public void Complete()
         {
-            this.session.Commit();
-            this.doRollback = false;
+            session.Commit();
+            doRollback = false;
         }
 
         public void Dispose()
         {
-            if (this.doRollback)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
             {
-                this.session.Rollback();
+                return;
             }
 
-            this.sessionFactory.RemoveSessionForCurrentThread();
+            if (disposing)
+            {
+                // Dispose managed resources.
+                if (doRollback)
+                {
+                    session.Rollback();
+                }
+
+                sessionFactory.RemoveSessionForCurrentThread();
+            }
+
+            disposed = true;
+        }
+
+        ~ActiveMqTransaction()
+        {
+            Dispose(false);
         }
     }
 }

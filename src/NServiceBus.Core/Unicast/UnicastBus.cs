@@ -979,20 +979,19 @@ namespace NServiceBus.Unicast
 
             if (disposing)
             {
-                Shutdown();
-
                 // free managed resources
-                transport.Stop();
-                transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-                transport.TransportMessageReceived -= TransportMessageReceived;
-                transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-                transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+
+                Shutdown();
 
                 Configure.Instance.Builder.Dispose();
             }
 
             disposed = true;
+        }
 
+        ~UnicastBus()
+        {
+            Dispose(false);
         }
 
         void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
@@ -1025,11 +1024,19 @@ namespace NServiceBus.Unicast
         public void Shutdown()
         {
             if (!started)
+            {
                 return;
+            }
 
             Log.Info("Initiating shutdown.");
 
             ExecuteIWantToRunAtStartupStopMethods();
+
+            transport.Stop();
+            transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+            transport.TransportMessageReceived -= TransportMessageReceived;
+            transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+            transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
 
             Log.Info("Shutdown complete.");
 

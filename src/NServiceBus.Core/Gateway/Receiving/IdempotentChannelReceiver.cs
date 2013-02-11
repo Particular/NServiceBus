@@ -158,10 +158,33 @@ namespace NServiceBus.Gateway.Receiving
 
         public void Dispose()
         {
-            channelReceiver.DataReceived -= DataReceivedOnChannel;
-            channelReceiver.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                channelReceiver.DataReceived -= DataReceivedOnChannel;
+                channelReceiver.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~IdempotentChannelReceiver()
+        {
+            Dispose(false);
+        }
+
+        bool disposed;
         IChannelReceiver channelReceiver;
         readonly IChannelFactory channelFactory;
         readonly IPersistMessages persister;

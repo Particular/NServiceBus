@@ -66,6 +66,11 @@ namespace NServiceBus.ObjectBuilder.Unity
             disposed = true;
         }
 
+        ~UnityObjectBuilder()
+        {
+            Dispose(false);
+        }
+
         /// <summary>
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
