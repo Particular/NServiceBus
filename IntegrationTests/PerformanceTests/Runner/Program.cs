@@ -89,38 +89,35 @@ namespace Runner
                     throw new InvalidOperationException("Illegal transport " + args[2]);
             }
 
-            var startableBus = config
-                     .InMemoryFaultManagement()
-                     .UnicastBus()
-                     .CreateBus();
+            using (var startableBus = config.InMemoryFaultManagement().UnicastBus().CreateBus())
+            {
+                Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+                var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
+                var sendTimeNoTx = SeedInputQueue(numberOfMessages,endpointName, numberOfThreads, false);
+                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true);
 
-            var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
-            var sendTimeNoTx = SeedInputQueue(numberOfMessages,endpointName, numberOfThreads, false);
-            var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true);
+                var startTime = DateTime.Now;
 
-            var startTime = DateTime.Now;
-
-            startableBus.Start();
+                startableBus.Start();
             
-            while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages) < numberOfMessages * 2)
-                Thread.Sleep(1000);
+                while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages) < numberOfMessages * 2)
+                    Thread.Sleep(1000);
 
-            var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
-            Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}", 
-                                numberOfThreads, 
-                                numberOfMessages * 2, 
-                                args[2], 
-                                args[3], 
-                                Convert.ToDouble(numberOfMessages * 2) / durationSeconds, 
-                                Convert.ToDouble(numberOfMessages) / sendTimeNoTx.TotalSeconds,
-                                (TestMessageHandler.First - startTime).Value.TotalSeconds,
-                                (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
-                                args[4],
-                                Convert.ToDouble(numberOfMessages) / sendTimeWithTx.TotalSeconds);
+                var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
+                Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}", 
+                                      numberOfThreads, 
+                                      numberOfMessages * 2, 
+                                      args[2], 
+                                      args[3], 
+                                      Convert.ToDouble(numberOfMessages * 2) / durationSeconds, 
+                                      Convert.ToDouble(numberOfMessages) / sendTimeNoTx.TotalSeconds,
+                                      (TestMessageHandler.First - startTime).Value.TotalSeconds,
+                                      (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
+                                      args[4],
+                                      Convert.ToDouble(numberOfMessages) / sendTimeWithTx.TotalSeconds);
 
-            Environment.Exit(0);
+            }
         }
 
         static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction)
