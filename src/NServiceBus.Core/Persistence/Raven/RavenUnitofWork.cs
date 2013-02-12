@@ -27,7 +27,7 @@ namespace NServiceBus.Persistence.Raven
             }
             finally
             {
-                sessionFactory.Dispose();
+                sessionFactory.ReleaseSession();
             }
         }
     }
