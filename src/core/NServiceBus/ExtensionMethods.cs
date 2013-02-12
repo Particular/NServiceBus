@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace NServiceBus
 {
-    using System.ComponentModel;
 
     /// <summary>
     /// Extension method on message handler.
@@ -11,9 +10,9 @@ namespace NServiceBus
     public static class MessageHandlerExtensionMethods
     {
         /// <summary>
-        /// Extension method on MessageHandler. Users can avoid declaring an IBus to be injected, and use the bus implicitly.
+        /// Extension method on <see cref="IMessageHandler{T}"/>. Users can avoid declaring an <see cref="IBus"/> to be injected, and use the bus implicitly.
         /// </summary>
-        /// <example> The following is an example on how a message handler might look like using the Bus() extension method:
+        /// <example> The following is an example on how a <see cref="IMessageHandler{T}"/> might look like using the <see cref="Bus{T}"/> extension method:
         /// <code escaped="false">
         /// public class RequestDataMessageHandler : IHandleMessages&lt;RequestDataMessage&gt;
         /// {
@@ -29,9 +28,9 @@ namespace NServiceBus
         /// }
         /// </code>
         /// </example>
-        /// <typeparam name="T">The message type to handle</typeparam>
-        /// <param name="handler">The <see cref="IMessageHandler{T}" /> implementing class</param>
-        /// <returns>IBus interface</returns>
+        /// <typeparam name="T">The message type to handle.</typeparam>
+        /// <param name="handler">The <see cref="IMessageHandler{T}" /> implementing class.</param>
+        /// <returns><see cref="IBus"/> interface.</returns>
         public static IBus Bus<T>(this IMessageHandler<T> handler)
         {
             return ExtensionMethods.Bus;
@@ -70,7 +69,7 @@ namespace NServiceBus
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
-        /// <param name="msg">The message to retrieve a header from.</param>
+        /// <param name="msg">The <see cref="IMessage"/> to retrieve a header from.</param>
         /// <param name="key">The header key.</param>
         /// <returns>The value assigned to the header.</returns>
         public static string GetHeader(this IMessage msg, string key)
@@ -81,7 +80,7 @@ namespace NServiceBus
         /// <summary>
         /// Sets the value of the header for the given key.
         /// </summary>
-        /// <param name="msg">The message to add a header to.</param>
+        /// <param name="msg">The <see cref="IMessage"/> to add a header to.</param>
         /// <param name="key">The header key.</param>
         /// <param name="value">The value to assign to the header.</param>
         public static void SetHeader(this IMessage msg, string key, string value)
@@ -90,13 +89,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Instantiates an instance of T and adds it to the list.
+        /// Instantiates an instance of <typeparamref name="T"/> and adds it to the list.
         /// </summary>
         /// <typeparam name="T">The type to instantiate.</typeparam>
-        /// <param name="list">The list to which to add the new element</param>
-        /// <param name="initializer">An action for setting properties of the created instance.</param>
+        /// <param name="list">The list to which to add the new element.</param>
+        /// <param name="initializer">An <see cref="Action"/> for setting properties of the created instance of <typeparamref name="T"/>.</param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void Add<T>(this IList<T> list, Action<T> initializer)
         {
             if (MessageCreator == null)
@@ -114,7 +112,6 @@ namespace NServiceBus
         /// <param name="key"></param>
         /// <returns></returns>
         [ObsoleteEx(Replacement = "bus.GetMessageHeader(object msg, string key) or Headers.GetMessageHeader(object msg, string key)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHeader(this object msg, string key)
         {
             return GetMessageHeader(null, msg, key);
@@ -127,7 +124,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHttpFromHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.HttpFrom);
@@ -140,7 +136,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetHttpToHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.HttpTo);
@@ -152,7 +147,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetDestinationSitesHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.DestinationSites);
@@ -164,7 +158,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static string GetOriginatingSiteHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.OriginatingSite);
@@ -177,7 +170,6 @@ namespace NServiceBus
         /// <param name="key"></param>
         /// <param name="value"></param>
         [ObsoleteEx(Replacement = "bus.SetMessageHeader(object msg, string key, string value) or Headers.SetMessageHeader(object msg, string key, string value)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHeader(this object msg, string key, string value)
         {
             SetMessageHeader(null, msg, key, value);
@@ -190,7 +182,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetDestinationSitesHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.DestinationSites, value);
@@ -204,7 +195,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetOriginatingSiteHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.OriginatingSite, value);
@@ -217,7 +207,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHttpFromHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.HttpFrom, value);
@@ -230,7 +219,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void SetHttpToHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.HttpTo, value);
@@ -242,7 +230,6 @@ namespace NServiceBus
         /// <param name="msg"></param>
         /// <param name="key"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        [EditorBrowsable(EditorBrowsableState.Advanced)]
         public static void CopyHeaderFromRequest(this object msg, string key)
         {
             if (msg == CurrentMessageBeingHandled)
@@ -252,12 +239,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The object used by the extention methods to instantiate types.
+        /// The <see cref="IMessageCreator"/> used by the extention methods to instantiate types.
         /// </summary>
         public static IMessageCreator MessageCreator { get; set; }
 
         /// <summary>
-        /// The object used by the extension methods for accessing headers.
+        /// The <see cref="IBus"/> used by the extension methods for accessing headers.
         /// </summary>
         public static IBus Bus { get; set; }
 
@@ -270,7 +257,7 @@ namespace NServiceBus
         static object currentMessageBeingHandled;
 
         /// <summary>
-        /// The action used to set the header in the <see cref="SetHeader"/> method.
+        /// The <see cref="Action{T1,T2,T3}"/> used to set the header in the <see cref="SetHeader(NServiceBus.IMessage,string,string)"/> method.
         /// </summary>
         public static Action<object, string, string> SetHeaderAction = (x, y, z) =>
                                                                            {
@@ -278,12 +265,12 @@ namespace NServiceBus
                                                                            };
 
         /// <summary>
-        /// The action used to get the header value in the <see cref="GetHeader"/> method.
+        /// The <see cref="Func{T1,T2,TResult}"/> used to get the header value in the <see cref="GetHeader(NServiceBus.IMessage,string)"/> method.
         /// </summary>
         public static Func<object, string, string> GetHeaderAction = (x, y) => "No header get header action was defined, please specify one using ExtensionMethods.GetHeaderAction = ...";
 
         /// <summary>
-        /// The action used to get all the headers for a message.
+        /// The <see cref="Func{TResult}"/> used to get all the headers for a message.
         /// </summary>
         public static Func<IDictionary<string, string>> GetStaticOutgoingHeadersAction { get; set; }
     }
