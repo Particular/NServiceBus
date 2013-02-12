@@ -34,8 +34,7 @@
             Scenario.Define(() => new Context {SendAnotherMessage = true, Id = Guid.NewGuid()})
                     .WithEndpoint<SagaEndpoint>()
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.Msmq)
-                                  .For(Serializers.Json, Serializers.Xml))
+                    .Repeat(r => r.For(Transports.Msmq))
                     .Should(c =>
                         {
                             Assert.IsNull(c.UnhandledException);

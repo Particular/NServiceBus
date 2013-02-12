@@ -1,25 +1,16 @@
 namespace NServiceBus.Persistence.Raven
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-
-    using NServiceBus.DataBus;
-    using NServiceBus.Logging;
-
     using global::Raven.Client;
 
-    public class RavenSessionFactory : IDisposable
+    public class RavenSessionFactory
     {
-        bool disposed;
-
         [ThreadStatic]
         static IDocumentSession session;
 
         public IDocumentStore Store { get; private set; }
+
         public IBus Bus { get; set; }
-        public ConcurrentDictionary<IDocumentSession, IDocumentSession> openSessions = new ConcurrentDictionary<IDocumentSession, IDocumentSession>();
-        private readonly ILog logger = LogManager.GetLogger(typeof(RavenSessionFactory));
 
         public IDocumentSession Session
         {
@@ -39,43 +30,7 @@ namespace NServiceBus.Persistence.Raven
             }
 
             session.Dispose();
-
-            IDocumentSession tempSession;
-            this.openSessions.TryRemove(session, out tempSession);
-
             session = null;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                foreach (KeyValuePair<IDocumentSession, IDocumentSession> documentSession in openSessions)
-                {
-                    logger.Warn("Unexpected open RavenDB session found during shutdown - Disposing.");
-                    documentSession.Key.Dispose();
-                }
-
-                this.Store.Dispose();
-            }
-
-            disposed = true;
-        }
-
-        ~RavenSessionFactory()
-        {
-            Dispose(false);
         }
 
         IDocumentSession OpenSession()
@@ -97,7 +52,6 @@ namespace NServiceBus.Persistence.Raven
             documentSession.Advanced.AllowNonAuthoritativeInformation = false;
             documentSession.Advanced.UseOptimisticConcurrency = true;
 
-            openSessions.TryAdd(documentSession, documentSession);
             return documentSession;
         }
 

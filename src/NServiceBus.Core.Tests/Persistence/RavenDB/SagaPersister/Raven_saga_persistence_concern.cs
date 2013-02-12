@@ -33,12 +33,20 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
         public void WithASagaPersistenceUnitOfWork(Action<RavenSagaPersister> action)
         {
-            using (var sessionFactory = new RavenSessionFactory(store))
+            var sessionFactory = new RavenSessionFactory(store);
+
+            try
             {
                 var sagaPersister = new RavenSagaPersister(sessionFactory);
                 action(sagaPersister);
+
                 sessionFactory.SaveChanges();
             }
+            finally 
+            {
+                sessionFactory.ReleaseSession();
+                
+            }           
         }
 
         protected void SaveSaga<T>(T saga) where T : ISagaEntity
