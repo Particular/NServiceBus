@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// The interface used for starting and stopping an IBus.
     /// </summary>
-    public interface IStartableBus : IBus
+    public interface IStartableBus : IBus, IDisposable
     {
         /// <summary>
         /// Performs the given startup action, starts the bus, and returns a reference to it.
