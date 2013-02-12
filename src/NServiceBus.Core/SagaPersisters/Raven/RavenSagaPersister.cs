@@ -72,7 +72,6 @@ namespace NServiceBus.SagaPersisters.Raven
             return GetByQuery<T>(property, value).FirstOrDefault();
         }
 
-       
         public void Complete(ISagaEntity saga)
         {
             Session.Delete(saga);
@@ -84,6 +83,7 @@ namespace NServiceBus.SagaPersisters.Raven
 
             DeleteUniqueProperty(saga, uniqueProperty.Value);
         }
+
         bool IsUniqueProperty<T>(string property)
         {
             var key = typeof(T).FullName + property;
@@ -111,7 +111,6 @@ namespace NServiceBus.SagaPersisters.Raven
                 return lookup.SagaDocId != null
                     ? Session.Load<T>(lookup.SagaDocId) //if we have a saga id we can just load it
                     : Get<T>(lookup.SagaId); //if not this is a saga that was created pre 3.0.4 so we fallback to a get instead
-
 
             return default(T);
         }

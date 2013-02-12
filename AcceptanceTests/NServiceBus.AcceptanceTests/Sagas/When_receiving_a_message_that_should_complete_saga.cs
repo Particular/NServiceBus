@@ -5,19 +5,17 @@
 
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Logging;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
 
     public class When_receiving_a_message_that_completes_the_saga : NServiceBusIntegrationTest
     {
-        static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
-        static Guid IdThatSagaIsCorrelatedOn2 = Guid.NewGuid();
-
         [Test]
         public void Should_hydrate_and_complete_the_existing_instance()
         {
-            Scenario.Define(() => new Context { SendAnotherMessage = false })
+            Scenario.Define(() => new Context { SendAnotherMessage = false, Id = Guid.NewGuid() })
                     .WithEndpoint<SagaEndpoint>()
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.Msmq))
@@ -31,20 +29,20 @@
         }
 
         [Test]
-        [Ignore("Fails Currently. See https://github.com/NServiceBus/NServiceBus/issues/965")]
         public void Should_ignore_messages_afterwards()
         {
-            Scenario.Define(() => new Context { SendAnotherMessage = true })
+            Scenario.Define(() => new Context {SendAnotherMessage = true, Id = Guid.NewGuid()})
                     .WithEndpoint<SagaEndpoint>()
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Msmq)
+                                  .For(Serializers.Json, Serializers.Xml))
                     .Should(c =>
-                    {
-                        Assert.IsNull(c.UnhandledException);
-                        Assert.AreEqual(2, c.CompletedCount);
-                        Assert.AreEqual(0, c.OtherMessageCount, "AnotheeMessage should not be delivered to the saga after completion");
-                    })
-
+                        {
+                            Assert.IsNull(c.UnhandledException);
+                            Assert.AreEqual(1, c.CompletedCount);
+                            Assert.AreEqual(0, c.OtherMessageCount,
+                                            "AnotherMessage should not be delivered to the saga after completion");
+                        })
                     .Run();
         }
 
@@ -55,7 +53,8 @@
             public int OtherMessageCount { get; set; }
             public bool Complete { get; set; }
             public Exception UnhandledException { get; set; }
-            public ManualResetEvent synchronizationEvent = new ManualResetEvent(false);
+            public readonly ManualResetEvent synchronizationEvent = new ManualResetEvent(false);
+            public Guid Id { get; set; }
         }
 
         public class SagaEndpoint : EndpointBuilder
@@ -67,25 +66,16 @@
                         {
                             try
                             {
-                                bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
+                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
                                 WaitForSynchronizationEvent(context, "First StartSagaMessage not received");
 
-                                bus.SendLocal(new CompleteSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
+                                bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id });
                                 WaitForSynchronizationEvent(context, "First CompleteSagaMessage not received");
 
                                 if (context.SendAnotherMessage)
                                 {
-                                    bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn2 });
-                                    WaitForSynchronizationEvent(context, "Second StartSagaMessage not received");
-
-                                    bus.SendLocal(new CompleteSagaMessage { SomeId = IdThatSagaIsCorrelatedOn2 });
-                                    WaitForSynchronizationEvent(context, "Second CompleteSagaMessage not received");
-
-                                    bus.SendLocal(new AnotherMessage { SomeId = IdThatSagaIsCorrelatedOn });
+                                    bus.SendLocal(new AnotherMessage { SomeId = context.Id });
                                     WaitForSynchronizationEvent(context, "First AnotherMessage not received");
-
-                                    bus.SendLocal(new AnotherMessage { SomeId = IdThatSagaIsCorrelatedOn2 });
-                                    WaitForSynchronizationEvent(context, "Second AnotherMessage not received");
                                 }
                             }
                             finally
@@ -107,9 +97,13 @@
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>, IHandleMessages<AnotherMessage>
             {
+                private ILog Logger = LogManager.GetLogger(typeof (TestSaga));
+                
                 public Context Context { get; set; }
+
                 public void Handle(StartSagaMessage message)
                 {
+                    Logger.WarnFormat("StartSagaMessage Context.Id = {0}", Context.Id);
                     Data.SomeId = message.SomeId;
                     Context.synchronizationEvent.Set();
                 }
@@ -126,16 +120,19 @@
 
                 public void Handle(CompleteSagaMessage message)
                 {
+                    Logger.WarnFormat("CompleteSagaMessage Context.Id = {0}", Context.Id);
+
                     Context.CompletedCount = Context.CompletedCount + 1;
-                    this.MarkAsComplete();
+                    MarkAsComplete();
                     Context.synchronizationEvent.Set();
                 }
 
                 public void Handle(AnotherMessage message)
                 {
+                    Logger.WarnFormat("AnotherMessage Context.Id = {0}", Context.Id);
+
                     Context.OtherMessageCount = Context.OtherMessageCount + 1;
                 }
-
             }
 
             public class TestSagaData : IContainSagaData
