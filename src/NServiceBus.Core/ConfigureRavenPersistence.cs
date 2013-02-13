@@ -33,7 +33,7 @@ namespace NServiceBus
         ///  
         ///  <connectionStrings>
         ///    <!-- Default connection string name -->
-        ///    <add name="NServiceBus/Persistence" connectionString="http://localhost:8080" />
+        ///    <add name="NServiceBus/Persistence" connectionString="Url=http://localhost:8080 />
         ///  </connectionStrings>
         /// </code>
         /// </example>
