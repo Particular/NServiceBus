@@ -5,7 +5,6 @@
 
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Logging;
 
     using NServiceBus.Unicast.Subscriptions;
 
@@ -22,21 +21,14 @@
                     .WithEndpoint<SagaEndpoint>()
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.Msmq))
-                    .Should(c =>
-                    {
-                        Assert.IsNull(c.UnhandledException);
-                        Assert.AreEqual(1, c.CompletedCount);
-                    })
-
+                    .Should(c => Assert.AreEqual(1, c.CompletedCount))
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
             public int CompletedCount { get; set; }
-            public int NumberOfSubscribers { get; set; }
             public bool Complete { get; set; }
-            public Exception UnhandledException { get; set; }
             public readonly ManualResetEvent synchronizationEvent = new ManualResetEvent(false);
             public Guid Id { get; set; }
         }
@@ -45,13 +37,14 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RavenSagaPersister().UnicastBus().LoadMessageHandlers<First<TestSaga>>())
-                    .AddMapping<SomeEvent>(typeof(SagaEndpoint))
+                EndpointSetup<DefaultServer>(c => c.RavenSagaPersister()
+                                                   .UnicastBus())
+                    .AddMapping<SomeEvent>(typeof (SagaEndpoint))
                     .When<Context>((bus, context) =>
                         {
                             try
                             {
-                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
+                                bus.SendLocal(new StartSagaMessage {SomeId = context.Id});
                                 WaitForSynchronizationEvent(context, "StartSagaMessage not received");
 
                                 PublishSomeEvent(bus, context);
@@ -71,17 +64,7 @@
                 if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
                 {
                     Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                        (sender, args) =>
-                            {
-                                lock (context)
-                                {
-                                    context.NumberOfSubscribers++;
-
-                                    if (context.NumberOfSubscribers >= 1)
-                                        bus.Publish(new SomeEvent { SomeId = context.Id });                
-                                                
-                                }
-                            };
+                        (sender, args) => bus.Publish(new SomeEvent { SomeId = context.Id });
                 }
                 else
                 {
@@ -101,13 +84,10 @@
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<SomeEvent>, IHandleTimeouts<SomeEvent>
             {
-                private ILog Logger = LogManager.GetLogger(typeof (TestSaga));
-                
                 public Context Context { get; set; }
 
                 public void Handle(StartSagaMessage message)
                 {
-                    Logger.WarnFormat("StartSagaMessage Context.Id = {0}", Context.Id);
                     Data.SomeId = message.SomeId;
                     Context.synchronizationEvent.Set();
                 }
@@ -122,18 +102,14 @@
 
                 public void Handle(SomeEvent message)
                 {
-                    Logger.WarnFormat("SomeEvent Context.Id = {0}", Context.Id);
-                    this.RequestTimeout(TimeSpan.FromMilliseconds(100), message);
+                    RequestTimeout(TimeSpan.FromMilliseconds(100), message);
                     Context.synchronizationEvent.Set();
                 }
 
                 public void Timeout(SomeEvent message)
                 {
-                    Logger.WarnFormat("SomeEvent Timeout Context.Id = {0}", Context.Id);
                     Context.CompletedCount = Context.CompletedCount + 1;
-
                     Context.synchronizationEvent.Set();
-
                 }
             }
 

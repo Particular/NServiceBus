@@ -58,7 +58,7 @@
         {
             try
             {
-                ((IDisposable)bus).Dispose();
+                bus.Dispose();
 
                 return Result.Success();
             }

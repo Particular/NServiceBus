@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
     using NUnit.Framework;
     using NServiceBus.Unicast.Subscriptions;
     using ScenarioDescriptors;
@@ -36,6 +35,7 @@
 
             public int NumberOfSubscribers { get; set; }
         }
+
         public class Publisher : EndpointBuilder
         {
             public Publisher()
@@ -66,6 +66,7 @@
                         });
             }
         }
+
         public class Subscriber1 : EndpointBuilder
         {
             public Subscriber1()
