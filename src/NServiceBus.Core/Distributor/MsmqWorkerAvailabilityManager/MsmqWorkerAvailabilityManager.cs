@@ -2,7 +2,9 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
     using System.Messaging;
+    using System.Threading;
     using Unicast.Distributor;
     using Unicast.Queuing.Msmq;
 
@@ -13,6 +15,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
         MessageQueue storageQueue;
+        readonly object lockObject = new object();
 
         /// <summary>
         /// Sets the path to the queue that will be used for storing
@@ -30,11 +33,15 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// </param>
         public void ClearAvailabilityForWorker(Address address)
         {
-            var existing = storageQueue.GetAllMessages();
+            lock (lockObject)
+            {
+                var messages = storageQueue.GetAllMessages();
 
-            foreach (var m in existing)
-                if (MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address)
+                foreach (var m in messages.Where(m => MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address))
+                {
                     storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                }
+            }
         }
 
         /// <summary>
@@ -44,18 +51,29 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         [DebuggerNonUserCode]
         public Address PopAvailableWorker()
         {
+            if (!Monitor.TryEnter(lockObject))
+            {
+                return null;
+            }
+
             try
             {
                 var m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
 
                 if (m == null)
+                {
                     return null;
+                }
 
                 return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
             }
             catch (Exception)
             {
                 return null;
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
             }
         }
 
