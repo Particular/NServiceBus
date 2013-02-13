@@ -20,11 +20,12 @@ namespace NServiceBus.Sagas.Impl
             NServiceBus.Configure.Instance.AddSystemMessagesAs(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
         }
 
-        bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
+        static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)
         {
             var timeoutHandler = typeof(IHandleTimeouts<>).MakeGenericType(type);
+            var messageHandler = typeof(IHandleMessages<>).MakeGenericType(type);
 
-            return sagas.Any(timeoutHandler.IsAssignableFrom);
+            return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
         }
     }
 }

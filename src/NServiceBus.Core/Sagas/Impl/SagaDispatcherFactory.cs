@@ -69,21 +69,31 @@ namespace NServiceBus.Sagas.Impl
                                              SagaContext.Current = saga;
 
                                              if (IsTimeoutMessage(message))
-                                                 HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>),saga, message);
+                                             {
+                                                 HandlerInvocationCache.Invoke(typeof (IHandleTimeouts<>), saga, message);
+                                             }
                                              else
-                                                 HandlerInvocationCache.Invoke(typeof(IMessageHandler<>),saga, message);
+                                             {
+                                                 HandlerInvocationCache.Invoke(typeof (IMessageHandler<>), saga, message);
+                                             }
 
                                              if (!saga.Completed)
                                              {
                                                  if (!sagaEntityIsPersistent)
+                                                 {
                                                      Persister.Save(saga.Entity);
+                                                 }
                                                  else
+                                                 {
                                                      Persister.Update(saga.Entity);
+                                                 }
                                              }
                                              else
                                              {
                                                  if (sagaEntityIsPersistent)
+                                                 {
                                                      Persister.Complete(saga.Entity);
+                                                 }
 
                                                  NotifyTimeoutManagerThatSagaHasCompleted(saga);
                                              }

@@ -357,9 +357,9 @@ namespace NServiceBus.Unicast
             var subscribersExisted = MessagePublisher.Publish(eventMessage, fullTypes);
 
             if (!subscribersExisted && NoSubscribersForMessage != null)
+            {
                 NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
-
-
+            }
         }
 
         /// <summary>
@@ -928,20 +928,23 @@ namespace NServiceBus.Unicast
                 Subscribe(messageType);
 
                 if (!MessageConventionExtensions.IsEventType(messageType))
-                    Log.Info("Future versions of NServiceBus will only autosubscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
+                    Log.Info("Future versions of NServiceBus will only auto-subscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
             }
         }
 
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint().Where(t => !MessageConventionExtensions.IsCommandType(t) && !MessageConventionExtensions.IsInSystemConventionList(t)).ToList();
+            var eventsHandled = GetMessageTypesHandledOnThisEndpoint()
+                .Where(t => !MessageConventionExtensions.IsCommandType(t) && !MessageConventionExtensions.IsInSystemConventionList(t))
+                .ToList();
 
             if (AllowSubscribeToSelf)
+            {
                 return eventsHandled;
+            }
 
             var eventsWithRouting = messageTypeToDestinationLookup
-                .Where(route => route.Value != Address.Undefined &&
-                                eventsHandled.Any(t => t.IsAssignableFrom(route.Key)))
+                .Where(route => route.Value != Address.Undefined && eventsHandled.Any(t => t.IsAssignableFrom(route.Key)))
                 .Select(route => route.Key)
                 .ToList();
 
