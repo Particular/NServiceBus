@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
         public void WithASagaPersistenceUnitOfWork(Action<RavenSagaPersister> action)
         {
-            var sessionFactory = new RavenSessionFactory(store);
+            var sessionFactory = new RavenSessionFactory(new StoreAccessor(store));
 
             try
             {

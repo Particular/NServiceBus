@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Persistence.Raven;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
@@ -24,7 +25,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
             store.JsonRequestFactory.DisableRequestCompression = true;
            
-            return new RavenTimeoutPersistence(store);
+            return new RavenTimeoutPersistence(new StoreAccessor(store));
         }
 
         [TearDown]

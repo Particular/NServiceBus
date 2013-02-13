@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Persistence.Raven;
     using NServiceBus.Timeout.Core;
     using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
@@ -22,7 +23,7 @@
             store.Conventions.MaxNumberOfRequestsPerSession = 10;
             store.Initialize();
 
-            return new RavenTimeoutPersistence(store);
+            return new RavenTimeoutPersistence(new StoreAccessor(store));
         }
 
         [TearDown]

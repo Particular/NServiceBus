@@ -2,11 +2,17 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Persistence.Raven;
     using global::Raven.Client;
 
     public class RavenSubscriptionStorage : ISubscriptionStorage
     {
-        public IDocumentStore Store { get; set; }
+        private readonly IDocumentStore store;
+
+        public RavenSubscriptionStorage(StoreAccessor storeAccessor)
+        {
+            store = storeAccessor.Store;
+        }
 
         public void Init()
         {
@@ -67,7 +73,7 @@ namespace NServiceBus.Unicast.Subscriptions.Raven
 
         IDocumentSession OpenSession()
         {
-            var session = Store.OpenSession();
+            var session = store.OpenSession();
 
             session.Advanced.AllowNonAuthoritativeInformation = false;
 

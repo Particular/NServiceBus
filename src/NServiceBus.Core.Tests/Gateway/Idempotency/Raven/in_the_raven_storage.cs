@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Persistence.Raven;
     using Persistence;
     using Persistence.Raven;
     using global::Raven.Client;
@@ -24,7 +25,7 @@
             
             store.Initialize();
 
-            ravenPersister = new RavenDbPersistence{Store = store};
+            ravenPersister = new RavenDbPersistence(new StoreAccessor(store));
         }
 
         [TearDown]

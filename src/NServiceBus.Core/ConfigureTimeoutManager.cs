@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Persistence.Raven;
     using Raven.Client;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
@@ -29,7 +30,7 @@ namespace NServiceBus
         {
             SetupTimeoutManager(config);
 
-            if (!config.Configurer.HasComponent<IDocumentStore>())
+            if (!config.Configurer.HasComponent<StoreAccessor>())
                 config.RavenPersistence();
 
             config.Configurer.ConfigureComponent<RavenTimeoutPersistence>(DependencyLifecycle.SingleInstance);

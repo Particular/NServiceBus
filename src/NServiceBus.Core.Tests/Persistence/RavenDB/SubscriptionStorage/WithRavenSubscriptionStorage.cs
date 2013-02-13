@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
 {
+    using NServiceBus.Persistence.Raven;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
@@ -20,7 +21,7 @@
            
             store.Initialize();
 
-            storage = new RavenSubscriptionStorage { Store = store};
+            storage = new RavenSubscriptionStorage(new StoreAccessor(store));
             storage.Init();
         }
 

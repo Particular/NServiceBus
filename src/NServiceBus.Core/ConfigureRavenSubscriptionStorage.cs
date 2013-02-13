@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Persistence.Raven;
     using Raven.Client;
     using Unicast.Subscriptions.Raven;
 
@@ -7,7 +8,7 @@ namespace NServiceBus
     {
         public static Configure RavenSubscriptionStorage(this Configure config)
         {
-            if (!config.Configurer.HasComponent<IDocumentStore>())
+            if (!config.Configurer.HasComponent<StoreAccessor>())
                 config.RavenPersistence();
 
             config.Configurer.ConfigureComponent<RavenSubscriptionStorage>(DependencyLifecycle.SingleInstance);

@@ -7,6 +7,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     using System.Text;
     using Core;
     using Logging;
+    using NServiceBus.Persistence.Raven;
     using Raven.Client;
     using Raven.Client.Linq;
 
@@ -14,9 +15,9 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
     {
         readonly IDocumentStore store;
 
-        public RavenTimeoutPersistence(IDocumentStore store)
+        public RavenTimeoutPersistence(StoreAccessor  storeAccessor)
         {
-            this.store = store;
+            store = storeAccessor.Store;
         }
 
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)

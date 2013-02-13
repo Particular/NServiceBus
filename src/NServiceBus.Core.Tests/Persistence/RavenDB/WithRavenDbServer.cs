@@ -1,7 +1,7 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB
 {
+    using NServiceBus.Persistence.Raven;
     using NUnit.Framework;
-    using Raven.Client;
     using Raven.Client.Document;
 
     public class WithRavenDbServer
@@ -17,7 +17,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
 
             Initialize(config);
           
-            store = config.Builder.Build<IDocumentStore>() as DocumentStore;
+            store = config.Builder.Build<StoreAccessor>().Store as DocumentStore;
         }
 
         [TestFixtureTearDown]

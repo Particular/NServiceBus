@@ -11,6 +11,7 @@ namespace NServiceBus
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
     using Gateway.Sending;
+    using Persistence.Raven;
     using Raven.Client;
 
     public static class ConfigureGateway
@@ -90,7 +91,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure UseRavenGatewayPersister(this Configure config)
         {
-            if (!config.Configurer.HasComponent<IDocumentStore>())
+            if (!config.Configurer.HasComponent<StoreAccessor>())
                 config.RavenPersistence();
 
             config.Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.SingleInstance);

@@ -3,11 +3,17 @@ namespace NServiceBus.Gateway.Persistence.Raven
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using global::Raven.Abstractions.Exceptions;
+    using NServiceBus.Persistence.Raven;
     using global::Raven.Client;
+    using ConcurrencyException = global::Raven.Abstractions.Exceptions.ConcurrencyException;
 
     public class RavenDbPersistence : IPersistMessages
     {
+        public RavenDbPersistence(StoreAccessor storeAccessor)
+        {
+            store = storeAccessor.Store;
+        }
+
         public bool InsertMessage(string clientId, DateTime timeReceived, Stream messageStream, IDictionary<string, string> headers)
         {
             var gatewayMessage = new GatewayMessage
@@ -81,13 +87,13 @@ namespace NServiceBus.Gateway.Persistence.Raven
 
         IDocumentSession OpenSession()
         {
-            var session = Store.OpenSession();
+            var session = store.OpenSession();
 
             session.Advanced.AllowNonAuthoritativeInformation = false;
 
             return session;
         }
 
-        public IDocumentStore Store { get; set; }
+        private readonly IDocumentStore store;
     }
 }

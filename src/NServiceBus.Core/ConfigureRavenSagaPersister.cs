@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Persistence.Raven;
     using Raven.Client;
     using SagaPersisters.Raven;
 
@@ -12,7 +13,7 @@ namespace NServiceBus
                 return config;
             }
 
-            if (!config.Configurer.HasComponent<IDocumentStore>())
+            if (!config.Configurer.HasComponent<StoreAccessor>())
             {
                 config.RavenPersistence();
             }
