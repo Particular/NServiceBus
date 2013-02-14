@@ -33,7 +33,7 @@ namespace NServiceBus
         /// Sets the address of this endpoint.
         /// Will throw an exception if overwriting a previous value (but value will still be set).
         /// </summary>
-        /// <param name="queue"></param>
+        /// <param name="queue">The queue name.</param>
         public static void InitializeLocalAddress(string queue)
         {
             Local = Parse(queue);
@@ -45,7 +45,7 @@ namespace NServiceBus
         /// <summary>
         /// Sets the address mode, can only be done as long as the local address is not been initialized.By default the default machine equals Environment.MachineName
         /// </summary>
-        /// <param name="machineName"></param>
+        /// <param name="machineName">The machine name.</param>
         /// <exception cref="InvalidOperationException"></exception>
         public static void OverrideDefaultMachine(string machineName)
         {
@@ -71,8 +71,8 @@ namespace NServiceBus
         /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
-        /// <param name="destination"></param>
-        /// <returns></returns>
+        /// <param name="destination">The full address to parse.</param>
+        /// <returns>A new instance of <see cref="Address"/>.</returns>
         public static Address Parse(string destination)
         {
             if (string.IsNullOrEmpty(destination))
@@ -93,13 +93,19 @@ namespace NServiceBus
         ///<summary>
         /// Instantiate a new Address for a known queue on a given machine.
         ///</summary>
-        ///<param name="queueName"></param>
-        ///<param name="machineName"></param>
+        ///<param name="queueName">The queue name.</param>
+        ///<param name="machineName">The machine name.</param>
         public Address(string queueName, string machineName) :
             this(queueName, machineName, false)
         {
         }
 
+        /// <summary>
+        /// Instantiate a new Address for a known queue on a given machine.
+        /// </summary>
+        ///<param name="queueName">The queue name.</param>
+        ///<param name="machineName">The machine name.</param>
+        /// <param name="caseSensitive">If <code>true</code> makes the address case sensitive.</param>
         public Address(string queueName, string machineName, bool caseSensitive)
         {
             Queue = caseSensitive ? queueName : queueName.ToLower();
@@ -109,14 +115,20 @@ namespace NServiceBus
         /// <summary>
         /// Deserializes an Address.
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
         protected Address(SerializationInfo info, StreamingContext context)
         {
             Queue = info.GetString("Queue");
             Machine = info.GetString("Machine");
         }
 
+        /// <summary>
+        /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+        /// </summary>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
+        /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Queue", Queue);

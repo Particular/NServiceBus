@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\..\binaries\NServiceBus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,8 +60,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Reference Include="Obsolete">
-      <HintPath>..\..\..\packages\Obsolete.Fody.1.5.0.0\lib\NET40\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete, Version=1.5.1.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.5.1.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

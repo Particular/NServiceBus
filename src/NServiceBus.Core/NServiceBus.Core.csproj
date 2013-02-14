@@ -56,8 +56,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Obsolete">
-      <HintPath>..\..\packages\Obsolete.Fody.1.5.0.0\lib\NET40\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete, Version=1.5.1.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Obsolete.Fody.1.5.1.0\Lib\NET40\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

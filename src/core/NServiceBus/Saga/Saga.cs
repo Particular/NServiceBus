@@ -38,7 +38,7 @@ namespace NServiceBus.Saga
 
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
-        /// Call <see cref="ConfigureMapping{TMessage}"/> for each property of each message you want
+        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{TMessage,object}})"/> for each property of each message you want
         /// to use for lookup.
         /// </summary>
         public virtual void ConfigureHowToFindSaga()
@@ -166,7 +166,7 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <param name="within"/> expires.</param>
+        /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
         protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, Action<TTimeoutmessageType> messageConstructor)
         {
             RequestUtcTimeout(within, Bus.CreateInstance(messageConstructor));
