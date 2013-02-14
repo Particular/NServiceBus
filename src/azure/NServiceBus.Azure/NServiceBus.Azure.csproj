@@ -116,6 +116,8 @@
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\Subscription.cs" />
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorageSessionProvider.cs" />
+    <Compile Include="WindowsAzureServiceBus.cs" />
+    <Compile Include="WindowsAzureStorage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\NServiceBus\NServiceBus.csproj">

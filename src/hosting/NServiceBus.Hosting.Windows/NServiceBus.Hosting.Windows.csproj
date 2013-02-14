@@ -115,6 +115,7 @@
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\DefaultTransportForHost.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
     <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
     <Compile Include="Roles\UsingTransport.cs" />

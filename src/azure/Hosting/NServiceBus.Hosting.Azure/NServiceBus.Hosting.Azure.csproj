@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\binaries\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\..\..\binaries\NServiceBus.Hosting.Azure.XML</DocumentationFile>
@@ -71,6 +71,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\build\azure\NServiceBus.Azure\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
     </Reference>
+    <Reference Include="Obsolete, Version=1.5.1.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Obsolete.Fody.1.5.1.0\lib\NET40\Obsolete.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -81,8 +85,15 @@
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <None Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\hosting\NServiceBus.Hosting.Windows\Roles\Handlers\TransportRoleHandler.cs">
+      <Link>Roles\Handlers\TransportRoleHandler.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\hosting\NServiceBus.Hosting.Windows\Roles\UsingTransport.cs">
+      <Link>Roles\UsingTransport.cs</Link>
+    </Compile>
     <Compile Include="AzureProfileConfig.cs" />
     <Compile Include="DynamicHost\DynamicHostControllerConfig.cs" />
     <Compile Include="DynamicHost\DynamicEndpointLoader.cs" />
@@ -112,6 +123,7 @@
     <Compile Include="Roles\AsA_Listener.cs" />
     <Compile Include="Roles\AsA_Host.cs" />
     <Compile Include="Roles\AsA_Worker.cs" />
+    <Compile Include="Roles\Handlers\DefaultTransportForHost.cs" />
     <Compile Include="Roles\Handlers\ListenerRoleHandler.cs" />
     <Compile Include="IsHostedIn.cs" />
     <Compile Include="Roles\Handlers\WorkerRoleHandler.cs" />
@@ -146,4 +158,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(ProjectDir)\..\..\..\..\Tools\Fody\Fody.targets" />
 </Project>

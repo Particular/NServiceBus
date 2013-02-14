@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Unicast.Queuing.Azure.ServiceBus;
-using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus
 {

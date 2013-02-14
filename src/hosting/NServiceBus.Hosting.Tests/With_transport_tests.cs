@@ -3,6 +3,7 @@ namespace NServiceBus.Hosting.Tests
     using Config;
     using NUnit.Framework;
     using Roles;
+    using Roles.Handlers;
     using Unicast.Queuing;
     using Unicast.Queuing.Msmq;
     using Unicast.Transport;
@@ -34,7 +35,7 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_default_to_msmq_if_no_other_transport_is_configured()
         {
-            var handler = (IWantToRunBeforeConfigurationIsFinalized)new TransportRoleHandler();
+            var handler = new DefaultTransportForHost();
             handler.Run();
 
             Assert.IsInstanceOf<MsmqMessageSender>(Configure.Instance.Builder.Build<ISendMessages>());
@@ -43,14 +44,13 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void Should_used_configured_transport_if_one_is_configured()
         {
-            var handler = (IWantToRunBeforeConfigurationIsFinalized)new TransportRoleHandler();
+            var handler = new DefaultTransportForHost();
             Configure.Instance.Configurer.ConfigureComponent<MyTestTransportReceiver>(DependencyLifecycle.SingleInstance);
 
             handler.Run();
 
             Assert.IsInstanceOf<MsmqMessageSender>(Configure.Instance.Builder.Build<ISendMessages>());
         }
-
     }
 
     public class MyTestTransportReceiver : IReceiveMessages
