@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
     using NServiceBus.Installation.Environments;
 
     [Serializable]
@@ -10,21 +12,27 @@
         IStartableBus bus;
         Configure config;
 
-        EndpointBehavior behavior;
+        EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
+        EndpointBehaviour behaviour;
 
-        public Result Initialize(RunDescriptor descriptor, Type endpointBuilderType, IDictionary<Type, string> routingTable, string endpointName)
+        public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour, IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
-                scenarioContext = descriptor.ScenarioContext;
-                behavior = ((IEndpointBehaviorFactory)Activator.CreateInstance(endpointBuilderType)).Get();
-                behavior.EndpointName = endpointName;
+                behaviour = endpointBehaviour;
+                scenarioContext = run.ScenarioContext;
+                configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
+                configuration.EndpointName = endpointName;
 
-                config = behavior.GetConfiguration(descriptor, routingTable);
+                config = configuration.GetConfiguration(run, routingTable);
 
                 if (scenarioContext != null)
+                {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
+                    scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
+                }
+
 
                 bus = config.CreateBus();
 
@@ -38,19 +46,39 @@
             }
         }
 
+        void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
+        {
+
+            //HACK: kick off another thread so that we'll read the context after the actual value has changed
+            // we need to find a better way
+            Task.Factory.StartNew(() =>
+                {
+                    foreach (var when in behaviour.Whens)
+                    {
+                        var action = when.GetAction(scenarioContext);
+                        action(bus);
+                    }                    
+                });
+        }
+
         public Result Start()
         {
             try
             {
                 bus.Start();
 
-                behavior.Givens.ForEach(a => a(bus));
+                foreach (var given in behaviour.Givens)
+                {
+                    var action = given.GetAction(scenarioContext);
+
+                    action(bus);
+                }
 
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                return Result.Failure(ex); 
+                return Result.Failure(ex);
             }
         }
 
@@ -58,6 +86,7 @@
         {
             try
             {
+                scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
                 bus.Dispose();
 
                 return Result.Success();
@@ -65,12 +94,7 @@
             catch (Exception ex)
             {
                 return Result.Failure(ex);
-            }  
-        }
-
-        public void ApplyWhens()
-        {
-            behavior.Whens.ForEach(a => a(bus, scenarioContext));
+            }
         }
 
         public string Name()

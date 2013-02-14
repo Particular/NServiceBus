@@ -2,9 +2,9 @@
 {
     using System;
     using EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
-    using NServiceBus.Unicast.Subscriptions;
+    using Unicast.Subscriptions;
     using ScenarioDescriptors;
 
     public class When_publishing_an_event : NServiceBusIntegrationTest
@@ -13,7 +13,29 @@
         public void Should_be_delivered_to_allsubscribers()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>()
+                    .WithEndpoint<Publisher>(b => b.Given((bus,context) =>
+                        {
+                            if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                            {
+                                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
+                                    (sender, args) =>
+                                        {
+                                            lock (context)
+                                            {
+                                                context.NumberOfSubscribers++;
+
+                                                if (context.NumberOfSubscribers >= 2)
+                                                    bus.Publish(new MyEvent());                
+                                                
+                                            }
+                                        };
+                            }
+                            else
+                            {
+                                bus.Publish(new MyEvent());                
+                            }
+                            
+                        }))
                     .WithEndpoint<Subscriber1>()
                     .WithEndpoint<Subscriber2>()
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -36,38 +58,15 @@
             public int NumberOfSubscribers { get; set; }
         }
 
-        public class Publisher : EndpointBuilder
+        public class Publisher : EndpointConfigurationBuilder
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>()
-                    .When<Context>((bus,context) =>
-                        {
-                            if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
-                            {
-                                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                                    (sender, args) =>
-                                        {
-                                            lock (context)
-                                            {
-                                                context.NumberOfSubscribers++;
-
-                                                if (context.NumberOfSubscribers >= 2)
-                                                    bus.Publish(new MyEvent());                
-                                                
-                                            }
-                                        };
-                            }
-                            else
-                            {
-                                bus.Publish(new MyEvent());                
-                            }
-                            
-                        });
+                EndpointSetup<DefaultServer>();
             }
         }
 
-        public class Subscriber1 : EndpointBuilder
+        public class Subscriber1 : EndpointConfigurationBuilder
         {
             public Subscriber1()
             {
@@ -86,7 +85,7 @@
             }
         }
 
-        public class Subscriber2 : EndpointBuilder
+        public class Subscriber2 : EndpointConfigurationBuilder
         {
             public Subscriber2()
             {

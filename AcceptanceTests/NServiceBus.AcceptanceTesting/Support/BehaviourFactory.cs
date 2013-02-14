@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
-    public interface IEndpointBehaviorFactory
+    public interface IEndpointConfigurationFactory
     {
-        EndpointBehavior Get();
+        EndpointConfiguration Get();
     }
 }

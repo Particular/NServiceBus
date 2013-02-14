@@ -1,13 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Threading;
-
     using EndpointTemplates;
     using AcceptanceTesting;
-
-    using NServiceBus.Unicast.Subscriptions;
-
+    using Unicast.Subscriptions;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -18,69 +14,50 @@
         public void Timeout_should_be_received_after_expiration()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<SagaEndpoint>()
-                    .Done(c => c.Complete)
+                    .WithEndpoint<SagaEndpoint>(b =>
+                        {
+                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
+                            b.When(contex=>contex.StartSagaMessageReceived, PublishSomeEvent);
+                        })
+                    .Done(c => c.TimeoutReceived)
                     .Repeat(r => r.For(Transports.Msmq))
-                    .Should(c => Assert.AreEqual(1, c.CompletedCount))
                     .Run();
+        }
+
+
+        static void PublishSomeEvent(IBus bus, Context context)
+        {
+            if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+            {
+                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
+                    (sender, args) => bus.Publish(new SomeEvent { SomeId = context.Id });
+            }
+            else
+            {
+                bus.Publish(new SomeEvent { SomeId = context.Id });
+            }
         }
 
         public class Context : ScenarioContext
         {
-            public int CompletedCount { get; set; }
-            public bool Complete { get; set; }
-            public readonly ManualResetEvent synchronizationEvent = new ManualResetEvent(false);
             public Guid Id { get; set; }
+
+            public bool StartSagaMessageReceived { get; set; }
+
+            public bool SomeEventReceived { get; set; }
+
+            public bool TimeoutReceived { get; set; }
         }
 
-        public class SagaEndpoint : EndpointBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.RavenSagaPersister()
                                                    .UnicastBus())
-                    .AddMapping<SomeEvent>(typeof (SagaEndpoint))
-                    .When<Context>((bus, context) =>
-                        {
-                            try
-                            {
-                                bus.SendLocal(new StartSagaMessage {SomeId = context.Id});
-                                WaitForSynchronizationEvent(context, "StartSagaMessage not received");
-
-                                PublishSomeEvent(bus, context);
-                                WaitForSynchronizationEvent(context, "SomeEvent not received");
-
-                                WaitForSynchronizationEvent(context, "Timeout not received");
-                            }
-                            finally
-                            {
-                                context.Complete = true;
-                            }
-                        });
+                    .AddMapping<SomeEvent>(typeof (SagaEndpoint));
             }
 
-            static void PublishSomeEvent(IBus bus, Context context)
-            {
-                if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
-                {
-                    Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                        (sender, args) => bus.Publish(new SomeEvent { SomeId = context.Id });
-                }
-                else
-                {
-                    bus.Publish(new SomeEvent { SomeId = context.Id });               
-                }                
-            }
-
-            static void WaitForSynchronizationEvent(Context context, string message)
-            {
-                if (!context.synchronizationEvent.WaitOne(15000))
-                {
-                    Assert.Fail(message);
-                }
-
-                context.synchronizationEvent.Reset();
-            }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<SomeEvent>, IHandleTimeouts<SomeEvent>
             {
@@ -89,7 +66,7 @@
                 public void Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
-                    Context.synchronizationEvent.Set();
+                    Context.StartSagaMessageReceived = true;
                 }
 
                 public override void ConfigureHowToFindSaga()
@@ -103,13 +80,12 @@
                 public void Handle(SomeEvent message)
                 {
                     RequestTimeout(TimeSpan.FromMilliseconds(100), message);
-                    Context.synchronizationEvent.Set();
+                    Context.SomeEventReceived = true;
                 }
 
                 public void Timeout(SomeEvent message)
                 {
-                    Context.CompletedCount = Context.CompletedCount + 1;
-                    Context.synchronizationEvent.Set();
+                    Context.TimeoutReceived = true;
                 }
             }
 

@@ -15,7 +15,11 @@
         public void Should_hydrate_and_invoke_the_existing_instance()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>()
+                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+                        {
+                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
+                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
+                        }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(Transports.Msmq))
                     .Should(c =>
@@ -34,16 +38,11 @@
             public Guid SecondSagaInstance { get; set; }
         }
 
-        public class SagaEndpoint : EndpointBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .When(bus =>
-                        {
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });
-                        });
+                EndpointSetup<DefaultServer>();
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>

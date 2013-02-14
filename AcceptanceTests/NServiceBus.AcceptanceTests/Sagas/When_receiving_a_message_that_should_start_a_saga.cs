@@ -14,8 +14,7 @@
         public void Should_start_the_saga_and_call_all_messagehandlers_for_the_given_message()
         {
             Scenario.Define<SagaEndpointContext>()
-                    .WithEndpoint<SagaStarter>()
-                    .WithEndpoint<SagaEndpoint>()
+                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
                     .Done(context => context.InterceptingHandlerCalled && context.SagaStarted)
                     .Repeat(r => r.For<AllBuilders>())
                     .Should(c =>
@@ -31,8 +30,7 @@
         public void Should_not_start_saga_if_a_interception_handler_has_been_invoked()
         {
             Scenario.Define(() => new SagaEndpointContext{InterceptSaga = true})
-                    .WithEndpoint<SagaStarter>()
-                    .WithEndpoint<SagaEndpoint>()
+                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
                    .Done(context => context.InterceptingHandlerCalled)
                    .Repeat(r => r.For<AllBuilders>())
                    .Should(c =>
@@ -53,17 +51,8 @@
             public bool InterceptSaga { get; set; }
         }
 
-        public class SagaStarter : EndpointBuilder
-        {
-            public SagaStarter()
-            {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<StartSagaMessage>(typeof(SagaEndpoint))
-                    .When(bus => bus.Send(new StartSagaMessage()));
-            }
-        }
 
-        public class SagaEndpoint : EndpointBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {

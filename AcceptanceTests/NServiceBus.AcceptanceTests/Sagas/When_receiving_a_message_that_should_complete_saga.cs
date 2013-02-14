@@ -1,11 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Threading;
-
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Logging;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -15,14 +12,17 @@
         [Test]
         public void Should_hydrate_and_complete_the_existing_instance()
         {
-            Scenario.Define(() => new Context { SendAnotherMessage = false, Id = Guid.NewGuid() })
-                    .WithEndpoint<SagaEndpoint>()
-                    .Done(c => c.Complete)
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+                    .WithEndpoint<SagaEndpoint>(b =>
+                        {
+                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
+                            b.When(context => context.StartSagaMessageReceived, (bus, context) => bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id }));
+                        })
+                    .Done(c => c.SagaCompleted)
                     .Repeat(r => r.For(Transports.Msmq))
                     .Should(c =>
                     {
                         Assert.IsNull(c.UnhandledException);
-                        Assert.AreEqual(1, c.CompletedCount);
                     })
 
                     .Run();
@@ -31,80 +31,55 @@
         [Test]
         public void Should_ignore_messages_afterwards()
         {
-            Scenario.Define(() => new Context {SendAnotherMessage = true, Id = Guid.NewGuid()})
-                    .WithEndpoint<SagaEndpoint>()
-                    .Done(c => c.Complete)
+            Scenario.Define(() => new Context {Id = Guid.NewGuid()})
+                      .WithEndpoint<SagaEndpoint>(b =>
+                      {
+                          b.Given((bus, context) => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                          b.When(context => context.StartSagaMessageReceived, (bus, context) => bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id }));
+                          b.When(context => context.SagaCompleted, (bus, context) => bus.SendLocal(new AnotherMessage { SomeId = context.Id }));
+                      })
+                    .Done(c => c.AnotherMessageReceived)
                     .Repeat(r => r.For(Transports.Msmq))
                     .Should(c =>
                         {
                             Assert.IsNull(c.UnhandledException);
-                            Assert.AreEqual(1, c.CompletedCount);
-                            Assert.AreEqual(0, c.OtherMessageCount,
-                                            "AnotherMessage should not be delivered to the saga after completion");
+                            Assert.False(c.SagaReceivedAnotherMessage,"AnotherMessage should not be delivered to the saga after completion");
                         })
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-            public int CompletedCount { get; set; }
-            public bool SendAnotherMessage { get; set; }
-            public int OtherMessageCount { get; set; }
-            public bool Complete { get; set; }
             public Exception UnhandledException { get; set; }
-            public readonly ManualResetEvent synchronizationEvent = new ManualResetEvent(false);
             public Guid Id { get; set; }
+
+            public bool StartSagaMessageReceived { get; set; }
+
+            public bool SagaCompleted { get; set; }
+
+            public bool AnotherMessageReceived { get; set; }
+            public bool SagaReceivedAnotherMessage { get; set; }
         }
 
-        public class SagaEndpoint : EndpointBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RavenSagaPersister().UnicastBus().LoadMessageHandlers<First<TestSaga>>())
-                    .When<Context>((bus, context) =>
-                        {
-                            try
-                            {
-                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
-                                WaitForSynchronizationEvent(context, "First StartSagaMessage not received");
-
-                                bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id });
-                                WaitForSynchronizationEvent(context, "First CompleteSagaMessage not received");
-
-                                if (context.SendAnotherMessage)
-                                {
-                                    bus.SendLocal(new AnotherMessage { SomeId = context.Id });
-                                    WaitForSynchronizationEvent(context, "First AnotherMessage not received");
-                                }
-                            }
-                            finally
-                            {
-                                context.Complete = true;
-                            }
-                        });
+                EndpointSetup<DefaultServer>(
+                    c => c.RavenSagaPersister().UnicastBus().LoadMessageHandlers<First<TestSaga>>());
             }
 
-            static void WaitForSynchronizationEvent(Context context, string message)
-            {
-                if (!context.synchronizationEvent.WaitOne(15000))
-                {
-                    Assert.Fail(message);
-                }
-
-                context.synchronizationEvent.Reset();
-            }
+          
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<CompleteSagaMessage>, IHandleMessages<AnotherMessage>
             {
-                private ILog Logger = LogManager.GetLogger(typeof (TestSaga));
-                
                 public Context Context { get; set; }
 
                 public void Handle(StartSagaMessage message)
                 {
-                    Logger.WarnFormat("StartSagaMessage Context.Id = {0}", Context.Id);
                     Data.SomeId = message.SomeId;
-                    Context.synchronizationEvent.Set();
+
+                    Context.StartSagaMessageReceived = true;
                 }
 
                 public override void ConfigureHowToFindSaga()
@@ -119,18 +94,13 @@
 
                 public void Handle(CompleteSagaMessage message)
                 {
-                    Logger.WarnFormat("CompleteSagaMessage Context.Id = {0}", Context.Id);
-
-                    Context.CompletedCount = Context.CompletedCount + 1;
                     MarkAsComplete();
-                    Context.synchronizationEvent.Set();
+                    Context.SagaCompleted = true;
                 }
 
                 public void Handle(AnotherMessage message)
                 {
-                    Logger.WarnFormat("AnotherMessage Context.Id = {0}", Context.Id);
-
-                    Context.OtherMessageCount = Context.OtherMessageCount + 1;
+                    Context.SagaReceivedAnotherMessage = true;
                 }
             }
 
@@ -149,7 +119,7 @@
             public Context Context { get; set; }
             public void Handle(AnotherMessage message)
             {
-                Context.synchronizationEvent.Set();
+                Context.AnotherMessageReceived = true;
             }
         }
 

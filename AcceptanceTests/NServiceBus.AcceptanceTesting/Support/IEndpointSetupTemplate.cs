@@ -4,6 +4,6 @@
 
     public interface IEndpointSetupTemplate
     {
-        Configure GetConfiguration(RunDescriptor runDescriptor, EndpointBehavior endpointBehavior, IConfigurationSource configSource);
+        Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource);
     }
 }

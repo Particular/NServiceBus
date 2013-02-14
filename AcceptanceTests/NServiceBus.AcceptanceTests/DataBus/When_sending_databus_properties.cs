@@ -2,8 +2,7 @@
 {
     using System;
     using EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -15,7 +14,10 @@
         public void Should_receive_the_message_the_largeproperty_correctly()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Sender>()
+                    .WithEndpoint<Sender>(b => b.Given(bus=> bus.Send(new MyMessageWithLargePayload
+                        {
+                            Payload = new DataBusProperty<byte[]>(PayloadToSend) 
+                        })))
                     .WithEndpoint<Receiver>()
                     .Done(context => context.ReceivedPayload != null)
                     .Repeat(r => r.For<AllTransports>()
@@ -30,20 +32,16 @@
         }
 
 
-        public class Sender : EndpointBuilder
+        public class Sender : EndpointConfigurationBuilder
         {
             public Sender()
             {
                 EndpointSetup<DefaultServer>(c => c.FileShareDataBus(@".\databus\sender"))
-                    .AddMapping<MyMessageWithLargePayload>(typeof(Receiver))
-                    .When(bus => bus.Send(new MyMessageWithLargePayload
-                        {
-                            Payload = new DataBusProperty<byte[]>(PayloadToSend) 
-                        }));
+                    .AddMapping<MyMessageWithLargePayload>(typeof (Receiver));
             }
         }
 
-        public class Receiver : EndpointBuilder
+        public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {

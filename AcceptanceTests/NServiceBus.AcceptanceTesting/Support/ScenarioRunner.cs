@@ -13,7 +13,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors, IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done)
+        public static void Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -92,7 +92,7 @@
 
             public RunDescriptor RunDescriptor { get; set; }
 
-            public IEnumerable<BehaviorDescriptor> Endpoints { get; set; }
+            public IEnumerable<EndpointBehaviour> Endpoints { get; set; }
         }
 
         static void DisplayRunResult(RunSummary summary, int totalRuns)
@@ -128,7 +128,7 @@
             }
         }
 
-        static RunResult PerformTestRun(IList<BehaviorDescriptor> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static RunResult PerformTestRun(IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult();
 
@@ -186,7 +186,7 @@
                 });
         }
 
-        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<BehaviorDescriptor> behaviorDescriptors)
+        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<EndpointBehaviour> behaviorDescriptors)
         {
             var routingTable = new Dictionary<Type, string>();
 
@@ -252,9 +252,7 @@
 
                     if (result.Failed)
                         throw new ScenarioException(string.Format("Endpoint failed to start - {0}", result.ExceptionMessage));
-
-                    endpoint.ApplyWhens();
-
+           
                 })).ToArray();
 
             Task.WaitAll(tasks);
@@ -273,7 +271,7 @@
             Task.WaitAll(tasks);
         }
 
-        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<BehaviorDescriptor> behaviorDescriptors)
+        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehaviour> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
@@ -284,7 +282,7 @@
 
 
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);
-                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor.EndpointBuilderType, routingTable, endpointName);
+                var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
 
                 if (result.Failed)
@@ -296,14 +294,14 @@
             return runners;
         }
 
-        static string GetEndpointNameForRun(RunDescriptor runDescriptor, BehaviorDescriptor behaviorDescriptor)
+        static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehaviour endpointBehaviour)
         {
-            var endpointName = Conventions.EndpointNamingConvention(behaviorDescriptor.EndpointBuilderType) + "." + runDescriptor.Key + "." +
+            var endpointName = Conventions.EndpointNamingConvention(endpointBehaviour.EndpointBuilderType) + "." + runDescriptor.Key + "." +
                                runDescriptor.Permutation;
             return endpointName;
         }
 
-        static ActiveRunner PrepareRunner(string endpointName, BehaviorDescriptor behaviorDescriptor)
+        static ActiveRunner PrepareRunner(string endpointName, EndpointBehaviour endpointBehaviour)
         {
             var domainSetup = new AppDomainSetup
                 {
@@ -311,7 +309,7 @@
                     LoaderOptimization = LoaderOptimization.SingleDomain
                 };
 
-            var endpoint = ((IEndpointBehaviorFactory) Activator.CreateInstance(behaviorDescriptor.EndpointBuilderType)).Get();
+            var endpoint = ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
            
             if (endpoint.AppConfigPath != null)
                 domainSetup.ConfigurationFile = endpoint.AppConfigPath;

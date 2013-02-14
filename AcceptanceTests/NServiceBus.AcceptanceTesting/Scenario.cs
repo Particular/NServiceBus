@@ -25,16 +25,26 @@
 
     }
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext :ScenarioContext
+    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext>, IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
         public ScenarioWithContext(Func<TContext> factory)
         {
             contextFactory = factory;
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
         {
-            behaviours.Add(new BehaviorDescriptor(() => contextFactory(), typeof(T)));
+            return WithEndpoint<T>(b => { });
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehaviour) where T : EndpointConfigurationBuilder
+        {
+
+            var builder = new EndpointBehaviorBuilder<TContext>(typeof (T));
+
+            defineBehaviour(builder);
+
+            behaviours.Add(builder.Build());
 
             return this;
         }
@@ -64,15 +74,15 @@
             {
                 runDescriptor.ScenarioContext = contextFactory();
             }
-           
+
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds,this.done);
+            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds, this.done);
 
             sw.Stop();
 
-            Console.Out.WriteLine("Total time for testrun: {0}",sw.Elapsed);
+            Console.Out.WriteLine("Total time for testrun: {0}", sw.Elapsed);
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
@@ -84,16 +94,16 @@
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)
         {
-           shoulds.Add(new ScenarioVerification<TContext>
-                {
-                    ContextType = typeof(TContext),
-                    Should = should
-                });
+            shoulds.Add(new ScenarioVerification<TContext>
+                 {
+                     ContextType = typeof(TContext),
+                     Should = should
+                 });
 
             return this;
         }
 
-        readonly IList<BehaviorDescriptor> behaviours = new List<BehaviorDescriptor>();
+        readonly IList<EndpointBehaviour> behaviours = new List<EndpointBehaviour>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
@@ -109,7 +119,7 @@
 
         public void Verify(ScenarioContext context)
         {
-           Should(((T)context));
+            Should(((T)context));
         }
     }
 

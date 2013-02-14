@@ -13,14 +13,10 @@
         public void Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>()
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For<AllTransports>())
-                    .Should(c =>
-                    {
-                        Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction");
-                    })
-
+                    .Repeat(r => r.For(Transports.Msmq))
+                    .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))
                     .Run();
         }
 
@@ -30,12 +26,11 @@
             public bool HandlerInvoked { get; set; }
         }
 
-        public class TransactionalEndpoint : EndpointBuilder
+        public class TransactionalEndpoint : EndpointConfigurationBuilder
         {
             public TransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .When(bus => bus.SendLocal(new MyMessage()));
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

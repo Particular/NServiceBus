@@ -3,8 +3,7 @@
     using System;
     using System.Collections.Generic;
     using EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -14,8 +13,8 @@
         [Test]
         public void Should_receive_the_message()
         {
-            Scenario.Define<ReceiveContext>()
-                    .WithEndpoint<Sender>()
+            Scenario.Define(()=>new Context{Id = Guid.NewGuid()})
+                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage { Id = context.Id })))
                     .WithEndpoint<Receiver>()
                     .Done(c=>c.WasCalled)
                     .Repeat(r =>
@@ -34,26 +33,27 @@
                     .Run();
         }
 
-        public class ReceiveContext : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
 
             public int TimesCalled { get; set; }
 
             public IDictionary<string, string> ReceivedHeaders { get; set; }
+
+            public Guid Id { get; set; }
         }
 
-        public class Sender : EndpointBuilder
+        public class Sender : EndpointConfigurationBuilder
         {
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(typeof(Receiver))
-                    .When(bus =>bus.Send(new MyMessage()));
+                    .AddMapping<MyMessage>(typeof (Receiver));
             }
         }
 
-        public class Receiver : EndpointBuilder
+        public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
@@ -64,20 +64,25 @@
         [Serializable]
         public class MyMessage : ICommand
         {
+            public Guid Id { get; set; }
         }
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
-            public ReceiveContext Context { get; set; }
+            public Context Context { get; set; }
 
             public IBus Bus { get; set; }
 
             public void Handle(MyMessage message)
             {
-                Context.WasCalled = true;
+                if (Context.Id != message.Id)
+                    return;
+
                 Context.TimesCalled++;
 
                 Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
+
+                Context.WasCalled = true;
             }
         }
     }

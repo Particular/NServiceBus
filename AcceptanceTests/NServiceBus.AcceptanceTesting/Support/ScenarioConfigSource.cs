@@ -7,12 +7,12 @@
 
     public class ScenarioConfigSource : IConfigurationSource
     {
-        readonly EndpointBehavior behavior;
+        readonly EndpointConfiguration configuration;
         readonly IDictionary<Type, string> routingTable;
 
-        public ScenarioConfigSource(EndpointBehavior behavior, IDictionary<Type, string> routingTable)
+        public ScenarioConfigSource(EndpointConfiguration configuration, IDictionary<Type, string> routingTable)
         {
-            this.behavior = behavior;
+            this.configuration = configuration;
             this.routingTable = routingTable;
         }
 
@@ -29,7 +29,7 @@
             if (type == typeof(UnicastBusConfig))
                 return new UnicastBusConfig
                     {
-                        ForwardReceivedMessagesTo = behavior.AddressOfAuditQueue != null ? behavior.AddressOfAuditQueue.ToString() : null,
+                        ForwardReceivedMessagesTo = configuration.AddressOfAuditQueue != null ? configuration.AddressOfAuditQueue.ToString() : null,
                         MessageEndpointMappings = GenerateMappings()
                     }as T;
 
@@ -49,7 +49,7 @@
         {
             var mappings = new MessageEndpointMappingCollection();
 
-            foreach (var templateMapping in behavior.EndpointMappings)
+            foreach (var templateMapping in configuration.EndpointMappings)
             {
                 var messageType = templateMapping.Key;
                 var endpoint = templateMapping.Value;

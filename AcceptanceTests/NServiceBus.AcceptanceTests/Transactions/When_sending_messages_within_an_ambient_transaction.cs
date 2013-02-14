@@ -14,27 +14,24 @@
         [Test]
         public void Should_not_deliver_them_until_the_commit_phase()
         {
-            Scenario.Define(() => new Context
-            {
-                WhenBehaviour = bus =>
-                {
-                    using (var tx = new TransactionScope())
+            Scenario.Define<Context>()
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
                     {
-                        bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
-                        bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
+                        using (var tx = new TransactionScope())
+                        {
+                            bus.Send(new MessageThatIsEnlisted { SequenceNumber = 1 });
+                            bus.Send(new MessageThatIsEnlisted { SequenceNumber = 2 });
 
-                        //send another message as well so that we can check the order in the receiver
-                        using (new TransactionScope(TransactionScopeOption.Suppress))
-                            bus.Send(new MessageThatIsNotEnlisted());
+                            //send another message as well so that we can check the order in the receiver
+                            using (new TransactionScope(TransactionScopeOption.Suppress))
+                                bus.Send(new MessageThatIsNotEnlisted());
 
-                        //to allow the sqlserver transport to do a poll before we commit
-                        Thread.Sleep(1000);
+                            //to allow the sqlserver transport to do a poll before we commit
+                            Thread.Sleep(1000);
 
-                        tx.Complete();
-                    }
-                }
-            })
-                    .WithEndpoint<TransactionalEndpoint>()
+                            tx.Complete();
+                        }
+                    }))
                      .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled == 2)
                     .Repeat(r => r.For<AllTransports>())
                     .Should(c =>
@@ -48,22 +45,19 @@
         [Test]
         public void Should_not_deliver_them_on_rollback()
         {
-            Scenario.Define(() => new Context
-            {
-                WhenBehaviour = bus =>
-                {
-                    using (new TransactionScope())
-                    {
-                        bus.Send(new MessageThatIsEnlisted());
+            Scenario.Define<Context>()
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
+                        {
+                            using (new TransactionScope())
+                            {
+                                bus.Send(new MessageThatIsEnlisted());
 
-                        //rollback
-                    }
+                                //rollback
+                            }
 
-                    bus.Send(new MessageThatIsNotEnlisted());
+                            bus.Send(new MessageThatIsNotEnlisted());
 
-                }
-            })
-                    .WithEndpoint<TransactionalEndpoint>()
+                        }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllTransports>())
                     .Should(c =>
@@ -83,18 +77,15 @@
             public int SequenceNumberOfFirstMessage { get; set; }
 
             public bool NonTransactionalHandlerCalledFirst { get; set; }
-
-            public Action<IBus> WhenBehaviour { get; set; }
         }
 
-        public class TransactionalEndpoint : EndpointBuilder
+        public class TransactionalEndpoint : EndpointConfigurationBuilder
         {
             public TransactionalEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MessageThatIsEnlisted>(typeof(TransactionalEndpoint))
-                    .AddMapping<MessageThatIsNotEnlisted>(typeof(TransactionalEndpoint))
-                    .When<Context>((bus, context) => context.WhenBehaviour(bus));
+                    .AddMapping<MessageThatIsEnlisted>(typeof (TransactionalEndpoint))
+                    .AddMapping<MessageThatIsNotEnlisted>(typeof (TransactionalEndpoint));
             }
 
             public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>
