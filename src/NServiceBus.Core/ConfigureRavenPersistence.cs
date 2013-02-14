@@ -26,14 +26,9 @@ namespace NServiceBus
         /// <example>
         /// An example that shows the configuration:
         /// <code lang="XML" escaped="true">
-        ///  <appSettings>
-        ///    <!-- Optional overwrites for number of requests that each RavenDB session is allowed to make -->
-        ///    <add key="NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession" value="50"/>
-        ///  </appSettings>
-        ///  
         ///  <connectionStrings>
         ///    <!-- Default connection string name -->
-        ///    <add name="NServiceBus/Persistence" connectionString="Url=http://localhost:8080 />
+        ///    <add name="NServiceBus/Persistence" connectionString="Url=http://localhost:8080" />
         ///  </connectionStrings>
         /// </code>
         /// </example>
@@ -50,16 +45,18 @@ namespace NServiceBus
 
             //use existing config if we can find one
             if (connectionStringEntry != null)
+            {
                 return RavenPersistenceWithConnectionString(config, connectionStringEntry.ConnectionString, null);
+            }
 
             var store = new DocumentStore
-                {
-                    Url = RavenPersistenceConstants.DefaultUrl,
-                    ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
-                    DefaultDatabase = databaseNamingConvention()
-                };
+            {
+                Url = RavenPersistenceConstants.DefaultUrl,
+                ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId,
+                DefaultDatabase = Configure.EndpointName,
+            };
 
-            return RavenPersistence(config, store);
+            return InternalRavenPersistence(config, store);
         }
 
         /// <summary>
@@ -112,6 +109,29 @@ namespace NServiceBus
             return RavenPersistenceWithConnectionString(config, connectionString, database);
         }
 
+        /// <summary>
+        /// Configures RavenDB as the default persistence.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure RavenPersistence(this Configure config, IDocumentStore documentStore)
+        {
+            return config.InternalRavenPersistence(() => new StoreAccessor(documentStore));
+        }
+
+        /// <summary>
+        /// The <paramref name="callback"/> is called for further customising the <see cref="IDocumentStore"/>.
+        /// </summary>
+        /// <param name="config">The configuration object.</param>
+        /// <param name="callback">This callback allows to further customise/override default settings.</param>
+        /// <returns>The configuration object.</returns>
+        public static Configure CustomiseRavenPersistence(this Configure config, Action<IDocumentStore> callback)
+        {
+            customisationCallback = callback;
+
+            return config;
+        }
 
         /// <summary>
         /// Specifies the mapping to use for when resolving the database name to use for each message.
@@ -122,6 +142,36 @@ namespace NServiceBus
         public static Configure MessageToDatabaseMappingConvention(this Configure config, Func<IMessageContext, string> convention)
         {
             RavenSessionFactory.GetDatabaseName = convention;
+
+            return config;
+        }
+
+        static Configure InternalRavenPersistence(this Configure config, IDocumentStore documentStore)
+        {
+            return config.InternalRavenPersistence(() =>
+            {
+                documentStore.Conventions.FindTypeTagName = RavenConventions.FindTypeTagName;
+
+                documentStore.Conventions.MaxNumberOfRequestsPerSession = 100;
+
+                if (customisationCallback != null)
+                {
+                    customisationCallback(documentStore);
+                }
+
+                WarnUserIfRavenDatabaseIsNotReachable(documentStore);
+
+                return new StoreAccessor(documentStore);
+            });
+        }
+
+        static Configure InternalRavenPersistence(this Configure config, Func<StoreAccessor> factory)
+        {
+            config.Configurer.ConfigureComponent(factory, DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
+
+            Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
 
             return config;
         }
@@ -163,7 +213,7 @@ namespace NServiceBus
             {
                 if (database == null)
                 {
-                    database = databaseNamingConvention();
+                    database = Configure.EndpointName;
                 }
 
                 store.Url = RavenPersistenceConstants.DefaultUrl;
@@ -175,67 +225,10 @@ namespace NServiceBus
                 store.DefaultDatabase = database;
             }
 
-            return RavenPersistence(config, store);
+            return InternalRavenPersistence(config, store);
         }
 
-
-        /// <summary>
-        /// Configures RavenDB as the default persistence.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
-        /// <returns>The configuration object.</returns>
-        public static Configure RavenPersistence(this Configure config, IDocumentStore documentStore)
-        {
-            if (config == null) throw new ArgumentNullException("config");
-            if (documentStore == null) throw new ArgumentNullException("documentStore");
-
-            var maxNumberOfRequestsPerSession = 100;
-            var ravenMaxNumberOfRequestsPerSession = ConfigurationManager.AppSettings["NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession"];
-            if (!String.IsNullOrEmpty(ravenMaxNumberOfRequestsPerSession))
-            {
-                if (!Int32.TryParse(ravenMaxNumberOfRequestsPerSession, out maxNumberOfRequestsPerSession))
-                {
-                    throw new ConfigurationErrorsException(string.Format("Cannot configure RavenDB MaxNumberOfRequestsPerSession. Cannot convert value '{0}' in <appSettings> with key 'NServiceBus/Persistence/RavenDB/MaxNumberOfRequestsPerSession' to a numeric value.", ravenMaxNumberOfRequestsPerSession));
-                }
-            }
-
-            config.Configurer.ConfigureComponent(() =>
-                {
-                    var conventions = new RavenConventions();
-
-                    documentStore.Conventions.FindTypeTagName = tagNameConvention ?? conventions.FindTypeTagName;
-
-                    WarnUserIfRavenDatabaseIsNotReachable(documentStore);
-
-                    documentStore.Conventions.MaxNumberOfRequestsPerSession = maxNumberOfRequestsPerSession;
-
-                    //We need to turn compression off to make us compatible with Raven616
-                    documentStore.JsonRequestFactory.DisableRequestCompression = !enableRequestCompression;
-
-
-                    documentStore.JsonRequestFactory.ConfigureRequest += (sender, e) =>
-                        {
-                            var httpWebRequest = ((HttpWebRequest) e.Request);
-
-                            if (unsafeAuthenticatedConnectionSharingAndPreAuthenticate)
-                            {
-                                httpWebRequest.UnsafeAuthenticatedConnectionSharing = true;
-                                httpWebRequest.PreAuthenticate = true;
-                            }
-                        };
-
-                    return new StoreAccessor(documentStore);
-                }, DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
-
-            Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
-
-            return config;
-        }
-
-        private static void WarnUserIfRavenDatabaseIsNotReachable(IDocumentStore store)
+        static void WarnUserIfRavenDatabaseIsNotReachable(IDocumentStore store)
         {
             try
             {
@@ -266,7 +259,7 @@ namespace NServiceBus
             }
         }
 
-        private static void ShowUncontactableRavenWarning(IDocumentStore store)
+        static void ShowUncontactableRavenWarning(IDocumentStore store)
         {
             var sb = new StringBuilder();
             sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
@@ -282,6 +275,27 @@ namespace NServiceBus
 </connectionStrings>");
 
             Logger.Warn(sb.ToString());
+        }
+
+        /// <summary>
+        /// Allows to override the default RavenDB database naming convention.
+        /// </summary>
+        /// <param name="convention">The mapping convention to use instead.</param>
+        /// <param name="config">The configuration object.</param>
+        /// <returns>The configuration object.</returns>
+        [ObsoleteEx(Message = "If you need to customise Raven database naming convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]        
+        public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
+        {
+            return config;
+        }
+
+        /// <summary>
+        /// Allows to override the default RavenDB tag name convention for the specified type.
+        /// </summary>
+        /// <param name="convention">The method referenced by a Func delegate for finding the tag name for the specified type.</param>
+        [ObsoleteEx(Message = "If you need to customise Raven FindTypeTagName convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static void DefineRavenTagNameConvention(Func<Type, string> convention)
+        {
         }
 
         /// <summary>
@@ -311,64 +325,25 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Replacement = "DisableRavenRequestCompression()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "If you need to disable Raven request compression, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DisableRequestCompression(this Configure config)
         {
-            return config.DisableRavenRequestCompression();
-        }
-        
-        /// <summary>
-        /// Disables the Raven compression.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        public static Configure DisableRavenRequestCompression(this Configure config)
-        {
-            enableRequestCompression = false;
-
             return config;
         }
 
         /// <summary>
-        /// Use this setting if you are experiencing error like:
-        /// An operation on a socket could not be performed because the system lacked sufficient buffer space or because a queue was full 127.0.0.1:8080
+        /// Enables the Raven compression.
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <returns>The configuration object.</returns>
-        public static Configure EnableRavenRequestsWithUnsafeAuthenticatedConnectionSharingAndPreAuthenticate(this Configure config)
+        [ObsoleteEx(Message = "RequestCompression is on by default from v4.0.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static Configure EnableRequestCompression(this Configure config)
         {
-            unsafeAuthenticatedConnectionSharingAndPreAuthenticate = true;
-
             return config;
         }
 
-        /// <summary>
-        /// Allows to override the default RavenDB database naming convention.
-        /// </summary>
-        /// <param name="convention">The mapping convention to use instead.</param>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
-        {
-            databaseNamingConvention = convention;
-
-            return config;
-        }
-
-        /// <summary>
-        /// Allows to override the default RavenDB tag name convention for the specified type.
-        /// </summary>
-        /// <param name="convention">The method referenced by a Func delegate for finding the tag name for the specified type.</param>
-        public static void DefineRavenTagNameConvention(Func<Type, string> convention)
-        {
-            tagNameConvention = convention;
-        }
-
-        static bool unsafeAuthenticatedConnectionSharingAndPreAuthenticate;
-        static bool enableRequestCompression = true;
-        static Func<string> databaseNamingConvention = () => Configure.EndpointName;
-        static Func<Type, string> tagNameConvention;
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
+        static Action<IDocumentStore> customisationCallback = store => {};
 
         class NoOpLogManager : ILogManager
         {

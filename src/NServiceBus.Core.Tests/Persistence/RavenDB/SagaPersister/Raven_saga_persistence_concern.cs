@@ -15,22 +15,17 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         [TestFixtureSetUp]
         public virtual void Setup()
         {
-            store = new EmbeddableDocumentStore { RunInMemory = true, DataDirectory = Guid.NewGuid().ToString() };
-            //store = new DocumentStore
-            //            {
-            //                Url = "http://localhost:8080",
-            //            };
-
-            var conventions = new RavenConventions();
-
-            store.Conventions.FindTypeTagName = conventions.FindTypeTagName;
+            store = new EmbeddableDocumentStore { RunInMemory = true };
+            
             store.Initialize();
         }
+
         [TestFixtureTearDown]
-        public virtual void Teardown()
+        public void Teardown()
         {
             store.Dispose();
         }
+
         public void WithASagaPersistenceUnitOfWork(Action<RavenSagaPersister> action)
         {
             var sessionFactory = new RavenSessionFactory(new StoreAccessor(store));
