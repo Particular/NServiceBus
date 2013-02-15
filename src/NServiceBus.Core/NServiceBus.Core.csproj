@@ -98,7 +98,6 @@
     <Compile Include="ConfigureDistributor.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="ConfigureFileShareDataBus.cs" />
-    <Compile Include="ConfigureFtpQueue.cs" />
     <Compile Include="ConfigureGateway.cs" />
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
@@ -431,7 +430,6 @@
     <Compile Include="Unicast\Monitoring\VersionMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
-    <Compile Include="Unicast\Queuing\Ftp\FtpMessageQueue.cs" />
     <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
     <Compile Include="Unicast\Queuing\IDeferMessages.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
@@ -509,7 +507,6 @@
     <Folder Include="Gateway\Installation\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
-    <Folder Include="Unicast\Queuing\SQLServer\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />
