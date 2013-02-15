@@ -1,20 +1,25 @@
 ﻿namespace NServiceBus.PowerShell
 {
+    using System;
     using System.Management.Automation;
     using Setup.Windows.Msmq;
 
-    [Cmdlet(VerbsLifecycle.Install, "NServiceBusMSMQ")]
+    [Cmdlet(VerbsLifecycle.Install, "NServiceBusMSMQ", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.High)]
     public class InstallMsmq : CmdletBase
     {
         public SwitchParameter Force { get; set; }
 
         protected override void Process()
         {
-            bool msmqIsGood = MsmqSetup.StartMsmqIfNecessary(Force);
-
-            if (!msmqIsGood && !Force)
+            if (ShouldProcess(Environment.MachineName))
             {
-                WriteWarning("Msmq needs to reinstalled, Please rerun the command with -Force set. NOTE: This will remove all local queues!");
+                bool msmqIsGood = MsmqSetup.StartMsmqIfNecessary(Force);
+
+                if (!msmqIsGood && !Force)
+                {
+                    WriteWarning(
+                        "Msmq needs to reinstalled, Please rerun the command with -Force set. NOTE: This will remove all local queues!");
+                }
             }
         }
     }
