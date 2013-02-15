@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Diagnostics;
     using System.Runtime.Remoting.Activation;
     using System.Runtime.Remoting.Contexts;
     using System.Runtime.Remoting.Messaging;
@@ -11,7 +10,6 @@
     public abstract class ScenarioContext : ContextBoundObject
     {
         public event EventHandler ContextPropertyChanged;
-
 
         [AttributeUsage(AttributeTargets.Class)]
         sealed class InterceptAttribute : ContextAttribute, IContributeObjectSink

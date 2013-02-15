@@ -12,4 +12,14 @@
             Add(Transports.SqlServer);
         }
     }
+
+    public class AllDtcTransports : ScenarioDescriptor
+    {
+        public AllDtcTransports()
+        {
+            Add(Transports.Msmq);
+            Add(Transports.ActiveMQ);
+            Add(Transports.SqlServer);
+        }
+    }
 }

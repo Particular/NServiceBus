@@ -147,6 +147,8 @@
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
+    <Compile Include="Transactions\FakeDurableResourceManager.cs" />
+    <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_the_default_settings.cs" />
     <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
