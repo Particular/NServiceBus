@@ -8,11 +8,9 @@ namespace NServiceBus.AcceptanceTests
     /// </summary>
     public class NServiceBusIntegrationTest
     {
-  
         [SetUp]
         public void SetUp()
         {
-
             Conventions.EndpointNamingConvention= t =>
                 {
                     var baseNs = typeof (NServiceBusIntegrationTest).Namespace;

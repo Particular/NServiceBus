@@ -3,7 +3,6 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Unicast.Subscriptions;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -13,29 +12,21 @@
         [Test]
         public void Timeout_should_be_received_after_expiration()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+            Scenario.Define(() => new Context {Id = Guid.NewGuid()})
                     .WithEndpoint<SagaEndpoint>(b =>
                         {
                             b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
-                            b.When(contex=>contex.StartSagaMessageReceived, PublishSomeEvent);
+
+                            b.When(context => context.StartSagaMessageReceived,
+                                   (bus, context) =>
+                                       {
+                                           bus.EnsureSubscriptionMessagesHaveArrived();
+                                           bus.Publish(new SomeEvent {SomeId = context.Id});
+                                       });
                         })
                     .Done(c => c.TimeoutReceived)
                     .Repeat(r => r.For(Transports.Msmq))
                     .Run();
-        }
-
-
-        static void PublishSomeEvent(IBus bus, Context context)
-        {
-            if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
-            {
-                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                    (sender, args) => bus.Publish(new SomeEvent { SomeId = context.Id });
-            }
-            else
-            {
-                bus.Publish(new SomeEvent { SomeId = context.Id });
-            }
         }
 
         public class Context : ScenarioContext
@@ -54,12 +45,13 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.RavenSagaPersister()
+                                                   .DefineHowManySubscriptionMessagesToWaitFor(1)
                                                    .UnicastBus())
                     .AddMapping<SomeEvent>(typeof (SagaEndpoint));
             }
 
-
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>, IHandleMessages<SomeEvent>, IHandleTimeouts<SomeEvent>
+            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>,
+                                    IHandleMessages<SomeEvent>, IHandleTimeouts<SomeEvent>
             {
                 public Context Context { get; set; }
 
@@ -71,8 +63,8 @@
 
                 public override void ConfigureHowToFindSaga()
                 {
-                    ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                    ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
                     ConfigureMapping<SomeEvent>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
@@ -86,6 +78,7 @@
                 public void Timeout(SomeEvent message)
                 {
                     Context.TimeoutReceived = true;
+                    MarkAsComplete();
                 }
             }
 
@@ -94,6 +87,7 @@
                 public Guid Id { get; set; }
                 public string Originator { get; set; }
                 public string OriginalMessageId { get; set; }
+
                 [Unique]
                 public Guid SomeId { get; set; }
             }

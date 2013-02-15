@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Support;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
@@ -41,8 +42,6 @@
             return this.configuration;
         }
 
-
-    
         public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
         {
             return EndpointSetup<T>(c => { });
@@ -62,11 +61,39 @@
             return this;
         }
 
-
-
         EndpointConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();
+        }
+
+        public class SubscriptionsSpy : IAuthorizeSubscriptions
+        {
+            private readonly ManualResetEvent manualResetEvent = new ManualResetEvent(false);
+            private int subscriptionsReceived;
+
+            public int NumberOfSubscriptionsToWaitFor { get; set; }
+
+            public bool AuthorizeSubscribe(string messageType, string clientEndpoint,
+                                           IDictionary<string, string> headers)
+            {
+                if (Interlocked.Increment(ref subscriptionsReceived) >= NumberOfSubscriptionsToWaitFor)
+                {
+                    manualResetEvent.Set();
+                }
+
+                return true;
+            }
+
+            public bool AuthorizeUnsubscribe(string messageType, string clientEndpoint,
+                                             IDictionary<string, string> headers)
+            {
+                return true;
+            }
+
+            public void Wait()
+            {
+                manualResetEvent.WaitOne();
+            }
         }
 
 

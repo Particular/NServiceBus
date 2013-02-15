@@ -133,6 +133,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Encryption\When_using_encryption.cs" />
+    <Compile Include="EndpointTemplates\BusExtensions.cs" />
     <Compile Include="NServiceBusIntegrationTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
