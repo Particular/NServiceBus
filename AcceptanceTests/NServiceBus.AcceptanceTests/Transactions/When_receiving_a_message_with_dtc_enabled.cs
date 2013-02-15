@@ -15,16 +15,43 @@
             Scenario.Define<Context>()
                     .WithEndpoint<DTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.AreNotEqual(Guid.Empty, c.DistributedIdentifier, "There should exists and DTC tx"))
+                    .Repeat(r => r.For<AllDtcTransports>(Transports.ActiveMQ))
+                    .Should(c => Assert.False(c.CanEnlistPromotable, "There should exists a DTC tx"))
                     .Run();
         }
+
+        [Test]
+        public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
+        {
+            using (var tx = new TransactionScope())
+            {
+                Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
+                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager())); ;
+
+                tx.Complete();
+            }
+        }
+
+
+        [Test]
+        public void Basic_assumptions_second_promotable_should_fail()
+        {
+            using (var tx = new TransactionScope())
+            {
+                Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager())); ;
+
+                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
+
+                tx.Complete();
+            }
+        }
+
 
         public class Context : ScenarioContext
         {
             public bool HandlerInvoked { get; set; }
 
-            public Guid DistributedIdentifier { get; set; }
+            public bool CanEnlistPromotable { get; set; }
         }
 
         public class DTCEndpoint : EndpointConfigurationBuilder
@@ -40,10 +67,7 @@
 
                 public void Handle(MyMessage messageThatIsEnlisted)
                 {
-                    Transaction.Current.EnlistDurable(FakeDurableResourceManager.ResourceManagerId,
-                                                      new FakeDurableResourceManager(), EnlistmentOptions.None);
-
-                    Context.DistributedIdentifier = Transaction.Current.TransactionInformation.DistributedIdentifier;
+                    Context.CanEnlistPromotable = Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager());
                     Context.HandlerInvoked = true;
                 }
             }
@@ -54,6 +78,6 @@
         {
         }
 
-       
+
     }
 }
