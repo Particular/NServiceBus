@@ -297,7 +297,7 @@ task Merge -depends Build {
 	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Hosting.Azure.HostProcess.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
 }
 
-task CompileSamples -depends CopyBinaries {
+task CompileSamples {
 	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
 						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
 	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
