@@ -8,6 +8,8 @@ namespace NServiceBus.SagaPersisters.Raven
     using System.Text;
     using Persistence.Raven;
     using Saga;
+
+    using global::Raven.Abstractions.Commands;
     using global::Raven.Client;
 
     public class RavenSagaPersister : ISagaPersister
@@ -158,7 +160,7 @@ namespace NServiceBus.SagaPersisters.Raven
         {
             var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty);
 
-            Session.Advanced.DocumentStore.DatabaseCommands.Delete(id, null);
+            Session.Advanced.Defer(new DeleteCommandData { Key = id });
         }
 
         static readonly ConcurrentDictionary<string, bool> PropertyCache = new ConcurrentDictionary<string, bool>();
