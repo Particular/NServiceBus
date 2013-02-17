@@ -143,12 +143,9 @@ namespace NServiceBus.Encryption
                 var encryptedString = (WireEncryptedString)valueToEncrypt;
                 EncryptWireEncryptedString(encryptedString);
 
-                if (!ConfigureEncryption.EnsureCompatibilityWithNSB2)
-                {
-                    //we clear the properties to avoid having the extra data serialized
-                    encryptedString.EncryptedBase64Value = null;
-                    encryptedString.Base64Iv = null;
-                }
+                //we clear the properties to avoid having the extra data serialized
+                encryptedString.EncryptedBase64Value = null;
+                encryptedString.Base64Iv = null;
             }
             else
             {

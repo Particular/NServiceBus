@@ -29,17 +29,14 @@
 
             mutator.MutateOutgoing(message);
 
-            Assert.AreEqual(message.Secret.EncryptedValue.EncryptedBase64Value, EncryptedBase64Value);
-            Assert.AreEqual(message.SecretField.EncryptedValue.EncryptedBase64Value, EncryptedBase64Value);
-            Assert.AreEqual(message.CreditCard.CreditCardNumber.EncryptedValue.EncryptedBase64Value,
-                            EncryptedBase64Value);
-            Assert.AreEqual(message.ListOfCreditCards[0].CreditCardNumber.EncryptedBase64Value, EncryptedBase64Value);
-            Assert.AreEqual(message.ListOfCreditCards[1].CreditCardNumber.EncryptedBase64Value, EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, message.Secret.EncryptedValue.EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, message.SecretField.EncryptedValue.EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, message.CreditCard.CreditCardNumber.EncryptedValue.EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, message.ListOfCreditCards[0].CreditCardNumber.EncryptedValue.EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, message.ListOfCreditCards[1].CreditCardNumber.EncryptedValue.EncryptedBase64Value);
 
-            Assert.AreEqual(((CreditCardDetails) message.ListOfSecrets[0]).CreditCardNumber.EncryptedBase64Value,
-                            EncryptedBase64Value);
-            Assert.AreEqual(((CreditCardDetails) message.ListOfSecrets[1]).CreditCardNumber.EncryptedBase64Value,
-                            EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, ((CreditCardDetails)message.ListOfSecrets[0]).CreditCardNumber.EncryptedValue.EncryptedBase64Value);
+            Assert.AreEqual(EncryptedBase64Value, ((CreditCardDetails)message.ListOfSecrets[1]).CreditCardNumber.EncryptedValue.EncryptedBase64Value);
         }
     }
 
@@ -248,8 +245,6 @@
         [Test]
         public void Should_clear_the_compatibility_properties()
         {
-            ConfigureEncryption.DisableCompatibilityWithNSB2(null);
-
             var message = new Customer
                 {
                     Secret = MySecretMessage
