@@ -19,7 +19,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
     using Logging;
 
     /// <summary>
-    /// Castle Windsor implementaton of IContainer.
+    /// Castle Windsor implementation of IContainer.
     /// </summary>
     public class WindsorObjectBuilder : IContainer
     {
@@ -31,7 +31,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         private bool disposed;
 
         /// <summary>
-        /// Instantites the class with a new WindsorContainer.
+        /// Instantiates the class with a new WindsorContainer.
         /// </summary>
         public WindsorObjectBuilder()
             : this(new WindsorContainer())
@@ -162,7 +162,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
             var services = GetAllServiceTypesFor(instance.GetType());
 
-            container.Register(Component.For(services).Activator<ExternalInstanceActivatorWithDecomissionConcern>().Instance(instance).LifestyleSingleton());
+            container.Register(Component.For(services).Activator<ExternalInstanceActivatorWithDecommissionConcern>().Instance(instance).LifestyleSingleton());
         }
 
         object IContainer.Build(Type typeToBuild)
@@ -208,9 +208,9 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.ObjectBuilder");
     }
 
-    class ExternalInstanceActivatorWithDecomissionConcern : AbstractComponentActivator, IDependencyAwareActivator
+    class ExternalInstanceActivatorWithDecommissionConcern : AbstractComponentActivator, IDependencyAwareActivator
     {
-        public ExternalInstanceActivatorWithDecomissionConcern(ComponentModel model, IKernel kernel, ComponentInstanceDelegate onCreation, ComponentInstanceDelegate onDestruction)
+        public ExternalInstanceActivatorWithDecommissionConcern(ComponentModel model, IKernelInternal kernel, ComponentInstanceDelegate onCreation, ComponentInstanceDelegate onDestruction)
             : base(model, kernel, onCreation, onDestruction)
         {
         }

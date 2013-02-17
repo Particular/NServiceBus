@@ -15,7 +15,7 @@
     <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="Castle.Windsor" version="[3.0.0.2001,4)" />
+      <dependency id="Castle.Windsor" version="[3.2.0,4)" />
       <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>
