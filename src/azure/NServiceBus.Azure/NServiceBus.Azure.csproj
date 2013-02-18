@@ -109,6 +109,8 @@
     <Compile Include="Unicast\Queuing\Azure\ReceiveResourceManager.cs" />
     <Compile Include="Unicast\Queuing\Azure\SendResourceManager.cs" />
     <Compile Include="Unicast\Queuing\Azure\ServiceBus\AzureServiceBusMessageQueue.cs" />
+    <Compile Include="Unicast\Queuing\Azure\ServiceBus\AzureServiceBusMessageQueueSender.cs" />
+    <Compile Include="Unicast\Queuing\Azure\ServiceBus\BrokeredMessageExtensions.cs" />
     <Compile Include="Unicast\Queuing\Azure\ServiceBus\ReceiveResourceManager.cs" />
     <Compile Include="Unicast\Queuing\Azure\ServiceBus\SendResourceManager.cs" />
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\Config\SubscriptionMap.cs" />

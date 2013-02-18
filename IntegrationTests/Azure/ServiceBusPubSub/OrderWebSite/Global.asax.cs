@@ -21,7 +21,6 @@ namespace OrderWebSite
 		{
             var bus = Configure.With()
                 .DefaultBuilder()
-                .Log4Net(new AzureAppender())
                 .AzureConfigurationSource()
                 .AzureServiceBusMessageQueue()
                     .QueuePerInstance()

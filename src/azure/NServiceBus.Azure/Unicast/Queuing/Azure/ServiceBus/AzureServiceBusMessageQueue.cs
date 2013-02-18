@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
@@ -11,6 +10,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
     using Microsoft.ServiceBus.Messaging;
     using Transport;
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class AzureServiceBusMessageQueueReceiver : IReceiveMessages
     {
         public const string DefaultIssuerName = "owner";
@@ -91,7 +93,30 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 if (message != null)
                 {
                     var rawMessage = message.GetBody<byte[]>();
-                    var t = DeserializeMessage(rawMessage);
+
+                    TransportMessage t;
+
+                    if (message.Properties.Count == 0)
+                    {
+                        t = DeserializeMessage(rawMessage);
+                    }
+                    else
+                    {
+                        t = new TransportMessage();
+                        if (!string.IsNullOrWhiteSpace(message.CorrelationId)) t.CorrelationId = message.CorrelationId;
+                        t.TimeToBeReceived = message.TimeToLive;
+
+                        foreach (var header in message.Properties)
+                        {
+                            t.Headers[header.Key] = header.Value.ToString();
+                        }
+
+                        t.MessageIntent = (MessageIntentEnum) Enum.Parse(typeof (MessageIntentEnum), message.Properties["MessageIntent"].ToString());
+                        t.Id = message.MessageId;
+                        t.ReplyToAddress = Address.Parse(message.ReplyTo); // Will this work?
+
+                        t.Body = rawMessage;
+                    }
 
                     if (t.Id == null) t.Id = Guid.NewGuid().ToString();
 
@@ -140,169 +165,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                 return message;
             }
-        }
-    }
-
-    public class AzureServiceBusMessageQueueSender : ISendMessages
-    {
-        public const int DefaultBackoffTimeInSeconds = 10;
-
-        private readonly Dictionary<string, QueueClient> senders = new Dictionary<string, QueueClient>();
-        private static readonly object SenderLock = new Object();
-
-        public TimeSpan LockDuration { get; set; }
-        public long MaxSizeInMegabytes { get; set; }
-        public bool RequiresDuplicateDetection { get; set; }
-        public bool RequiresSession { get; set; }
-        public TimeSpan DefaultMessageTimeToLive { get; set; }
-        public bool EnableDeadLetteringOnMessageExpiration { get; set; }
-        public TimeSpan DuplicateDetectionHistoryTimeWindow { get; set; }
-        public int MaxDeliveryCount { get; set; }
-        public bool EnableBatchedOperations { get; set; }
-
-        public MessagingFactory Factory { get; set; }
-        public NamespaceManager NamespaceClient { get; set; }
-
-        public void Init(string address, bool transactional)
-        {
-            Init(Address.Parse(address), transactional);
-        }
-
-        public void Init(Address address, bool transactional)
-        {
-
-        }
-
-        public void Send(TransportMessage message, string destination)
-        {
-            Send(message, Address.Parse(destination));
-        }
-
-        public void Send(TransportMessage message, Address address)
-        {
-            var destination = address.Queue;
-
-            QueueClient sender;
-            if (!senders.TryGetValue(destination, out sender))
-            {
-                lock (SenderLock)
-                {
-                    if (!senders.TryGetValue(destination, out sender))
-                    {
-                        try
-                        {
-                            sender = Factory.CreateQueueClient(destination);
-                            senders[destination] = sender;
-                        }
-                        catch (MessagingEntityNotFoundException)
-                        {
-                            throw new QueueNotFoundException { Queue = Address.Parse(destination) };
-                        }
-                    }
-                }
-            }
-
-            var rawMessage = SerializeMessage(message);
-
-            if (Transaction.Current == null)
-                Send(rawMessage, sender);
-            else
-                Transaction.Current.EnlistVolatile(new SendResourceManager(() => Send(rawMessage, sender)), EnlistmentOptions.None);
-
-        }
-
-        private void Send(Byte[] rawMessage, QueueClient sender)
-        {
-            var numRetries = 0;
-            var sent = false;
-
-            while (!sent)
-            {
-                try
-                {
-                    using (var brokeredMessage = new BrokeredMessage(rawMessage))
-                    {
-
-                        sender.Send(brokeredMessage);
-
-                        sent = true;
-                    }
-                }
-                // back off when we're being throttled
-                catch (ServerBusyException)
-                {
-                    numRetries++;
-
-                    if (numRetries >= MaxDeliveryCount) throw;
-
-                    Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
-                }
-            }
-
-        }
-
-        private static byte[] SerializeMessage(TransportMessage message)
-        {
-            using (var stream = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, message);
-                return stream.ToArray();
-            }
-        }
-    }
-
-    public static class BrokeredMessageExtensions
-    {
-        public static bool SafeComplete(this BrokeredMessage msg)
-        {
-            try
-            {
-                msg.Complete();
-
-                return true;
-            }
-            catch (MessageLockLostException)
-            {
-                // It's too late to compensate the loss of a message lock. We should just ignore it so that it does not break the receive loop.
-            }
-            catch (MessagingException)
-            {
-                // There is nothing we can do as the connection may have been lost, or the underlying queue may have been removed.
-                // If Abandon() fails with this exception, the only recourse is to receive another message.
-            }
-            catch (ObjectDisposedException)
-            {
-                // There is nothing we can do as the object has already been disposed elsewhere
-            }
-
-            return false;
-        }
-
-        public static bool SafeAbandon(this BrokeredMessage msg)
-        {
-            try
-            {
-                msg.Abandon();
-
-                return true;
-            }
-            catch (MessageLockLostException)
-            {
-                // It's too late to compensate the loss of a message lock. We should just ignore it so that it does not break the receive loop.
-            }
-            catch (MessagingException)
-            {
-                // There is nothing we can do as the connection may have been lost, or the underlying queue may have been removed.
-                // If Abandon() fails with this exception, the only recourse is to receive another message.
-            }
-            catch (ObjectDisposedException)
-            {
-                // There is nothing we can do as the object has already been disposed elsewhere
-            }
-
-
-            return false;
         }
     }
 }
