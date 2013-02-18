@@ -20,7 +20,12 @@
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
+            
             config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
+                  .ConfigureProperty(p => p.Disabled, false);
+            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementJobProcessor>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementCommands>(DependencyLifecycle.SingleInstance);
 
             config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);

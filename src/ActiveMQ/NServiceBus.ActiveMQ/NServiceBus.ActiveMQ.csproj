@@ -60,6 +60,13 @@
     <Compile Include="ActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="ActiveMQMessageDefer.cs" />
     <Compile Include="ActiveMqMessagePublisher.cs" />
+    <Compile Include="ActiveMqSchedulerManagement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ActiveMqSchedulerManagementCommands.cs" />
+    <Compile Include="ActiveMqSchedulerManagementJob.cs" />
+    <Compile Include="ActiveMqSchedulerManagementJobProcessor.cs" />
+    <Compile Include="IActiveMqSchedulerManagementCommands.cs" />
     <Compile Include="Receivers\ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
