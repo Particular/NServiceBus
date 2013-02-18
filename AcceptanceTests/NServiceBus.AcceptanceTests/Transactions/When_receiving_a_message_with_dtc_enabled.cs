@@ -15,7 +15,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<DTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For<AllDtcTransports>(Transports.ActiveMQ))
+                    .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.False(c.CanEnlistPromotable, "There should exists a DTC tx"))
                     .Run();
         }
