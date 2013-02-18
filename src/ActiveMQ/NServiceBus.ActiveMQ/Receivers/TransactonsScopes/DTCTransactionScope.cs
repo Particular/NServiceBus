@@ -3,16 +3,21 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
     using System;
     using System.Transactions;
     using Apache.NMS;
+    using Apache.NMS.ActiveMQ;
 
     public class DTCTransactionScope : ITransactionScope
     {
+        private readonly ISessionFactory sessionFactory;
+
         private readonly TransactionScope transactionScope;
         private bool complete;
         bool disposed;
 
-        public DTCTransactionScope(ISession session, TransactionOptions transactionOptions)
+        public DTCTransactionScope(ISession session, TransactionOptions transactionOptions, ISessionFactory sessionFactory)
         {
+            this.sessionFactory = sessionFactory;
             transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
+            this.sessionFactory.SetSessionForCurrentThread(session);
         }
 
         public void Dispose()
@@ -31,6 +36,7 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
             if (disposing)
             {
                 // Dispose managed resources.
+                this.sessionFactory.RemoveSessionForCurrentThread();
                 transactionScope.Dispose();
                 if (!complete)
                 {

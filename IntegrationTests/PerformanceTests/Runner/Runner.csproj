@@ -38,8 +38,9 @@
     <Reference Include="Apache.NMS">
       <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
     </Reference>
-    <Reference Include="Apache.NMS.ActiveMQ">
-      <HintPath>..\packages\Apache.NMS.ActiveMQ.1.5.6\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
+    <Reference Include="Apache.NMS.ActiveMQ, Version=1.5.6.2746, Culture=neutral, PublicKeyToken=82756feee3957618, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\lib\Apache.NMS-CustomBuild\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus, Version=3.4.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

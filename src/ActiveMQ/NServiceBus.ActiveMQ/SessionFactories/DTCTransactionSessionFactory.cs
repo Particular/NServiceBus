@@ -19,6 +19,8 @@
 
         public ISession GetSession()
         {
+            if (this.session != null) return this.session;
+
             if (Transaction.Current != null)
             {
                 // Currently in case of DTC the consumer and produce of messages use an own session due to a bug in the ActiveMQ NMS client:
@@ -58,14 +60,17 @@
             this.pooledSessionFactory.Release(session);
         }
 
+        [ThreadStatic]
+        private ISession session;
+
         public virtual void SetSessionForCurrentThread(ISession session)
         {
-            throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
+            this.session = session;
         }
 
         public virtual void RemoveSessionForCurrentThread()
         {
-            throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
+            this.session = null;
         }
 
         public void Dispose()
