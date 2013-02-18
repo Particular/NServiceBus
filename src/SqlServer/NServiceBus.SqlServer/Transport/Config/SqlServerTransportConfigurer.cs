@@ -24,12 +24,12 @@ namespace NServiceBus.SQLServer.Transport.Config
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
 
-            config.Configurer.ConfigureComponent<SqlServerMessageReceiver>(DependencyLifecycle.InstancePerCall)
-                  .ConfigureProperty(p => p.ConnectionString, connectionString)
-                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
-
             config.Configurer.ConfigureComponent<SqlServerMessageSender>(DependencyLifecycle.SingleInstance)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
+
+            config.Configurer.ConfigureComponent<SqlServerPollingDequeueStrategy>(DependencyLifecycle.InstancePerCall)
+                  .ConfigureProperty(p => p.ConnectionString, connectionString)
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested); ;
 
             EndpointInputQueueCreator.Enabled = true;
         }

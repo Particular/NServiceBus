@@ -1,0 +1,315 @@
+﻿namespace NServiceBus.SQLServer.Transport
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Data.SqlClient;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Threading.Tasks.Schedulers;
+    using System.Transactions;
+    using Logging;
+    using Serializers.Json;
+    using Unicast.Queuing;
+    using Unicast.Transport.Transactional;
+    using Utils;
+    using IsolationLevel = System.Data.IsolationLevel;
+
+    /// <summary>
+    ///     A polling implementation of <see cref="IDequeueMessages" />.
+    /// </summary>
+    public class SqlServerPollingDequeueStrategy : IDequeueMessages
+    {
+        private const string SqlReceive =
+            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
+        private const string SqlPurge = @"DELETE FROM [{0}]";
+
+        private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (SqlServerPollingDequeueStrategy));
+
+        private readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
+
+        private Address addressToPoll;
+        private Action<string, Exception> endProcessMessage;
+        private MTATaskScheduler scheduler;
+        private TransactionSettings settings;
+        private string sql;
+        private string tableName;
+        private CancellationTokenSource tokenSource;
+        private TransactionOptions transactionOptions;
+        private Func<TransportMessage, bool> tryProcessMessage;
+
+        /// <summary>
+        ///     The connection used to open the SQL Server database.
+        /// </summary>
+        public string ConnectionString { get; set; }
+
+        /// <summary>
+        ///     Determines if the queue should be purged when the transport starts
+        /// </summary>
+        public bool PurgeOnStartup { get; set; }
+
+        public SqlServerMessageSender MessageSender { get; set; }
+        
+        /// <summary>
+        ///     Initializes the <see cref="IDequeueMessages" />.
+        /// </summary>
+        /// <param name="address">The address to listen on.</param>
+        /// <param name="transactionSettings">
+        ///     The <see cref="TransactionSettings" /> to be used by <see cref="IDequeueMessages" />.
+        /// </param>
+        /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
+        /// <param name="endProcessMessage">
+        ///     Needs to be called by <see cref="IDequeueMessages" /> after the message has been processed regardless if the outcome was successful or not.
+        /// </param>
+        public void Init(Address address, TransactionSettings transactionSettings,
+                         Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        {
+            this.tryProcessMessage = tryProcessMessage;
+            this.endProcessMessage = endProcessMessage;
+
+            addressToPoll = address;
+            settings = transactionSettings;
+            transactionOptions = new TransactionOptions
+                {
+                    IsolationLevel = transactionSettings.IsolationLevel,
+                    Timeout = transactionSettings.TransactionTimeout
+                };
+
+            tableName = address.Queue;
+
+            sql = string.Format(SqlReceive, tableName);
+
+            if (PurgeOnStartup)
+            {
+                PurgeTable();
+            }
+        }
+
+        /// <summary>
+        ///     Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel" />.
+        /// </summary>
+        /// <param name="maximumConcurrencyLevel">
+        ///     Indicates the maximum concurrency level this <see cref="IDequeueMessages" /> is able to support.
+        /// </param>
+        public void Start(int maximumConcurrencyLevel)
+        {
+            tokenSource = new CancellationTokenSource();
+
+            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
+                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
+
+            for (int i = 0; i < maximumConcurrencyLevel; i++)
+            {
+                StartThread();
+            }
+        }
+
+        /// <summary>
+        ///     Stops the dequeuing of messages.
+        /// </summary>
+        public void Stop()
+        {
+            tokenSource.Cancel();
+            scheduler.Dispose();
+        }
+
+        private void PurgeTable()
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (
+                    var command = new SqlCommand(string.Format(SqlPurge, tableName), connection)
+                        {
+                            CommandType = CommandType.Text
+                        })
+                {
+                    int numberOfPurgedRows = command.ExecuteNonQuery();
+
+                    Logger.InfoFormat("{0} messages was purged from table {1}", numberOfPurgedRows, tableName);
+                }
+            }
+        }
+
+        private void StartThread()
+        {
+            CancellationToken token = tokenSource.Token;
+
+            Task.Factory
+                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .ContinueWith(t =>
+                    {
+                        t.Exception.Handle(ex =>
+                            {
+                                circuitBreaker.Execute(
+                                    () =>
+                                    Configure.Instance.RaiseCriticalError(
+                                        string.Format("Failed to receive message from '{0}'.", tableName), ex));
+                                return true;
+                            });
+
+                        StartThread();
+                    }, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        private void Action(object obj)
+        {
+            var cancellationToken = (CancellationToken) obj;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                Exception exception = null;
+                TransportMessage message = null;
+
+                try
+                {
+                    if (settings.IsTransactional)
+                    {
+                        if (settings.DontUseDistributedTransactions)
+                        {
+                            using (var connection = new SqlConnection(ConnectionString))
+                            {
+                                connection.Open();
+                                using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
+                                {
+                                    message = Receive(connection, transaction);
+
+                                    if (message != null)
+                                    {
+                                        if (MessageSender != null)
+                                        {
+                                            MessageSender.SetTransaction(transaction);
+                                        }
+
+                                        if (tryProcessMessage(message))
+                                        {
+                                            transaction.Commit();
+                                        }
+                                        else
+                                        {
+                                            transaction.Rollback();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+                            {
+                                using (var connection = new SqlConnection(ConnectionString))
+                                {
+                                    connection.Open();
+                                    message = Receive(connection);
+
+                                    if (message != null)
+                                    {
+                                        if (tryProcessMessage(message))
+                                        {
+                                            scope.Complete();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (var connection = new SqlConnection(ConnectionString))
+                        {
+                            connection.Open();
+                            message = Receive(connection);
+                        }
+                        if (message != null)
+                        {
+                            tryProcessMessage(message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+                finally
+                {
+                    endProcessMessage(message != null ? message.Id : null, exception);
+                }
+            }
+        }
+
+        private TransportMessage Receive(SqlConnection connection, SqlTransaction transaction = null)
+        {
+            using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
+            {
+                if (transaction != null)
+                {
+                    command.Transaction = transaction;
+                }
+
+                using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
+                {
+                    if (dataReader.Read())
+                    {
+                        string id = dataReader.GetGuid(0).ToString();
+
+                        string correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                        Address replyToAddress = Address.Parse(dataReader.GetString(2));
+                        bool recoverable = dataReader.GetBoolean(3);
+
+                        MessageIntentEnum messageIntent;
+                        Enum.TryParse(dataReader.GetString(4), out messageIntent);
+
+                        TimeSpan timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(5));
+                        var headers =
+                            Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(6));
+                        byte[] body = dataReader.GetSqlBinary(7).Value;
+
+                        var message = new TransportMessage
+                            {
+                                Id = id,
+                                CorrelationId = correlationId,
+                                ReplyToAddress = replyToAddress,
+                                Recoverable = recoverable,
+                                MessageIntent = messageIntent,
+                                TimeToBeReceived = timeToBeReceived,
+                                Headers = headers,
+                                Body = body
+                            };
+
+                        return message;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private IsolationLevel GetSqlIsolationLevel(System.Transactions.IsolationLevel isolationLevel)
+        {
+            switch (isolationLevel)
+            {
+                case System.Transactions.IsolationLevel.Serializable:
+                    return IsolationLevel.Serializable;
+                case System.Transactions.IsolationLevel.RepeatableRead:
+                    return IsolationLevel.RepeatableRead;
+                case System.Transactions.IsolationLevel.ReadCommitted:
+                    return IsolationLevel.ReadCommitted;
+                case System.Transactions.IsolationLevel.ReadUncommitted:
+                    return IsolationLevel.ReadUncommitted;
+                case System.Transactions.IsolationLevel.Snapshot:
+                    return IsolationLevel.Snapshot;
+                case System.Transactions.IsolationLevel.Chaos:
+                    return IsolationLevel.Chaos;
+                case System.Transactions.IsolationLevel.Unspecified:
+                    return IsolationLevel.Unspecified;
+            }
+
+            return IsolationLevel.ReadCommitted;
+        }
+    }
+}
