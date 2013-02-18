@@ -15,7 +15,7 @@
         public void Should_not_deliver_them_until_the_commit_phase()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus,context) =>
                     {
                         using (var tx = new TransactionScope())
                         {
@@ -26,8 +26,8 @@
                             using (new TransactionScope(TransactionScopeOption.Suppress))
                                 bus.Send(new MessageThatIsNotEnlisted());
 
-                            //to allow the sqlserver transport to do a poll before we commit
-                            Thread.Sleep(1000);
+                            while (!context.MessageThatIsNotEnlistedHandlerWasCalled)
+                                Thread.Sleep(1000);
 
                             tx.Complete();
                         }
@@ -91,6 +91,7 @@
             public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>
             {
                 public Context Context { get; set; }
+                public IBus Bus { get; set; }
 
                 public void Handle(MessageThatIsEnlisted messageThatIsEnlisted)
                 {
