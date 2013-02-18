@@ -153,6 +153,7 @@
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_the_default_settings.cs" />
+    <Compile Include="Transactions\When_receiving_a_message_with_transactions_disabled.cs" />
     <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
