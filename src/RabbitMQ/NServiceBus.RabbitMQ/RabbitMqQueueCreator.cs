@@ -1,12 +1,15 @@
 ﻿namespace NServiceBus.RabbitMq
 {
-    using NServiceBus.Unicast.Queuing;
+    using System;
+    using Unicast.Queuing;
     using global::RabbitMQ.Client;
 
     public class RabbitMqQueueCreator : ICreateQueues
     {
 
         public IConnection Connection { get; set; }
+
+        public Func<Address, string> ExchangeName { get; set; }
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
@@ -19,7 +22,10 @@
                 //only setup a exchange for the main endpoint queue
                 if (address == Address.Local)
                 {
-                    channel.ExchangeDeclare(address.Queue + ".events", "topic", durable);
+                    var exchangeName = ExchangeName(Address.Local);
+
+                    if (exchangeName != "amq.topic") //no need to create the predefined exchange
+                        channel.ExchangeDeclare(exchangeName, "topic", durable);
                 }
             }
 
