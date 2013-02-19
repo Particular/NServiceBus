@@ -196,6 +196,11 @@
         public const string ConversationId = "NServiceBus.ConversationId";
 
         /// <summary>
+        /// The intent of the current message
+        /// </summary>
+        public const string MessageIntent = "NServiceBus.MessageIntent";
+
+        /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
         /// <param name="msg">The message to retrieve a header from.</param>

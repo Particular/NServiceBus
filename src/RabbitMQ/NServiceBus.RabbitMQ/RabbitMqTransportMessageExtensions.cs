@@ -34,8 +34,6 @@
             if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
                 properties.ReplyTo = message.ReplyToAddress.Queue;
 
-            properties.AppId = message.MessageIntent.ToString();
-
             return properties;
         }
 
@@ -55,9 +53,6 @@
                                         .ToDictionary(
                                         kvp => (string)kvp.Key, 
                                         kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[]) kvp.Value));
-
-            if (properties.IsAppIdPresent())
-                result.MessageIntent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), properties.AppId);
 
             if (properties.IsCorrelationIdPresent())
                 result.CorrelationId = properties.CorrelationId;

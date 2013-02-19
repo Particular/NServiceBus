@@ -94,40 +94,7 @@
             result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
         }
 
-        [Test]
-        public void CreateTransportMessage_IfMessageIntentIsDefined_ShouldAssignMessageIntent()
-        {
-            const MessageIntentEnum Intent = MessageIntentEnum.Subscribe;
-            var message = CreateTextMessage(string.Empty);
-            message.Properties[ActiveMqMessageMapper.MessageIntentKey] = Intent;
-
-            var result = this.testee.CreateTransportMessage(message);
-
-            result.MessageIntent.Should().Be(Intent);
-        }
-
-        [Test]
-        public void CreateTransportMessage_ForPublicationMessage_IfMessageIntentIsNotDefined_ShouldAssignPublishToMessageIntent()
-        {
-            var message = CreateTextMessage(string.Empty);
-            message.NMSDestination = new ActiveMQTopic("myTopic");
-
-            var result = this.testee.CreateTransportMessage(message);
-
-            result.MessageIntent.Should().Be(MessageIntentEnum.Publish);
-        }
-
-        [Test]
-        public void CreateTransportMessage_ForSendMessage_IfMessageIntentIsNotDefined_ShouldAssignSendToMessageIntent()
-        {
-            var message = CreateTextMessage(string.Empty);
-            message.NMSDestination = new ActiveMQQueue("myQueue");
-
-            var result = this.testee.CreateTransportMessage(message);
-
-            result.MessageIntent.Should().Be(MessageIntentEnum.Send);
-        }
-
+      
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsDefined_ShouldAssignIt()
         {

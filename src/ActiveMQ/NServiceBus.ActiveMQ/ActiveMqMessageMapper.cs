@@ -2,14 +2,11 @@ namespace NServiceBus.Transport.ActiveMQ
 {
     using System;
     using System.Linq;
-    using System.Text;
-
     using Apache.NMS;
     using Apache.NMS.Util;
 
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
-        public const string MessageIntentKey = "MessageIntent";
         public const string ErrorCodeKey = "ErrorCode";
         
         private readonly IMessageTypeInterpreter messageTypeInterpreter;
@@ -53,8 +50,6 @@ namespace NServiceBus.Transport.ActiveMQ
                 jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
             }
 
-            jmsmessage.Properties[MessageIntentKey] = (int)message.MessageIntent;
-
             foreach (var header in message.Headers)
             {
                 jmsmessage.Properties[ConvertMessageHeaderKeyToActiveMQ(header.Key)] = header.Value;
@@ -73,7 +68,6 @@ namespace NServiceBus.Transport.ActiveMQ
                                      ? null
                                      : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
 
-            transportMessage.MessageIntent = this.GetIntent(message);
             transportMessage.ReplyToAddress = replyToAddress;
             transportMessage.CorrelationId = message.NMSCorrelationID;
             transportMessage.TimeToBeReceived = message.NMSTimeToLive;
@@ -83,7 +77,7 @@ namespace NServiceBus.Transport.ActiveMQ
             foreach (var key in message.Properties.Keys)
             {
                 var keyString = (string)key;
-                if (keyString == MessageIntentKey || keyString == ErrorCodeKey)
+                if (keyString == ErrorCodeKey)
                 {
                     continue;
                 }
@@ -128,20 +122,5 @@ namespace NServiceBus.Transport.ActiveMQ
             return headerKey.Replace("_DOT_", ".").Replace("_HYPHEN_", "-");
         }
 
-        private MessageIntentEnum GetIntent(IMessage message)
-        {
-            var messageIntentProperty = message.Properties[MessageIntentKey];
-            if (messageIntentProperty != null)
-            {
-                return (MessageIntentEnum)messageIntentProperty;
-            }
-
-            if (message.NMSDestination != null && message.NMSDestination.IsTopic)
-            {
-                return MessageIntentEnum.Publish;
-            }
-
-            return MessageIntentEnum.Send;
-        }
     }
 }

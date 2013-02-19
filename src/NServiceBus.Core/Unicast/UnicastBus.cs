@@ -475,7 +475,6 @@ namespace NServiceBus.Unicast
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
-            returnMessage.MessageIntent = MessageIntentEnum.Send;
 
             InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
@@ -608,7 +607,7 @@ namespace NServiceBus.Unicast
                 return ((IBus)this).SendLocal(messages);
             }
 
-            var toSend = new TransportMessage { MessageIntent = MessageIntentEnum.Send };
+            var toSend = new TransportMessage();
 
             MapTransportMessageFor(messages, toSend);
 

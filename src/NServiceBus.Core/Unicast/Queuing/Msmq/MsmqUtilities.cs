@@ -147,9 +147,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                          : m.CorrelationId.Replace("\\0","")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
-                MessageIntent = Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific) ? (MessageIntentEnum)m.AppSpecific : MessageIntentEnum.Send
+                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
             };
+
+            if (Enum.IsDefined(typeof (MessageIntentEnum), m.AppSpecific))
+                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
 
             m.BodyStream.Position = 0;
             result.Body = new byte[m.BodyStream.Length];

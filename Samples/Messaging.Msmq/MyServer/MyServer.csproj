@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DebugFlagMutator.cs" />
     <Compile Include="EndpointConfig.cs">
     </Compile>
     <Compile Include="OrderCommandHandler.cs">

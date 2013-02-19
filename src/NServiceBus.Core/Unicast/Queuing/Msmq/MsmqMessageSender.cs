@@ -67,7 +67,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (Configure.Transactions.Advanced().SuppressDistributedTransactions || !Configure.Transactions.Enabled)
+            if (Configure.Transactions.Advanced().SuppressDistributedTransactions)
             {
                 return MessageQueueTransactionType.Single;
             }

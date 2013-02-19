@@ -26,6 +26,8 @@
                     VideoIds = videoIds
                 };
 
+            command.SetHeader("Debug", Request.Headers["Debug"]);
+
             Bus.Send(command).Register<OrderStatus>(status =>
             {
                 AsyncManager.Parameters["status"] = status;

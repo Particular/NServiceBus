@@ -51,6 +51,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MyServer\DebugFlagMutator.cs">
+      <Link>DebugFlagMutator.cs</Link>
+    </Compile>
     <Compile Include="EndpointConfig.cs">
     </Compile>
     <Compile Include="CheckInventoryHandler.cs">

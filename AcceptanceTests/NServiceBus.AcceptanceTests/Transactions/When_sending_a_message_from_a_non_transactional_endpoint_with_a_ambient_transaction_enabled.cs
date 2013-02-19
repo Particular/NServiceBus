@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_with_transactions_disabled : NServiceBusIntegrationTest
+    public class When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled : NServiceBusIntegrationTest
     {
         [Test]
         public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
@@ -19,7 +19,7 @@
                     .Repeat(r => r.For<AllTransports>())
                     .Should(c =>
                         {
-                            Assert.AreEqual(1, c.TimesCalled, "Should not retry the message");
+                            Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit");
                         })
                     .Run();
         }
@@ -28,14 +28,18 @@
         {
             public bool TestComplete { get; set; }
 
-            public int TimesCalled { get; set; }
+            public bool MessageEnlistedInTheAmbientTxReceived { get; set; }
         }
 
         public class NonTransactionalEndpoint : EndpointConfigurationBuilder
         {
             public NonTransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Transactions.Disable());
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        Configure.Transactions.Disable();
+                        Configure.Transactions.Advanced(t => t.DoNotWrapHandlersExecutionInATransactionScope = false);
+                    });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -45,7 +49,10 @@
                 public IBus Bus { get; set; }
                 public void Handle(MyMessage message)
                 {
-                    Context.TimesCalled++;
+                    Bus.SendLocal(new CompleteTest
+                        {
+                            EnlistedInTheAmbientTx = true
+                        });
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
@@ -62,6 +69,9 @@
 
                 public void Handle(CompleteTest message)
                 {
+                    if (!Context.MessageEnlistedInTheAmbientTxReceived)
+                        Context.MessageEnlistedInTheAmbientTxReceived = message.EnlistedInTheAmbientTx;
+
                     Context.TestComplete = true;
                 }
             }
@@ -75,6 +85,7 @@
         [Serializable]
         public class CompleteTest : ICommand
         {
+            public bool EnlistedInTheAmbientTx { get; set; }
         }
 
 

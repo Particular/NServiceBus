@@ -14,7 +14,6 @@ namespace NServiceBus.SQLServer.Transport
 	                    [CorrelationId] [varchar](255) NULL,
 	                    [ReplyToAddress] [varchar](255) NOT NULL,
 	                    [Recoverable] [bit] NOT NULL,
-	                    [MessageIntent] [varchar](16) NOT NULL,
 	                    [TimeToBeReceived] [bigint] NULL,
 	                    [Headers] [varchar](8000) NOT NULL,
 	                    [Body] [varbinary](max) NOT NULL,

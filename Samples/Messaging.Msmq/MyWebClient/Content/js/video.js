@@ -8,7 +8,9 @@
       { id: 'gems', title: 'Hidden NServiceBus Gems', description: 'Although NServiceBus has been around for a while, many developers are only familiar with the top-level public API. Join Udi Dahan for a look into some of the lesser known capabilities of NServiceBus that just might save you from having to reinvent the wheel.', selected: false },
       { id: 'integ', title: 'Reliable Integration with NServiceBus', description: "Developers are dealing with more integrations today than ever before, and handling consistency and reliability across those connections isn't getting any easier either. Many developers are already using NServiceBus in the core parts of their systems for the reliability it brings but aren't aware that it can also help with integration as well. Come see how the saga capabilities in NServiceBus make integration code simpler, more robust, and testable.", selected: false },
       { id: 'shiny', title: 'New and shiny things in NServiceBus 3.0', description: "Andreas Öhlund, one of the lead developers for NServiceBus, discusses the new and shiny things in NServiceBus 3.0. Come and get and overview of the new features in the upcoming NServiceBus 3.0 release.", selected: false },
-      { id: 'day', title: 'NServiceBus on DNR TV', description: "Just another session coding with NServiceBus.", selected: false }];
+      { id: 'day', title: 'NServiceBus on DNR TV', description: "Just another session coding with NServiceBus.", selected: false },
+      { id: 'need', title: 'Who needs a service bus anyway?', description: "Although Enterprise Service Buses have been used in many larger companies, small and medium enterprises have often been put off by the high cost of these large middleware packages. These days we're seeing more open-source service buses gaining popularity and many developers are beginning to get curious - what would I use it for? Join Udi to get the scoop as well as see some patterns in action with NServiceBus", selected: false }
+    ];
 
     $scope.orders = [];
     
@@ -55,7 +57,7 @@
             .success(function (data, status) {
                 var idx = retrieveOrderIndex($scope, data.OrderNumber);
                 if (idx >= 0) {
-                    scope.orders[idx].status = 'Cancelled';
+                    $scope.orders[idx].status = 'Cancelled';
                 }
             })
             .error(function (data, status) {
