@@ -28,7 +28,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
             ServiceContext.TimeoutDataTableName = configSection.TimeoutDataTableName;
             ServiceContext.TimeoutManagerDataTableName = configSection.TimeoutManagerDataTableName;
 
-            config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall).ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString);
+            config.Configurer.ConfigureComponent<TimeoutPersister>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(tp => tp.ConnectionString, configSection.ConnectionString)
+                .ConfigureProperty(tp => tp.CatchUpInterval, configSection.CatchUpInterval)
+                .ConfigureProperty(tp => tp.PartitionKeyScope, configSection.PartitionKeyScope); 
             return config;
         }
 

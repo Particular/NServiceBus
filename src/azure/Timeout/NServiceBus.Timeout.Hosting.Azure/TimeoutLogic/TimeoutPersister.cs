@@ -18,8 +18,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
-        private const string partitionKeyScope = "yyyMMddHH";
-
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             List<Tuple<string, DateTime>> results;
@@ -36,8 +34,8 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 if (lastSuccessfullRead.HasValue)
                 {
                     result = (from c in context.TimeoutData
-                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(partitionKeyScope)) > 0
-                              && c.PartitionKey.CompareTo(DateTime.UtcNow.ToString(partitionKeyScope)) <= 0
+                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(PartitionKeyScope)) > 0
+                              && c.PartitionKey.CompareTo(DateTime.UtcNow.ToString(PartitionKeyScope)) <= 0
                                     && c.OwningTimeoutManager == Configure.EndpointName
                               select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
                 }
@@ -54,13 +52,13 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
                 if (lastSuccessfullReadEntity != null && lastSuccessfullRead.HasValue)
                 {
-                    lastSuccessfullRead = lastSuccessfullRead.Value.AddMinutes(1);
+                    lastSuccessfullRead = lastSuccessfullRead.Value.AddSeconds(CatchUpInterval);
                     lastSuccessfullReadEntity.LastSuccessfullRead = lastSuccessfullRead.Value;
                 }
 
                 var future = futureTimeouts.FirstOrDefault();
                 nextTimeToRunQuery = lastSuccessfullRead.HasValue ? lastSuccessfullRead.Value
-                                         : future != null ? future.Time : DateTime.UtcNow;
+                                         : (future != null ? future.Time : DateTime.UtcNow);
                 
                 results = pastTimeouts
                    .Where(c => string.IsNullOrEmpty(c.RowKey))
@@ -88,9 +86,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             var stateAddress = Upload(timeout.State, hash);
             var headers = Serialize(timeout.Headers);
 
-            if (!TryGetTimeoutData(context, timeout.Time.ToString(partitionKeyScope), stateAddress, out timeoutDataEntity))
+            if (!TryGetTimeoutData(context, timeout.Time.ToString(PartitionKeyScope), stateAddress, out timeoutDataEntity))
                 context.AddObject(ServiceContext.TimeoutDataTableName,
-                                      new TimeoutDataEntity(timeout.Time.ToString(partitionKeyScope), stateAddress)
+                                      new TimeoutDataEntity(timeout.Time.ToString(PartitionKeyScope), stateAddress)
                                       {
                                           Destination = timeout.Destination.ToString(),
                                           SagaId = timeout.SagaId,
@@ -163,7 +161,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 }
 
                 TimeoutDataEntity timeoutDataEntityByTime;
-                if (TryGetTimeoutData(context, timeoutDataEntity.Time.ToString(partitionKeyScope), timeoutId, out timeoutDataEntityByTime))
+                if (TryGetTimeoutData(context, timeoutDataEntity.Time.ToString(PartitionKeyScope), timeoutId, out timeoutDataEntityByTime))
                 {
                     context.DeleteObject(timeoutDataEntityByTime);
                 }
@@ -196,7 +194,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                     RemoveState(timeoutDataEntityBySaga.StateAddress);
 
                     TimeoutDataEntity timeoutDataEntityByTime;
-                    if (TryGetTimeoutData(context, timeoutDataEntityBySaga.Time.ToString(partitionKeyScope), timeoutDataEntityBySaga.RowKey, out timeoutDataEntityByTime))
+                    if (TryGetTimeoutData(context, timeoutDataEntityBySaga.Time.ToString(PartitionKeyScope), timeoutDataEntityBySaga.RowKey, out timeoutDataEntityByTime))
                         context.DeleteObject(timeoutDataEntityByTime);
 
                     TimeoutDataEntity timeoutDataEntity;
@@ -258,6 +256,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             }
         }
 
+        public int CatchUpInterval { get; set; }
+        public string PartitionKeyScope { get; set; }
+
         private void Init(string connectionstring)
         {
             account = CloudStorageAccount.Parse(connectionstring);
@@ -281,9 +282,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             {
                 TimeoutDataEntity timeoutDataEntity;
 
-                if (!TryGetTimeoutData(context, timeout.Time.ToString(partitionKeyScope), timeout.RowKey, out timeoutDataEntity))
+                if (!TryGetTimeoutData(context, timeout.Time.ToString(PartitionKeyScope), timeout.RowKey, out timeoutDataEntity))
                     context.AddObject(ServiceContext.TimeoutDataTableName,
-                                      new TimeoutDataEntity(timeout.Time.ToString(partitionKeyScope), timeout.RowKey)
+                                      new TimeoutDataEntity(timeout.Time.ToString(PartitionKeyScope), timeout.RowKey)
                                       {
                                           Destination = timeout.Destination,
                                           SagaId = timeout.SagaId,

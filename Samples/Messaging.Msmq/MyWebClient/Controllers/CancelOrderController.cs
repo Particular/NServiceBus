@@ -12,11 +12,12 @@
         [AsyncTimeout(30000)]
         public void IndexAsync(int orderNumber)
         {
-            
             var command = new CancelOrder
                 {
                     OrderNumber = orderNumber
                 };
+
+            command.SetHeader("Debug", Request.Headers["Debug"]);
 
             Bus.Send(command).Register<OrderStatus>(status =>
                 {

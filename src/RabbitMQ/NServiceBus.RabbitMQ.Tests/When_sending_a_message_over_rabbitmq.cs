@@ -59,17 +59,7 @@
 
         }
 
-        [Test]
-        public void Should_set_the_message_intent()
-        {
-            Verify(new TransportMessageBuilder().Intent(MessageIntentEnum.Publish),
-                result => Assert.AreEqual(MessageIntentEnum.Publish, result.MessageIntent)
-                );
-
-        }
-
-
-
+       
         [Test]
         public void Should_set_correlation_id_if_present()
         {

@@ -173,6 +173,11 @@
             Assert.Null(receivedEvent);
         }
 
+        protected override string ExchangeNameConvention(Address address)
+        {
+            return "nservicebus.events";
+        }
+
     }
 
 

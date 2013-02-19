@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.RabbitMq.Config
 {
+    using System;
     using NServiceBus.Config;
     using Unicast.Queuing.Installers;
 
@@ -28,14 +29,22 @@
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue);
+                .ConfigureProperty(p => p.ExchangeName, ExchangeNameConvention);
 
             config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.SingleInstance)
-             .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue);
+             .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue)
+             .ConfigureProperty(p => p.ExchangeName, ExchangeNameConvention);
 
-            config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall)
+                  .ConfigureProperty(p => p.ExchangeName, ExchangeNameConvention); ;
 
             EndpointInputQueueCreator.Enabled = true;
         }
+
+        /// <summary>
+        /// Name of the topic where events are published to
+        /// </summary>
+        public static Func<Address, string> ExchangeNameConvention = address => "amq.topic";
+
     }
 }

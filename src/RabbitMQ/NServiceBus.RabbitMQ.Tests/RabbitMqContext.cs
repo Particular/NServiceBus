@@ -3,8 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using NServiceBus;
-    using NServiceBus.RabbitMq;
-    using NServiceBus.Unicast.Transport.Transactional;
+    using RabbitMq;
     using NUnit.Framework;
     using global::RabbitMQ.Client;
     using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
@@ -22,6 +21,9 @@
 
         protected void MakeSureExchangeExists(string exchangeName)
         {
+            if (exchangeName == "amq.topic")
+                return;
+
             var connection = ConnectionManager.GetConnection();
             using (var channel = connection.CreateModel())
             {
@@ -67,17 +69,18 @@
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
-            MakeSureExchangeExists(PUBLISHERNAME + ".events");
-
+            MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE)));
+         
             MessagePublisher = new RabbitMqMessagePublisher
                 {
                     UnitOfWork = unitOfWork,
-                    EndpointQueueName = PUBLISHERNAME
+                    ExchangeName = ExchangeNameConvention
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
             {
                 Connection = connection,
-                EndpointQueueName = MYRECEIVEQUEUE
+                EndpointQueueName = MYRECEIVEQUEUE,
+                ExchangeName = ExchangeNameConvention
             };
 
             dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
@@ -98,6 +101,11 @@
             if (dequeueStrategy != null)
                 dequeueStrategy.Stop();
 
+        }
+
+        protected virtual string ExchangeNameConvention(Address address)
+        {
+            return "amq.topic";
         }
 
 

@@ -13,13 +13,20 @@
         }
     }
 
-    public class AllDtcTransports : ScenarioDescriptor
+    public class AllDtcTransports : AllTransports
     {
         public AllDtcTransports()
+        {   
+            Remove(Transports.RabbitMQ);
+        }
+    }
+
+    public class AllTransportsWithCentralizedPubSubSupport : AllTransports
+    {
+        public AllTransportsWithCentralizedPubSubSupport()
         {
-            Add(Transports.Msmq);
-            Add(Transports.ActiveMQ);
-            Add(Transports.SqlServer);
+            Remove(Transports.Msmq);
+            Remove(Transports.SqlServer);
         }
     }
 }

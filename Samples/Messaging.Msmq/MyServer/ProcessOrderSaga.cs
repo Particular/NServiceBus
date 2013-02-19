@@ -1,6 +1,8 @@
 ﻿namespace MyServer
 {
     using System;
+    using System.Diagnostics;
+    using Common;
     using MyMessages.Commands;
     using MyMessages.Events;
     using MyMessages.RequestResponse;
@@ -14,6 +16,11 @@
     {
         public void Handle(InventoryResponse message)
         {
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
             Data.OrderNumber = message.OrderNumber;
             Data.VideoIds = message.VideoIds;
 
@@ -23,6 +30,11 @@
 
         public void Timeout(CoolDownPeriod state)
         {
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
+
             Bus.Publish<CoolDownPeriodElapsed>(e =>
                 {
                     e.OrderNumber = Data.OrderNumber;
@@ -36,6 +48,11 @@
 
         public void Handle(CancelOrder message)
         {
+            if (DebugFlagMutator.Debug)
+            {
+                   Debugger.Break();
+            }
+
             MarkAsComplete();
             Bus.Return(OrderStatus.Ok);
             Console.Out.WriteLine("Order #{0} was cancelled.", message.OrderNumber);

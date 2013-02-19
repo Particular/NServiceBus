@@ -37,12 +37,6 @@
             return this;
         }
 
-        public TransportMessageBuilder Intent(MessageIntentEnum intent)
-        {
-            message.MessageIntent = intent;
-            return this;
-        }
-
         public TransportMessageBuilder CorrelationId(string correlationId)
         {
             message.CorrelationId = correlationId;

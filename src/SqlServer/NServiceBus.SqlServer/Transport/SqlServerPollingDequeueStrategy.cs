@@ -24,7 +24,7 @@
             @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
 			DELETE FROM message 
 			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.MessageIntent, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
+			deleted.Recoverable, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
         private const string SqlPurge = @"DELETE FROM [{0}]";
 
         private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
@@ -261,13 +261,11 @@
                         Address replyToAddress = Address.Parse(dataReader.GetString(2));
                         bool recoverable = dataReader.GetBoolean(3);
 
-                        MessageIntentEnum messageIntent;
-                        Enum.TryParse(dataReader.GetString(4), out messageIntent);
-
-                        TimeSpan timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(5));
+                       
+                        TimeSpan timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(4));
                         var headers =
-                            Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(6));
-                        byte[] body = dataReader.GetSqlBinary(7).Value;
+                            Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
+                        byte[] body = dataReader.GetSqlBinary(6).Value;
 
                         var message = new TransportMessage
                             {
@@ -275,7 +273,6 @@
                                 CorrelationId = correlationId,
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
-                                MessageIntent = messageIntent,
                                 TimeToBeReceived = timeToBeReceived,
                                 Headers = headers,
                                 Body = body

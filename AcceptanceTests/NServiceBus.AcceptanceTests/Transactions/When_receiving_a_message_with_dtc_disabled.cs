@@ -21,7 +21,7 @@
                         {
                             //this check mainly applies to MSMQ who creates a DTC tx right of the bat if DTC is on
                             Assert.AreEqual(Guid.Empty, c.DistributedIdentifierBefore, "No DTC tx should exist before enlistment");
-                            Assert.True(c.CanEnlistPromotable,"A promotable RM should be able to enlist");
+                            Assert.True(c.CanEnlistPromotable, "A promotable RM should be able to enlist");
                         })
                     .Run();
         }
@@ -39,7 +39,7 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a=>a.SuppressDistributedTransactions = true));
+                EndpointSetup<DefaultServer>(c => Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions = true));
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

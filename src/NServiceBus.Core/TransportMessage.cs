@@ -22,8 +22,9 @@ namespace NServiceBus
         public TransportMessage()
         {
             Id = CombGuid.Generate().ToString();
-            Headers.Add(NServiceBus.Headers.OriginatingEndpoint,Configure.EndpointName);
+            Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, Environment.MachineName);
+            MessageIntent = MessageIntentEnum.Send;
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace NServiceBus
                 id = value;
 
                 //preserve the ID if one id isn't already present
-                if (!Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) || 
+                if (!Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) ||
                     string.IsNullOrEmpty(Headers[NServiceBus.Headers.IdForCorrelation]))
                     Headers[NServiceBus.Headers.IdForCorrelation] = value;
             }
@@ -79,7 +80,23 @@ namespace NServiceBus
         /// <summary>
         /// Indicates to the infrastructure the message intent (publish, or regular send).
         /// </summary>
-        public MessageIntentEnum MessageIntent { get; set; }
+        public MessageIntentEnum MessageIntent
+        {
+            get
+            {
+                MessageIntentEnum messageIntent = default(MessageIntentEnum);
+
+                if (Headers.ContainsKey(NServiceBus.Headers.MessageIntent))
+                {
+                    MessageIntentEnum.TryParse(Headers[NServiceBus.Headers.MessageIntent], true, out messageIntent);
+                }
+
+                return messageIntent;
+            }
+            set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
+        }
+
+        
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
