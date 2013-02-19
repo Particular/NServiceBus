@@ -24,5 +24,22 @@ namespace NServiceBus.Timeout.Hosting.Azure
             get { return (string)this["TimeoutDataTableName"]; }
             set { this["TimeoutDataTableName"] = value; }
         }
+
+        [ConfigurationProperty("CatchUpInterval", IsRequired = false, DefaultValue = 3600)]
+        public int CatchUpInterval
+        {
+            get { return (int)this["CatchUpInterval"]; }
+            set { this["CatchUpInterval"] = value; }
+        }
+
+        [ConfigurationProperty("PartitionKeyScope", IsRequired = false, DefaultValue = "yyyMMddHH")]
+        public string PartitionKeyScope
+        {
+            get { return (string)this["PartitionKeyScope"]; }
+            set { this["PartitionKeyScope"] = value; }
+        }
+
+        
+        
     }
 }
