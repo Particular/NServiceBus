@@ -57,12 +57,14 @@ namespace NServiceBus.Persistence.Raven
 
         static Guid DeterministicGuidBuilder(string input)
         {
-            //use MD5 hash to get a 16-byte hash of the string
-            var provider = new MD5CryptoServiceProvider();
-            byte[] inputBytes = Encoding.Default.GetBytes(input);
-            byte[] hashBytes = provider.ComputeHash(inputBytes);
-            //generate a guid from the hash:
-            return new Guid(hashBytes);
+            // use MD5 hash to get a 16-byte hash of the string
+            using (var provider = new MD5CryptoServiceProvider())
+            {
+                byte[] inputBytes = Encoding.Default.GetBytes(input);
+                byte[] hashBytes = provider.ComputeHash(inputBytes);
+                // generate a guid from the hash:
+                return new Guid(hashBytes);
+            }
         }
     }
 }
