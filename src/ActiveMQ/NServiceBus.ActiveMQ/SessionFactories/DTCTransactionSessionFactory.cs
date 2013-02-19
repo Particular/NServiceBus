@@ -19,8 +19,6 @@
 
         public ISession GetSession()
         {
-            if (this.session != null) return this.session;
-
             if (Transaction.Current != null)
             {
                 // Currently in case of DTC the consumer and produce of messages use an own session due to a bug in the ActiveMQ NMS client:
@@ -61,16 +59,18 @@
         }
 
         [ThreadStatic]
-        private ISession session;
+        private static string transactionId;
 
         public virtual void SetSessionForCurrentThread(ISession session)
         {
-            this.session = session;
+            transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+            this.sessionsForTransactions.TryAdd(transactionId, session);
         }
 
         public virtual void RemoveSessionForCurrentThread()
         {
-            this.session = null;
+            ISession session;
+            this.sessionsForTransactions.TryRemove(transactionId, out session);
         }
 
         public void Dispose()
