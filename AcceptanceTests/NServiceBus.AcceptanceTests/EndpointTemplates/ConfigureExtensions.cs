@@ -113,7 +113,7 @@
             {
                 {typeof (RabbitMQ), "host=localhost"},
                 {typeof (SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-                {typeof (ActiveMQ), @"activemq:tcp://localhost:61616"},
+                {typeof (ActiveMQ), @"Uri = activemq:tcp://localhost:61616"},
                 {typeof (Msmq), @"cacheSendConnection=false;journal=false;"},
             };
     }
