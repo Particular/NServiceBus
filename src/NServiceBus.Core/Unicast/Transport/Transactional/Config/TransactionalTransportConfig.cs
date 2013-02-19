@@ -81,7 +81,7 @@ namespace NServiceBus
 
             if (transportConfigurerType == null)
                 throw new InvalidOperationException(
-                    "We couldn't find a IConfigureTransports implementation for your selected transport: " +
+                    "We couldn't find a IConfigureTransport implementation for your selected transport: " +
                     transportDefinitionType.Name);
 
             var transportConfigurer = (IConfigureTransport) Activator.CreateInstance(transportConfigurerType);
