@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Transactions
 {
     using System;
+    using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -13,12 +14,12 @@
         {
 
             Scenario.Define<Context>()
-                    .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
+                    .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.TestComplete)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For<AllTransports>())
                     .Should(c =>
                         {
-                            Assert.AreEqual(1,c.TimesCalled,"Should not retry the message");
+                            Assert.AreEqual(1, c.TimesCalled, "Should not retry the message");
                         })
                     .Run();
         }
@@ -30,9 +31,9 @@
             public int TimesCalled { get; set; }
         }
 
-        public class NonDTCEndpoint : EndpointConfigurationBuilder
+        public class NonTransactionalEndpoint : EndpointConfigurationBuilder
         {
-            public NonDTCEndpoint()
+            public NonTransactionalEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => Configure.Transactions.Disable());
             }
@@ -45,7 +46,11 @@
                 public void Handle(MyMessage message)
                 {
                     Context.TimesCalled++;
-                    Bus.SendLocal(new CompleteTest());
+
+                    using (new TransactionScope(TransactionScopeOption.Suppress))
+                    {
+                        Bus.SendLocal(new CompleteTest());
+                    }
 
                     throw new Exception("Simulated exception");
                 }
