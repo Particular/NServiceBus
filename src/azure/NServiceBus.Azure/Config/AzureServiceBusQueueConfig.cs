@@ -226,5 +226,18 @@ namespace NServiceBus.Config
                 this["ConnectivityMode"] = value;
             }
         }
+
+        [ConfigurationProperty("BatchSize", IsRequired = false, DefaultValue = AzureServiceBusMessageQueueReceiver.DefaultBatchSize)]
+        public int BatchSize
+        {
+            get
+            {
+                return (int)this["BatchSize"];
+            }
+            set
+            {
+                this["BatchSize"] = value;
+            }
+        }
    }
 }

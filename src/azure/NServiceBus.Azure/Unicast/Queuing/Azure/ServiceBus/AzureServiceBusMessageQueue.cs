@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
     using System;
@@ -24,12 +26,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public const bool DefaultEnableDeadLetteringOnMessageExpiration = false;
         public const int DefaultDuplicateDetectionHistoryTimeWindow = 600000;
         public const int DefaultMaxDeliveryCount = 6;
-        public const bool DefaultEnableBatchedOperations = false;
+        public const bool DefaultEnableBatchedOperations = true;
         public const bool DefaultQueuePerInstance = false;
         public const int DefaultBackoffTimeInSeconds = 10;
         public const int DefaultServerWaitTime = 300;
         public const string DefaultConnectivityMode = "Tcp";
         public const string DefaultConnectionString = "";
+        public const int DefaultBatchSize = 1000;
 
         private bool useTransactions;
         private QueueClient queueClient;
@@ -45,9 +48,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         public int MaxDeliveryCount { get; set; }
         public bool EnableBatchedOperations { get; set; }
         public int ServerWaitTime { get; set; }
+        public int BatchSize { get; set; }
 
         public MessagingFactory Factory { get; set; }
         public NamespaceManager NamespaceClient { get; set; }
+
+        
+        private readonly Queue<BrokeredMessage> messages = new Queue<BrokeredMessage>();
 
         public void Init(string address, bool transactional)
         {
@@ -88,7 +95,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         {
             try
             {
-                var message = queueClient.Receive(TimeSpan.FromSeconds(ServerWaitTime));
+                var message = WaitForMessage();
 
                 if (message != null)
                 {
@@ -120,22 +127,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                     if (t.Id == null) t.Id = Guid.NewGuid().ToString();
 
-                    if (!useTransactions || Transaction.Current == null)
-                    {
-                        using (message)
-                        {
-                            message.SafeComplete();
-                        }
-                    }
-                    else if (Transaction.Current.TransactionInformation.Status == TransactionStatus.Active)
-                    {
-                        Transaction.Current.EnlistVolatile(new ReceiveResourceManager(message), EnlistmentOptions.None);
-                    }
-                    else
-                    {
-                        return null;
-                    }
-
                     return t;
                 }
             }
@@ -150,6 +141,37 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
 
             return null;
+        }
+
+        private BrokeredMessage WaitForMessage()
+        {
+            if (messages.Count == 0)
+            {
+                var receivedMessages = queueClient.ReceiveBatch(BatchSize, TimeSpan.FromSeconds(ServerWaitTime));
+
+                foreach (var receivedMessage in receivedMessages)
+                {
+                    messages.Enqueue(receivedMessage);
+
+                    if (!useTransactions || Transaction.Current == null)
+                    {
+                        using (receivedMessage)
+                        {
+                            receivedMessage.SafeComplete();
+                        }
+                    }
+                    else if (Transaction.Current.TransactionInformation.Status == TransactionStatus.Active)
+                    {
+                        Transaction.Current.EnlistVolatile(new ReceiveResourceManager(receivedMessage), EnlistmentOptions.None);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return messages.Count != 0 ? messages.Dequeue() : null;
         }
 
         private static TransportMessage DeserializeMessage(byte[] rawMessage)

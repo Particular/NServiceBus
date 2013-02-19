@@ -61,6 +61,7 @@ namespace NServiceBus
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.MaxDeliveryCount, configSection.MaxDeliveryCount);
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.EnableBatchedOperations, configSection.EnableBatchedOperations);
             Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.ServerWaitTime, configSection.ServerWaitTime);
+            Configure.Instance.Configurer.ConfigureProperty<AzureServiceBusMessageQueueReceiver>(t => t.BatchSize, configSection.BatchSize);
 
             // make sure the transaction stays open a little longer than the long poll.
             Configure.Transactions.Advanced().DefaultTimeout = TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1);

@@ -105,7 +105,7 @@
     <Compile Include="SagaPersisters\Azure\Config\Internal\MsSqlConfiguration.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\SessionFactoryBuilder.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\UtcDateTimeUserType.cs" />
-    <Compile Include="Unicast\Queuing\Azure\AzureMessageQueue.cs" />
+    <Compile Include="Unicast\Queuing\Azure\AzureMessageQueueReceiver.cs" />
     <Compile Include="Unicast\Queuing\Azure\AzureMessageQueueSender.cs" />
     <Compile Include="Unicast\Queuing\Azure\MessageWrapper.cs" />
     <Compile Include="Unicast\Queuing\Azure\ReceiveResourceManager.cs" />
