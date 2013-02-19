@@ -39,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MutateMessageContentTypeOfIncomingTransportMessages.cs" />
-    <Compile Include="MutateMessageIntentOfIncomingTransportMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

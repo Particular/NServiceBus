@@ -15,7 +15,6 @@ namespace NServiceBus.Unicast.Transport
                                        {
                                            ReplyToAddress = replyToAddress,
                                            Recoverable = true,
-                                           MessageIntent = MessageIntentEnum.Send
                                        };
             transportMessage.Headers.Add(Headers.ControlMessageHeader, true.ToString());
 

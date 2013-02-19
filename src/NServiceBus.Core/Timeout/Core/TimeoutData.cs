@@ -77,7 +77,6 @@ namespace NServiceBus.Timeout.Core
             {
                 ReplyToAddress = replyToAddress,
                 Recoverable = true,
-                MessageIntent = MessageIntentEnum.Send,
                 CorrelationId = CorrelationId,
                 Body = State
             };

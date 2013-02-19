@@ -10,8 +10,8 @@
     public class SqlServerMessageSender : ISendMessages, IDisposable
     {
         private const string SqlSend =
-            @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[MessageIntent],[TimeToBeReceived],[Headers],[Body]) 
-                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@MessageIntent,@TimeToBeReceived,@Headers,@Body)";
+            @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[TimeToBeReceived],[Headers],[Body]) 
+                                    VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@TimeToBeReceived,@Headers,@Body)";
 
         private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
         private readonly ThreadLocal<SqlTransaction> currentTransaction = new ThreadLocal<SqlTransaction>();
@@ -44,7 +44,6 @@
                     else
                         command.Parameters.AddWithValue("ReplyToAddress", message.ReplyToAddress.ToString());
                     command.Parameters.AddWithValue("Recoverable", message.Recoverable);
-                    command.Parameters.AddWithValue("MessageIntent", message.MessageIntent.ToString());
                     command.Parameters.Add("TimeToBeReceived", SqlDbType.BigInt).Value = message.TimeToBeReceived.Ticks;
                     command.Parameters.AddWithValue("Headers", Serializer.SerializeObject(message.Headers));
                     command.Parameters.AddWithValue("Body", message.Body ?? new byte[0]);
