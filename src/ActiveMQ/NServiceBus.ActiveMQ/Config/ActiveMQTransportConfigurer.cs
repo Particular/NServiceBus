@@ -1,5 +1,11 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ.Config
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.Cryptography;
+    using System.Text;
+
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using NServiceBus.Config;
@@ -15,8 +21,13 @@
     /// </summary>
     public class ActiveMqTransportConfigurer : ConfigureTransport<NServiceBus.ActiveMQ>
     {
+        private const string UriKey = "uri";
+
+        private const string ResourceManagerIdKey = "ResourceManagerId";
+
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
+            var connectionConfiguration = this.Parse(brokerUri);
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
@@ -51,21 +62,29 @@
 
             if (!NServiceBus.Configure.Transactions.Enabled)
             {
-                RegisterNoneTransactionSessionFactory(config, brokerUri);
+                RegisterNoneTransactionSessionFactory(config, connectionConfiguration[UriKey]);
             }
             else
             {
                 if (NServiceBus.Configure.Transactions.Advanced().SuppressDistributedTransactions)
                 {
-                    RegisterActiveMQManagedTransactionSessionFactory(config, brokerUri);
+                    RegisterActiveMQManagedTransactionSessionFactory(config, connectionConfiguration[UriKey]);
                 }
                 else
                 {
-                    RegisterDTCManagedTransactionSessionFactory(config, brokerUri);
+                    RegisterDTCManagedTransactionSessionFactory(config, connectionConfiguration);
                 }
             }
 
             EndpointInputQueueCreator.Enabled = true;
+        }
+
+        private Dictionary<string, string> Parse(string brokerUri)
+        {
+            var parts = brokerUri.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.ToDictionary(
+                p => p.Split('=')[0].Trim().ToLowerInvariant(), 
+                p => p.Substring(p.IndexOf("=", StringComparison.InvariantCultureIgnoreCase) + 1).Trim());
         }
 
         private static void RegisterNoneTransactionSessionFactory(Configure config, string brokerUri)
@@ -92,9 +111,12 @@
             config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
         }
 
-        private static void RegisterDTCManagedTransactionSessionFactory(Configure config, string brokerUri)
+        private static void RegisterDTCManagedTransactionSessionFactory(Configure config, Dictionary<string, string> connectionConfiguration)
         {
-            var connectionFactory = new NetTxConnectionFactory(brokerUri)
+            NetTxConnection.ConfiguredResourceManagerId = connectionConfiguration.ContainsKey(ResourceManagerIdKey) 
+                ? new Guid(connectionConfiguration[ResourceManagerIdKey])
+                : DefaultResourceManagerId;
+            var connectionFactory = new NetTxConnectionFactory(connectionConfiguration[UriKey])
             {
                 AcknowledgementMode = AcknowledgementMode.Transactional
             };
@@ -106,7 +128,26 @@
 
         protected override string ExampleConnectionStringForErrorMessage
         {
-            get { return "activemq:tcp://localhost:61616"; }
+            get { return "Url = activemq:tcp://localhost:61616; ResourceManagerId = 2f2c3321-f251-4975-802d-11fc9d9e5e37"; }
+        }
+
+        public static Guid DefaultResourceManagerId
+        {
+            get
+            {
+                var resourceManagerId = "ActiveMQ" + Address.Local + "-" + NServiceBus.Configure.DefineEndpointVersionRetriever();
+                return DeterministicGuidBuilder(resourceManagerId);
+            }
+        }
+
+        static Guid DeterministicGuidBuilder(string input)
+        {
+            //use MD5 hash to get a 16-byte hash of the string
+            var provider = new MD5CryptoServiceProvider();
+            byte[] inputBytes = Encoding.Default.GetBytes(input);
+            byte[] hashBytes = provider.ComputeHash(inputBytes);
+            //generate a guid from the hash:
+            return new Guid(hashBytes);
         }
     }
 }
