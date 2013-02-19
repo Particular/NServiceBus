@@ -9,7 +9,7 @@
 	Rename-Item Messaging.$transport\Messaging.Msmq.sln Messaging.$transport.sln
     
     (dir -Path .\Messaging.$transport -Filter *.config -Recurse) | foreach {  
-        Replace $_.FullName "cache=true" $connectionString
+        Replace $_.FullName "cacheSendConnection=true" $connectionString
     }
         
     Replace "Messaging.$transport\MyWebClient\Global.asax.cs" "UseTransport<Msmq>" "UseTransport<$transport>"
