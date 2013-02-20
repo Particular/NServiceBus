@@ -119,17 +119,17 @@
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
             else
-            {
-                if (database == null)
-                {
-                    database = databaseNamingConvention();
-                }
-
+            {   
                 store.Url = RavenPersistenceConstants.DefaultUrl;
                 store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
             }
 
-            if (database != null)
+            if (database == null)
+            {
+                database = databaseNamingConvention();
+            }
+
+            if (store.DefaultDatabase == null)
             {
                 store.DefaultDatabase = database;
             }
