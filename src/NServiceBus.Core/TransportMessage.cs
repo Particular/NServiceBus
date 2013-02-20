@@ -61,7 +61,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets/sets the uniqe identifier of another message bundle
+        /// Gets/sets the unique identifier of another message bundle
         /// this message bundle is associated with.
         /// </summary>
         public string CorrelationId { get; set; }

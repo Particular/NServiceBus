@@ -24,7 +24,7 @@
             @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
 			DELETE FROM message 
 			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.TimeToBeReceived, deleted.Headers, deleted.Body;";
+			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
         private const string SqlPurge = @"DELETE FROM [{0}]";
 
         private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
@@ -168,6 +168,8 @@
 
                 try
                 {
+                    bool commit;
+
                     if (settings.IsTransactional)
                     {
                         if (settings.DontUseDistributedTransactions)
@@ -177,7 +179,7 @@
                                 connection.Open();
                                 using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
                                 {
-                                    message = Receive(connection, transaction);
+                                    message = Receive(connection, out commit, transaction);
 
                                     if (message != null)
                                     {
@@ -195,6 +197,10 @@
                                             transaction.Rollback();
                                         }
                                     }
+                                    else if (commit)
+                                    {
+                                        transaction.Commit();
+                                    }
                                 }
                             }
                         }
@@ -205,7 +211,7 @@
                                 using (var connection = new SqlConnection(ConnectionString))
                                 {
                                     connection.Open();
-                                    message = Receive(connection);
+                                    message = Receive(connection, out commit);
 
                                     if (message != null)
                                     {
@@ -213,6 +219,10 @@
                                         {
                                             scope.Complete();
                                         }
+                                    }
+                                    else if (commit)
+                                    {
+                                        scope.Complete();
                                     }
                                 }
                             }
@@ -223,7 +233,7 @@
                         using (var connection = new SqlConnection(ConnectionString))
                         {
                             connection.Open();
-                            message = Receive(connection);
+                            message = Receive(connection, out commit);
                         }
                         if (message != null)
                         {
@@ -242,7 +252,7 @@
             }
         }
 
-        private TransportMessage Receive(SqlConnection connection, SqlTransaction transaction = null)
+        private TransportMessage Receive(SqlConnection connection, out bool commit, SqlTransaction transaction = null)
         {
             using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
             {
@@ -255,17 +265,26 @@
                 {
                     if (dataReader.Read())
                     {
-                        string id = dataReader.GetGuid(0).ToString();
+                        var id = dataReader.GetGuid(0).ToString();
+                        var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                        var replyToAddress = Address.Parse(dataReader.GetString(2));
+                        var recoverable = dataReader.GetBoolean(3);
+                        var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
+                        var body = dataReader.GetSqlBinary(6).Value;
 
-                        string correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-                        Address replyToAddress = Address.Parse(dataReader.GetString(2));
-                        bool recoverable = dataReader.GetBoolean(3);
+                        commit = true;
 
-                       
-                        TimeSpan timeToBeReceived = TimeSpan.FromTicks(dataReader.GetInt64(4));
-                        var headers =
-                            Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
-                        byte[] body = dataReader.GetSqlBinary(6).Value;
+                        DateTime? expireDateTime = null;
+                        if (!dataReader.IsDBNull(4))
+                        {
+                            expireDateTime = dataReader.GetDateTime(4);
+                        }
+
+                        //Has message expired?
+                        if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
+                        {
+                            return null;
+                        }
 
                         var message = new TransportMessage
                             {
@@ -273,16 +292,21 @@
                                 CorrelationId = correlationId,
                                 ReplyToAddress = replyToAddress,
                                 Recoverable = recoverable,
-                                TimeToBeReceived = timeToBeReceived,
                                 Headers = headers,
                                 Body = body
                             };
+
+                        if (expireDateTime.HasValue)
+                        {
+                            message.TimeToBeReceived = TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
+                        }
 
                         return message;
                     }
                 }
             }
 
+            commit = false;
             return null;
         }
 

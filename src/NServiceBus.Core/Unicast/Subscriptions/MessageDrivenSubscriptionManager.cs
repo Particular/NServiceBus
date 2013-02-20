@@ -26,6 +26,9 @@
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
+            if (publisherAddress == Address.Undefined)
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+
             Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
             var subscriptionMessage = CreateControlMessage(eventType);
@@ -38,6 +41,9 @@
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
+            if (publisherAddress == Address.Undefined)
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
+          
             Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
 
             var subscriptionMessage = CreateControlMessage(eventType);

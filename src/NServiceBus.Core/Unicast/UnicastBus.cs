@@ -416,9 +416,6 @@ namespace NServiceBus.Unicast
             if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
 
-            if (destination == Address.Undefined)
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
-
             SubscriptionManager.Subscribe(messageType, destination);
 
             if (SubscriptionPredicatesEvaluator != null)
@@ -445,9 +442,6 @@ namespace NServiceBus.Unicast
             AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);
-
-            if (destination == Address.Undefined)
-                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
 
             SubscriptionManager.Unsubscribe(messageType, destination);
         }
