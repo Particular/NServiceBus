@@ -97,25 +97,28 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             timeToDelayNextPeek = 0;
 
-            return DeserializeMessage(rawMessage);
+            var msg = DeserializeMessage(rawMessage);
+
+            if (!useTransactions || Transaction.Current == null)
+                DeleteMessage(rawMessage);
+            else
+                Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, rawMessage),EnlistmentOptions.None);
+
+            return msg;
         }
 
         private CloudQueueMessage GetMessage()
         {
             if (messages.Count == 0)
             {
-                var receivedMessages = queue.GetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize));
-
-                foreach(var receivedMessage in receivedMessages)
-                {
-                    if (!useTransactions || Transaction.Current == null)
-                        DeleteMessage(receivedMessage);
-                    else
-                        Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, receivedMessage),
-                                                            EnlistmentOptions.None);
-
-                    messages.Enqueue(receivedMessage);
-                }
+                var callback = new AsyncCallback(ar =>{
+                    var receivedMessages = queue.EndGetMessages(ar);
+                    foreach (var receivedMessage in receivedMessages)
+                    {
+                        messages.Enqueue(receivedMessage);
+                    }
+                });
+               queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), callback, null);
             }
 
             return messages.Count != 0 ? messages.Dequeue() : null;

@@ -27,9 +27,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
             catch (StorageClientException ex)
             {
-                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound ) throw;
+                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound) throw;
             }
-
             enlistment.Done();
         }
 

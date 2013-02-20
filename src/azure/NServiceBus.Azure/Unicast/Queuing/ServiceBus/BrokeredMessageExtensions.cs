@@ -34,7 +34,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 // There is nothing we can do as the object has already been disposed elsewhere
             }
-
             return false;
         }
 
@@ -64,8 +63,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 // There is nothing we can do as the object has already been disposed elsewhere
             }
-
-
             return false;
         }
     }
