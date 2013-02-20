@@ -32,12 +32,6 @@
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
             
-            config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
-                  .ConfigureProperty(p => p.Disabled, false);
-            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementJobProcessor>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementCommands>(DependencyLifecycle.SingleInstance);
-
             config.Configurer.ConfigureComponent<ActiveMqSubscriptionStorage>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<SubscriptionManager>(DependencyLifecycle.SingleInstance);
 
@@ -62,6 +56,12 @@
 
             if (!NServiceBus.Configure.Transactions.Enabled)
             {
+                config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
+                      .ConfigureProperty(p => p.Disabled, false);
+                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementJobProcessor>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementCommands>(DependencyLifecycle.SingleInstance);
+
                 RegisterNoneTransactionSessionFactory(config, connectionConfiguration[UriKey]);
             }
             else
@@ -143,11 +143,13 @@
         static Guid DeterministicGuidBuilder(string input)
         {
             //use MD5 hash to get a 16-byte hash of the string
-            var provider = new MD5CryptoServiceProvider();
-            byte[] inputBytes = Encoding.Default.GetBytes(input);
-            byte[] hashBytes = provider.ComputeHash(inputBytes);
-            //generate a guid from the hash:
-            return new Guid(hashBytes);
+            using (var provider = new MD5CryptoServiceProvider())
+            {
+                byte[] inputBytes = Encoding.Default.GetBytes(input);
+                byte[] hashBytes = provider.ComputeHash(inputBytes);
+                //generate a guid from the hash:
+                return new Guid(hashBytes);
+            }
         }
     }
 }
