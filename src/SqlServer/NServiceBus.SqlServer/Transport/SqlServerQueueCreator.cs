@@ -12,11 +12,11 @@ namespace NServiceBus.SQLServer.Transport
                     CREATE TABLE [dbo].[{0}](
 	                    [Id] [uniqueidentifier] NOT NULL,
 	                    [CorrelationId] [varchar](255) NULL,
-	                    [ReplyToAddress] [varchar](255) NOT NULL,
+	                    [ReplyToAddress] [varchar](255) NULL,
 	                    [Recoverable] [bit] NOT NULL,
-	                    [TimeToBeReceived] [bigint] NULL,
+	                    [Expires] [datetime] NULL,
 	                    [Headers] [varchar](8000) NOT NULL,
-	                    [Body] [varbinary](max) NOT NULL,
+	                    [Body] [varbinary](max) NULL,
 	                    [TimeStamp] [timestamp]
                     ) ON [PRIMARY];                    
 
