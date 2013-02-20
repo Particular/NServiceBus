@@ -99,13 +99,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\core\NServiceBus\NServiceBus.csproj">
-      <Project>{73867D40-8CBB-48E9-BFFA-12BBDD48A341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.ActiveMQ\NServiceBus.ActiveMQ.csproj">
       <Project>{6FC67824-B465-4796-828E-76E5BF4F0D54}</Project>
