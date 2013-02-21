@@ -174,62 +174,16 @@
                     {
                         if (settings.DontUseDistributedTransactions)
                         {
-                            using (var connection = new SqlConnection(ConnectionString))
-                            {
-                                connection.Open();
-                                using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
-                                {
-                                    message = ReceiveWithNativeTransaction(connection, transaction);
-
-                                    if (message == null)
-                                    {
-                                        transaction.Commit();
-                                        return;
-                                    }
-
-                                    if (MessageSender != null)
-                                    {
-                                        MessageSender.SetTransaction(transaction);
-                                    }
-
-                                    if (tryProcessMessage(message))
-                                    {
-                                        transaction.Commit();
-                                    }
-                                    else
-                                    {
-                                        transaction.Rollback();
-                                    }
-                                }
-                            }
+                            message = TryReceiveWithNativeTransaction();
                         }
                         else
                         {
-                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                            {
-                                message = Receive();
-
-                                if (message == null)
-                                {
-                                    scope.Complete();
-                                    return;
-                                }
-
-                                if (tryProcessMessage(message))
-                                {
-                                    scope.Complete();
-                                }
-                            }
+                            message = TryReceiveWithDTCTransaction();
                         }
                     }
                     else
                     {
-                        message = Receive();
-
-                        if (message != null)
-                        {
-                            tryProcessMessage(message);
-                        }
+                        message = TryReceiveWithNoTransaction();
                     }
                 }
                 catch (Exception ex)
@@ -241,8 +195,82 @@
                     endProcessMessage(message != null ? message.Id : null, exception);
                 }
 
-                Thread.Sleep(1000);
+                if (message == null)
+                    Backoff();
             }
+        }
+
+        void Backoff()
+        {
+            //todo: make this a incremental backoff instead
+            Thread.Sleep(1000);
+        }
+
+        TransportMessage TryReceiveWithNoTransaction()
+        {
+            var message = Receive();
+
+            if (message != null)
+            {
+                tryProcessMessage(message);
+            }
+            return message;
+        }
+
+        TransportMessage TryReceiveWithDTCTransaction()
+        {
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            {
+                var message = Receive();
+
+                if (message == null)
+                {
+                    scope.Complete();
+                    return null;
+                }
+
+                if (tryProcessMessage(message))
+                {
+                    scope.Complete();
+                }
+
+                return message;
+            }
+           
+        }
+
+        TransportMessage TryReceiveWithNativeTransaction()
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
+                {
+                    var message = ReceiveWithNativeTransaction(connection, transaction);
+
+                    if (message == null)
+                    {
+                        transaction.Commit();
+                        return null;
+                    }
+
+                    if (MessageSender != null)
+                    {
+                        MessageSender.SetTransaction(transaction);
+                    }
+
+                    if (tryProcessMessage(message))
+                    {
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                    }
+                    return message;
+                }
+            }
+          
         }
 
         private TransportMessage Receive()
