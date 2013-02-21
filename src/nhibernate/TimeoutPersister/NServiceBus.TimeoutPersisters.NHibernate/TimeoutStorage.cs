@@ -86,6 +86,7 @@
 
                 if (te == null)
                 {
+					tx.Commit();
                     timeoutData = null;
                     return false;
                 }
