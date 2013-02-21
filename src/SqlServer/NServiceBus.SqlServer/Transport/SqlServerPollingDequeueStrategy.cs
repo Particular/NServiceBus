@@ -304,21 +304,23 @@
                     var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
                     var replyToAddress = Address.Parse(dataReader.GetString(2));
                     var recoverable = dataReader.GetBoolean(3);
-                    var headers =
-                        Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
-                    var body = dataReader.GetSqlBinary(6).Value;
-
+                   
                     DateTime? expireDateTime = null;
                     if (!dataReader.IsDBNull(4))
                     {
                         expireDateTime = dataReader.GetDateTime(4);
                     }
 
+
                     //Has message expired?
                     if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
                     {
                         return null;
                     }
+
+                    var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
+
+                    var body = dataReader.IsDBNull(6) ? null : dataReader.GetSqlBinary(6).Value;
 
                     var message = new TransportMessage
                         {
