@@ -103,6 +103,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                         sent = true;
                     }
                 }
+                catch (MessagingEntityDisabledException)
+                {
+                   // numRetries++;
+
+                   // if (numRetries >= MaxDeliveryCount) throw;
+
+                   // Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
+
+                    sent = true; // todo, outbox
+                }
                     // back off when we're being throttled
                 catch (ServerBusyException)
                 {

@@ -70,6 +70,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     _tryProcessMessage(receivedMessage);
                 }
             }
+            catch (MessagingEntityDisabledException)
+            {
+                if (cancelRequested) return;
+
+                Thread.Sleep(TimeSpan.FromSeconds(BackoffTimeInSeconds));
+            }
             catch (ServerBusyException)
             {
                 if (cancelRequested) return;

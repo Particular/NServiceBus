@@ -149,6 +149,22 @@ namespace NServiceBus.Config
              }
         }
 
+        [ConfigurationProperty("EnableDeadLetteringOnFilterEvaluationExceptions", IsRequired = false, DefaultValue = AzureServicebusDefaults.EnableDeadLetteringOnFilterEvaluationExceptions)]
+        public bool EnableDeadLetteringOnFilterEvaluationExceptions
+        {
+             get
+             {
+                 return (bool)this["EnableDeadLetteringOnFilterEvaluationExceptions"];
+             }
+             set
+             {
+                 this["EnableDeadLetteringOnFilterEvaluationExceptions"] = value;
+             }
+        }
+
+
+        
+
         [ConfigurationProperty("DuplicateDetectionHistoryTimeWindow", IsRequired = false, DefaultValue = AzureServicebusDefaults.DefaultDuplicateDetectionHistoryTimeWindow)]
         public int DuplicateDetectionHistoryTimeWindow
         {

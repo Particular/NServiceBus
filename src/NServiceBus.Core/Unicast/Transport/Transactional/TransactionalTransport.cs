@@ -213,7 +213,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             Receiver.Start(maximumConcurrencyLevel);
         }
 
-        [DebuggerNonUserCode]
+     //   [DebuggerNonUserCode]
         bool TryProcess(TransportMessage message)
         {
             currentReceivePerformanceDiagnostics.MessageDequeued();

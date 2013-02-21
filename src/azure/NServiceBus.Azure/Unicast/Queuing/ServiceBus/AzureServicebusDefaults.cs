@@ -43,6 +43,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <summary>
         /// 
         /// </summary>
+        public const bool EnableDeadLetteringOnFilterEvaluationExceptions = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public const int DefaultDuplicateDetectionHistoryTimeWindow = 600000;
 
         /// <summary>

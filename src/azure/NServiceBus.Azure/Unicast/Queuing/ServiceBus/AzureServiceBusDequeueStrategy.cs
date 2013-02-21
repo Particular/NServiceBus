@@ -18,6 +18,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         private Action<string, Exception> _endProcessMessage;
         private TransactionOptions _transactionOptions;
 
+        public Func<INotifyReceivedMessages> CreateNotifier = () => Configure.Instance.Builder.Build<AzureServiceBusQueueNotifier>();
+
         private readonly IList<INotifyReceivedMessages> _notifiers = new List<INotifyReceivedMessages>();
 
         /// <summary>
@@ -64,8 +66,17 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         void CreateAndStartNotifier()
         {
-            var notifier = Configure.Instance.Builder.Build<INotifyReceivedMessages>();
-            notifier.Start(_address, TryProcessMessage);
+            var notifier = CreateNotifier();
+            TrackNotifier(_address, notifier);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="notifier"></param>
+        public void TrackNotifier(Address address, INotifyReceivedMessages notifier)
+        {
+            notifier.Start(address, TryProcessMessage);
             _notifiers.Add(notifier);
         }
 

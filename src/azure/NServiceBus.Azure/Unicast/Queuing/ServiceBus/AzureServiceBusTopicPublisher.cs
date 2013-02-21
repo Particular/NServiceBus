@@ -24,7 +24,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
-            var topic = Address.Self + ".events"; // how?
+            var topic = Address.Local.Queue + ".events"; // how?
 
             var sender = GetTopicClientForDestination(topic);
 
@@ -50,6 +50,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 {
                     SendTo(message, sender);
                     sent = true;
+                }
+                catch (MessagingEntityDisabledException)
+                {
+                   // numRetries++;
+
+                   // if (numRetries >= MaxDeliveryCount) throw;
+
+                   // Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
+
+                    sent = true; // todo, outbox
                 }
                 // back off when we're being throttled
                 catch (ServerBusyException)

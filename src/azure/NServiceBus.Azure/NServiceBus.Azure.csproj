@@ -120,6 +120,7 @@
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusTopicSubscriptionManager.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\BrokeredMessageConverter.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\BrokeredMessageExtensions.cs" />
+    <Compile Include="Unicast\Queuing\ServiceBus\ICreateSubscriptionClients.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\INotifyReceivedMessages.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\QueueClientCreator.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\ReceiveResourceManager.cs" />

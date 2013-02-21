@@ -1,4 +1,5 @@
 using System;
+using System.Transactions;
 using Microsoft.ServiceBus.Messaging;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
@@ -34,6 +35,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             {
                 // There is nothing we can do as the object has already been disposed elsewhere
             }
+            catch (TransactionException)
+            {
+                // 
+            }
             return false;
         }
 
@@ -62,6 +67,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             catch (ObjectDisposedException)
             {
                 // There is nothing we can do as the object has already been disposed elsewhere
+            }
+            catch (TransactionException)
+            {
+                // 
             }
             return false;
         }
