@@ -2,11 +2,11 @@
 {
     using System;
     using Unicast.Subscriptions;
-    using global::RabbitMQ.Client;
+
 
     public class RabbitMqSubscriptionManager : IManageSubscriptions
     {
-        public IConnection Connection { get; set; }
+        public IManageRabbitMqConnections ConnectionManager { get; set; }
 
         public string EndpointQueueName { get; set; }
 
@@ -16,7 +16,7 @@
         {
             var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
-            using (var channel = Connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration,"subscriptions").CreateModel())
             {
                 channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress), routingKey);
             }
@@ -26,7 +26,7 @@
         {
             var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
-            using (var channel = Connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration, "subscriptions").CreateModel())
             {
                 channel.QueueUnbind(EndpointQueueName, ExchangeName(publisherAddress), routingKey, null);
             }

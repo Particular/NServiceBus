@@ -8,8 +8,7 @@
 
     public class RabbitMqUnitOfWork
     {
-
-        public IConnection Connection { get; set; }
+        public IManageRabbitMqConnections ConnectionManager{ get; set; }
 
         public void Add(Action<IModel> action)
         {
@@ -17,7 +16,7 @@
 
             if (transaction == null)
             {
-                using (var channel = Connection.CreateModel())
+                using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish, "defaultpublisher").CreateModel())
                     action(channel);
                
                 return;
@@ -55,7 +54,7 @@
             if (!actions.Any())
                 return;
 
-            using (var channel = Connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish, "defaultpublisher").CreateModel())
             {
                 foreach (var action in actions)
                 {

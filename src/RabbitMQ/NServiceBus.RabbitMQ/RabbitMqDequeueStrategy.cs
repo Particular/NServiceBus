@@ -18,7 +18,8 @@
         /// <summary>
         /// The connection to the RabbitMQ broker
         /// </summary>
-        public IConnection Connection { get; set; }
+        public IManageRabbitMqConnections ConnectionManager { get; set; }
+
 
         /// <summary>
         /// Determines if the queue should be purged when the transport starts
@@ -93,7 +94,7 @@
         {
             var cancellationToken = (CancellationToken)obj;
 
-            using (var channel = Connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Consume, workQueue).CreateModel())
             {
                 channel.BasicQos(0, 1, false);
 
@@ -149,7 +150,7 @@
 
         void Purge()
         {
-            using (var channel = Connection.CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration,"purger").CreateModel())
             {
                 channel.QueuePurge(workQueue);
             }

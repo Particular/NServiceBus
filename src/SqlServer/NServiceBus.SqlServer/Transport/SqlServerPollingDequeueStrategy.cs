@@ -48,10 +48,13 @@
         public string ConnectionString { get; set; }
 
         /// <summary>
-        ///     Determines if the queue should be purged when the transport starts
+        ///     Determines if the queue should be purged when the transport starts.
         /// </summary>
         public bool PurgeOnStartup { get; set; }
 
+        /// <summary>
+        /// SqlServer <see cref="ISendMessages"/>.
+        /// </summary>
         public SqlServerMessageSender MessageSender { get; set; }
         
         /// <summary>
@@ -123,8 +126,7 @@
             {
                 connection.Open();
 
-                using (
-                    var command = new SqlCommand(string.Format(SqlPurge, tableName), connection)
+                using (var command = new SqlCommand(string.Format(SqlPurge, tableName), connection)
                         {
                             CommandType = CommandType.Text
                         })
@@ -168,77 +170,20 @@
 
                 try
                 {
-                    bool commit;
-
                     if (settings.IsTransactional)
                     {
                         if (settings.DontUseDistributedTransactions)
                         {
-                            using (var connection = new SqlConnection(ConnectionString))
-                            {
-                                connection.Open();
-                                using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
-                                {
-                                    message = Receive(connection, out commit, transaction);
-
-                                    if (message != null)
-                                    {
-                                        if (MessageSender != null)
-                                        {
-                                            MessageSender.SetTransaction(transaction);
-                                        }
-
-                                        if (tryProcessMessage(message))
-                                        {
-                                            transaction.Commit();
-                                        }
-                                        else
-                                        {
-                                            transaction.Rollback();
-                                        }
-                                    }
-                                    else if (commit)
-                                    {
-                                        transaction.Commit();
-                                    }
-                                }
-                            }
+                            message = TryReceiveWithNativeTransaction();
                         }
                         else
                         {
-                            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
-                            {
-                                using (var connection = new SqlConnection(ConnectionString))
-                                {
-                                    connection.Open();
-                                    message = Receive(connection, out commit);
-
-                                    if (message != null)
-                                    {
-                                        if (tryProcessMessage(message))
-                                        {
-                                            scope.Complete();
-                                        }
-                                    }
-                                    else if (commit)
-                                    {
-                                        scope.Complete();
-                                    }
-                                }
-                            }
+                            message = TryReceiveWithDTCTransaction();
                         }
                     }
                     else
                     {
-                        using (var connection = new SqlConnection(ConnectionString))
-                        {
-                            connection.Open();
-                            message = Receive(connection, out commit);
-                        }
-                        if (message != null)
-                        {
-                            tryProcessMessage(message);
-                        }
+                        message = TryReceiveWithNoTransaction();
                     }
                 }
                 catch (Exception ex)
@@ -249,64 +194,154 @@
                 {
                     endProcessMessage(message != null ? message.Id : null, exception);
                 }
+
+                if (message == null)
+                    Backoff();
             }
         }
 
-        private TransportMessage Receive(SqlConnection connection, out bool commit, SqlTransaction transaction = null)
+        void Backoff()
         {
-            using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
+            //todo: make this a incremental backoff instead
+            Thread.Sleep(1000);
+        }
+
+        TransportMessage TryReceiveWithNoTransaction()
+        {
+            var message = Receive();
+
+            if (message != null)
             {
-                if (transaction != null)
+                tryProcessMessage(message);
+            }
+            return message;
+        }
+
+        TransportMessage TryReceiveWithDTCTransaction()
+        {
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
+            {
+                var message = Receive();
+
+                if (message == null)
                 {
-                    command.Transaction = transaction;
+                    scope.Complete();
+                    return null;
                 }
 
-                using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
+                if (tryProcessMessage(message))
                 {
-                    if (dataReader.Read())
+                    scope.Complete();
+                }
+
+                return message;
+            }
+           
+        }
+
+        TransportMessage TryReceiveWithNativeTransaction()
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
+                {
+                    var message = ReceiveWithNativeTransaction(connection, transaction);
+
+                    if (message == null)
                     {
-                        var id = dataReader.GetGuid(0).ToString();
-                        var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-                        var replyToAddress = Address.Parse(dataReader.GetString(2));
-                        var recoverable = dataReader.GetBoolean(3);
-                        var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
-                        var body = dataReader.GetSqlBinary(6).Value;
-
-                        commit = true;
-
-                        DateTime? expireDateTime = null;
-                        if (!dataReader.IsDBNull(4))
-                        {
-                            expireDateTime = dataReader.GetDateTime(4);
-                        }
-
-                        //Has message expired?
-                        if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
-                        {
-                            return null;
-                        }
-
-                        var message = new TransportMessage
-                            {
-                                Id = id,
-                                CorrelationId = correlationId,
-                                ReplyToAddress = replyToAddress,
-                                Recoverable = recoverable,
-                                Headers = headers,
-                                Body = body
-                            };
-
-                        if (expireDateTime.HasValue)
-                        {
-                            message.TimeToBeReceived = TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
-                        }
-
-                        return message;
+                        transaction.Commit();
+                        return null;
                     }
+
+                    if (MessageSender != null)
+                    {
+                        MessageSender.SetTransaction(transaction);
+                    }
+
+                    if (tryProcessMessage(message))
+                    {
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        transaction.Rollback();
+                    }
+                    return message;
+                }
+            }
+          
+        }
+
+        private TransportMessage Receive()
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
+                {
+                    return ExecuteReader(command);
+                }
+            }
+        }
+
+        private TransportMessage ReceiveWithNativeTransaction(SqlConnection connection, SqlTransaction transaction)
+        {
+            using (var command = new SqlCommand(sql, connection, transaction) { CommandType = CommandType.Text })
+            {
+                return ExecuteReader(command);
+            }
+        }
+
+        private static TransportMessage ExecuteReader(SqlCommand command)
+        {
+            using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
+            {
+                if (dataReader.Read())
+                {
+                    var id = dataReader.GetGuid(0).ToString();
+                    var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                    var replyToAddress = Address.Parse(dataReader.GetString(2));
+                    var recoverable = dataReader.GetBoolean(3);
+                   
+                    DateTime? expireDateTime = null;
+                    if (!dataReader.IsDBNull(4))
+                    {
+                        expireDateTime = dataReader.GetDateTime(4);
+                    }
+
+
+                    //Has message expired?
+                    if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
+                    {
+                        return null;
+                    }
+
+                    var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
+
+                    var body = dataReader.IsDBNull(6) ? null : dataReader.GetSqlBinary(6).Value;
+
+                    var message = new TransportMessage
+                        {
+                            Id = id,
+                            CorrelationId = correlationId,
+                            ReplyToAddress = replyToAddress,
+                            Recoverable = recoverable,
+                            Headers = headers,
+                            Body = body
+                        };
+
+                    if (expireDateTime.HasValue)
+                    {
+                        message.TimeToBeReceived =
+                            TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
+                    }
+
+                    return message;
                 }
             }
 
-            commit = false;
             return null;
         }
 

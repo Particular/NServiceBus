@@ -27,49 +27,69 @@
 
         public void Send(TransportMessage message, Address address)
         {
-            using (var connection = new SqlConnection(ConnectionString))
+            if (currentTransaction.IsValueCreated)
             {
-                string sql = string.Format(SqlSend, address.Queue);
-                connection.Open();
-                using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
+                using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), currentTransaction.Value.Connection, currentTransaction.Value)
                 {
-                    if (currentTransaction.IsValueCreated)
-                    {
-                        command.Transaction = currentTransaction.Value;
-                    }
-                    command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = Guid.Parse(message.Id);
-                    command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value = GetValue(message.CorrelationId);
-                    if (message.ReplyToAddress == null) // Sendonly endpoint
-                    {
-                        command.Parameters.Add("ReplyToAddress", SqlDbType.VarChar).Value = DBNull.Value;
-                    }
-                    else
-                    {
-                        command.Parameters.Add("ReplyToAddress", SqlDbType.VarChar).Value = message.ReplyToAddress.ToString();
-                    }
-                    command.Parameters.Add("Recoverable", SqlDbType.Bit).Value = message.Recoverable;
-                    if (message.TimeToBeReceived.Ticks > DateTime.MaxValue.Ticks - DateTime.UtcNow.Ticks ||
-                        message.TimeToBeReceived.Ticks < DateTime.MinValue.Ticks - DateTime.UtcNow.Ticks)
-                    {
-                        command.Parameters.Add("Expires", SqlDbType.DateTime).Value = DBNull.Value;
-                    }
-                    else
-                    {
-                        command.Parameters.Add("Expires", SqlDbType.DateTime).Value = DateTime.UtcNow.Add(message.TimeToBeReceived);
-                    }
-                    command.Parameters.Add("Headers", SqlDbType.VarChar).Value = Serializer.SerializeObject(message.Headers);
-                    if (message.Body == null)
-                    {
-                        command.Parameters.Add("Body", SqlDbType.VarBinary).Value = DBNull.Value;
-                    }
-                    else
-                    {
-                        command.Parameters.Add("Body", SqlDbType.VarBinary).Value = message.Body;
-                    }
-
-                    command.ExecuteNonQuery();
+                    CommandType = CommandType.Text
+                })
+                {
+                    ExecuteQuery(message, command);
                 }
             }
+            else
+            {
+                using (var connection = new SqlConnection(ConnectionString))
+                {
+                    connection.Open();
+                    using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), connection)
+                            {
+                                CommandType = CommandType.Text
+                            })
+                    {
+                        ExecuteQuery(message, command);
+                    }
+                }
+            }
+        }
+
+        private static void ExecuteQuery(TransportMessage message, SqlCommand command)
+        {
+            command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = Guid.Parse(message.Id);
+            command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value =
+                GetValue(message.CorrelationId);
+            if (message.ReplyToAddress == null) // Sendonly endpoint
+            {
+                command.Parameters.Add("ReplyToAddress", SqlDbType.VarChar).Value = DBNull.Value;
+            }
+            else
+            {
+                command.Parameters.Add("ReplyToAddress", SqlDbType.VarChar).Value =
+                    message.ReplyToAddress.ToString();
+            }
+            command.Parameters.Add("Recoverable", SqlDbType.Bit).Value = message.Recoverable;
+            if (message.TimeToBeReceived.Ticks > DateTime.MaxValue.Ticks - DateTime.UtcNow.Ticks ||
+                message.TimeToBeReceived.Ticks < DateTime.MinValue.Ticks - DateTime.UtcNow.Ticks)
+            {
+                command.Parameters.Add("Expires", SqlDbType.DateTime).Value = DBNull.Value;
+            }
+            else
+            {
+                command.Parameters.Add("Expires", SqlDbType.DateTime).Value =
+                    DateTime.UtcNow.Add(message.TimeToBeReceived);
+            }
+            command.Parameters.Add("Headers", SqlDbType.VarChar).Value =
+                Serializer.SerializeObject(message.Headers);
+            if (message.Body == null)
+            {
+                command.Parameters.Add("Body", SqlDbType.VarBinary).Value = DBNull.Value;
+            }
+            else
+            {
+                command.Parameters.Add("Body", SqlDbType.VarBinary).Value = message.Body;
+            }
+
+            command.ExecuteNonQuery();
         }
 
         public void SetTransaction(SqlTransaction transaction)

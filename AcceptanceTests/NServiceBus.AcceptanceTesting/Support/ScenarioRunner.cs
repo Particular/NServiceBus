@@ -296,8 +296,8 @@
 
         static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehaviour endpointBehaviour)
         {
-            var endpointName = Conventions.EndpointNamingConvention(endpointBehaviour.EndpointBuilderType) + "." + runDescriptor.Key + "." +
-                               runDescriptor.Permutation;
+            var endpointName = Conventions.EndpointNamingConvention(endpointBehaviour.EndpointBuilderType) + "." +
+                               runDescriptor.Key;
             return endpointName;
         }
 
