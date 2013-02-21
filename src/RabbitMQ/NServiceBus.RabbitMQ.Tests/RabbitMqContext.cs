@@ -12,7 +12,7 @@
     {
         protected void MakeSureQueueExists(string queueName)
         {
-            using (var channel = ConnectionManager.GetConnection().CreateModel())
+            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration,"create_queue").CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
@@ -24,7 +24,7 @@
             if (exchangeName == "amq.topic")
                 return;
 
-            var connection = ConnectionManager.GetConnection();
+            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration, "create_exchange");
             using (var channel = connection.CreateModel())
             {
                 try
@@ -58,19 +58,18 @@
         public void SetUp()
         {
             receivedMessages = new BlockingCollection<TransportMessage>();
-            ConnectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
-            var connection = ConnectionManager.GetConnection();
+            connectionManager = new DefaultRabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
 
-            unitOfWork = new RabbitMqUnitOfWork { Connection = connection };
+            unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager };
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 
-            dequeueStrategy = new RabbitMqDequeueStrategy { Connection = connection, PurgeOnStartup = true };
+            dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
             MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE)));
-         
+
             MessagePublisher = new RabbitMqMessagePublisher
                 {
                     UnitOfWork = unitOfWork,
@@ -78,7 +77,7 @@
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
             {
-                Connection = connection,
+                ConnectionManager = connectionManager,
                 EndpointQueueName = MYRECEIVEQUEUE,
                 ExchangeName = ExchangeNameConvention
             };
@@ -96,7 +95,7 @@
         [TearDown]
         public void TearDown()
         {
-            ConnectionManager.Dispose();
+            connectionManager.Dispose();
 
             if (dequeueStrategy != null)
                 dequeueStrategy.Stop();
@@ -124,7 +123,7 @@
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
-        protected RabbitMqConnectionManager ConnectionManager;
+        protected DefaultRabbitMqConnectionManager connectionManager;
         protected RabbitMqMessageSender sender;
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;

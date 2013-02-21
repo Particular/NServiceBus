@@ -13,13 +13,14 @@
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
-            var builder = new RabbitMqConnectionStringBuilder(connectionString);
+            if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
+            {
+                var builder = new RabbitMqConnectionStringBuilder(connectionString);
 
-            var connectionFactory = builder.BuildConnectionFactory();
-            var connectionManager = new RabbitMqConnectionManager(connectionFactory);
-            config.Configurer.RegisterSingleton<RabbitMqConnectionManager>(connectionManager);
-
-            config.Configurer.ConfigureComponent(b =>b.Build<RabbitMqConnectionManager>().GetConnection(), DependencyLifecycle.SingleInstance);
+                var connectionFactory = builder.BuildConnectionFactory();
+                var connectionManager = new DefaultRabbitMqConnectionManager(connectionFactory);
+                config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);                
+            }
 
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
