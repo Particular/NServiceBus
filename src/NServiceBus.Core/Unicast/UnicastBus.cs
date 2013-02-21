@@ -1375,6 +1375,11 @@ namespace NServiceBus.Unicast
 
         void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
         {
+            if (modules == null)
+            {
+                return;
+            }
+
             modules.ForEach(module =>
             {
                 Log.Debug("Calling 'HandleError' on " + module.GetType().FullName);
