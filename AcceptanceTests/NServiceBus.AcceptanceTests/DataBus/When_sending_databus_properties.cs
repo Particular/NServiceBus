@@ -7,7 +7,7 @@
     using ScenarioDescriptors;
 
     [TestFixture]
-    public class When_sending_databus_properties:NServiceBusIntegrationTest
+    public class When_sending_databus_properties:NServiceBusAcceptanceTest
     {
         static byte[] PayloadToSend = new byte[1024 * 1024 * 10];
         [Test]

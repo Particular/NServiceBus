@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Transactions
+﻿namespace NServiceBus.AcceptanceTests.Performance.Receive
 {
     using System;
-    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -10,8 +9,9 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
+    using Transactions;
 
-    public class Receive_performance : NServiceBusIntegrationTest
+    public class Receive_performance : NServiceBusPerformanceTest
     {
         static int NumberOfTestMessages = 10000;
 
@@ -79,13 +79,9 @@
         }
 
 
-        public class Context : ScenarioContext
+        public class Context : PerformanceTestContext
         {
-            public int NumberOfTestMessages;
-
-            public DateTime FirstMessageProcessedAt { get; set; }
-
-            public DateTime LastMessageProcessedAt { get; set; }
+          
 
             public bool Complete { get; set; }
         }
@@ -129,27 +125,11 @@
         {
         }
 
-        static void DisplayTestResults(RunSummary summary,string testCase)
+
+
+        protected static void SendTestMessages(EndpointBehaviorBuilder<Context> b)
         {
-            var c = summary.RunDescriptor.ScenarioContext as Context;
-
-            var messagesPerSecondsProcessed = c.NumberOfTestMessages/
-                                              (c.LastMessageProcessedAt - c.FirstMessageProcessedAt).TotalSeconds;
-
-            Console.Out.WriteLine("Results: {0} messages, {1} msg/s", c.NumberOfTestMessages,messagesPerSecondsProcessed);
-
-            using (var file = new StreamWriter(".\\PerformanceTestResults.txt", true))
-            {
-                file.WriteLine(string.Join(";", summary.RunDescriptor.Key + "-" + testCase, c.NumberOfTestMessages, messagesPerSecondsProcessed));
-            }
+            b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.SendLocal(new MyMessage())));
         }
-
-        static void SendTestMessages(EndpointBehaviorBuilder<Context> b)
-        {
-            b.Given(
-                (bus, context) =>
-                { Parallel.For(0, context.NumberOfTestMessages, (s, c) => { bus.SendLocal(new MyMessage()); }); });
-        }
-
     }
 }

@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_with_dtc_disabled : NServiceBusIntegrationTest
+    public class When_receiving_a_message_with_dtc_disabled : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_escalate_a_single_durable_rm_to_dtc_tx()

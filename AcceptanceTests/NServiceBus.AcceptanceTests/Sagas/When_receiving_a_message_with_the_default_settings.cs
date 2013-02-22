@@ -7,7 +7,7 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusIntegrationTest
+    public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusAcceptanceTest
     {
         static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
 

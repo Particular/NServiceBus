@@ -7,7 +7,7 @@
     using Unicast.Subscriptions;
     using ScenarioDescriptors;
 
-    public class When_publishing_an_event : NServiceBusIntegrationTest
+    public class When_publishing_an_event : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_delivered_to_allsubscribers()

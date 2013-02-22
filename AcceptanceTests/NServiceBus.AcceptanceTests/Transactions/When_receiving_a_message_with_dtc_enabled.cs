@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_with_dtc_enabled : NServiceBusIntegrationTest
+    public class When_receiving_a_message_with_dtc_enabled : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_enlist_the_receive_in_the_dtc_tx()

@@ -7,7 +7,7 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_using_a_received_message_for_timeout : NServiceBusIntegrationTest
+    public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
     {
         [Test]
         public void Timeout_should_be_received_after_expiration()

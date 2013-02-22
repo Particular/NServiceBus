@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_an_event_using_a_broker_transport_with_centralized_routing : NServiceBusIntegrationTest
+    public class When_publishing_an_event_using_a_broker_transport_with_centralized_routing : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_delivered_to_allsubscribers_without_the_need_for_config()

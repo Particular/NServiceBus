@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled : NServiceBusIntegrationTest
+    public class When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()

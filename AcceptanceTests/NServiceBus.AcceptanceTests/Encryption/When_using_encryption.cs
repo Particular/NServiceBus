@@ -9,7 +9,7 @@
     using NUnit.Framework;
     using NServiceBus.AcceptanceTests.ScenarioDescriptors;
 
-    public class When_using_encryption : NServiceBusIntegrationTest
+    public class When_using_encryption : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_decrypted_message()

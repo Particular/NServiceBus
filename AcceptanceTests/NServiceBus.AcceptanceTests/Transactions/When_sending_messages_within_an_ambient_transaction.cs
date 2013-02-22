@@ -9,7 +9,7 @@
     using ScenarioDescriptors;
 
     [TestFixture]
-    public class When_sending_messages_within_an_ambient_transaction : NServiceBusIntegrationTest
+    public class When_sending_messages_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_not_deliver_them_until_the_commit_phase()

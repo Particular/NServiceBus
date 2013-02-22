@@ -8,7 +8,7 @@
     using ScenarioDescriptors;
 
     [TestFixture]
-    public class When_sending_a_message_to_another_endpoint : NServiceBusIntegrationTest
+    public class When_sending_a_message_to_another_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()
