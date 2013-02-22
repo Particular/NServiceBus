@@ -1,7 +1,7 @@
 properties {
 	$ProductVersion = "4.0"
 	$PatchVersion = "0"
-	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
+	$BuildNumber = "0"
 	$PreRelease = "alpha"
 	$NugetKey = ""
 	$UploadPackage = $false
