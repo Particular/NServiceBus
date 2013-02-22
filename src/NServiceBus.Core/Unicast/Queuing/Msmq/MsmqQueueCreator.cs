@@ -73,7 +73,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         ///<param name="queueName">Queue path</param>
         ///<param name="account">The account to be given permissions to the queue</param>
         /// <param name="transactional">If volatileQueues is true then create a non-transactional message queue</param>
-        public static void CreateQueue(string queueName, string account, bool transactional)
+        private static void CreateQueue(string queueName, string account, bool transactional)
         {
             MessageQueue.Create(queueName, transactional);
 
@@ -86,7 +86,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         /// </summary>
         /// <param name="queue"></param>
         /// <param name="account"></param>
-        public static void SetPermissionsForQueue(string queue, string account)
+        private static void SetPermissionsForQueue(string queue, string account)
         {
             var q = new MessageQueue(queue);
 

@@ -24,7 +24,7 @@ namespace NServiceBus.SQLServer.Transport.Config
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
 
-            config.Configurer.ConfigureComponent<SqlServerMessageSender>(DependencyLifecycle.SingleInstance)
+            config.Configurer.ConfigureComponent<SqlServerMessageSender>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
 
             config.Configurer.ConfigureComponent<SqlServerPollingDequeueStrategy>(DependencyLifecycle.InstancePerCall)
