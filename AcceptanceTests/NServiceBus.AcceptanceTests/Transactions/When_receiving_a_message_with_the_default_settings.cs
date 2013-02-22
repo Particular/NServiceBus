@@ -15,7 +15,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Msmq, Transports.SqlServer))
                     .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))
                     .Run();
         }
