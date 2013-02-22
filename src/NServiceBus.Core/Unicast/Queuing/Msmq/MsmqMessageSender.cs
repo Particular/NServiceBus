@@ -2,14 +2,47 @@ namespace NServiceBus.Unicast.Queuing.Msmq
 {
     using System;
     using System.Messaging;
+    using System.Threading;
     using System.Transactions;
     using Config;
 
-    public class MsmqMessageSender : ISendMessages
+    /// <summary>
+    ///     Msmq implementation of <see cref="ISendMessages" />.
+    /// </summary>
+    public class MsmqMessageSender : ISendMessages, IDisposable
     {
-        void ISendMessages.Send(TransportMessage message, Address address)
+        private readonly ThreadLocal<MessageQueueTransaction> currentTransaction =
+            new ThreadLocal<MessageQueueTransaction>();
+
+        private bool disposed;
+
+        /// <summary>
+        ///     The current runtime settings for the transport
+        /// </summary>
+        public MsmqSettings Settings { get; set; }
+
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
         {
-            var queuePath = MsmqUtilities.GetFullPath(address);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        ///     Sends the given <paramref name="message" /> to the <paramref name="address" />.
+        /// </summary>
+        /// <param name="message">
+        ///     <see cref="TransportMessage" /> to send.
+        /// </param>
+        /// <param name="address">
+        ///     Destination <see cref="Address" />.
+        /// </param>
+        public void Send(TransportMessage message, Address address)
+        {
+            string queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -20,9 +53,18 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
 
                         if (message.ReplyToAddress != null)
-                            toSend.ResponseQueue = new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(), address.ToString()));
+                            toSend.ResponseQueue =
+                                new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(),
+                                                                                address.ToString()));
 
-                        q.Send(toSend, GetTransactionTypeForSend());
+                        if (currentTransaction.IsValueCreated)
+                        {
+                            q.Send(toSend, currentTransaction.Value);
+                        }
+                        else
+                        {
+                            q.Send(toSend, GetTransactionTypeForSend());
+                        }
                     }
                 }
             }
@@ -30,7 +72,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
                 {
-                    var msg = address == null
+                    string msg = address == null
                                      ? "Failed to send message. Target address is null."
                                      : string.Format("Failed to send message to address: [{0}]", address);
 
@@ -45,11 +87,16 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             }
         }
 
-
         /// <summary>
-        /// The current runtime settings for the transport
+        ///     Sets the native transaction.
         /// </summary>
-        public MsmqSettings Settings{ get; set; }
+        /// <param name="transaction">
+        ///     Native <see cref="MessageQueueTransaction" />.
+        /// </param>
+        public void SetTransaction(MessageQueueTransaction transaction)
+        {
+            currentTransaction.Value = transaction;
+        }
 
         private static void ThrowFailedToSendException(Address address, Exception ex)
         {
@@ -60,7 +107,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
-        MessageQueueTransactionType GetTransactionTypeForSend()
+        private MessageQueueTransactionType GetTransactionTypeForSend()
         {
             if (!Settings.UseTransactionalQueues)
             {
@@ -71,8 +118,31 @@ namespace NServiceBus.Unicast.Queuing.Msmq
             {
                 return MessageQueueTransactionType.Single;
             }
-            
-            return Transaction.Current != null ? MessageQueueTransactionType.Automatic : MessageQueueTransactionType.Single;
+
+            return Transaction.Current != null
+                       ? MessageQueueTransactionType.Automatic
+                       : MessageQueueTransactionType.Single;
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                currentTransaction.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~MsmqMessageSender()
+        {
+            Dispose(false);
         }
     }
 }

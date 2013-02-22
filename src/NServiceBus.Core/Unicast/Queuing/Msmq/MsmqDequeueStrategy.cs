@@ -23,6 +23,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
+        /// Msmq <see cref="ISendMessages"/>.
+        /// </summary>
+        public MsmqMessageSender MessageSender { get; set; }
+
+        /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
@@ -163,6 +168,11 @@ namespace NServiceBus.Unicast.Queuing.Msmq
                             {
                                 msmqTransaction.Commit();
                                 return;
+                            }
+
+                            if (MessageSender != null)
+                            {
+                                MessageSender.SetTransaction(msmqTransaction);
                             }
 
                             if (ProcessMessage(message))
