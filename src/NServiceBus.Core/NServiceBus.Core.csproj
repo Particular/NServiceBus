@@ -108,7 +108,7 @@
     <Compile Include="ConfigureMasterNode.cs" />
     <Compile Include="ConfigureMsmqMessageQueue.cs" />
     <Compile Include="ConfigureMsmqSubscriptionStorage.cs" />
-    <Compile Include="ConfigureMsmqTransport.cs" />
+    <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="ConfigurePurging.cs" />
     <Compile Include="ConfigureRavenPersistence.cs" />
     <Compile Include="ConfigureRavenSagaPersister.cs" />

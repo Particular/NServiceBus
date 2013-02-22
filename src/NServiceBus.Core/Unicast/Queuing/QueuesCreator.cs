@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Queuing
     using Installation;
     using Installation.Environments;
     using Logging;
-    using NServiceBus.Config;
     using INeedInitialization = NServiceBus.INeedInitialization;
 
     /// <summary>
@@ -20,10 +19,14 @@ namespace NServiceBus.Unicast.Queuing
         public void Install(string identity)
         {
             if (Configure.Endpoint.IsSendOnly)
+            {
                 return;
+            }
 
-            if(MsmqTransportConfig.DoNotCreateQueues)
+            if (ConfigureQueueCreation.DontCreateQueues)
+            {
                 return;
+            }
 
             var wantQueueCreatedInstances = Configure.Instance.Builder.BuildAll<IWantQueueCreated>().ToList();
 

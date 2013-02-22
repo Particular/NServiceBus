@@ -3,7 +3,6 @@ namespace NServiceBus.Satellites
     using System.Linq;
     using Installation;
     using Installation.Environments;
-    using NServiceBus.Config;
     using Unicast.Queuing;
 
     /// <summary>
@@ -24,7 +23,7 @@ namespace NServiceBus.Satellites
                 return;
             }
 
-            if (MsmqTransportConfig.DoNotCreateQueues)
+            if (ConfigureQueueCreation.DontCreateQueues)
             {
                 return;
             }
