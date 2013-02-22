@@ -162,6 +162,7 @@
         private void Action(object obj)
         {
             var cancellationToken = (CancellationToken) obj;
+            var backOff = new BackOff(1000);
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -195,15 +196,8 @@
                     endProcessMessage(message != null ? message.Id : null, exception);
                 }
 
-                if (message == null)
-                    Backoff();
+                backOff.Wait(() => message == null);
             }
-        }
-
-        void Backoff()
-        {
-            //todo: make this a incremental backoff instead
-            Thread.Sleep(1000);
         }
 
         TransportMessage TryReceiveWithNoTransaction()
@@ -311,10 +305,10 @@
                         expireDateTime = dataReader.GetDateTime(4);
                     }
 
-
                     //Has message expired?
                     if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
                     {
+                        Logger.InfoFormat("Message with ID={0} has expired. Removing it from queue.", id);
                         return null;
                     }
 

@@ -485,6 +485,7 @@
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="Utils\CircuitBreaker.cs" />
+    <Compile Include="Utils\BackOff.cs" />
     <Compile Include="Utils\HeaderInfo.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
