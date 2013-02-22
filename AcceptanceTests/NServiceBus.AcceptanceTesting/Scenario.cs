@@ -78,7 +78,7 @@
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds, this.done);
+            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds, this.done, limitTestParallelismTo, reports);
 
             sw.Stop();
 
@@ -88,6 +88,13 @@
         public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
         {
             runDescriptorsBuilderAction = action;
+
+            return this;
+        }
+
+        public IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism)
+        {
+            limitTestParallelismTo = maxParallelism;
 
             return this;
         }
@@ -103,13 +110,22 @@
             return this;
         }
 
+
+        public IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> reportActions)
+        {
+            reports = reportActions;
+            return this;
+        }
+
+        
+        int limitTestParallelismTo;
         readonly IList<EndpointBehaviour> behaviours = new List<EndpointBehaviour>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
 
         Func<TContext> contextFactory = () => Activator.CreateInstance<TContext>();
-
+        Action<RunSummary> reports;
     }
 
     public class ScenarioVerification<T> : IScenarioVerification where T : ScenarioContext

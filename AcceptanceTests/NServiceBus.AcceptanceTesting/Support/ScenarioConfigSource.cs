@@ -20,6 +20,10 @@
         {
             var type = typeof (T);
 
+            if (configuration.UserDefinedConfigSections.ContainsKey(type))
+                return configuration.UserDefinedConfigSections[type] as T;
+
+
             if (type == typeof (MessageForwardingInCaseOfFaultConfig))
                 return new MessageForwardingInCaseOfFaultConfig
                     {

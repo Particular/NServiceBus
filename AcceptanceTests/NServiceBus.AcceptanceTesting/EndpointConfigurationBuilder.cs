@@ -98,5 +98,19 @@
 
 
         readonly EndpointConfiguration configuration = new EndpointConfiguration();
+
+        public EndpointConfigurationBuilder WithConfig<T>(Action<T> action)
+        {
+            var config = Activator.CreateInstance<T>();
+
+            action(config);
+
+            if(configuration.UserDefinedConfigSections == null)
+                configuration.UserDefinedConfigSections = new Dictionary<Type, object>();
+
+            configuration.UserDefinedConfigSections[typeof (T)] = config;
+            
+            return this;
+        }
     }
 }

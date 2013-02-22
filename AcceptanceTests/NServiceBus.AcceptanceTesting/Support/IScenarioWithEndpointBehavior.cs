@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Collections.Generic;
 
     public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
@@ -19,6 +20,11 @@
     public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
         IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should);
+
+        IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> summaries);
+
+
+        IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism);
 
         void Run();
     }

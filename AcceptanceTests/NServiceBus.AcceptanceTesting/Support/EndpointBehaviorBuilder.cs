@@ -50,7 +50,12 @@
             return this;
         }
 
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<Configure> action)
+        {
+            behaviour.CustomConfig.Add(action);
 
+            return this;
+        }
 
         public EndpointBehaviour Build()
         {
@@ -58,5 +63,7 @@
         }
 
         readonly EndpointBehaviour behaviour;
+
+
     }
 }

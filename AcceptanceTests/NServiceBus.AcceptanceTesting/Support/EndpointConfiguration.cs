@@ -16,5 +16,7 @@
         public string AppConfigPath { get; set; }
 
         public Address AddressOfAuditQueue { get; set; }
+
+        public IDictionary<Type,object> UserDefinedConfigSections { get; set; }
     }
 }

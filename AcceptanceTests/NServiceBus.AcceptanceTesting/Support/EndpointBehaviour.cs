@@ -13,6 +13,7 @@
         {
             EndpointBuilderType = builderType;
             EndpointName = Conventions.EndpointNamingConvention(builderType);
+            CustomConfig = new List<Action<Configure>>();
         }
 
         public string EndpointName { get; private set; }
@@ -23,6 +24,8 @@
 
         public List<IGivenDefinition> Givens { get; set; }
         public List<IWhenDefinition> Whens { get; set; }
+
+        public List<Action<Configure>> CustomConfig { get; set; }
     }
 
    

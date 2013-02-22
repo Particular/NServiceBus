@@ -13,7 +13,7 @@
 
     public class ScenarioRunner
     {
-        public static void Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done)
+        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -32,6 +32,9 @@
 
                 po.MaxDegreeOfParallelism = maxParallelism;
             }
+
+            if (limitTestParallelismTo > 0)
+                po.MaxDegreeOfParallelism = limitTestParallelismTo;
 
             var results = new ConcurrentBag<RunSummary>();
 
@@ -83,18 +86,15 @@
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
             {
                 DisplayRunResult(runSummary, totalRuns);
+
+                if (reports != null)
+                    reports(runSummary);
             }
+
+            return results;
         }
 
-        class RunSummary
-        {
-            public RunResult Result { get; set; }
-
-            public RunDescriptor RunDescriptor { get; set; }
-
-            public IEnumerable<EndpointBehaviour> Endpoints { get; set; }
-        }
-
+       
         static void DisplayRunResult(RunSummary summary, int totalRuns)
         {
             var runDescriptor = summary.RunDescriptor;
@@ -347,4 +347,14 @@
 
         IList<string> activeEndpoints;
     }
+
+    public class RunSummary
+    {
+        public RunResult Result { get; set; }
+
+        public RunDescriptor RunDescriptor { get; set; }
+
+        public IEnumerable<EndpointBehaviour> Endpoints { get; set; }
+    }
+
 }

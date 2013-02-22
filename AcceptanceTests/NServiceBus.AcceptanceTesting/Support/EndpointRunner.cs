@@ -27,6 +27,10 @@
 
                 config = configuration.GetConfiguration(run, routingTable);
 
+                //apply custom config settings
+                endpointBehaviour.CustomConfig.ForEach(customAction => customAction(config));
+
+
                 if (scenarioContext != null)
                 {
                     config.Configurer.RegisterSingleton(scenarioContext.GetType(), scenarioContext);
@@ -65,15 +69,16 @@
         {
             try
             {
-                bus.Start();
-
                 foreach (var given in behaviour.Givens)
                 {
                     var action = given.GetAction(scenarioContext);
 
                     action(bus);
                 }
+               
+                bus.Start();
 
+               
                 return Result.Success();
             }
             catch (Exception ex)
