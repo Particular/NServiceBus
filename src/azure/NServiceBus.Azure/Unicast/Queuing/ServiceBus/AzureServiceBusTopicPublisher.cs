@@ -51,15 +51,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     SendTo(message, sender);
                     sent = true;
                 }
+                // todo, outbox
                 catch (MessagingEntityDisabledException)
                 {
-                   // numRetries++;
+                    numRetries++;
 
-                   // if (numRetries >= MaxDeliveryCount) throw;
+                    if (numRetries >= MaxDeliveryCount) throw;
 
-                   // Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
-
-                    sent = true; // todo, outbox
+                    Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
                 }
                 // back off when we're being throttled
                 catch (ServerBusyException)
