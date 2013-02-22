@@ -105,9 +105,6 @@
 
             action(config);
 
-            if(configuration.UserDefinedConfigSections == null)
-                configuration.UserDefinedConfigSections = new Dictionary<Type, object>();
-
             configuration.UserDefinedConfigSections[typeof (T)] = config;
             
             return this;

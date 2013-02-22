@@ -5,6 +5,11 @@
 
     public class EndpointConfiguration
     {
+        public EndpointConfiguration()
+        {
+            UserDefinedConfigSections = new Dictionary<Type, object>();
+        }
+
         public IDictionary<Type, Type> EndpointMappings { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
@@ -17,6 +22,6 @@
 
         public Address AddressOfAuditQueue { get; set; }
 
-        public IDictionary<Type,object> UserDefinedConfigSections { get; set; }
+        public IDictionary<Type,object> UserDefinedConfigSections { get; private set; }
     }
 }
