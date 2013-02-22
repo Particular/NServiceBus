@@ -1,15 +1,15 @@
 namespace NServiceBus.Unicast.Queuing
 {
     /// <summary>
-    /// Abstraction of the capability to send messages
+    /// Abstraction of the capability to send messages.
     /// </summary>
     public interface ISendMessages
     {
         /// <summary>
-        /// Sends the given message to the address.
+        /// Sends the given <paramref name="message"/> to the <paramref name="address"/>.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="address"></param>
+        /// <param name="message"><see cref="TransportMessage"/> to send.</param>
+        /// <param name="address">Destination <see cref="Address"/>.</param>
         void Send(TransportMessage message, Address address);
     }
 }

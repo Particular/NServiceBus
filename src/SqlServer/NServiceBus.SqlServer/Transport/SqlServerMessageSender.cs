@@ -7,6 +7,9 @@
     using Serializers.Json;
     using Unicast.Queuing;
 
+    /// <summary>
+    ///     SqlServer implementation of <see cref="ISendMessages" />.
+    /// </summary>
     public class SqlServerMessageSender : ISendMessages, IDisposable
     {
         private const string SqlSend =
@@ -19,20 +22,35 @@
 
         public string ConnectionString { get; set; }
 
+        /// <summary>
+        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        ///     Sends the given <paramref name="message" /> to the <paramref name="address" />.
+        /// </summary>
+        /// <param name="message">
+        ///     <see cref="TransportMessage" /> to send.
+        /// </param>
+        /// <param name="address">
+        ///     Destination <see cref="Address" />.
+        /// </param>
         public void Send(TransportMessage message, Address address)
         {
             if (currentTransaction.IsValueCreated)
             {
-                using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), currentTransaction.Value.Connection, currentTransaction.Value)
-                {
-                    CommandType = CommandType.Text
-                })
+                using (
+                    var command = new SqlCommand(string.Format(SqlSend, address.Queue),
+                                                 currentTransaction.Value.Connection, currentTransaction.Value)
+                        {
+                            CommandType = CommandType.Text
+                        })
                 {
                     ExecuteQuery(message, command);
                 }
@@ -43,14 +61,25 @@
                 {
                     connection.Open();
                     using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), connection)
-                            {
-                                CommandType = CommandType.Text
-                            })
+                        {
+                            CommandType = CommandType.Text
+                        })
                     {
                         ExecuteQuery(message, command);
                     }
                 }
             }
+        }
+
+        /// <summary>
+        ///     Sets the native transaction.
+        /// </summary>
+        /// <param name="transaction">
+        ///     Native <see cref="SqlTransaction" />.
+        /// </param>
+        public void SetTransaction(SqlTransaction transaction)
+        {
+            currentTransaction.Value = transaction;
         }
 
         private static void ExecuteQuery(TransportMessage message, SqlCommand command)
@@ -90,11 +119,6 @@
             }
 
             command.ExecuteNonQuery();
-        }
-
-        public void SetTransaction(SqlTransaction transaction)
-        {
-            currentTransaction.Value = transaction;
         }
 
         private static object GetValue(object value)

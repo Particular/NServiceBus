@@ -261,6 +261,7 @@
                     {
                         transaction.Rollback();
                     }
+
                     return message;
                 }
             }
@@ -295,9 +296,6 @@
                 if (dataReader.Read())
                 {
                     var id = dataReader.GetGuid(0).ToString();
-                    var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
-                    var replyToAddress = Address.Parse(dataReader.GetString(2));
-                    var recoverable = dataReader.GetBoolean(3);
                    
                     DateTime? expireDateTime = null;
                     if (!dataReader.IsDBNull(4))
@@ -313,8 +311,10 @@
                     }
 
                     var headers = Serializer.DeserializeObject<Dictionary<string, string>>(dataReader.GetString(5));
-
+                    var correlationId = dataReader.IsDBNull(1) ? null : dataReader.GetString(1);
+                    var recoverable = dataReader.GetBoolean(3);
                     var body = dataReader.IsDBNull(6) ? null : dataReader.GetSqlBinary(6).Value;
+                    var replyToAddress = dataReader.IsDBNull(2) ? null : Address.Parse(dataReader.GetString(2));
 
                     var message = new TransportMessage
                         {
@@ -328,8 +328,7 @@
 
                     if (expireDateTime.HasValue)
                     {
-                        message.TimeToBeReceived =
-                            TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
+                        message.TimeToBeReceived = TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
                     }
 
                     return message;
