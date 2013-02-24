@@ -237,10 +237,37 @@
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
-                connection.Open();
+                try
+                {
+                    connection.Open();
+                }
+                catch (Exception ex)
+                {
+                    circuitBreaker.Execute(
+                                    () =>
+                                    Configure.Instance.RaiseCriticalError("Failed to open a sql connection.", ex));
+
+                    throw;
+                }
+
                 using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
                 {
-                    var message = ReceiveWithNativeTransaction(connection, transaction);
+                    TransportMessage message;
+                    try
+                    {
+                        message = ReceiveWithNativeTransaction(connection, transaction);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+
+                        circuitBreaker.Execute(
+                                        () =>
+                                        Configure.Instance.RaiseCriticalError(
+                                            string.Format("Failed to receive message from '{0}'.", tableName), ex));
+
+                        throw;
+                    }
 
                     if (message == null)
                     {
@@ -270,14 +297,25 @@
 
         private TransportMessage Receive()
         {
-            using (var connection = new SqlConnection(ConnectionString))
+            try
             {
-                connection.Open();
-
-                using (var command = new SqlCommand(sql, connection) {CommandType = CommandType.Text})
+                using (var connection = new SqlConnection(ConnectionString))
                 {
-                    return ExecuteReader(command);
+                    connection.Open();
+
+                    using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
+                    {
+                        return ExecuteReader(command);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                circuitBreaker.Execute(
+                                    () =>
+                                    Configure.Instance.RaiseCriticalError(
+                                        string.Format("Failed to receive message from '{0}'.", tableName), ex));
+                throw;
             }
         }
 
