@@ -11,7 +11,7 @@
         {
             var durable = Configure.Endpoint.Advanced().DurableMessages;
 
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration, "create_queue").CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 channel.QueueDeclare(address.Queue, durable, false, false, null);
             }

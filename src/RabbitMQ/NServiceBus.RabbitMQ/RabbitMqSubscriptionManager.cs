@@ -16,7 +16,7 @@
         {
             var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration,"subscriptions").CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress,eventType), routingKey);
             }
@@ -26,7 +26,7 @@
         {
             var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
 
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration, "subscriptions").CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 channel.QueueUnbind(EndpointQueueName, ExchangeName(publisherAddress, eventType), routingKey, null);
             }

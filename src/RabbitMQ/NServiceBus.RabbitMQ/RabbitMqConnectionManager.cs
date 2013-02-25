@@ -5,13 +5,13 @@
     using Logging;
     using global::RabbitMQ.Client;
 
-    public class DefaultRabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
+    public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
     {
         public int MaxRetries { get; set; }
 
         public TimeSpan DelayBetweenRetries { get; set; }
 
-        public DefaultRabbitMqConnectionManager(ConnectionFactory connectionFactory)
+        public RabbitMqConnectionManager(ConnectionFactory connectionFactory)
         {
             MaxRetries = 6;
             DelayBetweenRetries = TimeSpan.FromSeconds(10);
@@ -19,9 +19,9 @@
             this.connectionFactory = connectionFactory;
         }
 
-        public IConnection GetConnection(ConnectionPurpose purpose,string callerId)
+        public IConnection GetConnection(ConnectionPurpose purpose)
         {
-            //note: The purpose+callerId is there so that we/users can add more advanced connection managers in the future
+            //note: The purpose is there so that we/users can add more advanced connection managers in the future
 
             lock (connectionFactory)
             {
@@ -117,7 +117,7 @@
             disposed = true;
         }
 
-        ~DefaultRabbitMqConnectionManager()
+        ~RabbitMqConnectionManager()
         {
             Dispose(false);
         }

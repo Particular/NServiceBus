@@ -12,7 +12,7 @@
     {
         protected void MakeSureQueueExists(string queueName)
         {
-            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration,"create_queue").CreateModel())
+            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
@@ -24,7 +24,7 @@
             if (exchangeName == "amq.topic")
                 return;
 
-            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration, "create_exchange");
+            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
             using (var channel = connection.CreateModel())
             {
                 try
@@ -58,7 +58,7 @@
         public void SetUp()
         {
             receivedMessages = new BlockingCollection<TransportMessage>();
-            connectionManager = new DefaultRabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
+            connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager };
 
@@ -123,7 +123,7 @@
         protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
-        protected DefaultRabbitMqConnectionManager connectionManager;
+        protected RabbitMqConnectionManager connectionManager;
         protected RabbitMqMessageSender sender;
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;

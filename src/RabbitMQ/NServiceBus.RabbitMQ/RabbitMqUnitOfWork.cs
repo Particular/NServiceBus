@@ -16,7 +16,7 @@
 
             if (transaction == null)
             {
-                using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish, "defaultpublisher").CreateModel())
+                using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish).CreateModel())
                     action(channel);
                
                 return;
@@ -54,7 +54,7 @@
             if (!actions.Any())
                 return;
 
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish, "defaultpublisher").CreateModel())
+            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish).CreateModel())
             {
                 foreach (var action in actions)
                 {

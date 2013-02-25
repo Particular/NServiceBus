@@ -18,7 +18,7 @@
                 var builder = new RabbitMqConnectionStringBuilder(connectionString);
 
                 var connectionFactory = builder.BuildConnectionFactory();
-                var connectionManager = new DefaultRabbitMqConnectionManager(connectionFactory);
+                var connectionManager = new RabbitMqConnectionManager(connectionFactory);
                 config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);                
             }
 
