@@ -9,24 +9,33 @@ namespace MyWebClient
 
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static IBus bus;
+
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            Configure.With()
-               .DefaultBuilder()
-               .Log4Net(new DebugAppender{Threshold = Level.Warn})
-               .ForMvc()
-               .XmlSerializer()
-               .UseTransport<Msmq>()
-                   .PurgeOnStartup(true)
-               .UnicastBus()
-                   .ImpersonateSender(false)
-               .CreateBus()
-               .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+            bus = Configure.With()
+                           .DefaultBuilder()
+                           .Log4Net(new DebugAppender {Threshold = Level.Warn})
+                           .ForMvc()
+                           .XmlSerializer()
+                           .UseTransport<Msmq>()
+                           .PurgeOnStartup(true)
+                           .UnicastBus()
+                           .ImpersonateSender(false)
+                           .CreateBus()
+                           .Start(
+                               () =>
+                               Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>()
+                                        .Install());
+        }
+
+        public static IBus Bus
+        {
+            get { return bus; }
         }
     }
 }

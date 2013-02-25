@@ -18,14 +18,16 @@
         public object GetService(Type serviceType)
         {
             if (Configure.Instance.Configurer.HasComponent(serviceType))
+            {
                 return builder.Build(serviceType);
-            else
-                return null;
+            }
+
+            return null;
         }
 
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            return builder.BuildAll(serviceType); 
+            return builder.BuildAll(serviceType);
         }
     }
 }

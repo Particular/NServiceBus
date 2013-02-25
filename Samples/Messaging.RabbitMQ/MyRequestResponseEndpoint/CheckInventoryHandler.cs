@@ -19,7 +19,12 @@
 
             Console.Out.WriteLine("It looks like we have [{0}] video(s) in stock.", String.Join(", ", message.VideoIds));
 
-            Bus.Reply(new InventoryResponse {OrderNumber = message.OrderNumber, VideoIds = message.VideoIds});
+            Bus.Reply(new InventoryResponse
+                {
+                    OrderNumber = message.OrderNumber,
+                    VideoIds = message.VideoIds,
+                    ClientId = message.ClientId
+                });
         }
     }
 }

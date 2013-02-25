@@ -19,10 +19,13 @@
 
             // Register each controller class with the NServiceBus container
             foreach (Type type in controllers)
+            {
                 configure.Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall);
+            }
 
             // Set the MVC dependency resolver to use our resolver
-            DependencyResolver.SetResolver(new NServiceBusDependencyResolverAdapter(configure.Builder));
+            var dependencyResolverAdapter = new NServiceBusDependencyResolverAdapter(configure.Builder);
+            DependencyResolver.SetResolver(dependencyResolverAdapter);
 
             return configure;
         }

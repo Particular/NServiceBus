@@ -1,21 +1,17 @@
-﻿using System.Web.Mvc;
-using System.Web.Routing;
-
-namespace MyWebClient
+﻿namespace MyWebClient
 {
-    using Handlers;
+    using System;
+    using System.Web.Mvc;
+    using System.Web.Routing;
 
     public class RouteConfig
     {
         public static void RegisterRoutes(RouteCollection routes)
         {
+            routes.MapHubs();
+
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            
-            routes.MapRoute("Default", "", new { controller = "Home", action = "Index" });
-
-            routes.MapConnection<OrderConnection>("signalR", "/ordersShipped");
-
-            routes.MapRoute("Others", "{controller}/{action}", new { controller = "Home", action = "Index" });
+            routes.MapRoute("Default", String.Empty, new { controller = "Home", action = "Index" });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿function VideoCtrl($scope, $http) {
+﻿function VideoCtrl($scope) {
     $scope.debug = false;
     $scope.errorMessage = null;
 
@@ -16,12 +16,40 @@
     
     $scope.ordersReceived = [];
 
-    var connection = $.connection('/ordersShipped');
+    var ordersHub = $.connection.ordersHub;
 
-    connection.start();
+    ordersHub.client.orderReceived = function (data) {
+        var selectedVideoTitles = [];
+
+        for (var i = 0; i < data.VideoIds.length; i++) {
+            var id = data.VideoIds[i];
+            for (var j = 0; j < $scope.videos.length; j++) {
+                if ($scope.videos[j].id === id) {
+                    selectedVideoTitles.push($scope.videos[j].title);
+                    break;
+                }
+            }
+        }
+        
+        $scope.$apply(function(scope) {
+            scope.orders.push({ number: data.OrderNumber, titles: selectedVideoTitles, status: 'Pending' });
+        });
+        
+        $('#userWarning')
+            .css({ opacity: 0 })
+            .animate({ opacity: 1 }, 700);
+    };
     
-    connection.received(function (data) {
-
+    ordersHub.client.orderCancelled = function (data) {
+        $scope.$apply(function(scope) {
+            var idx = retrieveOrderIndex(scope, data.OrderNumber);
+            if (idx >= 0) {
+                scope.orders[idx].status = 'Cancelled';
+            }
+        });
+    };
+    
+    ordersHub.client.orderReady = function (data) {
         var items = [];
         
         for (var i = 0; i < data.VideoUrls.length; i++) {
@@ -43,7 +71,9 @@
             }
             scope.ordersReceived.push({ number: data.OrderNumber, items: items });
         });
-    });
+    };
+    
+    $.connection.hub.start();
     
     $scope.cancelOrder = function (number) {
         $scope.errorMessage = null;
@@ -53,15 +83,10 @@
             $scope.orders[idx].status = 'Cancelling';
         }
 
-        $http.post('/CancelOrder', { orderNumber: number }, { timeout: 15000, headers: { 'Debug': $scope.debug } })
-            .success(function (data, status) {
-                var idx = retrieveOrderIndex($scope, data.OrderNumber);
-                if (idx >= 0) {
-                    $scope.orders[idx].status = 'Cancelled';
-                }
-            })
-            .error(function (data, status) {
-                $scope.errorMessage = "Failed to cancel order!";
+        ordersHub.state.debug = $scope.debug;
+        ordersHub.server.cancelOrder(number)
+            .fail(function () {
+                $scope.errorMessage = "We couldn't cancel you order, ensure all endpoints are running and try again!";
             });
     };
     
@@ -70,11 +95,9 @@
         $scope.errorMessage = null;
 
         var selectedVideos = [];
-        var selectedVideoTitles = [];
         angular.forEach($scope.videos, function (video) {
             if (video.selected) {
                 selectedVideos.push(video.id);
-                selectedVideoTitles.push(video.title);
             }
         });
 
@@ -82,19 +105,14 @@
             return;
         }
         
-        $http.post('/PlaceOrder', { videoIds: selectedVideos }, { timeout: 15000, headers: { 'Debug': $scope.debug } })
-            .success(function (data, status) {
-                $scope.orders.push({ number: data.OrderNumber, titles: selectedVideoTitles, status: 'Pending' });
-
+        ordersHub.state.debug = $scope.debug;
+        ordersHub.server.placeOrder(selectedVideos)
+            .done(function () {
                 angular.forEach($scope.videos, function (video) {
                     video.selected = false;
                 });
-
-                $('#userWarning')
-                    .css({ opacity: 0 })
-                    .animate({ opacity: 1 }, 700);
             })
-            .error(function (data, status) {
+            .fail(function() {
                 $scope.errorMessage = "We couldn't place you order, ensure all endpoints are running and try again!";
             });
     };

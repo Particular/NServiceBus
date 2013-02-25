@@ -32,6 +32,7 @@
             Bus.Publish<OrderIsReady>(e =>
                 {
                     e.OrderNumber = message.OrderNumber;
+                    e.ClientId = message.ClientId;
                     e.VideoUrls = new Dictionary<string, string>();
 
                     foreach (var videoId in message.VideoIds)

@@ -9,15 +9,13 @@
     {
         public void Handle(OrderIsReady message)
         {
-            var context = GlobalHost.ConnectionManager.GetConnectionContext<OrderConnection>();
+            var context = GlobalHost.ConnectionManager.GetHubContext<OrdersHub>();
             
-            context.Connection.Broadcast(new
+            context.Clients.Client(message.ClientId).orderReady(new
                 {
                     message.OrderNumber, 
                     VideoUrls = message.VideoUrls.Select(pair => new {Id = pair.Key, Url = pair.Value}).ToArray()
                 });
         }
-
-
     }
 }

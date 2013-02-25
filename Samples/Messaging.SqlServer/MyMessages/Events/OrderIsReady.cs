@@ -7,5 +7,6 @@
     {
         int OrderNumber { get; set; }
         Dictionary<string,string> VideoUrls { get; set; }
+        string ClientId { get; set; }
     }
 }

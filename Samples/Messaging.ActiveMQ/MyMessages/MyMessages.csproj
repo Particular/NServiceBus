@@ -53,14 +53,16 @@
   <ItemGroup>
     <Compile Include="Commands\CancelOrder.cs">
     </Compile>
-    <Compile Include="Commands\OrderStatus.cs">
-    </Compile>
     <Compile Include="Commands\OrderCommand.cs">
     </Compile>
     <Compile Include="Events\CooldownPeriodElapsed.cs">
     </Compile>
+    <Compile Include="Events\OrderCancelled.cs">
+</Compile>
     <Compile Include="Events\OrderIsReady.cs">
     </Compile>
+    <Compile Include="Events\OrderPlaced.cs">
+</Compile>
     <Compile Include="RequestResponse\CheckInventoryRequest.cs">
     </Compile>
     <Compile Include="RequestResponse\InventoryResponse.cs">

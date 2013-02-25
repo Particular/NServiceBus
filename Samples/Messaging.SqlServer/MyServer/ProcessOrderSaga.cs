@@ -23,6 +23,7 @@
 
             Data.OrderNumber = message.OrderNumber;
             Data.VideoIds = message.VideoIds;
+            Data.ClientId = message.ClientId;
 
             RequestTimeout(TimeSpan.FromSeconds(20), new CoolDownPeriod());
             Console.Out.WriteLine("Starting cool down period for order #{0}.", Data.OrderNumber);
@@ -39,6 +40,7 @@
                 {
                     e.OrderNumber = Data.OrderNumber;
                     e.VideoIds = Data.VideoIds;
+                    e.ClientId = Data.ClientId;
                 });
 
             MarkAsComplete();
@@ -54,7 +56,13 @@
             }
 
             MarkAsComplete();
-            Bus.Return(OrderStatus.Ok);
+
+            Bus.Publish(Bus.CreateInstance<OrderCancelled>(o =>
+                {
+                    o.OrderNumber = message.OrderNumber;
+                    o.ClientId = message.ClientId;
+                }));
+
             Console.Out.WriteLine("Order #{0} was cancelled.", message.OrderNumber);
         }
 
@@ -75,8 +83,8 @@
 
         [Unique]
         public int OrderNumber { get; set; }
-
         public string[] VideoIds { get; set; }
+        public string ClientId { get; set; }
     }
 
     public class CoolDownPeriod
