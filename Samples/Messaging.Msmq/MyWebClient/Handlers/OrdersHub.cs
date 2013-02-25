@@ -7,7 +7,13 @@
 
     public class OrdersHub : Hub
     {
+        private readonly IBus bus;
         private static int orderNumber;
+
+        public OrdersHub(IBus bus)
+        {
+            this.bus = bus;
+        }
 
         public void CancelOrder(int orderNumber)
         {
@@ -17,9 +23,9 @@
                 OrderNumber = orderNumber
             };
 
-            MvcApplication.Bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
+            bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
 
-            MvcApplication.Bus.Send(command);
+            bus.Send(command);
         }
 
         public void PlaceOrder(string[] videoIds)
@@ -31,9 +37,9 @@
                 VideoIds = videoIds
             };
 
-            MvcApplication.Bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
+            bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
 
-            MvcApplication.Bus.Send(command);
+            bus.Send(command);
         }
     }
 }

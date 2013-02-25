@@ -161,12 +161,13 @@
     </Compile>
     <Compile Include="Handlers\OrderIsReadyHandler.cs">
     </Compile>
-    <Compile Include="Injection\ConfigureMvcDependencyInjection.cs">
+    <Compile Include="Injection\ConfigureDependencyInjection.cs">
     </Compile>
-    <Compile Include="Injection\NServiceBusControllerActivator.cs">
+    <Compile Include="Injection\NServiceBusMvcControllerActivator.cs">
     </Compile>
     <Compile Include="Injection\NServiceBusDependencyResolverAdapter.cs">
     </Compile>
+    <Compile Include="Injection\NServiceBusSignalRDependencyResolverAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
     </Compile>
   </ItemGroup>

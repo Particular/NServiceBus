@@ -4,7 +4,7 @@
     using System.Web.Mvc;
     using System.Web.Routing;
 
-    public class NServiceBusControllerActivator : IControllerActivator
+    public class NServiceBusMvcControllerActivator : IControllerActivator
     {
         public IController Create(RequestContext requestContext, Type controllerType)
         {
