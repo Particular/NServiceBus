@@ -40,9 +40,16 @@
             {
                 try
                 {
+                    if (retries > 0)
+                        Logger.InfoFormat("Issuing retry attempt {0}",retries);
+
+                    
                     var connection = connectionFactory.CreateConnection();
 
                     connection.ConnectionShutdown += ConnectionOnConnectionShutdown;
+
+                    if(retries > 0)
+                        Logger.InfoFormat("Connection to {0} re-established",connectionFactory.HostName);
 
                     return connection;
                 }
@@ -51,7 +58,7 @@
                     connectionFailedReason = ex;
                     retries++;
 
-                    Logger.Warn("Failed to create a RabbitMq connection", ex);
+                    Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.HostName, ex);
                 }
 
                 Thread.Sleep(DelayBetweenRetries);
@@ -64,9 +71,15 @@
 
         }
 
-        void ConnectionOnConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
+        void ConnectionOnConnectionShutdown(IConnection currentConnection, ShutdownEventArgs reason)
         {
-            Logger.ErrorFormat("The connection the the RabbitMq broker was closed, reason: {0}",reason);
+            Logger.WarnFormat("The connection the the RabbitMq broker was closed, reason: {0} , going to reconnect",reason);
+
+            lock (connectionFactory)
+            {
+                //setting the connection to null will cause the next call to try to create a new connection
+                connection = null;
+            }
         }
 
         public void Dispose()

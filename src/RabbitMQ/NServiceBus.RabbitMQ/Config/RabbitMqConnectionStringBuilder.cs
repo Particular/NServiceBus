@@ -30,12 +30,7 @@
             if (ContainsKey("port"))
                 factory.Port = int.Parse(this["port"] as string);
 
-            if (ContainsKey("requestedHeartbeat"))
-                factory.RequestedHeartbeat = ushort.Parse(this["requestedHeartbeat"] as string);
-            else
-            {
-                factory.RequestedHeartbeat = DefaultHeartBeatInSeconds;
-            }
+            factory.RequestedHeartbeat = ContainsKey("requestedHeartbeat") ? ushort.Parse(this["requestedHeartbeat"] as string) : DefaultHeartBeatInSeconds;
 
             return factory;
         }

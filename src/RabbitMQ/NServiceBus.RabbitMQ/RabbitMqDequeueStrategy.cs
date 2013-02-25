@@ -93,8 +93,9 @@
         private void Action(object obj)
         {
             var cancellationToken = (CancellationToken)obj;
+            var connection = ConnectionManager.GetConnection(ConnectionPurpose.Consume, workQueue);
 
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Consume, workQueue).CreateModel())
+            using (var channel = connection.CreateModel())
             {
                 //channel.BasicQos(0, 1, false);
 
