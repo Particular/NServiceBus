@@ -9,7 +9,6 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
-    using Transactions;
 
     public class Receive_performance : NServiceBusPerformanceTest
     {
@@ -21,8 +20,8 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ReceiveEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.SqlServer))
-                    .Report(s=>DisplayTestResults(s,"DTC"))
+                    .Repeat(r => r.For<AllTransports>())
+                    .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }
@@ -39,7 +38,7 @@
                         })
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.SqlServer))
-                    .Report(s => DisplayTestResults(s, "No DTC"))
+                    .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }
@@ -56,7 +55,7 @@
                     })
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.SqlServer))
-                    .Report(s => DisplayTestResults(s, "No TX"))
+                    .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }
@@ -73,7 +72,7 @@
                     })
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.SqlServer))
-                    .Report(s => DisplayTestResults(s, "No Ambient TX"))
+                    .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }

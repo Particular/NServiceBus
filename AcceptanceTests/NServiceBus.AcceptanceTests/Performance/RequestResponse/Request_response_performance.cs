@@ -8,7 +8,6 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
-    using Transactions;
 
     public class Request_response_performance : NServiceBusPerformanceTest
     {
@@ -23,7 +22,7 @@
                     .WithEndpoint<ServerEndpoint>()
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.SqlServer))
-                    .Report(s => DisplayTestResults(s, "DTC"))
+                    .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }

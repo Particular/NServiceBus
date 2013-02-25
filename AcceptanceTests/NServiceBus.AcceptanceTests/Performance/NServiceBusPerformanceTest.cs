@@ -1,16 +1,23 @@
-﻿namespace NServiceBus.AcceptanceTests.Transactions
+﻿namespace NServiceBus.AcceptanceTests.Performance
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
-    using System.Threading.Tasks;
+    using System.Linq;
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
-    using Performance;
 
     public class NServiceBusPerformanceTest:NServiceBusAcceptanceTest
     {
-        protected static void DisplayTestResults(RunSummary summary, string testCase)
+        protected static void DisplayTestResults(RunSummary summary)
         {
+
+      
+            var caller =new StackTrace().GetFrames().First(f => typeof(NServiceBusPerformanceTest).IsAssignableFrom(f.GetMethod().DeclaringType.BaseType));
+
+            var testCategory = caller.GetMethod().DeclaringType.Namespace.Replace(typeof(NServiceBusPerformanceTest).Namespace + ".", "");
+            var testCase = caller.GetMethod().Name;
+
             var c = summary.RunDescriptor.ScenarioContext as PerformanceTestContext;
 
             var messagesPerSecondsProcessed = c.NumberOfTestMessages /
@@ -20,7 +27,7 @@
 
             using (var file = new StreamWriter(".\\PerformanceTestResults.txt", true))
             {
-                file.WriteLine(string.Join(";", summary.RunDescriptor.Key + "-" + testCase, c.NumberOfTestMessages, messagesPerSecondsProcessed));
+                file.WriteLine(string.Join(";", summary.RunDescriptor.Key, testCategory,testCase, c.NumberOfTestMessages, messagesPerSecondsProcessed));
             }
         }
 
