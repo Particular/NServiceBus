@@ -218,7 +218,7 @@
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(90);
 
-            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray());
+            Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
 
             try
             {
@@ -255,7 +255,8 @@
            
                 })).ToArray();
 
-            Task.WaitAll(tasks);
+            if(!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
+                throw new Exception("Starting enpoints took longer than 2 minutes");
         }
 
         static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
@@ -268,7 +269,8 @@
 
                 })).ToArray();
 
-            Task.WaitAll(tasks);
+            if(!Task.WaitAll(tasks,TimeSpan.FromMinutes(2)))
+                throw new Exception("Stopping enpoints took longer than 2 minutes");
         }
 
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehaviour> behaviorDescriptors)
