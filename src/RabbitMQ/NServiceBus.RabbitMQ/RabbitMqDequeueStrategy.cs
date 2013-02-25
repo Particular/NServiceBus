@@ -96,7 +96,7 @@
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Consume, workQueue).CreateModel())
             {
-                channel.BasicQos(0, 1, false);
+                //channel.BasicQos(0, 1, false);
 
                 var consumer = new QueueingBasicConsumer(channel);
 
@@ -107,16 +107,15 @@
                     Exception exception = null;
                     BasicDeliverEventArgs message = null;
 
-                    try
+                    message = DequeueMessage(consumer);
+
+                    if (message == null)
                     {
-                        message = DequeueMessage(consumer);
+                        continue;
+                    }
 
-                        if (message == null)
-                        {
-                            continue;
-                        }
-
-                        //todo - add dead lettering
+                    try
+                    {                                        
                         bool messageProcessedOk = tryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
 
                         if (!autoAck && messageProcessedOk)

@@ -32,9 +32,15 @@
 
             if (ContainsKey("requestedHeartbeat"))
                 factory.RequestedHeartbeat = ushort.Parse(this["requestedHeartbeat"] as string);
-
+            else
+            {
+                factory.RequestedHeartbeat = DefaultHeartBeatInSeconds;
+            }
 
             return factory;
         }
+
+        const ushort DefaultHeartBeatInSeconds = 5;
     }
+
 }

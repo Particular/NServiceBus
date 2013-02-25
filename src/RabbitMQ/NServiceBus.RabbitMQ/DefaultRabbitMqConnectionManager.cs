@@ -40,7 +40,11 @@
             {
                 try
                 {
-                    return connectionFactory.CreateConnection();
+                    var connection = connectionFactory.CreateConnection();
+
+                    connection.ConnectionShutdown += ConnectionOnConnectionShutdown;
+
+                    return connection;
                 }
                 catch (Exception ex)
                 {
@@ -58,6 +62,11 @@
 
             throw exception;
 
+        }
+
+        void ConnectionOnConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
+        {
+            Logger.ErrorFormat("The connection the the RabbitMq broker was closed, reason: {0}",reason);
         }
 
         public void Dispose()
