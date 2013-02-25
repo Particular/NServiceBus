@@ -92,7 +92,9 @@
 
             public void Wait()
             {
-                manualResetEvent.WaitOne();
+                if(!manualResetEvent.WaitOne(TimeSpan.FromSeconds(20)))
+                    throw new Exception("No subscription message was received");
+
             }
         }
 
