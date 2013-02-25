@@ -103,6 +103,8 @@
                     return;
                 }
 
+                connection.ConnectionShutdown -= ConnectionOnConnectionShutdown;
+
                 if (connection.IsOpen)
                 {
                     connection.Close();
