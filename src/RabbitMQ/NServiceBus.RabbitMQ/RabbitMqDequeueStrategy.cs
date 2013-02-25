@@ -100,6 +100,8 @@
 
                 var consumer = new QueueingBasicConsumer(channel);
 
+                channel.BasicConsume(workQueue, autoAck, consumer);
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     Exception exception = null;
@@ -107,8 +109,6 @@
 
                     try
                     {
-                        channel.BasicConsume(workQueue, autoAck, consumer);
-
                         message = DequeueMessage(consumer);
 
                         if (message == null)
