@@ -4,7 +4,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Support;
     using Config;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -13,14 +12,14 @@
 
     public class Request_response_performance : NServiceBusPerformanceTest
     {
-        static int NumberOfTestMessages = 10000;
-        static int ConcurrencyLevel = 50;
+        static int NumberOfTestMessages = 1000;
+        static int ConcurrencyLevel = 30;
 
         [Test]
         public void With_dtc_enabled()
         {
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
-                    .WithEndpoint<ClientEndpoint>(SendTestMessages)
+                    .WithEndpoint<ClientEndpoint>(b => b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.Send(new MyMessage()))))
                     .WithEndpoint<ServerEndpoint>()
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.SqlServer))
@@ -39,7 +38,7 @@
         {
             public ClientEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.PurgeOnStartup(true))
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel)
                     .AddMapping<MyMessage>(typeof(ServerEndpoint));
             }
@@ -74,7 +73,7 @@
         {
             public ServerEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.PurgeOnStartup(true))
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel);
             }
 
@@ -99,12 +98,6 @@
         [Serializable]
         public class MyResponse : IMessage
         {
-        }
-
-
-        protected static void SendTestMessages(EndpointBehaviorBuilder<Context> b)
-        {
-            b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.Send(new MyMessage())));
         }
     }
 }
