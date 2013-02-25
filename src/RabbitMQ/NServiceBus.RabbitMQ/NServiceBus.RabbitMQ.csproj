@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\RabbitMQ.cs" />
+    <Compile Include="Config\RabbitMqConventionExtensions.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="DefaultRabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringBuilder.cs" />

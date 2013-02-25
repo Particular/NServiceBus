@@ -19,14 +19,14 @@
                     var properties = RabbitMqTransportMessageExtensions.FillRabbitMqProperties(message,
                                                                                                channel.CreateBasicProperties());
 
-                    channel.BasicPublish(ExchangeName(Address.Local), routingKey, true, false, properties, message.Body);
+                    channel.BasicPublish(ExchangeName(Address.Local, eventType), routingKey, true, false, properties, message.Body);
                 });
 
             //we don't know if there was a subscriber so we just return true
             return true;
         }
 
-        public Func<Address, string> ExchangeName { get; set; }
+        public Func<Address,Type, string> ExchangeName { get; set; }
 
         public RabbitMqUnitOfWork UnitOfWork { get; set; }
     }

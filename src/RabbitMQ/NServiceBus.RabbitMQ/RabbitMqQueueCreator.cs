@@ -7,8 +7,6 @@
     {
         public IManageRabbitMqConnections ConnectionManager { get; set; }
 
-        public Func<Address, string> ExchangeName { get; set; }
-
         public void CreateQueueIfNecessary(Address address, string account)
         {
             var durable = Configure.Endpoint.Advanced().DurableMessages;

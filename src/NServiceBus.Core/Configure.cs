@@ -161,6 +161,10 @@ namespace NServiceBus
 
         public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
 
+
+        public static Conventions Conventions { get { return conventions ?? (conventions = new Conventions()); } }
+
+        static Conventions conventions;
         /// <summary>
         /// True if this endpoint is operating in send only mode
         /// </summary>
@@ -639,5 +643,12 @@ namespace NServiceBus
               {
                   // defaultAssemblyExclusions will merged inn; specify additional ones here 
               };
+    }
+
+    /// <summary>
+    /// Placeholder for the various extentsions. Modules will add extention methods to this class
+    /// </summary>
+    public class Conventions
+    {
     }
 }

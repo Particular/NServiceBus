@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.RabbitMQ.Tests
 {
+    using System;
     using NServiceBus;
     using NUnit.Framework;
 
@@ -173,7 +174,7 @@
             Assert.Null(receivedEvent);
         }
 
-        protected override string ExchangeNameConvention(Address address)
+        protected override string ExchangeNameConvention(Address address,Type eventType)
         {
             return "nservicebus.events";
         }

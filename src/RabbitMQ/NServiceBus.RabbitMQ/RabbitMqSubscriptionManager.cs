@@ -10,7 +10,7 @@
 
         public string EndpointQueueName { get; set; }
 
-        public Func<Address, string> ExchangeName { get; set; }
+        public Func<Address,Type, string> ExchangeName { get; set; }
         
         public void Subscribe(Type eventType, Address publisherAddress)
         {
@@ -18,7 +18,7 @@
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration,"subscriptions").CreateModel())
             {
-                channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress), routingKey);
+                channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress,eventType), routingKey);
             }
         }
 
@@ -28,7 +28,7 @@
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration, "subscriptions").CreateModel())
             {
-                channel.QueueUnbind(EndpointQueueName, ExchangeName(publisherAddress), routingKey, null);
+                channel.QueueUnbind(EndpointQueueName, ExchangeName(publisherAddress, eventType), routingKey, null);
             }
         }
     }

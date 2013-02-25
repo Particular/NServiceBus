@@ -68,7 +68,7 @@
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
-            MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE)));
+            MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE),null));
 
             MessagePublisher = new RabbitMqMessagePublisher
                 {
@@ -102,7 +102,7 @@
 
         }
 
-        protected virtual string ExchangeNameConvention(Address address)
+        protected virtual string ExchangeNameConvention(Address address,Type eventType)
         {
             return "amq.topic";
         }
