@@ -1,8 +1,56 @@
-﻿using NServiceBus.Saga;
+﻿using System.Diagnostics;
+using NServiceBus.Saga;
 
 namespace NServiceBus.Unicast.Tests
 {
     using NUnit.Framework;
+
+	[TestFixture]
+	public class HandlerInvocationCachePerf
+	{
+		[Test]
+		public void RunNew()
+		{
+			var type = typeof (StubHandler);
+			HandlerInvocationCache.CacheMethodForHandler(type, typeof (StubMessage));
+			var handler = new StubHandler();
+			var stubMessage = new StubMessage();
+			HandlerInvocationCache.InvokeHandle(handler, stubMessage);
+
+			var startNew = Stopwatch.StartNew();
+			for (var i = 0; i < 10000000; i++)
+			{
+				HandlerInvocationCache.InvokeHandle(handler, stubMessage);
+			}
+			Debug.WriteLine(startNew.ElapsedMilliseconds);
+		}
+		[Test]
+		public void RunOld()
+		{
+			HandlerInvocationCacheOld.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
+			var handler = new StubHandler();
+			var stubMessage = new StubMessage();
+			HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler, stubMessage);
+
+			var startNew = Stopwatch.StartNew();
+			for (var i = 0; i < 10000000; i++)
+			{
+				HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler, stubMessage);
+			}
+			Debug.WriteLine(startNew.ElapsedMilliseconds);
+		}
+		public class StubHandler : IMessageHandler<StubMessage>
+		{
+
+			public void Handle(StubMessage message)
+			{
+			}
+		}
+
+		public class StubMessage
+		{
+		}
+	}
 
 	[TestFixture]
 	public class When_invoking_a_cached_message_handler
@@ -86,3 +134,4 @@ namespace NServiceBus.Unicast.Tests
 	}
 
 }
+
