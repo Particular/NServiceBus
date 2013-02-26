@@ -9,7 +9,7 @@
     using System.Xml;
     using System.Xml.Serialization;
 
-    [Cmdlet(VerbsCommon.Get, "NServiceBusMessage")]
+    [Cmdlet(VerbsCommon.Get, "NServiceBusMSMQMessage")]
     public class GetMessage : PSCmdlet
     {
         [Parameter(HelpMessage = "The name of the private queue to search", ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
