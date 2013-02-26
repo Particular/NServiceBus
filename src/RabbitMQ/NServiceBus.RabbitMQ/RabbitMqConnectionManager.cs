@@ -31,12 +31,16 @@
         {
             int retries = 0;
             Exception exception = null;
-            while (retries < retrySettings.MaxRetries)
+
+            do
             {
                 try
                 {
                     if (retries > 0)
-                        Logger.InfoFormat("Issuing retry attempt {0}",retries);
+                    {
+                        Thread.Sleep(retrySettings.DelayBetweenRetries);
+                        Logger.InfoFormat("Issuing retry attempt {0}", retries);
+                    }
 
                     
                     var connection = connectionFactory.CreateConnection();
@@ -56,8 +60,10 @@
                     Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.HostName, ex);
                 }
 
-                Thread.Sleep(retrySettings.DelayBetweenRetries);
+                
             }
+            while (retries <= retrySettings.MaxRetries);
+            
             connectionFailed = true;
 
             Configure.Instance.RaiseCriticalError("Failed to connect to the RabbitMq broker.", exception);
