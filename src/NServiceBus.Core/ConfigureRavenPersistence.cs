@@ -219,6 +219,10 @@ namespace NServiceBus
             {
                 database = Configure.EndpointName;
             }
+            else
+            {
+                store.DefaultDatabase = database;
+            }
 
             if (store.DefaultDatabase == null)
             {
