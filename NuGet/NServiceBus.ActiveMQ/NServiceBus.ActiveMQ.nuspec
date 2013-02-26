@@ -16,7 +16,7 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="NServiceBus.Core" version="4.0.0-alpha0" />
-      <dependency id="Apache.NMS.ActiveMQ" version="[1.5.6,2)" />
+      <dependency id="Apache.NMS" version="[1.5.1,2)" />
     </dependencies>
   </metadata>
   <files>

@@ -8,7 +8,7 @@
 
     public class ActiveMqSchedulerManagementJobProcessor
     {
-        private IActiveMqSchedulerManagementCommands activeMqSchedulerManagementCommands;
+        private readonly IActiveMqSchedulerManagementCommands activeMqSchedulerManagementCommands;
         private readonly ConcurrentDictionary<ActiveMqSchedulerManagementJob, ActiveMqSchedulerManagementJob> jobs = 
             new ConcurrentDictionary<ActiveMqSchedulerManagementJob, ActiveMqSchedulerManagementJob>();
 
@@ -43,11 +43,14 @@
         {
             foreach (var job in this.jobs.Keys.ToList())
             {
-                token.ThrowIfCancellationRequested();
-                this.activeMqSchedulerManagementCommands.ProcessJob(job);
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+                activeMqSchedulerManagementCommands.ProcessJob(job);
             }
 
-            this.RemoveExpiredJobs();
+            RemoveExpiredJobs();
         }
 
         private void RemoveExpiredJobs()

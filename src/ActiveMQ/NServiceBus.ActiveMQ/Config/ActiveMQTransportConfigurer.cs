@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ.Config
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Cryptography;
@@ -21,7 +22,7 @@
     /// </summary>
     public class ActiveMqTransportConfigurer : ConfigureTransport<NServiceBus.ActiveMQ>
     {
-        private const string UriKey = "uri";
+        private const string UriKey = "ServerUrl";
 
         private const string ResourceManagerIdKey = "ResourceManagerId";
 
@@ -83,8 +84,8 @@
         {
             var parts = brokerUri.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             return parts.ToDictionary(
-                p => p.Split('=')[0].Trim().ToLowerInvariant(), 
-                p => p.Substring(p.IndexOf("=", StringComparison.InvariantCultureIgnoreCase) + 1).Trim());
+                p => p.Split('=')[0].Trim(),
+                p => p.Substring(p.IndexOf("=", StringComparison.OrdinalIgnoreCase) + 1).Trim(), StringComparer.OrdinalIgnoreCase);
         }
 
         private static void RegisterNoneTransactionSessionFactory(Configure config, string brokerUri)
@@ -128,7 +129,7 @@
 
         protected override string ExampleConnectionStringForErrorMessage
         {
-            get { return "Url = activemq:tcp://localhost:61616; ResourceManagerId = 2f2c3321-f251-4975-802d-11fc9d9e5e37"; }
+            get { return "ServerUrl=activemq:tcp://localhost:61616; ResourceManagerId=2f2c3321-f251-4975-802d-11fc9d9e5e37"; }
         }
 
         public static Guid DefaultResourceManagerId

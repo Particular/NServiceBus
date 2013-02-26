@@ -46,4 +46,4 @@ cd $script:baseDir
 cd ..\..\..\Samples
 Sync -transport "RabbitMQ" -connectionString "host=localhost"
 Sync -transport "SqlServer" -connectionString "Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"
-Sync -transport "ActiveMQ" -connectionString "activemq:tcp://localhost:61616"
+Sync -transport "ActiveMQ" -connectionString "ServerUrl=activemq:tcp://localhost:61616"

@@ -96,7 +96,9 @@
     <Compile Include="TopicEvaluatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">

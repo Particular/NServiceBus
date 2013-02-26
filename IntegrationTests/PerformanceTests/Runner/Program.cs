@@ -79,7 +79,7 @@ namespace Runner
                     break;
 
                 case "activemq":
-                    config.UseTransport<ActiveMQ>(() => "activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
+                    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
                     break;
                 case "rabbitmq":
                     config.UseTransport<RabbitMQ>(() => "host=localhost");

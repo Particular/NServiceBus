@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus.Transport.ActiveMQ
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
-
-    using NServiceBus.Satellites;
+    using Satellites;
 
     public class ActiveMqSchedulerManagement : ISatellite
     {
@@ -14,55 +12,49 @@
         private CancellationTokenSource cancellationTokenSource;
         private Task task;
 
-        public ActiveMqSchedulerManagementJobProcessor ActiveMqSchedulerManagementJobProcessor { get; set; }
-
         public ActiveMqSchedulerManagement()
         {
-            this.Disabled = true;
+            Disabled = true;
         }
+
+        public ActiveMqSchedulerManagementJobProcessor ActiveMqSchedulerManagementJobProcessor { get; set; }
 
         public Address InputAddress
         {
-            get
-            {
-                return Address.Local.SubScope(SubScope);
-            }
+            get { return Address.Local.SubScope(SubScope); }
         }
 
         public bool Disabled { get; set; }
 
         public void Start()
         {
-            this.ActiveMqSchedulerManagementJobProcessor.Start();
-            this.cancellationTokenSource = new CancellationTokenSource();
-            this.task = Task.Factory.StartNew(() => this.RunDeferredMessageCleanup(cancellationTokenSource.Token), this.cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Current);
+            ActiveMqSchedulerManagementJobProcessor.Start();
+            cancellationTokenSource = new CancellationTokenSource();
+            var token = cancellationTokenSource.Token;
+            task = Task.Factory.StartNew(() => RunDeferredMessageCleanup(token),
+                                         token, TaskCreationOptions.LongRunning,
+                                         TaskScheduler.Current);
         }
 
         public void Stop()
         {
-            try
-            {
-                this.cancellationTokenSource.Cancel();
-                this.task.Wait(this.cancellationTokenSource.Token);
-            }
-            catch (OperationCanceledException) 
-            { }
+            cancellationTokenSource.Cancel();
+            task.Wait(cancellationTokenSource.Token);
 
-            this.ActiveMqSchedulerManagementJobProcessor.Stop();
+            ActiveMqSchedulerManagementJobProcessor.Stop();
         }
 
         public bool Handle(TransportMessage message)
         {
-            this.ActiveMqSchedulerManagementJobProcessor.HandleTransportMessage(message);
+            ActiveMqSchedulerManagementJobProcessor.HandleTransportMessage(message);
             return true;
         }
 
         private void RunDeferredMessageCleanup(CancellationToken token)
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
-                token.ThrowIfCancellationRequested();
-                this.ActiveMqSchedulerManagementJobProcessor.ProcessAllJobs(token);
+                ActiveMqSchedulerManagementJobProcessor.ProcessAllJobs(token);
                 Thread.Sleep(100);
             }
         }
