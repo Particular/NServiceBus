@@ -1,6 +1,8 @@
 properties {
 	$ProductVersion = "4.0"
 	$PatchVersion = "0"
+	$BuildNumber = "0"
+	$PreRelease = "alpha"
 	$VsixFilePath = if($env:VSIX_PATH -ne $null) { $env:VSIX_PATH } else { "C:\Projects" }
 	$SignFile = if($env:SIGN_CER_PATH -ne $null) { $env:SIGN_CER_PATH } else { "" }
 }
@@ -45,7 +47,14 @@ task Init {
 
 task Build -depends Clean, Init, RunHeat {
 	$UpgradeCode = "6bf2f238-54fb-4300-ab68-2416491af0" + $ProductVersion.Replace(".", "")
-	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" /p:UpgradeCode="$UpgradeCode" }
+
+    if($PreRelease -eq "") {
+		$archive = "NServiceBus.$ProductVersion.$PatchVersion"
+	} else {
+		$archive = "NServiceBus.$ProductVersion.$PatchVersion-$PreRelease$BuildNumber"
+	}
+
+	exec { &$script:msBuild $baseDir\src\wix\WixSolution.sln /t:"Clean,Build" /p:OutputName="$archive" /p:OutDir="$buildWixPath" /p:Configuration=Release /p:ProductVersion="$ProductVersion.$PatchVersion" /p:VsixPath="$VsixFilePath" /p:UpgradeCode="$UpgradeCode" }
 	copy $buildWixPath*.msi $packageOutPutDir\
 }
 

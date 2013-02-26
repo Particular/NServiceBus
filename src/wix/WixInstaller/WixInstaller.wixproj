@@ -23,7 +23,6 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>SOURCEPATH.TOOLS=..\..\..\..\..\Release\Tools;SOURCEPATH.SAMPLES=..\..\..\..\..\Release\Samples;SOURCEPATH.BINARIES=..\..\..\..\..\Release\binaries;SOURCEPATH=..\..\..\..\..\Release;UPGRADECODE=$(UpgradeCode);VERSION=$(ProductVersion);PRODUCTNAME=NServiceBus;MANUFACTURER=NServiceBus Ltd;VSIXPATH=$(VsixPath)</DefineConstants>
-    <OutputName>NServiceBus.v$(ProductVersion)</OutputName>
     <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>

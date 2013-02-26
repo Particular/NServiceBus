@@ -103,8 +103,6 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
 	}
     
-	Write-Output "##teamcity[buildNumber '$infoVersion']"
-	
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
     
 	foreach($projectFile in $projectFiles) {
@@ -164,9 +162,9 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		$clsCompliant `
 		"" `
 		"release" `
-		"NServiceBus" `
+		"NServiceBus Ltd." `
 		$assemblyProduct `
-		"Copyright (C) NServiceBus 2010-2012" `
+		"Copyright 2010-2013 NServiceBus. All rights reserved" `
 		$asmVersion `
 		$fileVersion `
 		$infoVersion `
@@ -329,12 +327,16 @@ task CreatePackages {
 
 task ZipOutput {	
 	
-	$archive = "$artifactsDir\NServiceBus.$ProductVersion.$PatchVersion.zip"
+    if($PreRelease -eq "") {
+		$archive = "$artifactsDir\NServiceBus.$ProductVersion.$PatchVersion.zip"
+	} else {
+		$archive = "$artifactsDir\NServiceBus.$ProductVersion.$PatchVersion-$PreRelease$BuildNumber.zip"
+	}
 
 	echo "Ziping artifacts directory for releasing"
 	exec { &$zipExec a -tzip $archive $releaseRoot\** }
 }
 
 task CreateMSI {
-    Invoke-psake .\MSI.ps1 -properties @{ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
+    Invoke-psake .\MSI.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
 }
