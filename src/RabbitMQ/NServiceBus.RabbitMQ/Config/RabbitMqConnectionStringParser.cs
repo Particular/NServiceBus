@@ -41,17 +41,25 @@
         {
             var settings = new ConnectionRetrySettings();
 
-            if (ContainsKey("maxretries"))
-                settings.MaxRetries = int.Parse(this["maxretries"] as string);
+            if (ContainsKey("maxRetries"))
+                settings.MaxRetries = int.Parse(this["maxRetries"] as string);
 
-            if (ContainsKey("retry_delay"))
-                settings.DelayBetweenRetries = TimeSpan.Parse(this["retry_delay"] as string);
+            if (ContainsKey("retryDelay"))
+                settings.DelayBetweenRetries = TimeSpan.Parse(this["retryDelay"] as string);
 
             return settings;
         }
 
+        public ushort GetPrefetchCount()
+        {
+            return ContainsKey("prefetchCount") ? ushort.Parse(this["prefetchCount"] as string) : DefaultPrefetchCount;
+        }
+
 
         const ushort DefaultHeartBeatInSeconds = 5;
+        const ushort DefaultPrefetchCount = 1;
+
+
     }
 
     public class ConnectionRetrySettings

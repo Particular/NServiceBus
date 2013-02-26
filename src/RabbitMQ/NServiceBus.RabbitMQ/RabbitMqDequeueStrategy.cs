@@ -26,6 +26,11 @@
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
+        /// The number of messages to allow the RabbitMq client to pre-fetch from the broker
+        /// </summary>
+        public ushort PrefetchCount { get; set; }
+
+        /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.
         /// </summary>
         /// <param name="address">The address to listen on.</param>
@@ -96,7 +101,7 @@
 
             using (var channel = connection.CreateModel())
             {
-                //channel.BasicQos(0, 1, false);
+                channel.BasicQos(0,PrefetchCount, false);
 
                 var consumer = new QueueingBasicConsumer(channel);
 

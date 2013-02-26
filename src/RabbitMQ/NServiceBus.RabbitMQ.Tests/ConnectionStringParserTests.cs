@@ -66,15 +66,31 @@
         [Test]
         public void Should_parse_the_maxretries()
         {
-            parser = new RabbitMqConnectionStringParser("maxretries=5");
+            parser = new RabbitMqConnectionStringParser("maxRetries=5");
             Assert.AreEqual(5, parser.BuildConnectionRetrySettings().MaxRetries);
         }
 
         [Test]
         public void Should_parse_the_retry_delay()
         {
-            parser = new RabbitMqConnectionStringParser("retry_delay=00:00:10");
+            parser = new RabbitMqConnectionStringParser("retryDelay=00:00:10");
             Assert.AreEqual(TimeSpan.FromSeconds(10), parser.BuildConnectionRetrySettings().DelayBetweenRetries);
+        }
+
+
+        [Test]
+        public void Should_parse_the_prefetch_count()
+        {
+            parser = new RabbitMqConnectionStringParser("prefetchCount=10");
+            Assert.AreEqual(10, parser.GetPrefetchCount());
+        }
+
+
+        [Test]
+        public void Should_default_the_prefetch_count()
+        {
+            parser = new RabbitMqConnectionStringParser("");
+            Assert.AreEqual(1, parser.GetPrefetchCount());
         }
     }
 }
