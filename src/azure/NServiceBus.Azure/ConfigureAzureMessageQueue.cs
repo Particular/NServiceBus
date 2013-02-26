@@ -6,6 +6,8 @@ using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
 {
+    using Transports;
+
     public static class ConfigureAzureMessageQueue
     {
         public static Configure AzureMessageQueue(this Configure config)
@@ -32,6 +34,7 @@ namespace NServiceBus
             config.Configurer.ConfigureComponent<AzureMessageQueueReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<AzureMessageQueueSender>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<PollingDequeueStrategy>(DependencyLifecycle.InstancePerCall);
 
             if (configSection != null)
             {

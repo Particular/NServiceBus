@@ -1,13 +1,13 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Unicast.Queuing.Azure
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
-    using Unicast.Queuing;
-    using Unicast.Transport.Transactional;
+    using Transport.Transactional;
     using Utils;
+    using Transports;
 
     /// <summary>
     /// A polling implementation of <see cref="IDequeueMessages"/>.

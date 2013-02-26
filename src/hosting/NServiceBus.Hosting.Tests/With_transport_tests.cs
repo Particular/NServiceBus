@@ -5,6 +5,7 @@ namespace NServiceBus.Hosting.Tests
     using Roles.Handlers;
     using Transports;
     using Transports.Msmq;
+    using Unicast.Config;
 
     [TestFixture]
     public class With_transport_tests

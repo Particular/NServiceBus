@@ -100,6 +100,7 @@
     <Compile Include="Integration\Azure\AzureDiagnosticsLoggerFactory.cs" />
     <Compile Include="Integration\Azure\IAzureConfigurationSettings.cs" />
     <Compile Include="Integration\Azure\SetLoggingLibrary.cs" />
+    <Compile Include="Unicast\Queuing\Azure\PollingDequeueStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\BaseImmutableUserType.cs" />
     <Compile Include="SagaPersisters\Azure\Config\Internal\MsSqlConfiguration.cs" />
