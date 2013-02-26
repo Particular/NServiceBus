@@ -21,12 +21,13 @@ namespace NServiceBus.Unicast.Tests
 			HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
 
 			var startNew = Stopwatch.StartNew();
-			for (var i = 0; i < 1000000; i++)
+			for (var i = 0; i < 100000; i++)
 			{
 				HandlerInvocationCache.InvokeHandle(handler1, stubMessage1);
 				HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
 			}
-			Debug.WriteLine(startNew.ElapsedMilliseconds);
+			startNew.Stop();
+			Trace.WriteLine(startNew.ElapsedMilliseconds);
 		}
 		[Test]
 		public void RunOld()
@@ -41,12 +42,13 @@ namespace NServiceBus.Unicast.Tests
 			HandlerInvocationCacheOld.Invoke(typeof(IHandleTimeouts<>), handler2, stubMessage2);
 
 			var startNew = Stopwatch.StartNew();
-			for (var i = 0; i < 1000000; i++)
+			for (var i = 0; i < 100000; i++)
 			{
 				HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler1, stubMessage1);
 				HandlerInvocationCacheOld.Invoke(typeof(IHandleTimeouts<>), handler2, stubMessage2);
 			}
-			Debug.WriteLine(startNew.ElapsedMilliseconds);
+			startNew.Stop();
+			Trace.WriteLine(startNew.ElapsedMilliseconds);
 		}
 		public class StubMessageHandler : IMessageHandler<StubMessage>
 		{
