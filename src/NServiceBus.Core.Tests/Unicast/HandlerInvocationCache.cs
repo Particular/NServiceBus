@@ -11,35 +11,44 @@ namespace NServiceBus.Unicast.Tests
 		[Test]
 		public void RunNew()
 		{
-			var type = typeof (StubHandler);
-			HandlerInvocationCache.CacheMethodForHandler(type, typeof (StubMessage));
-			var handler = new StubHandler();
-			var stubMessage = new StubMessage();
-			HandlerInvocationCache.InvokeHandle(handler, stubMessage);
+			HandlerInvocationCache.CacheMethodForHandler( typeof(StubMessageHandler), typeof (StubMessage));
+			HandlerInvocationCache.CacheMethodForHandler(typeof(StubTimoutHandler), typeof(StubTimeoutState));
+			var handler1 = new StubMessageHandler();
+			var handler2 = new StubTimoutHandler();
+			var stubMessage1 = new StubMessage();
+			var stubMessage2 = new StubTimeoutState();
+			HandlerInvocationCache.InvokeHandle(handler1, stubMessage1);
+			HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
 
 			var startNew = Stopwatch.StartNew();
-			for (var i = 0; i < 10000000; i++)
+			for (var i = 0; i < 1000000; i++)
 			{
-				HandlerInvocationCache.InvokeHandle(handler, stubMessage);
+				HandlerInvocationCache.InvokeHandle(handler1, stubMessage1);
+				HandlerInvocationCache.InvokeHandle(handler2, stubMessage2);
 			}
 			Debug.WriteLine(startNew.ElapsedMilliseconds);
 		}
 		[Test]
 		public void RunOld()
 		{
-			HandlerInvocationCacheOld.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
-			var handler = new StubHandler();
-			var stubMessage = new StubMessage();
-			HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler, stubMessage);
+			HandlerInvocationCacheOld.CacheMethodForHandler(typeof(StubMessageHandler), typeof(StubMessage));
+			HandlerInvocationCacheOld.CacheMethodForHandler(typeof(StubTimoutHandler), typeof(StubTimeoutState));
+			var handler1 = new StubMessageHandler();
+			var handler2 = new StubTimoutHandler();
+			var stubMessage1 = new StubMessage();
+			var stubMessage2 = new StubTimeoutState();
+			HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>),handler1, stubMessage1);
+			HandlerInvocationCacheOld.Invoke(typeof(IHandleTimeouts<>), handler2, stubMessage2);
 
 			var startNew = Stopwatch.StartNew();
-			for (var i = 0; i < 10000000; i++)
+			for (var i = 0; i < 1000000; i++)
 			{
-				HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler, stubMessage);
+				HandlerInvocationCacheOld.Invoke(typeof(IMessageHandler<>), handler1, stubMessage1);
+				HandlerInvocationCacheOld.Invoke(typeof(IHandleTimeouts<>), handler2, stubMessage2);
 			}
 			Debug.WriteLine(startNew.ElapsedMilliseconds);
 		}
-		public class StubHandler : IMessageHandler<StubMessage>
+		public class StubMessageHandler : IMessageHandler<StubMessage>
 		{
 
 			public void Handle(StubMessage message)
@@ -48,6 +57,22 @@ namespace NServiceBus.Unicast.Tests
 		}
 
 		public class StubMessage
+		{
+		}
+		public class StubTimoutHandler : IHandleTimeouts<StubTimeoutState>
+		{
+			public bool TimeoutCalled;
+			public StubTimeoutState HandledState;
+
+
+			public void Timeout(StubTimeoutState state)
+			{
+				TimeoutCalled = true;
+				HandledState = state;
+			}
+		}
+
+		public class StubTimeoutState
 		{
 		}
 	}

@@ -33,16 +33,16 @@ namespace NServiceBus.Unicast
 			Invoke(handler, state, timeoutCahce);
 		}
 
-		static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, Dictionary<Type, Action<object, object>>> dictionary)
+		static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> dictionary)
 		{
-			Dictionary<Type, Action<object, object>> methodList;
+			List<DelegatetHolder> methodList;
 			if (!dictionary.TryGetValue(handler.GetType().TypeHandle, out methodList))
 			{
 				return;
 			}
-			foreach (var pair in methodList.Where(pair => pair.Key.IsInstanceOfType(message)))
+			foreach (var delegatetHolder in methodList.Where(x => x.MessageType.IsInstanceOfType(message)))
 			{
-				pair.Value(handler, message);
+				delegatetHolder.MethodDelegate(handler, message);
 			}
 		}
 
@@ -52,29 +52,40 @@ namespace NServiceBus.Unicast
         /// <param name="handler">The object type.</param>
         /// <param name="messageType">the message type.</param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
-        {
-	        var handleMethod = GetMethod(handler, messageType, typeof(IMessageHandler<>));
-			if (handleMethod != null)
-			{
-				Dictionary<Type, Action<object, object>> methodList;
-				if (!handlerCache.TryGetValue(handler.TypeHandle, out methodList))
-				{
-					handlerCache[handler.TypeHandle] = methodList = new Dictionary<Type, Action<object, object>>();
-				}
-				methodList[messageType] = handleMethod;
-			}
-
-	        var timoutMethod = GetMethod(handler, messageType,  typeof (IHandleTimeouts<>));
-			if (timoutMethod != null)
-			{
-				Dictionary<Type, Action<object, object>> methodList;
-				if (!timeoutCahce.TryGetValue(handler.TypeHandle, out methodList))
-				{
-					timeoutCahce[handler.TypeHandle] = methodList = new Dictionary<Type, Action<object, object>>();
-				}
-				methodList[messageType] = timoutMethod;
-			}
+		{
+	        CacheMethod(handler, messageType, typeof (IMessageHandler<>), handlerCache);
+			CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), timeoutCahce);
         }
+
+	    static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> cache)
+	    {
+		    var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
+		    if (handleMethod == null)
+		    {
+			    return;
+		    }
+		    var delegatetHolder = new DelegatetHolder
+			    {
+				    MessageType = messageType,
+				    MethodDelegate = handleMethod
+			    };
+		    List<DelegatetHolder> methodList;
+		    if (cache.TryGetValue(handler.TypeHandle, out methodList))
+		    {
+			    if (methodList.Any(x => x.MessageType == messageType))
+			    {
+				    return;
+			    }
+			    methodList.Add(delegatetHolder);
+		    }
+		    else
+		    {
+			    cache[handler.TypeHandle] = new List<DelegatetHolder>
+				    {
+					    delegatetHolder
+				    };
+		    }
+	    }
 
 	    static Action<object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
 	    {
@@ -96,9 +107,13 @@ namespace NServiceBus.Unicast
 		    }
 		    return null;
 	    }
-
-		static Dictionary<RuntimeTypeHandle, Dictionary<Type, Action<object, object>>> handlerCache = new Dictionary<RuntimeTypeHandle, Dictionary<Type, Action<object, object>>>();
-		static Dictionary<RuntimeTypeHandle, Dictionary<Type, Action<object, object>>> timeoutCahce = new Dictionary<RuntimeTypeHandle, Dictionary<Type, Action<object, object>>>();
+		class DelegatetHolder
+		{
+			public Type MessageType;
+			public Action<object, object> MethodDelegate;
+		}
+		static Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegatetHolder>>();
+		static Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> timeoutCahce = new Dictionary<RuntimeTypeHandle, List<DelegatetHolder>>();
     }
 
 	public class HandlerInvocationCacheOld
