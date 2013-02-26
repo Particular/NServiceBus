@@ -7,6 +7,7 @@ using NServiceBus;
 namespace MyPublisher
 {
     using System.Threading;
+    using System.Transactions;
 
     using MyMessages.Publisher;
     using MyMessages.Subscriber1;
@@ -14,6 +15,56 @@ namespace MyPublisher
     using MyMessages.SubscriberNMS;
 
     using MyPublisher.Scheduling;
+
+    public class MyMessage1Handler : IHandleMessages<MyRequest1>
+    {
+        public IBus Bus { get; set; }
+
+        public void Handle(MyRequest1 message)
+        {
+            Console.WriteLine("Message1");
+            using (var tx = new TransactionScope(TransactionScopeOption.RequiresNew))
+            {
+                var localCommand = new LocalCommand { CommandId = Guid.NewGuid(), };
+                this.Bus.SendLocal(localCommand);
+
+                tx.Complete();
+            }
+
+            throw new Exception();
+        }
+    }
+
+    internal class TestSinglePhaseCommit : ISinglePhaseNotification
+    {
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            Console.WriteLine("Tx Prepare");
+            preparingEnlistment.Prepared();
+        }
+        public void Commit(Enlistment enlistment)
+        {
+            Console.WriteLine("Tx Commit");
+            enlistment.Done();
+        }
+
+        public void Rollback(Enlistment enlistment)
+        {
+            Console.WriteLine("Tx Rollback");
+            enlistment.Done();
+        }
+        public void InDoubt(Enlistment enlistment)
+        {
+            Console.WriteLine("Tx InDoubt");
+            enlistment.Done();
+        }
+        public void SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
+        {
+            Console.WriteLine("Tx SinglePhaseCommit");
+            singlePhaseEnlistment.Committed();
+            //singlePhaseEnlistment.Aborted();
+        }
+    }
 
     public class ServerEndpoint : IWantToRunWhenBusStartsAndStops
     {
@@ -73,9 +124,41 @@ namespace MyPublisher
                     case 't':
                         this.ScheduleTask();
                         break;
+                    case 'z':
+                        this.Test();
+                        break;
                 }
             }
         }
+        
+        private static TestSinglePhaseCommit x = new TestSinglePhaseCommit();
+        private static Guid guid = Guid.NewGuid();
+        private void Test()
+        {
+            {
+                Console.WriteLine("Send 1");
+
+                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(10)))
+                {
+                    Transaction.Current.EnlistDurable(guid, x, EnlistmentOptions.None);
+
+                    var commandMessage = this.Bus.CreateInstance<MyRequest1>();
+                    commandMessage.CommandId = Guid.NewGuid();
+                    commandMessage.Time = DateTime.Now.Second > -1 ? (DateTime?)DateTime.Now : null;
+                    commandMessage.Duration = TimeSpan.FromSeconds(99999D);
+
+                    this.Bus.Send(commandMessage);
+                    scope.Complete();
+                }
+
+                Console.WriteLine("Done");
+            }
+        }/*
+
+        private void Test()
+        {
+            Bus.SendLocal<MyRequest1>(m => { });
+        }*/
 
         private void SendOverDataBus()
         {

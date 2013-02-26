@@ -40,8 +40,9 @@
     <Reference Include="Apache.NMS">
       <HintPath>..\..\..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
     </Reference>
-    <Reference Include="Apache.NMS.ActiveMQ">
-      <HintPath>..\..\..\packages\Apache.NMS.ActiveMQ.1.5.6\lib\net40\Apache.NMS.ActiveMQ.dll</HintPath>
+    <Reference Include="Apache.NMS.ActiveMQ, Version=0.0.0.0, Culture=neutral, PublicKeyToken=82756feee3957618, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\lib\Apache.NMS-CustomBuild\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -60,6 +61,13 @@
     <Compile Include="ActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="ActiveMQMessageDefer.cs" />
     <Compile Include="ActiveMqMessagePublisher.cs" />
+    <Compile Include="ActiveMqSchedulerManagement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ActiveMqSchedulerManagementCommands.cs" />
+    <Compile Include="ActiveMqSchedulerManagementJob.cs" />
+    <Compile Include="ActiveMqSchedulerManagementJobProcessor.cs" />
+    <Compile Include="IActiveMqSchedulerManagementCommands.cs" />
     <Compile Include="Receivers\ActiveMqPurger.cs" />
     <Compile Include="ActiveMqQueueCreator.cs" />
     <Compile Include="ActiveMqMessageDequeueStrategy.cs" />
