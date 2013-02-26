@@ -14,16 +14,35 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Invokes the handle method of the given handler passing the message
         /// </summary>
-        /// <param name="interfaceType">The method that implements the interface type to execute.</param>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
-        public static void Invoke(Type interfaceType, object handler, object message)
+        public static void InvokeHandle(object handler, object message)
         {
-            var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[handler.GetType()];
-            foreach (var messageType in messageTypesToMethods.Keys)
-                if (messageType.IsInstanceOfType(message))
-                    messageTypesToMethods[messageType][interfaceType].Invoke(handler, new[] { message });
+			Invoke(handler, message, handlerCache);
         }
+
+	    /// <summary>
+		/// Invokes the timout method of the given handler passing the message
+		/// </summary>
+		/// <param name="handler">The handler instance.</param>
+		/// <param name="state">The message instance.</param>
+        public static void InvokeTimeout(object handler, object state)
+		{
+			Invoke(handler, state, timoutCahce);
+		}
+
+		static void Invoke(object handler, object message, Dictionary<Type, Dictionary<Type, MethodInfo>> dictionary)
+		{
+			Dictionary<Type, MethodInfo> methodList;
+			if (!dictionary.TryGetValue(handler.GetType(), out methodList))
+			{
+				return;
+			}
+			foreach (var pair in methodList.Where(pair => pair.Key.IsInstanceOfType(message)))
+			{
+				pair.Value.Invoke(handler, new[] { message });
+			}
+		}
 
         /// <summary>
         /// Registers the method in the cache
@@ -32,40 +51,43 @@ namespace NServiceBus.Unicast
         /// <param name="messageType">the message type.</param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
         {
-            if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(handler))
-                handlerToMessageTypeToHandleMethodMap.Add(handler, new Dictionary<Type, IDictionary<Type, MethodInfo>>());
+	        var handleMethod = GetMethod(handler, messageType, typeof(IMessageHandler<>));
+			if (handleMethod != null)
+			{
+				Dictionary<Type, MethodInfo> methodList;
+				if (!handlerCache.TryGetValue(handler, out methodList))
+				{
+					handlerCache[handler] = methodList = new Dictionary<Type, MethodInfo>();
+				}
+				methodList[messageType] = handleMethod;
+			}
 
-            if (!(handlerToMessageTypeToHandleMethodMap[handler].ContainsKey(messageType)))
-                handlerToMessageTypeToHandleMethodMap[handler].Add(messageType, GetHandleMethods(handler, messageType));
+	        var timoutMethod = GetMethod(handler, messageType,  typeof (IHandleTimeouts<>));
+			if (timoutMethod != null)
+			{
+				Dictionary<Type, MethodInfo> methodList;
+				if (!timoutCahce.TryGetValue(handler, out methodList))
+				{
+					timoutCahce[handler] = methodList = new Dictionary<Type, MethodInfo>();
+				}
+				methodList[messageType] = timoutMethod;
+			}
         }
 
-        static IDictionary<Type, MethodInfo> GetHandleMethods(Type targetType, Type messageType)
-        {
-            var result = new Dictionary<Type, MethodInfo>();
+	    static MethodInfo GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+	    {
+		    var interfaceType = interfaceGenericType.MakeGenericType(messageType);
 
-            foreach (var handlerInterface in handlerInterfaces)
-            {
-                MethodInfo method = null;
+		    if (interfaceType.IsAssignableFrom(targetType))
+		    {
+			    return targetType.GetInterfaceMap(interfaceType)
+			                     .TargetMethods
+			                     .FirstOrDefault();
+		    }
+		    return null;
+	    }
 
-                var interfaceType = handlerInterface.MakeGenericType(messageType);
-
-                if (interfaceType.IsAssignableFrom(targetType))
-                {
-                    method = targetType.GetInterfaceMap(interfaceType)
-                        .TargetMethods
-                        .FirstOrDefault();
-                }
-
-                if (method != null)
-                {
-                    result.Add(handlerInterface, method);
-                }
-            }
-
-            return result;
-        }
-
-        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IMessageHandler<>), typeof(IHandleTimeouts<>) };
-        static readonly IDictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>>();
+	    static Dictionary<Type, Dictionary<Type, MethodInfo>> handlerCache = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
+		static Dictionary<Type, Dictionary<Type, MethodInfo>> timoutCahce = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
     }
 }

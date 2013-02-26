@@ -12,7 +12,7 @@ namespace NServiceBus.Unicast.Tests
 		{
 			HandlerInvocationCache.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
 			var handler = new StubHandler();
-			HandlerInvocationCache.Invoke(typeof (IMessageHandler<>), handler, new StubMessage());
+			HandlerInvocationCache.InvokeHandle(handler, new StubMessage());
 			Assert.IsTrue(handler.HandleCalled);
 		}
 
@@ -22,7 +22,7 @@ namespace NServiceBus.Unicast.Tests
 			HandlerInvocationCache.CacheMethodForHandler(typeof (StubHandler), typeof (StubMessage));
 			var handler = new StubHandler();
 			var stubMessage = new StubMessage();
-			HandlerInvocationCache.Invoke(typeof (IMessageHandler<>), handler, stubMessage);
+			HandlerInvocationCache.InvokeHandle(handler, stubMessage);
 			Assert.AreEqual(stubMessage, handler.HandledMessage);
 		}
 
@@ -52,7 +52,7 @@ namespace NServiceBus.Unicast.Tests
 		{
 			HandlerInvocationCache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
 			var handler = new StubHandler();
-			HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>), handler, new StubTimeoutState());
+			HandlerInvocationCache.InvokeTimeout(handler, new StubTimeoutState());
 			Assert.IsTrue(handler.TimeoutCalled);
 		}
 
@@ -62,7 +62,7 @@ namespace NServiceBus.Unicast.Tests
 			HandlerInvocationCache.CacheMethodForHandler(typeof(StubHandler), typeof(StubTimeoutState));
 			var handler = new StubHandler();
 			var stubState = new StubTimeoutState();
-			HandlerInvocationCache.Invoke(typeof(IHandleTimeouts<>), handler, stubState);
+			HandlerInvocationCache.InvokeTimeout(handler, stubState);
 			Assert.AreEqual(stubState, handler.HandledState);
 		}
 
