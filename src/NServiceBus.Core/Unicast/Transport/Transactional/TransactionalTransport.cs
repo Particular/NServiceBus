@@ -462,6 +462,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
         [ThreadStatic]
         private static volatile bool needToAbort;
 
-        static readonly ILog Logger = LogManager.GetLogger("Transport");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Transport");
     }
 }

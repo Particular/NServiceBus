@@ -183,7 +183,7 @@
 
 
     
-        readonly static ILog Logger = LogManager.GetLogger("Subscriptions");
+        readonly static ILog Logger = LogManager.GetLogger("NServiceBus.Subscriptions");
 
         IAuthorizeSubscriptions subscriptionAuthorizer;
 

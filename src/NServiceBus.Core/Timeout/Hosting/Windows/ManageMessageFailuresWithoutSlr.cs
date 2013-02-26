@@ -8,7 +8,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
-        static readonly ILog Logger = LogManager.GetLogger("IManageMessageFailuresWithoutSLR");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.IManageMessageFailuresWithoutSLR");
 
         private Address localAddress;
         private readonly Address errorQueue;

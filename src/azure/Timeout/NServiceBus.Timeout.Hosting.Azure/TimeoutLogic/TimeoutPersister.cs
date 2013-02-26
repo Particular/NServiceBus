@@ -435,6 +435,6 @@ namespace NServiceBus.Timeout.Hosting.Azure
         private CloudStorageAccount account;
         private CloudBlobContainer container;
 
-        static readonly ILog Logger = LogManager.GetLogger("AzureTimeoutPersistence");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.AzureTimeoutPersistence");
     }
 }

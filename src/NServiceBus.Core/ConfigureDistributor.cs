@@ -121,6 +121,6 @@ namespace NServiceBus
         static bool distributorEnabled;
         static bool distributorShouldRunOnThisEndpoint;
         static bool workerRunsOnThisEndpoint;
-        static ILog logger = LogManager.GetLogger("ConfigureDistributor");
+        static ILog logger = LogManager.GetLogger("NServiceBus.ConfigureDistributor");
     }
 }
