@@ -80,9 +80,6 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.ActiveMQ">
-      <HintPath>..\..\binaries\NServiceBus.ActiveMQ.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
@@ -107,11 +104,14 @@
     <Reference Include="NServiceBus.ObjectBuilder.Unity">
       <HintPath>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.RabbitMQ">
-      <HintPath>..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
+    <Reference Include="NServiceBus.Transports.ActiveMQ">
+      <HintPath>..\..\binaries\NServiceBus.Transports.ActiveMQ.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.SqlServer">
-      <HintPath>..\..\binaries\NServiceBus.SqlServer.dll</HintPath>
+    <Reference Include="NServiceBus.Transports.RabbitMQ">
+      <HintPath>..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Transports.SQLServer">
+      <HintPath>..\..\binaries\NServiceBus.Transports.SQLServer.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
