@@ -58,14 +58,19 @@
             this.pooledSessionFactory.Release(session);
         }
 
+        [ThreadStatic]
+        private static string transactionId;
+
         public virtual void SetSessionForCurrentThread(ISession session)
         {
-            throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
+            transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+            this.sessionsForTransactions.TryAdd(transactionId, session);
         }
 
         public virtual void RemoveSessionForCurrentThread()
         {
-            throw new NotSupportedException("Thread specific sessions are not supported by this implementation.");
+            ISession session;
+            this.sessionsForTransactions.TryRemove(transactionId, out session);
         }
 
         public void Dispose()

@@ -2,8 +2,10 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
 {
     using System;
     using System.Threading;
+    using System.Transactions;
 
     using Apache.NMS;
+    using Apache.NMS.ActiveMQ;
     using Apache.NMS.Util;
 
     using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
@@ -126,7 +128,14 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers
         {
             IDestination d = SessionUtil.GetDestination(this.session, destination);
             this.PurgeIfNecessary(this.session, d);
-            return this.session.CreateConsumer(d);
+            var consumer = this.session.CreateConsumer(d);
+            ((MessageConsumer)consumer).CreateTransactionScopeForAsyncMessage = this.CreateTransactionScopeForAsyncMessage;
+            return consumer;
+        }
+
+        private TransactionScope CreateTransactionScopeForAsyncMessage()
+        {
+            return this.transactionScopeFactory.CreateTransactionScopeForAsyncMessage(transactionSettings);
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)

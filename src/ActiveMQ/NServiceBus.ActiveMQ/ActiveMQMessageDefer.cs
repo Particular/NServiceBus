@@ -4,6 +4,7 @@
     using System.Globalization;
 
     using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport;
 
     public class ActiveMQMessageDefer : IDeferMessages
     {
@@ -19,6 +20,12 @@
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
+            var selector = string.Format("{0} = '{1}'", ActiveMqMessageMapper.ConvertMessageHeaderKeyToActiveMQ(headerKey), headerValue);
+
+            var message = ControlMessage.Create(Address.Local);
+            message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = selector;
+
+            this.MessageSender.Send(message, Address.Local.SubScope(ActiveMqSchedulerManagement.SubScope));
         }
     }
 }

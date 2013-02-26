@@ -27,7 +27,23 @@ namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
                 return new ActiveMqTransaction(this.sessionFactory, session);
             }
 
-            return new DTCTransactionScope(session, new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout });
+            return new DTCTransactionScope(session, new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout }, this.sessionFactory);
+        }
+
+        public TransactionScope CreateTransactionScopeForAsyncMessage(TransactionSettings transactionSettings)
+        {
+            if (!transactionSettings.IsTransactional)
+            {
+                return null;
+            }
+
+            if (transactionSettings.DontUseDistributedTransactions)
+            {
+                return null;
+            }
+
+            return new TransactionScope(TransactionScopeOption.RequiresNew, 
+                new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout });
         }
     }
 }

@@ -16,7 +16,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<NonDTCEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For<AllDtcTransports>(Transports.ActiveMQ))
+                    .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c =>
                         {
                             //this check mainly applies to MSMQ who creates a DTC tx right of the bat if DTC is on
@@ -39,7 +39,8 @@
         {
             public NonDTCEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions = true));
+                Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions = true);
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
