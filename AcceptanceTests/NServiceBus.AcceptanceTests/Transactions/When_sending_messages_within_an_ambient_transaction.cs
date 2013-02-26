@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Transactions
 {
     using System;
-    using System.Threading;
     using System.Transactions;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -12,10 +11,10 @@
     public class When_sending_messages_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_deliver_them_until_the_commit_phase()
+        public void Should_call_non_transactional_handler_first()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus,context) =>
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
                     {
                         using (var tx = new TransactionScope())
                         {
@@ -24,21 +23,44 @@
 
                             //send another message as well so that we can check the order in the receiver
                             using (new TransactionScope(TransactionScopeOption.Suppress))
+                            {
                                 bus.Send(new MessageThatIsNotEnlisted());
-
-                            while (!context.MessageThatIsNotEnlistedHandlerWasCalled)
-                                Thread.Sleep(1000);
+                            }
 
                             tx.Complete();
                         }
                     }))
-                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled == 2)
-                    .Repeat(r => r.For<AllTransports>())
-                    .Should(c =>
+                    .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled == 2)
+                    .Repeat(r => r.For(Transports.RabbitMQ))
+                    .Should(c => Assert.True(c.NonTransactionalHandlerCalledFirst,
+                                             "The non transactional handler should have been called first"))
+                    .Run();
+        }
+
+        [Test]
+        public void Should_not_deliver_them_until_the_commit_phase()
+        {
+            Scenario.Define<Context>()
+                    .WithEndpoint<TransactionalEndpoint>(b => b.Given((bus, context) =>
                         {
-                            Assert.True(c.NonTransactionalHandlerCalledFirst, "The non transactional handler should have been called first");
-                            Assert.AreEqual(1, c.SequenceNumberOfFirstMessage, "The transport should preserve the order in in which the transactional messages are delivered to the queuing system");
-                        })
+                            using (var tx = new TransactionScope())
+                            {
+                                bus.Send(new MessageThatIsEnlisted {SequenceNumber = 1});
+                                bus.Send(new MessageThatIsEnlisted {SequenceNumber = 2});
+
+                                //send another message as well so that we can check the order in the receiver
+                                using (new TransactionScope(TransactionScopeOption.Suppress))
+                                {
+                                    bus.Send(new MessageThatIsNotEnlisted());
+                                }
+
+                                tx.Complete();
+                            }
+                        }))
+                    .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled == 2)
+                    .Repeat(r => r.For<AllTransports>())
+                    .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,
+                                                 "The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
                     .Run();
         }
 
@@ -60,10 +82,7 @@
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
                     .Repeat(r => r.For<AllTransports>())
-                    .Should(c =>
-                    {
-                        Assert.False(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called");
-                    })
+                    .Should(c => Assert.False(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called"))
                     .Run();
         }
 
@@ -91,7 +110,6 @@
             public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>
             {
                 public Context Context { get; set; }
-                public IBus Bus { get; set; }
 
                 public void Handle(MessageThatIsEnlisted messageThatIsEnlisted)
                 {
@@ -99,7 +117,9 @@
                     Context.TimesCalled++;
 
                     if (Context.SequenceNumberOfFirstMessage == 0)
+                    {
                         Context.SequenceNumberOfFirstMessage = messageThatIsEnlisted.SequenceNumber;
+                    }
                 }
             }
 
