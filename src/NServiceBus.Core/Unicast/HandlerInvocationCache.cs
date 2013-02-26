@@ -115,7 +115,7 @@ namespace NServiceBus.Unicast
 		static Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> handlerCache = new Dictionary<RuntimeTypeHandle, List<DelegatetHolder>>();
 		static Dictionary<RuntimeTypeHandle, List<DelegatetHolder>> timeoutCahce = new Dictionary<RuntimeTypeHandle, List<DelegatetHolder>>();
     }
-
+	//TODO: remove. only here for pull request
 	public class HandlerInvocationCacheOld
 	{
 		/// <summary>
