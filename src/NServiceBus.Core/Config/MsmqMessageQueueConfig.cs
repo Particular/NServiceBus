@@ -2,7 +2,7 @@ namespace NServiceBus.Config
 {
     using System.Configuration;
     using System.Data.Common;
-    using Unicast.Queuing.Msmq.Config;
+    using Transports.Msmq.Config;
 
     /// <summary>
     /// Contains the properties representing the MsmqMessageQueue configuration section.

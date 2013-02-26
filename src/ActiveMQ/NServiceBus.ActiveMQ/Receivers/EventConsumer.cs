@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
     using System;
     using System.Collections.Generic;

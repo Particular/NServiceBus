@@ -1,7 +1,5 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
-    using Unicast.Queuing;
-
     public class RabbitMqMessageSender : ISendMessages
     {
         public void Send(TransportMessage message, Address address)

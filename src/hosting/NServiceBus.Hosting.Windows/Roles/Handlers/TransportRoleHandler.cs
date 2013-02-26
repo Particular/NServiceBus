@@ -2,6 +2,7 @@ namespace NServiceBus.Hosting.Roles.Handlers
 {
     using System.Linq;
     using Hosting.Roles;
+    using Transports;
     using Unicast.Config;
     using Unicast.Transport;
 

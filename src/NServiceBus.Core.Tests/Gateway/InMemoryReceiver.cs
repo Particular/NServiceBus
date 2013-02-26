@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
     using System.Collections.Generic;
-    using Unicast.Queuing;
+    using Transports;
 
     internal class InMemoryReceiver : IReceiveMessages
     {

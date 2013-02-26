@@ -39,8 +39,8 @@
 <Reference Include="RabbitMQ.Client" >
     <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
   </Reference>
-<Reference Include="NServiceBus.RabbitMQ" >
-    <HintPath>..\..\..\binaries\NServiceBus.RabbitMQ.dll</HintPath>
+<Reference Include="NServiceBus.Transports.RabbitMQ" >
+    <HintPath>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
   </Reference>
     <Reference Include="System">
     </Reference>

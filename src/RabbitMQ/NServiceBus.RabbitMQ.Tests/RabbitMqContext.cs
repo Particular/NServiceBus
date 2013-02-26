@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.RabbitMQ.Tests
+﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
     using System;
     using System.Collections.Concurrent;
     using NServiceBus;
-    using RabbitMq;
     using NUnit.Framework;
+    using NServiceBus.Transports.RabbitMQ;
+    using Unicast.Transport.Transactional;
     using global::RabbitMQ.Client;
-    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     public class RabbitMqContext
     {

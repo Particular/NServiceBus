@@ -8,6 +8,7 @@ namespace NServiceBus.Gateway.Sending
     using Receiving;
     using Routing;
     using Satellites;
+    using Transports;
     using Unicast;
     using Unicast.Queuing;
 

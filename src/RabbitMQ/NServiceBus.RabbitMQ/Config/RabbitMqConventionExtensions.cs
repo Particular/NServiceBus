@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using RabbitMq.Config;
+    using Transports.RabbitMQ.Config;
 
     /// <summary>
     /// Adds access to the RabbitMQ conventions to the global convention object

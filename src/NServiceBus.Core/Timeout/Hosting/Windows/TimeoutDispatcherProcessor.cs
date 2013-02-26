@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using Core;
     using Satellites;
+    using Transports;
     using Unicast.Queuing;
 
     public class TimeoutDispatcherProcessor : ISatellite

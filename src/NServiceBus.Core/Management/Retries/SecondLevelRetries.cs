@@ -4,6 +4,7 @@ namespace NServiceBus.Management.Retries
     using Faults.Forwarder;
     using Logging;
     using Satellites;
+    using Transports;
     using Unicast.Queuing;
     using TransportMessageHelpers = Helpers.TransportMessageHelpers;
 

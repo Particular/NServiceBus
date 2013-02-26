@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Linq;
     using Config;
+    using Transports;
     using Unicast.Transport;
 
     /// <summary>

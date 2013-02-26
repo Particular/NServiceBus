@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
     using System;
-    using Apache.NMS;
 
     public interface IConsumeEvents : IDisposable
     {

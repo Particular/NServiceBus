@@ -1,6 +1,7 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
+    using Transports;
     using Unicast.Queuing;
 
     /// <summary>

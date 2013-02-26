@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Satellites;
+    using NServiceBus.Satellites;
 
     public class ActiveMqSchedulerManagement : ISatellite
     {

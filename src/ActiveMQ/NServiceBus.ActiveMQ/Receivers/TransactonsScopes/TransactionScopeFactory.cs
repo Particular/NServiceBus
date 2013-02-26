@@ -1,10 +1,9 @@
-namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
+namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
 {
     using System.Transactions;
-
     using Apache.NMS;
-
     using NServiceBus.Unicast.Transport.Transactional;
+    using SessionFactories;
 
     public class TransactionScopeFactory : ITransactionScopeFactory
     {

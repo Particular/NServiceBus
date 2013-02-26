@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
-    using System;
-    using Unicast.Queuing;
+    using NServiceBus.Unicast.Queuing;
 
     public class RabbitMqQueueCreator : ICreateQueues
     {

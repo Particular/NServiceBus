@@ -19,6 +19,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="\binaries\NServiceBus.SqlServer.???" target="lib\net40" />
+    <file src="\binaries\NServiceBus.Transports.SqlServer.???" target="lib\net40" />
   </files>
 </package>

@@ -1,18 +1,13 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
-
     using Apache.NMS;
-    using Apache.NMS.ActiveMQ.Commands;
     using Apache.NMS.Util;
-
     using FluentAssertions;
-
     using Moq;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     public class ActiveMqMessageMapperTest

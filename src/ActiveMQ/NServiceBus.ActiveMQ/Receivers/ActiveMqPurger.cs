@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
     using System.Collections.Generic;
-
     using Apache.NMS;
 
     public class ActiveMqPurger : IActiveMqPurger

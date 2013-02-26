@@ -1,13 +1,10 @@
 namespace NServiceBus.Hosting.Tests
 {
-    using Config;
     using NUnit.Framework;
     using Roles;
     using Roles.Handlers;
-    using Unicast.Queuing;
-    using Unicast.Queuing.Msmq;
-    using Unicast.Transport;
-    using Windows.Roles.Handlers;
+    using Transports;
+    using Transports.Msmq;
 
     [TestFixture]
     public class With_transport_tests

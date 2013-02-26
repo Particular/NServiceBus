@@ -1,4 +1,4 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transports.ActiveMQ
 {
     using Apache.NMS;
     using Apache.NMS.ActiveMQ.Commands;

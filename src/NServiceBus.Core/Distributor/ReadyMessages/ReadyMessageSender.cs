@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.ReadyMessages
 {
     using System;
+    using Transports;
     using Unicast;
     using Unicast.Queuing;
     using Unicast.Transport;

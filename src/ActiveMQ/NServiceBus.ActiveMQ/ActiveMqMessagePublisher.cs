@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     using NServiceBus.Unicast.Queuing;
 
     public class ActiveMqMessagePublisher : IPublishMessages

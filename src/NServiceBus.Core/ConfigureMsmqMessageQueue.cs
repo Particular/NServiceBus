@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using Config;
     using Logging;
+    using Transports.Msmq;
+    using Transports.Msmq.Config;
     using Unicast.Queuing.Installers;
-    using Unicast.Queuing.Msmq;
-    using Unicast.Queuing.Msmq.Config;
     using Unicast.Transport;
 
     /// <summary>

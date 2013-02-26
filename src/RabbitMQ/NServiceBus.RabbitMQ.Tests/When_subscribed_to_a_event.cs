@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.RabbitMQ.Tests
+﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
     using System;
     using NServiceBus;

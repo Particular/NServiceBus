@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
+    using Transports;
     using Unicast.Queuing;
     using Unicast.Transport.Transactional;
 

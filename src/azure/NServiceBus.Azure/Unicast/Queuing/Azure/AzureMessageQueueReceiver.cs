@@ -9,7 +9,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Transactions;
     using Microsoft.WindowsAzure.StorageClient;
     using Serialization;
-    using Transport;
+    using Transports;
 
     public class AzureMessageQueueReceiver : IReceiveMessages
     {

@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
+﻿namespace NServiceBus.Transports.ActiveMQ.SessionFactories
 {
     using System;
     using System.Collections.Concurrent;
-
     using Apache.NMS;
 
     public class PooledSessionFactory : ISessionFactory

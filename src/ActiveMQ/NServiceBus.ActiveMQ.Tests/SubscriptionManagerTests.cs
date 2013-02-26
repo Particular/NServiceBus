@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System;
     using System.Collections.Generic;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     class SubscriptionManagerTests : ITopicSubscriptionListener

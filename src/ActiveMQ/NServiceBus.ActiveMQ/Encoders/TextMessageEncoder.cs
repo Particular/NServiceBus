@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Encoders
+﻿namespace NServiceBus.Transports.ActiveMQ.Encoders
 {
     using System.Text;
-
     using Apache.NMS;
 
     public class TextMessageEncoder : IActiveMqMessageEncoder

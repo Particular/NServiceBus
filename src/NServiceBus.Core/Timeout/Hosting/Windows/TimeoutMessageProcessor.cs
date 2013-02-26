@@ -3,6 +3,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using Core;
     using Satellites;
+    using Transports;
     using Unicast.Queuing;
 
 

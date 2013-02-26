@@ -1,17 +1,12 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactionScopes
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers.TransactionScopes
 {
     using System;
     using System.Transactions;
-
-    using Apache.NMS.ActiveMQ;
-    using Apache.NMS.ActiveMQ.Commands;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class DTCTransactionScopeTests

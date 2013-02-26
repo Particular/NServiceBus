@@ -26,6 +26,7 @@ namespace NServiceBus.Unicast
     using Serialization;
     using Subscriptions;
     using Transport;
+    using Transports;
     using UnitOfWork;
 
     /// <summary>

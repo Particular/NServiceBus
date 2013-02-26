@@ -1,15 +1,14 @@
-namespace NServiceBus.Transport.ActiveMQ.Receivers
+namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
     using System;
     using System.Threading;
     using System.Transactions;
-
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Util;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Unicast.Transport.Transactional;
+    using SessionFactories;
+    using TransactonsScopes;
 
     public class MessageProcessor : IProcessMessages
     {

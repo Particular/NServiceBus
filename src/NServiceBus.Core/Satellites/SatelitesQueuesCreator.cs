@@ -3,7 +3,7 @@ namespace NServiceBus.Satellites
     using System.Linq;
     using Installation;
     using Installation.Environments;
-    using Unicast.Queuing;
+    using Transports;
 
     /// <summary>
     /// Responsible to create a queue, using the registered ICreateQueues for each satellite

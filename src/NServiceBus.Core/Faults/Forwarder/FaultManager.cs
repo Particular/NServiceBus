@@ -2,6 +2,7 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using Logging;
+    using Transports;
     using Unicast.Queuing;
 
     /// <summary>

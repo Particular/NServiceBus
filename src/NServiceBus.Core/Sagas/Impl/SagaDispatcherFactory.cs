@@ -9,9 +9,8 @@ namespace NServiceBus.Sagas.Impl
     using Logging;
     using ObjectBuilder;
     using Saga;
+    using Transports;
     using Unicast;
-    using Unicast.Queuing;
-    using Utils;
 
     /// <summary>
     /// Dispatch factory that can dispatch messages to sagas

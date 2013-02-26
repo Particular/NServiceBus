@@ -14,6 +14,7 @@
     using Receiving;
     using Rhino.Mocks;
     using Sending;
+    using Transports;
     using Unicast.Queuing;
 
     public class via_the_gateway

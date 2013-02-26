@@ -20,6 +20,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="\binaries\NServiceBus.ActiveMQ.???" target="lib\net40" />
+    <file src="\binaries\NServiceBus.Transports.ActiveMQ.???" target="lib\net40" />
   </files>
 </package>

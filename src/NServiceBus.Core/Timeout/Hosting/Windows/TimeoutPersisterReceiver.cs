@@ -4,6 +4,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System.Threading;
     using Core;
     using Logging;
+    using Transports;
     using Unicast.Queuing;
     using Unicast.Transport;
 

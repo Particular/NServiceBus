@@ -1,9 +1,6 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
     using System;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers;
-    using NServiceBus.Unicast.Transport.Transactional;
 
     public class NotifyMessageReceivedFactory : INotifyMessageReceivedFactory
     {

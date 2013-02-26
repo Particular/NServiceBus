@@ -6,6 +6,7 @@ namespace NServiceBus.Management.Retries.Tests
 {
     using Faults.Forwarder;
     using Helpers;
+    using Transports;
     using Unicast.Queuing;
 
     [TestFixture]

@@ -1,7 +1,7 @@
 namespace NServiceBus.Management.Retries.Helpers
 {
     using System;
-    using Unicast.Queuing.Msmq;
+    using Transports.Msmq;
 
     public static class TransportMessageHelpers
     {

@@ -3,8 +3,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
     using System;
     using System.Messaging;
     using System.Transactions;
-    using Unicast.Queuing.Msmq;
-    using Unicast.Transport;
+    using Transports.Msmq;
 
     public class ErrorManager
     {

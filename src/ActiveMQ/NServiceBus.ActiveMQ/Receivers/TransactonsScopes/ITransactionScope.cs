@@ -1,4 +1,4 @@
-namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes
+namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
 {
     using System;
     using Apache.NMS;

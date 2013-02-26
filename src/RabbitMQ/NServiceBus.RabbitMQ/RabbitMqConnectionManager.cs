@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
     using System.Threading;
-    using Logging;
+    using NServiceBus.Logging;
     using global::RabbitMQ.Client;
 
     public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections

@@ -1,13 +1,11 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System;
-    using System.Linq;
     using System.Threading;
-
     using Apache.NMS;
-
     using Moq;
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
 
     public class ActiveMqSchedulerManagementJobProcessorTests
     {

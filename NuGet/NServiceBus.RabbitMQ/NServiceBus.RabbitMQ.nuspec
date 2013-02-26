@@ -20,6 +20,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="\binaries\NServiceBus.RabbitMQ.???" target="lib\net40" />
+    <file src="\binaries\NServiceBus.Transports.RabbitMQ.???" target="lib\net40" />
   </files>
 </package>

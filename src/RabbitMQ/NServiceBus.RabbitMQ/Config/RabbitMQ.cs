@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using Unicast.Transport;
+    using Transports;
 
     public class RabbitMQ : ITransportDefinition
     {

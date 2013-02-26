@@ -6,6 +6,7 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using Transports;
 
     /// <summary>
     /// Azure service bus implementation if <see cref="IDequeueMessages" />.

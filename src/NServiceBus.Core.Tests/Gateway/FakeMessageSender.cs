@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading;
+    using Transports;
     using Unicast.Queuing;
 
     public class FakeMessageSender : ISendMessages

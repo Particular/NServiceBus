@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Distributor
     using Logging;
     using Queuing;
     using Satellites;
+    using Transports;
 
     /// <summary>
     ///     Provides functionality for distributing messages from a bus

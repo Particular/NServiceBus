@@ -1,20 +1,16 @@
-﻿namespace NServiceBus.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
     using System;
     using System.Transactions;
-
     using Apache.NMS;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ;
-    using NServiceBus.Transport.ActiveMQ.Receivers;
-    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Unicast.Transport.Transactional;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
+    using NServiceBus.Transports.ActiveMQ.Receivers;
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class MessageProcessorTest

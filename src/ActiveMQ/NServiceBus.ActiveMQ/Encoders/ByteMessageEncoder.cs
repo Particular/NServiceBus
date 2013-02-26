@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Encoders
+﻿namespace NServiceBus.Transports.ActiveMQ.Encoders
 {
     using Apache.NMS;
 

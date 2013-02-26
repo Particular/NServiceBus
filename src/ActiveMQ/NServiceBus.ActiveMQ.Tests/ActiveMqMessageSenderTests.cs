@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using Moq;
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     public class ActiveMqMessageSenderTests

@@ -1,14 +1,11 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.SessionFactories
 {
     using System.Collections.Generic;
-
     using Apache.NMS;
-
     using FluentAssertions;
-
     using Moq;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class PooledSessionFactoryTest

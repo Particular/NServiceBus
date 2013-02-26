@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Unicast.Queuing;
 
     public class RabbitMqMessagePublisher : IPublishMessages
     {

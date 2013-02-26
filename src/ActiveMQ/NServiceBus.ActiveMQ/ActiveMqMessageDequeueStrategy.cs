@@ -1,12 +1,11 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers;
-
-    using Unicast.Queuing;
-    using Unicast.Transport.Transactional;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport.Transactional;
+    using Receivers;
+    using SessionFactories;
 
     /// <summary>
     ///     ActiveMq implementation if <see cref="IDequeueMessages" />.

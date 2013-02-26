@@ -1,9 +1,9 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Transactions;
-
     using Apache.NMS;
+    using SessionFactories;
 
     public class ActiveMqSchedulerManagementCommands : IActiveMqSchedulerManagementCommands
     {

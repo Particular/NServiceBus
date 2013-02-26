@@ -1,11 +1,9 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
-
     using Apache.NMS;
-
-    using NServiceBus.Transport.ActiveMQ.Decoders;
+    using Decoders;
 
     public class ActiveMqMessageDecoderPipeline : IActiveMqMessageDecoderPipeline
     {

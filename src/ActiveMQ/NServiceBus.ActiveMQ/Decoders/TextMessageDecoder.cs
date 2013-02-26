@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Decoders
+﻿namespace NServiceBus.Transports.ActiveMQ.Decoders
 {
     using System.Text;
-
     using Apache.NMS;
 
     public class TextMessageDecoder : IActiveMqMessageDecoder

@@ -1,8 +1,8 @@
 namespace NServiceBus.Unicast.Transport.Transactional.Config
 {
     using System;
-    using DequeueStrategies;
     using Queuing;
+    using Transports;
 
     class DefaultDequeueStrategy : IWantToRunBeforeConfigurationIsFinalized
     {

@@ -3,6 +3,7 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
+    using Transports;
     using Unicast.Queuing;
 
     /// <summary>

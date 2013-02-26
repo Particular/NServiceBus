@@ -1,7 +1,6 @@
-namespace NServiceBus.Transport.ActiveMQ
+namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
-    using System.Linq;
 
     public class TopicEvaluator : ITopicEvaluator
     {

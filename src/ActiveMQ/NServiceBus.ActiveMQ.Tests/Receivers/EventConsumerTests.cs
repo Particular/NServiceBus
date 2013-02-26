@@ -1,15 +1,12 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
     using System;
     using System.Collections.Generic;
-
     using Apache.NMS;
-
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ;
+    using NServiceBus.Transports.ActiveMQ.Receivers;
 
     [TestFixture]
     public class EventConsumerTests

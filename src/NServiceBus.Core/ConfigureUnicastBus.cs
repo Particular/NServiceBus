@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using Config;
     using Timeout;
+    using Transports;
     using Unicast.Config;
     using Unicast.Publishing;
     using Unicast.Queuing;

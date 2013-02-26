@@ -7,6 +7,8 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using Transports;
+
     /// <summary>
     /// 
     /// </summary>

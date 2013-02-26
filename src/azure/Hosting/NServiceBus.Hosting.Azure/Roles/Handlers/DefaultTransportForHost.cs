@@ -1,6 +1,7 @@
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
 {
     using NServiceBus.Unicast.Queuing;
+    using Transports;
 
     public class DefaultTransportForHost : IWantToRunBeforeConfigurationIsFinalized
     {

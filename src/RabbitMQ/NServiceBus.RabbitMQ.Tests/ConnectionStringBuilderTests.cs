@@ -1,7 +1,7 @@
-﻿namespace NServiceBus.RabbitMQ.Tests
+﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
-    using NServiceBus.RabbitMq.Config;
     using NUnit.Framework;
+    using NServiceBus.Transports.RabbitMQ.Config;
 
     [TestFixture]
     public class ConnectionStringBuilderTests

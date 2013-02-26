@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using Management.Retries;
     using Monitoring;
     using Queuing;
+    using Transports;
 
     /// <summary>
     /// An implementation of <see cref="ITransport"/> that supports transactions.

@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.RabbitMq.Config
+﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
-    using NServiceBus.Config;
-    using Unicast.Queuing.Installers;
+    using NServiceBus.Unicast.Queuing.Installers;
+    using RabbitMQ = NServiceBus.RabbitMQ;
 
     public class RabbitMqTransportConfigurer : ConfigureTransport<RabbitMQ>
     {

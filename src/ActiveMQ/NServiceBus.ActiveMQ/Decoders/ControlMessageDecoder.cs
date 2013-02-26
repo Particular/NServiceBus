@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Decoders
+﻿namespace NServiceBus.Transports.ActiveMQ.Decoders
 {
     using Apache.NMS;
 

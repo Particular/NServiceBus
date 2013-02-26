@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
     using System.Linq;
-    using Utils.Reflection;
+    using NServiceBus.Utils.Reflection;
 
     public class RabbitMqTopicBuilder
     {

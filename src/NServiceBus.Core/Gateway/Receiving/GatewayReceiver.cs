@@ -7,6 +7,7 @@ namespace NServiceBus.Gateway.Receiving
     using ObjectBuilder;
     using Routing;
     using Satellites;
+    using Transports;
     using Unicast.Queuing;
 
     public class GatewayReceiver : ISatellite

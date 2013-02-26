@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Globalization;
-
     using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Transport;
 

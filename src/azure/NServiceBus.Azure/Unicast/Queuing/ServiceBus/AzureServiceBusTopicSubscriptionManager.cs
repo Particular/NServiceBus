@@ -1,12 +1,11 @@
 using System;
 using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using NServiceBus.Unicast.Subscriptions;
-using NServiceBus.Unicast.Transport;
 using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using Transports;
+
     public class AzureServiceBusTopicSubscriptionManager : IManageSubscriptions
     {
         /// <summary>

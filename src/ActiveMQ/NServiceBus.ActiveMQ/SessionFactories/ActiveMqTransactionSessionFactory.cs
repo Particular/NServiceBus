@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
+﻿namespace NServiceBus.Transports.ActiveMQ.SessionFactories
 {
     using System;
     using System.Collections.Concurrent;
     using System.Threading;
-
     using Apache.NMS;
 
     public class ActiveMqTransactionSessionFactory : ISessionFactory

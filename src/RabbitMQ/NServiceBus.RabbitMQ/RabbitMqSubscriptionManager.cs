@@ -1,8 +1,6 @@
-﻿namespace NServiceBus.RabbitMq
+﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
-    using Unicast.Subscriptions;
-
 
     public class RabbitMqSubscriptionManager : IManageSubscriptions
     {

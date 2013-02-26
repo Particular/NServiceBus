@@ -1,12 +1,10 @@
-﻿namespace NServiceBus.ActiveMQ.Receivers
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
     using Apache.NMS;
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers;
     using NServiceBus.Unicast.Transport.Transactional;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.Receivers;
 
     [TestFixture]
     public class ActiveMqMessageReceiverTests

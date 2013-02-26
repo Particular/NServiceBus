@@ -1,15 +1,11 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.SessionFactories
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.SessionFactories
 {
     using System.Threading;
     using System.Threading.Tasks;
-
     using Apache.NMS;
-
     using FluentAssertions;
-
-    using NServiceBus.ActiveMQ;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class ActiveMqTransactionSessionFactoryTest

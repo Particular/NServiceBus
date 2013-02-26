@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -129,7 +129,6 @@
     <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\FtpQueueConfig.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
-    <Compile Include="Config\IConfigureTransport.cs" />
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Config\Logging.cs" />
@@ -139,7 +138,25 @@
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Persistence\Raven\StoreAccessor.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\Config\MsmqSettings.cs" />
+    <Compile Include="Transports\DefaultTransportForHost.cs" />
+    <Compile Include="Transports\IConfigureTransport.cs" />
+    <Compile Include="Transports\ICreateQueues.cs" />
+    <Compile Include="Transports\IDeferMessages.cs" />
+    <Compile Include="Transports\IDequeueMessages.cs" />
+    <Compile Include="Transports\IManageSubscriptions.cs" />
+    <Compile Include="Transports\IPublishMessages.cs" />
+    <Compile Include="Transports\IReceiveMessages.cs" />
+    <Compile Include="Transports\ISendMessages.cs" />
+    <Compile Include="Transports\ITransportDefinition.cs" />
+    <Compile Include="Transports\Msmq\Config\Msmq.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqSettings.cs" />
+    <Compile Include="Transports\Msmq\HeaderInfo.cs" />
+    <Compile Include="Transports\Msmq\MsmqDequeueStrategy.cs" />
+    <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
+    <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
+    <Compile Include="Transports\Msmq\MsmqTransportConfigurer.cs" />
+    <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
+    <Compile Include="Transports\PollingDequeueStrategy.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
@@ -430,22 +447,10 @@
     <Compile Include="Unicast\Monitoring\VersionMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
-    <Compile Include="Unicast\Queuing\ICreateQueues.cs" />
-    <Compile Include="Unicast\Queuing\IDeferMessages.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
-    <Compile Include="Unicast\Queuing\IPublishMessages.cs" />
-    <Compile Include="Unicast\Queuing\IReceiveMessages.cs" />
-    <Compile Include="Unicast\Queuing\ISendMessages.cs" />
     <Compile Include="Unicast\Queuing\IWantQueueCreated.cs" />
     <Compile Include="Unicast\Queuing\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\Config\MsmqTransportConfigurer.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\HeaderInfo.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\Config\Msmq.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\MsmqDequeueStrategy.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\MsmqMessageSender.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\MsmqQueueCreator.cs" />
-    <Compile Include="Unicast\Queuing\Msmq\MsmqUtilities.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
@@ -454,7 +459,6 @@
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptionManager.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\InMemory\InMemorySubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\IManageSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\ISubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\MessageType.cs" />
     <Compile Include="Unicast\Subscriptions\Storage\Msmq\Config\SubscriptionsQueueCreator.cs" />
@@ -465,15 +469,12 @@
     <Compile Include="Unicast\Transport\ControlMessage.cs" />
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
-    <Compile Include="Unicast\Transport\ITransportDefinition.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\DefaultDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
-    <Compile Include="Unicast\Transport\Transactional\DequeueStrategies\PollingDequeueStrategy.cs" />
     <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
-    <Compile Include="Unicast\Queuing\IDequeueMessages.cs" />
     <Compile Include="Unicast\Transport\Transactional\Monitoring\ReceivePerformanceDiagnostics.cs" />
     <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
     <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
@@ -486,7 +487,6 @@
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="Utils\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
-    <Compile Include="Utils\HeaderInfo.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />

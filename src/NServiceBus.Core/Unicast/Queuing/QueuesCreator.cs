@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Queuing
     using Installation;
     using Installation.Environments;
     using Logging;
+    using Transports;
     using INeedInitialization = NServiceBus.INeedInitialization;
 
     /// <summary>

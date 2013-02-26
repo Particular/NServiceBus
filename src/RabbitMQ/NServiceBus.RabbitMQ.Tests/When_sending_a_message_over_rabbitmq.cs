@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.RabbitMQ.Tests
+﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
     using System;
     using System.Text;
     using System.Transactions;
     using NServiceBus;
-    using RabbitMq;
-    using Unicast.Queuing;
+    using NServiceBus.Transports.RabbitMQ;
+    using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
-
 
     [TestFixture, Category("Integration")]
     public class When_sending_a_message_over_rabbitmq : RabbitMqContext

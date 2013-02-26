@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
-
     using Apache.NMS;
 
     public class ActiveMqSchedulerManagementJob

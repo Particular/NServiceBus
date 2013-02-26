@@ -1,15 +1,14 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System;
     using System.Collections.Generic;
-
     using FluentAssertions;
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers;
-
     using NUnit.Framework;
-    using Unicast.Transport.Transactional;
+    using NServiceBus.Transports.ActiveMQ;
+    using NServiceBus.Transports.ActiveMQ.Receivers;
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
+    using NServiceBus.Unicast.Transport.Transactional;
 
     [TestFixture]
     public class ActiveMqMessageDequeueStrategyTests

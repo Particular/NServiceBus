@@ -1,5 +1,7 @@
-﻿namespace NServiceBus.Transport.ActiveMQ
+﻿namespace NServiceBus.Transports.ActiveMQ
 {
+    using SessionFactories;
+
     public class MessageProducer : IMessageProducer
     {
         private readonly IActiveMqMessageMapper activeMqMessageMapper;

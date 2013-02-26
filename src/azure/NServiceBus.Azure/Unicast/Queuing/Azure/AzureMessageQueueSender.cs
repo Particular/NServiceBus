@@ -8,6 +8,8 @@ using NServiceBus.Serialization;
 
 namespace NServiceBus.Unicast.Queuing.Azure
 {
+    using Transports;
+
     /// <summary>
     /// 
     /// </summary>

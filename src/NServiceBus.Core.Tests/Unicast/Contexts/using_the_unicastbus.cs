@@ -17,6 +17,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Subscriptions;
     using Subscriptions.SubcriberSideFiltering;
     using Timeout;
+    using Transports;
     using Unicast.Messages;
     using UnitOfWork;
 

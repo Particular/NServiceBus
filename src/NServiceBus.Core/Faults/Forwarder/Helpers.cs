@@ -2,7 +2,7 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using System.Messaging;
-    using Unicast.Queuing.Msmq;
+    using Transports.Msmq;
 
     // Copied from NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
     internal static class MessageHelpers

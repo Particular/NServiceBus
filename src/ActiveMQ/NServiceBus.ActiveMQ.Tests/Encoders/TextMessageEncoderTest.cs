@@ -1,12 +1,10 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Encoders
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Encoders
 {
     using System.Text;
-
     using Apache.NMS;
-
     using Moq;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.Encoders;
 
     [TestFixture]
     public class TextMessageEncoderTest

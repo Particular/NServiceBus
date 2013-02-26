@@ -1,12 +1,9 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Receivers.TransactionScopes
+﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers.TransactionScopes
 {
     using Apache.NMS;
-
     using Moq;
-
-    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
-
     using NUnit.Framework;
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
 
     [TestFixture]
     public class NoTransactionScopeTests

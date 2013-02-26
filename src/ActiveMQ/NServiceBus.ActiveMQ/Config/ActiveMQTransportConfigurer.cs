@@ -1,21 +1,18 @@
-﻿namespace NServiceBus.Transport.ActiveMQ.Config
+﻿namespace NServiceBus.Transports.ActiveMQ.Config
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using NServiceBus.Config;
-    using NServiceBus.Transport.ActiveMQ.Receivers;
-    using NServiceBus.Transport.ActiveMQ.Receivers.TransactonsScopes;
-    using NServiceBus.Transport.ActiveMQ.SessionFactories;
-
-    using Unicast.Queuing.Installers;
-    using MessageProducer = NServiceBus.Transport.ActiveMQ.MessageProducer;
+    using NServiceBus.Unicast.Queuing.Installers;
+    using Receivers;
+    using Receivers.TransactonsScopes;
+    using SessionFactories;
+    using MessageProducer = ActiveMQ.MessageProducer;
 
     /// <summary>
     /// Default configuration for ActiveMQ
