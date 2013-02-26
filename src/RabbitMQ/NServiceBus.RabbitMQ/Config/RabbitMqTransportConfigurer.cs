@@ -15,10 +15,10 @@
         {
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
             {
-                var builder = new RabbitMqConnectionStringBuilder(connectionString);
+                var builder = new RabbitMqConnectionStringParser(connectionString);
 
-                var connectionFactory = builder.BuildConnectionFactory();
-                var connectionManager = new RabbitMqConnectionManager(connectionFactory);
+                var connectionManager = new RabbitMqConnectionManager(builder.BuildConnectionFactory(),builder.BuildConnectionRetrySettings());
+                
                 config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);                
             }
 

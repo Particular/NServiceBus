@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using Config;
     using NServiceBus;
     using NUnit.Framework;
     using NServiceBus.Transports.RabbitMQ;
@@ -58,7 +59,7 @@
         public void SetUp()
         {
             receivedMessages = new BlockingCollection<TransportMessage>();
-            connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" });
+            connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager };
 

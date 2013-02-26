@@ -2,21 +2,16 @@
 {
     using System;
     using System.Threading;
-    using NServiceBus.Logging;
+    using Config;
+    using Logging;
     using global::RabbitMQ.Client;
 
     public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
     {
-        public int MaxRetries { get; set; }
-
-        public TimeSpan DelayBetweenRetries { get; set; }
-
-        public RabbitMqConnectionManager(ConnectionFactory connectionFactory)
+        public RabbitMqConnectionManager(ConnectionFactory connectionFactory,ConnectionRetrySettings retrySettings)
         {
-            MaxRetries = 6;
-            DelayBetweenRetries = TimeSpan.FromSeconds(10);
-
             this.connectionFactory = connectionFactory;
+            this.retrySettings = retrySettings;
         }
 
         public IConnection GetConnection(ConnectionPurpose purpose)
@@ -36,7 +31,7 @@
         {
             int retries = 0;
             Exception exception = null;
-            while (retries < MaxRetries)
+            while (retries < retrySettings.MaxRetries)
             {
                 try
                 {
@@ -61,7 +56,7 @@
                     Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.HostName, ex);
                 }
 
-                Thread.Sleep(DelayBetweenRetries);
+                Thread.Sleep(retrySettings.DelayBetweenRetries);
             }
             connectionFailed = true;
 
@@ -123,6 +118,7 @@
         }
 
         readonly ConnectionFactory connectionFactory;
+        readonly ConnectionRetrySettings retrySettings;
         IConnection connection;
         static readonly ILog Logger = LogManager.GetLogger("RabbitMq");
         bool connectionFailed;
