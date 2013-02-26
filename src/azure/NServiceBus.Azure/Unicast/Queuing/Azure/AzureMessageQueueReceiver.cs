@@ -9,9 +9,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Transactions;
     using Microsoft.WindowsAzure.StorageClient;
     using Serialization;
-    using Transports;
 
-    public class AzureMessageQueueReceiver : IReceiveMessages
+    public class AzureMessageQueueReceiver
     {
         public const int DefaultMessageInvisibleTime = 30000;
         public const int DefaultPeekInterval = 50;

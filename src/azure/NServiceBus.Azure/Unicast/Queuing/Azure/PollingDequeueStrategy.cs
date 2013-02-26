@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         /// <summary>
         /// See <see cref="IReceiveMessages"/>.
         /// </summary>
-        public IReceiveMessages MessageReceiver { get; set; }
+        public AzureMessageQueueReceiver MessageReceiver { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.

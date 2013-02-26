@@ -6,8 +6,6 @@ using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
 {
-    using Transports;
-
     public static class ConfigureAzureMessageQueue
     {
         public static Configure AzureMessageQueue(this Configure config)

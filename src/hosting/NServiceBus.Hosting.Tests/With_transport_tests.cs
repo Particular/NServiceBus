@@ -43,24 +43,20 @@ namespace NServiceBus.Hosting.Tests
         public void Should_used_configured_transport_if_one_is_configured()
         {
             var handler = new DefaultTransportForHost();
-            Configure.Instance.Configurer.ConfigureComponent<MyTestTransportReceiver>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<MyTestTransportSender>(DependencyLifecycle.SingleInstance);
 
             handler.Run();
 
-            Assert.IsInstanceOf<MsmqMessageSender>(Configure.Instance.Builder.Build<ISendMessages>());
+            Assert.IsInstanceOf<MyTestTransportSender>(Configure.Instance.Builder.Build<ISendMessages>());
         }
     }
 
-    public class MyTestTransportReceiver : IReceiveMessages
+    public class MyTestTransportSender : ISendMessages
     {
-        public void Init(Address address, bool transactional)
-        {
-            throw new System.NotImplementedException();
-        }
 
-        public TransportMessage Receive()
+        public void Send(TransportMessage message, Address address)
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 

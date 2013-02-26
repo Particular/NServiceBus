@@ -144,7 +144,6 @@
     <Compile Include="Transports\IDequeueMessages.cs" />
     <Compile Include="Transports\IManageSubscriptions.cs" />
     <Compile Include="Transports\IPublishMessages.cs" />
-    <Compile Include="Transports\IReceiveMessages.cs" />
     <Compile Include="Transports\ISendMessages.cs" />
     <Compile Include="Transports\ITransportDefinition.cs" />
     <Compile Include="Transports\Msmq\Config\Msmq.cs" />
