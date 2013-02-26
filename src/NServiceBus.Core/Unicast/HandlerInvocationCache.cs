@@ -31,10 +31,10 @@ namespace NServiceBus.Unicast
 			Invoke(handler, state, timoutCahce);
 		}
 
-		static void Invoke(object handler, object message, Dictionary<Type, Dictionary<Type, MethodInfo>> dictionary)
+		static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, Dictionary<Type, MethodInfo>> dictionary)
 		{
 			Dictionary<Type, MethodInfo> methodList;
-			if (!dictionary.TryGetValue(handler.GetType(), out methodList))
+			if (!dictionary.TryGetValue(handler.GetType().TypeHandle, out methodList))
 			{
 				return;
 			}
@@ -55,9 +55,9 @@ namespace NServiceBus.Unicast
 			if (handleMethod != null)
 			{
 				Dictionary<Type, MethodInfo> methodList;
-				if (!handlerCache.TryGetValue(handler, out methodList))
+				if (!handlerCache.TryGetValue(handler.TypeHandle, out methodList))
 				{
-					handlerCache[handler] = methodList = new Dictionary<Type, MethodInfo>();
+					handlerCache[handler.TypeHandle] = methodList = new Dictionary<Type, MethodInfo>();
 				}
 				methodList[messageType] = handleMethod;
 			}
@@ -66,9 +66,9 @@ namespace NServiceBus.Unicast
 			if (timoutMethod != null)
 			{
 				Dictionary<Type, MethodInfo> methodList;
-				if (!timoutCahce.TryGetValue(handler, out methodList))
+				if (!timoutCahce.TryGetValue(handler.TypeHandle, out methodList))
 				{
-					timoutCahce[handler] = methodList = new Dictionary<Type, MethodInfo>();
+					timoutCahce[handler.TypeHandle] = methodList = new Dictionary<Type, MethodInfo>();
 				}
 				methodList[messageType] = timoutMethod;
 			}
@@ -87,7 +87,7 @@ namespace NServiceBus.Unicast
 		    return null;
 	    }
 
-	    static Dictionary<Type, Dictionary<Type, MethodInfo>> handlerCache = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
-		static Dictionary<Type, Dictionary<Type, MethodInfo>> timoutCahce = new Dictionary<Type, Dictionary<Type, MethodInfo>>();
+		static Dictionary<RuntimeTypeHandle, Dictionary<Type, MethodInfo>> handlerCache = new Dictionary<RuntimeTypeHandle, Dictionary<Type, MethodInfo>>();
+		static Dictionary<RuntimeTypeHandle, Dictionary<Type, MethodInfo>> timoutCahce = new Dictionary<RuntimeTypeHandle, Dictionary<Type, MethodInfo>>();
     }
 }
