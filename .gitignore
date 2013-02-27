@@ -27,3 +27,4 @@ Release
 Artifacts
 LogFiles
 csx
+*.ncrunchproject
