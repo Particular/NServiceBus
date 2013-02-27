@@ -65,7 +65,7 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IMessageHandler<>), typeof(IHandleTimeouts<>) };
+        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IHandleMessages<>), typeof(IHandleTimeouts<>) };
         static readonly IDictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>>();
     }
 }

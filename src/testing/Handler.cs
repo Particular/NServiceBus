@@ -292,7 +292,7 @@ namespace NServiceBus.Testing
             var method = targetType.GetMethod("Handle", new[] { messageType });
             if (method != null) return method;
 
-            var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
+            var handlerType = typeof(IHandleMessages<>).MakeGenericType(messageType);
             return targetType.GetInterfaceMap(handlerType)
                             .TargetMethods
                             .FirstOrDefault();

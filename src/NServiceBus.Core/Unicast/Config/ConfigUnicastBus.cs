@@ -396,7 +396,7 @@ namespace NServiceBus.Unicast.Config
                 if (args.Length != 1)
                     return null;
 
-                Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
+                Type handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
                 if (handlerType.IsAssignableFrom(t))
                     return args[0];
             }

@@ -14,7 +14,7 @@ LONG DESCRIPTION
   -------------------------------------------------------------------------------------------------
   Install-NServiceBusLicense                           Install a NServiceBus license file.
   												       
-  Get-NServiceBusMessage                               Displays all messages in a queue.
+  Get-NServiceBusMSMQMessage                           Displays all messages in a queue.
   												       
   Get-NServiceBusVersion                               Displays the NServiceBus installed version.
   												       
@@ -56,13 +56,13 @@ Sample Commands
   A slight more complex NServiceBus retrieve message commands might resemble 
   the following command:
   
-  C:\PS> Get-NServiceBusMessage -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" }
+  C:\PS> Get-NServiceBusMSMQMessage -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" }
   
   The above command lists all messages that have a header with key "NServiceBus.RelatedToTimeoutId"
   
 SEE ALSO
   Install-NServiceBusLicense
-  Get-NServiceBusMessage
+  Get-NServiceBusMSMQMessage
   Get-NServiceBusVersion
   Install-NServiceBusDTC
   Install-NServiceBusRavenDB
