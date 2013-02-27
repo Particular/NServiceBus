@@ -12,6 +12,7 @@
     using Receivers.TransactonsScopes;
     using SessionFactories;
     using Settings;
+    using Unicast.Subscriptions;
     using MessageProducer = ActiveMQ.MessageProducer;
 
     /// <summary>
@@ -51,6 +52,7 @@
                   .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TransactionScopeFactory>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<NoConfigRequiredAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
             if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
             {

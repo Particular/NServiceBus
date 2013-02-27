@@ -433,6 +433,7 @@
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
+    <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Subscriptions\IAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />

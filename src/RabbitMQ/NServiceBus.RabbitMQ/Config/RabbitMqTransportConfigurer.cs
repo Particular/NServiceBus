@@ -3,6 +3,7 @@
     using System;
     using NServiceBus.Unicast.Queuing.Installers;
     using Settings;
+    using Unicast.Subscriptions;
     using RabbitMQ = NServiceBus.RabbitMQ;
 
     public class RabbitMqTransportConfigurer : ConfigureTransport<RabbitMQ>
@@ -40,6 +41,8 @@
              .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
             config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
+
+            config.Configurer.ConfigureComponent<NoConfigRequiredAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
             EndpointInputQueueCreator.Enabled = true;
         }
