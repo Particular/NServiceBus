@@ -5,12 +5,12 @@
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
-    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
     using NServiceBus.Transports.ActiveMQ.Receivers;
     using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Transports.ActiveMQ.SessionFactories;
+    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     [TestFixture]
     public class MessageProcessorTest
@@ -28,6 +28,13 @@
         [SetUp]
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                     .Advanced(
+                         settings =>
+                         settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                 .IsolationLevel(IsolationLevel.ReadCommitted)
+                                 .SuppressDistributedTransactions(false));
+
             this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.purger = new Mock<IActiveMqPurger>();
