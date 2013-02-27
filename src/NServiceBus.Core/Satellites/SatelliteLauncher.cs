@@ -113,7 +113,7 @@ namespace NServiceBus.Satellites
             }
         }
      
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.SatelliteLauncher");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SatelliteLauncher));
 
         private readonly List<SatelliteContext> satellites = new List<SatelliteContext>();
     }

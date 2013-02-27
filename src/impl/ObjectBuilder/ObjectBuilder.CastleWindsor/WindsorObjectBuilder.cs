@@ -205,7 +205,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
 
         readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
        
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.ObjectBuilder");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
     }
 
     class ExternalInstanceActivatorWithDecommissionConcern : AbstractComponentActivator, IDependencyAwareActivator

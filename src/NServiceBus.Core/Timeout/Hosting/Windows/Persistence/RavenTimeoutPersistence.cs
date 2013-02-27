@@ -168,6 +168,6 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             Logger.Warn(sb.ToString());
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.RavenTimeoutPersistence");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(RavenTimeoutPersistence));
     }
 }

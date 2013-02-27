@@ -27,6 +27,6 @@
             return message;
         }
 
-        readonly static ILog Logger = LogManager.GetLogger("NServiceBus.Subscriptions");
+        readonly static ILog Logger = LogManager.GetLogger(typeof(FilteringMutator));
     }
 }

@@ -52,6 +52,6 @@ namespace NServiceBus.Gateway.Channels.Http
         }
 
        
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelSender));
     }
 }

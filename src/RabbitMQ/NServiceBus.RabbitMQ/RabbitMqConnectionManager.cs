@@ -126,7 +126,7 @@
         readonly ConnectionFactory connectionFactory;
         readonly ConnectionRetrySettings retrySettings;
         IConnection connection;
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.RabbitMq");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));
         bool connectionFailed;
         Exception connectionFailedReason;
         bool disposed;

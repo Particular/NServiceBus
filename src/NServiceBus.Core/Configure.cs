@@ -605,7 +605,7 @@ namespace NServiceBus
 
         static string lastProbeDirectory;
         static Configure instance;
-        static ILog Logger = LogManager.GetLogger("NServiceBus.Config");
+        static ILog Logger = LogManager.GetLogger(typeof(Configure));
 
         static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
 

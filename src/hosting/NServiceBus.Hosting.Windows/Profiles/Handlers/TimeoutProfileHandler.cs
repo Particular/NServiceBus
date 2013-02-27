@@ -11,7 +11,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         {
             Log.Warn("Timeout Profile is obsolete as Timeout Manager is on by default for Server and Publisher roles.");
         }
-        private readonly static ILog Log = LogManager.GetLogger("NServiceBus.TimeoutProfileHandler");
+        private readonly static ILog Log = LogManager.GetLogger(typeof(TimeoutProfileHandler));
         public IConfigureThisEndpoint Config { get; set; }
     }
 }

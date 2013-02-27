@@ -73,6 +73,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             disposed = true;
         }
 
-        static ILog Logger = LogManager.GetLogger("NServiceBus.ActiveMq");
+        static ILog Logger = LogManager.GetLogger(typeof(ActiveMqMessageReceiver));
     }
 }

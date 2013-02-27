@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
 
         private int maximumThroughput, maximumNumberOfRetries, numberOfWorkerThreadsInAppConfig;
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Configuration");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper));
 
     }
 }
