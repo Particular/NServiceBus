@@ -22,6 +22,7 @@ namespace NServiceBus.Unicast
     using Messages;
     using ObjectBuilder;
     using Queuing;
+    using Routing;
     using Saga;
     using Serialization;
     using Settings;
@@ -58,12 +59,6 @@ namespace NServiceBus.Unicast
             set { autoSubscribe = value; }
         }
 
-        /// <summary>
-        /// True if the sagas shouldn't be autosubscribed
-        /// </summary>
-        public bool DoNotAutoSubscribeSagas { get; set; }
-
-        private bool disableMessageHandling;
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -73,6 +68,7 @@ namespace NServiceBus.Unicast
         {
             set { disableMessageHandling = value; }
         }
+        private bool disableMessageHandling;
 
 
         /// <summary>
@@ -199,68 +195,16 @@ namespace NServiceBus.Unicast
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
-
         /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the message types associated with the bus.
+        /// The router for this unicastbus
         /// </summary>
-        /// <remarks>
-        /// This property accepts a dictionary where the key can be the name of a type implementing
-        /// <see cref="IMessage"/> or the name of an assembly that contains message types.  The value 
-        /// of each entry is the address of the owner of the message type defined in the key.
-        /// If an assembly is specified then all the the types in the assembly implementing <see cref="IMessage"/> 
-        /// will be registered against the address defined in the value of the entry.
-        /// </remarks>
-        public IDictionary<Type, Address> MessageOwners
-        {
-            set
-            {
-                value.ToList()
-                    .ForEach(k => RegisterMessageType(k.Key, k.Value));
-            }
-            get
-            {
-                return new Dictionary<Type, Address>(messageTypeToDestinationLookup);
-            }
-        }
-
-        /// <summary>
-        /// Sets the list of assemblies which contain a message handlers
-        /// for the bus.
-        /// </summary>
-        public virtual IList MessageHandlerAssemblies
-        {
-            set
-            {
-                var types = new List<Type>();
-                foreach (Assembly a in value)
-                    types.AddRange(a.GetTypes());
-
-                MessageHandlerTypes = types;
-            }
-        }
-
-        /// <summary>
-        /// Sets the types that will be scanned for message handlers.
-        /// Those found will be invoked in the same order as given.
-        /// </summary>
-        public IEnumerable<Type> MessageHandlerTypes
-        {
-            get { return messageHandlerTypes; }
-            set
-            {
-                messageHandlerTypes = value;
-
-                foreach (Type t in value)
-                    IfTypeIsMessageHandlerThenLoad(t);
-            }
-        }
+        public IRouteMessages MessageRouter { get; set; }
 
 
         /// <summary>
-        /// Gets or Set AllowSubscribeToSelf 
+        /// The handler registry for this unicastbus
         /// </summary>
-        public bool AllowSubscribeToSelf { get; set; }
+        public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
         /// <summary>
         /// Event raised when no subscribers found for the published message.
@@ -908,43 +852,23 @@ namespace NServiceBus.Unicast
 
         void PerformAutoSubscribe()
         {
+            if(AutoSubscriptionStrategy == null)
+                return;
+
             AssertHasLocalAddress();
 
-            foreach (var messageType in GetEventsToAutoSubscribe())
+            foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
+                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never autosubscribe system messages
             {
-                var otherHandlersThanSagas = GetHandlerTypes(messageType).Any(t => !typeof(ISaga).IsAssignableFrom(t));
-
-                if (DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
-                {
-                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off", messageType);
-                    continue;
-                }
-
-                Subscribe(messageType);
-
-                if (!MessageConventionExtensions.IsEventType(messageType))
-                    Log.Info("Future versions of NServiceBus will only auto-subscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
+                Subscribe(eventType);
             }
         }
 
-        IEnumerable<Type> GetEventsToAutoSubscribe()
-        {
-            var eventsHandled = GetMessageTypesHandledOnThisEndpoint()
-                .Where(t => !MessageConventionExtensions.IsCommandType(t) && !MessageConventionExtensions.IsInSystemConventionList(t))
-                .ToList();
+        /// <summary>
+        /// The strategy to use when determining which events to automatically subscribe to
+        /// </summary>
+        public IAutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
 
-            if (AllowSubscribeToSelf)
-            {
-                return eventsHandled;
-            }
-
-            var eventsWithRouting = messageTypeToDestinationLookup
-                .Where(route => route.Value != Address.Undefined && eventsHandled.Any(t => t.IsAssignableFrom(route.Key)))
-                .Select(route => route.Key)
-                .ToList();
-
-            return eventsWithRouting;
-        }
 
         void AssertHasLocalAddress()
         {
@@ -1176,7 +1100,7 @@ namespace NServiceBus.Unicast
             var invokedHandlers = new List<Type>();
             var messageType = toHandle.GetType();
 
-            foreach (var handlerType in GetHandlerTypes(messageType))
+            foreach (var handlerType in HandlerRegistry.GetHandlerTypes(messageType))
             {
                 var handlerTypeToInvoke = handlerType;
 
@@ -1432,21 +1356,6 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Registers a message type to a destination.
-        /// </summary>
-        /// <param name="messageType">A message type implementing <see cref="IMessage"/>.</param>
-        /// <param name="address">The address of the destination the message type is registered to.</param>
-        public void RegisterMessageType(Type messageType, Address address)
-        {
-            messageTypeToDestinationLocker.EnterWriteLock();
-            messageTypeToDestinationLookup[messageType] = address;
-            messageTypeToDestinationLocker.ExitWriteLock();
-
-            if (!string.IsNullOrWhiteSpace(address.Machine))
-                Log.Debug("Message " + messageType.FullName + " has been allocated to endpoint " + address + ".");
-        }
-
-        /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
         /// Invokes message mutators.
         /// </summary>
@@ -1464,6 +1373,7 @@ namespace NServiceBus.Unicast
             }
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
+
 
             var messageDefinitions = rawMessages.Select(m => MessageRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
 
@@ -1537,81 +1447,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-
-        /// <summary>
-        /// Evaluates a type and loads it if it implements IMessageHander{T}.
-        /// </summary>
-        /// <param name="handler">The type to evaluate.</param>
-        void IfTypeIsMessageHandlerThenLoad(Type handler)
-        {
-            if (handler.IsAbstract)
-                return;
-
-
-            foreach (var messageType in GetMessageTypesIfIsMessageHandler(handler))
-            {
-                if (!handlerList.ContainsKey(handler))
-                    handlerList.Add(handler, new List<Type>());
-
-                if (!(handlerList[handler].Contains(messageType)))
-                {
-                    handlerList[handler].Add(messageType);
-                    Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, handler);
-                }
-
-                HandlerInvocationCache.CacheMethodForHandler(handler, messageType);
-            }
-        }
-
-
-        /// <summary>
-        /// If the type is a message handler, returns all the message types that it handles
-        /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        private static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
-        {
-            foreach (var t in type.GetInterfaces().Where(t => t.IsGenericType))
-            {
-                var potentialMessageType = t.GetGenericArguments().SingleOrDefault();
-
-                if (potentialMessageType == null)
-                    continue;
-
-                if (MessageConventionExtensions.IsMessageType(potentialMessageType) ||
-                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t))
-                    yield return potentialMessageType;
-            }
-        }
-
-        /// <summary>
-        /// Gets a list of handler types associated with a message type.
-        /// </summary>
-        /// <param name="messageType">The type of message to get the handlers for.</param>
-        /// <returns>The list of handler types associated with the message type.</returns>
-        private IEnumerable<Type> GetHandlerTypes(Type messageType)
-        {
-            foreach (var handlerType in handlerList.Keys)
-                foreach (var msgTypeHandled in handlerList[handlerType])
-                    if (msgTypeHandled.IsAssignableFrom(messageType))
-                    {
-                        yield return handlerType;
-                        break;
-                    }
-        }
-
-        /// <summary>
-        /// Returns all the message types which have handlers configured for them.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<Type> GetMessageTypesHandledOnThisEndpoint()
-        {
-            foreach (var handlerType in handlerList.Keys)
-                foreach (var typeHandled in handlerList[handlerType])
-                    if (MessageConventionExtensions.IsMessageType(typeHandled))
-                        yield return typeHandled;
-        }
-
         /// <summary>
         /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
         /// </summary>
@@ -1621,7 +1456,6 @@ namespace NServiceBus.Unicast
         {
             if (messages == null || messages.Length == 0)
                 return Address.Undefined;
-
 
             return GetAddressForMessageType(messages[0].GetType());
         }
@@ -1633,14 +1467,7 @@ namespace NServiceBus.Unicast
         /// <returns>The address of the destination associated with the message type.</returns>
         Address GetAddressForMessageType(Type messageType)
         {
-            Address destination;
-
-            messageTypeToDestinationLocker.EnterReadLock();
-            messageTypeToDestinationLookup.TryGetValue(messageType, out destination);
-            messageTypeToDestinationLocker.ExitReadLock();
-
-            if (destination == null)
-                destination = Address.Undefined;
+            var destination = MessageRouter.GetDestinationFor(messageType);
 
             if (destination != Address.Undefined)
                 return destination;
@@ -1687,14 +1514,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
-        private readonly IDictionary<Type, List<Type>> handlerList = new Dictionary<Type, List<Type>>();
-
-        /// <remarks>
-        /// Accessed by multiple threads - needs appropriate locking
-        /// </remarks>
-        private readonly IDictionary<Type, Address> messageTypeToDestinationLookup = new Dictionary<Type, Address>();
-        private readonly ReaderWriterLockSlim messageTypeToDestinationLocker = new ReaderWriterLockSlim();
-
         /// <remarks>
         /// ThreadStatic
         /// </remarks>
@@ -1724,24 +1543,5 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         bool disposed;
-    }
-
-    /// <summary>
-    /// Extension methods for IBuilder
-    /// </summary>
-    public static class BuilderExtensions
-    {
-        /// <summary>
-        /// Applies the action on the instances of T
-        /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="action"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void ForEach<T>(this IBuilder builder, Action<T> action)
-        {
-            var objs = builder.BuildAll<T>().ToList();
-
-            objs.ForEach(action);
-        }
     }
 }

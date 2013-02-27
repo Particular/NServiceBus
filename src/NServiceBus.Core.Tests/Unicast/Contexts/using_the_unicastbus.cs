@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Threading;
     using Helpers;
     using Impersonation;
@@ -12,6 +13,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using NUnit.Framework;
     using Publishing;
     using Rhino.Mocks;
+    using Routing;
     using Serializers.XML;
     using Settings;
     using Subscriptions;
@@ -41,6 +43,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected DefaultMessageRegistry messageRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
         SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
+        protected StaticMessageRouter router;
+
+        protected MessageHandlerRegistry handlerRegistry ;
+
+        protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
+
 
         [SetUp]
         public void SetUp()
@@ -51,7 +59,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             const string localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
-
+            router = new StaticMessageRouter(KnownMessageTypes());
+            handlerRegistry = new MessageHandlerRegistry();
             messageRegistry = new DefaultMessageRegistry
                 {
                     DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
@@ -77,6 +86,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     Builder = FuncBuilder,
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
+                };
+            autoSubscriptionStrategy = new DefaultAutoSubscriptionStrategy
+                {
+                    HandlerRegistry = handlerRegistry,
+                    MessageRouter = router
                 };
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
@@ -111,7 +125,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     },
                 SubscriptionManager = subscriptionManager,
                 MessageRegistry = messageRegistry,
-                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
+                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
+                HandlerRegistry = handlerRegistry,
+                MessageRouter = router,
+                AutoSubscriptionStrategy = autoSubscriptionStrategy
+
             };
             bus = unicastBus;
 
@@ -119,6 +137,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IBus>(() => bus);
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
+        }
+
+        protected virtual IEnumerable<Type> KnownMessageTypes()
+        {
+            return new Collection<Type>();
         }
 
         protected void VerifyThatMessageWasSentTo(Address destination)
@@ -139,7 +162,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
             FuncBuilder.Register<T>(() => new T());
-            unicastBus.MessageHandlerTypes = new[] { typeof(T) };
+
+            handlerRegistry.RegisterHandler(typeof(T));
 
             if (unicastBus.MessageDispatcherMappings == null)
                 unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
@@ -148,7 +172,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            unicastBus.MessageOwners = new Dictionary<Type, Address> { { typeof(T), Address.Local } };
+            router.RegisterRoute(typeof (T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -162,7 +186,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            unicastBus.RegisterMessageType(typeof(T), address);
+            router.RegisterRoute(typeof(T), address);
             messageRegistry.RegisterMessageType(typeof(T));
 
         }

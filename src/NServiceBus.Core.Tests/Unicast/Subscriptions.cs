@@ -15,7 +15,7 @@ namespace NServiceBus.Unicast.Tests
         [SetUp]
         public new void SetUp()
         {
-            unicastBus.RegisterMessageType(typeof(TestMessage), addressToOwnerOfTestMessage);
+            router.RegisterRoute(typeof(TestMessage), addressToOwnerOfTestMessage);
         }
         [Test]
         public void Should_send_the_assemblyqualified_name_as_subscription_type()

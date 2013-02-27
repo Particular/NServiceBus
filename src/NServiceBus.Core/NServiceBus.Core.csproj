@@ -421,8 +421,10 @@
       <DependentUpon>TrialExpired.cs</DependentUpon>
     </Compile>
     <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
+    <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
+    <Compile Include="Unicast\Config\ApplyDefaultAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
@@ -431,6 +433,8 @@
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
+    <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />
+    <Compile Include="Unicast\Subscriptions\IAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\IUnicastBus.cs" />
     <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
@@ -454,6 +458,10 @@
     <Compile Include="Unicast\Queuing\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Unicast\Routing\IRouteMessages.cs" />
+    <Compile Include="Unicast\Routing\StaticMessageRouter.cs" />
+    <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
+    <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
