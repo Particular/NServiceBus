@@ -355,7 +355,6 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
-            AssertBusIsStarted();
             AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);
@@ -384,7 +383,6 @@ namespace NServiceBus.Unicast
         public virtual void Unsubscribe(Type messageType)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
-            AssertBusIsStarted();
             AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);

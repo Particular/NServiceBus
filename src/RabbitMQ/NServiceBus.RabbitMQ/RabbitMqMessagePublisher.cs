@@ -10,7 +10,7 @@
         {
             var eventType = eventTypes.First();//we route on the first event for now
 
-            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForPublish(eventType);
+            var routingKey = RoutingKeyBuilder.GetRoutingKeyForPublish(eventType);
 
 
             UnitOfWork.Add(channel =>
@@ -24,6 +24,8 @@
             //we don't know if there was a subscriber so we just return true
             return true;
         }
+
+        public RabbitMqRoutingKeyBuilder RoutingKeyBuilder { get; set; }
 
         public Func<Address, Type, string> ExchangeName { get; set; }
 

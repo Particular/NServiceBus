@@ -51,6 +51,7 @@
     <Compile Include="Config\RabbitMQ.cs" />
     <Compile Include="Config\RabbitMqConventionExtensions.cs" />
     <Compile Include="Config\RabbitMqConventions.cs" />
+    <Compile Include="DefaultRoutingKeyConvention.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringParser.cs" />
@@ -61,7 +62,7 @@
     <Compile Include="RabbitMqMessageSender.cs" />
     <Compile Include="RabbitMqQueueCreator.cs" />
     <Compile Include="RabbitMqSubscriptionManager.cs" />
-    <Compile Include="RabbitMqTopicBuilder.cs" />
+    <Compile Include="RabbitMqRoutingKeyBuilder.cs" />
     <Compile Include="RabbitMqTransportMessageExtensions.cs" />
     <Compile Include="RabbitMqUnitOfWork.cs" />
   </ItemGroup>

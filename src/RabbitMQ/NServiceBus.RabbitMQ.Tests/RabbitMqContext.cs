@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Transactions;
     using Config;
     using NServiceBus;
     using NUnit.Framework;
     using NServiceBus.Transports.RabbitMQ;
-    using Unicast.Transport.Transactional;
+    using Settings;
     using global::RabbitMQ.Client;
+    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     public class RabbitMqContext
     {
@@ -58,12 +60,23 @@
         [SetUp]
         public void SetUp()
         {
+            SettingsHolder.SetDefault("Transactions.Enabled", true);
+            SettingsHolder.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            SettingsHolder.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            SettingsHolder.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            SettingsHolder.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+
             receivedMessages = new BlockingCollection<TransportMessage>();
             connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager };
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
+
+            RoutingKeyBuilder = new RabbitMqRoutingKeyBuilder
+                {
+                    GenerateRoutingKey = DefaultRoutingKeyConvention.GenerateRoutingKey
+                };
 
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
 
@@ -74,13 +87,16 @@
             MessagePublisher = new RabbitMqMessagePublisher
                 {
                     UnitOfWork = unitOfWork,
-                    ExchangeName = ExchangeNameConvention
+                    ExchangeName = ExchangeNameConvention,
+                    RoutingKeyBuilder = RoutingKeyBuilder
+                    
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
             {
                 ConnectionManager = connectionManager,
                 EndpointQueueName = MYRECEIVEQUEUE,
-                ExchangeName = ExchangeNameConvention
+                ExchangeName = ExchangeNameConvention,
+                RoutingKeyBuilder = RoutingKeyBuilder
             };
 
             dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
@@ -129,5 +145,6 @@
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
         protected RabbitMqUnitOfWork unitOfWork;
+        protected RabbitMqRoutingKeyBuilder RoutingKeyBuilder;
     }
 }

@@ -40,6 +40,11 @@
              .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue)
              .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
+            config.Configurer.ConfigureComponent<RabbitMqRoutingKeyBuilder>(DependencyLifecycle.SingleInstance)
+            .ConfigureProperty(p => p.GenerateRoutingKey, SettingsHolder.Get<Func<Type, string>>("Conventions.RabbitMq.RoutingKeyForEvent"));
+
+
+
             config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<NoConfigRequiredAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
