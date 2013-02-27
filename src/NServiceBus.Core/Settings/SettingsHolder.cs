@@ -53,5 +53,11 @@ namespace NServiceBus.Settings
         {
             Defaults[key] = value;
         }
+
+        public static void Reset()
+        {
+           Overrides.Clear();
+           Defaults.Clear();
+        }
     }
 }

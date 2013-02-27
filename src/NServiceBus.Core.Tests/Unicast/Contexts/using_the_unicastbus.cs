@@ -53,6 +53,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            SettingsHolder.Reset();
+            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
+
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
@@ -63,7 +66,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             handlerRegistry = new MessageHandlerRegistry();
             messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
+                    DefaultToNonPersistentMessages = false
                 };
 
             try

@@ -355,8 +355,12 @@ namespace NServiceBus.Unicast
         public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
-            AssertHasLocalAddress();
 
+            if (Configure.SendOnlyMode)
+                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to be a subscriber");
+     
+            AssertHasLocalAddress();
+           
             var destination = GetAddressForMessageType(messageType);
             if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
@@ -383,8 +387,12 @@ namespace NServiceBus.Unicast
         public virtual void Unsubscribe(Type messageType)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
-            AssertHasLocalAddress();
 
+            if (Configure.SendOnlyMode)
+                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to unsubscribe");
+            
+            AssertHasLocalAddress();
+            
             var destination = GetAddressForMessageType(messageType);
 
             SubscriptionManager.Unsubscribe(messageType, destination);
@@ -1362,7 +1370,7 @@ namespace NServiceBus.Unicast
         /// <returns>The envelope containing the messages.</returns>
         void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {
-            if (!SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            if (!Configure.SendOnlyMode)
             {
                 result.ReplyToAddress = Address.Local;
 
