@@ -7,11 +7,11 @@
     using System.Text;
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
-    using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
     using Receivers;
     using Receivers.TransactonsScopes;
     using SessionFactories;
+    using Settings;
     using MessageProducer = ActiveMQ.MessageProducer;
 
     /// <summary>
@@ -52,7 +52,7 @@
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TransactionScopeFactory>(DependencyLifecycle.SingleInstance);
 
-            if (!NServiceBus.Configure.Transactions.Enabled)
+            if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
             {
                 config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
                 config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
@@ -64,7 +64,7 @@
             }
             else
             {
-                if (NServiceBus.Configure.Transactions.Advanced().SuppressDistributedTransactions)
+                if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
                 {
                     RegisterActiveMQManagedTransactionSessionFactory(config, connectionConfiguration[UriKey]);
                 }

@@ -11,9 +11,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Monitoring;
     using NUnit.Framework;
     using Publishing;
-    using Queuing;
     using Rhino.Mocks;
     using Serializers.XML;
+    using Settings;
     using Subscriptions;
     using Subscriptions.SubcriberSideFiltering;
     using Timeout;
@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = !Configure.Endpoint.Advanced().DurableMessages
+                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
                 };
 
             try

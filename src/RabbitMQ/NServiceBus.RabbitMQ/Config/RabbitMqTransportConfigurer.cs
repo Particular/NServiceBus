@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.Unicast.Queuing.Installers;
+    using Settings;
     using RabbitMQ = NServiceBus.RabbitMQ;
 
     public class RabbitMqTransportConfigurer : ConfigureTransport<RabbitMQ>
@@ -32,11 +33,11 @@
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ExchangeName, RabbitMqConventions.ExchangeNameConvention);
+                .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
             config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.SingleInstance)
              .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue)
-             .ConfigureProperty(p => p.ExchangeName, RabbitMqConventions.ExchangeNameConvention);
+             .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
             config.Configurer.ConfigureComponent<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
 
@@ -45,22 +46,5 @@
 
       
 
-    }
-
-    public class RabbitMqConventions
-    {
-        /// <summary>
-        /// Sets the convention for the name of the exchange(s) used for publish and subscribe
-        /// </summary>
-        /// <param name="exchangeNameConvention"></param>
-        public void ExchangeNameForPubSub(Func<Address,Type, string> exchangeNameConvention)
-        {
-            ExchangeNameConvention = exchangeNameConvention;
-        }
-
-        /// <summary>
-        /// Name of the topic where events are published to
-        /// </summary>
-        public static Func<Address,Type, string> ExchangeNameConvention = (address,eventType) => "amq.topic";
     }
 }

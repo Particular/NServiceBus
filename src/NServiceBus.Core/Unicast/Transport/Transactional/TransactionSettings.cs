@@ -2,16 +2,17 @@
 {
     using System;
     using System.Transactions;
+    using Settings;
 
     public class TransactionSettings
     {
         public TransactionSettings()
         {
             MaxRetries = 5;
-            IsTransactional = Configure.Transactions.Enabled;
-            TransactionTimeout = Configure.Transactions.Advanced().DefaultTimeout;
-            IsolationLevel = Configure.Transactions.Advanced().IsolationLevel;
-            DontUseDistributedTransactions = Configure.Transactions.Advanced().SuppressDistributedTransactions;
+            IsTransactional = SettingsHolder.Get<bool>("Transactions.Enabled");
+            TransactionTimeout = SettingsHolder.Get<TimeSpan>("Transactions.DefaultTimeout");
+            IsolationLevel = SettingsHolder.Get<IsolationLevel>("Transactions.IsolationLevel");
+            DontUseDistributedTransactions = SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions");
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
 {
     using System;
     using Core;
+    using Settings;
 
     public class TimeoutManagerDefaults : IWantToRunBeforeConfigurationIsFinalized
     {
@@ -14,7 +15,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
                 return;
             }
 
-            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !Configure.Endpoint.IsSendOnly)
+            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
                 DefaultPersistence();
             }

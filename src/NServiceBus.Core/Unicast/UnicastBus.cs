@@ -24,6 +24,7 @@ namespace NServiceBus.Unicast
     using Queuing;
     using Saga;
     using Serialization;
+    using Settings;
     using Subscriptions;
     using Transport;
     using Transports;
@@ -1454,7 +1455,7 @@ namespace NServiceBus.Unicast
         /// <returns>The envelope containing the messages.</returns>
         void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {
-            if (!Configure.Endpoint.IsSendOnly)
+            if (!SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
                 result.ReplyToAddress = Address.Local;
 
@@ -1463,7 +1464,6 @@ namespace NServiceBus.Unicast
             }
 
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
-
 
             var messageDefinitions = rawMessages.Select(m => MessageRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
 

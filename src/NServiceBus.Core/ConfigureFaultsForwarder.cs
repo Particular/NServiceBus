@@ -5,6 +5,7 @@ namespace NServiceBus
     using Faults;
     using Faults.Forwarder;
     using Logging;
+    using Settings;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
@@ -22,7 +23,7 @@ namespace NServiceBus
             {
                  return config;
             }
-            if (Configure.Endpoint.IsSendOnly)
+            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
                 return config;
             }
@@ -71,7 +72,7 @@ namespace NServiceBus
     {
         public void Init()
         {
-            if (!Configure.Endpoint.IsSendOnly && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            if (!SettingsHolder.Get<bool>("Endpoint.SendOnly") && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
             {
                 Configure.Instance.MessageForwardingInCaseOfFault();
             }

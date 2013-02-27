@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Runtime.Serialization;
     using Management.Retries;
     using Monitoring;
-    using Queuing;
+    using Settings;
     using Transports;
 
     /// <summary>
@@ -233,13 +233,15 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         TransactionScope GetTransactionScope()
         {
-            if (Configure.Transactions.Advanced().DoNotWrapHandlersExecutionInATransactionScope)
+            if (SettingsHolder.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope"))
+            {
                 return new TransactionScope(TransactionScopeOption.Suppress);
+            }
 
             return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
                 {
-                    IsolationLevel = Configure.Transactions.Advanced().IsolationLevel,
-                    Timeout = Configure.Transactions.Advanced().DefaultTimeout
+                    IsolationLevel = SettingsHolder.Get<IsolationLevel>("Transactions.IsolationLevel"),
+                    Timeout = SettingsHolder.Get<TimeSpan>("Transactions.DefaultTimeout")
                 });
         }
 
@@ -267,7 +269,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 ex = ex.GetBaseException();
             }
 
-            if (Configure.Transactions.Enabled && messageId != null)
+            if (SettingsHolder.Get<bool>("Transactions.Enabled") && messageId != null)
             {
                 firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
             }
@@ -281,7 +283,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
-            if (Configure.Transactions.Enabled)
+            if (SettingsHolder.Get<bool>("Transactions.Enabled"))
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(m))
                 {

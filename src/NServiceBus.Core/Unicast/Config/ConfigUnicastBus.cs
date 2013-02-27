@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Settings;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -52,7 +53,7 @@ namespace NServiceBus.Unicast.Config
         {
             var messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = !Endpoint.Advanced().DurableMessages
+                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
                 };
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);

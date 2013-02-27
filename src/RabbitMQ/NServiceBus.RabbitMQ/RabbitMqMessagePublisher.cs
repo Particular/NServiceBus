@@ -25,7 +25,7 @@
             return true;
         }
 
-        public Func<Address,Type, string> ExchangeName { get; set; }
+        public Func<Address, Type, string> ExchangeName { get; set; }
 
         public RabbitMqUnitOfWork UnitOfWork { get; set; }
     }
