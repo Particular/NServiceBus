@@ -51,7 +51,7 @@
                               context.Subscriber2Subscribed = true;
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For<AllTransports>())
+                    .Repeat(r => r.For<AllTransports>(Transports.SqlServer))
                     .Should(c =>
                     {
                         Assert.True(c.Subscriber1GotTheEvent);
