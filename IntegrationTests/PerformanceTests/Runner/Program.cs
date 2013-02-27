@@ -65,7 +65,7 @@ namespace Runner
 
             if (suppressDTC)
             {
-                Configure.Transactions.Advanced().SuppressDistributedTransactions = true;
+                Configure.Transactions.Advanced(settings => settings.SuppressDistributedTransactions(true));
             }
 
             switch (args[3].ToLower())

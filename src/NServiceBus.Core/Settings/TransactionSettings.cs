@@ -6,6 +6,25 @@ namespace NServiceBus.Settings
     using System.Transactions.Configuration;
     using Unicast.Transport;
 
+    class DefaultTransactionSettings : ISetDefaultSettings
+    {
+        public DefaultTransactionSettings()
+        {
+            SettingsHolder.SetDefault("Transactions.Enabled", true);
+        }
+    }
+
+    class DefaultTransactionAdvancedSettings : ISetDefaultSettings
+    {
+        public DefaultTransactionAdvancedSettings()
+        {
+            SettingsHolder.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            SettingsHolder.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            SettingsHolder.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            SettingsHolder.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+        }
+    }
+
     /// <summary>
     ///     Configuration class for Transaction settings.
     /// </summary>
@@ -14,27 +33,15 @@ namespace NServiceBus.Settings
         private readonly TransactionAdvancedSettings transactionAdvancedSettings = new TransactionAdvancedSettings();
 
         /// <summary>
-        ///     Default constructor.
-        /// </summary>
-        public TransactionSettings()
-        {
-            Enabled = true;
-        }
-
-        /// <summary>
-        ///     Returns <code>true</code> is transactions are enabled for this endpoint.
-        /// </summary>
-        public bool Enabled { get; private set; }
-
-        /// <summary>
         ///     Configures this endpoint to use transactions.
         /// </summary>
         /// <remarks>
         ///     A transactional endpoint means that we don't remove a message from the queue until it has been successfully processed.
         /// </remarks>
-        public void Enable()
+        public TransactionSettings Enable()
         {
-            Enabled = true;
+            SettingsHolder.Set("Transactions.Enabled", true);
+            return this;
         }
 
         /// <summary>
@@ -43,27 +50,20 @@ namespace NServiceBus.Settings
         /// <remarks>
         ///     Turning transactions off means that the endpoint won't do retries and messages are lost on exceptions.
         /// </remarks>
-        public void Disable()
+        public TransactionSettings Disable()
         {
-            Enabled = false;
-        }
-
-        /// <summary>
-        ///     <see cref="TransactionSettings" /> advance settings.
-        /// </summary>
-        /// <returns>The advance settings.</returns>
-        public TransactionAdvancedSettings Advanced()
-        {
-            return transactionAdvancedSettings;
+            SettingsHolder.Set("Transactions.Enabled", false);
+            return this;
         }
 
         /// <summary>
         ///     <see cref="TransactionSettings" /> advance settings.
         /// </summary>
         /// <param name="action">A lambda to set the advance settings.</param>
-        public void Advanced(Action<TransactionAdvancedSettings> action)
+        public TransactionSettings Advanced(Action<TransactionAdvancedSettings> action)
         {
             action(transactionAdvancedSettings);
+            return this;
         }
 
         /// <summary>
@@ -71,57 +71,65 @@ namespace NServiceBus.Settings
         /// </summary>
         public class TransactionAdvancedSettings
         {
-            private TimeSpan defaultTimeout;
+            private readonly TimeSpan maxTimeout;
 
             /// <summary>
             ///     Default constructor.
             /// </summary>
             public TransactionAdvancedSettings()
             {
-                IsolationLevel = IsolationLevel.ReadCommitted;
-                DefaultTimeout = TransactionManager.DefaultTimeout;
+                maxTimeout = GetMaxTimeout();
             }
 
             /// <summary>
-            ///     Gets or sets the isolation level of the transaction.
+            ///    Sets the isolation level of the transaction.
             /// </summary>
-            /// <returns>
-            ///     A <see cref="T:System.Transactions.IsolationLevel" /> enumeration that specifies the isolation level of the transaction.
-            /// </returns>
-            public IsolationLevel IsolationLevel { get; set; }
-
-            /// <summary>
-            ///     Configures the <see cref="ITransport" /> not to enlist in Distributed Transactions.
-            /// </summary>
-            public bool SuppressDistributedTransactions { get; set; }
-
-            /// <summary>
-            ///     Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a
-            ///     <see
-            ///         cref="TransactionScope" />
-            ///     .
-            /// </summary>
-            public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
-
-            /// <summary>
-            ///     Gets or sets the default timeout period for the transaction.
-            /// </summary>
-            /// <returns>
-            ///     A <see cref="T:System.TimeSpan" /> value that specifies the default timeout period for the transaction.
-            /// </returns>
-            public TimeSpan DefaultTimeout
+            /// <param name="isolationLevel">A <see cref="T:System.Transactions.IsolationLevel" /> enumeration that specifies the isolation level of the transaction.</param>
+            /// <returns></returns>
+            public TransactionAdvancedSettings IsolationLevel(IsolationLevel isolationLevel)
             {
-                get { return defaultTimeout; }
-                set
+                SettingsHolder.Set("Transactions.IsolationLevel", isolationLevel);
+
+                return this;
+            }
+
+            /// <summary>
+            /// Configures the <see cref="ITransport" /> not to enlist in Distributed Transactions.
+            /// </summary>
+            /// <param name="value"><c>true</c> to not enlist in Distributed Transactions, otherwise <c>false</c>.</param>
+            /// <returns></returns>
+            public TransactionAdvancedSettings SuppressDistributedTransactions(bool value)
+            {
+                SettingsHolder.Set("Transactions.SuppressDistributedTransactions", value);
+                return this;
+            }
+
+            /// <summary>
+            /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a <see cref="TransactionScope" />.
+            /// </summary>
+            /// <param name="value"><c>true</c> to not wrap <see cref="IHandleMessages{T}">handlers</see> in a <see cref="TransactionScope" />, otherwise <c>false</c>.</param>
+            /// <returns></returns>
+            public TransactionAdvancedSettings DoNotWrapHandlersExecutionInATransactionScope(bool value)
+            {
+                SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", value);
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the default timeout period for the transaction.
+            /// </summary>
+            /// <param name="defaultTimeout">A <see cref="T:System.TimeSpan" /> value that specifies the default timeout period for the transaction.</param>
+            /// <returns></returns>
+            public TransactionAdvancedSettings DefaultTimeout(TimeSpan defaultTimeout)
+            {
+                if (defaultTimeout > maxTimeout)
                 {
-                    TimeSpan maxTimeout = GetMaxTimeout();
-
-                    if (value > maxTimeout)
-                        throw new ConfigurationErrorsException(
-                            "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
-
-                    defaultTimeout = value;
+                    throw new ConfigurationErrorsException(
+                        "Timeout requested is longer than the maximum value for this machine. Please override using the maxTimeout setting of the system.transactions section in machine.config");
                 }
+
+                SettingsHolder.Set("Transactions.DefaultTimeout", defaultTimeout);
+                return this;
             }
 
             private static TimeSpan GetMaxTimeout()
@@ -129,14 +137,12 @@ namespace NServiceBus.Settings
                 //default is 10 always 10 minutes
                 TimeSpan maxTimeout = TimeSpan.FromMinutes(10);
 
-                ConfigurationSectionGroup systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
-                                                                                        .GetSectionGroup(
-                                                                                            "system.transactions");
+                var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
+                                                                  .GetSectionGroup("system.transactions");
 
                 if (systemTransactionsGroup != null)
                 {
-                    var machineSettings =
-                        systemTransactionsGroup.Sections.Get("machineSettings") as MachineSettingsSection;
+                    var machineSettings = systemTransactionsGroup.Sections.Get("machineSettings") as MachineSettingsSection;
 
                     if (machineSettings != null)
                     {

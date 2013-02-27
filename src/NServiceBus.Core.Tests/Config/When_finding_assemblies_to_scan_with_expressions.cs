@@ -2,7 +2,6 @@ namespace NServiceBus.Core.Tests.Config
 {
     using System.IO;
     using System.Linq;
-    using System.Transactions;
     using NUnit.Framework;
 
     [TestFixture]

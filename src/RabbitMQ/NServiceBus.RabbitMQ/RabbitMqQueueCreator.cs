@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
-    using NServiceBus.Unicast.Queuing;
+    using Settings;
 
     public class RabbitMqQueueCreator : ICreateQueues
     {
@@ -8,7 +8,7 @@
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
-            var durable = Configure.Endpoint.Advanced().DurableMessages;
+            var durable = SettingsHolder.Get<bool>("Endpoint.DurableMessages");
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {

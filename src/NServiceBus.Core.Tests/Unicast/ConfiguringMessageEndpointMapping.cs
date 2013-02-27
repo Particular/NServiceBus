@@ -22,6 +22,8 @@ namespace NServiceBus.Unicast.Tests
 {
     using System.Reflection;
     using NServiceBus.Config.ConfigurationSource;
+    using Routing;
+    using Subscriptions;
 
     public class Configuring_message_endpoint_mapping
     {
@@ -60,13 +62,13 @@ namespace NServiceBus.Unicast.Tests
 
             Configure.Instance.UnicastBus();
 
-            var messageOwners = Configure.Instance.Builder.Build<UnicastBus>().MessageOwners;
+            var messageOwners = Configure.Instance.Builder.Build<IRouteMessages>();
 
-            Assert.AreEqual("type", messageOwners[typeof(MessageA)].Queue);
-            Assert.AreEqual("namespace", messageOwners[typeof(MessageB)].Queue);
-            Assert.AreEqual("assembly", messageOwners[typeof(MessageD)].Queue);
-            Assert.AreEqual("messageswithtype", messageOwners[typeof(MessageE)].Queue);
-            Assert.AreEqual("namespace", messageOwners[typeof(MessageF)].Queue);
+            Assert.AreEqual("type", messageOwners.GetDestinationFor(typeof(MessageA)).Queue);
+            Assert.AreEqual("namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Queue);
+            Assert.AreEqual("assembly", messageOwners.GetDestinationFor(typeof(MessageD)).Queue);
+            Assert.AreEqual("messageswithtype", messageOwners.GetDestinationFor(typeof(MessageE)).Queue);
+            Assert.AreEqual("namespace", messageOwners.GetDestinationFor(typeof(MessageF)).Queue);
         }
 
         public class CustomUnicastBusConfig : IProvideConfiguration<UnicastBusConfig>

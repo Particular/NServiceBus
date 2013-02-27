@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Threading;
     using Contexts;
     using NUnit.Framework;
@@ -66,14 +67,14 @@
         [Test]
         public void Should_not_autosubscribe_the_saga_messagehandler()
         {
-            unicastBus.DoNotAutoSubscribeSagas = true;
+            autoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
       
             var eventEndpointAddress = new Address("PublisherAddress", "localhost");
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
             StartBus();
-            unicastBus.DoNotAutoSubscribeSagas = false;
+            autoSubscriptionStrategy.DoNotAutoSubscribeSagas = false;
       
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
         }
@@ -91,6 +92,10 @@
     [TestFixture]
     public class When_autosubscribing_a_saga_that_handles_a_superclass_event : using_a_configured_unicastbus
     {
+        protected override System.Collections.Generic.IEnumerable<Type> KnownMessageTypes()
+        {
+            return new[] {typeof (EventWithParent), typeof (EventMessageBase)};
+        }
         [Test]
         public void Should_autosubscribe_the_saga_messagehandler()
         {

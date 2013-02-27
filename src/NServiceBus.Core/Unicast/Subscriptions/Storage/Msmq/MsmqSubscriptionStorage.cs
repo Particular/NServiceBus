@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     using System.Messaging;
     using System.Transactions;
     using Logging;
+    using Settings;
     using Transports.Msmq;
     using MessageType = Subscriptions.MessageType;
 
@@ -30,7 +31,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
                 throw new ArgumentException(string.Format("There is a problem with the subscription storage queue {0}. See enclosed exception for details.", Queue), ex);
             }
 
-            if (!transactional && Configure.Transactions.Enabled)
+            if (!transactional && SettingsHolder.Get<bool>("Transactions.Enabled"))
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
             var mpf = new MessagePropertyFilter();
@@ -153,7 +154,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
-            if (!Configure.Transactions.Enabled)
+            if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
             {
                 return MessageQueueTransactionType.None;
             }

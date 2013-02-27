@@ -5,6 +5,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
     using System.Linq;
     using System.Messaging;
     using System.Threading;
+    using Settings;
     using Transports.Msmq;
     using Unicast.Distributor;
 
@@ -86,7 +87,7 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             storageQueue = new MessageQueue(path);
 
-            if ((!storageQueue.Transactional) && (Configure.Transactions.Enabled))
+            if ((!storageQueue.Transactional) && (SettingsHolder.Get<bool>("Transactions.Enabled")))
             {
                 throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
             }

@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Queuing
     using Installation;
     using Installation.Environments;
     using Logging;
+    using Settings;
     using Transports;
     using INeedInitialization = NServiceBus.INeedInitialization;
 
@@ -19,7 +20,7 @@ namespace NServiceBus.Unicast.Queuing
         /// <param name="identity">The user for under which the queue will be created.</param>
         public void Install(string identity)
         {
-            if (Configure.Endpoint.IsSendOnly)
+            if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
                 return;
             }

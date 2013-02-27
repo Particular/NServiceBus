@@ -10,6 +10,7 @@ namespace NServiceBus.Hosting
     using Logging;
     using Profiles;
     using Roles;
+    using Settings;
     using Wcf;
 
     /// <summary>
@@ -27,7 +28,7 @@ namespace NServiceBus.Hosting
                 PerformConfiguration();
 
                 bus = Configure.Instance.CreateBus();
-                if (bus != null && !Configure.Endpoint.IsSendOnly)
+                if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
                 {
                     bus.Start();
                 }

@@ -161,15 +161,15 @@ namespace NServiceBus
 
         public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
 
-
         public static Conventions Conventions { get { return conventions ?? (conventions = new Conventions()); } }
 
-        static Conventions conventions;
+        private static Conventions conventions;
+
         /// <summary>
         /// True if this endpoint is operating in send only mode
         /// </summary>
-        [ObsoleteEx(Replacement = "Endpoint.IsSendOnly", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static bool SendOnlyMode { get { return Endpoint.IsSendOnly; } }
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        public static bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
         /// Creates a new configuration object scanning assemblies
@@ -239,7 +239,9 @@ namespace NServiceBus
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             if (instance == null)
+            {
                 instance = new Configure();
+            }
 
             TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
@@ -255,6 +257,8 @@ namespace NServiceBus
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
+
+            instance.InvokeISetDefaultSettings();
 
             return instance;
         }
@@ -288,6 +292,19 @@ namespace NServiceBus
         }
 
         private static bool beforeConfigurationInitializersCalled;
+        private bool invokeISetDefaultSettingsCalled;
+
+        private void InvokeISetDefaultSettings()
+        {
+            if (invokeISetDefaultSettingsCalled)
+            {
+                return;
+            }
+
+            ForAllTypes<ISetDefaultSettings>(t => Activator.CreateInstance(t));
+
+            invokeISetDefaultSettingsCalled = true;
+        }
 
         private void InvokeBeforeConfigurationInitializers()
         {
@@ -643,12 +660,5 @@ namespace NServiceBus
               {
                   // defaultAssemblyExclusions will merged inn; specify additional ones here 
               };
-    }
-
-    /// <summary>
-    /// Placeholder for the various extentsions. Modules will add extention methods to this class
-    /// </summary>
-    public class Conventions
-    {
     }
 }

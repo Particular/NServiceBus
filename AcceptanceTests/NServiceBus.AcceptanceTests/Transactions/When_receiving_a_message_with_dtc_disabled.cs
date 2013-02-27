@@ -39,7 +39,7 @@
         {
             public NonDTCEndpoint()
             {
-                Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions = true);
+                Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions(true));
                 EndpointSetup<DefaultServer>();
             }
 
@@ -62,7 +62,5 @@
         public class MyMessage : ICommand
         {
         }
-
-
     }
 }

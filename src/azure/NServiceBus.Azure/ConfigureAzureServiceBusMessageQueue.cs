@@ -89,8 +89,10 @@ namespace NServiceBus
             
 
             // make sure the transaction stays open a little longer than the long poll.
-            Configure.Transactions.Advanced().DefaultTimeout = TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1);
-            Configure.Transactions.Advanced().IsolationLevel = IsolationLevel.Serializable;
+            Configure.Transactions.Advanced(
+                settings => settings
+                                .DefaultTimeout(TimeSpan.FromSeconds(configSection.ServerWaitTime*1.1))
+                                .IsolationLevel(IsolationLevel.Serializable));
 
             if (!string.IsNullOrEmpty(configSection.QueueName))
             {

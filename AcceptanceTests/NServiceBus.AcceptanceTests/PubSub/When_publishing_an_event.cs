@@ -13,33 +13,45 @@
         public void Should_be_delivered_to_allsubscribers()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.Given((bus,context) =>
+                    .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
                         {
                             if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
                             {
                                 Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
                                     (sender, args) =>
+                                    {
+                                        lock (context)
                                         {
-                                            lock (context)
-                                            {
-                                                context.NumberOfSubscribers++;
+                                            context.NumberOfSubscribers++;
 
-                                                if (context.NumberOfSubscribers >= 2)
-                                                    bus.Publish(new MyEvent());                
-                                                
+                                            if (context.NumberOfSubscribers >= 2)
+                                            {
+                                                context.Subscriber1Subscribed = true;
+                                                context.Subscriber2Subscribed = true;
                                             }
-                                        };
+
+                                        }
+                                    };
                             }
-                            else
-                            {
-                                bus.Publish(new MyEvent());                
-                            }
-                            
+
+                        })
+                        .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
+                    .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
+                        {
+                            bus.Subscribe<MyEvent>();
+                          
+                            if (!Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                                context.Subscriber1Subscribed = true;
                         }))
-                    .WithEndpoint<Subscriber1>()
-                    .WithEndpoint<Subscriber2>()
+                      .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
+                      {
+                          bus.Subscribe<MyEvent>();
+                          
+                          if (!Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                              context.Subscriber2Subscribed = true;
+                      }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For<AllTransports>())
+                    .Repeat(r => r.For<AllTransports>(Transports.SqlServer))
                     .Should(c =>
                     {
                         Assert.True(c.Subscriber1GotTheEvent);
@@ -56,6 +68,10 @@
             public bool Subscriber2GotTheEvent { get; set; }
 
             public int NumberOfSubscribers { get; set; }
+
+            public bool Subscriber1Subscribed { get; set; }
+
+            public bool Subscriber2Subscribed { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -70,7 +86,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
                     .AddMapping<MyEvent>(typeof(Publisher));
             }
 
@@ -89,8 +105,8 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                        .AddMapping<MyEvent>(typeof(Publisher));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

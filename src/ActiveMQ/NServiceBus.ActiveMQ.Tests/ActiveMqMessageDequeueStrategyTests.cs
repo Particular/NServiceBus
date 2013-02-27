@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
     using NServiceBus.Transports.ActiveMQ.Receivers;
     using NServiceBus.Transports.ActiveMQ.SessionFactories;
-    using NServiceBus.Unicast.Transport.Transactional;
+    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     [TestFixture]
     public class ActiveMqMessageDequeueStrategyTests
@@ -16,6 +17,13 @@
         [SetUp]
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                     .Advanced(
+                         settings =>
+                         settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                 .IsolationLevel(IsolationLevel.ReadCommitted)
+                                 .SuppressDistributedTransactions(false));
+
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
             pendingMessagesCounterMock = new Mock<IMessageCounter>();
             sessionFactroyMock = new Mock<ISessionFactory>();

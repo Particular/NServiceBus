@@ -62,7 +62,7 @@ namespace NServiceBus
         [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]        
         public static Configure IsolationLevel(this Configure config, IsolationLevel isolationLevel)
         {
-            Configure.Transactions.Advanced().IsolationLevel = isolationLevel;
+            Configure.Transactions.Advanced(settings => settings.IsolationLevel(isolationLevel));
 
             return config;
         }
@@ -78,7 +78,7 @@ namespace NServiceBus
         [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
         public static Configure TransactionTimeout(this Configure config, TimeSpan transactionTimeout)
         {
-            Configure.Transactions.Advanced().DefaultTimeout = transactionTimeout;
+            Configure.Transactions.Advanced(settings => settings.DefaultTimeout(transactionTimeout));
 
             return config;
         }

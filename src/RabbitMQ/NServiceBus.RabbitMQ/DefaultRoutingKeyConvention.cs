@@ -2,22 +2,13 @@
 {
     using System;
     using System.Linq;
-    using NServiceBus.Utils.Reflection;
+    using Utils.Reflection;
 
-    public class RabbitMqTopicBuilder
+    public class DefaultRoutingKeyConvention
     {
-        public static string GetRoutingKeyForPublish(Type eventType)
+        public static string GenerateRoutingKey(Type eventType)
         {
             return GetRoutingKey(eventType);
-        }
-
-        public static string GetRoutingKeyForBinding(Type eventType)
-        {
-            if (eventType == typeof(IEvent) || eventType == typeof(object))
-                return "#";
-
-
-            return GetRoutingKey(eventType) + ".#";
         }
 
         static string GetRoutingKey(Type type, string key = "")
@@ -30,7 +21,7 @@
 
 
             var interfaces = type.GetInterfaces()
-                                 .Where(i => !i.IsSystemType() && !i.IsNServiceBusMarkerInterface()).ToList();
+                                 .Where(i => !ExtensionMethods.IsSystemType(i) && !ExtensionMethods.IsNServiceBusMarkerInterface(i)).ToList();
 
             var implementedInterface = interfaces.FirstOrDefault();
 
@@ -44,6 +35,4 @@
             return key + type.FullName.Replace(".", "-");
         }
     }
-
-
 }

@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
+    using System;
+    using System.Transactions;
     using Apache.NMS;
     using Moq;
-    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ.Receivers;
+    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
 
     [TestFixture]
     public class ActiveMqMessageReceiverTests
@@ -18,6 +20,13 @@
         [SetUp] 
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                      .Advanced(
+                          settings =>
+                          settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                  .IsolationLevel(IsolationLevel.ReadCommitted)
+                                  .SuppressDistributedTransactions(false));
+
             this.messageProcessorMock = new Mock<IProcessMessages>();
             this.eventConsumerMock = new Mock<IConsumeEvents>();
             this.messageConsumerMock = new Mock<IMessageConsumer>();

@@ -9,10 +9,12 @@
         public string EndpointQueueName { get; set; }
 
         public Func<Address,Type, string> ExchangeName { get; set; }
-        
+
+        public RabbitMqRoutingKeyBuilder RoutingKeyBuilder { get; set; }
+
         public void Subscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
+            var routingKey = RoutingKeyBuilder.GetRoutingKeyForBinding(eventType);
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
@@ -22,7 +24,7 @@
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = RabbitMqTopicBuilder.GetRoutingKeyForBinding(eventType);
+            var routingKey = RoutingKeyBuilder.GetRoutingKeyForBinding(eventType);
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
