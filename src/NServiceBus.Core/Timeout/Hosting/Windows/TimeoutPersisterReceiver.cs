@@ -10,7 +10,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     public class TimeoutPersisterReceiver
     {
-        static readonly ILog Logger = LogManager.GetLogger("TimeoutPersisterReceiver");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
 
         readonly object lockObject = new object();
 

@@ -65,7 +65,7 @@ namespace NServiceBus
         /// </summary>
         public static Address ErrorQueue { get; set; }
 
-        private static ILog Logger = LogManager.GetLogger("MessageForwardingInCaseOfFault");
+        private static ILog Logger = LogManager.GetLogger(typeof(ConfigureFaultsForwarder));
     }
 
     class Bootstrapper : INeedInitialization

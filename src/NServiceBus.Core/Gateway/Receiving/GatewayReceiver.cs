@@ -12,7 +12,7 @@ namespace NServiceBus.Gateway.Receiving
 
     public class GatewayReceiver : ISatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(GatewayReceiver));
         private readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
         private readonly Address returnAddress = ConfigureGateway.GatewayInputAddress;
 

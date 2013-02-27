@@ -10,7 +10,7 @@ namespace NServiceBus.Management.Retries
 
     public class SecondLevelRetries : ISatellite
     {
-        readonly ILog Logger = LogManager.GetLogger("SecondLevelRetries");
+        readonly ILog Logger = LogManager.GetLogger(typeof(SecondLevelRetries));
 
         public ISendMessages MessageSender { get; set; }
         public IDeferMessages MessageDeferrer { get; set; }  
