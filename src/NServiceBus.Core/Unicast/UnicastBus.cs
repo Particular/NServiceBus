@@ -1579,7 +1579,7 @@ namespace NServiceBus.Unicast
                     continue;
 
                 if (MessageConventionExtensions.IsMessageType(potentialMessageType) ||
-                    typeof(IMessageHandler<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t))
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t))
                     yield return potentialMessageType;
             }
         }

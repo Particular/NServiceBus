@@ -7,7 +7,7 @@ namespace NServiceBus.Saga
     /// the saga will be created.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ISagaStartedBy<T> : IMessageHandler<T>
+    public interface ISagaStartedBy<T> : IHandleMessages<T>
     {
     }
 

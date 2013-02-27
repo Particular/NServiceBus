@@ -385,7 +385,7 @@ namespace NServiceBus.Sagas.Impl
 
         private static IEnumerable<Type> GetMessageTypesHandledBySaga(Type sagaType)
         {
-            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof (IMessageHandler<>));
+            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>));
         }
 
         private static IEnumerable<Type> GetMessageTypesThatRequireStartingTheSaga(Type sagaType)

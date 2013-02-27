@@ -466,7 +466,7 @@ namespace NServiceBus.Testing.Tests
 
             public bool IsHandled { get; set; }
 
-            void IMessageHandler<TestMessage>.Handle(TestMessage message)
+            void IHandleMessages<TestMessage>.Handle(TestMessage message)
             {
                 IsHandled = true;
             }

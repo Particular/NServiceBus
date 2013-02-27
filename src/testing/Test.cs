@@ -188,7 +188,7 @@ namespace NServiceBus.Testing
                               let args = i.GetGenericArguments()
                               where args.Length == 1
                               where MessageConventionExtensions.IsMessageType(args[0])
-                              where typeof (IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                              where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
                               select i).Any();
 
             if (!isHandler)

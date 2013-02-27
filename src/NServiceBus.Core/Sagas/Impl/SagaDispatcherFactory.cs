@@ -73,7 +73,7 @@ namespace NServiceBus.Sagas.Impl
                                              }
                                              else
                                              {
-                                                 HandlerInvocationCache.Invoke(typeof (IMessageHandler<>), saga, message);
+                                                 HandlerInvocationCache.Invoke(typeof(IHandleMessages<>), saga, message);
                                              }
 
                                              if (!saga.Completed)
