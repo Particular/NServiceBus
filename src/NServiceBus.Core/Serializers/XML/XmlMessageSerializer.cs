@@ -1182,7 +1182,7 @@ namespace NServiceBus.Serializers.XML
         [ThreadStatic]
         private static List<Type> namespacesToAdd;
 
-        private static readonly ILog logger = LogManager.GetLogger("NServiceBus.Serializers.XML");
+        private static readonly ILog logger = LogManager.GetLogger(typeof(XmlMessageSerializer));
 
         /// <summary>
         /// Initializes an instace of a NServiceBus.Serializers.XML.XmlMessageSerializer

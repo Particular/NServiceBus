@@ -457,7 +457,7 @@ namespace NServiceBus.Sagas.Impl
 
         private static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
-        internal static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
+        internal static readonly ILog Logger = LogManager.GetLogger(typeof(Configure));
         #endregion
     }
 }

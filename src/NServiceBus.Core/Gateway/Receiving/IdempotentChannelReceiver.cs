@@ -188,7 +188,7 @@ namespace NServiceBus.Gateway.Receiving
         readonly IChannelFactory channelFactory;
         readonly IPersistMessages persister;
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));
 
     }
 }

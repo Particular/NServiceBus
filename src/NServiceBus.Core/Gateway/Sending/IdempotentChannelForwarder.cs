@@ -79,6 +79,6 @@ namespace NServiceBus.Gateway.Sending
 
         private const string DATABUS_PREFIX = "NServiceBus.DataBus.";
 
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelForwarder));
     }
 }

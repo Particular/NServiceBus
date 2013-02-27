@@ -108,6 +108,6 @@ namespace NServiceBus.Faults.Forwarder
         public Address RetriesErrorQueue { get; set; }
 
         Address localAddress;
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(FaultManager));
     }
 }

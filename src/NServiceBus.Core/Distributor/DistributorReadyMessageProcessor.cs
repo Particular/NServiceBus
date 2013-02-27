@@ -11,7 +11,7 @@ namespace NServiceBus.Distributor
     /// </summary>
     public class DistributorReadyMessageProcessor : ISatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger("Distributor." + Configure.EndpointName);
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
         private static readonly Address Address;
         private static readonly bool Disable;
 

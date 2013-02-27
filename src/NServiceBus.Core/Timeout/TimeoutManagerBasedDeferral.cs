@@ -39,6 +39,6 @@
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        readonly static ILog Log = LogManager.GetLogger("Deferral");
+        readonly static ILog Log = LogManager.GetLogger(typeof(TimeoutManagerBasedDeferral));
     }
 }
