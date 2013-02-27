@@ -3,7 +3,6 @@
     using System;
     using Logging;
     using Transports;
-    using Unicast.Queuing;
     using Unicast.Transport;
 
     public class TimeoutManagerBasedDeferral:IDeferMessages

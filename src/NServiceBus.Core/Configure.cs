@@ -239,7 +239,9 @@ namespace NServiceBus
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             if (instance == null)
+            {
                 instance = new Configure();
+            }
 
             TypesToScan = typesToScan.Union(GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
@@ -255,6 +257,8 @@ namespace NServiceBus
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
+
+            instance.InvokeISetDefaultSettings();
 
             return instance;
         }
@@ -288,6 +292,19 @@ namespace NServiceBus
         }
 
         private static bool beforeConfigurationInitializersCalled;
+        private bool invokeISetDefaultSettingsCalled;
+
+        private void InvokeISetDefaultSettings()
+        {
+            if (invokeISetDefaultSettingsCalled)
+            {
+                return;
+            }
+
+            ForAllTypes<ISetDefaultSettings>(t => Activator.CreateInstance(t));
+
+            invokeISetDefaultSettingsCalled = true;
+        }
 
         private void InvokeBeforeConfigurationInitializers()
         {
@@ -295,8 +312,6 @@ namespace NServiceBus
             {
                 return;
             }
-
-            ForAllTypes<ISetDefaultSettings>(t => Activator.CreateInstance(t));
 
             ForAllTypes<IWantToRunBeforeConfiguration>(t =>
             {

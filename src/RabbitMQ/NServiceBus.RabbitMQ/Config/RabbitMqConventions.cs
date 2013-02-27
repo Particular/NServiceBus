@@ -21,7 +21,7 @@
         public DefaultRabbitMqConventions()
         {
             Func<Address, Type, string> exchangeNameConvention = (address, eventType) => "amq.topic";
-            SettingsHolder.Set("Conventions.RabbitMq.ExchangeNameForPubSub", exchangeNameConvention);
+            SettingsHolder.SetDefault("Conventions.RabbitMq.ExchangeNameForPubSub", exchangeNameConvention);
         }
     }
 }

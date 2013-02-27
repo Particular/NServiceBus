@@ -10,7 +10,7 @@ namespace NServiceBus.Settings
     {
         public DefaultTransactionSettings()
         {
-            SettingsHolder.Set("Transactions.Enabled", true);
+            SettingsHolder.SetDefault("Transactions.Enabled", true);
         }
     }
 
@@ -18,10 +18,10 @@ namespace NServiceBus.Settings
     {
         public DefaultTransactionAdvancedSettings()
         {
-            SettingsHolder.Set("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            SettingsHolder.Set("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            SettingsHolder.Set("Transactions.SuppressDistributedTransactions", false);
-            SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
+            SettingsHolder.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
+            SettingsHolder.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
+            SettingsHolder.SetDefault("Transactions.SuppressDistributedTransactions", false);
+            SettingsHolder.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
         }
     }
 

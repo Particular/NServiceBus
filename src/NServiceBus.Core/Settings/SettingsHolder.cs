@@ -9,7 +9,8 @@ namespace NServiceBus.Settings
     /// </summary>
     public static class SettingsHolder
     {
-        static readonly ConcurrentDictionary<string, object> Bucket = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        static readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        static readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
   
         /// <summary>
         /// Gets the setting value.
@@ -20,9 +21,14 @@ namespace NServiceBus.Settings
         public static T Get<T>(string key)
         {
             object result;
-            if (Bucket.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out result))
             {
                 return (T) result;
+            }
+
+            if (Defaults.TryGetValue(key, out result))
+            {
+                return (T)result;
             }
 
             throw new KeyNotFoundException(String.Format("The given key ({0}) was not present in the dictionary.", key));
@@ -35,7 +41,17 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public static void Set(string key, object value)
         {
-            Bucket[key] = value;
+            Overrides[key] = value;
+        }
+
+        /// <summary>
+        /// Sets the default setting value.
+        /// </summary>
+        /// <param name="key">The key to use to store the setting.</param>
+        /// <param name="value">The setting value.</param>
+        public static void SetDefault(string key, object value)
+        {
+            Defaults[key] = value;
         }
     }
 }

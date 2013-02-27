@@ -6,7 +6,7 @@ namespace NServiceBus.Settings
     {
         public DefaultEndpointSettings()
         {
-            SettingsHolder.Set("Endpoint.SendOnly", false);
+            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
         }
     }
 
@@ -14,7 +14,7 @@ namespace NServiceBus.Settings
     {
         public DefaultEndpointAdvancedSettings()
         {
-            SettingsHolder.Set("Endpoint.DurableMessages", true);
+            SettingsHolder.SetDefault("Endpoint.DurableMessages", true);
         }
     }
 
