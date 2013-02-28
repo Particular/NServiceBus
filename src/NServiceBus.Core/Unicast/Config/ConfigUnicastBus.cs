@@ -324,6 +324,7 @@ namespace NServiceBus.Unicast.Config
             ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
             return this;
         }
+       
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
@@ -331,6 +332,17 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
             ApplyDefaultAutoSubscriptionStrategy.AllowSubscribeToSelf = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Tells the bus to auto subscribe plain messages in addition to events
+        /// Commands will NOT be auto subscribed
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus AutoSubscribePlainMessages()
+        {
+            ApplyDefaultAutoSubscriptionStrategy.SubscribePlainMessages = true;
             return this;
         }
 

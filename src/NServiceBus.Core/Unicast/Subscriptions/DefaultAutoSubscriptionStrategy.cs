@@ -27,11 +27,15 @@
         /// </summary>
         public bool AllowSubscribeToSelf { get; set; }
 
-
         /// <summary>
         /// if true messages that are handled by sagas wont be auto subscribed
         /// </summary>
         public bool DoNotAutoSubscribeSagas { get; set; }
+
+        /// <summary>
+        /// If true all messages that are not commands will be auto subscribed
+        /// </summary>
+        public bool SubscribePlainMessages { get; set; }
 
         public IEnumerable<Type> GetEventsToSubscribe()
         {
@@ -46,9 +50,6 @@
                     continue;
                 }
 
-                if (!MessageConventionExtensions.IsEventType(eventType))
-                    Log.Info("Future versions of NServiceBus will only auto-subscribe messages explicitly marked as IEvent so consider marking messages that are events with the explicit IEvent interface");
-
                 yield return eventType;
             }
         }
@@ -57,7 +58,7 @@
         IEnumerable<Type> GetEventsToAutoSubscribe()
         {
             var eventsHandled = HandlerRegistry.GetMessageTypes()
-                .Where(t => !MessageConventionExtensions.IsCommandType(t))
+                .Where(t => !MessageConventionExtensions.IsCommandType(t) && (SubscribePlainMessages || MessageConventionExtensions.IsEventType(t)))
                 .ToList();
 
             if (AllowSubscribeToSelf)
