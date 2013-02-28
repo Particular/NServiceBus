@@ -70,6 +70,7 @@
                     return nameThisEndpoint.GetName();
                 }
 
+                // this is not working at the moment - getting unexpected result for EndpointHelper.GetDefaultEndpointName()
 //                var nameViaConfiguration = Configure.GetEndpointNameAction;
 //                if (nameViaConfiguration != null) {
 //                    return nameViaConfiguration();
