@@ -49,7 +49,8 @@
             if (properties.IsReplyToPresent())
                 result.ReplyToAddress = Address.Parse(properties.ReplyTo);
 
-            result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
+            if (message.BasicProperties.Headers != null)
+                result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
                                         .ToDictionary(
                                         kvp => (string)kvp.Key, 
                                         kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[]) kvp.Value));

@@ -81,6 +81,7 @@
             Bus.Reply(new TestMessage());
         }
     }
+
     class HandlerThatReturns : IHandleMessages<TestMessage>
     {
         public IBus Bus { get; set; }

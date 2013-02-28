@@ -144,7 +144,7 @@
                 {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runners, ()=>done(runDescriptor.ScenarioContext));
+                    PerformScenarios(runDescriptor,runners, () => done(runDescriptor.ScenarioContext));
                 }
                 finally
                 {
@@ -209,11 +209,13 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static void PerformScenarios(RunDescriptor runDescriptor,IEnumerable<ActiveRunner> runners, Func<bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
             StartEndpoints(endpoints);
+            
+            runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(90);

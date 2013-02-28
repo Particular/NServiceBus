@@ -127,9 +127,13 @@
 
         protected TransportMessage WaitForMessage()
         {
+            var waitTime = TimeSpan.FromSeconds(1);
+
+            if (System.Diagnostics.Debugger.IsAttached)
+                waitTime = TimeSpan.FromMinutes(10);
 
             TransportMessage message;
-            receivedMessages.TryTake(out message, TimeSpan.FromSeconds(1));
+            receivedMessages.TryTake(out message, waitTime);
 
             return message;
 

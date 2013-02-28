@@ -33,7 +33,7 @@
                          settings =>
                          settings.DefaultTimeout(TimeSpan.FromSeconds(10))
                                  .IsolationLevel(IsolationLevel.ReadCommitted)
-                                 .SuppressDistributedTransactions(false));
+                                 .EnableDistributedTransactions());
 
             this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();

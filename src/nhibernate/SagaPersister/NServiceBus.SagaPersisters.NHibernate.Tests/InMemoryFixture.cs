@@ -52,9 +52,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             SessionFactory = builder.Build(ConfigureNHibernate.CreateConfigurationWith(properties));
 
-            SagaPersister = new SagaPersister { SessionFactory = SessionFactory };
-
             UnitOfWork = new UnitOfWorkManager { SessionFactory = SessionFactory };
+
+            SagaPersister = new SagaPersister { UnitOfWorkManager = (UnitOfWorkManager)UnitOfWork };
 
             new Installer().Install(WindowsIdentity.GetCurrent().Name);
         }

@@ -87,8 +87,14 @@ namespace NServiceBus.Unicast.Config
         void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
         {
             var unicastConfig = GetConfigSection<UnicastBusConfig>();
+            var router = new StaticMessageRouter(knownMessages);
 
-            if (unicastConfig == null) return;
+            Configurer.RegisterSingleton<IRouteMessages>(router);
+
+            if (unicastConfig == null)
+            {
+                return;
+            }
 
             busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
@@ -96,8 +102,6 @@ namespace NServiceBus.Unicast.Config
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m=>m)
                 .ToList();
-
-            var router = new StaticMessageRouter(knownMessages);
 
             foreach (var mapping in messageEndpointMappings)
             {
@@ -111,9 +115,6 @@ namespace NServiceBus.Unicast.Config
                         router.RegisterRoute(messageType,address);
                     });
             }
-
-            Configurer.RegisterSingleton<IRouteMessages>(router);
-
         }
         
        
@@ -323,6 +324,7 @@ namespace NServiceBus.Unicast.Config
             ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
             return this;
         }
+       
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
@@ -330,6 +332,17 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
             ApplyDefaultAutoSubscriptionStrategy.AllowSubscribeToSelf = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Tells the bus to auto subscribe plain messages in addition to events
+        /// Commands will NOT be auto subscribed
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus AutoSubscribePlainMessages()
+        {
+            ApplyDefaultAutoSubscriptionStrategy.SubscribePlainMessages = true;
             return this;
         }
 

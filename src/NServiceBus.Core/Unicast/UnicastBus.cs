@@ -557,7 +557,7 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            toSend.Headers[Headers.IsDeferedMessage] = true.ToString();
+            toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
 
             MessageDeferrer.Defer(toSend, processAt, Address.Local);
 
@@ -1121,11 +1121,11 @@ namespace NServiceBus.Unicast
                         {
                             dispatch();
                         }
-                        catch (TargetInvocationException e)
+                        catch (Exception e)
                         {
-                            Log.Warn(handlerType.Name + " failed handling message.", e.InnerException);
+                            Log.Warn(handlerType.Name + " failed handling message.", e);
 
-                            throw new TransportMessageHandlingFailedException(e.InnerException);
+                            throw new TransportMessageHandlingFailedException(e);
                         }
                     });
 

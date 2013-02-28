@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using Customization;
-    using Serializers.Json;
 
     [Serializable]
     public class EndpointBehaviour : MarshalByRefObject

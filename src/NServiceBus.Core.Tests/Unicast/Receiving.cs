@@ -187,18 +187,32 @@
         [Test]
         public void Should_set_the_newv4_flag()
         {
-            var transportMessage = new TransportMessage();
-
-            transportMessage.Headers[TimeoutManagerHeaders.Expire] = DateTime.UtcNow.ToString();
-            transportMessage.Headers[Headers.SagaId] = Guid.NewGuid().ToString();
+            var timeoutMessage = Helpers.Helpers.Serialize(new SomeTimeout());
 
 
             var mutator = new SetIsSagaMessageHeaderForV3XMessages();
+            ExtensionMethods.GetHeaderAction = (o, s) =>
+                {
+                    if(s == TimeoutManagerHeaders.Expire)
+                        return DateTime.UtcNow.ToString();
+                    return "";
+                };
 
-           mutator.MutateIncoming(transportMessage);
 
-           Assert.AreEqual(transportMessage.Headers[Headers.IsSagaTimeoutMessage], true.ToString());
+            var flagWasSet = false;
+            ExtensionMethods.SetHeaderAction = (o, s, arg3) =>
+                {
+                    if (s == Headers.IsSagaTimeoutMessage)
+                        flagWasSet = true;
+
+                };
+            mutator.MutateIncoming(timeoutMessage);
+
+            Assert.True(flagWasSet,"The message should be marked a saga timeoutmessage");
         }
+
+        class SomeTimeout{}
+
     }
 
 

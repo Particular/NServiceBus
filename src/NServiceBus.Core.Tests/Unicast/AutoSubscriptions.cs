@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Collections.ObjectModel;
     using System.Threading;
     using Contexts;
     using NUnit.Framework;
@@ -26,6 +25,36 @@
         }
 
         [Test]
+        public void Should_not_autosubscribe_messages_by_default()
+        {
+
+            var endpointAddress = new Address("MyEndpoint", "localhost");
+
+            RegisterMessageType<MyMessage>(endpointAddress);
+            RegisterMessageHandlerType<MyMessageHandler>();
+
+            StartBus();
+
+            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(endpointAddress)));
+        }
+
+        [Test]
+        public void Should_not_autosubscribe_messages_unless_asked_to_by_the_users()
+        {
+
+            var endpointAddress = new Address("MyEndpoint", "localhost");
+            autoSubscriptionStrategy.SubscribePlainMessages = true;
+
+            RegisterMessageType<MyMessage>(endpointAddress);
+            RegisterMessageHandlerType<MyMessageHandler>();
+
+            StartBus();
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(endpointAddress)));
+        }
+
+
+        [Test]
         public void Should_not_autosubscribe_messages_with_undefined_address()
         {
 
@@ -36,6 +65,19 @@
             StartBus();
 
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(Address.Undefined)));
+        }
+
+        class MyMessage:IMessage
+        {
+            
+        }
+
+        class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public void Handle(MyMessage message)
+            {
+                throw new System.NotImplementedException();
+            }
         }
 
     }
@@ -118,7 +160,7 @@
             throw new NotImplementedException();
         }
     }
-    public class EventMessageBase:IMessage
+    public class EventMessageBase:IEvent
     {
         
     }

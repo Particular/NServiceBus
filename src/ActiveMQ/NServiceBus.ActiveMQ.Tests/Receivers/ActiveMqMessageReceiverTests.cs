@@ -25,7 +25,7 @@
                           settings =>
                           settings.DefaultTimeout(TimeSpan.FromSeconds(10))
                                   .IsolationLevel(IsolationLevel.ReadCommitted)
-                                  .SuppressDistributedTransactions(false));
+                                  .EnableDistributedTransactions());
 
             this.messageProcessorMock = new Mock<IProcessMessages>();
             this.eventConsumerMock = new Mock<IConsumeEvents>();

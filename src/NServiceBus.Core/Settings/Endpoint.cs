@@ -31,10 +31,10 @@ namespace NServiceBus.Settings
         public Endpoint AsVolatile()
         {
             Configure.Transactions.Disable();
-            Configure.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope(true)
-                                                  .SuppressDistributedTransactions(true));
+            Configure.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
+                                                  .DisableDistributedTransactions());
 
-            Advanced(settings => settings.DurableMessages(false));
+            Advanced(settings => settings.DisableDurableMessages());
 
             return this;
         }
@@ -67,13 +67,22 @@ namespace NServiceBus.Settings
         public class EndpointAdvancedSettings
         {
             /// <summary>
-            /// Configures endpoint with whether messages are guaranteed to be delivered in the event of a computer failure or network problem, or not.
+            /// Configures endpoint with messages guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
-            /// <param name="value"><c>true</c> to indicate that messages are guaranteed to be delivered in the event of a computer failure or network problem, otherwise <c>false</c>.</param>
             /// <returns></returns>
-            public EndpointAdvancedSettings DurableMessages(bool value)
+            public EndpointAdvancedSettings EnableDurableMessages()
             {
-                SettingsHolder.Set("Endpoint.DurableMessages", value);
+                SettingsHolder.Set("Endpoint.DurableMessages", true);
+                return this;
+            }
+
+            /// <summary>
+            /// Configures endpoint with messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
+            /// </summary>
+            /// <returns></returns>
+            public EndpointAdvancedSettings DisableDurableMessages()
+            {
+                SettingsHolder.Set("Endpoint.DurableMessages", false);
                 return this;
             }
         }

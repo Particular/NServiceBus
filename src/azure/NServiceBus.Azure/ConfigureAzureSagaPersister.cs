@@ -60,10 +60,10 @@ namespace NServiceBus
             if (sessionFactory == null)
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
 
-            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall)
+            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.SessionFactory, sessionFactory);
-            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
+
+            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
 
             return config;
         }
