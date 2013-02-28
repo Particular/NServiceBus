@@ -3,10 +3,17 @@ namespace MyRequestResponseEndpoint
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<RabbitMQ>
+	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<RabbitMQ>, IWantCustomInitialization
     {
+        public void Init()
+        {
+            Configure.With()
+                     .DefaultBuilder()
+                     .UnicastBus()
+                     .DoNotAutoSubscribe();
+        }
     }
-
+	
     public class MyClass : IWantToRunWhenBusStartsAndStops
     {
         public void Start()
