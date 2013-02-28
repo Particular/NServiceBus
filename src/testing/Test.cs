@@ -33,6 +33,17 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Initializes the testing infrastructure specifying which assemblies to scan.
         /// </summary>
+        public static void Initialize(IEnumerable<Assembly> assemblies)
+        {
+            if (assemblies == null)
+                throw new ArgumentNullException("assemblies");
+            
+            Initialize(assemblies.ToArray());
+        }
+        
+        /// <summary>
+        /// Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
             Configure.With(assemblies);
