@@ -3,27 +3,33 @@ namespace NServiceBus.Unicast
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
+    using System.Linq.Expressions;
     using Saga;
 
     /// <summary>
-    /// Helper that optimize the invokation of the handle methods
+    /// Helper that optimize the invocation of the handle methods
     /// </summary>
     public class HandlerInvocationCache
     {
         /// <summary>
         /// Invokes the handle method of the given handler passing the message
         /// </summary>
-        /// <param name="interfaceType">The method that implements the interface type to execute.</param>
         /// <param name="handler">The handler instance.</param>
         /// <param name="message">The message instance.</param>
-        public static void Invoke(Type interfaceType, object handler, object message)
+        public static void InvokeHandle(object handler, object message)
         {
-            var messageTypesToMethods = handlerToMessageTypeToHandleMethodMap[handler.GetType()];
-            foreach (var messageType in messageTypesToMethods.Keys)
-                if (messageType.IsInstanceOfType(message))
-                    messageTypesToMethods[messageType][interfaceType].Invoke(handler, new[] { message });
+			Invoke(handler, message, HandlerCache);
         }
+
+	    /// <summary>
+		/// Invokes the timeout method of the given handler passing the message
+		/// </summary>
+		/// <param name="handler">The handler instance.</param>
+		/// <param name="state">The message instance.</param>
+        public static void InvokeTimeout(object handler, object state)
+		{
+			Invoke(handler, state, TimeoutCache);
+		}
 
         /// <summary>
         /// Registers the method in the cache
@@ -32,40 +38,82 @@ namespace NServiceBus.Unicast
         /// <param name="messageType">the message type.</param>
         public static void CacheMethodForHandler(Type handler, Type messageType)
         {
-            if (!handlerToMessageTypeToHandleMethodMap.ContainsKey(handler))
-                handlerToMessageTypeToHandleMethodMap.Add(handler, new Dictionary<Type, IDictionary<Type, MethodInfo>>());
-
-            if (!(handlerToMessageTypeToHandleMethodMap[handler].ContainsKey(messageType)))
-                handlerToMessageTypeToHandleMethodMap[handler].Add(messageType, GetHandleMethods(handler, messageType));
+            CacheMethod(handler, messageType, typeof (IHandleMessages<>), HandlerCache);
+            CacheMethod(handler, messageType, typeof (IHandleTimeouts<>), TimeoutCache);
         }
 
-        static IDictionary<Type, MethodInfo> GetHandleMethods(Type targetType, Type messageType)
+        static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
         {
-            var result = new Dictionary<Type, MethodInfo>();
-
-            foreach (var handlerInterface in handlerInterfaces)
+            List<DelegateHolder> methodList;
+            if (!dictionary.TryGetValue(handler.GetType().TypeHandle, out methodList))
             {
-                MethodInfo method = null;
-
-                var interfaceType = handlerInterface.MakeGenericType(messageType);
-
-                if (interfaceType.IsAssignableFrom(targetType))
-                {
-                    method = targetType.GetInterfaceMap(interfaceType)
-                        .TargetMethods
-                        .FirstOrDefault();
-                }
-
-                if (method != null)
-                {
-                    result.Add(handlerInterface, method);
-                }
+                return;
             }
-
-            return result;
+            foreach (var delegateHolder in methodList.Where(x => x.MessageType.IsInstanceOfType(message)))
+            {
+                delegateHolder.MethodDelegate(handler, message);
+            }
         }
 
-        static readonly List<Type> handlerInterfaces = new List<Type> { typeof(IHandleMessages<>), typeof(IHandleTimeouts<>) };
-        static readonly IDictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>> handlerToMessageTypeToHandleMethodMap = new Dictionary<Type, IDictionary<Type, IDictionary<Type, MethodInfo>>>();
+        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> cache)
+	    {
+		    var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
+		    if (handleMethod == null)
+		    {
+			    return;
+		    }
+		    var delegateHolder = new DelegateHolder
+			    {
+				    MessageType = messageType,
+				    MethodDelegate = handleMethod
+			    };
+		    List<DelegateHolder> methodList;
+		    if (cache.TryGetValue(handler.TypeHandle, out methodList))
+		    {
+			    if (methodList.Any(x => x.MessageType == messageType))
+			    {
+				    return;
+			    }
+			    methodList.Add(delegateHolder);
+		    }
+		    else
+		    {
+			    cache[handler.TypeHandle] = new List<DelegateHolder>
+				    {
+					    delegateHolder
+				    };
+		    }
+	    }
+
+	    static Action<object, object> GetMethod(Type targetType, Type messageType, Type interfaceGenericType)
+	    {
+		    var interfaceType = interfaceGenericType.MakeGenericType(messageType);
+
+		    if (interfaceType.IsAssignableFrom(targetType))
+		    {
+			    var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
+			    if (methodInfo != null)
+			    {
+				    var target = Expression.Parameter(typeof (object));
+				    var param = Expression.Parameter(typeof (object));
+
+				    var castTarget = Expression.Convert(target, targetType);
+				    var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
+				    var execute = Expression.Call(castTarget, methodInfo, castParam);
+				    return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
+			    }
+		    }
+
+		    return null;
+	    }
+
+		class DelegateHolder
+		{
+			public Type MessageType;
+			public Action<object, object> MethodDelegate;
+		}
+
+		static readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> HandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+		static readonly Dictionary<RuntimeTypeHandle, List<DelegateHolder>> TimeoutCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
     }
 }
