@@ -158,7 +158,7 @@
             }
             catch (QueueNotFoundException ex)
             {
-                if (retriesCount < 5)
+                if (retriesCount < 10)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(2));
                     SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
