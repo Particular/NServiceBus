@@ -3,40 +3,44 @@ namespace NServiceBus.UnitOfWork.NHibernate
     using System;
     using System.Transactions;
     using global::NHibernate;
-    using global::NHibernate.Context;
 
     /// <summary>
     /// Implementation of unit of work management with NHibernate
     /// </summary>
     public class UnitOfWorkManager : IManageUnitsOfWork
     {
+        private ISession currentSession;
+
+        internal ISession GetCurrentSession()
+        {
+            if (currentSession == null)
+            {
+                currentSession = SessionFactory.OpenSession();
+                currentSession.BeginTransaction(GetIsolationLevel());
+            }
+
+            return currentSession;
+        }
+
         void IManageUnitsOfWork.Begin()
         {
-            if (SessionFactory == null) return;
-
-            var session = SessionFactory.OpenSession();
-
-            CurrentSessionContext.Bind(session);
-
-            session.BeginTransaction(GetIsolationLevel());
+            currentSession = null;
         }
 
         void IManageUnitsOfWork.End(Exception ex)
         {
-            if (SessionFactory == null) return;
+            if (SessionFactory == null || currentSession == null) return;
 
-            var session = CurrentSessionContext.Unbind(SessionFactory);
-
-            using (session)
-            using (session.Transaction)
+            using (currentSession)
+            using (currentSession.Transaction)
             {
-                if (!session.Transaction.IsActive)
+                if (!currentSession.Transaction.IsActive)
                     return;
 
                 if (ex != null)
-                    session.Transaction.Rollback();
+                    currentSession.Transaction.Rollback();
                 else
-                    session.Transaction.Commit();
+                    currentSession.Transaction.Commit();
             }
         }
 

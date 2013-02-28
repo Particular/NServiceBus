@@ -7,7 +7,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
     using AutoPersistence;
     using global::NHibernate;
     using Configuration = global::NHibernate.Cfg.Configuration;
-    using Environment = global::NHibernate.Cfg.Environment;
 
     /// <summary>
     /// Builder class for the NHibernate Session Factory
@@ -44,8 +43,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
                 nhibernateConfiguration.AddInputStream(stream);
             }
             
-            ApplyDefaultsTo(nhibernateConfiguration);
-
             try
             {
                 return nhibernateConfiguration.BuildSessionFactory();
@@ -57,12 +54,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
 
                 throw;
             }
-        }
-
-        private static void ApplyDefaultsTo(Configuration configuration)
-        {
-            configuration.SetProperty(Environment.CurrentSessionContextClass,
-                                      typeof(InternalThreadStaticSessionContext).AssemblyQualifiedName);
         }
     }
 }
