@@ -70,10 +70,10 @@
                     return nameThisEndpoint.GetName();
                 }
 
-                var nameViaConfiguration = Configure.GetEndpointNameAction;
-                if (nameViaConfiguration != null) {
-                    return nameViaConfiguration();
-                }
+//                var nameViaConfiguration = Configure.GetEndpointNameAction;
+//                if (nameViaConfiguration != null) {
+//                    return nameViaConfiguration();
+//                }
 
                 if (arguments.EndpointName != null) {
                     return arguments.EndpointName;
