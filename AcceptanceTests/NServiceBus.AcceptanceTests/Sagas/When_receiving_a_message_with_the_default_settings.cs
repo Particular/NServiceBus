@@ -7,35 +7,25 @@
     using Saga;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusAcceptanceTest
+    //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020
+    public class When_a_saga_message_goes_through_the_slr : NServiceBusAcceptanceTest
     {
-        static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
-
         [Test]
-        public void Should_hydrate_and_invoke_the_existing_instance()
+        public void Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                        {
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
-                        }))
-                    .Done(c => c.SecondMessageReceived)
+                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
+                    .Done(c => c.SecondMessageProcessed)
                     .Repeat(r => r.For(Transports.Msmq))
-                    .Should(c =>
-                    {
-                        Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages");
-                    })
-
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-            public bool SecondMessageReceived { get; set; }
+            public bool SecondMessageProcessed { get; set; }
 
-            public Guid FirstSagaInstance { get; set; }
-            public Guid SecondSagaInstance { get; set; }
+
+            public int NumberOfTimesInvoked { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -45,28 +35,36 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>,IHandleMessages<SecondSagaMessage>
             {
                 public Context Context { get; set; }
                 public void Handle(StartSagaMessage message)
                 {
                     Data.SomeId = message.SomeId;
 
-                    if (message.SecondMessage)
-                    {
-                        Context.SecondSagaInstance = Data.Id;
-                        Context.SecondMessageReceived = true;
-                    }
-                    else
-                    {
-                        Context.FirstSagaInstance = Data.Id;
-                    }
+                    Bus.SendLocal(new SecondSagaMessage
+                        {
+                            SomeId = Data.SomeId
+                        });
                 }
 
                 public override void ConfigureHowToFindSaga()
                 {
                     ConfigureMapping<StartSagaMessage>(m=>m.SomeId)
                         .ToSaga(s=>s.SomeId);
+                    ConfigureMapping<SecondSagaMessage>(m => m.SomeId)
+                      .ToSaga(s => s.SomeId);
+                }
+
+                public void Handle(SecondSagaMessage message)
+                {
+                    Context.NumberOfTimesInvoked++;
+                    var shouldFail = Context.NumberOfTimesInvoked < 2; //1 FLR and 1 SLR
+
+                    if(shouldFail)
+                        throw new Exception("Simulated exception");
+
+                    Context.SecondMessageProcessed = true;
                 }
             }
 
@@ -83,8 +81,16 @@
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
-
-            public bool SecondMessage { get; set; }
+        }
+        public class SecondSagaMessage : ICommand
+        {
+            public Guid SomeId { get; set; }
+        }
+        
+        public class SomeTimeout
+        {
         }
     }
+
+
 }

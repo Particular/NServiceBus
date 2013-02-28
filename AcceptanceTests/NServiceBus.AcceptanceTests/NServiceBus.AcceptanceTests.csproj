@@ -146,6 +146,7 @@
     <Compile Include="Performance\Receive\Receive_performance.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
+    <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_should_complete_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />

@@ -221,8 +221,7 @@ namespace NServiceBus.Sagas.Impl
         /// <returns></returns>
         static bool IsTimeoutMessage(object message)
         {
-            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage)) &&
-                   !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsDeferredMessage));
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
         }
 
         /// <summary>

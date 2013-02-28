@@ -257,7 +257,6 @@ namespace NServiceBus.Saga
             Headers.SetMessageHeader(toSend, Headers.SagaId, Data.Id.ToString());
             Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
             Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
-            Headers.SetMessageHeader(toSend, Headers.IsDeferredMessage, Boolean.TrueString);
         }
 
         /// <summary>
