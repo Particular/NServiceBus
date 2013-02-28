@@ -557,7 +557,7 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            toSend.Headers[Headers.IsDeferedMessage] = true.ToString();
+            toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
 
             MessageDeferrer.Defer(toSend, processAt, Address.Local);
 
