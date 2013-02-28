@@ -35,10 +35,22 @@ if($machinePrepared -or $dontCheckMachineSetup.value)
 	exit
 }
 
-$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
-$msmqInstalled = Test-NServiceBusMSMQInstallation
-$dtcInstalled = Test-NServiceBusDTCInstallation
-$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
+$perfCountersInstalled = $false
+$msmqInstalled = $false
+$dtcInstalled = $false
+$ravenDBInstalled = $false
+try {
+	$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$msmqInstalled = Test-NServiceBusMSMQInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$dtcInstalled = Test-NServiceBusDTCInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
+} Catch [System.Security.SecurityException] { }
 
 if(!$perfCountersInstalled){
 	Write-Warning "Performance counters are not installed."

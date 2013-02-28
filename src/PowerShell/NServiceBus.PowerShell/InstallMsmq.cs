@@ -9,7 +9,7 @@
     {
         public SwitchParameter Force { get; set; }
 
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             if (ShouldProcess(Environment.MachineName))
             {
@@ -27,7 +27,7 @@
     [Cmdlet(VerbsDiagnostic.Test, "NServiceBusMSMQInstallation")]
     public class ValidateMsmq : CmdletBase
     {
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             var msmqIsGood = MsmqSetup.IsInstallationGood();
 
