@@ -22,7 +22,7 @@
                          settings =>
                          settings.DefaultTimeout(TimeSpan.FromSeconds(10))
                                  .IsolationLevel(IsolationLevel.ReadCommitted)
-                                 .SuppressDistributedTransactions(false));
+                                 .EnableDistributedTransactions());
 
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
             pendingMessagesCounterMock = new Mock<IMessageCounter>();

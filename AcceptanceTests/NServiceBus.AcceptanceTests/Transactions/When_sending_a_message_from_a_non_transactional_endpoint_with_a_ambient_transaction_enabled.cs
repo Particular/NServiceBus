@@ -38,7 +38,7 @@
                 EndpointSetup<DefaultServer>(c =>
                     {
                         Configure.Transactions.Disable();
-                        Configure.Transactions.Advanced(t => t.DoNotWrapHandlersExecutionInATransactionScope(false));
+                        Configure.Transactions.Advanced(t => t.WrapHandlersExecutionInATransactionScope());
                     });
             }
 

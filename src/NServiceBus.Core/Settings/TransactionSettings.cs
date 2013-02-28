@@ -96,22 +96,40 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures the <see cref="ITransport" /> not to enlist in Distributed Transactions.
             /// </summary>
-            /// <param name="value"><c>true</c> to not enlist in Distributed Transactions, otherwise <c>false</c>.</param>
             /// <returns></returns>
-            public TransactionAdvancedSettings SuppressDistributedTransactions(bool value)
+            public TransactionAdvancedSettings DisableDistributedTransactions()
             {
-                SettingsHolder.Set("Transactions.SuppressDistributedTransactions", value);
+                SettingsHolder.Set("Transactions.SuppressDistributedTransactions", true);
+                return this;
+            }
+
+            /// <summary>
+            /// Configures the <see cref="ITransport" /> to enlist in Distributed Transactions.
+            /// </summary>
+            /// <returns></returns>
+            public TransactionAdvancedSettings EnableDistributedTransactions()
+            {
+                SettingsHolder.Set("Transactions.SuppressDistributedTransactions", false);
                 return this;
             }
 
             /// <summary>
             /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a <see cref="TransactionScope" />.
             /// </summary>
-            /// <param name="value"><c>true</c> to not wrap <see cref="IHandleMessages{T}">handlers</see> in a <see cref="TransactionScope" />, otherwise <c>false</c>.</param>
             /// <returns></returns>
-            public TransactionAdvancedSettings DoNotWrapHandlersExecutionInATransactionScope(bool value)
+            public TransactionAdvancedSettings DoNotWrapHandlersExecutionInATransactionScope()
             {
-                SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", value);
+                SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
+                return this;
+            }
+
+            /// <summary>
+            /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a <see cref="TransactionScope" />.
+            /// </summary>
+            /// <returns></returns>
+            public TransactionAdvancedSettings WrapHandlersExecutionInATransactionScope()
+            {
+                SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
                 return this;
             }
 
