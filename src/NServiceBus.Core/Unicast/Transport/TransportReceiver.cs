@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Transport.Transactional
+namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Diagnostics;
@@ -8,13 +8,12 @@ namespace NServiceBus.Unicast.Transport.Transactional
     using System.Runtime.Serialization;
     using Management.Retries;
     using Monitoring;
-    using Settings;
     using Transports;
 
     /// <summary>
-    /// An implementation of <see cref="ITransport"/> that supports transactions.
+    /// The default implementation of <see cref="ITransport"/>
     /// </summary>
-    public class TransactionalTransport : ITransport
+    public class TransportReceiver : ITransport, IDisposable
     {
         /// <summary>
         /// The receiver responsible for notifying the transport when new messages are available
@@ -30,6 +29,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
         /// Event which indicates that message processing has started.
         /// </summary>
         public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
+
+        /// <summary>
+        /// The current settings for transactions
+        /// </summary>
+        public TransactionSettings TransactionSettings { get; set; }
 
         /// <summary>
         /// Event which indicates that message processing has completed.
@@ -122,12 +126,6 @@ namespace NServiceBus.Unicast.Transport.Transactional
             }
         }
 
-        /// <summary>
-        /// Sets the maximum number of times a message will be retried
-        /// when an exception is thrown as a result of handling the message.
-        /// </summary>
-        public int MaximumNumberOfRetries { get; set; }
-
         int maxMessageThroughputPerSecond;
 
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
@@ -171,7 +169,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         public void Start(string inputqueue)
         {
-            ((ITransport)this).Start(Address.Parse(inputqueue));
+            Start(Address.Parse(inputqueue));
         }
 
         public void Start(Address address)
@@ -183,7 +181,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
             FailureManager.Init(address);
 
-            firstLevelRetries = new FirstLevelRetries(MaximumNumberOfRetries, FailureManager);
+            firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
 
             InitializePerformanceCounters();
 
@@ -210,7 +208,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         void StartReceiver()
         {
-            Receiver.Init(receiveAddress, new TransactionSettings {MaxRetries = MaximumNumberOfRetries}, TryProcess, EndProcess);
+            Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
             Receiver.Start(maximumConcurrencyLevel);
         }
 
@@ -233,15 +231,15 @@ namespace NServiceBus.Unicast.Transport.Transactional
 
         TransactionScope GetTransactionScope()
         {
-            if (SettingsHolder.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope"))
+            if (TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope)
             {
                 return new TransactionScope(TransactionScopeOption.Suppress);
             }
 
             return new TransactionScope(TransactionScopeOption.Required, new TransactionOptions
                 {
-                    IsolationLevel = SettingsHolder.Get<IsolationLevel>("Transactions.IsolationLevel"),
-                    Timeout = SettingsHolder.Get<TimeSpan>("Transactions.DefaultTimeout")
+                    IsolationLevel = TransactionSettings.IsolationLevel,
+                    Timeout = TransactionSettings.TransactionTimeout
                 });
         }
 
@@ -269,7 +267,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
                 ex = ex.GetBaseException();
             }
 
-            if (SettingsHolder.Get<bool>("Transactions.Enabled") && messageId != null)
+            if (TransactionSettings.IsTransactional && messageId != null)
             {
                 firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
             }
@@ -283,11 +281,11 @@ namespace NServiceBus.Unicast.Transport.Transactional
         {
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
-            if (SettingsHolder.Get<bool>("Transactions.Enabled"))
+            if (TransactionSettings.IsTransactional)
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(m))
                 {
-                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransactionalTransport
+                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
                     if (Configure.Instance.Builder.Build<SecondLevelRetries>().Disabled)
                     {
                         Logger.ErrorFormat("Message has failed the maximum number of times allowed, ID={0}.", m.IdForCorrelation);
@@ -450,7 +448,7 @@ namespace NServiceBus.Unicast.Transport.Transactional
             disposed = true;
         }
 
-        ~TransactionalTransport()
+        ~TransportReceiver()
         {
             Dispose(false);
         }
@@ -462,8 +460,8 @@ namespace NServiceBus.Unicast.Transport.Transactional
         bool disposed;
 
         [ThreadStatic]
-        private static volatile bool needToAbort;
+        static volatile bool needToAbort;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
     }
 }

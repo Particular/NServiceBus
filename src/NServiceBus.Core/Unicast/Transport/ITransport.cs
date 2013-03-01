@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast.Transport
 	/// <summary>
 	/// Defines the basic functionality of a transport to be used by NServiceBus.
 	/// </summary>
-	public interface ITransport : IDisposable
+	public interface ITransport
 	{
 		/// <summary>
 		/// Starts the transport.

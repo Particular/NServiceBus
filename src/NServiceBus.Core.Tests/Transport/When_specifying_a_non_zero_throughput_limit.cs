@@ -3,7 +3,7 @@
     using System.Threading;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixture,Explicit("Timing sensitive")]
     public class When_specifying_a_non_zero_throughput_limit : for_the_transactional_transport
     {
         const int ThroughputLimit = 4;
@@ -11,8 +11,8 @@
         [Test, Category("Integration")]
         public void Should_limit_the_throughput_to_the_set_limit()
         {
-            transport.ChangeMaximumMessageThroughputPerSecond(ThroughputLimit);
-            transport.Start(Address.Parse("mytest"));
+            TransportReceiver.ChangeMaximumMessageThroughputPerSecond(ThroughputLimit);
+            TransportReceiver.Start(Address.Parse("mytest"));
 
             ThreadPool.QueueUserWorkItem(Receive10);
 

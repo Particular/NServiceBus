@@ -4,6 +4,7 @@ using NServiceBus.Unicast.Transport.Transactional;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using Transport;
     using Transports;
 
     public class AzureServiceBusTopicSubscriptionManager : IManageSubscriptions
@@ -32,7 +33,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
             var theBus = Configure.Instance.Builder.Build<UnicastBus>();
 
-            var transport = theBus.Transport as TransactionalTransport;
+            var transport = theBus.Transport as TransportReceiver;
 
             if (transport == null) return;
 

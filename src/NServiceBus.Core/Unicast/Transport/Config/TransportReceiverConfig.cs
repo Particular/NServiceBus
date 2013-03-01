@@ -2,14 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
-    using Config;
     using Transports;
     using Unicast.Transport;
 
     /// <summary>
     /// Extension methods to configure transport.
     /// </summary>
-    public static class TransactionalTransportConfig
+    public static class TransportReceiverConfig
     {
         /// <summary>
         /// Configures NServiceBus to use the given transport.

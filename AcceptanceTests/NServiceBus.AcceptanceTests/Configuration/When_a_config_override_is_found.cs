@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
     using Unicast;
-    using Unicast.Transport.Transactional;
+    using Unicast.Transport;
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
@@ -19,7 +19,7 @@
                     .WithEndpoint<ConfigOverrideEndpoint>(b => b.When(c => c.EndpointsStarted, (bus, context) =>
                         {
                             var unicastBus = (UnicastBus) bus;
-                            var transport = (TransactionalTransport) unicastBus.Transport;
+                            var transport = (TransportReceiver) unicastBus.Transport;
                             var fm = (FaultManager) transport.FailureManager;
 
                             context.IsDone = fm.ErrorQueue == Address.Parse("MyErrorQ");

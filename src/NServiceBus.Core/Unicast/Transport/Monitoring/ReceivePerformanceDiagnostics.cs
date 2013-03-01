@@ -1,8 +1,8 @@
-namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
+namespace NServiceBus.Unicast.Transport.Monitoring
 {
     using System;
     using System.Diagnostics;
-    using Logging;
+    using NServiceBus.Logging;
 
     class ReceivePerformanceDiagnostics
     {
@@ -79,7 +79,7 @@ namespace NServiceBus.Unicast.Transport.Transactional.Monitoring
         PerformanceCounter throughputCounter;
         PerformanceCounter failureRateCounter;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TransactionalTransport));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(ReceivePerformanceDiagnostics));
 
         const string CategoryName = "NServiceBus";
     }

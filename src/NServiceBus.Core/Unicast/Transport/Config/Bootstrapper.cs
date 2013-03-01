@@ -1,9 +1,10 @@
-namespace NServiceBus.Unicast.Transport.Transactional.Config
+namespace NServiceBus.Unicast.Transport.Config
 {
     using System;
     using System.Configuration;
     using Licensing;
     using NServiceBus.Config;
+    using INeedInitialization = INeedInitialization;
 
     public class Bootstrapper : INeedInitialization
     {
@@ -17,8 +18,13 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                     maximumThroughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
             }
 
-            Configure.Instance.Configurer.ConfigureComponent<TransactionalTransport>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.MaximumNumberOfRetries, maximumNumberOfRetries)
+            var transactionSettings = new Transport.TransactionSettings
+                {
+                 MaxRetries = maximumNumberOfRetries   
+                };
+
+            Configure.Instance.Configurer.ConfigureComponent<TransportReceiver>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(t => t.TransactionSettings, transactionSettings)
                 .ConfigureProperty(t => t.MaximumConcurrencyLevel, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
                 .ConfigureProperty(t => t.MaxThroughputPerSecond, maximumThroughput);
         }

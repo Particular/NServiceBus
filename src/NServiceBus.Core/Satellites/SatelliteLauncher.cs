@@ -61,7 +61,6 @@ namespace NServiceBus.Satellites
                 if (ctx.Transport != null)
                 {
                     ctx.Transport.Stop();
-                    ctx.Transport.Dispose();
                 }
 
                 ctx.Instance.Stop();

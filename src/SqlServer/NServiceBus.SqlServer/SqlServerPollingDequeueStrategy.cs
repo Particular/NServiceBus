@@ -8,11 +8,10 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
-    using NServiceBus.Logging;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Unicast.Queuing;
-    using NServiceBus.Unicast.Transport.Transactional;
-    using NServiceBus.Utils;
+    using Logging;
+    using Serializers.Json;
+    using Utils;
+    using Unicast.Transport;
     using IsolationLevel = System.Data.IsolationLevel;
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional
+﻿namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Transactions;
@@ -13,6 +13,25 @@
             TransactionTimeout = SettingsHolder.Get<TimeSpan>("Transactions.DefaultTimeout");
             IsolationLevel = SettingsHolder.Get<IsolationLevel>("Transactions.IsolationLevel");
             DontUseDistributedTransactions = SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions");
+            DoNotWrapHandlersExecutionInATransactionScope = SettingsHolder.Get<bool>("Transactions.DoNotWrapHandlersExecutionInATransactionScope");
+        }
+
+        protected TransactionSettings(bool isTransactional, TimeSpan transactionTimeout, IsolationLevel isolationLevel, int maxRetries, bool dontUseDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope)
+        {
+            IsTransactional = isTransactional;
+            TransactionTimeout = transactionTimeout;
+            IsolationLevel = isolationLevel;
+            MaxRetries = maxRetries;
+            DontUseDistributedTransactions = dontUseDistributedTransactions;
+            DoNotWrapHandlersExecutionInATransactionScope = doNotWrapHandlersExecutionInATransactionScope;
+        }
+
+        public static TransactionSettings Default
+        {
+            get
+            {
+                return new TransactionSettings(true, TimeSpan.FromSeconds(30), IsolationLevel.ReadCommitted, 5, false,false);
+            }
         }
 
         /// <summary>
@@ -47,5 +66,10 @@
         /// If true the transport won't enlist in distributed transactions
         /// </summary>
         public bool DontUseDistributedTransactions { get; set; }
+
+        /// <summary>
+        /// Controls if the message handlers should be wrapped in a transactionscope
+        /// </summary>
+        public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
     }
 }

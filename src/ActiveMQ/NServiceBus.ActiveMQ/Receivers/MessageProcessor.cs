@@ -9,6 +9,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using NServiceBus.Unicast.Transport.Transactional;
     using SessionFactories;
     using TransactonsScopes;
+    using Unicast.Transport;
 
     public class MessageProcessor : IProcessMessages
     {

@@ -9,7 +9,7 @@
     using NServiceBus.Transports.RabbitMQ;
     using Settings;
     using global::RabbitMQ.Client;
-    using TransactionSettings = Unicast.Transport.Transactional.TransactionSettings;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public class RabbitMqContext
     {
@@ -60,12 +60,6 @@
         [SetUp]
         public void SetUp()
         {
-            SettingsHolder.SetDefault("Transactions.Enabled", true);
-            SettingsHolder.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
-            SettingsHolder.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
-            SettingsHolder.SetDefault("Transactions.SuppressDistributedTransactions", false);
-            SettingsHolder.SetDefault("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
-
             receivedMessages = new BlockingCollection<TransportMessage>();
             connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
@@ -99,7 +93,7 @@
                 RoutingKeyBuilder = RoutingKeyBuilder
             };
 
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
+            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, (m) =>
             {
                 receivedMessages.Add(m);
                 return true;

@@ -2,8 +2,7 @@
 {
     using System;
     using Transports;
-    using Unicast.Queuing;
-    using Unicast.Transport.Transactional;
+    using Unicast.Transport;
 
     public class FakeReceiver : IDequeueMessages
     {

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional
+﻿namespace NServiceBus.Unicast.Transport
 {
     using System;
 

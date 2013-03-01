@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Unicast.Transport.Transactional
+﻿namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Collections.Concurrent;
-    using Faults;
+    using NServiceBus.Faults;
 
     internal class FirstLevelRetries
     {
