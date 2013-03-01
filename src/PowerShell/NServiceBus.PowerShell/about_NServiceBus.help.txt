@@ -41,6 +41,11 @@ LONG DESCRIPTION
 
   Add-NServiceBusMessageForwardingInCaseOfFaultConfig  Adds the required configuration section to
                                                        the config file.
+
+  Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
+                                                       queues.
+
+  Get-NServiceBusLocalMachineSettings                  Shows the default Error and Audit queues.
   
 Sample Commands
   
@@ -52,6 +57,10 @@ Sample Commands
   To install RavenDB onto a specific path and listening on a different port:
    
   C:\PS> Install-NServiceBusRavenDB -Port 8888 -Installpath "C:\MyPath\Nservicebus.Persistence"
+
+  To configure all endpoints Error and Audit queues on this machine:
+   
+  C:\PS> Set-NServiceBusLocalMachineSettings -ErrorQueue "error@centralserver" -AuditQueue "audit@centralserver"
   
   A slight more complex NServiceBus retrieve message commands might resemble 
   the following command:
@@ -73,3 +82,5 @@ SEE ALSO
   Test-NServiceBusPerformanceCountersInstallation
   Test-NServiceBusMSMQInstallation
   Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+  Set-NServiceBusLocalMachineSettings
+  Get-NServiceBusLocalMachineSettings

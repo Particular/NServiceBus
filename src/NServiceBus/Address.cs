@@ -76,12 +76,19 @@ namespace NServiceBus
         public static Address Parse(string destination)
         {
             if (string.IsNullOrEmpty(destination))
-                throw new InvalidOperationException("Invalid destination address specified");
+            {
+                throw new ArgumentException("Invalid destination address specified", "destination");
+            }
 
             var arr = destination.Split('@');
-
+            
             var queue = arr[0];
             var machine = defaultMachine;
+
+            if (String.IsNullOrWhiteSpace(queue))
+            {
+                throw new ArgumentException("Invalid destination address specified", "destination");
+            }
 
             if (arr.Length == 2)
                 if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())

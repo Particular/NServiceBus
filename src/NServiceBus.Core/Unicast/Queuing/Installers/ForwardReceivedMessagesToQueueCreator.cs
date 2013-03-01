@@ -1,30 +1,39 @@
 namespace NServiceBus.Unicast.Queuing.Installers
 {
-    using Logging;
     using NServiceBus.Config;
+    using Utils;
 
     /// <summary>
     /// Signals to create forward received messages queue.
     /// </summary>
     public class ForwardReceivedMessagesToQueueCreator : IWantQueueCreated
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(ForwardReceivedMessagesToQueueCreator)); 
-        private readonly Address address = null;
-        private static bool disable = true;
+        private readonly Address address;
+        private readonly bool disable = true;
 
         public ForwardReceivedMessagesToQueueCreator()
         {
             disable = true;
             if (!EndpointInputQueueCreator.Enabled)
+            {
                 return;
+            }
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
-            if ((unicastConfig == null) || (string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo)))
+            if ((unicastConfig != null) && (!string.IsNullOrEmpty(unicastConfig.ForwardReceivedMessagesTo)))
+            {
+                address = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                disable = false;
                 return;
+            }
 
-            address = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-            disable = false;
+            var forwardQueue = RegistryReader<string>.Read("AuditQueue");
+            if (!string.IsNullOrWhiteSpace(forwardQueue))
+            {
+                address = Address.Parse(forwardQueue);
+                disable = false;
+            }
         }
 
         /// <summary>

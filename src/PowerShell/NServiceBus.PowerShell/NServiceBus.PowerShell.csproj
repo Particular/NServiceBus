@@ -48,6 +48,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
+    <Compile Include="SetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="VsCmdletBase.cs" />
     <Compile Include="AddMessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="CmdletBase.cs" />

@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Config
     using ObjectBuilder;
     using Settings;
     using Routing;
+    using Utils;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -91,12 +92,30 @@ namespace NServiceBus.Unicast.Config
 
             Configurer.RegisterSingleton<IRouteMessages>(router);
 
+            Address forwardAddress = null;
+            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+            {
+                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+            }
+            else
+            {
+                var forwardQueue = RegistryReader<string>.Read("AuditQueue");
+                if (!string.IsNullOrWhiteSpace(forwardQueue))
+                {
+                    forwardAddress = Address.Parse(forwardQueue);
+                }
+            }
+
+            if (forwardAddress != null)
+            {
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+            }
+
             if (unicastConfig == null)
             {
                 return;
             }
 
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()

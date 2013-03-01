@@ -34,7 +34,7 @@
                 });   
 
 
-            WriteObject(output,true);
+            WriteObject(output, true);
         }
 
         IEnumerable<HeaderInfo> ParseHeaders(Message message)
