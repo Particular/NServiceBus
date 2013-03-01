@@ -2,19 +2,19 @@ namespace MyServer.Common
 {
     using System;
     using NServiceBus;
-    using NServiceBus.Unicast.Transport.Transactional;
+    using NServiceBus.Unicast.Transport;
 
-    internal class TransactionalTransportFailedMessageMonitor : IWantToRunWhenBusStartsAndStops
+    internal class TransportReceiverFailedMessageMonitor : IWantToRunWhenBusStartsAndStops
 
     {                    
-        public TransactionalTransport TransactionalTransport { get; set; }
+        public TransportReceiver TransactionalTransport { get; set; }
 
         public void Start()
         {
             TransactionalTransport.FailedMessageProcessing += OnFailedMessageProcessing;            
         }
 
-        void OnFailedMessageProcessing(object sender, NServiceBus.Unicast.Transport.FailedMessageProcessingEventArgs e)
+        void OnFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
         {
             Console.WriteLine("This is a first level retry attempt");            
         }
