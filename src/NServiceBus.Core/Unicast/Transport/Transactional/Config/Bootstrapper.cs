@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
     using System.Configuration;
     using Licensing;
     using NServiceBus.Config;
-    using Logging;
 
     public class Bootstrapper : INeedInitialization
     {
@@ -34,10 +33,6 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
         void ConfiguredMaximumConcurrencyLevel()
         {
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
-            var msmqTransportConfig = Configure.GetConfigSection<MsmqTransportConfig>();
-
-            if (msmqTransportConfig != null)
-                Logger.Warn("'MsmqTransportConfig' section is obsolete. Please update your configuration to use the new 'TransportConfig' section instead. In NServiceBus 4.0 this will be treated as an error");
   
             if (transportConfig != null)
             {
@@ -48,29 +43,12 @@ namespace NServiceBus.Unicast.Transport.Transactional.Config
                 return;
             }
 
-            if (msmqTransportConfig != null)
-            {
-                maximumNumberOfRetries = msmqTransportConfig.MaxRetries;
+            if (Configure.GetConfigSection<MsmqTransportConfig>() != null)
+                throw new ConfigurationErrorsException("MsmqTransportConfig has been obsoleted, please use the <TransportConfig> section instead");
 
-                if (!string.IsNullOrWhiteSpace(msmqTransportConfig.InputQueue))
-                {
-                    throw new
-                        ConfigurationErrorsException(
-                        string.Format("'InputQueue' entry in 'MsmqTransportConfig' section is obsolete. " +
-                                      "By default the queue name is taken from the class namespace where the configuration is declared. " +
-                                      "To override it, use .DefineEndpointName() with either a string parameter as queue name or Func<string> parameter that returns queue name. " +
-                                      "In this instance, '{0}' is defined as queue name.", Configure.EndpointName));
-                }
-
-                numberOfWorkerThreadsInAppConfig = msmqTransportConfig.NumberOfWorkerThreads;
-                return;
-            }
             numberOfWorkerThreadsInAppConfig =  1;
         }
 
-        private int maximumThroughput, maximumNumberOfRetries, numberOfWorkerThreadsInAppConfig;
-
-        static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper));
-
+        int maximumThroughput, maximumNumberOfRetries, numberOfWorkerThreadsInAppConfig;
     }
 }

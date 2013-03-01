@@ -52,28 +52,7 @@ namespace NServiceBus
 				return config;
 			}
 
-			var msmq = Configure.GetConfigSection<MsmqTransportConfig>();
-			if (msmq != null)
-			{
-				if (string.IsNullOrWhiteSpace(msmq.ErrorQueue))
-				{
-					throw new ConfigurationErrorsException(
-						"'MsmqTransportConfig' configuration section is found but 'ErrorQueue' value is missing." +
-						"\n The following is an example for adding such a value to your app config: " +
-						"\n <MessageForwardingInCaseOfFaultConfig ErrorQueue=\"error\"/> \n");
-				}
-
-				Logger.Debug("Error queue retrieved from <MsmqTransportConfig> element in config file.");
-
-				Logger.Warn("<MsmqTransportConfig> element has been obsolete please use <MessageForwardingInCaseOfFaultConfig> element instead.");
-				ErrorQueue = Address.Parse(msmq.ErrorQueue);
-
-				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
-					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
-
-				return config;
-			}
-
+			
 			var errorQueue = RegistryReader<string>.Read("ErrorQueue");
 			if (!string.IsNullOrWhiteSpace(errorQueue))
 			{
@@ -86,7 +65,8 @@ namespace NServiceBus
 			
 			if (ErrorQueue == Address.Undefined)
 			{
-				throw new ConfigurationErrorsException("Faults forwarding requires an error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
+				throw new ConfigurationErrorsException("Faults forwarding requires an error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config" +
+                "\n or configure a global one using the powershell command: SetNServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
 			}
 
 			return config;
@@ -97,7 +77,7 @@ namespace NServiceBus
 		/// </summary>
 		public static Address ErrorQueue { get; private set; }
 
-		private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureFaultsForwarder));
+		static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureFaultsForwarder));
 	}
 
 	class Bootstrapper : INeedInitialization
