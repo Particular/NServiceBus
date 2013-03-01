@@ -31,9 +31,6 @@ namespace NServiceBus
 
 			ErrorQueue = Address.Undefined;
 
-			config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
-				.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
-
 			var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
 			if (section != null)
 			{
@@ -48,6 +45,9 @@ namespace NServiceBus
 				Logger.Debug("Error queue retrieved from <MessageForwardingInCaseOfFaultConfig> element in config file.");
 
 				ErrorQueue = Address.Parse(section.ErrorQueue);
+
+				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
+					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
 
 				return config;
 			}
@@ -68,6 +68,9 @@ namespace NServiceBus
 				Logger.Warn("<MsmqTransportConfig> element has been obsolete please use <MessageForwardingInCaseOfFaultConfig> element instead.");
 				ErrorQueue = Address.Parse(msmq.ErrorQueue);
 
+				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
+					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
+
 				return config;
 			}
 
@@ -76,6 +79,9 @@ namespace NServiceBus
 			{
 				Logger.Debug("Error queue retrieved from registry settings.");
 				ErrorQueue = Address.Parse(errorQueue);
+
+				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
+					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
 			}
 			
 			if (ErrorQueue == Address.Undefined)
