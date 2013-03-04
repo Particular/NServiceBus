@@ -33,7 +33,11 @@ namespace NServiceBus.DataBus.FileShare
         /// <returns>The data <see cref="Stream"/>.</returns>
         public Stream Get(string key)
 		{
-			return new FileStream(Path.Combine(basePath, key), FileMode.Open);
+            var filePath = Path.Combine(basePath, key);
+
+            logger.DebugFormat("Opening stream from '{0}'.", filePath);
+
+            return new FileStream(filePath, FileMode.Open);
 		}
 
         /// <summary>
@@ -59,6 +63,9 @@ namespace NServiceBus.DataBus.FileShare
 					output.Write(buffer, 0, read);
 				}
 			}
+
+            logger.DebugFormat("Saved stream to '{0}'.", filePath);
+
 			return key;
 		}
 
@@ -82,7 +89,7 @@ namespace NServiceBus.DataBus.FileShare
 			if (timeToBeReceived < TimeSpan.MaxValue)
 				keepMessageUntil = DateTime.Now + timeToBeReceived;
 
-			return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_hh"), Guid.NewGuid().ToString());
+			return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_HH"), Guid.NewGuid().ToString());
 		}
 	}
 }
