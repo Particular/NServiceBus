@@ -56,6 +56,16 @@ namespace NServiceBus
         {
             Types = ordering.Types;
         }
+
+        /// <summary>
+        /// Specifies an ordering of multiple types directly, where ordering
+        /// may be decided dynamically at runtime.
+        /// </summary>
+        /// <param name="priorityHandlers"></param>
+        public void Specify(params Type[] priorityHandlers)
+        {
+            Types = priorityHandlers;
+        }
     }
 
     /// <summary>
