@@ -50,7 +50,13 @@ if($foundConfigureThisEndpoint -eq $false) {
 	}
 }
     
-Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+#Figure out if this machine has error queue configured in registry
+$nserviceBusKeyPath =  "HKLM:SOFTWARE\NServiceBus" 
+$regKey = Get-ItemProperty -path $nserviceBusKeyPath -ErrorAction silentlycontinue
+$errorQueueAddress  = $regKey.psobject.properties | ?{ $_.Name -eq "ErrorQueue" }
+if($errorQueueAddress.value -eq $null -or $errorQueueAddress.value -eq ""){
+	Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+}
 
 $project.Save()
 
