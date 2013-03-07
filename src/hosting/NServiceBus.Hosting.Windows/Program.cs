@@ -10,6 +10,7 @@
     using Installers;
     using Topshelf;
     using Topshelf.Configuration;
+    using Utils;
 
     /// <summary>
     /// Entry point to the process.

@@ -11,6 +11,7 @@ namespace NServiceBus.Hosting
     using Profiles;
     using Roles;
     using Settings;
+    using Utils;
     using Wcf;
 
     /// <summary>

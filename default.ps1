@@ -102,6 +102,15 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
 		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
 	}
+
+	$filesThatNeedUpdate = ls -path $srcDir -include NServiceBusVersion.cs -recurse
+	$filesThatNeedUpdate | % {
+		(Get-Content $_.FullName) | 
+		Foreach-Object {
+			$_ -replace "public const string Version = ""[\d\.]*"";", "public const string Version = ""$ProductVersion.$PatchVersion"";"
+		} | 
+		Set-Content $_.FullName
+	}
     
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
     

@@ -5,6 +5,8 @@ namespace NServiceBus.Config.Conventions
     using System.Linq;
     using System.Reflection;
     using System.Web;
+    using Hosting.Helpers;
+    using Utils;
 
     /// <summary>
     /// The default name for a endpoint
@@ -48,9 +50,7 @@ namespace NServiceBus.Config.Conventions
 
             if (entryType != null)
             {
-                var fileVersion = FileVersionInfo.GetVersionInfo(entryType.Assembly.Location);
-
-                return new Version(fileVersion.FileMajorPart, fileVersion.FileMinorPart, fileVersion.FileBuildPart).ToString(3);
+                return FileVersionRetriever.GetFileVersion(entryType);
             }
 
             throw new InvalidOperationException(

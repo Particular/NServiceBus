@@ -247,7 +247,6 @@
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
-    <Compile Include="Hosting\Helpers\FileVersionRetriever.cs" />
     <Compile Include="Hosting\IHost.cs" />
     <Compile Include="Hosting\InternalsVisibleTo.cs" />
     <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
@@ -496,6 +495,7 @@
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="Utils\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
+    <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
