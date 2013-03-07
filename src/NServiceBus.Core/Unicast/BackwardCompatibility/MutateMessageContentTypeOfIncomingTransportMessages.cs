@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.Compatibility
+﻿namespace NServiceBus.Unicast.BackwardCompatibility
 {
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Serialization;
-
-    using NServiceBus.Unicast.Transport;
+    using MessageMutator;
+    using Serialization;
+    using Transport;
 
     public class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
@@ -17,7 +16,7 @@
         {
             if (!transportMessage.IsControlMessage() && !transportMessage.Headers.ContainsKey(Headers.ContentType))
             {
-                transportMessage.Headers[Headers.ContentType] = this.Serializer.ContentType;
+                transportMessage.Headers[Headers.ContentType] = Serializer.ContentType;
             }
         }
 

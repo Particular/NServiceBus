@@ -7,6 +7,7 @@
     public class SetIsSagaMessageHeaderForV3XMessages : IMutateIncomingMessages, INeedInitialization
     {
         public IBus Bus { get; set; }
+
         public object MutateIncoming(object message)
         {
             if (!string.IsNullOrEmpty(Bus.GetMessageHeader(message, Headers.IsSagaTimeoutMessage)))
