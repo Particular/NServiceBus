@@ -10,6 +10,7 @@ namespace NServiceBus
     using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
+    using Settings;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>
@@ -146,13 +147,18 @@ namespace NServiceBus
             return config;
         }
 
-        static Configure InternalRavenPersistence(this Configure config, IDocumentStore documentStore)
+        static Configure InternalRavenPersistence(this Configure config, DocumentStore documentStore)
         {
             return config.InternalRavenPersistence(() =>
             {
                 documentStore.Conventions.FindTypeTagName = RavenConventions.FindTypeTagName;
 
                 documentStore.Conventions.MaxNumberOfRequestsPerSession = 100;
+
+                if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
+                {
+                    documentStore.EnlistInDistributedTransactions = false;
+                }
 
                 if (customisationCallback != null)
                 {
