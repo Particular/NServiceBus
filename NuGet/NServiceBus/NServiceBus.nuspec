@@ -25,7 +25,6 @@
   <files>
     <file src="\binaries\NServiceBus.Core.???" target="lib\net40" />
     <file src="\build\NServiceBus.PowerShell.dll" target="tools" />
-    <file src="\build\NServiceBus.Setup.Windows.dll" target="tools" />
     <file src="\binaries\about_NServiceBus.help.txt" target="tools" />
   </files>
 </package>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NServiceBus.Setup.Windows.RavenDB {
+namespace NServiceBus.PowerShell.RavenDB {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace NServiceBus.Setup.Windows.RavenDB {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NServiceBus.Setup.Windows.RavenDB.RavenServer", typeof(RavenServer).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NServiceBus.PowerShell.RavenDB.RavenServer", typeof(RavenServer).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

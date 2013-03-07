@@ -38,11 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Setup.Windows">
-      <HintPath>..\..\..\build\NServiceBus.Setup.Windows.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
@@ -51,9 +49,36 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\Dtc\DtcSetup.cs">
+      <Link>DtcSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\Msmq\MsmqSetup.cs">
+      <Link>MsmqSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\PerformanceCounters\PerformanceCounterSetup.cs">
+      <Link>PerformanceCounterSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\ProcessUtil.cs">
+      <Link>ProcessUtil.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\RavenDB\RavenDBSetup.cs">
+      <Link>RavenDBSetup.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\RavenDB\RavenHelpers.cs">
+      <Link>RavenHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\PowerShell\NServiceBus.PowerShell\RavenDB\RavenServer.Designer.cs">
+      <Link>RavenServer.Designer.cs</Link>
+    </Compile>
     <Compile Include="CustomAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Content Include="CustomAction.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\PowerShell\NServiceBus.PowerShell\RavenDB\RavenServer.resx">
+      <Link>RavenServer.resx</Link>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(WixCATargetsPath)" />

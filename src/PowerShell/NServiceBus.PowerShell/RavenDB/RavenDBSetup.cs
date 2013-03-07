@@ -12,6 +12,7 @@
     using System.Xml;
     using Microsoft.Win32;
     using Persistence.Raven.Installation;
+    using PowerShell.RavenDB;
 
     public class RavenDBSetup
     {

@@ -177,6 +177,7 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\about_NServiceBus.help.txt $binariesDir -Force
 	Copy-Item $outDir\log4net.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.PowerShell.??? $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Transports.ActiveMQ.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Transports.RabbitMQ.* $binariesDir -Force -Exclude **.Tests.*
@@ -220,12 +221,6 @@ task CreateReleaseFolder {
 	Create-Directory $releaseRoot\tools\licenseinstaller
 	Copy-Item "$outDir\LicenseInstaller.exe" -Destination $releaseRoot\tools\licenseinstaller -Force -ErrorAction SilentlyContinue
 
-	Create-Directory $releaseRoot\tools\migration
-	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools\migration -Force 
-	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools\migration -Force 
-	Copy-Item "$outDir\NServiceBus.Compatibility.dll" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
-	Copy-Item "$outDir\TimeoutMigrator.exe" -Destination $releaseRoot\tools\migration -Force -ErrorAction SilentlyContinue
-	
 	Copy-Item "$binariesDir\NServiceBus.Core.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	Copy-Item "$binariesDir\NServiceBus.dll" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
 	Copy-Item "$outDir\ReturnToSourceQueue.exe" -Destination $releaseRoot\tools -Force -ErrorAction SilentlyContinue
@@ -260,8 +255,6 @@ task Merge -depends Build {
 
 	$assemblies = @()
 	$assemblies += dir $outDir\NServiceBus.Core.dll
-	$assemblies += dir $outDir\NServiceBus.PowerShell.dll
-	$assemblies += dir $outDir\NServiceBus.Setup.Windows.dll
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll
 	$assemblies += dir $outDir\AutoFac.dll
