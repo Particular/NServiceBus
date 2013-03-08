@@ -41,8 +41,6 @@ function Test-HasConfigureThisEndpoint($project) {
 }
 
 $foundConfigureThisEndpoint = Test-HasConfigureThisEndpoint($project)
-
-Add-BindingRedirect
 	
 if($foundConfigureThisEndpoint -eq $false) {
 	if (Get-Module T4Scaffolding) {

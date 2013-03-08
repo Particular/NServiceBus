@@ -58,8 +58,8 @@
             var forwardingElement = doc.XPathSelectElement("/configuration/MessageForwardingInCaseOfFaultConfig");
             if (forwardingElement == null)
             {
-                doc.Root.Add(new XElement("MessageForwardingInCaseOfFaultConfig",
-                                          new XAttribute("ErrorQueue", "error")));
+                doc.Root.LastNode.AddAfterSelf(new XElement("MessageForwardingInCaseOfFaultConfig",
+                                                         new XAttribute("ErrorQueue", "error")));
             }
 
             doc.Save(target);
@@ -69,11 +69,11 @@
         {
             if (doc.Root == null)
             {
-                doc.Add(new XElement("configuration"));
+                doc.Add(new XElement("/configuration"));
             }
-            if (doc.XPathSelectElement("configuration/configSections") == null)
+            if (doc.XPathSelectElement("/configuration/configSections") == null)
             {
-                doc.Root.Add(new XElement("configSections"));
+                doc.Root.AddFirst(new XElement("configSections"));
             }
         }
 
@@ -100,9 +100,9 @@
         static XDocument CreateDocument(string path)
         {
             var document = new XDocument(new XElement("configuration"))
-                {
-                    Declaration = new XDeclaration("1.0", "utf-8", "yes")
-                };
+            {
+                Declaration = new XDeclaration("1.0", "utf-8", "yes")
+            };
 
             document.Save(path);
 
