@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
@@ -10,11 +11,20 @@
     using System.Xml.XPath;
 
     [Cmdlet(VerbsCommon.Add, "NServiceBusMessageForwardingInCaseOfFaultConfig")]
-    public class AddMessageForwardingInCaseOfFaultConfig : VsCmdletBase
+    public class AddMessageForwardingInCaseOfFaultConfig : PSCmdlet
     {
+        [Parameter(Position = 0, Mandatory = true, HelpMessage = "Specifies the project containing the project to update.", ValueFromPipelineByPropertyName = true)]
+        [ValidateNotNullOrEmpty]
+        public virtual string ProjectName { get; set; }
+
+        protected override void BeginProcessing()
+        {
+            InitialiseProject();
+        }
+
         protected override void ProcessRecord()
         {
-            IEnumerable items = Project.ProjectItems;
+            IEnumerable items = project.ProjectItems;
             var configExistsInProject = items.Cast<dynamic>().Any(item =>
                 {
                     var name = (string) item.Name;
@@ -22,7 +32,7 @@
                            name.Equals("Web.config", StringComparison.OrdinalIgnoreCase);
                 });
 
-            string projectPath = Path.GetDirectoryName(Project.FullName);
+            string projectPath = Path.GetDirectoryName(project.FullName);
             var configFilePath = Path.Combine(projectPath, GetConfigFileForProjectType());
 
             // I would have liked to use:
@@ -33,8 +43,14 @@
 
             if (!configExistsInProject)
             {
-                Project.ProjectItems.AddFromFile(configFilePath);
+                project.ProjectItems.AddFromFile(configFilePath);
             }
+        }
+
+        void InitialiseProject()
+        {
+            var getProjectResults = InvokeCommand.InvokeScript(string.Format("Get-Project {0}", ProjectName)).ToList();
+            project = getProjectResults.Count == 1 ? getProjectResults.Single().BaseObject : null;
         }
 
         static void ModifyConfig(string target)
@@ -115,6 +131,34 @@
             {
                 return XDocument.Load(configStream);
             }
+        }
+
+        private dynamic project;
+
+        string GetConfigFileForProjectType()
+        {
+            if (IsWebProject())
+            {
+                return "Web.config";
+            }
+
+            return "App.config";
+        }
+
+        bool IsWebProject()
+        {
+            var types = new HashSet<string>(GetProjectTypeGuids(), StringComparer.OrdinalIgnoreCase);
+            return types.Contains(VsConstants.WebSiteProjectTypeGuid) || types.Contains(VsConstants.WebApplicationProjectTypeGuid);
+        }
+
+        IEnumerable<string> GetProjectTypeGuids()
+        {
+            string projectTypeGuids = Microsoft.Build.Evaluation.ProjectCollection.GlobalProjectCollection.GetLoadedProjects((string)project.FullName).Single().GetPropertyValue("ProjectTypeGuids");
+
+            if (String.IsNullOrEmpty(projectTypeGuids))
+                return Enumerable.Empty<string>();
+
+            return projectTypeGuids.Split(';');
         }
     }
 }

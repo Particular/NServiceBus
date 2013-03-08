@@ -62,7 +62,6 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="SetNServiceBusLocalMachineSettings.cs" />
-    <Compile Include="VsCmdletBase.cs" />
     <Compile Include="AddMessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="CmdletBase.cs" />
     <Compile Include="GetMessage.cs" />

@@ -53,7 +53,7 @@ $nserviceBusKeyPath =  "HKLM:SOFTWARE\NServiceBus"
 $regKey = Get-ItemProperty -path $nserviceBusKeyPath -ErrorAction silentlycontinue
 $errorQueueAddress  = $regKey.psobject.properties | ?{ $_.Name -eq "ErrorQueue" }
 if($errorQueueAddress.value -eq $null -or $errorQueueAddress.value -eq ""){
-	Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+	Add-NServiceBusMessageForwardingInCaseOfFaultConfig $project.Name
 }
 
 $project.Save()
