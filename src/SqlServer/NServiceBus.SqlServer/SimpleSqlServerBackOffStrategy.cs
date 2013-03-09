@@ -26,9 +26,9 @@
         }
     }
 
-    public class SimpleSqlServerServerBackOffStrategy : SqlServerServerBackOffStrategy
+    public class SimpleSqlServerBackOffStrategy : SqlServerBackOffStrategy
     {
-        public SimpleSqlServerServerBackOffStrategy()
+        public SimpleSqlServerBackOffStrategy()
         {
             MaxBackOff = 1000;
         }

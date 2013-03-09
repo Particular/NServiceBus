@@ -22,7 +22,7 @@ namespace NServiceBus.Transports.SQLServer.Config
 
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<ISqlServerBackOffStrategy>())
             {
-                config.Configurer.ConfigureComponent<SimpleSqlServerServerBackOffStrategy>(DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent<SimpleSqlServerBackOffStrategy>(DependencyLifecycle.InstancePerCall);
             }
 
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)

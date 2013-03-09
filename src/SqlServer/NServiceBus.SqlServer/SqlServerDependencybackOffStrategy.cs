@@ -8,15 +8,15 @@
     using System.Threading;
     using Logging;
 
-    public class SqlServerServerDependencyBackOffToken : SqlServerBackOffToken
+    public class SqlServerDependencyBackOffToken : SqlServerBackOffToken
     {
         readonly Action resetBackOff;
         readonly Action<CancellationToken> waitForMessage;
-        readonly Action<SqlServerServerDependencyBackOffToken> unregisterAction;
+        readonly Action<SqlServerDependencyBackOffToken> unregisterAction;
         static readonly int[] retryDelays = new[] { 0, 0, 0, 10, 10, 10, 50, 50, 100, 100, 200, 200, 200, 200 };
         int currentRetryCount = 0;
 
-        public SqlServerServerDependencyBackOffToken(Action resetBackOff, Action<CancellationToken> waitForMessage, Action<SqlServerServerDependencyBackOffToken> unregisterAction)
+        public SqlServerDependencyBackOffToken(Action resetBackOff, Action<CancellationToken> waitForMessage, Action<SqlServerDependencyBackOffToken> unregisterAction)
         {
             this.resetBackOff = resetBackOff;
             this.waitForMessage = waitForMessage;
@@ -63,9 +63,9 @@
         }
     }
 
-    public class SqlServerServerDependencyBackOffStrategy : SqlServerServerBackOffStrategy
+    public class SqlServerDependencyBackOffStrategy : SqlServerBackOffStrategy
     {
-        static readonly ILog Logger = LogManager.GetLogger(typeof(SqlServerServerDependencyBackOffStrategy));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SqlServerDependencyBackOffStrategy));
 
         Lazy<object> sqlDependencyInit;
 
@@ -76,7 +76,7 @@
         SpinLock workerLocker = new SpinLock();
         SqlCommand receiveCommand;
 
-        public SqlServerServerDependencyBackOffStrategy()
+        public SqlServerDependencyBackOffStrategy()
         {
             sqlDependencyInit = new Lazy<object>(InitSqlDependency);
         }
@@ -88,7 +88,7 @@
         public override SqlServerBackOffToken RegisterWorker()
         {
             AddWorker();
-            return new SqlServerServerDependencyBackOffToken(ReceivedMessage, WaitForMessage, UnRegisterWorker);
+            return new SqlServerDependencyBackOffToken(ReceivedMessage, WaitForMessage, UnRegisterWorker);
         }
 
         public override void UnRegisterWorker(SqlServerBackOffToken token)

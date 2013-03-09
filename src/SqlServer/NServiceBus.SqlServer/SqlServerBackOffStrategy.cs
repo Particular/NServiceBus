@@ -39,7 +39,7 @@
         void Stop();
     }
 
-    public abstract class SqlServerServerBackOffStrategy : ISqlServerBackOffStrategy
+    public abstract class SqlServerBackOffStrategy : ISqlServerBackOffStrategy
     {
         public abstract SqlServerBackOffToken RegisterWorker();
 
