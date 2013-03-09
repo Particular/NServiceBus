@@ -48,6 +48,9 @@
     <Compile Include="Config\SqlServer.cs" />
     <Compile Include="Config\SqlServerTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleSqlServerBackOffStrategy.cs" />
+    <Compile Include="SqlServerBackOffStrategy.cs" />
+    <Compile Include="SqlServerDependencybackOffStrategy.cs" />
     <Compile Include="SqlServerPollingDequeueStrategy.cs" />
     <Compile Include="SqlServerMessageSender.cs" />
     <Compile Include="SqlServerQueueCreator.cs" />

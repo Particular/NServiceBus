@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
-    using System.Security.Permissions;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
@@ -41,13 +40,6 @@
         private CancellationTokenSource tokenSource;
         private TransactionOptions transactionOptions;
         private Func<TransportMessage, bool> tryProcessMessage;
-        private SqlCommand receiveCommand;
-        private Lazy<object> sqlDependencyInit;
-        private readonly int[] retryDelays = new[] { 0, 0, 0, 10, 10, 10, 50, 50, 100, 100, 200, 200, 200, 200 };
-        ManualResetEventSlim waitForSqlDependency;
-        WaitHandle[] waitHandles;
-        CountdownEvent signalSqlDependency;
-        RegisteredWaitHandle registeredSignalSqlDependency;
 
         /// <summary>
         ///     The connection used to open the SQL Server database.
@@ -63,7 +55,13 @@
         /// SqlServer <see cref="ISendMessages"/>.
         /// </summary>
         public SqlServerMessageSender MessageSender { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the back off strategy used for dequeing from SQL Server.
+        /// </summary>
+        /// <value>The back off strategy.</value>
+        public ISqlServerBackOffStrategy BackOffStrategy { get; set; }
+
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
         /// </summary>
@@ -78,7 +76,6 @@
         public void Init(Address address, TransactionSettings transactionSettings,
                          Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
-            sqlDependencyInit = new Lazy<object>(InitSqlDependency);
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
 
@@ -109,19 +106,16 @@
         public void Start(int maximumConcurrencyLevel)
         {
             tokenSource = new CancellationTokenSource();
-            waitForSqlDependency = new ManualResetEventSlim(true);
-            signalSqlDependency = new CountdownEvent(maximumConcurrencyLevel);
-            waitHandles = new[] { tokenSource.Token.WaitHandle, waitForSqlDependency.WaitHandle };
 
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
+
+            BackOffStrategy.Start(ConnectionString, tableName, maximumConcurrencyLevel);
 
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
             }
-
-            registeredSignalSqlDependency = ThreadPool.RegisterWaitForSingleObject(signalSqlDependency.WaitHandle, SetupQueryNotification, this, -1, true);
         }
 
         /// <summary>
@@ -131,19 +125,7 @@
         {
             tokenSource.Cancel();
             scheduler.Dispose();
-
-            SqlDependency.Stop(ConnectionString);
-            waitForSqlDependency.Dispose();
-            waitForSqlDependency = null;
-
-            if (registeredSignalSqlDependency != null)
-            {
-                registeredSignalSqlDependency.Unregister(signalSqlDependency.WaitHandle);
-                registeredSignalSqlDependency = null;
-            }
-
-            signalSqlDependency.Dispose();
-            signalSqlDependency = null;
+            BackOffStrategy.Stop();
         }
 
         private void PurgeTable()
@@ -167,13 +149,17 @@
         private void StartThread()
         {
             CancellationToken token = tokenSource.Token;
+            SqlServerBackOffToken backOffToken = BackOffStrategy.RegisterWorker();
 
             Task.Factory
-                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, new Tuple<CancellationToken, SqlServerBackOffToken>(token, backOffToken), token, TaskCreationOptions.None, scheduler)
                 .ContinueWith(t =>
                     {
                         t.Exception.Handle(ex =>
-                            {
+                        {
+                                // When faulted ensure to unregister the back-off
+                                backOffToken.Dispose();
+
                                 circuitBreaker.Execute(
                                     () =>
                                     Configure.Instance.RaiseCriticalError(
@@ -187,70 +173,49 @@
 
         private void Action(object obj)
         {
-            var cancellationToken = (CancellationToken) obj;
+            var tuple = (Tuple<CancellationToken, SqlServerBackOffToken>) obj;
+            var cancellationToken = tuple.Item1;
+            var backOffToken = tuple.Item2;
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 Exception exception = null;
                 TransportMessage message = null;
-
-                for (int i = 0; i < retryDelays.Length && !cancellationToken.IsCancellationRequested; i++)
+                try
                 {
-                    try
+                    if (settings.IsTransactional)
                     {
-                        if (settings.IsTransactional)
+                        if (settings.DontUseDistributedTransactions)
                         {
-                            if (settings.DontUseDistributedTransactions)
-                            {
-                                message = TryReceiveWithNativeTransaction();
-                            }
-                            else
-                            {
-                                message = TryReceiveWithDTCTransaction();
-                            }
+                            message = TryReceiveWithNativeTransaction();
                         }
                         else
                         {
-                            message = TryReceiveWithNoTransaction();
+                            message = TryReceiveWithDTCTransaction();
                         }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        exception = ex;
-                    }
-                    finally
-                    {
-                        if (message != null)
-                        {
-                            // reset our backoff since we got a message
-                            i = 0;
-
-                            // unleash all workers that might have been waiting since we got message
-                            waitForSqlDependency.Set();
-
-                            // make sure to reset the counter that triggers the sql dependency registration
-                            signalSqlDependency.Reset();
-                        }
-
-                        // send the message off to nsb for processing
-                        endProcessMessage(message != null ? message.Id : null, exception);
-
-                        // Back-off if we didn't get a message
-                        if (message == null)
-                        {
-                            Thread.Sleep(retryDelays[i]);
-                        }
+                        message = TryReceiveWithNoTransaction();
                     }
                 }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+                finally
+                {
+                    endProcessMessage(message != null ? message.Id : null, exception);
 
-                // Have workers block until the waitForSqlDependency is triggered
-                waitForSqlDependency.Reset();
-
-                // Decrement the counter that will trigger the sql dependency to be registered
-                signalSqlDependency.Signal();
-
-                // This thread will wait until the cancellation token is signaled or the their are messages
-                WaitHandle.WaitAny(waitHandles);
+                    if (message == null)
+                    {
+                        backOffToken.BackOff(cancellationToken);
+                    }
+                    else
+                    {
+                        backOffToken.ReceivedMessage();
+                    }
+                }
             }
         }
 
@@ -451,80 +416,6 @@
             }
 
             return IsolationLevel.ReadCommitted;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1804:RemoveUnusedLocals", MessageId = "dummy", Justification = "Dummy value returned from lazy init routine.")]
-        private void SetupQueryNotification(object state, bool timeout)
-        {
-            Logger.Debug("Setting up SQL notification");
-
-            var dummy = sqlDependencyInit.Value;
-            using (var connection = new SqlConnection(ConnectionString))
-            {
-                if (receiveCommand == null)
-                {
-                    receiveCommand = connection.CreateCommand();
-                    receiveCommand.CommandText = "SELECT s.Id as Id FROM [dbo].[" + tableName + "] as s";
-                }
-                var sqlDependency = new SqlDependency(receiveCommand);
-                OnChangeEventHandler handler = (sender, e) =>
-                {
-                    Logger.InfoFormat("SqlDependency.OnChanged fired: {0}", e.Info);
-                    receiveCommand.Notification = null;
-
-                    if (e.Type == SqlNotificationType.Change)
-                    {
-                        // unleash the workers
-                        waitForSqlDependency.Set();
-                    }
-                    else
-                    {
-                        // If the e.Info value here is 'Invalid', ensure the query SQL meets the requirements
-                        // for query notifications at http://msdn.microsoft.com/en-US/library/ms181122.aspx
-                        Logger.ErrorFormat("SQL notification subscription error: {0}", e.Info);
-
-                        // TODO: Do we need to be more paticular about the type of error here?
-                        waitForSqlDependency.Set();
-                    }
-                };
-                sqlDependency.OnChange += handler;
-
-                receiveCommand.Connection = connection;
-                connection.Open();
-
-                // Executing the query is required to set up the dependency
-                using (var reader = this.receiveCommand.ExecuteReader(CommandBehavior.CloseConnection))
-                {
-                    if (reader.HasRows)
-                    {
-                        // If we have rows then we can stop listening, and signal our workers to dequeue
-                        sqlDependency.OnChange -= handler;
-                        receiveCommand.Notification = null;
-                        waitForSqlDependency.Set();
-                    }
-                }
-
-                // Reset the countdown event so all threads will have to finish before triggering a new sqldependency
-                signalSqlDependency.Reset();
-
-                // Register this callback again in the threadpool to be fired when the signalSqlDependency is Set
-                registeredSignalSqlDependency = ThreadPool.RegisterWaitForSingleObject(signalSqlDependency.WaitHandle, SetupQueryNotification, this, -1, true);
-
-                Logger.Debug("SQL notification set up");
-            }
-        }
-
-        private object InitSqlDependency()
-        {
-            Logger.Debug("Starting SQL notification listener");
-
-            var perm = new SqlClientPermission(PermissionState.Unrestricted);
-            perm.Demand();
-
-            SqlDependency.Start(this.ConnectionString);
-
-            Logger.Debug("SQL notification listener started");
-            return new object();
         }
     }
 }
