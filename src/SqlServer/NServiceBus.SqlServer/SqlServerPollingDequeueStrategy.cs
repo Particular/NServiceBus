@@ -234,6 +234,12 @@
 
                         // send the message off to nsb for processing
                         endProcessMessage(message != null ? message.Id : null, exception);
+
+                        // Back-off if we didn't get a message
+                        if (message == null)
+                        {
+                            Thread.Sleep(retryDelays[i]);
+                        }
                     }
                 }
 
