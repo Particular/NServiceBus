@@ -10,7 +10,8 @@
     <RootNamespace>NServiceBus.Hosting.Azure.HostProcess</RootNamespace>
     <AssemblyName>NServiceBus.Hosting.Azure.HostProcess</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile></TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
@@ -97,6 +98,10 @@
     <ProjectReference Include="..\..\..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\NServiceBus.Azure\NServiceBus.Azure.csproj">
+      <Project>{12f1d9f1-0a2c-4442-8d18-67dd096c6300}</Project>
+      <Name>NServiceBus.Azure</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Hosting.Azure\NServiceBus.Hosting.Azure.csproj">
       <Project>{6591ed91-f9a1-4cc3-813e-a33e07439d49}</Project>
