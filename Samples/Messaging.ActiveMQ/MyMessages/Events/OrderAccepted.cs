@@ -3,7 +3,7 @@
     using NServiceBus;
 
     //NServiceBus messages can be defined using both classes and interfaces
-    public interface CoolDownPeriodElapsed : IEvent
+    public interface OrderAccepted : IEvent
     {
         int OrderNumber { get; set; }
         string[] VideoIds { get; set; }

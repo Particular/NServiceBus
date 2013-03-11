@@ -12,7 +12,7 @@
     public class ProcessOrderSaga : Saga<OrderData>,
                                     ISagaStartedBy<InventoryResponse>,
                                     IHandleMessages<CancelOrder>,
-                                    IHandleTimeouts<CoolDownPeriod>
+                                    IHandleTimeouts<BuyersRemorseIsOver>
     {
         public void Handle(InventoryResponse message)
         {
@@ -25,18 +25,18 @@
             Data.VideoIds = message.VideoIds;
             Data.ClientId = message.ClientId;
 
-            RequestTimeout(TimeSpan.FromSeconds(20), new CoolDownPeriod());
+            RequestTimeout(TimeSpan.FromSeconds(20), new BuyersRemorseIsOver());
             Console.Out.WriteLine("Starting cool down period for order #{0}.", Data.OrderNumber);
         }
 
-        public void Timeout(CoolDownPeriod state)
+        public void Timeout(BuyersRemorseIsOver state)
         {
             if (DebugFlagMutator.Debug)
             {
                 Debugger.Break();
             }
 
-            Bus.Publish<CoolDownPeriodElapsed>(e =>
+            Bus.Publish<OrderAccepted>(e =>
                 {
                     e.OrderNumber = Data.OrderNumber;
                     e.VideoIds = Data.VideoIds;
@@ -87,7 +87,7 @@
         public string ClientId { get; set; }
     }
 
-    public class CoolDownPeriod
+    public class BuyersRemorseIsOver
     {
     }
 }
