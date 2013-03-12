@@ -23,9 +23,9 @@
         {
             var countersAreGood = PerformanceCounterSetup.CheckCounters();
 
-            Host.UI.WriteLine(countersAreGood
-                                        ? "NServiceBus Performance Counters are setup and ready for use with NServiceBus."
-                                        : "NServiceBus Performance Counters are not properly configured.");
+            WriteVerbose(countersAreGood
+                             ? "NServiceBus Performance Counters are setup and ready for use with NServiceBus."
+                             : "NServiceBus Performance Counters are not properly configured.");
 
             WriteObject(countersAreGood);
         }

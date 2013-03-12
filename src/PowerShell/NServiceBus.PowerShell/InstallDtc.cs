@@ -22,10 +22,9 @@
         protected override void ProcessRecord()
         {
             var dtcIsGood = DtcSetup.IsDtcWorking();
-
-            Host.UI.WriteLine(dtcIsGood
-                                        ? "DTC is setup and ready for use with NServiceBus."
-                                        : "DTC is not properly configured.");
+            WriteVerbose(dtcIsGood
+                             ? "DTC is setup and ready for use with NServiceBus."
+                             : "DTC is not properly configured.");
 
             WriteObject(dtcIsGood);
         }

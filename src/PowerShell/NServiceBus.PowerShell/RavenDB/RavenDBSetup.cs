@@ -176,19 +176,31 @@
             Console.WriteLine("RavenDB service started.");
 
             SavePortToBeUsedForRavenInRegistry(availablePort);
-
-            return;
         }
 
         private static void SavePortToBeUsedForRavenInRegistry(int availablePort)
         {
-            using (var key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\NServiceBus"))
+            if (Environment.Is64BitOperatingSystem)
+            {
+                WriteRegistry(availablePort, RegistryView.Registry32);
+
+                WriteRegistry(availablePort, RegistryView.Registry64);
+            }
+            else
+            {
+                WriteRegistry(availablePort, RegistryView.Default);
+            }
+        }
+
+        static void WriteRegistry(int availablePort, RegistryView view)
+        {
+            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\NServiceBus"))
             {
                 key.SetValue("RavenPort", availablePort, RegistryValueKind.DWord);
             }
         }
 
-        private static int FindPort(int startPort)
+        static int FindPort(int startPort)
         {
             var activeTcpListeners = IPGlobalProperties
                 .GetIPGlobalProperties()

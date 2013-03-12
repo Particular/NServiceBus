@@ -31,9 +31,9 @@
         {
             var msmqIsGood = MsmqSetup.IsInstallationGood();
 
-            Host.UI.WriteLine(msmqIsGood
-                                        ? "MSMQ is installed and setup for use with NServiceBus."
-                                        : "MSMQ is not installed.");
+            WriteVerbose(msmqIsGood
+                             ? "MSMQ is installed and setup for use with NServiceBus."
+                             : "MSMQ is not installed.");
 
             WriteObject(msmqIsGood);
         }
