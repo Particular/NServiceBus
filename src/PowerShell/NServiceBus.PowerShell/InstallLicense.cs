@@ -4,6 +4,7 @@
     using System.IO;
     using System.Management.Automation;
     using System.Reflection;
+    using System.Security;
     using Microsoft.Win32;
 
     [Cmdlet(VerbsLifecycle.Install, "NServiceBusLicense")]
@@ -19,19 +20,33 @@
         {
             string selectedLicenseText = ReadAllTextWithoutLocking(Path);
 
-            var rootKey = Registry.CurrentUser;
+            if (Environment.Is64BitOperatingSystem)
+            {
+                TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry32);
+                
+                TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry64);
+            }
+            else
+            {
+                TryToWriteToRegistry(selectedLicenseText, RegistryView.Default);
+            }
+        }
+
+        void TryToWriteToRegistry(string selectedLicenseText, RegistryView view)
+        {
+            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
             if (UseHKLM)
             {
-                rootKey = Registry.LocalMachine;
+                rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
             }
 
             using (var registryKey = rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
             {
                 if (registryKey == null)
                 {
-                    Host.UI.WriteErrorLine("License file could not be installed.");
-                    return;
+                    ThrowTerminatingError(new ErrorRecord(new SecurityException("License file could not be installed."), "NotAuthorized", ErrorCategory.SecurityError, null));
                 }
+
                 registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
             }
         }

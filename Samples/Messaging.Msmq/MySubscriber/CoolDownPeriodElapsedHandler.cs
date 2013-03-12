@@ -7,7 +7,7 @@
     using MyMessages.Events;
     using NServiceBus;
 
-    public class CoolDownPeriodElapsedHandler : IHandleMessages<CoolDownPeriodElapsed>
+    public class CoolDownPeriodElapsedHandler : IHandleMessages<OrderAccepted>
     {
         private readonly IDictionary<string, string> videoIdToUrlMap = new Dictionary<string, string>
             {
@@ -22,14 +22,14 @@
 
         public IBus Bus { get; set; }
 
-        public void Handle(CoolDownPeriodElapsed message)
+        public void Handle(OrderAccepted message)
         {
             if (DebugFlagMutator.Debug)
             {
                 Debugger.Break();
             }
 
-            Bus.Publish<OrderIsReady>(e =>
+            Bus.Publish<DownloadIsReady>(e =>
                 {
                     e.OrderNumber = message.OrderNumber;
                     e.ClientId = message.ClientId;

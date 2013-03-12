@@ -30,6 +30,7 @@
 
             if (Controller.Status != ServiceControllerStatus.Running)
             {
+
                 Console.Out.WriteLine("MSDTC isn't currently running and needs to be started");
                 return false;
             }
@@ -45,7 +46,9 @@
             using (var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\MSDTC\Security", doChanges))
             {
                 if (key == null)
+                {
                     throw new InvalidOperationException("MSDTC could not be found in the registry. Cannot continue.");
+                }
 
                 needToChange = false;
                 foreach (var val in RegValues)
