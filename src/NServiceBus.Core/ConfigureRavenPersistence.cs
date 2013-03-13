@@ -113,10 +113,11 @@ namespace NServiceBus
         /// <summary>
         /// Configures RavenDB as the default persistence.
         /// </summary>
+        /// <remarks>This method does not use any of the NServiceBus conventions either specified or out of the box.</remarks>
         /// <param name="config">The configuration object.</param>
         /// <param name="documentStore">An <see cref="IDocumentStore"/>.</param>
         /// <returns>The configuration object.</returns>
-        public static Configure RavenPersistence(this Configure config, IDocumentStore documentStore)
+        public static Configure RavenPersistenceWithStore(this Configure config, IDocumentStore documentStore)
         {
             return config.InternalRavenPersistence(() => new StoreAccessor(documentStore));
         }
