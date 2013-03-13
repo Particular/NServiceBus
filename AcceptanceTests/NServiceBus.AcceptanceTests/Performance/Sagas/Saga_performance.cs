@@ -22,8 +22,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<SagaEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    //.Repeat(r => r.For<AllSagaPersisters>())
-                    .Repeat(r => r.For(SagaPersisters.Raven))
+                    .Repeat(r => r.For<AllSagaPersisters>())
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
