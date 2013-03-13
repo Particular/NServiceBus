@@ -13,8 +13,8 @@
       <Setting name="AzureServiceBusQueueConfig.QueueName" />
       <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
@@ -33,8 +33,8 @@
       <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>

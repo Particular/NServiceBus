@@ -8,8 +8,8 @@
       <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
       <!-- Http if behind proxy -->
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Warn" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -31,8 +31,8 @@
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Warn" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
