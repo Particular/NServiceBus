@@ -14,6 +14,7 @@
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
     using SagaPersisters.InMemory;
+    using SagaPersisters.NHibernate;
     using SagaPersisters.Raven;
 
     public static class ConfigureExtensions
@@ -89,9 +90,19 @@
             if (type == typeof (InMemorySagaPersister))
                 return config.InMemorySagaPersister();
 
-            if (type == typeof(RavenSagaPersister))
+            if (type == typeof (RavenSagaPersister))
+            {
+                config.RavenPersistence(() => "url=http://localhost:8080");
                 return config.RavenSagaPersister();
 
+            }
+                
+            if (type == typeof (SagaPersister))
+            {
+                return config.UseNHibernateSagaPersister();
+
+            }
+                
             throw new InvalidOperationException("Unknown persister:" + persister);
         }
 

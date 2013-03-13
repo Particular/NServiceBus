@@ -29,13 +29,4 @@
             Remove(Transports.SqlServer);
         }
     }
-
-    public class AllSagaPersisters : ScenarioDescriptor
-    {
-        public AllSagaPersisters()
-        {
-            Add(SagaPersisters.InMemory);
-            Add(SagaPersisters.Raven);
-        }
-    }
 }

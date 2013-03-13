@@ -9,11 +9,12 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using Saga;
+    using SagaPersisters.NHibernate.AutoPersistence.Attributes;
     using ScenarioDescriptors;
 
     public class Saga_performance : NServiceBusPerformanceTest
     {
-        static int NumberOfTestMessages = 1000;
+        static int NumberOfTestMessages = 2000;
 
         [Test]
         public void With_dtc_enabled()
@@ -21,7 +22,8 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<SagaEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For<AllSagaPersisters>())
+                    //.Repeat(r => r.For<AllSagaPersisters>())
+                    .Repeat(r => r.For(SagaPersisters.Raven))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
@@ -39,7 +41,8 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10)
+                    .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
             }
 
             public class MySaga : Saga<MySagaData>,IAmStartedByMessages<MyMessage>
@@ -76,16 +79,17 @@
                 }
             }
 
-
+            [TableName("SagaPerformanceMySagaData")]
             public class MySagaData : ISagaEntity
             {
-                public Guid Id { get; set; }
-                public string Originator { get; set; }
-                public string OriginalMessageId { get; set; }
+                public virtual Guid Id { get; set; }
+                public virtual string Originator { get; set; }
+                public virtual string OriginalMessageId { get; set; }
 
                 [Unique]
-                public Guid SomeId { get; set; }
+                public virtual Guid SomeId { get; set; }
             }
+
         }
 
         [Serializable]
@@ -104,5 +108,8 @@
                 })));
         }
     }
+
+
+
 
 }
