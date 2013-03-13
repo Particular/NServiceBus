@@ -28,7 +28,7 @@
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
       <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
       <!--Http if behind proxy-->
-      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
