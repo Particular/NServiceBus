@@ -145,6 +145,7 @@
     <Compile Include="Performance\RequestResponse\Request_response_performance.cs" />
     <Compile Include="Performance\NServiceBusPerformanceTest.cs" />
     <Compile Include="Performance\Receive\Receive_performance.cs" />
+    <Compile Include="Performance\Sagas\Receive_performance.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance.cs" />
@@ -156,6 +157,7 @@
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
+    <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />
@@ -178,6 +180,7 @@
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

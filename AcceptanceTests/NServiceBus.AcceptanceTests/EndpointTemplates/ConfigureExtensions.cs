@@ -13,6 +13,8 @@
     using NServiceBus.Serializers.Binary;
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
+    using SagaPersisters.InMemory;
+    using SagaPersisters.Raven;
 
     public static class ConfigureExtensions
     {
@@ -75,6 +77,25 @@
 
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
+        
+
+        public static Configure DefineSagaPersister(this Configure config, string persister)
+        {
+            if (string.IsNullOrEmpty(persister))
+                return config.InMemorySagaPersister();
+
+            var type = Type.GetType(persister);
+
+            if (type == typeof (InMemorySagaPersister))
+                return config.InMemorySagaPersister();
+
+            if (type == typeof(RavenSagaPersister))
+                return config.RavenSagaPersister();
+
+            throw new InvalidOperationException("Unknown persister:" + persister);
+        }
+
+
 
         public static Configure DefineBuilder(this Configure config, string builder)
         {

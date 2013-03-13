@@ -20,7 +20,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ReceiveEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For<AllTransports>())
+                    .Repeat(r => r.For(Transports.Msmq))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
