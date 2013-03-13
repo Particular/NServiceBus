@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using NServiceBus;
 
-    public interface OrderIsReady : IEvent
+    public interface DownloadIsReady : IEvent
     {
         int OrderNumber { get; set; }
         Dictionary<string,string> VideoUrls { get; set; }

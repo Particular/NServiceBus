@@ -28,25 +28,53 @@
 
             string selectedLicenseText = ReadAllTextWithoutLocking(licensePath);
 
-            var rootKey = Registry.CurrentUser;
+            if (Environment.Is64BitOperatingSystem)
+            {
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry32))
+                {
+                    return 1;
+                }
+
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry64))
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Default))
+                {
+                    return 1;
+                }
+            }
+            
+            Console.Out.WriteLine("License file installed.");
+
+            return 0;
+        }
+
+        static bool TryToWriteToRegistry(string selectedLicenseText, RegistryView view)
+        {
+            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
             if (useHKLM)
             {
-                rootKey = Registry.LocalMachine;
+                rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
             }
 
-            using (var registryKey = rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
+            using (
+                var registryKey =
+                    rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
             {
                 if (registryKey == null)
                 {
                     Console.Out.WriteLine("License file not installed.");
-                    return 1;
+                    {
+                        return false;
+                    }
                 }
                 registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
             }
-
-            Console.Out.WriteLine("License file installed.");
-
-            return 0;
+            return true;
         }
 
         static bool TryParseOptions(IEnumerable<string> args)
@@ -127,9 +155,9 @@ Options:", DateTime.Now.Year);
 
         static Version GetNServiceBusVersion()
         {
-            var assembyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-            return new Version(assembyVersion.Major, assembyVersion.Minor);
+            return new Version(assemblyVersion.Major, assemblyVersion.Minor);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace NServiceBus.Unicast.Monitoring
         public IBus Bus { get; set; }
 
         /// <summary>
-        /// Performance counter for critcal time. 
+        /// Performance counter for critical time. 
         /// </summary>
         public CriticalTimeCalculator CriticalTimeCounter { get; set; }
 

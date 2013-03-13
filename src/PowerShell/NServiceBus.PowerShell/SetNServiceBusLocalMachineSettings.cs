@@ -2,6 +2,7 @@
 {
     using System;
     using System.Management.Automation;
+    using System.Security;
     using Microsoft.Win32;
 
     [Cmdlet(VerbsCommon.Set, "NServiceBusLocalMachineSettings", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.High)]
@@ -20,17 +21,34 @@
                 return;
             }
 
-            using (var registryKey = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\NServiceBus"))
+            if (Environment.Is64BitOperatingSystem)
+            {
+                WriteRegistry(RegistryView.Registry32);
+
+                WriteRegistry(RegistryView.Registry64);
+            }
+            else
+            {
+                WriteRegistry(RegistryView.Default);
+            }
+        }
+
+        void WriteRegistry(RegistryView view)
+        {
+            using (var registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\NServiceBus"))
             {
                 if (registryKey == null)
                 {
-                    Host.UI.WriteErrorLine(@"Could not create/open 'HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus' for writing.");
-                    return;
+                    ThrowTerminatingError(
+                        new ErrorRecord(
+                            new SecurityException(
+                                @"Could not create/open 'HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus' for writing."),
+                            "NotAuthorized", ErrorCategory.SecurityError, null));
                 }
 
                 if (!String.IsNullOrWhiteSpace(ErrorQueue))
                 {
-                    registryKey.SetValue("ErrorQueue", ErrorQueue, RegistryValueKind.String);                    
+                    registryKey.SetValue("ErrorQueue", ErrorQueue, RegistryValueKind.String);
                 }
 
                 if (!String.IsNullOrWhiteSpace(AuditQueue))

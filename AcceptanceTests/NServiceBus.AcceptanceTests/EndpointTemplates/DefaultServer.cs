@@ -30,7 +30,7 @@
                             .DefineSerializer(settings.GetOrNull("Serializer"))
                             .DefineTransport(transportToUse)
                             .Sagas()
-                            .InMemorySagaPersister();
+                            .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer") || transportToUse.Contains("RabbitMq"))
                 config.UseInMemoryTimeoutPersister();

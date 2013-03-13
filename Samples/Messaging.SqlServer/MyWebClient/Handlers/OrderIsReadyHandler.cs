@@ -5,9 +5,9 @@
     using MyMessages.Events;
     using NServiceBus;
 
-    public class OrderIsReadyHandler :  IHandleMessages<OrderIsReady>
+    public class OrderIsReadyHandler :  IHandleMessages<DownloadIsReady>
     {
-        public void Handle(OrderIsReady message)
+        public void Handle(DownloadIsReady message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<OrdersHub>();
             

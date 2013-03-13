@@ -17,12 +17,16 @@
                 foreach (CounterCreationData counter in Counters)
                 {
                     if (!PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName))
+                    {
                         needToRecreateCategory = true;
+                    }
 
                 }
 
                 if (!needToRecreateCategory)
+                {
                     return true;
+                }
             }
 
             return false;
