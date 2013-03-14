@@ -7,6 +7,7 @@ namespace NServiceBus
     using NHibernate.Drivers.Azure.TableStorage;
     using NHibernate.Mapping.ByCode;
     using NHibernate.Tool.hbm2ddl;
+    using Unicast.Publishing;
     using Unicast.Subscriptions.Azure.TableStorage;
     using Unicast.Subscriptions.Azure.TableStorage.Config;
 
@@ -75,6 +76,8 @@ namespace NServiceBus
             config.Configurer.RegisterSingleton<ISubscriptionStorageSessionProvider>(sessionSource);
 
             config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
+
+            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
 
             return config;
 
