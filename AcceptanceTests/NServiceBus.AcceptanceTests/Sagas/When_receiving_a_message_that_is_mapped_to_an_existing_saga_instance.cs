@@ -22,7 +22,7 @@
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(SagaPersisters.Raven))
+                    .Repeat(r => r.For<AllSagaPersisters>())
                     .Should(c =>
                     {
                         Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages");
@@ -43,7 +43,10 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a =>
+                    {
+                        a.DoNotWrapHandlersExecutionInATransactionScope();
+                    }))
                    .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
             }
 
