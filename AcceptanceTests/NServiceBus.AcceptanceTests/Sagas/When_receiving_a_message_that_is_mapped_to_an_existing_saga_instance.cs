@@ -22,7 +22,7 @@
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For<AllSagaPersisters>())
+                    .Repeat(r => r.For(SagaPersisters.Raven))
                     .Should(c =>
                     {
                         Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages");
@@ -78,6 +78,8 @@
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
+
+                [Unique]
                 public virtual Guid SomeId { get; set; }
             }
         }
