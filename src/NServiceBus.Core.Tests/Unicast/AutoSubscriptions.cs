@@ -27,7 +27,6 @@
         [Test]
         public void Should_not_autosubscribe_messages_by_default()
         {
-
             var endpointAddress = new Address("MyEndpoint", "localhost");
 
             RegisterMessageType<MyMessage>(endpointAddress);
@@ -38,11 +37,11 @@
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(endpointAddress)));
         }
 
-        [Test, Explicit("Need to figure out what static is still set!")]
+        [Test]
         public void Should_not_autosubscribe_messages_unless_asked_to_by_the_users()
         {
-
             var endpointAddress = new Address("MyEndpoint", "localhost");
+            
             autoSubscriptionStrategy.SubscribePlainMessages = true;
 
             RegisterMessageType<MyMessage>(endpointAddress);
@@ -50,7 +49,7 @@
 
             StartBus();
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(endpointAddress)));
+            AssertSubscription<MyMessage>(endpointAddress);
         }
 
 
@@ -95,10 +94,8 @@
             RegisterMessageHandlerType<MySaga>();
 
             StartBus();
-            Thread.Sleep(5000); //Wait for subscriptions to happen
-
-            AssertSubscription(m => true,
-                              eventEndpointAddress);
+          
+            AssertSubscription(m => true,eventEndpointAddress);
         }
     }
 

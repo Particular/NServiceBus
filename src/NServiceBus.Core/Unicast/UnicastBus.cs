@@ -867,6 +867,8 @@ namespace NServiceBus.Unicast
                 .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never autosubscribe system messages
             {
                 Subscribe(eventType);
+
+                Log.DebugFormat("Autosubscribed to event {0}",eventType);
             }
         }
 

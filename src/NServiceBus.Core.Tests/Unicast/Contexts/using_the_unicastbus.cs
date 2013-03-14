@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
         protected StaticMessageRouter router;
 
-        protected MessageHandlerRegistry handlerRegistry ;
+        protected MessageHandlerRegistry handlerRegistry;
 
         protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
 
@@ -53,6 +53,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            HandlerInvocationCache.Clear();
+
             SettingsHolder.Reset();
             SettingsHolder.SetDefault("Endpoint.SendOnly", false);
 
@@ -175,7 +177,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterRoute(typeof (T), Address.Local);
+            router.RegisterRoute(typeof(T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -214,6 +216,30 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 messageSender.AssertWasCalled(x =>
                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
             }
+        }
+
+        protected void AssertSubscription<T>(Address addressOfPublishingEndpoint)
+        {
+            try
+            {
+                messageSender.AssertWasCalled(x =>
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+
+            }
+            catch (Exception)
+            {
+                //retry to avoid race conditions 
+                Thread.Sleep(1000);
+                messageSender.AssertWasCalled(x =>
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+            }
+        }
+
+        bool IsSubscriptionFor<T>(TransportMessage transportMessage)
+        {
+            var type = Type.GetType(transportMessage.Headers[Headers.SubscriptionMessageType]);
+
+            return type == typeof(T);
         }
     }
 

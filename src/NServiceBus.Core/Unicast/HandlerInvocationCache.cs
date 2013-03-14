@@ -42,6 +42,15 @@ namespace NServiceBus.Unicast
             CacheMethod(handler, messageType, typeof (IHandleTimeouts<>), TimeoutCache);
         }
 
+        /// <summary>
+        /// Clears the cache
+        /// </summary>
+        public static void Clear()
+        {
+            HandlerCache.Clear();
+            TimeoutCache.Clear();
+        }
+
         static void Invoke(object handler, object message, Dictionary<RuntimeTypeHandle, List<DelegateHolder>> dictionary)
         {
             List<DelegateHolder> methodList;
