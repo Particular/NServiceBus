@@ -55,7 +55,13 @@
         /// SqlServer <see cref="ISendMessages"/>.
         /// </summary>
         public SqlServerMessageSender MessageSender { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the back off strategy used for dequeing from SQL Server.
+        /// </summary>
+        /// <value>The back off strategy.</value>
+        public ISqlServerBackOffStrategy BackOffStrategy { get; set; }
+
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
         /// </summary>
@@ -104,6 +110,8 @@
             scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
                                              String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
 
+            BackOffStrategy.Start(ConnectionString, tableName, maximumConcurrencyLevel);
+
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
@@ -117,6 +125,7 @@
         {
             tokenSource.Cancel();
             scheduler.Dispose();
+            BackOffStrategy.Stop();
         }
 
         private void PurgeTable()
@@ -140,13 +149,17 @@
         private void StartThread()
         {
             CancellationToken token = tokenSource.Token;
+            SqlServerBackOffToken backOffToken = BackOffStrategy.RegisterWorker();
 
             Task.Factory
-                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, new Tuple<CancellationToken, SqlServerBackOffToken>(token, backOffToken), token, TaskCreationOptions.None, scheduler)
                 .ContinueWith(t =>
                     {
                         t.Exception.Handle(ex =>
-                            {
+                        {
+                                // When faulted ensure to unregister the back-off
+                                backOffToken.Dispose();
+
                                 circuitBreaker.Execute(
                                     () =>
                                     Configure.Instance.RaiseCriticalError(
@@ -160,14 +173,14 @@
 
         private void Action(object obj)
         {
-            var cancellationToken = (CancellationToken) obj;
-            var backOff = new BackOff(1000);
+            var tuple = (Tuple<CancellationToken, SqlServerBackOffToken>) obj;
+            var cancellationToken = tuple.Item1;
+            var backOffToken = tuple.Item2;
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 Exception exception = null;
                 TransportMessage message = null;
-
                 try
                 {
                     if (settings.IsTransactional)
@@ -193,9 +206,16 @@
                 finally
                 {
                     endProcessMessage(message != null ? message.Id : null, exception);
-                }
 
-                backOff.Wait(() => message == null);
+                    if (message == null)
+                    {
+                        backOffToken.BackOff(cancellationToken);
+                    }
+                    else
+                    {
+                        backOffToken.ReceivedMessage();
+                    }
+                }
             }
         }
 

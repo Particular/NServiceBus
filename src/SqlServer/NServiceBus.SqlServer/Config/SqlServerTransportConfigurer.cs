@@ -20,6 +20,11 @@ namespace NServiceBus.Transports.SQLServer.Config
                 throw new ArgumentException("Sql Transport connection string cannot be empty or null.");
             }
 
+            if (!NServiceBus.Configure.Instance.Configurer.HasComponent<ISqlServerBackOffStrategy>())
+            {
+                config.Configurer.ConfigureComponent<SimpleSqlServerBackOffStrategy>(DependencyLifecycle.InstancePerCall);
+            }
+
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
 
@@ -28,7 +33,7 @@ namespace NServiceBus.Transports.SQLServer.Config
 
             config.Configurer.ConfigureComponent<SqlServerPollingDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString)
-                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested); ;
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
             EndpointInputQueueCreator.Enabled = true;
         }
