@@ -5,7 +5,7 @@ namespace NServiceBus
     using Persistence.NHibernate;
 
     /// <summary>
-    /// Configuration extensions for the NHibernate Timeouts persister
+    /// Configuration extensions for the NHibernate Gateway persister
     /// </summary>
     public static class ConfigureNHibernateGatewayPersister
     {
@@ -59,7 +59,7 @@ namespace NServiceBus
         {
             foreach (var property in configuration.Properties)
             {
-                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+                ConfigureNHibernate.GatewayPersisterProperties[property.Key] = property.Value;
             }
 
             return config.UseNHibernateGatewayPersisterInternal(configuration);
