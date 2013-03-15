@@ -9,7 +9,8 @@ namespace NServiceBus.UnitOfWork.NHibernate
     /// </summary>
     public class UnitOfWorkManager : IManageUnitsOfWork
     {
-        private ISession currentSession;
+        [ThreadStatic]
+        private static ISession currentSession;
 
         internal ISession GetCurrentSession()
         {

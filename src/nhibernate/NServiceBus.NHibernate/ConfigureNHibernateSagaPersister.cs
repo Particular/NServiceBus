@@ -118,7 +118,7 @@
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
             }
 
-            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.InstancePerUnitOfWork)
+            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.SessionFactory, sessionFactory);
 
             config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
