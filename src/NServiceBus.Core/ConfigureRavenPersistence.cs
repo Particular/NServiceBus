@@ -2,9 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
+    using System.Globalization;
+    using System.IO;
     using System.Net;
     using System.Text;
     using Logging;
+    using Newtonsoft.Json;
     using Persistence.Raven;
     using Raven.Abstractions.Data;
     using Raven.Abstractions.Extensions;
@@ -166,7 +169,7 @@ namespace NServiceBus
                     customisationCallback(documentStore);
                 }
 
-                WarnUserIfRavenDatabaseIsNotReachable(documentStore);
+                VerifyConnectionToRavenDBServer(documentStore);
 
                 return new StoreAccessor(documentStore);
             });
@@ -239,12 +242,16 @@ namespace NServiceBus
             return InternalRavenPersistence(config, store);
         }
 
-        static void WarnUserIfRavenDatabaseIsNotReachable(IDocumentStore store)
+        static void VerifyConnectionToRavenDBServer(IDocumentStore store)
         {
+            RavenBuildInfo ravenBuildInfo = null;
+            bool connectionSuccessfull = false;
+            Exception exception = null;
             try
             {
                 store.Initialize();
 
+                //for embedded servers
                 if (store.Url == null)
                 {
                     return;
@@ -252,25 +259,40 @@ namespace NServiceBus
 
                 var request = WebRequest.Create(string.Format("{0}/build/version", store.Url));
                 request.Timeout = 2000;
-                using (var response = request.GetResponse())
+                using (var response = request.GetResponse() as HttpWebResponse)
                 {
-                    if (response.Headers.Get("Raven-Server-Build") == null)
+                    if (response.StatusCode != HttpStatusCode.OK)
+                        throw new InvalidOperationException("Call failed - " + response.StatusDescription);
+
+                    using (var stream = response.GetResponseStream())
+                    using(var reader = new StreamReader(stream))
                     {
-                        ShowUncontactableRavenWarning(store);
+                        ravenBuildInfo = JsonConvert.DeserializeObject<RavenBuildInfo>(reader.ReadToEnd());
                     }
+
+                    connectionSuccessfull = true;
                 }
             }
-            catch (WebException)
+            catch (Exception ex)
             {
-                ShowUncontactableRavenWarning(store);
+                exception = ex;
             }
-            catch (InvalidOperationException)
+               if (!connectionSuccessfull)
             {
-                ShowUncontactableRavenWarning(store);
+                ShowUncontactableRavenWarning(store,exception);
+                return;
             }
+
+            if (!ravenBuildInfo.IsVersion2OrHigher())
+            {
+                throw new InvalidOperationException(string.Format(WrongRavenVersionMessage, ravenBuildInfo));
+            }
+
+         
+            Logger.InfoFormat("Connection to RavenDB at {0} verified. Detected version: {1}", store.Url, ravenBuildInfo);
         }
 
-        static void ShowUncontactableRavenWarning(IDocumentStore store)
+        static void ShowUncontactableRavenWarning(IDocumentStore store,Exception exception)
         {
             var sb = new StringBuilder();
             sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
@@ -284,6 +306,7 @@ namespace NServiceBus
                 @"<connectionStrings>
     <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
 </connectionStrings>");
+sb.AppendLine("Reason: " + exception);
 
             Logger.Warn(sb.ToString());
         }
@@ -294,7 +317,7 @@ namespace NServiceBus
         /// <param name="convention">The mapping convention to use instead.</param>
         /// <param name="config">The configuration object.</param>
         /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "If you need to customise Raven database naming convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]        
+        [ObsoleteEx(Message = "If you need to customise Raven database naming convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
         {
             return config;
@@ -354,7 +377,12 @@ namespace NServiceBus
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
-        static Action<IDocumentStore> customisationCallback = store => {};
+        static Action<IDocumentStore> customisationCallback = store => { };
+
+        const string WrongRavenVersionMessage =
+@"The RavenDB server you have specified is detected to be {0}. NServiceBus requires RavenDB version 2 or higher to operate correctly. Please update your RavenDB server.
+
+Futher instructions can be found at: http://support.nservicebus.com/customer/portal/articles/859351";
 
         class NoOpLogManager : ILogManager
         {
@@ -371,6 +399,23 @@ namespace NServiceBus
             public IDisposable OpenMappedContext(string key, string value)
             {
                 return new DisposableAction(() => { });
+            }
+        }
+
+        class RavenBuildInfo
+        {
+            public string ProductVersion { get; set; }
+
+            public string BuildVersion { get; set; }
+
+            public bool IsVersion2OrHigher()
+            {
+                return !string.IsNullOrEmpty(ProductVersion) && !ProductVersion.StartsWith("1");
+            }
+
+            public override string ToString()
+            {
+                return string.Format("Product version: {0}, Build version: {1}", ProductVersion, BuildVersion);
             }
         }
     }
