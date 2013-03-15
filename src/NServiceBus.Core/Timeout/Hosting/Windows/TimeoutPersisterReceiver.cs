@@ -134,7 +134,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         CancellationTokenSource tokenSource;
         volatile bool timeoutPushed;
         DateTime nextRetrieval = DateTime.UtcNow;
-        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(10, TimeSpan.FromSeconds(30));
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(5, TimeSpan.FromMinutes(2));
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
 
