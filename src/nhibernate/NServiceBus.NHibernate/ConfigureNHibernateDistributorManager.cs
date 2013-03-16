@@ -7,12 +7,12 @@ namespace NServiceBus
     using Persistence.NHibernate;
 
     /// <summary>
-    /// Configuration extensions for the NHibernate Timeouts persister
+    /// Configuration extensions for the NHibernate Distributor persister
     /// </summary>
     public static class ConfigureNHibernateDistributorManager
     {
         /// <summary>
-        /// Configures NHibernate Gateway Persister.
+        /// Configures NHibernate Distributor Persister.
         /// </summary>
         /// <remarks>
         /// Reads configuration settings from <a href="http://msdn.microsoft.com/en-us/library/ms228154.aspx">&lt;appSettings&gt; config section</a> and <a href="http://msdn.microsoft.com/en-us/library/bf7sd233">&lt;connectionStrings&gt; config section</a>.
@@ -61,7 +61,7 @@ namespace NServiceBus
         {
             foreach (var property in configuration.Properties)
             {
-                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+                ConfigureNHibernate.DistributorPersisterProperties[property.Key] = property.Value;
             }
 
             return config.UseNHibernateDistributorInternal(configuration);

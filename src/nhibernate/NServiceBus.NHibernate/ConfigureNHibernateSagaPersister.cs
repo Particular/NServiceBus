@@ -118,7 +118,7 @@
                 throw new InvalidOperationException("Could not create session factory for saga persistence.");
             }
 
-            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.InstancePerUnitOfWork)
+            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.SessionFactory, sessionFactory);
 
             config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
@@ -149,8 +149,8 @@
         [ObsoleteEx(Replacement = "UseNHibernateSagaPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                                
         public static Configure NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
-            ConfigureNHibernate.SubscriptionStorageProperties["dialect"] = "NHibernate.Dialect.SQLiteDialect";
-            ConfigureNHibernate.SubscriptionStorageProperties["connection.connection_string"] = "Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;";
+            ConfigureNHibernate.SagaPersisterProperties["dialect"] = "NHibernate.Dialect.SQLiteDialect";
+            ConfigureNHibernate.SagaPersisterProperties["connection.connection_string"] = "Data Source=.\\NServiceBus.Sagas.sqlite;Version=3;New=True;";
 
             var configuration = ConfigureNHibernate.CreateConfigurationWith(ConfigureNHibernate.SagaPersisterProperties);
 

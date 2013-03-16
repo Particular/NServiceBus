@@ -80,7 +80,7 @@ namespace NServiceBus
         {
             foreach (var property in configuration.Properties)
             {
-                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+                ConfigureNHibernate.SubscriptionStorageProperties[property.Key] = property.Value;
             }
 
             return config.UseNHibernateSubscriptionPersisterInternal(configuration, true);
@@ -142,7 +142,7 @@ namespace NServiceBus
         {
             foreach (var property in configuration.Properties)
             {
-                ConfigureNHibernate.TimeoutPersisterProperties[property.Key] = property.Value;
+                ConfigureNHibernate.SubscriptionStorageProperties[property.Key] = property.Value;
             }
 
             return config.UseNHibernateSubscriptionPersisterInternal(configuration, autoUpdateSchema);

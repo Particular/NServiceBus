@@ -24,7 +24,7 @@ namespace NServiceBus
         ///<summary>
         /// Gets the types whose order has been specified.
         ///</summary>
-        public IEnumerable<Type> Types { get; private set; }
+        public IEnumerable<Type> Types { get; set; }
 
 
         /// <summary>
