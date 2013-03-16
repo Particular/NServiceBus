@@ -5,12 +5,18 @@
 
     public class DefaultMessageRegistry : IMessageRegistry
     {
-        public MessageMetadata GetMessageDefinition(Type messageType)
-        {
-            return messages[messageType];
-        }
+	    public MessageMetadata GetMessageDefinition(Type messageType)
+	    {
+		    MessageMetadata metadata;
+		    if (messages.TryGetValue(messageType, out metadata))
+		    {
+				return metadata;
+		    }
+		    var message = string.Format("Could not find Metadata for '{0}'. Messages need to implement either 'IMessage', 'IEvent' or 'ICommand'. Alternatively, if you don't want to implement an interface, you can configure 'Unobtrusive Mode Messages' and use convention to configure how messages are mapped.", messageType.FullName);
+		    throw new Exception(message);
+	    }
 
-        public IEnumerable<MessageMetadata> GetAllMessages()
+	    public IEnumerable<MessageMetadata> GetAllMessages()
         {
             return new List<MessageMetadata>(messages.Values);
         }
