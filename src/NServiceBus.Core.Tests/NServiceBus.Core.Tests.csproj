@@ -204,6 +204,7 @@
     <Compile Include="Unicast\MessageModules.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
+    <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
     <Compile Include="Unicast\Messages\MessageA.cs" />
     <Compile Include="Unicast\Messages\MessageB.cs" />
     <Compile Include="Unicast\Publishing.cs" />
