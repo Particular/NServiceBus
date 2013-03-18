@@ -49,6 +49,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddConfigSection.cs" />
+    <Compile Include="AddUnicastBusConfig.cs" />
     <Compile Include="Dtc\DtcSetup.cs" />
     <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="Msmq\MsmqSetup.cs" />
