@@ -8,7 +8,7 @@
     {
         protected override void ProcessRecord()
         {
-            using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\NServiceBus"))
+            using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
                 if (registryKey == null)
                 {

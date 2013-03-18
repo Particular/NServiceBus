@@ -35,14 +35,14 @@
 
         void WriteRegistry(RegistryView view)
         {
-            using (var registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\NServiceBus"))
+            using (var registryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
                 if (registryKey == null)
                 {
                     ThrowTerminatingError(
                         new ErrorRecord(
                             new SecurityException(
-                                @"Could not create/open 'HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus' for writing."),
+                                @"Could not create/open 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus' for writing."),
                             "NotAuthorized", ErrorCategory.SecurityError, null));
                 }
 

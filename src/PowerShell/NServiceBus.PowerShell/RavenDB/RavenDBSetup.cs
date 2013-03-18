@@ -55,7 +55,7 @@
         public static void Install(int port = 0, string installPath = null)
         {
             if (string.IsNullOrEmpty(installPath))
-                installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), DefaultDirectoryName);
+                installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).Replace(" (x86)", String.Empty), DefaultDirectoryName);
 
             if (Directory.Exists(installPath))
             {
@@ -194,7 +194,7 @@
 
         static void WriteRegistry(int availablePort, RegistryView view)
         {
-            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\NServiceBus"))
+            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
                 key.SetValue("RavenPort", availablePort, RegistryValueKind.DWord);
             }

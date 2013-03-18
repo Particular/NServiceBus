@@ -24,7 +24,7 @@
         {
             try
             {
-                using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\NServiceBus"))
+                using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
                 {
                     if (registryKey != null)
                     {
@@ -34,7 +34,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Warn(string.Format(@"We couldn't read the registry to retrieve the {0}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus'.", name), ex);
+                Logger.Warn(string.Format(@"We couldn't read the registry to retrieve the {0}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus'.", name), ex);
             }
 
             return defaultValue;
