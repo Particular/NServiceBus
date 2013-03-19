@@ -18,6 +18,11 @@
             return new ScenarioWithContext<T>(Activator.CreateInstance<T>);
         }
 
+        public static IScenarioWithEndpointBehavior<T> Define<T>(T context) where T : ScenarioContext
+        {
+            return new ScenarioWithContext<T>(()=>context);
+        }
+
         public static IScenarioWithEndpointBehavior<T> Define<T>(Func<T> contextFactory) where T : ScenarioContext
         {
             return new ScenarioWithContext<T>(contextFactory);

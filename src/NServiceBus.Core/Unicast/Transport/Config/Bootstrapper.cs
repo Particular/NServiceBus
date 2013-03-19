@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast.Transport.Config
     {
         public void Init()
         {
-            ConfiguredMaximumConcurrencyLevel();
+            LoadConfigurationSettings();
 
             if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
             {
@@ -18,9 +18,9 @@ namespace NServiceBus.Unicast.Transport.Config
                     maximumThroughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
             }
 
-            var transactionSettings = new Transport.TransactionSettings
+            var transactionSettings = new TransactionSettings
                 {
-                 MaxRetries = maximumNumberOfRetries   
+                    MaxRetries = maximumNumberOfRetries
                 };
 
             Configure.Instance.Configurer.ConfigureComponent<TransportReceiver>(DependencyLifecycle.InstancePerCall)
@@ -36,10 +36,10 @@ namespace NServiceBus.Unicast.Transport.Config
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
 
-        void ConfiguredMaximumConcurrencyLevel()
+        void LoadConfigurationSettings()
         {
             var transportConfig = Configure.GetConfigSection<TransportConfig>();
-  
+
             if (transportConfig != null)
             {
                 maximumNumberOfRetries = transportConfig.MaxRetries;
@@ -51,10 +51,10 @@ namespace NServiceBus.Unicast.Transport.Config
 
             if (Configure.GetConfigSection<MsmqTransportConfig>() != null)
                 throw new ConfigurationErrorsException("MsmqTransportConfig has been obsoleted, please use the <TransportConfig> section instead");
-
-            numberOfWorkerThreadsInAppConfig =  1;
         }
 
-        int maximumThroughput, maximumNumberOfRetries, numberOfWorkerThreadsInAppConfig;
+        int maximumThroughput = 0;
+        int maximumNumberOfRetries = 5;
+        int numberOfWorkerThreadsInAppConfig = 1;
     }
 }
