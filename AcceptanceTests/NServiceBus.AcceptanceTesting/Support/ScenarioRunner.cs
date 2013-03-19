@@ -265,9 +265,17 @@
         {
             var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
                 {
+
+                    Console.Out.WriteLine("Stopping endpoint: {0}", endpoint.Name());
+                    var sw = new Stopwatch();
+                    sw.Start();
                     var result = endpoint.Stop();
+
+                    sw.Stop();
                     if (result.Failed)
                         throw new ScenarioException(string.Format("Endpoint failed to stop - {0}", result.ExceptionMessage));
+
+                    Console.Out.WriteLine("Endpoint: {0} stopped ({1}s)",endpoint.Name(),sw.Elapsed);
 
                 })).ToArray();
 
