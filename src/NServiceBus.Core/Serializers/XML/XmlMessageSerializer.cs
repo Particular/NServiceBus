@@ -44,6 +44,11 @@ namespace NServiceBus.Serializers.XML
         public bool SkipWrappingElementForSingleMessages { get; set; }
 
         /// <summary>
+        /// Removes the wrapping of properties containing XDocument or XElement with property name as root element
+        /// </summary>
+        public bool SkipWrappingRawXml { get; set; }
+
+        /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
         /// <param name="t"></param>
@@ -575,7 +580,7 @@ namespace NServiceBus.Serializers.XML
 
             if (typeof(XContainer).IsAssignableFrom(type))
             {
-                var reader = new StringReader(n.InnerXml);
+                var reader = new StringReader(SkipWrappingRawXml ? n.OuterXml : n.InnerXml);
 
                 if (type == typeof(XDocument))
                 {
@@ -879,7 +884,15 @@ namespace NServiceBus.Serializers.XML
             if (typeof(XContainer).IsAssignableFrom(type))
             {
                 var container = (XContainer)value;
-                builder.AppendFormat("<{0}>{1}</{0}>\n", name, container);
+                if(SkipWrappingRawXml)
+                {
+                    builder.AppendFormat("{0}\n", container); 
+                }
+                else
+                {
+                    builder.AppendFormat("<{0}>{1}</{0}>\n", name, container); 
+                }
+                
                 return;
             }
 

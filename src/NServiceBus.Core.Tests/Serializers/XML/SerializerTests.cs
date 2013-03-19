@@ -122,6 +122,68 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
+        public void Should_be_able_to_serialize_single_message_without_wrapping_xml_raw_data()
+        {
+            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+
+            Serializer.ForMessage<MessageWithXDocument>(messageWithXDocument, s =>
+            { s.SkipWrappingRawXml = true; })
+                .AssertResultingXml(d => d.DocumentElement.ChildNodes[0].FirstChild.Name != "Document", "Property name should not be available");
+
+            Serializer.ForMessage<MessageWithXElement>(messageWithXElement, s =>
+            { s.SkipWrappingRawXml = true; })
+                .AssertResultingXml(d => d.DocumentElement.ChildNodes[0].FirstChild.Name != "Document", "Property name should not be available");
+        }
+
+        [Test]
+        public void Should_be_able_to_deserialize_messages_which_xml_raw_data_root_element_matches_property_name()
+        {
+            const string XmlElement = "<Document xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></Document>";
+            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+
+            var serializer = SerializerFactory.Create<MessageWithXDocument>();
+            serializer.SkipWrappingRawXml = true;
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { messageWithXDocument }, stream);
+                stream.Position = 0;
+
+                serializer = SerializerFactory.Create(typeof (MessageWithXDocument));
+                serializer.SkipWrappingRawXml = true;
+
+                var msg = serializer.Deserialize(stream).Cast<MessageWithXDocument>().Single();
+
+                Assert.NotNull(msg.Document);
+                Assert.AreEqual("Document", msg.Document.Root.Name.LocalName);
+            }
+
+            serializer = SerializerFactory.Create<MessageWithXElement>();
+            serializer.SkipWrappingRawXml = true;
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new[] { messageWithXElement }, stream);
+                stream.Position = 0;
+
+                serializer = SerializerFactory.Create(typeof (MessageWithXElement));
+                serializer.SkipWrappingRawXml = true;
+
+                var msg = serializer.Deserialize(stream).Cast<MessageWithXElement>().Single();
+
+                Assert.NotNull(msg.Document);
+                Assert.AreEqual("Document", msg.Document.Name.LocalName);
+            }
+        }
+
+        [Test]
         public void Should_be_able_to_serialize_single_message_with_default_namespaces_and_then_deserialize()
         {
             var serializer = SerializerFactory.Create<MessageWithDouble>();
