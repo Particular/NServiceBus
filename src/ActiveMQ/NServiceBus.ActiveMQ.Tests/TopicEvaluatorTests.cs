@@ -20,7 +20,7 @@
         {
             var topic = this.testee.GetTopicFromMessageType(typeof(ISimpleMessage));
 
-            topic.Should().Be("VirtualTopic." + typeof(ISimpleMessage).Name);
+            topic.Should().Be("VirtualTopic." + typeof(ISimpleMessage).FullName);
         }
     }
 
