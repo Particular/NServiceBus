@@ -40,7 +40,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+                jmsmessage.NMSType = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             }
 
             jmsmessage.NMSDeliveryMode = message.Recoverable ? MsgDeliveryMode.Persistent : MsgDeliveryMode.NonPersistent;
