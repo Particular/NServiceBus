@@ -8,18 +8,15 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Settings;
+    using Routing;
+    using Utils;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
     /// </summary>
     public class ConfigUnicastBus : Configure
     {
-        /// <summary>
-        /// A map of which message types (belonging to the given assemblies) are owned 
-        /// by which endpoint.
-        /// </summary>
-        readonly IDictionary<Type, Address> typesToEndpoints = new Dictionary<Type, Address>();
-
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
@@ -39,12 +36,10 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-            MapMessagesToAddresses(knownMessages);
 
-            RegisterMessageOwnersAndBusAddress();
+            RegisterMessageOwnersAndBusAddress(knownMessages);
 
-            busConfig.ConfigureProperty(b => b.MessageOwners, typesToEndpoints);
-
+          
             ConfigureMessageRegistry(knownMessages);
         }
 
@@ -52,7 +47,7 @@ namespace NServiceBus.Unicast.Config
         {
             var messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = !Endpoint.Advanced().DurableMessages
+                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
                 };
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
@@ -89,44 +84,59 @@ namespace NServiceBus.Unicast.Config
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
 
-        void MapMessagesToAddresses(IEnumerable<Type> knownMessages)
-        {
-                knownMessages.ToList()
-                .ForEach(t => MapTypeToAddress(t, Address.Undefined));
-        }
 
-        void RegisterMessageOwnersAndBusAddress()
+        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
         {
             var unicastConfig = GetConfigSection<UnicastBusConfig>();
+            var router = new StaticMessageRouter(knownMessages);
 
-            if (unicastConfig == null) return;
+            Configurer.RegisterSingleton<IRouteMessages>(router);
 
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo) ? Address.Parse(unicastConfig.ForwardReceivedMessagesTo) : Address.Undefined);
+            Address forwardAddress = null;
+            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+            {
+                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+            }
+            else
+            {
+                var forwardQueue = RegistryReader<string>.Read("AuditQueue");
+                if (!string.IsNullOrWhiteSpace(forwardQueue))
+                {
+                    forwardAddress = Address.Parse(forwardQueue);
+                }
+            }
+
+            if (forwardAddress != null)
+            {
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+            }
+
+            if (unicastConfig == null)
+            {
+                return;
+            }
+
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
-            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>().ToList();
-            messageEndpointMappings.Sort();
+            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
+                .OrderByDescending(m=>m)
+                .ToList();
+
             foreach (var mapping in messageEndpointMappings)
             {
-                mapping.Configure(MapTypeToAddress);
-            }
-        }
-        
-        private void MapTypeToAddress(Type messagesType, Address address)
-        {
-            if (!MessageConventionExtensions.IsMessageType(messagesType))
-            {
-                return;
-            }
+                mapping.Configure((messageType, address) =>
+                    {
+                        if (!MessageConventionExtensions.IsMessageType(messageType))
+                        {
+                            return;
+                        }
 
-            if (typesToEndpoints.ContainsKey(messagesType) && typesToEndpoints[messagesType] != Address.Undefined)
-            {
-                return;
+                        router.RegisterRoute(messageType,address);
+                    });
             }
-            
-            typesToEndpoints[messagesType] = address;
         }
         
+       
         /// <summary>
         /// Used to configure the bus.
         /// </summary>
@@ -219,15 +229,17 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         ConfigUnicastBus ConfigureMessageHandlersIn(IEnumerable<Type> types)
         {
+            var handlerRegistry = new MessageHandlerRegistry();
             var handlers = new List<Type>();
 
             foreach (Type t in types.Where(IsMessageHandler))
             {
                 Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                handlerRegistry.RegisterHandler(t);
                 handlers.Add(t);
             }
 
-            busConfig.ConfigureProperty(b => b.MessageHandlerTypes, handlers);
+            Configurer.RegisterSingleton<IMessageHandlerRegistry>(handlerRegistry);
 
             var availableDispatcherFactories = TypesToScan
               .Where(
@@ -328,16 +340,28 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus DoNotAutoSubscribeSagas()
         {
-            busConfig.ConfigureProperty(b => b.DoNotAutoSubscribeSagas, true);
+            ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
             return this;
         }
+       
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
         /// <returns></returns>
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
-            busConfig.ConfigureProperty(b => b.AllowSubscribeToSelf, true);
+            ApplyDefaultAutoSubscriptionStrategy.AllowSubscribeToSelf = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Tells the bus to auto subscribe plain messages in addition to events
+        /// Commands will NOT be auto subscribed
+        /// </summary>
+        /// <returns></returns>
+        public ConfigUnicastBus AutoSubscribePlainMessages()
+        {
+            ApplyDefaultAutoSubscriptionStrategy.SubscribePlainMessages = true;
             return this;
         }
 
@@ -396,7 +420,7 @@ namespace NServiceBus.Unicast.Config
                 if (args.Length != 1)
                     return null;
 
-                Type handlerType = typeof(IMessageHandler<>).MakeGenericType(args[0]);
+                Type handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
                 if (handlerType.IsAssignableFrom(t))
                     return args[0];
             }

@@ -36,17 +36,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging">
-      <HintPath>..\..\..\..\packages\Common.Logging.2.0.0\lib\2.0\Common.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections">
-      <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+      <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
+      <HintPath>..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NHibernate.Drivers.Azure.TableStorage">
       <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
@@ -70,7 +69,7 @@
       <HintPath>..\..\..\..\binaries\NServiceBus.Timeout.Hosting.Azure.dll</HintPath>
     </Reference>
     <Reference Include="StructureMap">
-      <HintPath>..\..\..\..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
+      <HintPath>..\packages\structuremap.2.6.4.1\lib\net40\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">

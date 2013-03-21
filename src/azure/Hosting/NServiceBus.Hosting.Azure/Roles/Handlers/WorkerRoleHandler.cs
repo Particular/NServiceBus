@@ -20,16 +20,6 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
             var instance = Configure.Instance;
 
-            if (RoleEnvironment.IsAvailable && !IsHostedIn.ChildHostProcess())
-            {
-                instance.AzureConfigurationSource();
-            }
-
-            if (!instance.Configurer.HasComponent<IMessageSerializer>())
-            {
-                instance.JsonSerializer();
-            }
-
             Configure.Transactions.Enable();
             
             return instance
@@ -42,3 +32,4 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         public IConfigureThisEndpoint Config { get; set; }
     }
 }
+                    

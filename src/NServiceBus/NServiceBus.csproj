@@ -10,8 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus</RootNamespace>
     <AssemblyName>NServiceBus</AssemblyName>
-    <FileUpgradeFlags></FileUpgradeFlags>
-    <UpgradeBackupLocation></UpgradeBackupLocation>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
@@ -96,6 +98,7 @@
     <Compile Include="MessageConventionExtensions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
     <Compile Include="MessageMutator\IMessageMutator.cs" />
+    <Compile Include="NServiceBusVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\HasCompleted.cs" />
     <Compile Include="Saga\IConfigurable.cs" />

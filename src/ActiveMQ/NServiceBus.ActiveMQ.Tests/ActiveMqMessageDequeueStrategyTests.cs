@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Transactions;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
     using NServiceBus.Transports.ActiveMQ.Receivers;
     using NServiceBus.Transports.ActiveMQ.SessionFactories;
-    using NServiceBus.Unicast.Transport.Transactional;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     [TestFixture]
     public class ActiveMqMessageDequeueStrategyTests
@@ -16,6 +17,13 @@
         [SetUp]
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                     .Advanced(
+                         settings =>
+                         settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                 .IsolationLevel(IsolationLevel.ReadCommitted)
+                                 .EnableDistributedTransactions());
+
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
             pendingMessagesCounterMock = new Mock<IMessageCounter>();
             sessionFactroyMock = new Mock<ISessionFactory>();
@@ -59,7 +67,7 @@
         [Test]
         public void WhenStarted_ThenTheSpecifiedNumberOfReceiversIsCreatedAndStarted()
         {
-            TransactionSettings settings = new TransactionSettings();
+            TransactionSettings settings = TransactionSettings.Default;
             const int NumberOfWorkers = 2;
 
             var address = new Address("someQueue", "machine");
@@ -77,7 +85,7 @@
             const int InitialNumberOfWorkers = 5;
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
+            testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 
@@ -90,7 +98,7 @@
             const int InitialNumberOfWorkers = 5;
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
+            testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 
@@ -106,7 +114,7 @@
             pendingMessagesCounterMock.Setup(mr => mr.Wait(It.IsAny<int>()))
                 .Callback<int>(t => this.disposedMessageReceivers.Count.Should().Be(0));
 
-            testee.Init(address, new TransactionSettings(), m => { return true; }, (s, exception) => { });
+            testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 
@@ -121,7 +129,7 @@
             sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = this.disposedMessageReceivers.Count);
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, new TransactionSettings(), m => true, (s, exception) => { });
+            testee.Init(address, TransactionSettings.Default, m => true, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 

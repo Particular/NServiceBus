@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
     using Installation;
@@ -106,24 +105,6 @@ namespace NServiceBus
                 .ForEach(i=>i.Install(identity.Name));
 
             installedOthersInstallers = true;
-        }
-
-
-        private static List<Type> GetInstallers<TEnvtype>(Type openGenericInstallType) where TEnvtype : IEnvironment
-        {
-            var listOfCompatibleTypes = new List<Type>();
-
-            var envType = typeof(TEnvtype);
-            while (envType != typeof(object))
-            {
-                listOfCompatibleTypes.Add(openGenericInstallType.MakeGenericType(envType));
-                envType = envType.BaseType;
-            }
-
-            return (from t in Configure.TypesToScan 
-                    from i in listOfCompatibleTypes 
-                    where i.IsAssignableFrom(t) 
-                    select t).ToList();
         }
     }
 }

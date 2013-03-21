@@ -30,7 +30,6 @@ namespace NServiceBus.Hosting.Azure
         {
             this.doNotReturnFromRun = doNotReturnFromRun;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainAssemblyResolve;
         }
         
         public override bool OnStart()
@@ -64,12 +63,6 @@ namespace NServiceBus.Hosting.Azure
         private static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Trace.WriteLine("Unhandled exception occured: " + e.ExceptionObject.ToString());
-        }
-
-        static System.Reflection.Assembly CurrentDomainAssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            Trace.WriteLine("Couldn't load assembly: " + args.Name);
-            return null;
         }
 
         public override void Run()

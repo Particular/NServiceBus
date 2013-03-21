@@ -5,12 +5,12 @@
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
-    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
     using NServiceBus.Transports.ActiveMQ.Receivers;
     using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Transports.ActiveMQ.SessionFactories;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     [TestFixture]
     public class MessageProcessorTest
@@ -28,6 +28,13 @@
         [SetUp]
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                     .Advanced(
+                         settings =>
+                         settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                 .IsolationLevel(IsolationLevel.ReadCommitted)
+                                 .EnableDistributedTransactions());
+
             this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.purger = new Mock<IActiveMqPurger>();
@@ -203,7 +210,7 @@ order = string.Empty;
             const string Destination = "anyqueue";
 
             this.testee.PurgeOnStartup = true;
-            this.StartTestee(new TransactionSettings());
+            this.StartTestee(TransactionSettings.Default);
             this.SetupGetQueue(this.session, Destination);
 
             this.testee.CreateMessageConsumer(Destination);
@@ -218,7 +225,7 @@ order = string.Empty;
             const string Destination = "anyqueue";
 
             this.testee.PurgeOnStartup = false;
-            this.StartTestee(new TransactionSettings());
+            this.StartTestee(TransactionSettings.Default);
             this.SetupGetQueue(this.session, Destination);
 
             this.testee.CreateMessageConsumer(Destination);
@@ -244,13 +251,12 @@ order = string.Empty;
 
         private void StartTestee()
         {
-            this.StartTestee(
-                new TransactionSettings
-                    {
-                        IsTransactional = false,
-                        DontUseDistributedTransactions = false,
-                        IsolationLevel = IsolationLevel.Serializable
-                    });
+            var txSettings = TransactionSettings.Default;
+            txSettings.IsTransactional = false;
+            txSettings.DontUseDistributedTransactions = false;
+            txSettings.IsolationLevel = IsolationLevel.Serializable;
+            
+            StartTestee(txSettings);
         }
 
         private void StartTestee(TransactionSettings transactionSettings)

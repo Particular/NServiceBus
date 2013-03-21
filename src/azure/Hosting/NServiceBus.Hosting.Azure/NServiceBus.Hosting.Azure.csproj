@@ -111,6 +111,8 @@
     <Compile Include="Profiles\Handler\WithStorageQueuesProfileHandler.cs" />
     <Compile Include="Profiles\OnAzureTableStorage.cs" />
     <Compile Include="Profiles\OnSqlAzure.cs" />
+    <Compile Include="Profiles\WindowsAzureServiceBusQueueTransportConfigurer.cs" />
+    <Compile Include="Profiles\WindowsAzureStorageQueueTransportConfigurer.cs" />
     <Compile Include="Profiles\WithAzureServiceBusQueues.cs" />
     <Compile Include="Profiles\WithAzureStorageQueues.cs" />
     <Compile Include="RoleHost\Entrypoint.cs" />

@@ -215,6 +215,6 @@ namespace NServiceBus.Gateway.Channels.Http
         
         const int MaximumBytesToRead = 100000;
         
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelReceiver));
     }
 }

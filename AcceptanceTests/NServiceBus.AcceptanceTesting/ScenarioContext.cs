@@ -60,5 +60,7 @@
                 return NextSink.SyncProcessMessage(msg);
             }
         }
+
+        public bool EndpointsStarted { get; set; }
     }
 }

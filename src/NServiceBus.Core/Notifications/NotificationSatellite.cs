@@ -13,7 +13,7 @@ namespace NServiceBus.Notifications
     {
         private readonly IMessageSerializer messageSerializer;
 
-        public NotificationSatellite( IMessageSerializer messageSerializer)
+        public NotificationSatellite(IMessageSerializer messageSerializer)
         {
             this.messageSerializer = messageSerializer;
         }
@@ -48,15 +48,17 @@ namespace NServiceBus.Notifications
 
         public Address InputAddress
         {
-            get
-            {
-                return BusExtensions.NotificationAddress;
-            }
+            get { return Configure.Instance.GetMasterNodeAddress().SubScope("Notifications"); }
         }
 
         public bool Disabled
         {
-            get { return ConfigureNotifications.NotificationsDisabled; }
+            get
+            {
+                if (Configure.Instance.GetMasterNodeAddress() != Address.Local)
+                    return false;
+                return ConfigureNotifications.NotificationsDisabled;
+            }
         }
     }
 }

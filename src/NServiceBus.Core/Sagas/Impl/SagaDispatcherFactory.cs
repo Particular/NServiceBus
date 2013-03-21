@@ -69,11 +69,11 @@ namespace NServiceBus.Sagas.Impl
 
                                              if (IsTimeoutMessage(message))
                                              {
-                                                 HandlerInvocationCache.Invoke(typeof (IHandleTimeouts<>), saga, message);
+												 HandlerInvocationCache.InvokeTimeout(saga, message);
                                              }
                                              else
                                              {
-                                                 HandlerInvocationCache.Invoke(typeof (IMessageHandler<>), saga, message);
+												 HandlerInvocationCache.InvokeHandle(saga, message);
                                              }
 
                                              if (!saga.Completed)

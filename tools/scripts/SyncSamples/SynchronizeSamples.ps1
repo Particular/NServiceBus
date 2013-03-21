@@ -5,7 +5,7 @@
     [string]$connectionString
 )
 {
-    robocopy Messaging.Msmq Messaging.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config
+    robocopy Messaging.Msmq Messaging.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config *.suo
 	Rename-Item Messaging.$transport\Messaging.Msmq.sln Messaging.$transport.sln
     
     (dir -Path .\Messaging.$transport -Filter *.config -Recurse) | foreach {  

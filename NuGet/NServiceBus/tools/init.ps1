@@ -35,10 +35,22 @@ if($machinePrepared -or $dontCheckMachineSetup.value)
 	exit
 }
 
-$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
-$msmqInstalled = Test-NServiceBusMSMQInstallation
-$dtcInstalled = Test-NServiceBusDTCInstallation
-$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
+$perfCountersInstalled = $false
+$msmqInstalled = $false
+$dtcInstalled = $false
+$ravenDBInstalled = $false
+try {
+	$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$msmqInstalled = Test-NServiceBusMSMQInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$dtcInstalled = Test-NServiceBusDTCInstallation
+} Catch [System.Security.SecurityException] { }
+try {
+	$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
+} Catch [System.Security.SecurityException] { }
 
 if(!$perfCountersInstalled){
 	Write-Warning "Performance counters are not installed."
@@ -60,4 +72,4 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
 New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
 
-$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)
+$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled+ "&version=" + $nservicebusVersion)

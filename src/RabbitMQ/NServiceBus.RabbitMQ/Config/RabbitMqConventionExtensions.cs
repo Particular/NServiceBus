@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using Settings;
     using Transports.RabbitMQ.Config;
 
     /// <summary>
@@ -9,15 +10,14 @@
     public static class RabbitMqConventionExtensions
     {
         /// <summary>
-        /// Adds the RabbitMq wmethod to the global object
+        /// RabbitMq conventions.
         /// </summary>
         /// <param name="conventions"></param>
-        /// <param name="userConventions"></param>
+        /// <param name="action">A lambda to set the advance settings.</param>
         /// <returns></returns>
-        public static Conventions RabbitMq(this Conventions conventions,Action<RabbitMqConventions> userConventions)
+        public static Conventions RabbitMq(this Conventions conventions, Action<RabbitMqConventions> action)
         {
-            userConventions(new RabbitMqConventions());
-
+            action(new RabbitMqConventions());
             return conventions;
         }
     }

@@ -113,6 +113,7 @@
     <Compile Include="Unicast\Queuing\Azure\SendResourceManager.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServicebusDefaults.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusDequeueStrategy.cs" />
+    <Compile Include="Unicast\Queuing\ServiceBus\AzureServicebusSubscriptionClientCreator.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\ICreateQueueClients.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusMessageQueueSender.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusQueueNotifier.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorage.cs" />
     <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorageSessionProvider.cs" />
     <Compile Include="WindowsAzureServiceBus.cs" />
+    <Compile Include="WindowsAzureServiceBusDefaults.cs" />
     <Compile Include="WindowsAzureStorage.cs" />
   </ItemGroup>
   <ItemGroup>

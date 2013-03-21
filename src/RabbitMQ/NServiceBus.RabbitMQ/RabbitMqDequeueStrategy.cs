@@ -6,6 +6,7 @@
     using System.Threading.Tasks.Schedulers;
     using NServiceBus.Unicast.Transport.Transactional;
     using NServiceBus.Utils;
+    using Unicast.Transport;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 

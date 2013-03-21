@@ -61,7 +61,6 @@ namespace NServiceBus.Satellites
                 if (ctx.Transport != null)
                 {
                     ctx.Transport.Stop();
-                    ctx.Transport.Dispose();
                 }
 
                 ctx.Instance.Stop();
@@ -113,7 +112,7 @@ namespace NServiceBus.Satellites
             }
         }
      
-        static readonly ILog Logger = LogManager.GetLogger("SatelliteLauncher");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SatelliteLauncher));
 
         private readonly List<SatelliteContext> satellites = new List<SatelliteContext>();
     }

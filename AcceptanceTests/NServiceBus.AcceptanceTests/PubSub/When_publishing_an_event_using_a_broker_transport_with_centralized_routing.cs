@@ -47,9 +47,7 @@
         {
             public CentralizedSubscriber1()
             {
-                //todo - remove this when we have added a hook to allow the transports to set this to true by default
-                // we also need to rename since AllowSubscribeToSelf is not a good name
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().AllowSubscribeToSelf());
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -67,9 +65,7 @@
         {
             public CentralizedSubscriber2()
             {
-                //todo - remove this when we have added a hook to allow the transports to set this to true by default
-                // we also need to rename since AllowSubscribeToSelf is not a good name
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().AllowSubscribeToSelf());
+                EndpointSetup<DefaultServer>();
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

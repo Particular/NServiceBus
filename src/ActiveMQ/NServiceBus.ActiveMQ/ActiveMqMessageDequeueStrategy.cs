@@ -6,6 +6,7 @@
     using NServiceBus.Unicast.Transport.Transactional;
     using Receivers;
     using SessionFactories;
+    using Unicast.Transport;
 
     /// <summary>
     ///     ActiveMq implementation if <see cref="IDequeueMessages" />.

@@ -42,7 +42,7 @@ namespace NServiceBus
             if ((unicastConfig != null) && (!String.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
 
-            return Address.Parse(Configure.EndpointName).SubScope("Timeouts");
+            return config.GetMasterNodeAddress().SubScope("Timeouts");
         }
 
         internal static ConfigUnicastBus Instance { get; private set; }
@@ -78,24 +78,6 @@ namespace NServiceBus
         {
             if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
                 Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
-        }
-    }
-
-    class EnsureDefaultDeferrer : IWantToRunBeforeConfigurationIsFinalized
-    {
-
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IDeferMessages>())
-            {
-                Configure.Instance.Configurer.ConfigureComponent<TimeoutManagerBasedDeferral>(DependencyLifecycle.InstancePerCall)
-                    .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());                
-            }
-            else
-            {
-                Configure.Instance.DisableTimeoutManager();
-            }
 
         }
     }

@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Transactions;
     using Config;
     using NServiceBus;
     using NUnit.Framework;
     using NServiceBus.Transports.RabbitMQ;
-    using Unicast.Transport.Transactional;
+    using Settings;
     using global::RabbitMQ.Client;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public class RabbitMqContext
     {
@@ -65,6 +67,11 @@
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 
+            RoutingKeyBuilder = new RabbitMqRoutingKeyBuilder
+                {
+                    GenerateRoutingKey = DefaultRoutingKeyConvention.GenerateRoutingKey
+                };
+
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
 
             MakeSureQueueExists(MYRECEIVEQUEUE);
@@ -74,16 +81,19 @@
             MessagePublisher = new RabbitMqMessagePublisher
                 {
                     UnitOfWork = unitOfWork,
-                    ExchangeName = ExchangeNameConvention
+                    ExchangeName = ExchangeNameConvention,
+                    RoutingKeyBuilder = RoutingKeyBuilder
+                    
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
             {
                 ConnectionManager = connectionManager,
                 EndpointQueueName = MYRECEIVEQUEUE,
-                ExchangeName = ExchangeNameConvention
+                ExchangeName = ExchangeNameConvention,
+                RoutingKeyBuilder = RoutingKeyBuilder
             };
 
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), new TransactionSettings { IsTransactional = true }, (m) =>
+            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, (m) =>
             {
                 receivedMessages.Add(m);
                 return true;
@@ -111,9 +121,13 @@
 
         protected TransportMessage WaitForMessage()
         {
+            var waitTime = TimeSpan.FromSeconds(1);
+
+            if (System.Diagnostics.Debugger.IsAttached)
+                waitTime = TimeSpan.FromMinutes(10);
 
             TransportMessage message;
-            receivedMessages.TryTake(out message, TimeSpan.FromSeconds(1));
+            receivedMessages.TryTake(out message, waitTime);
 
             return message;
 
@@ -129,5 +143,6 @@
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
         protected RabbitMqUnitOfWork unitOfWork;
+        protected RabbitMqRoutingKeyBuilder RoutingKeyBuilder;
     }
 }

@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Threading;
     using Helpers;
     using Impersonation;
@@ -11,9 +12,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Monitoring;
     using NUnit.Framework;
     using Publishing;
-    using Queuing;
     using Rhino.Mocks;
+    using Routing;
     using Serializers.XML;
+    using Settings;
     using Subscriptions;
     using Subscriptions.SubcriberSideFiltering;
     using Timeout;
@@ -41,20 +43,32 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected DefaultMessageRegistry messageRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
         SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
+        protected StaticMessageRouter router;
+
+        protected MessageHandlerRegistry handlerRegistry;
+
+        protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
+
 
         [SetUp]
         public void SetUp()
         {
+            HandlerInvocationCache.Clear();
+
+            SettingsHolder.Reset();
+            SettingsHolder.SetDefault("Endpoint.SendOnly", false);
+
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
-
+            router = new StaticMessageRouter(KnownMessageTypes());
+            handlerRegistry = new MessageHandlerRegistry();
             messageRegistry = new DefaultMessageRegistry
                 {
-                    DefaultToNonPersistentMessages = !Configure.Endpoint.Advanced().DurableMessages
+                    DefaultToNonPersistentMessages = false
                 };
 
             try
@@ -77,6 +91,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     Builder = FuncBuilder,
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
+                };
+            autoSubscriptionStrategy = new DefaultAutoSubscriptionStrategy
+                {
+                    HandlerRegistry = handlerRegistry,
+                    MessageRouter = router
                 };
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
@@ -111,7 +130,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     },
                 SubscriptionManager = subscriptionManager,
                 MessageRegistry = messageRegistry,
-                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
+                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
+                HandlerRegistry = handlerRegistry,
+                MessageRouter = router,
+                AutoSubscriptionStrategy = autoSubscriptionStrategy
+
             };
             bus = unicastBus;
 
@@ -119,6 +142,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IBus>(() => bus);
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
+        }
+
+        protected virtual IEnumerable<Type> KnownMessageTypes()
+        {
+            return new Collection<Type>();
         }
 
         protected void VerifyThatMessageWasSentTo(Address destination)
@@ -139,7 +167,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected void RegisterMessageHandlerType<T>() where T : new()
         {
             FuncBuilder.Register<T>(() => new T());
-            unicastBus.MessageHandlerTypes = new[] { typeof(T) };
+
+            handlerRegistry.RegisterHandler(typeof(T));
 
             if (unicastBus.MessageDispatcherMappings == null)
                 unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
@@ -148,7 +177,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            unicastBus.MessageOwners = new Dictionary<Type, Address> { { typeof(T), Address.Local } };
+            router.RegisterRoute(typeof(T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -162,7 +191,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            unicastBus.RegisterMessageType(typeof(T), address);
+            router.RegisterRoute(typeof(T), address);
             messageRegistry.RegisterMessageType(typeof(T));
 
         }
@@ -187,6 +216,30 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 messageSender.AssertWasCalled(x =>
                  x.Send(Arg<TransportMessage>.Matches(m => condition(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
             }
+        }
+
+        protected void AssertSubscription<T>(Address addressOfPublishingEndpoint)
+        {
+            try
+            {
+                messageSender.AssertWasCalled(x =>
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+
+            }
+            catch (Exception)
+            {
+                //retry to avoid race conditions 
+                Thread.Sleep(1000);
+                messageSender.AssertWasCalled(x =>
+                  x.Send(Arg<TransportMessage>.Matches(m => IsSubscriptionFor<T>(m)), Arg<Address>.Is.Equal(addressOfPublishingEndpoint)));
+            }
+        }
+
+        bool IsSubscriptionFor<T>(TransportMessage transportMessage)
+        {
+            var type = Type.GetType(transportMessage.Headers[Headers.SubscriptionMessageType]);
+
+            return type == typeof(T);
         }
     }
 

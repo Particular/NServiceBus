@@ -138,6 +138,9 @@
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Persistence\Raven\StoreAccessor.cs" />
+    <Compile Include="Settings\Conventions.cs" />
+    <Compile Include="Settings\ISetDefaultSettings.cs" />
+    <Compile Include="Settings\SettingsHolder.cs" />
     <Compile Include="Transports\IConfigureTransport.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
     <Compile Include="Transports\IDeferMessages.cs" />
@@ -244,7 +247,6 @@
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
-    <Compile Include="Hosting\Helpers\FileVersionRetriever.cs" />
     <Compile Include="Hosting\IHost.cs" />
     <Compile Include="Hosting\InternalsVisibleTo.cs" />
     <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
@@ -417,9 +419,12 @@
     <Compile Include="TrialExpired.Designer.cs">
       <DependentUpon>TrialExpired.cs</DependentUpon>
     </Compile>
+    <Compile Include="Unicast\BackwardCompatibility\MutateMessageContentTypeOfIncomingTransportMessages.cs" />
     <Compile Include="Unicast\BackwardCompatibility\SetIsSagaMessageHeaderForV3XMessages.cs" />
+    <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
+    <Compile Include="Unicast\Config\ApplyDefaultAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
@@ -428,6 +433,9 @@
     <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
     <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
+    <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
+    <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />
+    <Compile Include="Unicast\Subscriptions\IAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\IUnicastBus.cs" />
     <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
@@ -451,6 +459,10 @@
     <Compile Include="Unicast\Queuing\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
+    <Compile Include="Unicast\Routing\IRouteMessages.cs" />
+    <Compile Include="Unicast\Routing\StaticMessageRouter.cs" />
+    <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
+    <Compile Include="Unicast\MessageHandlerRegistry.cs" />
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\ConfigurePublisherSideFiltering.cs" />
     <Compile Include="Unicast\Subscriptions\SubcriberSideFiltering\FilteringMutator.cs" />
     <Compile Include="Unicast\Subscriptions\SubscriptionEventArgs.cs" />
@@ -468,15 +480,15 @@
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Config\AdvancedTransactionalConfig.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Config\Bootstrapper.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Config\TransactionalTransportConfig.cs" />
-    <Compile Include="Unicast\Transport\Transactional\FirstLevelRetries.cs" />
-    <Compile Include="Unicast\Transport\Transactional\Monitoring\ReceivePerformanceDiagnostics.cs" />
-    <Compile Include="Unicast\Transport\Transactional\ThroughputLimiter.cs" />
-    <Compile Include="Unicast\Transport\Transactional\TransactionalTransport.cs" />
-    <Compile Include="Unicast\Transport\Transactional\TransactionSettings.cs" />
-    <Compile Include="Unicast\Transport\Transactional\TransportMessageAvailableEventArgs.cs" />
+    <Compile Include="Unicast\Transport\Config\AdvancedTransactionalConfig.cs" />
+    <Compile Include="Unicast\Transport\Config\Bootstrapper.cs" />
+    <Compile Include="Unicast\Transport\Config\TransportReceiverConfig.cs" />
+    <Compile Include="Unicast\Transport\FirstLevelRetries.cs" />
+    <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
+    <Compile Include="Unicast\Transport\ThroughputLimiter.cs" />
+    <Compile Include="Unicast\Transport\TransportReceiver.cs" />
+    <Compile Include="Unicast\Transport\TransactionSettings.cs" />
+    <Compile Include="Unicast\Transport\TransportMessageAvailableEventArgs.cs" />
     <Compile Include="Unicast\Transport\TransportConnectionString.cs" />
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
@@ -484,9 +496,11 @@
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="Utils\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
+    <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
+    <Compile Include="Utils\RegistryReader.cs" />
     <Compile Include="WcfService.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using Apache.NMS;
     using NServiceBus.Logging;
     using NServiceBus.Unicast.Transport.Transactional;
+    using Unicast.Transport;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
@@ -73,6 +74,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             disposed = true;
         }
 
-        static ILog Logger = LogManager.GetLogger("ActiveMq");
+        static ILog Logger = LogManager.GetLogger(typeof(ActiveMqMessageReceiver));
     }
 }

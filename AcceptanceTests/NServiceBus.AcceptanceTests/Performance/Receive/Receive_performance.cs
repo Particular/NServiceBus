@@ -33,7 +33,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ReceiveEndpoint>(b =>
                         {
-                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.SuppressDistributedTransactions = true));
+                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
                             SendTestMessages(b);
                         })
                     .Done(c => c.Complete)
@@ -67,7 +67,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ReceiveEndpoint>(b =>
                     {
-                        b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope = true));
+                        b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()));
                         SendTestMessages(b);
                     })
                     .Done(c => c.Complete)

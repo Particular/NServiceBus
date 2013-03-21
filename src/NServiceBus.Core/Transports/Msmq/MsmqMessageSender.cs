@@ -5,6 +5,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading;
     using System.Transactions;
     using Config;
+    using Settings;
     using Unicast.Queuing;
 
     /// <summary>
@@ -115,7 +116,7 @@ namespace NServiceBus.Transports.Msmq
                 return MessageQueueTransactionType.None;
             }
 
-            if (Configure.Transactions.Advanced().SuppressDistributedTransactions)
+            if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
             {
                 return MessageQueueTransactionType.Single;
             }

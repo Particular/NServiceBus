@@ -7,17 +7,11 @@
 
     public abstract class CmdletBase : PSCmdlet
     {
-        protected abstract void Process();
-
-        protected override void ProcessRecord()
+        protected override void BeginProcessing()
         {
-            if (ProcessUtil.IsRunningWithElevatedPriviliges())
+            if (!ProcessUtil.IsRunningWithElevatedPriviliges())
             {
-                Process();
-            }
-            else
-            {
-                throw new SecurityException("You need to run this command with administrative rights.");
+                ThrowTerminatingError(new ErrorRecord(new SecurityException("You need to run this command with administrative rights."), "NotAuthorized", ErrorCategory.SecurityError, null));
             }
         }
     }

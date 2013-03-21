@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
+    using System;
+    using System.Transactions;
     using Apache.NMS;
     using Moq;
-    using NServiceBus.Unicast.Transport.Transactional;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ.Receivers;
+    using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     [TestFixture]
     public class ActiveMqMessageReceiverTests
@@ -18,6 +20,13 @@
         [SetUp] 
         public void SetUp()
         {
+            Configure.Transactions.Enable()
+                      .Advanced(
+                          settings =>
+                          settings.DefaultTimeout(TimeSpan.FromSeconds(10))
+                                  .IsolationLevel(IsolationLevel.ReadCommitted)
+                                  .EnableDistributedTransactions());
+
             this.messageProcessorMock = new Mock<IProcessMessages>();
             this.eventConsumerMock = new Mock<IConsumeEvents>();
             this.messageConsumerMock = new Mock<IMessageConsumer>();
@@ -36,7 +45,7 @@
         [Test]
         public void OnStart_MessageProcessorIsStarted()
         {
-            var transactionSettings = new TransactionSettings();
+            var transactionSettings = TransactionSettings.Default;
 
             this.testee.Start(Address.Local, transactionSettings);
 
@@ -46,7 +55,7 @@
         [Test]
         public void OnStart_WhenLocalAddress_EventConsumerIsStarted()
         {
-            var transactionSettings = new TransactionSettings();
+            var transactionSettings = TransactionSettings.Default;
 
             this.testee.Start(Address.Local, transactionSettings);
 
@@ -56,7 +65,7 @@
         [Test]
         public void OnStart_WhenNotLocalAddress_EventConsumerIsNotStarted()
         {
-            var transactionSettings = new TransactionSettings();
+            var transactionSettings = TransactionSettings.Default;
 
             this.testee.Start(new Address("someOtherQueue", "localhost"), transactionSettings);
 
@@ -67,7 +76,7 @@
         public void OnStart_MessageConsumerForAddreddIsCreated()
         {
             var queue = "somequeue";
-            var transactionSettings = new TransactionSettings();
+            var transactionSettings = TransactionSettings.Default;
 
             this.testee.Start(new Address(queue, "localhost"), transactionSettings);
 
@@ -79,7 +88,7 @@
         {
             var message = new Mock<IMessage>().Object;
 
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
 
             this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
@@ -88,7 +97,7 @@
         [Test]
         public void OnStop_MessageProcessorIsStopped()
         {
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
 
             this.messageProcessorMock.Verify(mp => mp.Stop());
@@ -97,7 +106,7 @@
         [Test]
         public void OnStop_EventConsumerIsStopped()
         {
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
 
             this.eventConsumerMock.Verify(mp => mp.Stop());
@@ -108,7 +117,7 @@
         {
             var message = new Mock<IMessage>().Object;
 
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
             this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
 
@@ -118,7 +127,7 @@
         [Test]
         public void OnDispose_MessageProcessorIsDisposed()
         {
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
             this.testee.Dispose();
 
@@ -128,7 +137,7 @@
         [Test]
         public void OnDispose_EventConsumerIsDisposed()
         {
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
             this.testee.Dispose();
 
@@ -138,7 +147,7 @@
         [Test]
         public void OnDispose_MessageConsumerIsDisposed()
         {
-            this.testee.Start(Address.Local, new TransactionSettings());
+            this.testee.Start(Address.Local, TransactionSettings.Default);
             this.testee.Stop();
             this.testee.Dispose();
 

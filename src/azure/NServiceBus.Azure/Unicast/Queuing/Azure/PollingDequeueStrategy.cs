@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
+    using Transport;
     using Transport.Transactional;
     using Utils;
     using Transports;

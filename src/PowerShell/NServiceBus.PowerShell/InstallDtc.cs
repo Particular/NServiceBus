@@ -7,7 +7,7 @@
     [Cmdlet(VerbsLifecycle.Install, "NServiceBusDTC", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     public class InstallDtc : CmdletBase
     {
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             if (ShouldProcess(Environment.MachineName))
             {
@@ -19,13 +19,12 @@
     [Cmdlet(VerbsDiagnostic.Test, "NServiceBusDTCInstallation")]
     public class ValidateDtc : CmdletBase
     {
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             var dtcIsGood = DtcSetup.IsDtcWorking();
-
-            Host.UI.WriteLine(dtcIsGood
-                                        ? "DTC is setup and ready for use with NServiceBus."
-                                        : "DTC is not properly configured.");
+            WriteVerbose(dtcIsGood
+                             ? "DTC is setup and ready for use with NServiceBus."
+                             : "DTC is not properly configured.");
 
             WriteObject(dtcIsGood);
         }

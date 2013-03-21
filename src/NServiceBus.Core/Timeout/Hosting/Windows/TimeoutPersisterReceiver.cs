@@ -2,39 +2,20 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using System.Threading;
+    using System.Threading.Tasks;
     using Core;
     using Logging;
     using Transports;
-    using Unicast.Queuing;
     using Unicast.Transport;
+    using Utils;
 
     public class TimeoutPersisterReceiver
     {
-        static readonly ILog Logger = LogManager.GetLogger("TimeoutPersisterReceiver");
-
-        readonly object lockObject = new object();
-
-        volatile bool stopRequested;
-        volatile bool timeoutPushed;
-        DateTime nextRetrieval = DateTime.UtcNow;
-        Thread workerThread;
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
         public IManageTimeouts TimeoutManager { get; set; }
-
-        private void TimeoutsManagerOnTimeoutPushed(object sender, TimeoutData timeoutData)
-        {
-            lock (lockObject)
-            {
-                if (nextRetrieval > timeoutData.Time)
-                {
-                    nextRetrieval = timeoutData.Time;
-                }
-                timeoutPushed = true;
-            }
-        }
 
         public void Start()
         {
@@ -42,24 +23,45 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             SecondsToSleepBetweenPolls = 5;
 
-            workerThread = new Thread(Poll) { IsBackground = true };
+            tokenSource = new CancellationTokenSource();
 
-            workerThread.Start();
+            StartPoller();
         }
 
         public void Stop()
         {
-            stopRequested = true;
-
-            workerThread.Join();
+            tokenSource.Cancel();
         }
 
-        void Poll()
+        void StartPoller()
         {
-            var pollingFailuresCount = 0;
+            var token = tokenSource.Token;
+
+            Task.Factory
+               .StartNew(Poll, token, TaskCreationOptions.LongRunning)
+               .ContinueWith(t =>
+               {
+                   t.Exception.Handle(ex =>
+                   {
+                       Logger.Warn("Failed to fetch timeouts from the timeout storage");
+                       circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Repeted failures when fetching timeouts from storage, endpoint will be terminated", ex));
+                       return true;
+                   });
+
+                   Thread.Sleep(1000);
+
+                   StartPoller();
+               }, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+
+        void Poll(object obj)
+        {
+            var cancellationToken = (CancellationToken)obj;
+
             var startSlice = DateTime.UtcNow.AddYears(-10);
 
-            while (!stopRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
@@ -67,54 +69,37 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     continue;
                 }
 
-                try
+                Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+
+                DateTime nextExpiredTimeout;
+                var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
+
+                foreach (var timeoutData in timeoutDatas)
                 {
-                    Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
-
-                    DateTime nextExpiredTimeout;
-                    var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
-
-                    foreach (var timeoutData in timeoutDatas)
+                    if (startSlice < timeoutData.Item2)
                     {
-                        if (startSlice < timeoutData.Item2)
-                        {
-                            startSlice = timeoutData.Item2;
-                        }
-
-                        MessageSender.Send(CreateTransportMessage(timeoutData.Item1), TimeoutDispatcherProcessor.TimeoutDispatcherAddress);
+                        startSlice = timeoutData.Item2;
                     }
 
-                    lock (lockObject)
-                    {
-                        //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                        if (!timeoutPushed)
-                        {
-                            nextRetrieval = nextExpiredTimeout;
-                        }
-                        else if (nextExpiredTimeout < nextRetrieval)
-                        {
-                            nextRetrieval = nextExpiredTimeout;
-                        }
-
-                        timeoutPushed = false;
-                    }
-
-                    Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
-
-                    pollingFailuresCount = 0;
+                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), TimeoutDispatcherProcessor.TimeoutDispatcherAddress);
                 }
-                catch (Exception ex)
+
+                lock (lockObject)
                 {
-                    if (pollingFailuresCount >= 10)
+                    //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
+                    if (!timeoutPushed)
                     {
-                        Logger.Fatal("Polling of timeouts has failed the maximum number of times.", ex);
-                        throw; //This should bring down the whole endpoint
+                        nextRetrieval = nextExpiredTimeout;
+                    }
+                    else if (nextExpiredTimeout < nextRetrieval)
+                    {
+                        nextRetrieval = nextExpiredTimeout;
                     }
 
-                    Logger.Error("Polling of timeouts failed.", ex);
-
-                    pollingFailuresCount++;
+                    timeoutPushed = false;
                 }
+
+                Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
             }
         }
 
@@ -128,5 +113,30 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             return transportMessage;
         }
+
+        void TimeoutsManagerOnTimeoutPushed(object sender, TimeoutData timeoutData)
+        {
+            lock (lockObject)
+            {
+                if (nextRetrieval > timeoutData.Time)
+                {
+                    nextRetrieval = timeoutData.Time;
+                }
+                timeoutPushed = true;
+            }
+        }
+
+
+
+
+        readonly object lockObject = new object();
+
+        CancellationTokenSource tokenSource;
+        volatile bool timeoutPushed;
+        DateTime nextRetrieval = DateTime.UtcNow;
+        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(5, TimeSpan.FromMinutes(2));
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
+
     }
 }

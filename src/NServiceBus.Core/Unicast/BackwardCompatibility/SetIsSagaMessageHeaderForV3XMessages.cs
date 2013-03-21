@@ -1,18 +1,29 @@
 ﻿namespace NServiceBus.Unicast.BackwardCompatibility
 {
+    using System;
     using MessageMutator;
     using Timeout;
 
-    public class SetIsSagaMessageHeaderForV3XMessages : IMutateIncomingTransportMessages, INeedInitialization
+    public class SetIsSagaMessageHeaderForV3XMessages : IMutateIncomingMessages, INeedInitialization
     {
-        public void MutateIncoming(TransportMessage transportMessage)
-        {
-            if (transportMessage.Headers.ContainsKey(Headers.IsSagaTimeoutMessage))
-                return;
+        public IBus Bus { get; set; }
 
-            if (transportMessage.Headers.ContainsKey(TimeoutManagerHeaders.Expire) &&
-                transportMessage.Headers.ContainsKey(Headers.SagaId))
-                transportMessage.Headers[Headers.IsSagaTimeoutMessage] = true.ToString();
+        public object MutateIncoming(object message)
+        {
+            if (!string.IsNullOrEmpty(Bus.GetMessageHeader(message, Headers.IsSagaTimeoutMessage)))
+                return message;
+
+            //make sure that this a timeout of any kind
+            if (string.IsNullOrEmpty(Bus.GetMessageHeader(message, TimeoutManagerHeaders.Expire)))
+                return message;
+
+            //if this is a real message it can't be a timeout since they are not "messages"
+            if (MessageConventionExtensions.IsMessage(message))
+                return message;
+
+            Bus.SetMessageHeader(message,Headers.IsSagaTimeoutMessage,Boolean.TrueString);
+
+            return message;
         }
 
         public void Init()

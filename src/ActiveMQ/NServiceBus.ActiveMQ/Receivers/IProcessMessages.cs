@@ -3,6 +3,7 @@
     using System;
     using Apache.NMS;
     using NServiceBus.Unicast.Transport.Transactional;
+    using Unicast.Transport;
 
     public interface IProcessMessages : IDisposable
     {

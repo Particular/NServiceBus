@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Transports.SQLServer.Transport
+﻿namespace NServiceBus.Transports.SQLServer
 {
     using System;
     using System.Data;
     using System.Data.SqlClient;
     using System.Threading;
     using NServiceBus.Serializers.Json;
-    using NServiceBus.Unicast.Queuing;
+    using Unicast.Queuing;
 
     /// <summary>
     ///     SqlServer implementation of <see cref="ISendMessages" />.
@@ -43,31 +43,52 @@
         /// </param>
         public void Send(TransportMessage message, Address address)
         {
-            if (currentTransaction.IsValueCreated)
+            try
             {
-                using (
-                    var command = new SqlCommand(string.Format(SqlSend, address.Queue),
-                                                 currentTransaction.Value.Connection, currentTransaction.Value)
-                        {
-                            CommandType = CommandType.Text
-                        })
+
+                if (currentTransaction.IsValueCreated)
                 {
-                    ExecuteQuery(message, command);
-                }
-            }
-            else
-            {
-                using (var connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
-                    using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), connection)
-                        {
-                            CommandType = CommandType.Text
-                        })
+                    using (
+                        var command = new SqlCommand(string.Format(SqlSend, address.Queue),
+                                                     currentTransaction.Value.Connection, currentTransaction.Value)
+                            {
+                                CommandType = CommandType.Text
+                            })
                     {
                         ExecuteQuery(message, command);
                     }
                 }
+                else
+                {
+                    using (var connection = new SqlConnection(ConnectionString))
+                    {
+                        connection.Open();
+                        using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), connection)
+                            {
+                                CommandType = CommandType.Text
+                            })
+                        {
+                            ExecuteQuery(message, command);
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 208)
+                {
+                    string msg = address == null
+                                     ? "Failed to send message. Target address is null."
+                                     : string.Format("Failed to send message to address: [{0}]", address);
+
+                    throw new QueueNotFoundException(address, msg, ex);
+                }
+
+                ThrowFailedToSendException(address, ex);
+            }
+            catch (Exception ex)
+            {
+                ThrowFailedToSendException(address, ex);
             }
         }
 
@@ -80,6 +101,15 @@
         public void SetTransaction(SqlTransaction transaction)
         {
             currentTransaction.Value = transaction;
+        }
+
+        private static void ThrowFailedToSendException(Address address, Exception ex)
+        {
+            if (address == null)
+                throw new FailedToSendMessageException("Failed to send message.", ex);
+
+            throw new FailedToSendMessageException(
+                string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
         private static void ExecuteQuery(TransportMessage message, SqlCommand command)

@@ -90,14 +90,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                     return results;
                 }
             }
-            catch (WebException)
+            catch (WebException ex)
             {
-                LogRavenConnectionFailure();
+                LogRavenConnectionFailure(ex);
+                throw;
             }
-
-            nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
-
-            return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
         }
 
         public void Add(TimeoutData timeout)
@@ -150,7 +147,7 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
             return session;
         }
 
-        void LogRavenConnectionFailure()
+        void LogRavenConnectionFailure(Exception exception)
         {
             var sb = new StringBuilder();
             sb.AppendFormat("Raven could not be contacted. We tried to access Raven using the following url: {0}.",
@@ -164,10 +161,11 @@ namespace NServiceBus.Timeout.Hosting.Windows.Persistence
                 @"<connectionStrings>
     <add name=""NServiceBus.Persistence"" connectionString=""http://localhost:9090"" />
 </connectionStrings>");
+            sb.AppendLine("Original exception: " + exception);
 
             Logger.Warn(sb.ToString());
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("RavenTimeoutPersistence");
+        static readonly ILog Logger = LogManager.GetLogger(typeof(RavenTimeoutPersistence));
     }
 }

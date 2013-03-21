@@ -2,6 +2,8 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
 {
     using System;
     using Core;
+    using Settings;
+    using Transports;
 
     public class TimeoutManagerDefaults : IWantToRunBeforeConfigurationIsFinalized
     {
@@ -14,7 +16,20 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
                 return;
             }
 
-            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !Configure.Endpoint.IsSendOnly)
+            
+            if (Configure.Instance.GetMasterNodeAddress() != Address.Local ||//if we have a master node configured we should use that timeout manager instead
+                Configure.Instance.Configurer.HasComponent<IDeferMessages>()) //if there is another deferral mechanism registered
+            {
+                Configure.Instance.DisableTimeoutManager();
+                return;
+            }
+
+
+            Configure.Instance.Configurer.ConfigureComponent<TimeoutManagerBasedDeferral>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
+
+
+            if (!Configure.Instance.Configurer.HasComponent<IPersistTimeouts>() && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
                 DefaultPersistence();
             }

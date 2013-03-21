@@ -278,7 +278,7 @@
         {
             RegisterMessageType<MessageThatBlowsUp>();
 
-            unicastBus.MessageHandlerTypes = new[] { typeof(MessageThatBlowsUpHandler) };
+            handlerRegistry.RegisterHandler(typeof(MessageThatBlowsUpHandler));
 
             var endCalled = false;
 

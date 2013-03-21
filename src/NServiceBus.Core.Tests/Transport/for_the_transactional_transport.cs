@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Transport
 {
+    using System;
+    using System.Transactions;
     using Fakes;
     using NUnit.Framework;
-    using Unicast.Transport.Transactional;
+    using Unicast.Transport;
 
     public class for_the_transactional_transport
     {
@@ -11,15 +13,16 @@
         {
             fakeReceiver = new FakeReceiver();
 
-            transport = new TransactionalTransport
+            TransportReceiver = new TransportReceiver
                 {
                     FailureManager = new FakeFailureManager(),
                     Receiver = fakeReceiver,
+                    TransactionSettings = TransactionSettings.Default
                 };
 
         }
 
         protected FakeReceiver fakeReceiver;
-        protected TransactionalTransport transport;
+        protected TransportReceiver TransportReceiver;
     }
 }

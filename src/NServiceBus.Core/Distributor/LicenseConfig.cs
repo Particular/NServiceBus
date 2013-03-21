@@ -11,7 +11,7 @@ namespace NServiceBus.Distributor
     /// </summary>
     public static class LicenseConfig
     {
-        private static readonly ILog Logger = LogManager.GetLogger("Distributor." + Configure.EndpointName);
+        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
         private static readonly int allowedWorkerNodes;
         private static readonly ConcurrentBag<Address> WorkersList = new ConcurrentBag<Address>();
 

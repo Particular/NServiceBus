@@ -1,10 +1,10 @@
 namespace NServiceBus
 {
-	/// <summary>
+    /// <summary>
 	/// Defines a message handler.
 	/// </summary>
 	/// <typeparam name="T">The type of message to be handled.</typeparam>
-    public interface IMessageHandler<T>
+    public interface IHandleMessages<T>
     {
 		/// <summary>
 		/// Handles a message.
@@ -20,5 +20,6 @@ namespace NServiceBus
     /// Implement this class to be called when messages of the given type arrive at your endpoint.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IHandleMessages<T> : IMessageHandler<T> {}
+    [ObsoleteEx(Replacement = "IHandleMessages<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+    public interface IMessageHandler<T> : IHandleMessages<T> { }
 }

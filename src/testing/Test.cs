@@ -33,6 +33,17 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Initializes the testing infrastructure specifying which assemblies to scan.
         /// </summary>
+        public static void Initialize(IEnumerable<Assembly> assemblies)
+        {
+            if (assemblies == null)
+                throw new ArgumentNullException("assemblies");
+            
+            Initialize(assemblies.ToArray());
+        }
+        
+        /// <summary>
+        /// Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
             Configure.With(assemblies);
@@ -188,7 +199,7 @@ namespace NServiceBus.Testing
                               let args = i.GetGenericArguments()
                               where args.Length == 1
                               where MessageConventionExtensions.IsMessageType(args[0])
-                              where typeof (IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                              where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
                               select i).Any();
 
             if (!isHandler)

@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using Config;
     using Notifications;
 
     /// <summary>
@@ -18,13 +17,11 @@ namespace NServiceBus
         {
             if (ConfigureNotifications.NotificationsDisabled)
                 throw new InvalidOperationException("Send email is not supported if notifications is disabled. Please remove Configure.DisableNotifications() from your config.");
-            
-            bus.Send(NotificationAddress, new SendEmail
+
+            bus.Send(Configure.Instance.GetMasterNodeAddress().SubScope("Notifications"), new SendEmail
                                              {
                                                  Message = message
                                              });
         }
-   
-        internal static readonly Address NotificationAddress = Address.Local.SubScope("Notifications");
     }
 }

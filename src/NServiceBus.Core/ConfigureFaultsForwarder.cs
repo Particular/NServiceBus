@@ -1,80 +1,93 @@
 namespace NServiceBus
 {
-    using System.Configuration;
-    using Config;
-    using Faults;
-    using Faults.Forwarder;
-    using Logging;
+	using System.Configuration;
+	using Config;
+	using Faults;
+	using Faults.Forwarder;
+	using Logging;
+	using Settings;
+	using Utils;
 
-    /// <summary>
-    /// Contains extension methods to NServiceBus.Configure
-    /// </summary>
-    public static class ConfigureFaultsForwarder
-    {
-        /// <summary>
-        /// Forward messages that have repeatedly failed to another endpoint.
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public static Configure MessageForwardingInCaseOfFault(this Configure config)
-        {
-            if (ErrorQueue != null)
-            {
-                 return config;
-            }
-            if (Configure.Endpoint.IsSendOnly)
-            {
-                return config;
-            }
+	/// <summary>
+	/// Contains extension methods to NServiceBus.Configure
+	/// </summary>
+	public static class ConfigureFaultsForwarder
+	{
+		/// <summary>
+		/// Forward messages that have repeatedly failed to another endpoint.
+		/// </summary>
+		/// <param name="config"></param>
+		/// <returns></returns>
+		public static Configure MessageForwardingInCaseOfFault(this Configure config)
+		{
+			if (ErrorQueue != null)
+			{
+				 return config;
+			}
+			if (SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+			{
+				return config;
+			}
 
-            var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
-            if (section != null)
-            {
-                if (string.IsNullOrWhiteSpace(section.ErrorQueue))
-                    throw new ConfigurationErrorsException(
-                        "'MessageForwardingInCaseOfFaultConfig' configuration section is found but 'ErrorQueue' value is missing." +
-                        "\n The following is an example for adding such a value to your app config: " +
-                        "\n <MessageForwardingInCaseOfFaultConfig ErrorQueue=\"error\"/> \n");
-                
-                ErrorQueue = Address.Parse(section.ErrorQueue);
-            }
-            else
-            {
-                Logger.Warn("Could not find configuration section 'MessageForwardingInCaseOfFaultConfig'. Going to try to find the error queue defined in 'MsmqTransportConfig'.");
+			ErrorQueue = Address.Undefined;
 
-                var msmq = Configure.GetConfigSection<MsmqTransportConfig>();
+			var section = Configure.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
+			if (section != null)
+			{
+				if (string.IsNullOrWhiteSpace(section.ErrorQueue))
+				{
+					throw new ConfigurationErrorsException(
+						"'MessageForwardingInCaseOfFaultConfig' configuration section is found but 'ErrorQueue' value is missing." +
+						"\n The following is an example for adding such a value to your app config: " +
+						"\n <MessageForwardingInCaseOfFaultConfig ErrorQueue=\"error\"/> \n");
+				}
 
-                if ((msmq == null) || (string.IsNullOrWhiteSpace(msmq.ErrorQueue)))
-                    throw new ConfigurationErrorsException("'MessageForwardingInCaseOfFaultConfig' configuration section is missing and could not find backup configuration section 'MsmqTransportConfig' in order to locate the error queue.");
+				Logger.Debug("Error queue retrieved from <MessageForwardingInCaseOfFaultConfig> element in config file.");
 
-                ErrorQueue = Address.Parse(msmq.ErrorQueue);
-            }
+				ErrorQueue = Address.Parse(section.ErrorQueue);
 
-            if(ErrorQueue == Address.Undefined)
-				throw new ConfigurationErrorsException("Faults forwarding requires an error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config");
-             
-            config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
+				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
+					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
 
-            return config;
-        }
+				return config;
+			}
 
-        /// <summary>
-        /// The queue to which to forward errors.
-        /// </summary>
-        public static Address ErrorQueue { get; set; }
+			
+			var errorQueue = RegistryReader<string>.Read("ErrorQueue");
+			if (!string.IsNullOrWhiteSpace(errorQueue))
+			{
+				Logger.Debug("Error queue retrieved from registry settings.");
+				ErrorQueue = Address.Parse(errorQueue);
 
-        private static ILog Logger = LogManager.GetLogger("MessageForwardingInCaseOfFault");
-    }
+				config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.InstancePerCall)
+					.ConfigureProperty(fm => fm.ErrorQueue, ErrorQueue);
+			}
+			
+			if (ErrorQueue == Address.Undefined)
+			{
+				throw new ConfigurationErrorsException("Faults forwarding requires an error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config" +
+                "\n or configure a global one using the powershell command: SetNServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
+			}
 
-    class Bootstrapper : INeedInitialization
-    {
-        public void Init()
-        {
-            if (!Configure.Endpoint.IsSendOnly && !Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
-            {
-                Configure.Instance.MessageForwardingInCaseOfFault();
-            }
-        }
-    }
+			return config;
+		}
+
+		/// <summary>
+		/// The queue to which to forward errors.
+		/// </summary>
+		public static Address ErrorQueue { get; private set; }
+
+		static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureFaultsForwarder));
+	}
+
+	class Bootstrapper : INeedInitialization
+	{
+		public void Init()
+		{
+			if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+			{
+				Configure.Instance.MessageForwardingInCaseOfFault();
+			}
+		}
+	}
 }

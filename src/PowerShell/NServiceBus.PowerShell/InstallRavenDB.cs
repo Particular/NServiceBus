@@ -10,10 +10,10 @@
         [Parameter(HelpMessage = "Port number to be used, default is 8080", ValueFromPipelineByPropertyName = true)]
         public int Port { get; set; }
 
-        [Parameter(HelpMessage = "Path to install RavenDB into, default is %ProgramFiles%\\NServiceBus.Persistence", ValueFromPipelineByPropertyName = true)]
+        [Parameter(HelpMessage = "Path to install RavenDB into, default is %ProgramFiles%\\NServiceBus.Persistence.v4", ValueFromPipelineByPropertyName = true)]
         public string Path { get; set; }
 
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             if (ShouldProcess(Environment.MachineName))
             {
@@ -28,7 +28,7 @@
         [Parameter(HelpMessage = "Port number to be used, default is 8080", ValueFromPipelineByPropertyName = true)]
         public int Port { get; set; }
 
-        protected override void Process()
+        protected override void ProcessRecord()
         {
             var isGood = RavenDBSetup.Check(Port);
 

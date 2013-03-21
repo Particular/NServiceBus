@@ -27,6 +27,6 @@ namespace NServiceBus.Distributor.Config
                               applicativeInputQueue);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("Distributor." + Configure.EndpointName);
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
     }
 }

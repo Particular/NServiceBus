@@ -1,7 +1,6 @@
-namespace NServiceBus.Transports.SQLServer.Transport.Config
+namespace NServiceBus.Transports.SQLServer.Config
 {
     using System;
-    using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
 
     /// <summary>

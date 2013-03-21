@@ -148,7 +148,7 @@ namespace NServiceBus.Saga
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
-            SetHeaders(timeoutMessage);
+            SetTimeoutHeaders(timeoutMessage);
 
             Bus.Defer(at, timeoutMessage);
         }
@@ -179,7 +179,7 @@ namespace NServiceBus.Saga
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
         protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
         {
-            SetHeaders(timeoutMessage);
+            SetTimeoutHeaders(timeoutMessage);
 
             Bus.Defer(within, timeoutMessage);
         }
@@ -251,11 +251,11 @@ namespace NServiceBus.Saga
         }
         #endregion
 
-        private void SetHeaders(object toSend)
+        private void SetTimeoutHeaders(object toSend)
         {
 
             Headers.SetMessageHeader(toSend, Headers.SagaId, Data.Id.ToString());
-            Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, true.ToString());
+            Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
             Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
         }
 

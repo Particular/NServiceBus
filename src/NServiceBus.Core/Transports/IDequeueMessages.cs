@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Transports
 {
     using System;
+    using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
     /// <summary>

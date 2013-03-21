@@ -194,6 +194,7 @@
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
+    <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\DeferedMessages.cs" />
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Unicast\Helpers\FakeTransport.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="Unicast\MessageModules.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
+    <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
     <Compile Include="Unicast\Messages\MessageA.cs" />
     <Compile Include="Unicast\Messages\MessageB.cs" />
     <Compile Include="Unicast\Publishing.cs" />

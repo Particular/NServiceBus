@@ -25,6 +25,35 @@
         }
 
         [Test]
+        public void Should_not_autosubscribe_messages_by_default()
+        {
+            var endpointAddress = new Address("MyEndpoint", "localhost");
+
+            RegisterMessageType<MyMessage>(endpointAddress);
+            RegisterMessageHandlerType<MyMessageHandler>();
+
+            StartBus();
+
+            messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(endpointAddress)));
+        }
+
+        [Test]
+        public void Should_not_autosubscribe_messages_unless_asked_to_by_the_users()
+        {
+            var endpointAddress = new Address("MyEndpoint", "localhost");
+            
+            autoSubscriptionStrategy.SubscribePlainMessages = true;
+
+            RegisterMessageType<MyMessage>(endpointAddress);
+            RegisterMessageHandlerType<MyMessageHandler>();
+
+            StartBus();
+
+            AssertSubscription<MyMessage>(endpointAddress);
+        }
+
+
+        [Test]
         public void Should_not_autosubscribe_messages_with_undefined_address()
         {
 
@@ -35,6 +64,19 @@
             StartBus();
 
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(Address.Undefined)));
+        }
+
+        class MyMessage:IMessage
+        {
+            
+        }
+
+        class MyMessageHandler : IHandleMessages<MyMessage>
+        {
+            public void Handle(MyMessage message)
+            {
+                throw new System.NotImplementedException();
+            }
         }
 
     }
@@ -52,10 +94,8 @@
             RegisterMessageHandlerType<MySaga>();
 
             StartBus();
-            Thread.Sleep(5000); //Wait for subscriptions to happen
-
-            AssertSubscription(m => true,
-                              eventEndpointAddress);
+          
+            AssertSubscription(m => true,eventEndpointAddress);
         }
     }
 
@@ -66,14 +106,14 @@
         [Test]
         public void Should_not_autosubscribe_the_saga_messagehandler()
         {
-            unicastBus.DoNotAutoSubscribeSagas = true;
+            autoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
       
             var eventEndpointAddress = new Address("PublisherAddress", "localhost");
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
             StartBus();
-            unicastBus.DoNotAutoSubscribeSagas = false;
+            autoSubscriptionStrategy.DoNotAutoSubscribeSagas = false;
       
             messageSender.AssertWasNotCalled(x => x.Send(Arg<TransportMessage>.Is.Anything, Arg<Address>.Is.Equal(eventEndpointAddress)));
         }
@@ -91,6 +131,10 @@
     [TestFixture]
     public class When_autosubscribing_a_saga_that_handles_a_superclass_event : using_a_configured_unicastbus
     {
+        protected override System.Collections.Generic.IEnumerable<Type> KnownMessageTypes()
+        {
+            return new[] {typeof (EventWithParent), typeof (EventMessageBase)};
+        }
         [Test]
         public void Should_autosubscribe_the_saga_messagehandler()
         {
@@ -113,7 +157,7 @@
             throw new NotImplementedException();
         }
     }
-    public class EventMessageBase:IMessage
+    public class EventMessageBase:IEvent
     {
         
     }

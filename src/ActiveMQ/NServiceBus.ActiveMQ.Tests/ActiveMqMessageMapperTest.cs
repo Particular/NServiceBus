@@ -2,12 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+
     using Apache.NMS;
     using Apache.NMS.Util;
+
     using FluentAssertions;
+
     using Moq;
-    using NUnit.Framework;
+
     using NServiceBus.Transports.ActiveMQ;
+
+    using NUnit.Framework;
 
     [TestFixture]
     public class ActiveMqMessageMapperTest
@@ -41,6 +46,32 @@
             this.testee.CreateJmsMessage(transportMessage, this.session.Object);
 
             this.encoderPipeline.Verify(e => e.Encode(transportMessage, this.session.Object));
+        }
+
+        [Test]
+        public void CreateJmsMessage_ShouldSetNMSTypeToNamespaceAndTypeOnlyForBetterInteroperability()
+        {
+            this.SetupMessageCreation();
+
+            TransportMessage transportMessage = this.CreateTransportMessage();
+            transportMessage.Headers[Headers.EnclosedMessageTypes] = typeof(string).AssemblyQualifiedName;
+
+            var message = this.testee.CreateJmsMessage(transportMessage, this.session.Object);
+
+            message.NMSType.Should().Be("System.String");
+        }
+
+        [Test]
+        public void CreateJmsMessage_WhenMultipleEnclosedTypes_ShouldSetNMSTypeToNamespaceAndTypeOnlyForBetterInteroperability()
+        {
+            this.SetupMessageCreation();
+
+            TransportMessage transportMessage = this.CreateTransportMessage();
+            transportMessage.Headers[Headers.EnclosedMessageTypes] = string.Format("{0};{1}", typeof(string).AssemblyQualifiedName, typeof(int).AssemblyQualifiedName);
+
+            var message = this.testee.CreateJmsMessage(transportMessage, this.session.Object);
+
+            message.NMSType.Should().Be("System.String");
         }
 
         [Test]
@@ -89,11 +120,11 @@
             result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
         }
 
-      
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsDefined_ShouldAssignIt()
         {
-            const string EnclosedMessageTypes = "TheEnclosedMessageTypes";
+            string EnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
+
             var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.EnclosedMessageTypes] = EnclosedMessageTypes;
 
@@ -105,7 +136,7 @@
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsNotDefined_ShouldAssignInterpretedTypeFromJmsMessage()
         {
-            const string ExpectedEnclosedMessageTypes = "TheEnclosedMessageTypes";
+            string ExpectedEnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
             const string JmsMessageType = "JmsMessageType";
             var message = CreateTextMessage(string.Empty);
             message.NMSType = JmsMessageType;
@@ -225,6 +256,7 @@
         private void SetupMessageCreation()
         {
             var message = new Mock<IMessage>();
+            message.SetupAllProperties();
             message.Setup(m => m.Properties).Returns(new PrimitiveMap());
 
             this.encoderPipeline.Setup(e => e.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()))

@@ -9,6 +9,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using Logging;
+    using Unicast.Transport;
     using Unicast.Transport.Transactional;
     using Utils;
 

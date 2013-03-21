@@ -1,8 +1,7 @@
-namespace NServiceBus.Transports.SQLServer.Transport
+namespace NServiceBus.Transports.SQLServer
 {
     using System.Data;
     using System.Data.SqlClient;
-    using NServiceBus.Unicast.Queuing;
 
     public class SqlServerQueueCreator : ICreateQueues
     {

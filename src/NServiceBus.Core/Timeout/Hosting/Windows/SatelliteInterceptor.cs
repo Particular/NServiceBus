@@ -2,6 +2,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using NServiceBus.Config;
     using Satellites;
+    using Unicast.Transport;
     using Unicast.Transport.Transactional;
 
     public class SatelliteInterceptor : IWantToRunWhenConfigurationIsComplete
@@ -17,7 +18,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 //TODO: The line below needs to change when we refactor the slr to be:
                 // transport.DisableSLR() or similar
-                var transactionalTransport = ((TransactionalTransport) args.Transport);
+                var transactionalTransport = ((TransportReceiver) args.Transport);
                 transactionalTransport.FailureManager = new ManageMessageFailuresWithoutSlr(transactionalTransport.FailureManager);
             }
         }

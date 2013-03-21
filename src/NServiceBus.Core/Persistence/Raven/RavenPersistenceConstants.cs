@@ -1,10 +1,9 @@
 namespace NServiceBus.Persistence.Raven
 {
     using System;
-    using System.Diagnostics;
     using System.Security.Cryptography;
     using System.Text;
-    using Microsoft.Win32;
+    using Utils;
 
     public static class RavenPersistenceConstants
     {
@@ -14,22 +13,7 @@ namespace NServiceBus.Persistence.Raven
 
         static RavenPersistenceConstants()
         {
-            try
-            {
-                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\NServiceBus"))
-                {
-                    if (key == null)
-                    {
-                        return;
-                    }
-
-                    registryPort = (int) key.GetValue("RavenPort", DefaultPort);
-                }
-            }
-            catch
-            {
-                //We couldn't read the registry!
-            } 
+            registryPort = RegistryReader<int>.Read("RavenPort", DefaultPort);
         }
 
         public static string DefaultUrl

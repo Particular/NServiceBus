@@ -78,7 +78,7 @@
 
             if (SubscriptionStorage == null)
             {
-                var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher.", subscriberAddress);
+                var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the As_aPublisher role.", subscriberAddress);
                 Logger.WarnFormat(warning);
 
                 if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service
@@ -158,7 +158,7 @@
             }
             catch (QueueNotFoundException ex)
             {
-                if (retriesCount < 5)
+                if (retriesCount < 10)
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(2));
                     SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
@@ -183,7 +183,7 @@
 
 
     
-        readonly static ILog Logger = LogManager.GetLogger("Subscriptions");
+        readonly static ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
 
         IAuthorizeSubscriptions subscriptionAuthorizer;
 

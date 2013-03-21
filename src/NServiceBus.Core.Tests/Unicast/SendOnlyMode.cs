@@ -12,6 +12,7 @@
         [Test]
         public void Should_be_allowed()
         {
+            Configure.Endpoint.AsSendOnly();
             RegisterMessageType<TestMessage>();
             bus.Send(Address.Local, new TestMessage());
         }
@@ -22,6 +23,7 @@
         [Test]
         public void Should_not_be_allowed()
         {
+            Configure.Endpoint.AsSendOnly(); 
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Subscribe<TestMessage>());
         }
@@ -33,6 +35,8 @@
         [Test]
         public void Should_not_be_allowed()
         {
+            Configure.Endpoint.AsSendOnly();
+
             RegisterMessageType<TestMessage>();
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<TestMessage>());
         }
@@ -77,6 +81,7 @@
             Bus.Reply(new TestMessage());
         }
     }
+
     class HandlerThatReturns : IHandleMessages<TestMessage>
     {
         public IBus Bus { get; set; }

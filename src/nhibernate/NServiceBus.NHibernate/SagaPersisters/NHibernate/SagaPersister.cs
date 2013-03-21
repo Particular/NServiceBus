@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
 {
     using System;
     using Saga;
-    using global::NHibernate;
+    using UnitOfWork.NHibernate;
     using global::NHibernate.Criterion;
 
     /// <summary>
@@ -17,7 +17,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <param name="saga">the saga entity that will be saved.</param>
         public void Save(ISagaEntity saga)
         {
-            SessionFactory.GetCurrentSession().Save(saga);
+            UnitOfWorkManager.GetCurrentSession().Save(saga);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <param name="saga">the saga entity that will be updated.</param>
         public void Update(ISagaEntity saga)
         {
-            SessionFactory.GetCurrentSession().Update(saga);
+            UnitOfWorkManager.GetCurrentSession().Update(saga);
         }
 
         /// <summary>
@@ -38,12 +38,12 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <returns>The saga entity if found, otherwise null.</returns>
         public T Get<T>(Guid sagaId) where T : ISagaEntity
         {
-            return SessionFactory.GetCurrentSession().Get<T>(sagaId);
+            return UnitOfWorkManager.GetCurrentSession().Get<T>(sagaId);
         }
 
         T ISagaPersister.Get<T>(string property, object value)
         {
-            return SessionFactory.GetCurrentSession().CreateCriteria(typeof(T))
+            return UnitOfWorkManager.GetCurrentSession().CreateCriteria(typeof(T))
                 .Add(Restrictions.Eq(property, value))
                 .UniqueResult<T>();
         }
@@ -55,12 +55,12 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <param name="saga">The saga entity that will be deleted.</param>
         public void Complete(ISagaEntity saga)
         {
-            SessionFactory.GetCurrentSession().Delete(saga);
+            UnitOfWorkManager.GetCurrentSession().Delete(saga);
         }
 
         /// <summary>
-        /// Injected session factory.
+        /// Injected unit of work manager.
         /// </summary>
-        public ISessionFactory SessionFactory { get; set; }
+        public UnitOfWorkManager UnitOfWorkManager { get; set; }
     }
 }

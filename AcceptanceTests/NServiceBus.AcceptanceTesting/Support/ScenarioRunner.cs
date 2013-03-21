@@ -144,7 +144,7 @@
                 {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runners, ()=>done(runDescriptor.ScenarioContext));
+                    PerformScenarios(runDescriptor,runners, () => done(runDescriptor.ScenarioContext));
                 }
                 finally
                 {
@@ -209,11 +209,13 @@
             Console.WriteLine();
         }
 
-        static void PerformScenarios(IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static void PerformScenarios(RunDescriptor runDescriptor,IEnumerable<ActiveRunner> runners, Func<bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
             StartEndpoints(endpoints);
+            
+            runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
             var maxTime = TimeSpan.FromSeconds(90);
@@ -263,9 +265,17 @@
         {
             var tasks = endpoints.Select(endpoint => Task.Factory.StartNew(() =>
                 {
+
+                    Console.Out.WriteLine("Stopping endpoint: {0}", endpoint.Name());
+                    var sw = new Stopwatch();
+                    sw.Start();
                     var result = endpoint.Stop();
+
+                    sw.Stop();
                     if (result.Failed)
                         throw new ScenarioException(string.Format("Endpoint failed to stop - {0}", result.ExceptionMessage));
+
+                    Console.Out.WriteLine("Endpoint: {0} stopped ({1}s)",endpoint.Name(),sw.Elapsed);
 
                 })).ToArray();
 

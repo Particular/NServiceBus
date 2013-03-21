@@ -44,11 +44,26 @@
       <HintPath>..\..\..\lib\System.Management.Automation.dll</HintPath>
     </Reference>
     <Reference Include="System.Messaging" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="VsCmdletBase.cs" />
+    <Compile Include="AddConfigSection.cs" />
+    <Compile Include="AddUnicastBusConfig.cs" />
+    <Compile Include="Dtc\DtcSetup.cs" />
+    <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
+    <Compile Include="Msmq\MsmqSetup.cs" />
+    <Compile Include="PerformanceCounters\PerformanceCounterSetup.cs" />
+    <Compile Include="ProcessUtil.cs" />
+    <Compile Include="RavenDB\RavenDBSetup.cs" />
+    <Compile Include="RavenDB\RavenHelpers.cs" />
+    <Compile Include="RavenDB\RavenServer.Designer.cs">
+      <DependentUpon>RavenServer.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="SetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="AddMessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="CmdletBase.cs" />
     <Compile Include="GetMessage.cs" />
@@ -71,6 +86,22 @@
     <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.cs.t4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\Spatial4n.Core.NTS.dll" />
+    <None Include="Resources\Raven.Server.exe" />
+    <None Include="Resources\Raven.Database.dll" />
+    <None Include="Resources\Raven.Abstractions.dll" />
+    <None Include="Resources\PowerCollections.dll" />
+    <None Include="Resources\NLog.dll" />
+    <None Include="Resources\NetTopologySuite.dll" />
+    <None Include="Resources\Mono.Cecil.dll" />
+    <None Include="Resources\Lucene.Net.dll" />
+    <None Include="Resources\Lucene.Net.Contrib.Spatial.NTS.dll" />
+    <None Include="Resources\Lucene.Net.Contrib.FastVectorHighlighter.dll" />
+    <None Include="Resources\Jint.Raven.dll" />
+    <None Include="Resources\ICSharpCode.NRefactory.dll" />
+    <None Include="Resources\ICSharpCode.NRefactory.CSharp.dll" />
+    <None Include="Resources\GeoAPI.dll" />
+    <None Include="Resources\Esent.Interop.dll" />
     <None Include="Examples\Get-Message.ps1" />
     <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
@@ -78,17 +109,18 @@
     <None Include="Examples\Install-Msmq.ps1" />
     <None Include="Examples\Install-RavenDB.ps1" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Setup\NServiceBus.Setup.Windows\NServiceBus.Setup.Windows.csproj">
-      <Project>{54dab047-c30d-4507-a304-766ddd29bb28}</Project>
-      <Name>NServiceBus.Setup.Windows</Name>
-    </ProjectReference>
+    <None Include="Resources\Raven.Server.exe.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="about_NServiceBus.help.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RavenDB\RavenServer.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RavenServer.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
