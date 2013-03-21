@@ -42,10 +42,10 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config
             if (!GetComputerNameEx(COMPUTER_NAME_FORMAT.ComputerNameNetBIOS, buffer, ref capacity)) 
                 return;
             var netbiosName = buffer.ToString();
-            if (netbiosName.Length < 15) return;
+            if (netbiosName.Length <= 15) return;
 
             Logger.Warn(string.Format(
-                "NetBIOS name [{0}] is longer than 14 characters. Shorten it for DTC to work. See: http://nservicebus.com/faq/DTCPIngWARNING.aspx", netbiosName));
+                "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: http://nservicebus.com/faq/DTCPIngWARNING.aspx", netbiosName));
         }
     }
 }
