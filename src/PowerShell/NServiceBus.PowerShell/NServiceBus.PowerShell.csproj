@@ -55,6 +55,7 @@
     <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="Msmq\MsmqSetup.cs" />
     <Compile Include="PerformanceCounters\PerformanceCounterSetup.cs" />
+    <Compile Include="PortUtils.cs" />
     <Compile Include="ProcessUtil.cs" />
     <Compile Include="RavenDB\RavenDBSetup.cs" />
     <Compile Include="RavenDB\RavenHelpers.cs" />
