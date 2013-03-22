@@ -118,6 +118,11 @@
                                                                        serviceCommandLine.Add(String.Format(@"/endpointName:""{0}""", endpointName));
                                                                    }
 
+                                                                   if (!String.IsNullOrEmpty(serviceName))
+                                                                   {
+                                                                       serviceCommandLine.Add(String.Format(@"/serviceName:""{0}""", serviceName));
+                                                                   }
+
                                                                    if (arguments.ScannedAssemblies.Count > 0)
                                                                    {
                                                                        serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
