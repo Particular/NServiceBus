@@ -218,7 +218,7 @@
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
-            var maxTime = TimeSpan.FromSeconds(90);
+            var maxTime = runDescriptor.ScenarioContext.TestExecutionTimeout;
 
             Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
 
