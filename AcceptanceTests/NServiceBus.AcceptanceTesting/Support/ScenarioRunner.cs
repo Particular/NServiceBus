@@ -1,4 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿using System.Runtime.Remoting;
+using System.Runtime.Remoting.Lifetime;
+
+namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Concurrent;
@@ -296,6 +299,13 @@
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
+                // Extend the lease to the timeout value specified.
+                ILease serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
+
+                // Add the execution time + additional time for the endpoints to be able to stop gracefully
+                var totalLifeTime = runDescriptor.TestExecutionTimeout.Add(TimeSpan.FromMinutes(2));
+                serverLease.Renew(totalLifeTime);
+
 
                 if (result.Failed)
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize - {1}", runner.Instance.Name(), result.ExceptionMessage));
@@ -327,6 +337,7 @@
                 domainSetup.ConfigurationFile = endpoint.AppConfigPath;
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
+            
 
             return new ActiveRunner
                 {

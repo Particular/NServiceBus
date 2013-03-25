@@ -107,10 +107,16 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
         }
 
-        [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
         public override object InitializeLifetimeService()
         {
-            return null;
+            ILease lease = (ILease)base.InitializeLifetimeService();
+            if (lease.CurrentState == LeaseState.Initial)
+            {
+                lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
+                lease.SponsorshipTimeout = TimeSpan.FromMinutes(2);
+                lease.RenewOnCallTime = TimeSpan.FromSeconds(2);
+            }
+            return lease;
         }
 
         public string Name()
