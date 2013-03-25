@@ -2,14 +2,24 @@
 
 namespace Runner
 {
+   using System.Configuration;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
 
+    using NHibernate.Cfg;
+
     using NServiceBus;
     using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Saga;
+    using NServiceBus.UnitOfWork;
+
+    using Raven.Client;
+    using Raven.Client.Document;
+
+    using Configuration = System.Configuration.Configuration;
 
     class Program
     {
@@ -18,6 +28,7 @@ namespace Runner
             var numberOfThreads = int.Parse(args[0]);
             bool volatileMode = (args[4].ToLower() == "volatile");
             bool suppressDTC = (args[4].ToLower() == "suppressdtc");
+            bool twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
@@ -34,7 +45,6 @@ namespace Runner
             var config = Configure.With()
                                   .DefineEndpointName(endpointName)
                                   .DefaultBuilder();
-                     
 
             switch (args[2].ToLower())
             {
@@ -94,17 +104,20 @@ namespace Runner
                 Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
                 var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
-                var sendTimeNoTx = SeedInputQueue(numberOfMessages,endpointName, numberOfThreads, false);
-                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true);
+                var sendTimeNoTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, false, twoPhaseCommit);
+                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true, twoPhaseCommit);
 
+                Console.WriteLine("Queue seeded");
+                Console.ReadLine();
+     
                 var startTime = DateTime.Now;
 
                 startableBus.Start();
-            
-                while(Interlocked.Read(ref TestMessageHandler.NumberOfMessages) < numberOfMessages * 2)
+
+                while (Interlocked.Read(ref Timings.NumberOfMessages) < numberOfMessages * 2)
                     Thread.Sleep(1000);
 
-                var durationSeconds = (TestMessageHandler.Last - TestMessageHandler.First.Value).TotalSeconds;
+                var durationSeconds = (Timings.Last - Timings.First.Value).TotalSeconds;
                 Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}", 
                                       numberOfThreads, 
                                       numberOfMessages * 2, 
@@ -112,7 +125,7 @@ namespace Runner
                                       args[3], 
                                       Convert.ToDouble(numberOfMessages * 2) / durationSeconds, 
                                       Convert.ToDouble(numberOfMessages) / sendTimeNoTx.TotalSeconds,
-                                      (TestMessageHandler.First - startTime).Value.TotalSeconds,
+                                      (Timings.First - startTime).Value.TotalSeconds,
                                       (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
                                       args[4],
                                       Convert.ToDouble(numberOfMessages) / sendTimeWithTx.TotalSeconds);
@@ -120,32 +133,60 @@ namespace Runner
             }
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction)
+        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit)
         {
             var sw = new Stopwatch();
             var bus = Configure.Instance.Builder.Build<IBus>();
-            var message = new TestMessage();
 
             sw.Start();
-            Parallel.For(0, numberOfMessages, new ParallelOptions { MaxDegreeOfParallelism = numberOfThreads },
+            Parallel.For(
+                0,
+                numberOfMessages,
+                new ParallelOptions { MaxDegreeOfParallelism = numberOfThreads },
                 x =>
-                {
-                    if (createTransaction)
                     {
-                        using (var tx = new TransactionScope())
+                        var message = new TestMessage();
+                        message.TwoPhaseCommit = twoPhaseCommit;
+                        message.Id = x;
+
+                        if (createTransaction)
+                        {
+                            using (var tx = new TransactionScope())
+                            {
+                                bus.Send(inputQueue, message);
+                                tx.Complete();
+                            }
+                        }
+                        else
                         {
                             bus.Send(inputQueue, message);
-                            tx.Complete();
                         }
-                    }
-                    else
-                    {
-                        bus.Send(inputQueue, message);
-                    }
-                });
+                    });
             sw.Stop();
 
             return sw.Elapsed;
+        }
+    }
+
+    internal class TestRavenUnitOfWork : IManageUnitsOfWork
+    {
+        private readonly IDocumentSession session;
+
+        public TestRavenUnitOfWork(IDocumentSession session)
+        {
+            this.session = session;
+        }
+
+        public void Begin()
+        {
+        }
+
+        public void End(Exception ex = null)
+        {
+            if (ex == null)
+            {
+                session.SaveChanges();
+            }
         }
     }
 
@@ -163,28 +204,76 @@ namespace Runner
         }
     }
 
-    class TestMessageHandler:IHandleMessages<TestMessage>
+    class Timings
     {
         public static DateTime? First;
         public static DateTime Last;
         public static Int64 NumberOfMessages;
-        
+    }
+
+    class TestMessageHandler:IHandleMessages<TestMessage>
+    {
+        private static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
 
         public void Handle(TestMessage message)
         {
-            if (!First.HasValue)
+            if (!Timings.First.HasValue)
             {
-                First = DateTime.Now;
+                Timings.First = DateTime.Now;
             }
-            Interlocked.Increment(ref NumberOfMessages);
-                
-            Last = DateTime.Now;
+            Interlocked.Increment(ref Timings.NumberOfMessages);
+
+            if (message.TwoPhaseCommit)
+            {
+                Transaction.Current.EnlistDurable(Guid.NewGuid(), enlistment, EnlistmentOptions.None);
+            }
+
+            Timings.Last = DateTime.Now;
         }
     }
 
-    [Serializable]
-    public class TestMessage:IMessage
+    public class TestObject
     {
+        public Guid Id { get; set; }
+    }
+
+    [Serializable]
+    public class MessageBase : IMessage
+    {
+        public int Id { get; set; }
+        public bool TwoPhaseCommit { get; set; }
+    }
+
+    [Serializable]
+    public class TestMessage : MessageBase
+    {
+    }
+
+    internal class TwoPhaseCommitEnlistment : ISinglePhaseNotification
+    {
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            preparingEnlistment.Prepared();
+        }
         
+        public void Commit(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
+
+        public void Rollback(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
+        
+        public void InDoubt(Enlistment enlistment)
+        {
+            enlistment.Done();
+        }
+
+        public void SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
+        {
+            singlePhaseEnlistment.Committed();
+        }
     }
 }
