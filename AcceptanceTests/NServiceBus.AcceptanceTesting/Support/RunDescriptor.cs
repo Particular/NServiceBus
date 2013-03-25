@@ -25,6 +25,8 @@
 
         public ScenarioContext ScenarioContext { get; set; }
 
+        public TimeSpan TestExecutionTimeout { get; set; }
+
         public int Permutation { get; set; }
 
         public void Merge(RunDescriptor descriptorToAdd)
