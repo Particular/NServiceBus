@@ -113,11 +113,17 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                         {
                             sender = Factory.CreateTopicClient(destination);
                             senders[destination] = sender;
+
+                            NamespaceClient.CreateTopic(destination);
                         }
                         catch (MessagingEntityNotFoundException)
                         {
                             // TopicNotFoundException?
                             //throw new QueueNotFoundException { Queue = Address.Parse(destination) };
+                        }
+                        catch (MessagingEntityAlreadyExistsException)
+                        {
+                            // is ok.
                         }
                     }
                 }
