@@ -29,6 +29,8 @@
                         {
                             session.Log("MSMQ already properly configured.");
                         }
+
+                        session["MSMQ_INSTALL"] = "SUCCESS";
                     }, session);
 
                 return ActionResult.Success;
@@ -49,6 +51,8 @@
                 CaptureOut(() =>
                     {
                         DtcSetup.StartDtcIfNecessary();
+                        session["DTC_INSTALL"] = "SUCCESS";
+
                         session.Log("DTC installed and configured.");
                     }, session);
 
@@ -69,17 +73,19 @@
             {
                 int port;
 
-                if (!int.TryParse(session["RavenDB.Port"], out port))
+                if (!int.TryParse(session["RAVEN_PORT"], out port))
                 {
                     throw new InvalidOperationException("No RavenDB.Port property found please set it");
                 }
 
-                string installPath = session["RavenDB.InstallPath"];
+                string installPath = session["RAVEN_INSTALLPATH"];
 
                    
                 CaptureOut(() =>
                     {
                         RavenDBSetup.Install(port, installPath);
+
+                        session["RAVEN_INSTALL"] = "SUCCESS";
 
                         session.Log("RavenDB installed and configured.");
                     }, session);
@@ -107,13 +113,13 @@
 
                         if (port != 0)
                         {
-                            session["RavenDB.IsInstalled"] = "true";
-                            session["RavenDB.Port"] = port.ToString();
+                            session["RAVEN_ISINSTALLED"] = "true";
+                            session["RAVEN_PORT"] = port.ToString();
 
                         }
                         else
                         {
-                            session["RavenDB.IsInstalled"] = "false";
+                            session["RAVEN_ISINSTALLED"] = "false";
                         }
                     }, session);
 
@@ -134,7 +140,7 @@
             {
                 CaptureOut(() =>
                 {
-                        session["RavenDB.AvailablePort"] = PortUtils.FindAvailablePort(8080).ToString();
+                        session["PORT_AVAILABLE"] = PortUtils.FindAvailablePort(8080).ToString();
                     
                 }, session);
 
@@ -154,7 +160,7 @@
             {
                 int port;
 
-                if (!int.TryParse(session["SelectedPort"], out port))
+                if (!int.TryParse(session["PORT_TOCHECK"], out port))
                 {
                     throw new InvalidOperationException("No SelectedPort property found please set it");
                 }
@@ -163,7 +169,7 @@
 
                 CaptureOut(() =>
                     {
-                        session["Port." + port] = PortUtils.IsPortAvailable(port).ToString();
+                        session["PORT_CHECK"] = PortUtils.IsPortAvailable(port).ToString();
 
                     }, session);
 
@@ -185,6 +191,9 @@
                 CaptureOut(() =>
                     {
                         PerformanceCounterSetup.SetupCounters();
+                        
+                        session["COUNTERS_ISINSTALLED"] = "false";
+
                         session.Log("NSB performance counters installed.");
                     }, session);
 
