@@ -2,24 +2,12 @@
 
 namespace Runner
 {
-   using System.Configuration;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
 
-    using NHibernate.Cfg;
-
     using NServiceBus;
-    using NServiceBus.Config;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Saga;
-    using NServiceBus.UnitOfWork;
-
-    using Raven.Client;
-    using Raven.Client.Document;
-
-    using Configuration = System.Configuration.Configuration;
 
     class Program
     {
@@ -165,115 +153,6 @@ namespace Runner
             sw.Stop();
 
             return sw.Elapsed;
-        }
-    }
-
-    internal class TestRavenUnitOfWork : IManageUnitsOfWork
-    {
-        private readonly IDocumentSession session;
-
-        public TestRavenUnitOfWork(IDocumentSession session)
-        {
-            this.session = session;
-        }
-
-        public void Begin()
-        {
-        }
-
-        public void End(Exception ex = null)
-        {
-            if (ex == null)
-            {
-                session.SaveChanges();
-            }
-        }
-    }
-
-    class TransportConfigOverride : IProvideConfiguration<TransportConfig>
-    {
-        public static int MaximumConcurrencyLevel;
-        public TransportConfig GetConfiguration()
-        {
-            return new TransportConfig
-                {
-                    MaximumConcurrencyLevel = MaximumConcurrencyLevel,
-                    MaxRetries = 5,
-                    MaximumMessageThroughputPerSecond = 0
-                };
-        }
-    }
-
-    class Timings
-    {
-        public static DateTime? First;
-        public static DateTime Last;
-        public static Int64 NumberOfMessages;
-    }
-
-    class TestMessageHandler:IHandleMessages<TestMessage>
-    {
-        private static TwoPhaseCommitEnlistment enlistment = new TwoPhaseCommitEnlistment();
-
-        public void Handle(TestMessage message)
-        {
-            if (!Timings.First.HasValue)
-            {
-                Timings.First = DateTime.Now;
-            }
-            Interlocked.Increment(ref Timings.NumberOfMessages);
-
-            if (message.TwoPhaseCommit)
-            {
-                Transaction.Current.EnlistDurable(Guid.NewGuid(), enlistment, EnlistmentOptions.None);
-            }
-
-            Timings.Last = DateTime.Now;
-        }
-    }
-
-    public class TestObject
-    {
-        public Guid Id { get; set; }
-    }
-
-    [Serializable]
-    public class MessageBase : IMessage
-    {
-        public int Id { get; set; }
-        public bool TwoPhaseCommit { get; set; }
-    }
-
-    [Serializable]
-    public class TestMessage : MessageBase
-    {
-    }
-
-    internal class TwoPhaseCommitEnlistment : ISinglePhaseNotification
-    {
-        public void Prepare(PreparingEnlistment preparingEnlistment)
-        {
-            preparingEnlistment.Prepared();
-        }
-        
-        public void Commit(Enlistment enlistment)
-        {
-            enlistment.Done();
-        }
-
-        public void Rollback(Enlistment enlistment)
-        {
-            enlistment.Done();
-        }
-        
-        public void InDoubt(Enlistment enlistment)
-        {
-            enlistment.Done();
-        }
-
-        public void SinglePhaseCommit(SinglePhaseEnlistment singlePhaseEnlistment)
-        {
-            singlePhaseEnlistment.Committed();
         }
     }
 }
