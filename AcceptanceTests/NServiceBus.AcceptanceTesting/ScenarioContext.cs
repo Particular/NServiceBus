@@ -10,8 +10,7 @@
     public abstract class ScenarioContext : ContextBoundObject
     {
         public event EventHandler ContextPropertyChanged;
-        private TimeSpan testExecutionTimeout = new TimeSpan(0, 1, 30);
-
+      
         [AttributeUsage(AttributeTargets.Class)]
         sealed class InterceptAttribute : ContextAttribute, IContributeObjectSink
         {
@@ -64,10 +63,5 @@
 
         public bool EndpointsStarted { get; set; }
 
-        public TimeSpan TestExecutionTimeout
-        {
-            get { return testExecutionTimeout; }
-            set { testExecutionTimeout = value; }
-        }
     }
 }

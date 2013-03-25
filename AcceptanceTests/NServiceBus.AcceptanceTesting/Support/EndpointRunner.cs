@@ -1,8 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿using System.Security.Permissions;
+
+namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.Remoting.Lifetime;
     using System.Threading.Tasks;
     using NServiceBus.Installation.Environments;
 
@@ -15,6 +18,7 @@
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         EndpointBehaviour behaviour;
+        TimeSpan testExecutionTimeout;
 
         public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour, IDictionary<Type, string> routingTable, string endpointName)
         {
@@ -22,6 +26,7 @@
             {
                 behaviour = endpointBehaviour;
                 scenarioContext = run.ScenarioContext;
+                testExecutionTimeout = run.TestExecutionTimeout;
                 configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
                 configuration.EndpointName = endpointName;
 
@@ -100,6 +105,12 @@
             {
                 return Result.Failure(ex);
             }
+        }
+
+        [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.Infrastructure)]
+        public override object InitializeLifetimeService()
+        {
+            return null;
         }
 
         public string Name()

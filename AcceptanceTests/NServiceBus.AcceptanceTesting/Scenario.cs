@@ -61,7 +61,7 @@
             return this;
         }
 
-        public void Run()
+        public void Run(TimeSpan? testExecutionTimeout = null)
         {
             var builder = new RunDescriptorsBuilder();
 
@@ -78,6 +78,7 @@
             foreach (var runDescriptor in runDescriptors)
             {
                 runDescriptor.ScenarioContext = contextFactory();
+                runDescriptor.TestExecutionTimeout = testExecutionTimeout ?? TimeSpan.FromSeconds(90);
             }
 
             var sw = new Stopwatch();

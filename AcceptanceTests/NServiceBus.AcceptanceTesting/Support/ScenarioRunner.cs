@@ -47,11 +47,11 @@
                             return;
                         }
 
-                        Console.Out.WriteLine("{0} - Started", runDescriptor.Key);
+                        Console.Out.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString());
 
                         var runResult = PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done);
 
-                        Console.Out.WriteLine("{0} - Finished", runDescriptor.Key);
+                        Console.Out.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString());
 
                         results.Add(new RunSummary
                             {
@@ -218,7 +218,7 @@
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
-            var maxTime = runDescriptor.ScenarioContext.TestExecutionTimeout;
+            var maxTime = runDescriptor.TestExecutionTimeout;
 
             Task.WaitAll(endpoints.Select(endpoint => Task.Factory.StartNew(() => SpinWait.SpinUntil(done, maxTime))).Cast<Task>().ToArray(), maxTime);
 
