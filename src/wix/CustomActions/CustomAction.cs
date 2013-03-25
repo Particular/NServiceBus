@@ -4,6 +4,7 @@
     using System.IO;
     using System.Text;
     using Microsoft.Deployment.WindowsInstaller;
+    using PowerShell;
     using Setup.Windows.Dtc;
     using Setup.Windows.Msmq;
     using Setup.Windows.PerformanceCounters;
@@ -66,10 +67,104 @@
 
             try
             {
+                int port;
+
+                if (!int.TryParse(session["RavenDB.Port"], out port))
+                {
+                    throw new InvalidOperationException("No RavenDB.Port property found please set it");
+                }
+
+                string installPath = session["RavenDB.InstallPath"];
+
+                   
                 CaptureOut(() =>
                     {
-                        RavenDBSetup.Install();
+                        RavenDBSetup.Install(port, installPath);
+
                         session.Log("RavenDB installed and configured.");
+                    }, session);
+
+
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
+        }
+
+
+        [CustomAction]
+        public static ActionResult DetectRavenDBPort(Session session)
+        {
+            session.Log("Checking if RavenDB is installed");
+
+            try
+            {
+                CaptureOut(() =>
+                    {
+                        var port = RavenDBSetup.FindRavenDBPort();
+
+                        if (port != 0)
+                        {
+                            session["RavenDB.IsInstalled"] = "true";
+                            session["RavenDB.Port"] = port.ToString();
+
+                        }
+                        else
+                        {
+                            session["RavenDB.IsInstalled"] = "false";
+                        }
+                    }, session);
+
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
+        }
+
+        [CustomAction]
+        public static ActionResult FindAvailablePort(Session session)
+        {
+            session.Log("Finding an available port where RavenDB can be installed");
+
+            try
+            {
+                CaptureOut(() =>
+                {
+                        session["RavenDB.AvailablePort"] = PortUtils.FindAvailablePort(8080).ToString();
+                    
+                }, session);
+
+                return ActionResult.Success;
+            }
+            catch (Exception)
+            {
+                return ActionResult.Failure;
+            }
+        }
+
+
+        [CustomAction]
+        public static ActionResult IsPortAvaialable(Session session)
+        {
+            try
+            {
+                int port;
+
+                if (!int.TryParse(session["SelectedPort"], out port))
+                {
+                    throw new InvalidOperationException("No SelectedPort property found please set it");
+                }
+
+                session.Log("Checking if port {0} is available", port);
+
+                CaptureOut(() =>
+                    {
+                        session["Port." + port] = PortUtils.IsPortAvailable(port).ToString();
+
                     }, session);
 
                 return ActionResult.Success;

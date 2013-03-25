@@ -72,4 +72,4 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
 New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
 
-$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)
+$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled+ "&version=" + $nservicebusVersion)

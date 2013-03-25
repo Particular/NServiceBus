@@ -12,6 +12,7 @@
     using System.Xml;
     using Microsoft.Win32;
     using Persistence.Raven.Installation;
+    using PowerShell;
     using PowerShell.RavenDB;
 
     public class RavenDBSetup
@@ -33,6 +34,20 @@
 
             return result;
         }
+
+        public static int FindRavenDBPort()
+        {
+            var port = ReadRavenPortFromRegistry();
+
+            if (port == 0)
+                port = DefaultPort;
+
+            if (Check(port))
+                return port;
+
+            return 0;
+        }
+
 
         private static bool IsRavenDBv2RunningOn(int port)
         {
@@ -96,7 +111,7 @@
             //Check if the port is available, if so let the installer setup raven if its being run
             if (port > 0)
             {
-                availablePort = FindPort(port);
+                availablePort = PortUtils.FindAvailablePort(port);
                 if (availablePort != port)
                 {
                     if (IsRavenDBv2RunningOn(port))
@@ -115,7 +130,7 @@
             }
             else
             {
-                availablePort = FindPort(DefaultPort);
+                availablePort = PortUtils.FindAvailablePort(DefaultPort);
 
                 //is there already a Raven2 on the default port?
                 if (availablePort != DefaultPort && IsRavenDBv2RunningOn(DefaultPort))
@@ -231,6 +246,28 @@
             }
         }
 
+        static int ReadRavenPortFromRegistry()
+        {
+            object portValue = null;
+
+            if (Environment.Is64BitOperatingSystem)
+            {
+                portValue = ReadRegistry(RegistryView.Registry32);
+
+                if(portValue == null)
+                    portValue = ReadRegistry(RegistryView.Registry64);
+            }
+            else
+            {
+                portValue = ReadRegistry(RegistryView.Registry64);
+            }
+
+            if (portValue == null)
+                return 0;
+
+            return (int)portValue;
+        }
+
         static void WriteRegistry(int availablePort, RegistryView view)
         {
             using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
@@ -239,23 +276,15 @@
             }
         }
 
-        static int FindPort(int startPort)
+        static object ReadRegistry(RegistryView view)
         {
-            var activeTcpListeners = IPGlobalProperties
-                .GetIPGlobalProperties()
-                .GetActiveTcpListeners();
-
-            for (var port = startPort; port < startPort + 1024; port++)
+            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
-                var portCopy = port;
-                if (activeTcpListeners.All(endPoint => endPoint.Port != portCopy))
-                {
-                    return port;
-                }
+                return key.GetValue("RavenPort");
             }
-
-            return startPort;
         }
+
+      
         
         const string DefaultDirectoryName = "NServiceBus.Persistence.v4";
     }
