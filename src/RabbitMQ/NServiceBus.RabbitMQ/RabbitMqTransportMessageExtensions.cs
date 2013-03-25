@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Linq;
     using System.Text;
+    using IdGeneration;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
@@ -25,11 +26,16 @@
 
             if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                properties.Type = message.Headers[Headers.EnclosedMessageTypes];
+                properties.Type = message.Headers[Headers.EnclosedMessageTypes].Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
             }
 
             if (message.Headers.ContainsKey(Headers.ContentType))
                 properties.ContentType = message.Headers[Headers.ContentType];
+            else
+            {
+                properties.ContentType = "application/octet-stream";
+            }
+            
 
             if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
                 properties.ReplyTo = message.ReplyToAddress.Queue;
@@ -40,6 +46,10 @@
         public static TransportMessage ToTransportMessage(BasicDeliverEventArgs message)
         {
             var properties = message.BasicProperties;
+
+            if (!properties.IsMessageIdPresent() || string.IsNullOrWhiteSpace(properties.MessageId))
+                throw new InvalidOperationException("A non empty message_id property is required when running NServiceBus on top of RabbitMq. If this is a interop message please make sure to set the message_id property before publishing the message");
+
             var result = new TransportMessage
                 {
                     Body = message.Body,
@@ -52,11 +62,17 @@
             if (message.BasicProperties.Headers != null)
                 result.Headers = message.BasicProperties.Headers.Cast<DictionaryEntry>()
                                         .ToDictionary(
-                                        kvp => (string)kvp.Key, 
-                                        kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[]) kvp.Value));
+                                        kvp => (string)kvp.Key,
+                                        kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[])kvp.Value));
 
             if (properties.IsCorrelationIdPresent())
                 result.CorrelationId = properties.CorrelationId;
+
+            //When doing native interop we only require the type to be set the "fullname" of the message
+            if (!result.Headers.ContainsKey(Headers.EnclosedMessageTypes) && properties.IsTypePresent())
+            {
+                result.Headers[Headers.EnclosedMessageTypes] = properties.Type;
+            }
 
             return result;
         }

@@ -31,7 +31,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
                 stream.Position = 0;
 
-                var result = (SuperMessage)Serializer.Deserialize(stream, new[] { typeof(SuperMessage).AssemblyQualifiedName, typeof(IMyEvent).AssemblyQualifiedName })[0];
+                var result = (SuperMessage)Serializer.Deserialize(stream, new[] { typeof(SuperMessage), typeof(IMyEvent) })[0];
 
                 Assert.AreEqual("John", result.SomeProperty);
             }
@@ -63,7 +63,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Serializer.Serialize(new object[] { new SimpleMessage{SomeProperty = "test"} }, stream);
 
                 stream.Position = 0;
-                var result = (SimpleMessage) Serializer.Deserialize(stream, new[]{typeof(SimpleMessage).AssemblyQualifiedName})[0];
+                var result = (SimpleMessage) Serializer.Deserialize(stream, new[]{typeof(SimpleMessage)})[0];
 
                 Assert.AreEqual("test",result.SomeProperty);
             }
@@ -105,7 +105,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 var json = new StreamReader(stream).ReadToEnd();
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument).AssemblyQualifiedName }).Cast<MessageWithXDocument>().Single();
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument) }).Cast<MessageWithXDocument>().Single();
 
                 Assert.AreEqual(messageWithXDocument.Document.ToString(), result.Document.ToString());
                 Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
@@ -121,7 +121,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 var json = new StreamReader(stream).ReadToEnd();
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement).AssemblyQualifiedName }).Cast<MessageWithXElement>().Single();
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement) }).Cast<MessageWithXElement>().Single();
 
                 Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
                 Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));

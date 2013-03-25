@@ -279,6 +279,13 @@ namespace NServiceBus.Unicast.Transport
 
         void ProcessMessage(TransportMessage m)
         {
+            if (string.IsNullOrWhiteSpace(m.Id))
+            {
+                Logger.Error("Message without message id detected");
+                FailureManager.SerializationFailedForMessage(m, new SerializationException("Message without message id received."));
+                return;
+            }
+
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
             if (TransactionSettings.IsTransactional)

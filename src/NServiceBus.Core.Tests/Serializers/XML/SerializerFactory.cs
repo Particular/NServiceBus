@@ -49,7 +49,7 @@ namespace NServiceBus.Serializers.XML.Test
                 SerializerFactory.Create<T>().Serialize(new[] { message }, stream);
                 stream.Position = 0;
               
-                var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]{message.GetType().AssemblyQualifiedName});
+                var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]{message.GetType()});
                 return (T)msgArray[0];
 
             }

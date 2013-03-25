@@ -261,7 +261,7 @@ namespace NServiceBus.Serializers.XML.Test
                 writer.Flush();
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName });
+                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream, new[] { typeof(MessageWithDouble) });
 
                 Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
 
@@ -279,7 +279,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = SerializerFactory.Create(typeof(MessageWithDouble),typeof(EmptyMessage))
-                    .Deserialize(stream, new[] { typeof(MessageWithDouble).AssemblyQualifiedName, typeof(EmptyMessage).AssemblyQualifiedName });
+                    .Deserialize(stream, new[] { typeof(MessageWithDouble), typeof(EmptyMessage) });
 
                 Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
                 Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
@@ -787,7 +787,7 @@ namespace NServiceBus.Serializers.XML.Test
                 serializer.Serialize(new[] { new EmptyMessage(), new EmptyMessage(), new EmptyMessage() }, stream);
                 stream.Position = 0;
 
-                var msgArray = serializer.Deserialize(stream, new[] { typeof(EmptyMessage).FullName });
+                var msgArray = serializer.Deserialize(stream, new[] { typeof(EmptyMessage) });
 
                 Assert.AreEqual(3, msgArray.Length);
             }

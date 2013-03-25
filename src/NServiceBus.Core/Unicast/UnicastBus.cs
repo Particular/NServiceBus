@@ -1070,19 +1070,13 @@ namespace NServiceBus.Unicast
 
             try
             {
-                IList<string> messageTypes = null;
 
-                if (m.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-                {
-                    var header = m.Headers[Headers.EnclosedMessageTypes];
-
-                    if (!string.IsNullOrEmpty(header))
-                        messageTypes = header.Split(';');
-                }
+                var messageMetadata = MessageRegistry.GetMessageTypes(m);
+               
 
                 using (var stream = new MemoryStream(m.Body))
                 {
-                    return MessageSerializer.Deserialize(stream, messageTypes);
+                    return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
                 }
             }
             catch (Exception e)

@@ -1,5 +1,6 @@
 namespace NServiceBus.Serialization
 {
+    using System;
     using System.IO;
     using System.Collections.Generic;
 
@@ -21,7 +22,7 @@ namespace NServiceBus.Serialization
         /// <param name="stream">Stream that contains messages.</param>
         /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
-        object[] Deserialize(Stream stream, IList<string> messageTypes = null);
+        object[] Deserialize(Stream stream, IList<Type> messageTypes = null);
 
         /// <summary>
         /// Gets the content type into which this serializer serializes the content to 

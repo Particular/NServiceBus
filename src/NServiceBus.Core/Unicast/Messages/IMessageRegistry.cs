@@ -7,6 +7,8 @@
     {
         MessageMetadata GetMessageDefinition(Type messageType);
 
+        IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message);
+
         IEnumerable<MessageMetadata> GetAllMessages();
     }
 

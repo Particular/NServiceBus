@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
+    using Logging;
     using NServiceBus.Unicast.Transport.Transactional;
     using NServiceBus.Utils;
     using Unicast.Transport;
@@ -76,7 +77,7 @@
                 scheduler.Dispose();
             }
         }
-        
+
         void StartConsumer()
         {
             var token = tokenSource.Token;
@@ -90,7 +91,7 @@
                                 circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Failed to start consumer.", ex));
                                 return true;
                             });
-                        
+
                         StartConsumer();
                     }, TaskContinuationOptions.OnlyOnFaulted);
         }
@@ -102,7 +103,7 @@
 
             using (var channel = connection.CreateModel())
             {
-                channel.BasicQos(0,PrefetchCount, false);
+                channel.BasicQos(0, PrefetchCount, false);
 
                 var consumer = new QueueingBasicConsumer(channel);
 
@@ -121,8 +122,26 @@
                     }
 
                     try
-                    {                                        
-                        bool messageProcessedOk = tryProcessMessage(RabbitMqTransportMessageExtensions.ToTransportMessage(message));
+                    {
+                        var messageProcessedOk = false;
+
+                        TransportMessage transportMessage = null;
+                        try
+                        {
+                            transportMessage = RabbitMqTransportMessageExtensions.ToTransportMessage(message);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Poison message detected, deliveryTag: " + message.DeliveryTag, ex);
+
+                            //just ack the poison message to avoid getting stuck
+                            messageProcessedOk = true;
+                        }
+
+                        if (transportMessage != null)
+                        {
+                            messageProcessedOk = tryProcessMessage(transportMessage);
+                        }
 
                         if (!autoAck && messageProcessedOk)
                         {
@@ -168,5 +187,7 @@
         readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
         string workQueue;
         Action<string, Exception> endProcessMessage;
+
+        static ILog Logger = LogManager.GetLogger(typeof(RabbitMqDequeueStrategy));
     }
 }

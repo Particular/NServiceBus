@@ -33,6 +33,27 @@
 
         }
 
+        
+        [Test]
+        public void Should_default_the_content_type_to_octet_stream_when_no_content_type_is_specified()
+        {
+            VerifyRabbit(new TransportMessageBuilder(),
+                received => Assert.AreEqual("application/octet-stream", received.BasicProperties.ContentType));
+
+        }
+
+        
+
+        [Test]
+        public void Should_set_the_message_type_based_on_the_encloded_message_types_header()
+        {
+            var messageType = typeof (MyMessage);
+
+            VerifyRabbit(new TransportMessageBuilder().WithHeader(Headers.EnclosedMessageTypes, messageType.AssemblyQualifiedName),
+                received => Assert.AreEqual(messageType.FullName, received.BasicProperties.Type));
+
+        }
+
         [Test]
         public void Should_set_the_time_to_be_received()
         {
@@ -188,7 +209,10 @@
 
 
 
-
+        class MyMessage
+        {
+            
+        }
 
     }
 }
