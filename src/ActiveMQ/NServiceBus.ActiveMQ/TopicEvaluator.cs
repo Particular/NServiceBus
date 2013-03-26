@@ -6,7 +6,7 @@ namespace NServiceBus.Transports.ActiveMQ
     {
         public string GetTopicFromMessageType(Type type)
         {
-            return "VirtualTopic." + type.Name;
+            return "VirtualTopic." + type.FullName;
         }
     }
 }
