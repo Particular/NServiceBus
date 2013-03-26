@@ -24,19 +24,6 @@ namespace Rhino.Licensing
         }
 
         /// <summary>
-        /// Creates a new instance of <seealso cref="LicenseValidator"/>.
-        /// </summary>
-        /// <param name="publicKey">public key</param>
-        /// <param name="licensePath">path to license file</param>
-        /// <param name="licenseServerUrl">license server endpoint address</param>
-        /// <param name="clientId">Id of the license holder</param>
-        public LicenseValidator(string publicKey, string licensePath, string licenseServerUrl, Guid clientId)
-            : base(publicKey, licenseServerUrl, clientId)
-        {
-            this.licensePath = licensePath;
-        }
-
-        /// <summary>
         /// Gets or Sets the license content
         /// </summary>
         protected override string License
@@ -71,14 +58,6 @@ namespace Rhino.Licensing
             }
 
             base.AssertValidLicense();
-        }
-
-        /// <summary>
-        /// Removes existing license from the machine.
-        /// </summary>
-        public override void RemoveExistingLicense()
-        {
-            File.Delete(licensePath);
         }
     }
 }

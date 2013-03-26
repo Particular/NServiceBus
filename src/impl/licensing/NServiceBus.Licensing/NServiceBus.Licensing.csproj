@@ -74,19 +74,15 @@
     <Compile Include="License.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rhino.Licensing\AbstractLicenseValidator.cs" />
-    <Compile Include="Rhino.Licensing\FloatingLicenseNotAvailableException.cs" />
     <Compile Include="Rhino.Licensing\ILicensingService.cs" />
     <Compile Include="Rhino.Licensing\InvalidationType.cs" />
     <Compile Include="Rhino.Licensing\ISubscriptionLicensingService.cs" />
     <Compile Include="Rhino.Licensing\LicenseExpiredException.cs" />
     <Compile Include="Rhino.Licensing\LicenseFileNotFoundException.cs" />
-    <Compile Include="Rhino.Licensing\LicenseGenerator.cs" />
     <Compile Include="Rhino.Licensing\LicenseNotFoundException.cs" />
     <Compile Include="Rhino.Licensing\LicenseType.cs" />
     <Compile Include="Rhino.Licensing\LicenseValidator.cs" />
-    <Compile Include="Rhino.Licensing\LicensingService.cs" />
     <Compile Include="Rhino.Licensing\RhinoLicensingException.cs" />
-    <Compile Include="Rhino.Licensing\SntpClient.cs" />
     <Compile Include="Rhino.Licensing\StringLicenseValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
