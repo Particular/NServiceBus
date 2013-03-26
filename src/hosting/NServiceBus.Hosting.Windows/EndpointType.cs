@@ -2,35 +2,32 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
     using Arguments;
-    using Helpers;
+    using Utils;
 
     /// <summary>
-    /// Representation of an Endpoint Type with additional descriptive properties.
+    ///     Representation of an Endpoint Type with additional descriptive properties.
     /// </summary>
     public class EndpointType
     {
-        readonly HostArguments arguments = new HostArguments(new string[0]);
-        readonly Type type;
-        readonly object endpointConfiguration;
-
-        internal EndpointType(HostArguments arguments, Type type) : this(type) {
-            if (arguments == null) {
+        internal EndpointType(HostArguments arguments, Type type) : this(type)
+        {
+            if (arguments == null)
+            {
                 throw new ArgumentNullException("arguments");
             }
             this.arguments = arguments;
         }
 
-        internal Type Type {
-            get { return type; }
-        }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="EndpointType" /> class.
+        ///     Initializes a new instance of the <see cref="EndpointType" /> class.
         /// </summary>
         /// <param name="type">The type.</param>
-        public EndpointType(Type type) {
-            if (type == null) {
+        public EndpointType(Type type)
+        {
+            if (type == null)
+            {
                 throw new ArgumentNullException("type");
             }
             this.type = type;
@@ -38,61 +35,78 @@
             endpointConfiguration = Activator.CreateInstance(type);
         }
 
-        void AssertIsValid() {
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-
-            if (constructor == null) {
-                throw new InvalidOperationException("Endpoint configuration type needs to have a default constructor: " + type.FullName);
-            }
+        internal Type Type
+        {
+            get { return type; }
         }
 
-        public string EndpointConfigurationFile {
+        public string EndpointConfigurationFile
+        {
             get { return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, type.Assembly.ManifestModule.Name + ".config"); }
         }
 
-        public string EndpointVersion {
+        public string EndpointVersion
+        {
             get { return FileVersionRetriever.GetFileVersion(type); }
         }
 
-        public string AssemblyQualifiedName {
+        public string AssemblyQualifiedName
+        {
             get { return type.AssemblyQualifiedName; }
         }
 
-        public string EndpointName {
-            get {
-                var arr = type.GetCustomAttributes(typeof(EndpointNameAttribute), false);
-                if (arr.Length == 1) {
+        public string EndpointName
+        {
+            get
+            {
+                object[] arr = type.GetCustomAttributes(typeof (EndpointNameAttribute), false);
+                if (arr.Length == 1)
+                {
                     return ((EndpointNameAttribute) arr[0]).Name;
                 }
 
                 var nameThisEndpoint = endpointConfiguration as INameThisEndpoint;
-                if (nameThisEndpoint != null) {
+                if (nameThisEndpoint != null)
+                {
                     return nameThisEndpoint.GetName();
                 }
 
-                // this is not working at the moment - getting unexpected result for EndpointHelper.GetDefaultEndpointName()
-//                var nameViaConfiguration = Configure.GetEndpointNameAction;
-//                if (nameViaConfiguration != null) {
-//                    return nameViaConfiguration();
-//                }
-
-                if (arguments.EndpointName != null) {
+                if (arguments.EndpointName != null)
+                {
                     return arguments.EndpointName;
                 }
                 return null;
             }
         }
 
-        public string ServiceName {
-            get {
+        public string ServiceName
+        {
+            get
+            {
                 string serviceName = type.Namespace ?? type.Assembly.GetName().Name;
 
-                if (arguments.ServiceName != null) {
+                if (arguments.ServiceName != null)
+                {
                     serviceName = arguments.ServiceName;
                 }
 
                 return serviceName;
             }
         }
+
+        void AssertIsValid()
+        {
+            ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
+
+            if (constructor == null)
+            {
+                throw new InvalidOperationException(
+                    "Endpoint configuration type needs to have a default constructor: " + type.FullName);
+            }
+        }
+
+        readonly HostArguments arguments = new HostArguments(new string[0]);
+        readonly object endpointConfiguration;
+        readonly Type type;
     }
 }

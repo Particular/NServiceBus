@@ -9,7 +9,6 @@
     using Installers;
     using Topshelf;
     using Topshelf.Configuration;
-    using Utils;
 
     /// <summary>
     /// Entry point to the process.
@@ -70,13 +69,13 @@
             IRunConfiguration cfg = RunnerConfigurator.New(x =>
                                                                {
                                                                    x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
-                                                                                                                                                                   {
-                                                                                                                                                                       c.ConfigurationFile(endpointConfigurationFile);
-                                                                                                                                                                       c.WhenStarted(service => service.Start());
-                                                                                                                                                                       c.WhenStopped(service => service.Stop());
-                                                                                                                                                                       c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
-                                                                                                                                                                       c.CreateServiceLocator(() => new HostServiceLocator());
-                                                                                                                                                                   });
+                                                                    {
+                                                                        c.ConfigurationFile(endpointConfigurationFile);
+                                                                        c.WhenStarted(service => service.Start());
+                                                                        c.WhenStopped(service => service.Stop());
+                                                                        c.CommandLineArguments(args, () => SetHostServiceLocatorArgs);
+                                                                        c.CreateServiceLocator(() => new HostServiceLocator());
+                                                                    });
 
                                                                    if (arguments.Username != null && arguments.Password != null)
                                                                    {
