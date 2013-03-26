@@ -89,8 +89,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EndpointType.cs" />
+    <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="INameThisEndpoint.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
     <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
     <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />

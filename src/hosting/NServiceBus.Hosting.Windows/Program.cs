@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.IO;
     using System.Linq;
     using Arguments;
     using Helpers;
@@ -30,23 +29,14 @@
             }
             
             assemblyScannerResults = AssemblyScanner.GetScannableAssemblies();
-            var endpointConfigurationType = GetEndpointConfigurationType(arguments);
 
-            if (endpointConfigurationType == null)
-            {
-                throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
-                    "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
-                    " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
-                    "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
-            }
+            var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
+            var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);
 
-            AssertThatEndpointConfigurationTypeHasDefaultConstructor(endpointConfigurationType);
-            string endpointConfigurationFile = GetEndpointConfigurationFile(endpointConfigurationType);
-            string endpointName, serviceName;
-            var endpointVersion = FileVersionRetriever.GetFileVersion(endpointConfigurationType);
-
-            GetEndpointName(endpointConfigurationType, arguments, out endpointName, out serviceName);
-
+            var endpointConfigurationFile = endpointConfigurationType.EndpointConfigurationFile;
+            var endpointName = endpointConfigurationType.EndpointName;
+            var serviceName = endpointConfigurationType.ServiceName;
+            var endpointVersion = endpointConfigurationType.EndpointVersion;
             var displayName = serviceName + "-" + endpointVersion;
 
             if (arguments.SideBySide)
@@ -145,116 +135,5 @@
         {
             HostServiceLocator.Args = args;
         }
-
-        static void AssertThatEndpointConfigurationTypeHasDefaultConstructor(Type type)
-        {
-            var constructor = type.GetConstructor(Type.EmptyTypes);
-
-            if (constructor == null)
-                throw new InvalidOperationException("Endpoint configuration type needs to have a default constructor: " + type.FullName);
-        }
-
-        static string GetEndpointConfigurationFile(Type endpointConfigurationType)
-        {
-            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointConfigurationType.Assembly.ManifestModule.Name + ".config");
-        }
-
-
-        private static void GetEndpointName(Type endpointConfigurationType, HostArguments arguments,
-                                            out string endpointName, out string serviceName)
-        {
-            var endpointConfiguration = Activator.CreateInstance(endpointConfigurationType);
-
-            endpointName = null;
-            serviceName = endpointConfiguration.GetType().Namespace ?? endpointConfiguration.GetType().Assembly.GetName().Name;
-
-            if (arguments.ServiceName != null)
-            {
-                serviceName = arguments.ServiceName;
-            }
-
-            var arr = endpointConfiguration.GetType().GetCustomAttributes(typeof (EndpointNameAttribute), false);
-            if (arr.Length == 1)
-            {
-                endpointName = ((EndpointNameAttribute) arr[0]).Name;
-                return;
-            }
-
-            var nameThisEndpoint = endpointConfiguration as INameThisEndpoint;
-            if (nameThisEndpoint != null)
-            {
-                endpointName = nameThisEndpoint.GetName();
-                return;
-            }
-
-            if (arguments.EndpointName != null)
-            {
-                endpointName = arguments.EndpointName;
-            }
-        }
-
-        static Type GetEndpointConfigurationType(HostArguments arguments)
-        {
-            if (arguments.EndpointConfigurationType != null)
-            {
-                string t = arguments.EndpointConfigurationType;
-                if (t != null)
-                {
-                    Type endpointType = Type.GetType(t, false);
-                    if (endpointType == null)
-                        throw new ConfigurationErrorsException(string.Format("Command line argument 'endpointConfigurationType' has specified to use the type '{0}' but that type could not be loaded.", t));
-
-                    return endpointType;
-                }
-            }
-
-            string endpoint = ConfigurationManager.AppSettings["EndpointConfigurationType"];
-            if (endpoint != null)
-            {
-                var endpointType = Type.GetType(endpoint, false);
-                if (endpointType == null)
-                    throw new ConfigurationErrorsException(string.Format("The 'EndpointConfigurationType' entry in the NServiceBus.Host.exe.config has specified to use the type '{0}' but that type could not be loaded.", endpoint));
-
-                return endpointType;
-            }
-
-            List<Type> endpoints = ScanAssembliesForEndpoints().ToList();
-            if (!endpoints.Any())
-            {
-                Console.Out.WriteLine(assemblyScannerResults);
-                return null;
-            }
-
-            AssertThatNotMoreThanOneEndpointIsDefined(endpoints);
-            return endpoints.First();
-        }
-
-        static IEnumerable<Type> ScanAssembliesForEndpoints()
-        {
-            var scannableAssemblies = assemblyScannerResults.Assemblies;
-
-            return scannableAssemblies.SelectMany(assembly => assembly.GetTypes().Where(
-                t => typeof(IConfigureThisEndpoint).IsAssignableFrom(t)
-                     && t != typeof(IConfigureThisEndpoint)
-                     && !t.IsAbstract));
-        }
-
-
-        static void AssertThatNotMoreThanOneEndpointIsDefined(List<Type> endpointConfigurationTypes)
-        {
-            if (endpointConfigurationTypes.Count > 1)
-            {
-                throw new InvalidOperationException("Host doesn't support hosting of multiple endpoints. " +
-                                                    "Endpoint classes found: " +
-                                                    string.Join(", ",
-                                                                endpointConfigurationTypes.Select(
-                                                                    e => e.AssemblyQualifiedName).ToArray()) +
-                                                    " You may have some old assemblies in your runtime directory." +
-                                                    " Try right-clicking your VS project, and selecting 'Clean'."
-                    );
-
-            }
-        }
-
     }
 }
