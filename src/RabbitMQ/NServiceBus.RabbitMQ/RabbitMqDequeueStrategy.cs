@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
+    using CircuitBreakers;
     using Logging;
     using NServiceBus.Unicast.Transport.Transactional;
     using NServiceBus.Utils;

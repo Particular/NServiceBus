@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
     using System.Transactions;
+    using CircuitBreakers;
     using Logging;
     using Serializers.Json;
     using Utils;

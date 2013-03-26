@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using System.Threading.Tasks.Schedulers;
+    using CircuitBreakers;
     using Transport;
     using Transports;
     using Utils;
