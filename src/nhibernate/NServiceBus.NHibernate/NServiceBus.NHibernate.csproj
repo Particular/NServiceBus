@@ -61,7 +61,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureNHibernateDistributorManager.cs" />
     <Compile Include="ConfigureNHibernateGatewayPersister.cs" />
     <Compile Include="ConfigureNHibernateSagaPersister.cs" />
     <Compile Include="ConfigureNHibernateSubscriptionStorage.cs" />
@@ -72,10 +71,6 @@
     <Compile Include="Config\NHibernatePropertyCollection.cs" />
     <Compile Include="Config\NHibernateSagaPersisterConfig.cs" />
     <Compile Include="Config\TimeoutPersisterConfig.cs" />
-    <Compile Include="Distributor\NHibernate\Config\DistributorMessage.cs" />
-    <Compile Include="Distributor\NHibernate\Config\DistributorMessageMap.cs" />
-    <Compile Include="Distributor\NHibernate\Installer\Installer.cs" />
-    <Compile Include="Distributor\NHibernate\NHibernateWorkerAvailabilityManager.cs" />
     <Compile Include="GatewayPersister\NHibernate\Config\GatewayMessage.cs" />
     <Compile Include="GatewayPersister\NHibernate\Config\GatewayMessageMap.cs" />
     <Compile Include="GatewayPersister\NHibernate\GatewayPersister.cs" />
