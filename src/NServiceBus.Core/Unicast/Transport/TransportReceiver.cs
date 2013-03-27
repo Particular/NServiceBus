@@ -246,6 +246,9 @@ namespace NServiceBus.Unicast.Transport
 
         void EndProcess(string messageId, Exception ex)
         {
+            if (needToAbort)
+                return;
+
             throughputLimiter.MessageProcessed();
             
             if (ex == null)
