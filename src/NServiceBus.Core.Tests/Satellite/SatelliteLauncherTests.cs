@@ -56,7 +56,7 @@
         public void When_a_message_is_received_the_Handle_method_should_called_on_the_satellite()
         {
             var tm = new TransportMessage();
-            Transport.RaiseEvent(tm);
+            FakeReceiver.FakeMessageReceived(tm);
 
             Assert.That(_sat.IsMessageHandled, Is.True);
         }
@@ -77,21 +77,15 @@
         }
 
         [Test]
-        public void The_TransportMessageReceived_event_should_be_assigned()
-        {
-            Assert.That(Transport.IsEventAssiged, Is.True);
-        }
-
-        [Test]
         public void The_transport_should_be_started()
         {
-            Assert.That(Transport.IsStarted, Is.True);
+            Assert.That(FakeReceiver.IsStarted, Is.True);
         }
 
         [Test]
         public void The_transport_should_be_started_with_the_satellites_inputQueueAddress()
         {
-            Assert.AreEqual(_satelliteWithQueue.InputAddress, Transport.InputAddress);
+            Assert.AreEqual(_satelliteWithQueue.InputAddress, FakeReceiver.InputAddress);
         }
     }
 
@@ -118,7 +112,7 @@
         [Test]
         public void TheTransport_should_have_been_restarted()
         {
-            Assert.That(Transport.HasChangedMaximumConcurrencyLevelNTimes, Is.GreaterThan(0));
+            Assert.That(FakeReceiver.NumberOfTimesStarted, Is.GreaterThan(0));
         }
     }
 
