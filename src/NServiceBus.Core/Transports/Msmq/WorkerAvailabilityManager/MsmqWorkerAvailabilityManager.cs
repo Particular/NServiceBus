@@ -74,11 +74,11 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 
                 if (UnitOfWork.HasActiveTransaction())
                 {
-                    availableWorker = storageQueue.Receive(TimeSpan.Zero, UnitOfWork.Transaction);
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
                 }
                 else
                 {
-                    availableWorker = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);                    
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);                    
                 }
 
                 if (availableWorker == null)
@@ -144,6 +144,8 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
                 }
             }
         }
+
+        static TimeSpan MaxTimeToWaitForAvailableWorker = TimeSpan.FromSeconds(10);
 
         MessageQueue storageQueue;
         readonly object lockObject = new object();
