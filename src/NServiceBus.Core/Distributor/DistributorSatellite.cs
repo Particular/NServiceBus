@@ -1,7 +1,6 @@
-namespace NServiceBus.Unicast.Distributor
+namespace NServiceBus.Distributor
 {
     using Logging;
-    using Queuing;
     using Satellites;
     using Transports;
 

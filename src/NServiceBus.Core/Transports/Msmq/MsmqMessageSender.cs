@@ -11,27 +11,19 @@ namespace NServiceBus.Transports.Msmq
     /// <summary>
     ///     Msmq implementation of <see cref="ISendMessages" />.
     /// </summary>
-    public class MsmqMessageSender : ISendMessages, IDisposable
+    public class MsmqMessageSender : ISendMessages
     {
-        private readonly ThreadLocal<MessageQueueTransaction> currentTransaction =
-            new ThreadLocal<MessageQueueTransaction>();
-
-        private bool disposed;
-
         /// <summary>
         ///     The current runtime settings for the transport
         /// </summary>
         public MsmqSettings Settings { get; set; }
 
         /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
         /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        public MsmqUnitOfWork UnitOfWork { get; set; }
+
+       
 
         /// <summary>
         ///     Sends the given <paramref name="message" /> to the <paramref name="address" />.
@@ -59,9 +51,9 @@ namespace NServiceBus.Transports.Msmq
                                 new MessageQueue(MsmqUtilities.GetReturnAddress(message.ReplyToAddress.ToString(),
                                                                                 address.ToString()));
 
-                        if (currentTransaction.IsValueCreated)
+                        if (UnitOfWork.HasActiveTransaction())
                         {
-                            q.Send(toSend, currentTransaction.Value);
+                            q.Send(toSend, UnitOfWork.Transaction);
                         }
                         else
                         {
@@ -89,18 +81,7 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        /// <summary>
-        ///     Sets the native transaction.
-        /// </summary>
-        /// <param name="transaction">
-        ///     Native <see cref="MessageQueueTransaction" />.
-        /// </param>
-        public void SetTransaction(MessageQueueTransaction transaction)
-        {
-            currentTransaction.Value = transaction;
-        }
-
-        private static void ThrowFailedToSendException(Address address, Exception ex)
+        static void ThrowFailedToSendException(Address address, Exception ex)
         {
             if (address == null)
                 throw new FailedToSendMessageException("Failed to send message.", ex);
@@ -109,7 +90,7 @@ namespace NServiceBus.Transports.Msmq
                 string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
-        private MessageQueueTransactionType GetTransactionTypeForSend()
+        MessageQueueTransactionType GetTransactionTypeForSend()
         {
             if (!Settings.UseTransactionalQueues)
             {
@@ -124,27 +105,6 @@ namespace NServiceBus.Transports.Msmq
             return Transaction.Current != null
                        ? MessageQueueTransactionType.Automatic
                        : MessageQueueTransactionType.Single;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-                currentTransaction.Dispose();
-            }
-
-            disposed = true;
-        }
-
-        ~MsmqMessageSender()
-        {
-            Dispose(false);
         }
     }
 }

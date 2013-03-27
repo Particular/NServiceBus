@@ -157,6 +157,7 @@
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportConfigurer.cs" />
+    <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Config\MsmqTransportConfig.cs" />
@@ -178,8 +179,8 @@
     <Compile Include="Distributor\Config\WorkerInitializer.cs" />
     <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
     <Compile Include="Distributor\LicenseConfig.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager\DistributorStorageQueueCreator.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager\MsmqWorkerAvailabilityManager.cs" />
+    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\DistributorStorageQueueCreator.cs" />
+    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
     <Compile Include="Distributor\ReadyMessages\Headers.cs" />
     <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />
@@ -431,8 +432,8 @@
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
     <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
-    <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
-    <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
+    <Compile Include="Distributor\DistributorSatellite.cs" />
+    <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />

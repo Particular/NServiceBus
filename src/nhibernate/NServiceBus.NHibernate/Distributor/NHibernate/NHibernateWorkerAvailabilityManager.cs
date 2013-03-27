@@ -2,7 +2,6 @@ namespace NServiceBus.Distributor.NHibernate
 {
     using System.Data;
     using Config;
-    using Unicast.Distributor;
     using global::NHibernate;
 
     /// <summary>

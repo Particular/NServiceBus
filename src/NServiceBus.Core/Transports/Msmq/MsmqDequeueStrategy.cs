@@ -25,9 +25,9 @@ namespace NServiceBus.Transports.Msmq
         public bool PurgeOnStartup { get; set; }
 
         /// <summary>
-        /// Msmq <see cref="ISendMessages"/>.
+        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
         /// </summary>
-        public MsmqMessageSender MessageSender { get; set; }
+        public MsmqUnitOfWork UnitOfWork { get; set; }
 
         /// <summary>
         /// Initializes the <see cref="IDequeueMessages"/>.
@@ -164,7 +164,7 @@ namespace NServiceBus.Transports.Msmq
                         using (var msmqTransaction = new MessageQueueTransaction())
                         {
                             msmqTransaction.Begin();
-                            message = ReceiveMessage(()=>queue.Receive(receiveTimeout, msmqTransaction));
+                            message = ReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction));
 
                             if (message == null)
                             {
@@ -172,10 +172,7 @@ namespace NServiceBus.Transports.Msmq
                                 return;
                             }
 
-                            if (MessageSender != null)
-                            {
-                                MessageSender.SetTransaction(msmqTransaction);
-                            }
+                            UnitOfWork.SetTransaction(msmqTransaction);
 
                             if (ProcessMessage(message))
                             {
@@ -185,6 +182,8 @@ namespace NServiceBus.Transports.Msmq
                             {
                                 msmqTransaction.Abort();
                             }
+
+                            UnitOfWork.ClearTransaction();
                         }
                     }
                     else

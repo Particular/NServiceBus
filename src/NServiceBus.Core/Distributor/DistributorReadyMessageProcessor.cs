@@ -3,7 +3,6 @@ namespace NServiceBus.Distributor
     using Logging;
     using ReadyMessages;
     using Satellites;
-    using Unicast.Distributor;
     using Unicast.Transport;
 
     /// <summary>
