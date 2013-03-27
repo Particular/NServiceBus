@@ -1,20 +1,17 @@
 namespace NServiceBus.Distributor
 {
+    using System;
     using Logging;
     using Satellites;
     using Transports;
+    using Unicast.Transport;
 
     /// <summary>
     ///     Provides functionality for distributing messages from a bus
     ///     to multiple workers when using a unicast transport.
     /// </summary>
-    public class DistributorSatellite : ISatellite
+    public class DistributorSatellite : IAdvancedSatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorSatellite));
-
-        private static readonly Address Address;
-        private static readonly bool Disable;
-
         static DistributorSatellite()
         {
             Address = Configure.Instance.GetMasterNodeAddress();
@@ -64,6 +61,16 @@ namespace NServiceBus.Distributor
             WorkerManager.Stop();
         }
 
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return receiver =>
+                {
+                    //we don't need any DTC for the distributor
+                    receiver.TransactionSettings.DontUseDistributedTransactions = true;
+                    receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
+                };
+        }
+
         /// <summary>
         /// This method is called when a message is available to be processed.
         /// </summary>
@@ -80,5 +87,10 @@ namespace NServiceBus.Distributor
 
             return true;
         }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorSatellite));
+
+        static readonly Address Address;
+        static readonly bool Disable;
     }
 }

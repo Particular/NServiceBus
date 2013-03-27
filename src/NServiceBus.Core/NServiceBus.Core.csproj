@@ -139,6 +139,7 @@
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Persistence\Raven\StoreAccessor.cs" />
+    <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\Conventions.cs" />
     <Compile Include="Settings\ISetDefaultSettings.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
@@ -408,7 +409,6 @@
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\RavenTimeoutPersistence.cs" />
-    <Compile Include="Timeout\Hosting\Windows\SatelliteInterceptor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />

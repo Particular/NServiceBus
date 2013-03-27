@@ -1,11 +1,12 @@
 namespace NServiceBus.Timeout.Hosting.Windows
 {
+    using System;
     using Core;
     using Satellites;
     using Transports;
-    using Unicast.Queuing;
+    using Unicast.Transport;
 
-    public class TimeoutDispatcherProcessor : ISatellite
+    public class TimeoutDispatcherProcessor : IAdvancedSatellite
     {  
         public static readonly Address TimeoutDispatcherAddress;
 
@@ -47,6 +48,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public void Stop()
         {
             TimeoutPersisterReceiver.Stop();
+        }
+
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return receiver =>
+            {
+                //TODO: The line below needs to change when we refactor the slr to be:
+                // transport.DisableSLR() or similar
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+            };
         }
     }
 }

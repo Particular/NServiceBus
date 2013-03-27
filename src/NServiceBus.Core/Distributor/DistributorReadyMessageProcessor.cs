@@ -1,5 +1,6 @@
 namespace NServiceBus.Distributor
 {
+    using System;
     using Logging;
     using ReadyMessages;
     using Satellites;
@@ -8,7 +9,7 @@ namespace NServiceBus.Distributor
     /// <summary>
     ///     Part of the Distributor infrastructure.
     /// </summary>
-    public class DistributorReadyMessageProcessor : ISatellite
+    public class DistributorReadyMessageProcessor : IAdvancedSatellite
     {
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
         private static readonly Address Address;
@@ -70,6 +71,16 @@ namespace NServiceBus.Distributor
         /// </summary>
         public void Stop()
         {
+        }
+
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return receiver =>
+            {
+                //we don't need any DTC for the distributor
+                receiver.TransactionSettings.DontUseDistributedTransactions = true;
+                receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
+            };
         }
 
         private void HandleControlMessage(TransportMessage controlMessage)
