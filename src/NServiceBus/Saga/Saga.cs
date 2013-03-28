@@ -10,9 +10,9 @@ namespace NServiceBus.Saga
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="ISagaStartedBy{T}"/> for the relevant message type.
     /// </summary>
-    /// <typeparam name="T">A type that implements <see cref="ISagaEntity"/>.</typeparam>
+    /// <typeparam name="T">A type that implements <see cref="IContainSagaData"/>.</typeparam>
     public abstract class
-        Saga<T> : IConfigurable, ISaga<T> where T : ISagaEntity
+        Saga<T> : IConfigurable, ISaga<T> where T : IContainSagaData
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -22,7 +22,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// A more generic projection on <see cref="Data" />.
         /// </summary>
-        public ISagaEntity Entity
+        public IContainSagaData Entity
         {
             get { return Data; }
             set { Data = (T)value; }

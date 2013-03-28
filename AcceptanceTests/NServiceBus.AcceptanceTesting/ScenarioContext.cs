@@ -10,7 +10,7 @@
     public abstract class ScenarioContext : ContextBoundObject
     {
         public event EventHandler ContextPropertyChanged;
-
+      
         [AttributeUsage(AttributeTargets.Class)]
         sealed class InterceptAttribute : ContextAttribute, IContributeObjectSink
         {
@@ -62,5 +62,6 @@
         }
 
         public bool EndpointsStarted { get; set; }
+
     }
 }

@@ -1,4 +1,4 @@
-namespace NServiceBus.Utils
+namespace NServiceBus.CircuitBreakers
 {
     using System;
     using System.Threading;

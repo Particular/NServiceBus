@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Distributor
+namespace NServiceBus.Distributor
 {
 	/// <summary>
 	/// Defines a manager class that determines the availability

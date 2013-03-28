@@ -3,11 +3,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using CircuitBreakers;
     using Core;
     using Logging;
     using Transports;
     using Unicast.Transport;
-    using Utils;
 
     public class TimeoutPersisterReceiver
     {
@@ -44,11 +44,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
                    t.Exception.Handle(ex =>
                    {
                        Logger.Warn("Failed to fetch timeouts from the timeout storage");
-                       circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Repeted failures when fetching timeouts from storage, endpoint will be terminated", ex));
+                       circuitBreaker.Failure(ex);
                        return true;
                    });
-
-                   Thread.Sleep(1000);
 
                    StartPoller();
                }, TaskContinuationOptions.OnlyOnFaulted);
@@ -99,7 +97,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     timeoutPushed = false;
                 }
 
+                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuitbreaker if we
+                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+                // will be picked up after at most 1 minute
+                var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
+
+                if (nextRetrieval > maxNextRetrieval)
+                    nextRetrieval = maxNextRetrieval;
+
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
+                circuitBreaker.Success();
             }
         }
 
@@ -126,17 +133,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-
-
-
-        readonly object lockObject = new object();
-
+        readonly object lockObject = new object();   
         CancellationTokenSource tokenSource;
         volatile bool timeoutPushed;
         DateTime nextRetrieval = DateTime.UtcNow;
-        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(5, TimeSpan.FromMinutes(2));
-
+        
+        readonly ICircuitBreaker circuitBreaker = new RepetedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity",TimeSpan.FromMinutes(2), 
+                            ex => Configure.Instance.RaiseCriticalError("Repeted failures when fetching timeouts from storage, endpoint will be terminated", ex));
+        
         static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
-
     }
 }

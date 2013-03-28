@@ -33,7 +33,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="entity">A saga entity</param>
         /// <returns>A PropertyInfo of the property marked with a UniqAttribute or null if not used</returns>
-        public static KeyValuePair<string, object>? GetUniqueProperty(ISagaEntity entity)
+        public static KeyValuePair<string, object>? GetUniqueProperty(IContainSagaData entity)
         {
             var prop = GetUniqueProperty(entity.GetType());
 
@@ -47,7 +47,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="entity">A saga entity</param>
         /// <returns>A dictionary of property names and their values</returns>
-        public static IDictionary<string, object> GetUniqueProperties(ISagaEntity entity)
+        public static IDictionary<string, object> GetUniqueProperties(IContainSagaData entity)
         {
             return GetUniqueProperties(entity.GetType()).ToDictionary(p => p.Name, p => p.GetValue(entity, null));
         }

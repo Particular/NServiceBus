@@ -10,8 +10,6 @@ namespace NServiceBus.Satellites
 
     public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
     {
-        public static event EventHandler<SatelliteArgs> SatelliteTransportInitialized;
-
         public IBuilder Builder { get; set; }
 
         public void Start()
@@ -33,16 +31,14 @@ namespace NServiceBus.Satellites
 
                     if (s.InputAddress != null)
                     {
-                        ctx.Transport = Builder.Build<ITransport>();
+                        ctx.Transport = Builder.Build<TransportReceiver>();
 
-                        if (SatelliteTransportInitialized != null)
+                        var advancedSatellite = s as IAdvancedSatellite;
+                        if (advancedSatellite != null)
                         {
-                            SatelliteTransportInitialized(null,
-                                                          new SatelliteArgs
-                                                          {
-                                                              Satellite = s,
-                                                              Transport = ctx.Transport
-                                                          });
+                            var receiverCustomization = advancedSatellite.GetReceiverCustomization();
+
+                            receiverCustomization(ctx.Transport);
                         }
                     }
 
@@ -115,11 +111,5 @@ namespace NServiceBus.Satellites
         static readonly ILog Logger = LogManager.GetLogger(typeof(SatelliteLauncher));
 
         private readonly List<SatelliteContext> satellites = new List<SatelliteContext>();
-    }
-
-    public class SatelliteArgs : EventArgs
-    {
-        public ISatellite Satellite { get; set; }
-        public ITransport Transport { get; set; }
-    }
+    }   
 }

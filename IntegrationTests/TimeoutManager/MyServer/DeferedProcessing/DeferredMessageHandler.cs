@@ -9,7 +9,7 @@ namespace MyServer.DeferedProcessing
 
         public void Handle(DeferredMessage message)
         {
-            if(DateTime.Now < message.ProcessAt)
+            if (!Bus.CurrentMessageContext.Headers.ContainsKey(Headers.IsDeferredMessage))
             {
                 LogMessage("Message will be processed at " + message.ProcessAt.ToLongTimeString());
 

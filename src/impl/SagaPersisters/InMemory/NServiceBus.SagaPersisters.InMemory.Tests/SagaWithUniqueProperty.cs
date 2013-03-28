@@ -4,7 +4,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using Saga;
 
-    public class SagaWithUniqueProperty : ISagaEntity
+    public class SagaWithUniqueProperty : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -16,7 +16,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public virtual string UniqueString { get; set; }
     }
 
-    public class SagaWithTwoUniqueProperties : ISagaEntity
+    public class SagaWithTwoUniqueProperties : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -30,7 +30,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public virtual int UniqueInt { get; set; }
     }
 
-    public class AnotherSagaWithTwoUniqueProperties : ISagaEntity
+    public class AnotherSagaWithTwoUniqueProperties : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

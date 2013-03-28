@@ -28,7 +28,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
     }
 
-    public class SagaWithUniqueProperty : ISagaEntity
+    public class SagaWithUniqueProperty : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

@@ -63,7 +63,7 @@ namespace NServiceBus.Serializers.Json
         /// <param name="stream">Stream that contains messages.</param>
         /// <param name="messageTypes">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
-        public object[] Deserialize(Stream stream, IList<string> messageTypes = null)
+        public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
         {
             var jsonSerializer = JsonSerializer.Create(serializerSettings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
@@ -77,9 +77,9 @@ namespace NServiceBus.Serializers.Json
             {
                 return jsonSerializer.Deserialize<object[]>(reader);
             }
-            if (messageTypes != null)
+            if (messageTypes != null && messageTypes.Any())
             {
-                return new[] {jsonSerializer.Deserialize(reader, Type.GetType(messageTypes.First()))};
+                return new[] {jsonSerializer.Deserialize(reader, messageTypes.First())};
             }
 
             return new[] {jsonSerializer.Deserialize<object>(reader)};

@@ -11,7 +11,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
     }
 
-    public class MySagaData : ISagaEntity
+    public class MySagaData : IContainSagaData
     {
         public virtual Guid Id { get; set; }
         public virtual string OriginalMessageId { get; set; }

@@ -24,7 +24,7 @@
 
                 stream.Position = 0;
 
-                messageDeserialized = serializer.Deserialize(stream, new[] { message.GetType().AssemblyQualifiedName });
+                messageDeserialized = serializer.Deserialize(stream, new[] { message.GetType() });
             }
 
             Assert.AreEqual(message.InvalidCharacter, ((TestMessageWithChar)messageDeserialized[0]).InvalidCharacter);

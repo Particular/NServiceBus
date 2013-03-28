@@ -168,7 +168,7 @@
     }
 
 
-    public class MySagaData:ISagaEntity
+    public class MySagaData:IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

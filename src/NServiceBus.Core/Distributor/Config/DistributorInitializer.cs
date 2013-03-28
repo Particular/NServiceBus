@@ -1,8 +1,8 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
+    using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
-    using Unicast.Distributor;
 
     public class DistributorInitializer
     {
@@ -18,7 +18,7 @@ namespace NServiceBus.Distributor.Config
 
             if (!config.Configurer.HasComponent<IWorkerAvailabilityManager>())
             {
-                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager.MsmqWorkerAvailabilityManager>(
+                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(
                     DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
             }

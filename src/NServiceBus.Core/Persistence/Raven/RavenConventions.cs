@@ -19,7 +19,7 @@ namespace NServiceBus.Persistence.Raven
 
         static bool IsASagaEntity(Type t)
         {
-            return t != null && typeof(ISagaEntity).IsAssignableFrom(t);
+            return t != null && typeof(IContainSagaData).IsAssignableFrom(t);
         }
     }
 }

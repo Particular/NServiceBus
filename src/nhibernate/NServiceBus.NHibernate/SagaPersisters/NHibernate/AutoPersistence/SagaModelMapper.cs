@@ -23,7 +23,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 		{
 			Mapper = new ConventionModelMapper();
 
-			_sagaEntites = typesToScan.Where(t => typeof (ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
+			_sagaEntites = typesToScan.Where(t => typeof (IContainSagaData).IsAssignableFrom(t) && !t.IsInterface);
 
 			_entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntites, typesToScan);
 
@@ -57,7 +57,23 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 				map.Table(tableAttribute.TableName);
 				if (!String.IsNullOrEmpty(tableAttribute.Schema))
 					map.Schema(tableAttribute.Schema);
-			}
+			
+                return;
+            }
+            
+            //if the type is nested use the name of the parent
+            if (type.DeclaringType != null)
+            {
+                if (typeof (IContainSagaData).IsAssignableFrom(type))
+                {
+                    map.Table(type.DeclaringType.Name);    
+                }
+                else
+                {
+                    map.Table(type.DeclaringType.Name + "_" +  type.Name);    
+                }
+                
+            }
 		}
 
 		private void ApplySubClassConvention(IModelInspector mi, Type type, IJoinedSubclassAttributesMapper map)

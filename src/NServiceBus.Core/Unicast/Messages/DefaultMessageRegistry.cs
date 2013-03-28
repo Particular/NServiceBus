@@ -2,21 +2,59 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using Logging;
 
     public class DefaultMessageRegistry : IMessageRegistry
     {
-	    public MessageMetadata GetMessageDefinition(Type messageType)
-	    {
-		    MessageMetadata metadata;
-		    if (messages.TryGetValue(messageType, out metadata))
-		    {
-				return metadata;
-		    }
-		    var message = string.Format("Could not find Metadata for '{0}'. Messages need to implement either 'IMessage', 'IEvent' or 'ICommand'. Alternatively, if you don't want to implement an interface, you can configure 'Unobtrusive Mode Messages' and use convention to configure how messages are mapped.", messageType.FullName);
-		    throw new Exception(message);
-	    }
+        public MessageMetadata GetMessageDefinition(Type messageType)
+        {
+            MessageMetadata metadata;
+            if (messages.TryGetValue(messageType, out metadata))
+            {
+                return metadata;
+            }
+            var message = string.Format("Could not find Metadata for '{0}'. Messages need to implement either 'IMessage', 'IEvent' or 'ICommand'. Alternatively, if you don't want to implement an interface, you can configure 'Unobtrusive Mode Messages' and use convention to configure how messages are mapped.", messageType.FullName);
+            throw new Exception(message);
+        }
 
-	    public IEnumerable<MessageMetadata> GetAllMessages()
+        public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
+        {
+            IEnumerable<string> messageTypeStrings = null;
+            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
+            {
+                var header = message.Headers[Headers.EnclosedMessageTypes];
+
+                if (!string.IsNullOrEmpty(header))
+                    messageTypeStrings = header.Split(';');
+            }
+
+            if (messageTypeStrings == null)
+                yield break;
+
+            foreach (var messageTypeString in messageTypeStrings)
+            {
+                var messageType = Type.GetType(messageTypeString, false);
+
+                if (messageType == null)
+                {
+                    Logger.InfoFormat("Message type: {0} could not be determined by a Type.GetType, scanning known messages for a match", messageTypeString);
+
+                    messageType = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString).MessageType;
+                }
+
+                if (messageType == null)
+                {
+                    //we can look at doing more advanced lookups in the future
+                    Logger.WarnFormat("Could not determine message type for message identifier: {0}",messageTypeString);
+                }
+
+                if (messageType != null)
+                    yield return messages[messageType];
+            }
+        }
+
+        public IEnumerable<MessageMetadata> GetAllMessages()
         {
             return new List<MessageMetadata>(messages.Values);
         }
@@ -41,5 +79,7 @@
         readonly IDictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();
 
         public bool DefaultToNonPersistentMessages { get; set; }
+
+        static ILog Logger = LogManager.GetLogger(typeof (DefaultDispatcherFactory));
     }
 }

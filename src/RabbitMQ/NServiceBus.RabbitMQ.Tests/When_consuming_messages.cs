@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
+    using System;
     using NServiceBus;
     using NUnit.Framework;
 
@@ -30,9 +31,6 @@
         }
 
 
-
-
-
         [Test]
         public void Should_be_able_to_receive_messages_without_headers()
         {
@@ -46,10 +44,10 @@
                 var properties = channel.CreateBasicProperties();
 
                 properties.MessageId = message.Id;
-        
+
                 channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
             }
-          
+
             var received = WaitForMessage();
 
 
@@ -68,14 +66,46 @@
             {
                 var properties = channel.CreateBasicProperties();
 
-            
+                properties.MessageId = message.Id;
+
                 channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
             }
 
             var received = WaitForMessage();
 
 
-            Assert.AreEqual(null, received.Id);
+            Assert.NotNull(received.Id,"The message id should be defaulted to a new guid if not set");
+        }
+
+
+        [Test]
+        public void Should_upconvert_the_native_type_to_the_enclosed_message_types_header_if_empty()
+        {
+            var address = Address.Parse(MYRECEIVEQUEUE);
+
+            var message = new TransportMessage();
+
+            var typeName = typeof(MyMessage).FullName;
+
+            using (var channel = this.connectionManager.GetConnection(ConnectionPurpose.Publish).CreateModel())
+            {
+                var properties = channel.CreateBasicProperties();
+
+                properties.MessageId = message.Id; 
+                properties.Type = typeName;
+
+                channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
+            }
+
+            var received = WaitForMessage();
+
+            Assert.AreEqual(typeName, received.Headers[Headers.EnclosedMessageTypes]);
+            Assert.AreEqual(typeof(MyMessage), Type.GetType(received.Headers[Headers.EnclosedMessageTypes]));
+        }
+
+        class MyMessage
+        {
+
         }
     }
 }

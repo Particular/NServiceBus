@@ -94,6 +94,7 @@
     <Compile Include="SQLiteConfiguration.cs" />
     <Compile Include="TestSaga.cs" />
     <Compile Include="When_automapping_sagas.cs" />
+    <Compile Include="When_automapping_sagas_with_nested_types.cs" />
     <Compile Include="When_building_the_sessionfactory.cs" />
     <Compile Include="When_configuring_the_saga_persister_from_appconfig.cs" />
     <Compile Include="When_configuring_the_saga_persister_to_use_sqlite.cs" />

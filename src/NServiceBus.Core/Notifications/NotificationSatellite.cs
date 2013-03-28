@@ -24,7 +24,7 @@ namespace NServiceBus.Notifications
 
             using (var stream = new MemoryStream(message.Body))
             {
-                sendEmail = (SendEmail)messageSerializer.Deserialize(stream, new[] { typeof(SendEmail).FullName }).First();
+                sendEmail = (SendEmail)messageSerializer.Deserialize(stream, new[] { typeof(SendEmail) }).First();
             }
 
             using (var c = new SmtpClient())

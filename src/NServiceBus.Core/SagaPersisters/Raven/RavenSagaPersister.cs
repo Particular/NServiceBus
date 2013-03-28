@@ -25,13 +25,13 @@ namespace NServiceBus.SagaPersisters.Raven
             this.sessionFactory = sessionFactory;
         }
 
-        public void Save(ISagaEntity saga)
+        public void Save(IContainSagaData saga)
         {
             Session.Store(saga);
             StoreUniqueProperty(saga);
         }
 
-        public void Update(ISagaEntity saga)
+        public void Update(IContainSagaData saga)
         {
             var p = UniqueAttribute.GetUniqueProperty(saga);
 
@@ -61,12 +61,12 @@ namespace NServiceBus.SagaPersisters.Raven
 
         }
 
-        public T Get<T>(Guid sagaId) where T : ISagaEntity
+        public T Get<T>(Guid sagaId) where T : IContainSagaData
         {
             return Session.Load<T>(sagaId);
         }
 
-        public T Get<T>(string property, object value) where T : ISagaEntity
+        public T Get<T>(string property, object value) where T : IContainSagaData
         {
             if (IsUniqueProperty<T>(property))
                 return GetByUniqueProperty<T>(property, value);
@@ -74,7 +74,7 @@ namespace NServiceBus.SagaPersisters.Raven
             return GetByQuery<T>(property, value).FirstOrDefault();
         }
 
-        public void Complete(ISagaEntity saga)
+        public void Complete(IContainSagaData saga)
         {
             Session.Delete(saga);
 
@@ -101,7 +101,7 @@ namespace NServiceBus.SagaPersisters.Raven
         }
 
 
-        T GetByUniqueProperty<T>(string property, object value) where T : ISagaEntity
+        T GetByUniqueProperty<T>(string property, object value) where T : IContainSagaData
         {
             var lookupId = SagaUniqueIdentity.FormatId(typeof(T), new KeyValuePair<string, object>(property, value));
 
@@ -117,7 +117,7 @@ namespace NServiceBus.SagaPersisters.Raven
             return default(T);
         }
 
-        IEnumerable<T> GetByQuery<T>(string property, object value) where T : ISagaEntity
+        IEnumerable<T> GetByQuery<T>(string property, object value) where T : IContainSagaData
         {
             try
             {
@@ -131,7 +131,7 @@ namespace NServiceBus.SagaPersisters.Raven
             }
         }
 
-        void StoreUniqueProperty(ISagaEntity saga)
+        void StoreUniqueProperty(IContainSagaData saga)
         {
             var uniqueProperty = UniqueAttribute.GetUniqueProperty(saga);
 
@@ -151,12 +151,12 @@ namespace NServiceBus.SagaPersisters.Raven
             SetUniqueValueMetadata(saga, uniqueProperty.Value);
         }
 
-        void SetUniqueValueMetadata(ISagaEntity saga, KeyValuePair<string, object> uniqueProperty)
+        void SetUniqueValueMetadata(IContainSagaData saga, KeyValuePair<string, object> uniqueProperty)
         {
             Session.Advanced.GetMetadataFor(saga)[UniqueValueMetadataKey] = uniqueProperty.Value.ToString();
         }
 
-        void DeleteUniqueProperty(ISagaEntity saga, KeyValuePair<string, object> uniqueProperty)
+        void DeleteUniqueProperty(IContainSagaData saga, KeyValuePair<string, object> uniqueProperty)
         {
             var id = SagaUniqueIdentity.FormatId(saga.GetType(), uniqueProperty);
 

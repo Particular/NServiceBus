@@ -8,20 +8,26 @@
     {
         public void FakeMessageReceived()
         {
-            var tm = new TransportMessage();
+            FakeMessageReceived(new TransportMessage());
+        }
 
-            if (TryProcessMessage(tm))
+        public void FakeMessageReceived(TransportMessage message)
+        {
+            if (TryProcessMessage(message))
                 NumMessagesReceived++;
         }
 
+
         public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
         {
+            InputAddress = address;
             TryProcessMessage = tryProcessMessage;
         }
 
         public void Start(int maximumConcurrencyLevel)
         {
-            
+            IsStarted = true;
+            NumberOfTimesStarted++;
         }
 
         public void Stop()
@@ -29,7 +35,14 @@
            
         }
 
+        public int NumberOfTimesStarted { get; set; }
+
+
         Func<TransportMessage, bool> TryProcessMessage;
         public int NumMessagesReceived;
+
+        public bool IsStarted { get; set; }
+
+        public Address InputAddress { get; set; }
     }
 }

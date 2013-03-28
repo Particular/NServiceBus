@@ -26,13 +26,13 @@ namespace NServiceBus.Sagas.Impl
         /// <returns>Saga Dispatcher</returns>
         public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
         {
-            var entitiesHandled = new List<ISagaEntity>();
+            var entitiesHandled = new List<IContainSagaData>();
             var sagaTypesHandled = new List<Type>();
 
             foreach (var finder in GetFindersFor(message, builder))
             {
                 bool sagaEntityIsPersistent = true;
-                ISagaEntity sagaEntity = UseFinderToFindSaga(finder, message);
+                IContainSagaData sagaEntity = UseFinderToFindSaga(finder, message);
                 Type sagaType;
 
                 if (sagaEntity == null)
@@ -124,14 +124,14 @@ namespace NServiceBus.Sagas.Impl
                                  };
         }
 
-        ISagaEntity CreateNewSagaEntity(Type sagaType)
+        IContainSagaData CreateNewSagaEntity(Type sagaType)
         {
             var sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaType);
 
             if (sagaEntityType == null)
                 throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
 
-            var sagaEntity = (ISagaEntity)Activator.CreateInstance(sagaEntityType);
+            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
 
@@ -193,12 +193,12 @@ namespace NServiceBus.Sagas.Impl
             return Configure.GetSagaEntityTypeForSagaType(sagaType);
         }
 
-        static ISagaEntity UseFinderToFindSaga(IFinder finder, object message)
+        static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
             MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
-                return method.Invoke(finder, new object[] { message }) as ISagaEntity;
+                return method.Invoke(finder, new object[] { message }) as IContainSagaData;
 
             return null;
         }

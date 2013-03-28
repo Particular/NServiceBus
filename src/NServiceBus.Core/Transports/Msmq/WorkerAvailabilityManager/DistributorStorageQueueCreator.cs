@@ -1,4 +1,4 @@
-namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
+namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 {
     using Unicast.Queuing;
 

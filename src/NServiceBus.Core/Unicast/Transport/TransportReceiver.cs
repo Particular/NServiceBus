@@ -246,6 +246,9 @@ namespace NServiceBus.Unicast.Transport
 
         void EndProcess(string messageId, Exception ex)
         {
+            if (needToAbort)
+                return;
+
             throughputLimiter.MessageProcessed();
             
             if (ex == null)
@@ -279,6 +282,13 @@ namespace NServiceBus.Unicast.Transport
 
         void ProcessMessage(TransportMessage m)
         {
+            if (string.IsNullOrWhiteSpace(m.Id))
+            {
+                Logger.Error("Message without message id detected");
+                FailureManager.SerializationFailedForMessage(m, new SerializationException("Message without message id received."));
+                return;
+            }
+
             var exceptionFromStartedMessageHandling = OnStartedMessageProcessing(m);
 
             if (TransactionSettings.IsTransactional)

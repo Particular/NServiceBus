@@ -12,14 +12,21 @@
     {
         protected FuncBuilder Builder;
         protected IManageMessageFailures InMemoryFaultManager;
-        protected FakeTransport Transport;
+        protected TransportReceiver Transport;
+        protected FakeReceiver FakeReceiver;
      
         [SetUp]
         public void SetUp()
         {
             Builder = new FuncBuilder();
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
-            Transport = new FakeTransport();
+            FakeReceiver = new FakeReceiver();
+
+            Transport = new TransportReceiver
+                {
+                    Receiver = FakeReceiver,
+                    TransactionSettings = TransactionSettings.Default
+                };
 
             Configure.With(new Assembly[0])
                 .DefineEndpointName("Test")
@@ -28,7 +35,7 @@
            
             RegisterTypes();
             Builder.Register<IManageMessageFailures>(() => InMemoryFaultManager);
-            Builder.Register<ITransport>(() => Transport);
+            Builder.Register<TransportReceiver>(() => Transport);
 
             var configurer = new SatelliteConfigurer();
             configurer.Init();

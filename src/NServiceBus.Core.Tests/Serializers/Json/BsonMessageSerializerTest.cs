@@ -30,7 +30,7 @@
 
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument).AssemblyQualifiedName }).Cast<MessageWithXDocument>().Single();
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument) }).Cast<MessageWithXDocument>().Single();
 
                 Assert.AreEqual(messageWithXDocument.Document.ToString(), result.Document.ToString());
             }
@@ -41,7 +41,7 @@
 
                 stream.Position = 0;
 
-                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement).AssemblyQualifiedName }).Cast<MessageWithXElement>().Single();
+                var result = Serializer.Deserialize(stream, new[] { typeof(MessageWithXElement) }).Cast<MessageWithXElement>().Single();
 
                 Assert.AreEqual(messageWithXElement.Document.ToString(), result.Document.ToString());
             }

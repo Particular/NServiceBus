@@ -10,7 +10,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// The saga's data.
         /// </summary>
-        ISagaEntity Entity { get; set; }
+        IContainSagaData Entity { get; set; }
 
         /// <summary>
         /// Used for retrieving the endpoint which caused the saga to be initiated.
@@ -22,7 +22,7 @@ namespace NServiceBus.Saga
     /// A more strongly typed version of ISaga meant to be implemented by application developers
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ISaga<T> : ISaga where T : ISagaEntity
+    public interface ISaga<T> : ISaga where T : IContainSagaData
     {
         /// <summary>
         /// The saga's data.

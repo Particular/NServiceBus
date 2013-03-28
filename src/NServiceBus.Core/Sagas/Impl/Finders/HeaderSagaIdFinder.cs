@@ -7,7 +7,7 @@ namespace NServiceBus.Sagas.Impl.Finders
     /// Finds sagas based on the sagaid header
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class HeaderSagaIdFinder<T> : IFindSagas<T>.Using<object> where T : ISagaEntity
+    public class HeaderSagaIdFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
     {
 
         /// <summary>

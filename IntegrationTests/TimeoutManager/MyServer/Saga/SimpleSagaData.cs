@@ -3,7 +3,7 @@ namespace MyServer.Saga
     using System;
     using NServiceBus.Saga;
 
-    public class SimpleSagaData : ISagaEntity
+    public class SimpleSagaData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

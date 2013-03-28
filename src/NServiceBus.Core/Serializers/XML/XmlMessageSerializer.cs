@@ -233,7 +233,7 @@ namespace NServiceBus.Serializers.XML
         /// <param name="stream">Stream that contains messages.</param>
         /// <param name="messageTypesToDeserialize">The list of message types to deserialize. If null the types must be inferred from the serialized data.</param>
         /// <returns>Deserialized messages.</returns>
-        public object[] Deserialize(Stream stream, IList<string> messageTypesToDeserialize = null)
+        public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
         {
             if (stream == null)
                 return null;
@@ -278,12 +278,12 @@ namespace NServiceBus.Serializers.XML
 
             if (doc.DocumentElement.Name.ToLower() != "messages")
             {
-                string nodeTypeString = null;
+                Type nodeType = null;
 
                 if (messageTypesToDeserialize != null)
-                    nodeTypeString = messageTypesToDeserialize.FirstOrDefault();
+                    nodeType = messageTypesToDeserialize.FirstOrDefault();
 
-                object m = Process(doc.DocumentElement, null, nodeTypeString);
+                object m = Process(doc.DocumentElement, null, nodeType);
 
                 if (m == null)
                     throw new SerializationException("Could not deserialize message.");
@@ -299,13 +299,13 @@ namespace NServiceBus.Serializers.XML
                         continue;
 
 
-                    string nodeTypeString = null;
+                    Type nodeType = null;
 
                     if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
-                        nodeTypeString = messageTypesToDeserialize.ElementAt(position);
+                        nodeType = messageTypesToDeserialize.ElementAt(position);
 
 
-                    var m = Process(node, null, nodeTypeString);
+                    var m = Process(node, null, nodeType);
 
                     result.Add(m);
 
@@ -318,14 +318,8 @@ namespace NServiceBus.Serializers.XML
             return result.ToArray();
         }
 
-        private object Process(XmlNode node, object parent, string nodeTypeString = null)
+        private object Process(XmlNode node, object parent, Type nodeType = null)
         {
-            Type nodeType = null;
-
-            if (!string.IsNullOrEmpty(nodeTypeString))
-                nodeType = Type.GetType(nodeTypeString, false);
-
-
             if (nodeType == null)
                 nodeType = InferNodeType(node, parent);
 

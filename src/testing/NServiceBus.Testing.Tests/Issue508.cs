@@ -68,7 +68,7 @@
         }
     }
 
-    public class TheData : ISagaEntity
+    public class TheData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

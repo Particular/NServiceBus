@@ -1,13 +1,13 @@
-namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
+namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 {
     using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Messaging;
     using System.Threading;
+    using Distributor;
     using Settings;
-    using Transports.Msmq;
-    using Unicast.Distributor;
+    using Msmq;
 
     /// <summary>
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
@@ -15,8 +15,10 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
     /// </summary>
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
-        MessageQueue storageQueue;
-        readonly object lockObject = new object();
+        /// <summary>
+        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
+        /// </summary>
+        public MsmqUnitOfWork UnitOfWork { get; set; }
 
         /// <summary>
         /// Sets the path to the queue that will be used for storing
@@ -40,7 +42,16 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
                 foreach (var m in messages.Where(m => MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address))
                 {
-                    storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                    if (UnitOfWork.HasActiveTransaction())
+                    {
+                        storageQueue.ReceiveById(m.Id, UnitOfWork.Transaction);
+                    }
+                    else
+                    {
+                        storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                    }
+
+                    
                 }
             }
         }
@@ -59,14 +70,23 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
 
             try
             {
-                var m = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
+                Message availableWorker;
 
-                if (m == null)
+                if (UnitOfWork.HasActiveTransaction())
+                {
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
+                }
+                else
+                {
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);                    
+                }
+
+                if (availableWorker == null)
                 {
                     return null;
                 }
 
-                return MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue);
+                return MsmqUtilities.GetIndependentAddressForQueue(availableWorker.ResponseQueue);
             }
             catch (Exception)
             {
@@ -110,11 +130,24 @@ namespace NServiceBus.Distributor.MsmqWorkerAvailabilityManager
         /// <param name="capacity">The number of messages that this worker is ready to process</param>
         public void WorkerAvailable(Address address, int capacity)
         {
+            var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(address));
+
             for (var i = 0; i < capacity; i++)
-                storageQueue.Send(new Message
-                              {
-                                  ResponseQueue = new MessageQueue(MsmqUtilities.GetFullPath(address))
-                              }, MessageQueueTransactionType.Automatic);
+            {
+                if (UnitOfWork.HasActiveTransaction())
+                {
+                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, UnitOfWork.Transaction); 
+                }
+                else
+                {
+                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, MessageQueueTransactionType.Automatic); 
+                }
+            }
         }
+
+        static TimeSpan MaxTimeToWaitForAvailableWorker = TimeSpan.FromSeconds(10);
+
+        MessageQueue storageQueue;
+        readonly object lockObject = new object();
     }
 }

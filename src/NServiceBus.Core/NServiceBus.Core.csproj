@@ -91,6 +91,7 @@
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="BusExtensions.cs" />
+    <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Config\MsmqMessageQueueConfig.cs" />
     <Compile Include="Persistence\Raven\StoreAccessor.cs" />
+    <Compile Include="Satellites\IAdvancedSatellite.cs" />
     <Compile Include="Settings\Conventions.cs" />
     <Compile Include="Settings\ISetDefaultSettings.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
@@ -156,6 +158,7 @@
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportConfigurer.cs" />
+    <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Config\MsmqTransportConfig.cs" />
@@ -177,8 +180,8 @@
     <Compile Include="Distributor\Config\WorkerInitializer.cs" />
     <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
     <Compile Include="Distributor\LicenseConfig.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager\DistributorStorageQueueCreator.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager\MsmqWorkerAvailabilityManager.cs" />
+    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\DistributorStorageQueueCreator.cs" />
+    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
     <Compile Include="Distributor\ReadyMessages\Headers.cs" />
     <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />
@@ -406,7 +409,6 @@
     <Compile Include="Timeout\Hosting\Windows\ManageMessageFailuresWithoutSlr.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\InMemoryTimeoutPersistence.cs" />
     <Compile Include="Timeout\Hosting\Windows\Persistence\RavenTimeoutPersistence.cs" />
-    <Compile Include="Timeout\Hosting\Windows\SatelliteInterceptor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutDispatcherProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutMessageProcessor.cs" />
     <Compile Include="Timeout\Hosting\Windows\TimeoutPersisterReceiver.cs" />
@@ -430,8 +432,8 @@
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
     <Compile Include="Timeout\TimeoutManagerBasedDeferral.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
-    <Compile Include="Unicast\Distributor\DistributorSatellite.cs" />
-    <Compile Include="Unicast\Distributor\IWorkerAvailabilityManager.cs" />
+    <Compile Include="Distributor\DistributorSatellite.cs" />
+    <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />
@@ -494,8 +496,9 @@
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
-    <Compile Include="Utils\CircuitBreaker.cs" />
+    <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
+    <Compile Include="CircuitBreakers\RepetedFailuresOverTimeCircuitBreaker.cs" />
     <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />

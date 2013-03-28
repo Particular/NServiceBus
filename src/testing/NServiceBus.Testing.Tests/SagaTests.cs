@@ -208,7 +208,7 @@ namespace NServiceBus.Testing.Tests
         public decimal Total { get; set; }
     }
 
-    public class DiscountPolicyData : ISagaEntity
+    public class DiscountPolicyData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

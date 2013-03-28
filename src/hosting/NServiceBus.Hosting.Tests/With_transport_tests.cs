@@ -10,17 +10,17 @@ namespace NServiceBus.Hosting.Tests
     [TestFixture]
     public class With_transport_tests
     {
-        private RoleManager roleManager;
-
         [SetUp]
         public void SetUp()
         {
-            Configure.With(new[] { typeof(TransportRoleHandler), typeof(MyTransportConfigurer) })
-                .DefineEndpointName("myTests")
-                .DefaultBuilder();
+            Configure.With(new[] {typeof (TransportRoleHandler), typeof (MyTransportConfigurer)})
+                     .DefineEndpointName("myTests")
+                     .DefaultBuilder();
 
-            roleManager = new RoleManager(new[] { typeof(TransportRoleHandler).Assembly });
+            roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly});
         }
+
+        RoleManager roleManager;
 
         [Test]
         public void Should_configure_requested_transport()
@@ -53,10 +53,8 @@ namespace NServiceBus.Hosting.Tests
 
     public class MyTestTransportSender : ISendMessages
     {
-
         public void Send(TransportMessage message, Address address)
         {
-            
         }
     }
 

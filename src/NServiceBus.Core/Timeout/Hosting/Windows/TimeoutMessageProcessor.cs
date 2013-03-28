@@ -5,9 +5,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Satellites;
     using Transports;
     using Unicast.Queuing;
+    using Unicast.Transport;
 
 
-    public class TimeoutMessageProcessor : ISatellite
+    public class TimeoutMessageProcessor : IAdvancedSatellite
     {
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
         const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
@@ -38,6 +39,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public void Stop()
         {
             
+        }
+
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return receiver =>
+            {
+                //TODO: The line below needs to change when we refactor the slr to be:
+                // transport.DisableSLR() or similar
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager);
+            };
         }
 
         public bool Handle(TransportMessage message)
