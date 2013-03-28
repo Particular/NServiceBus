@@ -21,7 +21,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public QueueClient Create(Address address)
         {
-            var queueName = address.Queue;
+            var queueName = address.Name;
             try
             {
                 if (!NamespaceClient.QueueExists(queueName))

@@ -36,7 +36,7 @@ namespace NServiceBus.Transports.Msmq
         /// </param>
         public void Send(TransportMessage message, Address address)
         {
-            string queuePath = MsmqUtilities.GetFullPath(address);
+            string queuePath = MsmqUtilities.GetFullPath((MsmqAddress) address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
@@ -87,7 +87,7 @@ namespace NServiceBus.Transports.Msmq
                 throw new FailedToSendMessageException("Failed to send message.", ex);
 
             throw new FailedToSendMessageException(
-                string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
+                string.Format("Failed to send message to address: {0}", address.FullName), ex);
         }
 
         MessageQueueTransactionType GetTransactionTypeForSend()

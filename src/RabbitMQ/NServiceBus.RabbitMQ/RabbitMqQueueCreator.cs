@@ -12,7 +12,7 @@
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
-                channel.QueueDeclare(address.Queue, durable, false, false, null);
+                channel.QueueDeclare(address.Name, durable, false, false, null);
             }
 
         }

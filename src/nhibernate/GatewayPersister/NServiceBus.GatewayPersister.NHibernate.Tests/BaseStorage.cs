@@ -37,6 +37,7 @@
             Configure.With(Enumerable.Empty<Type>())
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
+                .UseTransport<Msmq>()
                 .UseNHibernateGatewayPersister();
 
             Persister = Configure.Instance.Builder.Build<GatewayPersister>();

@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using Rhino.Mocks;
     using Saga;
+    using Transports.Msmq;
 
     [TestFixture]
     public class When_starting_an_endpoint_with_autosubscribe_turned_on : using_a_configured_unicastbus
@@ -14,7 +15,7 @@
         public void Should_not_autosubscribe_commands()
         {
 
-            var commandEndpointAddress = new Address("CommandEndpoint", "localhost");
+            var commandEndpointAddress = new MsmqAddress("CommandEndpoint", "localhost");
             
             RegisterMessageType<CommandMessage>(commandEndpointAddress);
             RegisterMessageHandlerType<CommandMessageHandler>();
@@ -27,7 +28,7 @@
         [Test]
         public void Should_not_autosubscribe_messages_by_default()
         {
-            var endpointAddress = new Address("MyEndpoint", "localhost");
+            var endpointAddress = new MsmqAddress("MyEndpoint", "localhost");
 
             RegisterMessageType<MyMessage>(endpointAddress);
             RegisterMessageHandlerType<MyMessageHandler>();
@@ -40,7 +41,7 @@
         [Test]
         public void Should_not_autosubscribe_messages_unless_asked_to_by_the_users()
         {
-            var endpointAddress = new Address("MyEndpoint", "localhost");
+            var endpointAddress = new MsmqAddress("MyEndpoint", "localhost");
             
             autoSubscriptionStrategy.SubscribePlainMessages = true;
 
@@ -88,7 +89,7 @@
         public void Should_autosubscribe_the_saga_messagehandler()
         {
 
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+            var eventEndpointAddress = new MsmqAddress("PublisherAddress", "localhost");
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
@@ -107,8 +108,8 @@
         public void Should_not_autosubscribe_the_saga_messagehandler()
         {
             autoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
-      
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+
+            var eventEndpointAddress = new MsmqAddress("PublisherAddress", "localhost");
 
             RegisterMessageType<EventMessage>(eventEndpointAddress);
             RegisterMessageHandlerType<MySaga>();
@@ -139,7 +140,7 @@
         public void Should_autosubscribe_the_saga_messagehandler()
         {
 
-            var eventEndpointAddress = new Address("PublisherAddress", "localhost");
+            var eventEndpointAddress = new MsmqAddress("PublisherAddress", "localhost");
 
             RegisterMessageType<EventWithParent>(eventEndpointAddress);
             RegisterMessageHandlerType<MySagaThatReactsOnASuperClassEvent>();

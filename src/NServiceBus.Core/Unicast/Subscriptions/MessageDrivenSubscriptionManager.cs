@@ -30,7 +30,7 @@
             if (publisherAddress == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
 
-            Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
+            Logger.Info("Subscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress.FullName);
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
@@ -45,7 +45,7 @@
             if (publisherAddress == Address.Undefined)
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMapping> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", eventType));
           
-            Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
+            Logger.Info("Unsubscribing from " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress.FullName);
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
@@ -92,13 +92,13 @@
 
             if (transportMessage.MessageIntent == MessageIntentEnum.Subscribe)
             {
-                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+                if (!SubscriptionAuthorizer.AuthorizeSubscribe(messageTypeString, subscriberAddress.FullName, transportMessage.Headers))
                 {
-                    Logger.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
+                    Logger.Debug(string.Format("Subscription request from {0} on message type {1} was refused.", subscriberAddress.FullName, messageTypeString));
                 }
                 else
                 {
-                    Logger.Info("Subscribing " + subscriberAddress + " to message type " + messageTypeString);
+                    Logger.InfoFormat("Subscribing {0} to message type {1}", subscriberAddress.FullName, messageTypeString);
 
                     var mt = new MessageType(messageTypeString);
 
@@ -115,7 +115,7 @@
             }
 
 
-            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress.ToString(), transportMessage.Headers))
+            if (!SubscriptionAuthorizer.AuthorizeUnsubscribe(messageTypeString, subscriberAddress.FullName, transportMessage.Headers))
             {
                 Logger.Debug(string.Format("Unsubscribe request from {0} on message type {1} was refused.", subscriberAddress, messageTypeString));
                 return;

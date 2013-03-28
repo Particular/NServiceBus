@@ -33,7 +33,7 @@ namespace NServiceBus.Persistence.Raven
         {
             get
             {
-                var resourceManagerId = Address.Local + "-" + Configure.DefineEndpointVersionRetriever() ;
+                var resourceManagerId = Address.Local.FullName + "-" + Configure.DefineEndpointVersionRetriever() ;
                 
                 return DeterministicGuidBuilder(resourceManagerId);
             }

@@ -11,6 +11,8 @@
         [Test]
         public void GetSubscriberAddressesForMessage_ShouldReturnTheLocalAddress()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             var testee = new ActiveMqSubscriptionStorage();
 
             var result = testee.GetSubscriberAddressesForMessage(new[] { new MessageType("SomeType", "1.0.0.0") });

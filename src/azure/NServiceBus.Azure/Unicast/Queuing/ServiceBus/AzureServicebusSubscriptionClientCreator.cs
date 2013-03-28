@@ -22,7 +22,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public SubscriptionClient Create(Address address, Type eventType)
         {
-            var topicPath = address.Queue;
+            var topicPath = address.Name;
             var subscriptionname = Configure.EndpointName + "." + eventType.Name;
             if (NamespaceClient.TopicExists(topicPath))
             {

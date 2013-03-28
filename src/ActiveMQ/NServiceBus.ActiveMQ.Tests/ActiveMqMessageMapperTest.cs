@@ -28,6 +28,8 @@
         [SetUp]
         public void SetUp()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             this.session = new Mock<ISession>();
             this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
             this.encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
@@ -270,7 +272,7 @@
                     Headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "FancyHeader" }, },
                     Recoverable = true,
                     TimeToBeReceived = TimeSpan.FromSeconds(2),
-                    ReplyToAddress = new Address("someAddress", "localhorst")
+                    ReplyToAddress = new ActiveMQAddress("someAddress")
                 };
         }
     }

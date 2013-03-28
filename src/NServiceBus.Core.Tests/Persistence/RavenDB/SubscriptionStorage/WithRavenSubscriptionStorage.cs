@@ -5,6 +5,7 @@
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
+    using Transports.Msmq;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.Raven;
 
@@ -16,6 +17,8 @@
         [SetUp]
         public void SetupContext()
         {
+            Address.SetParser<MsmqAddress>();
+
             store = new EmbeddableDocumentStore { RunInMemory = true};
             store.Conventions.DefaultQueryingConsistency = ConsistencyOptions.QueryYourWrites;
            

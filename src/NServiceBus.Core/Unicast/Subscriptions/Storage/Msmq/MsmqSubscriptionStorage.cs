@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
     {
         void ISubscriptionStorage.Init()
         {
-            string path = MsmqUtilities.GetFullPath(Queue);
+            string path = MsmqUtilities.GetFullPath((MsmqAddress)Queue);
 
             q = new MessageQueue(path);
 
@@ -52,7 +52,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
@@ -76,7 +75,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
         {
             return (Transaction.Current == null && !DontUseExternalTransaction);                
         }
-
 
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
@@ -104,7 +102,6 @@ namespace NServiceBus.Unicast.Subscriptions.Msmq
             }
         }
 
-       
         void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
             lock (locker)

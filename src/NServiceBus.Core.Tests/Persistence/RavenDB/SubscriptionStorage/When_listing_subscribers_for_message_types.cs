@@ -18,7 +18,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
             var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(MessageTypes.MessageA);
 
             Assert.AreEqual(2, subscriptionsForMessageType.Count());
-            Assert.AreEqual(TestClients.ClientA, subscriptionsForMessageType.First());
+            Assert.AreEqual(TestClients.ClientA.FullName, subscriptionsForMessageType.First().FullName);
         }
 
         [Test]

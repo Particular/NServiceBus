@@ -39,6 +39,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             Configure.With(Enumerable.Empty<Type>())
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
+                .UseTransport<Msmq>()
                 .UseNHibernateTimeoutPersister();
 
             persister = Configure.Instance.Builder.Build<TimeoutStorage>();

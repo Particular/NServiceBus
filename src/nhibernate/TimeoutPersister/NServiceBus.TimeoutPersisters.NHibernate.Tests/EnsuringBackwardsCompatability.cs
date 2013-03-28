@@ -9,6 +9,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using Persistence.NHibernate;
+    using Transports.Msmq;
 
     [TestFixture]
     public class EnsuringBackwardsCompatability
@@ -22,6 +23,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             NHibernateSettingRetriever.AppSettings = () => null;
             NHibernateSettingRetriever.ConnectionStrings = () => null;
 
+            Address.SetParser<MsmqAddress>();
             Configure.ConfigurationSource = new DefaultConfigurationSource();
         }
 
@@ -123,6 +125,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             Configure.With(Enumerable.Empty<Type>())
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
+                .UseTransport<Msmq>()
                 .UseNHibernateTimeoutPersister();
 
             var expected = new Dictionary<string, string>

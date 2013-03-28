@@ -18,7 +18,7 @@
 
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
-                channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress,eventType), routingKey);
+                channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress, eventType), routingKey);
             }
         }
 

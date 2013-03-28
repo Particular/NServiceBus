@@ -3,6 +3,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using Transports.Msmq;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.Raven;
 
@@ -13,8 +14,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
         public void shouldnt_create_additional_db_rows()
         {
 
-            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType","1.0.0.0") });
-            storage.Subscribe(new Address("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType", "1.0.0.0") });
+            storage.Subscribe(new MsmqAddress("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType", "1.0.0.0") });
+            storage.Subscribe(new MsmqAddress("testendpoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType", "1.0.0.0") });
 
 
             using (var session = store.OpenSession())

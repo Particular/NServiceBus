@@ -17,6 +17,8 @@
         [SetUp]
         public void SetUp()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             Configure.Transactions.Enable()
                      .Advanced(
                          settings =>
@@ -70,7 +72,7 @@
             TransactionSettings settings = TransactionSettings.Default;
             const int NumberOfWorkers = 2;
 
-            var address = new Address("someQueue", "machine");
+            var address = new ActiveMQAddress("someQueue");
 
             testee.Init(address, settings, this.tryReceiveMessage, (s, exception) => { });
             testee.Start(NumberOfWorkers);
@@ -83,7 +85,7 @@
         public void WhenStoped_ThenAllReceiversAreStopped()
         {
             const int InitialNumberOfWorkers = 5;
-            var address = new Address("someQueue", "machine");
+            var address = new ActiveMQAddress("someQueue");
 
             testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
@@ -96,7 +98,7 @@
         public void WhenStoped_ThenAllReceiversAreDisposed()
         {
             const int InitialNumberOfWorkers = 5;
-            var address = new Address("someQueue", "machine");
+            var address = new ActiveMQAddress("someQueue");
 
             testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
@@ -109,7 +111,7 @@
         public void WhenStoped_ThenReceiversAreNotDisposedUntilAllPendingMessagesAreProcessed()
         {
             const int InitialNumberOfWorkers = 5;
-            var address = new Address("someQueue", "machine");
+            var address = new ActiveMQAddress("someQueue");
 
             pendingMessagesCounterMock.Setup(mr => mr.Wait(It.IsAny<int>()))
                 .Callback<int>(t => this.disposedMessageReceivers.Count.Should().Be(0));
@@ -127,7 +129,7 @@
             const int InitialNumberOfWorkers = 5;
             int disposedReceivers = 0;
             sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = this.disposedMessageReceivers.Count);
-            var address = new Address("someQueue", "machine");
+            var address = new ActiveMQAddress("someQueue");
 
             testee.Init(address, TransactionSettings.Default, m => true, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);

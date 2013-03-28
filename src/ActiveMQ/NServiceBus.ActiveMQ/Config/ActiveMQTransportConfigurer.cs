@@ -26,6 +26,8 @@
 
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
+            Address.SetParser<ActiveMQAddress>();
+
             var connectionConfiguration = this.Parse(brokerUri);
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
