@@ -1,11 +1,12 @@
-using System;
-using System.Linq;
-using System.Net;
-using NServiceBus;
-using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
-
 namespace ReturnToSourceQueue
 {
+    using System;
+    using System.Net;
+    using System.Linq;
+    using NServiceBus;
+    using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
+    using NServiceBus.Transports.Msmq;
+
     class Program
     {
         static void Main(string[] args)
@@ -30,7 +31,8 @@ namespace ReturnToSourceQueue
                 script = false;
             }
 
-            Address errorQueueAddress = Address.Parse(inputQueue);
+            Address.SetParser<MsmqAddress>();
+            MsmqAddress errorQueueAddress = (MsmqAddress) Address.Parse(inputQueue);
 
             if(!IsLocalIpAddress(errorQueueAddress.Machine))
             {

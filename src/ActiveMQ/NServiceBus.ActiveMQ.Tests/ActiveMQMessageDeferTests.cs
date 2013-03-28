@@ -3,7 +3,6 @@
     using System;
     using FluentAssertions;
     using Moq;
-    using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
 
@@ -17,6 +16,8 @@
         [SetUp]
         public void SetUp()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             this.messageSenderMock = new Mock<ISendMessages>();
 
             this.testee = new ActiveMQMessageDefer { MessageSender = this.messageSenderMock.Object };
@@ -25,7 +26,7 @@
         [Test]
         public void WhenDeferMessage_AMQScheduledDelayShouldBeAdded()
         {
-            var address = new Address("SomeQueue", "SomeMachine");
+            var address = new ActiveMQAddress("SomeQueue");
             var time = DateTime.UtcNow + TimeSpan.FromMinutes(1);
             var message = new TransportMessage();
 
@@ -52,7 +53,7 @@
  
             this.testee.ClearDeferredMessages(headerKey, headerValue);
 
-            sentToAddress.Queue.Should().Be("localqueue.activemqschedulermanagement");
+            sentToAddress.Name.Should().Be("localqueue.ActiveMqSchedulerManagement");
             sentMessage.Headers.Should().Contain(ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader, expectedSelector);
         }
     }

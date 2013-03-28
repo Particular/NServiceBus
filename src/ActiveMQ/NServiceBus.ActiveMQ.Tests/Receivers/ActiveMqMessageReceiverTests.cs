@@ -20,6 +20,8 @@
         [SetUp] 
         public void SetUp()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             Configure.Transactions.Enable()
                       .Advanced(
                           settings =>
@@ -67,7 +69,7 @@
         {
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(new Address("someOtherQueue", "localhost"), transactionSettings);
+            this.testee.Start(new ActiveMQAddress("someOtherQueue"), transactionSettings);
 
             this.eventConsumerMock.Verify(mp => mp.Start(), Times.Never());
         }
@@ -78,7 +80,7 @@
             var queue = "somequeue";
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(new Address(queue, "localhost"), transactionSettings);
+            this.testee.Start(new ActiveMQAddress(queue), transactionSettings);
 
             this.messageProcessorMock.Verify(mp => mp.CreateMessageConsumer("queue://" + queue));
         }

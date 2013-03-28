@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Address.cs" />
-    <Compile Include="AddressMode.cs" />
+    <Compile Include="AddressParser.cs" />
     <Compile Include="CompletionResult.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />

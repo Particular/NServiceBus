@@ -80,6 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureAddress.cs" />
     <Compile Include="ConfigureAzureBlobStorageDataBus.cs" />
     <Compile Include="ConfigureAzureMessageQueue.cs" />
     <Compile Include="ConfigureAzureSagaPersister.cs" />

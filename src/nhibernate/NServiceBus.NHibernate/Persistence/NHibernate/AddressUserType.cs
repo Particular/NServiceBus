@@ -45,7 +45,7 @@ namespace NServiceBus.Persistence.NHibernate
             else
             {
                 var address = (Address) value;
-                ((IDataParameter) cmd.Parameters[index]).Value = address.ToString();
+                ((IDataParameter) cmd.Parameters[index]).Value = address.FullName;
             }
         }
 
@@ -56,7 +56,8 @@ namespace NServiceBus.Persistence.NHibernate
                 return null;
             }
 
-            return Address.Parse(value.ToString());
+            var address = (Address)value;
+            return Address.Parse(address.FullName);
         }
 
         public object Replace(object original, object target, object owner)

@@ -13,6 +13,8 @@
         [SetUp]
         public void SetUp()
         {
+            Address.SetParser<ActiveMQAddress>();
+
             this.messageProducerMock = new Mock<IMessageProducer>();
             this.testee = new ActiveMqMessageSender(this.messageProducerMock.Object);
         }
@@ -23,7 +25,7 @@
             const string Queue = "QueueName";
             var message = new TransportMessage();
 
-            this.testee.Send(message, new Address(Queue, "SomeMachineName", true));
+            this.testee.Send(message, new ActiveMQAddress(Queue));
 
             this.messageProducerMock.Verify(mp => mp.SendMessage(message, Queue, "queue://"));
         }

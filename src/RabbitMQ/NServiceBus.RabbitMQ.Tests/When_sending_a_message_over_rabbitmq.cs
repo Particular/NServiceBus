@@ -74,7 +74,7 @@
                 (t, r) =>
                 {
                     Assert.AreEqual(address, t.ReplyToAddress);
-                    Assert.AreEqual(address.Queue, r.BasicProperties.ReplyTo);
+                    Assert.AreEqual(address.Name, r.BasicProperties.ReplyTo);
                 });
 
         }

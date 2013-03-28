@@ -21,12 +21,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="original"></param>
         public void Subscribe(Type eventType, Address original)
         {
-            var publisherAddress = Address.Parse(original.Queue + ".events");
+            var publisherAddress = Address.Parse(original.Name + ".events");
             var subscriptionname = Configure.EndpointName + "." + eventType.Name;
 
-            if (!NamespaceClient.SubscriptionExists(publisherAddress.Queue, subscriptionname))
+            if (!NamespaceClient.SubscriptionExists(publisherAddress.Name, subscriptionname))
             {
-                NamespaceClient.CreateSubscription(publisherAddress.Queue, subscriptionname);
+                NamespaceClient.CreateSubscription(publisherAddress.Name, subscriptionname);
             }
 
             // how to make the correct strategy listen to this subscription
@@ -53,12 +53,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="original"></param>
         public void Unsubscribe(Type eventType, Address original)
         {
-            var publisherAddress = Address.Parse(original.Queue + ".events");
+            var publisherAddress = Address.Parse(original.Name + ".events");
             var subscriptionname = Configure.EndpointName + "." + eventType.Name;
 
-            if (NamespaceClient.SubscriptionExists(publisherAddress.Queue, subscriptionname))
+            if (NamespaceClient.SubscriptionExists(publisherAddress.Name, subscriptionname))
             {
-                NamespaceClient.DeleteSubscription(publisherAddress.Queue, subscriptionname);
+                NamespaceClient.DeleteSubscription(publisherAddress.Name, subscriptionname);
             }
 
             // unhook the listener

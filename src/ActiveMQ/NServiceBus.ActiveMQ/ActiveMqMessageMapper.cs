@@ -47,7 +47,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
             {
-                jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Queue);
+                jmsmessage.NMSReplyTo = SessionUtil.GetQueue(session, message.ReplyToAddress.Name);
             }
 
             foreach (var header in message.Headers)
@@ -66,7 +66,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             var replyToAddress = message.NMSReplyTo == null
                                      ? null
-                                     : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
+                                     : new ActiveMQAddress(message.NMSReplyTo.ToString());
 
             transportMessage.ReplyToAddress = replyToAddress;
             transportMessage.CorrelationId = message.NMSCorrelationID;

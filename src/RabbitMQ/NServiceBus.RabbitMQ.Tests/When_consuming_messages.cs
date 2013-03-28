@@ -45,7 +45,7 @@
 
                 properties.MessageId = message.Id;
 
-                channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
+                channel.BasicPublish(string.Empty, address.Name, true, false, properties, message.Body);
             }
 
             var received = WaitForMessage();
@@ -68,7 +68,7 @@
 
                 properties.MessageId = message.Id;
 
-                channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
+                channel.BasicPublish(string.Empty, address.Name, true, false, properties, message.Body);
             }
 
             var received = WaitForMessage();
@@ -94,7 +94,7 @@
                 properties.MessageId = message.Id; 
                 properties.Type = typeName;
 
-                channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
+                channel.BasicPublish(string.Empty, address.Name, true, false, properties, message.Body);
             }
 
             var received = WaitForMessage();

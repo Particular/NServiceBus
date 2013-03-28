@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActiveMQ.cs" />
+    <Compile Include="ActiveMQAddress.cs" />
     <Compile Include="ActiveMqMessageDecoderPipeline.cs" />
     <Compile Include="ActiveMqMessageEncoderPipeline.cs" />
     <Compile Include="ActiveMQMessageDefer.cs" />

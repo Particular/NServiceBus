@@ -20,6 +20,8 @@ namespace NServiceBus.Transports.SQLServer.Config
                 throw new ArgumentException("Sql Transport connection string cannot be empty or null.");
             }
 
+            Address.SetParser<SqlServerAddress>();
+
             config.Configurer.ConfigureComponent<SqlServerQueueCreator>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString);
 

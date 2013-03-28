@@ -4,6 +4,7 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Transports.Msmq;
 
     [TestFixture]
     public class When_publishing_a_command_messages : using_the_unicastbus
@@ -23,8 +24,8 @@
         [Test]
         public void Should_send_a_message_to_each_subscriber()
         {
-            var subscriber1 = new Address("sub1", ".");
-            var subscriber2 = new Address("sub2", ".");
+            var subscriber1 = new MsmqAddress("sub1", ".");
+            var subscriber2 = new MsmqAddress("sub2", ".");
 
             RegisterMessageType<EventMessage>();
             subscriptionStorage.FakeSubscribe<EventMessage>(subscriber1);

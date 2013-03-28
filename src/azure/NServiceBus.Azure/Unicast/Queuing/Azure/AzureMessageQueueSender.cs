@@ -41,9 +41,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void Send(TransportMessage message, Address address)
         {
-            var sendClient = GetClientForConnectionString(address.Machine) ?? Client;
+            var sendClient = GetClientForConnectionString(((AzureAddress)address).ConnectionString) ?? Client;
 
-            var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Queue));
+            var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Name));
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
@@ -99,7 +99,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                         Body = message.Body,
                         CorrelationId = message.CorrelationId,
                         Recoverable = message.Recoverable,
-                        ReplyToAddress = message.ReplyToAddress == null ? Address.Self.ToString() : message.ReplyToAddress.ToString(),
+                        ReplyToAddress = message.ReplyToAddress == null ? Address.Local.FullName : message.ReplyToAddress.FullName,
                         TimeToBeReceived = message.TimeToBeReceived,
                         Headers = message.Headers,
                         MessageIntent = message.MessageIntent

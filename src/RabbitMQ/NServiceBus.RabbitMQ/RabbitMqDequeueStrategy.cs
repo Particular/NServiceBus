@@ -44,7 +44,7 @@
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
-            workQueue = address.Queue;
+            workQueue = address.Name;
             autoAck = !transactionSettings.IsTransactional;
         }
 

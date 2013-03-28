@@ -3,12 +3,12 @@ namespace NServiceBus.Unicast.Tests
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Rhino.Mocks;
+    using Transports.Msmq;
 
     [TestFixture]
     public class When_subscribing_to_messages : using_the_unicastbus
     {
-        readonly Address addressToOwnerOfTestMessage = new Address("TestMessageOwner", "localhost");
+        readonly Address addressToOwnerOfTestMessage = new MsmqAddress("TestMessageOwner", "localhost");
         /// <summary>
         /// Set Up
         /// </summary>

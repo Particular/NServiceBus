@@ -29,9 +29,9 @@ namespace NServiceBus.Transports.Msmq
             if (address == null)
                 return;
 
-            var q = GetFullPathWithoutPrefix(address);
+            var q = GetFullPathWithoutPrefix((MsmqAddress) address);
 
-            var isRemote = address.Machine != Environment.MachineName.ToLower();
+            var isRemote = ((MsmqAddress)address).Machine != Environment.MachineName.ToLower();
             if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
@@ -105,7 +105,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
-        public static string GetFullPathWithoutPrefix(Address address)
+        public static string GetFullPathWithoutPrefix(MsmqAddress address)
         {
             return address.Machine + MsmqUtilities.PRIVATE + address.Queue;
         }

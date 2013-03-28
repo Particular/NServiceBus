@@ -18,7 +18,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// </summary>
         private const string FAILEDQUEUE = "FailedQ";
 
-        public virtual Address InputQueue
+        public virtual MsmqAddress InputQueue
         {
             set
             {
@@ -72,7 +72,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         return;
                     }
 
-                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
+                    using (var q = new MessageQueue(MsmqUtilities.GetFullPath((MsmqAddress) Address.Parse(failedQ))))
                         q.Send(message, MessageQueueTransactionType.Automatic);
 
                     Console.WriteLine("Success.");
@@ -105,9 +105,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             using (var tx = new TransactionScope())
                             {
-                                using (var q = new MessageQueue(
-                                            MsmqUtilities.GetFullPath(
-                                                Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
+                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath((MsmqAddress) Address.Parse(tm.Headers[Faults.FaultsHeaderKeys.FailedQ]))))
                                     q.Send(m, MessageQueueTransactionType.Automatic);
 
                                 queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,

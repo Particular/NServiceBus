@@ -48,7 +48,7 @@ namespace NServiceBus.Transports.Msmq
                 throw new ArgumentException("Input queue must be specified");
             }
 
-            if (!address.Machine.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!((MsmqAddress)address).Machine.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
                     string.Format("Input queue [{0}] must be on the same machine as this process [{1}].",
@@ -57,7 +57,7 @@ namespace NServiceBus.Transports.Msmq
 
             transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
 
-            queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            queue = new MessageQueue(MsmqUtilities.GetFullPath((MsmqAddress) address), false, true, QueueAccessMode.Receive);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
             {

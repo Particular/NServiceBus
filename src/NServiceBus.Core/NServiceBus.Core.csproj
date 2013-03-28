@@ -154,6 +154,7 @@
     <Compile Include="Transports\Msmq\Config\Msmq.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqSettings.cs" />
     <Compile Include="Transports\Msmq\HeaderInfo.cs" />
+    <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqDequeueStrategy.cs" />
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />

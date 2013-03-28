@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Configuration;
     using Config;
+    using Transports.Msmq;
 
     public static class ConfigureMasterNode
     {
@@ -45,7 +46,7 @@ namespace NServiceBus
 
             ValidateHostName(masterNode);
 
-            return new Address(Configure.EndpointName, masterNode);
+            return new MsmqAddress(Configure.EndpointName, masterNode);
         }
         
         private static void ValidateHostName(string hostName)

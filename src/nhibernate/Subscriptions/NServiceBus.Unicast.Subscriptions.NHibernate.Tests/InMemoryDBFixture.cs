@@ -8,6 +8,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
+    using Transports.Msmq;
+
     public class InMemoryDBFixture
     {
         protected ISubscriptionStorage storage;
@@ -16,24 +18,27 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         [SetUp]
         public void SetupContext()
         {
-          var cfg = new Configuration()
-            .DataBaseIntegration(x =>
-            {
-              x.Dialect<SQLiteDialect>();
-              x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;", Path.GetTempFileName());
-            });
+            var cfg = new Configuration()
+                .DataBaseIntegration(x =>
+                    {
+                        x.Dialect<SQLiteDialect>();
+                        x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;",
+                                                           Path.GetTempFileName());
+                    });
 
-          var mapper = new ModelMapper();
-          mapper.AddMappings(typeof(NHibernate.Config.SubscriptionMap).Assembly.GetExportedTypes());
-          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
+            var mapper = new ModelMapper();
+            mapper.AddMappings(typeof (NHibernate.Config.SubscriptionMap).Assembly.GetExportedTypes());
+            HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-          cfg.AddMapping(faultMappings);
+            cfg.AddMapping(faultMappings);
 
-          new SchemaExport(cfg).Create(false, true);
+            new SchemaExport(cfg).Create(false, true);
 
-           subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
+            subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
 
-           storage = new SubscriptionStorage(subscriptionStorageSessionProvider);
+            storage = new SubscriptionStorage(subscriptionStorageSessionProvider);
+
+            Address.SetParser<MsmqAddress>();
         }
     }
 }

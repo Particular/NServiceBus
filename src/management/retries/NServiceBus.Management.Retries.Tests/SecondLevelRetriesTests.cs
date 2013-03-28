@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-
-namespace NServiceBus.Management.Retries.Tests
+﻿namespace NServiceBus.Management.Retries.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using Faults.Forwarder;
     using Helpers;
+    using NUnit.Framework;
     using Transports;
-    using Unicast.Queuing;
+    using Transports.Msmq;
 
     [TestFixture]
     public class SecondLevelRetriesTests
@@ -15,15 +14,17 @@ namespace NServiceBus.Management.Retries.Tests
         readonly SecondLevelRetries satellite = new SecondLevelRetries();
         readonly FakeMessageSender messageSender = new FakeMessageSender();
         readonly FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
-        readonly Address ERROR_QUEUE = new Address("error","localhost");
-        readonly Address RETRIES_QUEUE = new Address("retries", "localhost");
-        readonly Address TIMEOUT_MANAGER_QUEUE = new Address("timeouts", "localhost");
-        readonly Address ORIGINAL_QUEUE = new Address("org", "hostname");
+        readonly Address ERROR_QUEUE = new MsmqAddress("error", "localhost");
+        readonly Address RETRIES_QUEUE = new MsmqAddress("retries", "localhost");
+        readonly Address TIMEOUT_MANAGER_QUEUE = new MsmqAddress("timeouts", "localhost");
+        readonly Address ORIGINAL_QUEUE = new MsmqAddress("org", "hostname");
         TransportMessage message;
 
         [SetUp]
         public void SetUp()
         {
+            Address.SetParser<MsmqAddress>();
+
             satellite.InputAddress = RETRIES_QUEUE;
             satellite.FaultManager = new FaultManager {ErrorQueue = ERROR_QUEUE};
             
@@ -39,7 +40,7 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq()
         {
-            var expected = new Address("clientQ", "myMachine");
+            var expected = new MsmqAddress("clientQ", "myMachine");
             message.ReplyToAddress = expected;
             SecondLevelRetries.RetryPolicy = _ => TimeSpan.MinValue;
 
@@ -51,9 +52,9 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq_after_retries()
         {
-            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-            var expected = new Address("clientQ", "myMachine");
+            var expected = new MsmqAddress("clientQ", "myMachine");
             message.ReplyToAddress = expected;
 
             for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
@@ -141,12 +142,12 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
-            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.FullName);
             SecondLevelRetries.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
 
-            Assert.AreEqual(ORIGINAL_QUEUE, deferrer.MessageRoutedTo);            
+            Assert.AreEqual(ORIGINAL_QUEUE.FullName, deferrer.MessageRoutedTo.FullName);            
         }
     }
 

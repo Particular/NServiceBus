@@ -4,7 +4,6 @@ using NServiceBus.Unicast.Config;
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     using Transports;
-    using Unicast.Queuing;
 
     /// <summary>
     /// Handles configuration related to the client role
@@ -20,7 +19,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         {
             if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
             {
-                Configure.Instance.MsmqTransport();
+                Configure.Instance.UseTransport<Msmq>();
             }
 
             Configure.Transactions.Disable();

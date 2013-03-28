@@ -51,7 +51,7 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
                         storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
                     }
 
-                    
+
                 }
             }
         }
@@ -74,11 +74,11 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 
                 if (UnitOfWork.HasActiveTransaction())
                 {
-                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
+                    availableWorker = storageQueue.Receive(TimeSpan.Zero, UnitOfWork.Transaction);
                 }
                 else
                 {
-                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);                    
+                    availableWorker = storageQueue.Receive(TimeSpan.Zero, MessageQueueTransactionType.Automatic);
                 }
 
                 if (availableWorker == null)
@@ -103,7 +103,7 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
         /// </summary>
         public void Start()
         {
-            var path = MsmqUtilities.GetFullPath(StorageQueueAddress);
+            var path = MsmqUtilities.GetFullPath((MsmqAddress)StorageQueueAddress);
 
             storageQueue = new MessageQueue(path);
 
@@ -130,22 +130,20 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
         /// <param name="capacity">The number of messages that this worker is ready to process</param>
         public void WorkerAvailable(Address address, int capacity)
         {
-            var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(address));
+            var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath((MsmqAddress)address));
 
             for (var i = 0; i < capacity; i++)
             {
                 if (UnitOfWork.HasActiveTransaction())
                 {
-                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, UnitOfWork.Transaction); 
+                    storageQueue.Send(new Message { ResponseQueue = returnAddress }, UnitOfWork.Transaction);
                 }
                 else
                 {
-                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, MessageQueueTransactionType.Automatic); 
+                    storageQueue.Send(new Message { ResponseQueue = returnAddress }, MessageQueueTransactionType.Automatic);
                 }
             }
         }
-
-        static TimeSpan MaxTimeToWaitForAvailableWorker = TimeSpan.FromSeconds(10);
 
         MessageQueue storageQueue;
         readonly object lockObject = new object();

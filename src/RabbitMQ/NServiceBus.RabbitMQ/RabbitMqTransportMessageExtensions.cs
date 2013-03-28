@@ -38,7 +38,7 @@
             
 
             if (message.ReplyToAddress != null && message.ReplyToAddress != Address.Undefined)
-                properties.ReplyTo = message.ReplyToAddress.Queue;
+                properties.ReplyTo = message.ReplyToAddress.Name;
 
             return properties;
         }

@@ -63,7 +63,7 @@ namespace NServiceBus.Testing.Tests
             decimal total = 100;
 
             Test.Saga<DiscountPolicy>()
-                .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Queue == "remote.orderqueue")
+                .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Name == "remote.orderqueue")
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = total, IsRemoteOrder = true}));
         }

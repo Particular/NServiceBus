@@ -53,6 +53,7 @@
     <Compile Include="Config\RabbitMqConventions.cs" />
     <Compile Include="DefaultRoutingKeyConvention.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
+    <Compile Include="RabbitMqAddress.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringParser.cs" />
     <Compile Include="Config\RabbitMqTransportConfigurer.cs" />

@@ -113,7 +113,7 @@
 
         }
 
-        protected virtual string ExchangeNameConvention(Address address,Type eventType)
+        protected virtual string ExchangeNameConvention(Address address, Type eventType)
         {
             return "amq.topic";
         }

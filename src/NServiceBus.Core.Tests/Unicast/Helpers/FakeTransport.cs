@@ -60,8 +60,8 @@ namespace NServiceBus.Unicast.Tests.Helpers
         public void FakeMessageBeeingProcessed(TransportMessage transportMessage)
         {
             StartedMessageProcessing(this, new StartedMessageProcessingEventArgs(transportMessage));
-            TransportMessageReceived(this,new TransportMessageReceivedEventArgs(transportMessage));
-            FinishedMessageProcessing(this,new EventArgs());
+            TransportMessageReceived(this, new TransportMessageReceivedEventArgs(transportMessage));
+            FinishedMessageProcessing(this, new EventArgs());
         }
 
         public void FakeMessageBeeingPassedToTheFaultManager(TransportMessage transportMessage)
