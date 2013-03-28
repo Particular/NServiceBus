@@ -103,7 +103,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
         {
             int result;
 
-            using (var session = SessionFactory.OpenSession())
+            using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var te = session.Get<TimeoutEntity>(new Guid(timeoutId));
