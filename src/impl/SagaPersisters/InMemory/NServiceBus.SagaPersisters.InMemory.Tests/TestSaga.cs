@@ -5,7 +5,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using Saga;
 
-    public class TestSaga : ISagaEntity
+    public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

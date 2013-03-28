@@ -23,7 +23,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 		{
 			Mapper = new ConventionModelMapper();
 
-			_sagaEntites = typesToScan.Where(t => typeof (ISagaEntity).IsAssignableFrom(t) && !t.IsInterface);
+			_sagaEntites = typesToScan.Where(t => typeof (IContainSagaData).IsAssignableFrom(t) && !t.IsInterface);
 
 			_entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntites, typesToScan);
 

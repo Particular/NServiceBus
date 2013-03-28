@@ -75,7 +75,7 @@
         }
     }
 
-    public class OrderData : ISagaEntity
+    public class OrderData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

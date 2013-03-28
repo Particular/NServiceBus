@@ -42,7 +42,7 @@ namespace NServiceBus.Testing.Tests
     }
 
     public class SagaTestEvent : IEvent {}
-    public class Data : ISagaEntity
+    public class Data : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

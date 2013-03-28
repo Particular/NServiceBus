@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     using System;
     using NServiceBus.Saga;
 
-    public class SagaWithUniqueProperty : ISagaEntity
+    public class SagaWithUniqueProperty : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

@@ -122,7 +122,7 @@ namespace NServiceBus.Testing
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
-            var sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+            var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
             saga.Entity = sagaData;
 

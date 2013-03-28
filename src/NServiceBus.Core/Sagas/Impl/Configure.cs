@@ -352,7 +352,7 @@ namespace NServiceBus.Sagas.Impl
                 Type messageType = null;
                 foreach(Type typ in args)
                 {
-                    if (typeof (ISagaEntity).IsAssignableFrom(typ))
+                    if (typeof (IContainSagaData).IsAssignableFrom(typ))
                         sagaEntityType = typ;
 
                     if (MessageConventionExtensions.IsMessageType(typ) || typ == typeof(object))

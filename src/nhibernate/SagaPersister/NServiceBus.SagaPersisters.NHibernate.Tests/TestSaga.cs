@@ -6,7 +6,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using AutoPersistence.Attributes;
 
-    public class TestSaga : ISagaEntity
+    public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -69,7 +69,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual TestSaga ParentSaga { get; set; }
     }
 
-    public class TestSagaWithHbmlXmlOverride : ISagaEntity
+    public class TestSagaWithHbmlXmlOverride : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -81,7 +81,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     }
 
     [TableName("MyTestTable", Schema = "MyTestSchema" )]
-    public class TestSagaWithTableNameAttribute : ISagaEntity
+    public class TestSagaWithTableNameAttribute : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

@@ -13,7 +13,7 @@ namespace NServiceBus.SagaPersisters.InMemory
     /// </summary>
     public class InMemorySagaPersister : ISagaPersister
     {
-        void ISagaPersister.Complete(ISagaEntity saga)
+        void ISagaPersister.Complete(IContainSagaData saga)
         {
             lock (syncRoot)
             {
@@ -55,7 +55,7 @@ namespace NServiceBus.SagaPersisters.InMemory
             return default(T);
         }
 
-        void ISagaPersister.Save(ISagaEntity saga)
+        void ISagaPersister.Save(IContainSagaData saga)
         {
             lock (syncRoot)
             {
@@ -70,12 +70,12 @@ namespace NServiceBus.SagaPersisters.InMemory
             }
         }
 
-        void ISagaPersister.Update(ISagaEntity saga)
+        void ISagaPersister.Update(IContainSagaData saga)
         {
             ((ISagaPersister)this).Save(saga);
         }
 
-        private void ValidateUniqueProperties(ISagaEntity saga)
+        private void ValidateUniqueProperties(IContainSagaData saga)
         {
             var uniqueProperties = UniqueAttribute.GetUniqueProperties(saga.GetType());
             if (!uniqueProperties.Any()) return;
@@ -103,7 +103,7 @@ namespace NServiceBus.SagaPersisters.InMemory
 
         private class VersionedSagaEntity
         {
-            public ISagaEntity SagaEntity;
+            public IContainSagaData SagaEntity;
 
             public void ConcurrencyCheck()
             {
@@ -119,11 +119,11 @@ namespace NServiceBus.SagaPersisters.InMemory
             private readonly int savedByThreadId = Thread.CurrentThread.ManagedThreadId;
         }
 
-        private ISagaEntity DeepClone(ISagaEntity source)
+        private IContainSagaData DeepClone(IContainSagaData source)
         {
             var json = serializer.SerializeObject(source);
 
-            return (ISagaEntity)serializer.DeserializeObject(json, source.GetType());
+            return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
 
         private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);

@@ -10,7 +10,7 @@ namespace NServiceBus.Saga
     /// Interface indicating that implementers can find sagas of the given type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class IFindSagas<T> where T : ISagaEntity
+    public class IFindSagas<T> where T : IContainSagaData
     {
         /// <summary>
         /// Narrower interface indicating that implementers can find sagas

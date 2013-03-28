@@ -8,7 +8,7 @@ namespace NServiceBus.Saga
     /// </summary>
     /// <typeparam name="TSaga"></typeparam>
     /// <typeparam name="TMessage"></typeparam>
-    public class ToSagaExpression<TSaga,TMessage> where TSaga : ISagaEntity
+    public class ToSagaExpression<TSaga,TMessage> where TSaga : IContainSagaData
     {
         readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
         readonly Expression<Func<TMessage, object>> messageProperty;

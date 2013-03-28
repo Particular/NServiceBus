@@ -44,12 +44,12 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
             }           
         }
 
-        protected void SaveSaga<T>(T saga) where T : ISagaEntity
+        protected void SaveSaga<T>(T saga) where T : IContainSagaData
         {
             WithASagaPersistenceUnitOfWork(p => p.Save(saga));
         }
 
-        protected void CompleteSaga<T>(Guid sagaId) where T : ISagaEntity
+        protected void CompleteSaga<T>(Guid sagaId) where T : IContainSagaData
         {
             WithASagaPersistenceUnitOfWork(p =>
                                            {
@@ -59,7 +59,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
                                            });
         }
 
-        protected void UpdateSaga<T>(Guid sagaId, Action<T> update) where T : ISagaEntity
+        protected void UpdateSaga<T>(Guid sagaId, Action<T> update) where T : IContainSagaData
         {
             WithASagaPersistenceUnitOfWork(p =>
             {

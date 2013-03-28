@@ -7,7 +7,7 @@ namespace NServiceBus.Sagas.Impl.Finders
     /// for whether a new saga should be created.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class NullSagaFinder<T> : IFindSagas<T>.Using<object> where T : ISagaEntity
+    public class NullSagaFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
     {
         /// <summary>
         /// Returns null.

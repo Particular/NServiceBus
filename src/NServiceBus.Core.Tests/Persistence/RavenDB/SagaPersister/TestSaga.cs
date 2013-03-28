@@ -6,7 +6,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     using Raven.Imports.Newtonsoft.Json;
 
     [JsonObject(IsReference = true)]
-    public class TestSaga : ISagaEntity
+    public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

@@ -79,7 +79,7 @@
             }
 
             [TableName("SagaPerformanceMySagaData")]
-            public class MySagaData : ISagaEntity
+            public class MySagaData : IContainSagaData
             {
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }

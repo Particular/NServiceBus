@@ -10,7 +10,7 @@ namespace NServiceBus.Sagas.Impl.Finders
     /// <typeparam name="TSaga"></typeparam>
     /// <typeparam name="TMessage"></typeparam>
     public class PropertySagaFinder<TSaga, TMessage> : IFindSagas<TSaga>.Using<TMessage>
-        where TSaga : ISagaEntity
+        where TSaga : IContainSagaData
     {
         /// <summary>
         /// Injected persister

@@ -22,7 +22,7 @@ namespace NServiceBus.Testing
             if (saga.Entity == null)
             {
                 var prop = typeof(T).GetProperty("Data");
-                var sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
                 saga.Entity = sagaData;
             }
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
