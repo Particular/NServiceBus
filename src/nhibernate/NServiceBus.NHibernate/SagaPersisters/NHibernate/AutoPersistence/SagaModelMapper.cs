@@ -57,7 +57,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 				map.Table(tableAttribute.TableName);
 				if (!String.IsNullOrEmpty(tableAttribute.Schema))
 					map.Schema(tableAttribute.Schema);
-			}
+			
+                return;
+            }
+            
+            //if the type is nested use the name of the parent
+            if (type.DeclaringType != null)
+            {
+                map.Table(type.DeclaringType.Name);
+            }
 		}
 
 		private void ApplySubClassConvention(IModelInspector mi, Type type, IJoinedSubclassAttributesMapper map)
