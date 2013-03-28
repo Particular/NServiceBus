@@ -64,7 +64,15 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             //if the type is nested use the name of the parent
             if (type.DeclaringType != null)
             {
-                map.Table(type.DeclaringType.Name);
+                if (typeof (IContainSagaData).IsAssignableFrom(type))
+                {
+                    map.Table(type.DeclaringType.Name);    
+                }
+                else
+                {
+                    map.Table(type.DeclaringType.Name + "_" +  type.Name);    
+                }
+                
             }
 		}
 

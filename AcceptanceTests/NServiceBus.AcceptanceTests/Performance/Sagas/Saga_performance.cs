@@ -9,7 +9,6 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using Saga;
-    using SagaPersisters.NHibernate.AutoPersistence.Attributes;
     using ScenarioDescriptors;
 
     public class Saga_performance : NServiceBusPerformanceTest
@@ -44,7 +43,7 @@
                     .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
             }
 
-            public class MySaga : Saga<MySagaData>,IAmStartedByMessages<MyMessage>
+            public class MySaga : Saga<MySaga.MySagaData>,IAmStartedByMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
@@ -76,18 +75,20 @@
                         .ToSaga(s=>s.SomeId);
                         
                 }
+
+
+                public class MySagaData : IContainSagaData
+                {
+                    public virtual Guid Id { get; set; }
+                    public virtual string Originator { get; set; }
+                    public virtual string OriginalMessageId { get; set; }
+
+                    [Unique]
+                    public virtual Guid SomeId { get; set; }
+                }
+
             }
 
-            [TableName("SagaPerformanceMySagaData")]
-            public class MySagaData : IContainSagaData
-            {
-                public virtual Guid Id { get; set; }
-                public virtual string Originator { get; set; }
-                public virtual string OriginalMessageId { get; set; }
-
-                [Unique]
-                public virtual Guid SomeId { get; set; }
-            }
 
         }
 
