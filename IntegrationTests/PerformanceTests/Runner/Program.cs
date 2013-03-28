@@ -8,6 +8,8 @@ namespace Runner
     using System.Transactions;
 
     using NServiceBus;
+    
+    using Runner.Saga;
 
     class Program
     {
@@ -17,6 +19,8 @@ namespace Runner
             bool volatileMode = (args[4].ToLower() == "volatile");
             bool suppressDTC = (args[4].ToLower() == "suppressdtc");
             bool twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
+            bool saga = (args[5].ToLower() == "sagamessages");
+            bool nhibernate = (args[6].ToLower() == "nhibernate");
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
@@ -39,7 +43,7 @@ namespace Runner
                 case "xml":
                     config.XmlSerializer();
                     break;
-                    
+
                 case "json":
                     config.JsonSerializer();
                     break;
@@ -54,6 +58,19 @@ namespace Runner
 
                 default:
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
+            }
+
+            if (saga)
+            {
+                if (nhibernate)
+                {
+                    config.Sagas().UseNHibernateSagaPersister();
+
+                }
+                else
+                {
+                    config.Sagas().RavenSagaPersister();
+                }
             }
 
             if (volatileMode)
@@ -92,12 +109,9 @@ namespace Runner
                 Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
                 var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
-                var sendTimeNoTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, false, twoPhaseCommit);
-                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true, twoPhaseCommit);
+                var sendTimeNoTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
+                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true, twoPhaseCommit, saga, false);
 
-                Console.WriteLine("Queue seeded");
-                Console.ReadLine();
-     
                 var startTime = DateTime.Now;
 
                 startableBus.Start();
@@ -106,12 +120,12 @@ namespace Runner
                     Thread.Sleep(1000);
 
                 var durationSeconds = (Timings.Last - Timings.First.Value).TotalSeconds;
-                Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}", 
-                                      numberOfThreads, 
-                                      numberOfMessages * 2, 
-                                      args[2], 
-                                      args[3], 
-                                      Convert.ToDouble(numberOfMessages * 2) / durationSeconds, 
+                Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}",
+                                      numberOfThreads,
+                                      numberOfMessages * 2,
+                                      args[2],
+                                      args[3],
+                                      Convert.ToDouble(numberOfMessages * 2) / durationSeconds,
                                       Convert.ToDouble(numberOfMessages) / sendTimeNoTx.TotalSeconds,
                                       (Timings.First - startTime).Value.TotalSeconds,
                                       (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
@@ -121,7 +135,7 @@ namespace Runner
             }
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit)
+        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool saga, bool startSaga)
         {
             var sw = new Stopwatch();
             var bus = Configure.Instance.Builder.Build<IBus>();
@@ -132,27 +146,42 @@ namespace Runner
                 numberOfMessages,
                 new ParallelOptions { MaxDegreeOfParallelism = numberOfThreads },
                 x =>
-                    {
-                        var message = new TestMessage();
-                        message.TwoPhaseCommit = twoPhaseCommit;
-                        message.Id = x;
+                {
+                    var message = CreateMessage(saga, startSaga);
+                    message.TwoPhaseCommit = twoPhaseCommit;
+                    message.Id = x;
 
-                        if (createTransaction)
-                        {
-                            using (var tx = new TransactionScope())
-                            {
-                                bus.Send(inputQueue, message);
-                                tx.Complete();
-                            }
-                        }
-                        else
+                    if (createTransaction)
+                    {
+                        using (var tx = new TransactionScope())
                         {
                             bus.Send(inputQueue, message);
+                            tx.Complete();
                         }
-                    });
+                    }
+                    else
+                    {
+                        bus.Send(inputQueue, message);
+                    }
+                });
             sw.Stop();
 
             return sw.Elapsed;
+        }
+
+        private static MessageBase CreateMessage(bool saga, bool startSaga)
+        {
+            if (saga)
+            {
+                if (startSaga)
+                {
+                    return new StartSagaMessage();
+                }
+
+                return new CompleteSagaMessage();
+            }
+
+            return new TestMessage();
         }
     }
 }
