@@ -30,7 +30,7 @@
                  .ConfigureProperty(p => p.PrefetchCount, parser.GetPrefetchCount());
 
             config.Configurer.ConfigureComponent<RabbitMqUnitOfWork>(DependencyLifecycle.InstancePerCall)
-                  .ConfigureProperty(p => p.UsePublisherConfirms, SettingsHolder.Get<bool>("Endpoint.DurableMessages"))
+                  .ConfigureProperty(p => p.UsePublisherConfirms, parser.UsePublisherConfirms())
                   .ConfigureProperty(p => p.MaxWaitTimeForConfirms, parser.GetMaxWaitTimeForConfirms());
 
 
