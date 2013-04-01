@@ -63,7 +63,7 @@
             receivedMessages = new BlockingCollection<TransportMessage>();
             connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
-            unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager };
+            unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager,UsePublisherConfirms = true,MaxWaitTimeForConfirms = TimeSpan.FromSeconds(10) };
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 

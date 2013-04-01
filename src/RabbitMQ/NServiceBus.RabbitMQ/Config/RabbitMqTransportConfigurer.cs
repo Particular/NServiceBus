@@ -19,18 +19,21 @@
 
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
             {
-              
-                var connectionManager = new RabbitMqConnectionManager(parser.BuildConnectionFactory(),parser.BuildConnectionRetrySettings());
-                
-                config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);                
+
+                var connectionManager = new RabbitMqConnectionManager(parser.BuildConnectionFactory(), parser.BuildConnectionRetrySettings());
+
+                config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);
             }
 
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
                  .ConfigureProperty(p => p.PrefetchCount, parser.GetPrefetchCount());
 
-            config.Configurer.ConfigureComponent<RabbitMqUnitOfWork>(DependencyLifecycle.InstancePerCall);
-            
+            config.Configurer.ConfigureComponent<RabbitMqUnitOfWork>(DependencyLifecycle.InstancePerCall)
+                  .ConfigureProperty(p => p.UsePublisherConfirms, SettingsHolder.Get<bool>("Endpoint.DurableMessages"))
+                  .ConfigureProperty(p => p.MaxWaitTimeForConfirms, parser.GetMaxWaitTimeForConfirms());
+
+
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
@@ -52,7 +55,7 @@
             EndpointInputQueueCreator.Enabled = true;
         }
 
-      
+
 
     }
 }

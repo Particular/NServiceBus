@@ -55,11 +55,14 @@
             return ContainsKey("prefetchCount") ? ushort.Parse(this["prefetchCount"] as string) : DefaultPrefetchCount;
         }
 
+        public TimeSpan GetMaxWaitTimeForConfirms()
+        {
+            return ContainsKey("maxWaitTimeForConfirms") ? TimeSpan.Parse(this["maxWaitTimeForConfirms"] as string) : DefaultWaitTimeForConfirms;
+        }
 
         const ushort DefaultHeartBeatInSeconds = 5;
         const ushort DefaultPrefetchCount = 1;
-
-
+        static TimeSpan DefaultWaitTimeForConfirms = TimeSpan.FromSeconds(30);
     }
 
     public class ConnectionRetrySettings
