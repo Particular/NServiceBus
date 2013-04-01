@@ -95,7 +95,6 @@
     <Compile Include="TwoPhaseCommitEnlistment.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="TestSuites\Transports-Sagas.ps1" />
     <None Include="TestSuites\Transports-SuppressDTC-Sagas.ps1" />

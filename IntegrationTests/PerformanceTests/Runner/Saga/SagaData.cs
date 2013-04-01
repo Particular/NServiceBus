@@ -4,7 +4,7 @@
 
     using NServiceBus.Saga;
 
-    public class SagaData : ISagaEntity
+    public class SagaData : IContainSagaData
     {
         public virtual string Originator { get; set; }
 
