@@ -34,8 +34,8 @@
 
         /// <summary>
         /// Sets the address of this endpoint.
-        /// Will throw an exception if overwriting a previous value (but value will still be set).
         /// </summary>
+        /// <typeparam name="T">An <see cref="AddressParser"/>.</typeparam>
         public static void SetParser<T>()  where T : AddressParser, new()
         {
             parser = new T();
