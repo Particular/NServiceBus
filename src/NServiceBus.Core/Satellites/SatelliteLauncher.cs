@@ -50,9 +50,11 @@ namespace NServiceBus.Satellites
 
         public void Stop()
         {
-            foreach (var ctx in satellites)
+            for (int index   = 0; index < satellites.Count; index++)
             {
-                Logger.DebugFormat("Stopping satellite {0}.", ctx.Instance.GetType().AssemblyQualifiedName);
+                var ctx = satellites[index];
+
+                Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName, index + 1, satellites.Count);
 
                 if (ctx.Transport != null)
                 {
@@ -60,6 +62,8 @@ namespace NServiceBus.Satellites
                 }
 
                 ctx.Instance.Stop();
+
+                Logger.DebugFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName, index + 1, satellites.Count);
             }
         }
 
