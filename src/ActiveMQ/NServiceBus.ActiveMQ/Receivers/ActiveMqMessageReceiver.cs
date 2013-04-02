@@ -3,7 +3,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using System;
     using Apache.NMS;
     using NServiceBus.Logging;
-    using NServiceBus.Unicast.Transport.Transactional;
     using Unicast.Transport;
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived

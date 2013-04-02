@@ -82,8 +82,6 @@
     <Compile Include="Receivers\ActiveMqMessageReceiver.cs" />
     <Compile Include="ActiveMqMessageSender.cs" />
     <Compile Include="ActiveMqSubscriptionStorage.cs" />
-    <Compile Include="IMessageCounter.cs" />
-    <Compile Include="MessageCounter.cs" />
     <Compile Include="Receivers\TransactonsScopes\ActiveMqTransaction.cs" />
     <Compile Include="Receivers\TransactonsScopes\DTCTransactionScope.cs" />
     <Compile Include="Receivers\EventConsumer.cs" />
