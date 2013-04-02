@@ -89,6 +89,12 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             {
                 resetEvent.Reset();
 
+                if (stop)
+                {
+                    resetEvent.Set();
+                    return;
+                }
+
                 using (var tx = transactionScopeFactory.CreateNewTransactionScope(transactionSettings, session))
                 {
                     tx.MessageAccepted(message);
@@ -97,7 +103,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
                     try
                     {
-                        transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+                        transportMessage = activeMqMessageMapper.CreateTransportMessage(message);
                         if (TryProcessMessage(transportMessage))
                         {
                             tx.Complete();
