@@ -97,7 +97,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                             brokeredMessage.Properties[header.Key] = header.Value;
                         }
 
-                        brokeredMessage.Properties["MessageIntent"] = message.MessageIntent.ToString();
+                        brokeredMessage.Properties[Headers.MessageIntent] = message.MessageIntent.ToString();
                         brokeredMessage.MessageId = message.Id;
                         brokeredMessage.ReplyTo = message.ReplyToAddress.ToString();
                         

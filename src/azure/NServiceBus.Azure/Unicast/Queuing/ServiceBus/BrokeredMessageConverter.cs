@@ -30,7 +30,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                 t.MessageIntent =
                     (MessageIntentEnum)
-                    Enum.Parse(typeof (MessageIntentEnum), message.Properties["MessageIntent"].ToString());
+                    Enum.Parse(typeof(MessageIntentEnum), message.Properties[Headers.MessageIntent].ToString());
                 t.Id = message.MessageId;
                 t.ReplyToAddress = Address.Parse(message.ReplyTo); // Will this work?
 
