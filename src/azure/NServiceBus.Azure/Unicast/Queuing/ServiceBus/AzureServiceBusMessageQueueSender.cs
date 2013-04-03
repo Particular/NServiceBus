@@ -49,7 +49,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public void Send(TransportMessage message, Address address)
         {
-            var destination = address.Name;
+            var destination = address.Queue;
 
             QueueClient sender;
             if (!senders.TryGetValue(destination, out sender))

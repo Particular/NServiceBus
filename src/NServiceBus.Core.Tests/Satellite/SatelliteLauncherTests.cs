@@ -3,7 +3,6 @@
     using System;
     using Satellites;
     using NUnit.Framework;
-    using Transports.Msmq;
 
     public class FakeSatellite : ISatellite
     {
@@ -36,7 +35,7 @@
     {
         public SatelliteWithQueue()
         {
-            InputAddress = new MsmqAddress("input", "machineName");
+            InputAddress = new Address("input", "machineName");
         }
     }
 

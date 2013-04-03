@@ -73,7 +73,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
-            queue = Client.GetQueueReference(SanitizeQueueName(address.Name));
+            queue = Client.GetQueueReference(SanitizeQueueName(address.Queue));
             queue.CreateIfNotExist();
 
 			if (PurgeOnStartup)

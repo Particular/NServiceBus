@@ -13,8 +13,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB
         {
             var config = Configure.With(new[] { GetType().Assembly })
                 .DefineEndpointName("UnitTests")
-                .DefaultBuilder()
-                .UseTransport<NServiceBus.Msmq>();
+                .DefaultBuilder();
 
             Initialize(config);
           

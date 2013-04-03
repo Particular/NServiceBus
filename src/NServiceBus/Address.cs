@@ -1,66 +1,70 @@
-﻿namespace NServiceBus
-{
-    using System;
+﻿using System;
+using System.Net;
+using System.Runtime.Serialization;
 
+namespace NServiceBus
+{
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
-    public abstract class Address : IEquatable<Address>
+    [Serializable]
+    public class Address : ISerializable
     {
-        static AddressParser parser;
-        static Lazy<Address> delayedLocalAddress = new Lazy<Address>(() => null);
-        static readonly UndefinedAddress undefinedAddress = new UndefinedAddress();
+        private static AddressMode addressMode = AddressMode.Local;
+        private static string defaultMachine = Environment.MachineName;
+        private static bool preventChanges;
 
         /// <summary>
         /// Undefined address.
         /// </summary>
-        public static Address Undefined
-        {
-            get { return undefinedAddress; }
-        }
+        public static readonly Address Undefined = new Address(String.Empty, String.Empty);
 
-        static bool locked;
-
+        /// <summary>
+        /// Self address.
+        /// </summary>
+        public static readonly Address Self = new Address("__self", "localhost");
+        
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
-        public static Address Local
-        {
-            get
-            {
-                return delayedLocalAddress.Value;
-            }
-        }
+        public static Address Local { get; private set; }
 
         /// <summary>
         /// Sets the address of this endpoint.
         /// </summary>
-        /// <typeparam name="T">An <see cref="AddressParser"/>.</typeparam>
-        public static void SetParser<T>()  where T : AddressParser, new()
+        /// <param name="queue">The queue name.</param>
+        public static void InitializeLocalAddress(string queue)
         {
-            parser = new T();
+            Local = Parse(queue);
+
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
-        /// Prevents changes to all addresses.
+        /// Sets the address mode, can only be done as long as the local address is not been initialized.By default the default machine equals Environment.MachineName
         /// </summary>
-        public static void PreventChanges()
+        /// <param name="machineName">The machine name.</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void OverrideDefaultMachine(string machineName)
         {
-            locked = true;
+            defaultMachine = machineName;
+
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set default machine name is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
-        /// Sets the address of this endpoint.
+        /// Sets the name of the machine to be used when none is specified in the address.
         /// </summary>
-        /// <param name="localAddress">The local address.</param>
-        public static void InitializeLocalAddress(string localAddress)
+        /// <param name="mode"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void InitializeAddressMode(AddressMode mode)
         {
-            if (locked)
-            {
-                throw new InvalidOperationException("PreventChanges() has been called, you cannot change the local address anymore.");
-            }
+            addressMode = mode;
 
-            delayedLocalAddress = new Lazy<Address>(() => Parse(localAddress));
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set address mode is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
@@ -70,7 +74,71 @@
         /// <returns>A new instance of <see cref="Address"/>.</returns>
         public static Address Parse(string destination)
         {
-            return parser.Parse(destination);
+            if (string.IsNullOrEmpty(destination))
+            {
+                throw new ArgumentException("Invalid destination address specified", "destination");
+            }
+
+            var arr = destination.Split('@');
+            
+            var queue = arr[0];
+            var machine = defaultMachine;
+
+            if (String.IsNullOrWhiteSpace(queue))
+            {
+                throw new ArgumentException("Invalid destination address specified", "destination");
+            }
+
+            if (arr.Length == 2)
+                if (arr[1] != "." && arr[1].ToLower() != "localhost" && arr[1] != IPAddress.Loopback.ToString())
+                    machine = arr[1];
+
+            return new Address(queue, machine);
+        }
+
+        ///<summary>
+        /// Instantiate a new Address for a known queue on a given machine.
+        ///</summary>
+        ///<param name="queueName">The queue name.</param>
+        ///<param name="machineName">The machine name.</param>
+        public Address(string queueName, string machineName) :
+            this(queueName, machineName, false)
+        {
+        }
+
+        /// <summary>
+        /// Instantiate a new Address for a known queue on a given machine.
+        /// </summary>
+        ///<param name="queueName">The queue name.</param>
+        ///<param name="machineName">The machine name.</param>
+        /// <param name="caseSensitive">If <code>true</code> makes the address case sensitive.</param>
+        public Address(string queueName, string machineName, bool caseSensitive)
+        {
+            Queue = caseSensitive ? queueName : queueName.ToLower();
+            Machine = caseSensitive || addressMode != AddressMode.Local ? machineName : machineName.ToLower();
+        }
+        
+        /// <summary>
+        /// Deserializes an Address.
+        /// </summary>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
+        protected Address(SerializationInfo info, StreamingContext context)
+        {
+            Queue = info.GetString("Queue");
+            Machine = info.GetString("Machine");
+        }
+
+        /// <summary>
+        /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
+        /// </summary>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data. </param>
+        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization. </param>
+        /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Queue", Queue);
+            info.AddValue("Machine", Machine);
         }
 
         /// <summary>
@@ -79,50 +147,70 @@
         /// </summary>
         /// <param name="qualifier"></param>
         /// <returns></returns>
-        public abstract Address SubScope(string qualifier);
-
-        /// <summary>
-        /// The short form of an <see cref="Address"/>.
-        /// </summary>
-        public abstract string Name { get; }
-
-        /// <summary>
-        /// The fully qualified form of an <see cref="Address"/>.
-        /// </summary>
-        public abstract string FullName { get; }
-
-        /// <summary>
-        /// Returns a <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
-        /// </returns>
-        /// <filterpriority>2</filterpriority>
-        public override string ToString()
+        public Address SubScope(string qualifier)
         {
-            return FullName;
+            return new Address(Queue + "." + qualifier, Machine);
         }
 
         /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
+        /// Provides a hash code of the Address.
         /// </summary>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other"/> parameter; otherwise, false.
-        /// </returns>
-        /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(Address other)
+        /// <returns></returns>
+        public override int GetHashCode()
         {
-            if (ReferenceEquals(null, other))
+            unchecked
             {
-                return false;
+                return ((Queue != null ? Queue.GetHashCode() : 0) * 397) ^ (Machine != null ? Machine.GetHashCode() : 0);
             }
+        }
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
+        /// <summary>
+        /// Returns a string representation of the address.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Queue + "@" + Machine;
+        }
 
-            return Equals(other.FullName, FullName);
+        /// <summary>
+        /// Prevents changes to all addresses.
+        /// </summary>
+        public static void PreventChanges()
+        {
+            preventChanges = true;
+        }
+
+        /// <summary>
+        /// The (lowercase) name of the queue not including the name of the machine or location depending on the address mode.
+        /// </summary>
+        public string Queue { get; private set; }
+
+        /// <summary>
+        /// The (lowercase) name of the machine or the (normal) name of the location depending on the address mode.
+        /// </summary>
+        public string Machine { get; private set; }
+
+        /// <summary>
+        /// Overloading for the == for the class Address
+        /// </summary>
+        /// <param name="left">Left hand side of == operator</param>
+        /// <param name="right">Right hand side of == operator</param>
+        /// <returns>true if the LHS is equal to RHS</returns>
+        public static bool operator ==(Address left, Address right)
+        {
+            return Equals(left, right);
+        }
+
+        /// <summary>
+        /// Overloading for the != for the class Address
+        /// </summary>
+        /// <param name="left">Left hand side of != operator</param>
+        /// <param name="right">Right hand side of != operator</param>
+        /// <returns>true if the LHS is not equal to RHS</returns>
+        public static bool operator !=(Address left, Address right)
+        {
+            return !Equals(left, right);
         }
 
         /// <summary>
@@ -134,68 +222,22 @@
         /// <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>. </param><filterpriority>2</filterpriority>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            var other = obj as Address;
-            return other != null && Equals(other);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != typeof(Address)) return false;
+            return Equals((Address)obj);
         }
 
         /// <summary>
-        /// Serves as a hash function for a particular type. 
+        /// Check this is equal to other Address
         /// </summary>
-        /// <returns>
-        /// A hash code for the current <see cref="T:System.Object"/>.
-        /// </returns>
-        /// <filterpriority>2</filterpriority>
-        public override int GetHashCode()
+        /// <param name="other">refrence addressed to be checked with this</param>
+        /// <returns>true if this is equal to other</returns>
+        private bool Equals(Address other)
         {
-            return FullName != null ? FullName.GetHashCode() : 0;
-        }
-
-        /// <summary>
-        /// Overloading for the == for the class <see cref="Address"/>.
-        /// </summary>
-        /// <param name="left">Left hand side of == operator.</param>
-        /// <param name="right">Right hand side of == operator.</param>
-        /// <returns>true if the LHS is equal to RHS.</returns>
-        public static bool operator ==(Address left, Address right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Overloading for the != for the class <see cref="Address"/>.
-        /// </summary>
-        /// <param name="left">Left hand side of != operator.</param>
-        /// <param name="right">Right hand side of != operator.</param>
-        /// <returns>true if the LHS is not equal to RHS.</returns>
-        public static bool operator !=(Address left, Address right)
-        {
-            return !Equals(left, right);
-        }
-
-        class UndefinedAddress : Address
-        {
-            public override Address SubScope(string qualifier)
-            {
-                throw new InvalidOperationException();
-            }
-
-            public override string Name
-            {
-                get { return String.Empty; }
-            }
-
-            public override string FullName
-            {
-                get { return String.Empty; }
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(other.Queue, Queue) && Equals(other.Machine, Machine);
         }
     }
 }

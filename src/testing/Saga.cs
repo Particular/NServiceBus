@@ -184,7 +184,7 @@ namespace NServiceBus.Testing
                                         {
                                             Check = (msg, address, correlationId) =>
                                                         {
-                                                            if (address.FullName != Address.Parse(saga.Entity.Originator).FullName)
+                                                            if (address != Address.Parse(saga.Entity.Originator))
                                                             {
                                                                 throw new Exception(
                                                                     "Expected ReplyToOriginator. Messages were sent to " +

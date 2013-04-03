@@ -4,6 +4,7 @@ namespace NServiceBus.Hosting.Roles.Handlers
     using Hosting.Roles;
     using Transports;
     using Unicast.Config;
+    using Unicast.Transport;
 
 
     /// <summary>

@@ -19,6 +19,8 @@ namespace NServiceBus
             if (configSection == null)
                 throw new ConfigurationErrorsException("No AzureServiceBusQueueConfig configuration section found");
 
+            Address.InitializeAddressMode(AddressMode.Remote);
+
             ServiceBusEnvironment.SystemConnectivity.Mode = (ConnectivityMode) Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
 
             if(string.IsNullOrEmpty(configSection.ConnectionString) && (string.IsNullOrEmpty(configSection.IssuerKey) || string.IsNullOrEmpty(configSection.ServiceNamespace) ))
@@ -42,8 +44,7 @@ namespace NServiceBus
                 namespaceClient = new NamespaceManager(serviceUri, credentials);
                 factory = MessagingFactory.Create(serviceUri, credentials);
             }
-
-            AzureAddress.SetDefaultConnectionString(serviceUri.ToString());
+            Address.OverrideDefaultMachine(serviceUri.ToString());
 
             config.Configurer.RegisterSingleton<NamespaceManager>(namespaceClient); 
             config.Configurer.RegisterSingleton<MessagingFactory>(factory);

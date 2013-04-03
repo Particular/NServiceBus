@@ -21,7 +21,7 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string GetFullPath(MsmqAddress value)
+        public static string GetFullPath(Address value)
         {
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
@@ -40,7 +40,7 @@ namespace NServiceBus.Transports.Msmq
         /// <returns></returns>
         public static string GetReturnAddress(string value, string target)
         {
-            return GetReturnAddress((MsmqAddress)Address.Parse(value), (MsmqAddress)Address.Parse(target));
+            return GetReturnAddress(Address.Parse(value), Address.Parse(target));
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="value"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        public static string GetReturnAddress(MsmqAddress value, MsmqAddress target)
+        public static string GetReturnAddress(Address value, Address target)
         {
             var machine = target.Machine;
 
@@ -112,18 +112,18 @@ namespace NServiceBus.Transports.Msmq
 
             int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
-                return new MsmqAddress(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
+                return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
 
             int tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
-                return new MsmqAddress(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
+                return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
 
             try
             {
                 // the pessimistic approach failed, try the optimistic approach
                 arr = q.QueueName.Split('\\');
                 queueName = arr[arr.Length - 1];
-                return new MsmqAddress(queueName, q.MachineName);
+                return new Address(queueName, q.MachineName);
             }
             catch
             {

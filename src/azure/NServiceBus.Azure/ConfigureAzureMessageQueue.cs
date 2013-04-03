@@ -14,15 +14,17 @@ namespace NServiceBus
 
             var configSection = Configure.GetConfigSection<AzureQueueConfig>();
 
+            Address.InitializeAddressMode(AddressMode.Remote);
+            
             if (configSection != null)
             {
                 queueClient = CloudStorageAccount.Parse(configSection.ConnectionString).CreateCloudQueueClient();
-                AzureAddress.SetDefaultConnectionString(configSection.ConnectionString);
+                Address.OverrideDefaultMachine(configSection.ConnectionString);
             }
             else
             {
                 queueClient = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
-                AzureAddress.SetDefaultConnectionString(AzureMessageQueueReceiver.DefaultConnectionString);
+                Address.OverrideDefaultMachine(AzureMessageQueueReceiver.DefaultConnectionString);
             }
 
             config.Configurer.RegisterSingleton<CloudQueueClient>(queueClient);

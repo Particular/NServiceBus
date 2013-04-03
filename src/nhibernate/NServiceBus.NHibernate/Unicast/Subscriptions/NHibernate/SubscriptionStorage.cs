@@ -26,13 +26,13 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                 foreach (var messageType in messageTypes)
                 {
                     if (session.QueryOver<Subscription>()
-                        .Where(s => s.TypeName == messageType.TypeName && s.SubscriberEndpoint == address.FullName).List()
+                        .Where(s => s.TypeName == messageType.TypeName && s.SubscriberEndpoint == address.ToString()).List()
                                 .Any(s => new MessageType(s.TypeName, s.Version) == messageType))
                         continue;
 
                     session.Save(new Subscription
                                         {
-                                            SubscriberEndpoint = address.FullName,
+                                            SubscriberEndpoint = address.ToString(),
                                             MessageType = messageType.TypeName + "," + messageType.Version,
                                             Version = messageType.Version.ToString(),
                                             TypeName = messageType.TypeName
@@ -51,7 +51,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                 var subscriptions = session.QueryOver<Subscription>()
                     .Where(
                         s => s.TypeName.IsIn(messageTypes.Select(mt => mt.TypeName).ToList()) &&
-                                s.SubscriberEndpoint == address.FullName)
+                                s.SubscriberEndpoint == address.ToString())
                     .List();
 
                 foreach (var subscription in subscriptions.Where(s => messageTypes.Contains(new MessageType(s.TypeName, s.Version))))
@@ -60,7 +60,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                 transaction.Complete();
             }
         }
-
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {  
             using (new TransactionScope(TransactionScopeOption.Suppress))

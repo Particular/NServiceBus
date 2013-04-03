@@ -22,8 +22,6 @@
         [SetUp]
         public void SetUp()
         {
-            Address.SetParser<ActiveMQAddress>();
-
             this.subscribedTopics = new List<string>();
             this.unsubscribedTopics = new List<string>();
 

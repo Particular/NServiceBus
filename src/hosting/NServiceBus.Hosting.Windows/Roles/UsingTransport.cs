@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using Hosting.Roles;
     using Transports;
+    using Unicast.Transport;
 
     /// <summary>
     /// Role used to specify the desired transport to use

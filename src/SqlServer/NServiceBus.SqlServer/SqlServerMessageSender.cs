@@ -49,7 +49,7 @@
                 if (currentTransaction.IsValueCreated)
                 {
                     using (
-                        var command = new SqlCommand(string.Format(SqlSend, address.Name),
+                        var command = new SqlCommand(string.Format(SqlSend, address.Queue),
                                                      currentTransaction.Value.Connection, currentTransaction.Value)
                             {
                                 CommandType = CommandType.Text
@@ -63,7 +63,7 @@
                     using (var connection = new SqlConnection(ConnectionString))
                     {
                         connection.Open();
-                        using (var command = new SqlCommand(string.Format(SqlSend, address.Name), connection)
+                        using (var command = new SqlCommand(string.Format(SqlSend, address.Queue), connection)
                             {
                                 CommandType = CommandType.Text
                             })
@@ -109,7 +109,7 @@
                 throw new FailedToSendMessageException("Failed to send message.", ex);
 
             throw new FailedToSendMessageException(
-                string.Format("Failed to send message to address: {0}", address.FullName), ex);
+                string.Format("Failed to send message to address: {0}@{1}", address.Queue, address.Machine), ex);
         }
 
         private static void ExecuteQuery(TransportMessage message, SqlCommand command)

@@ -15,8 +15,6 @@
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
-            Address.SetParser<RabbitMqAddress>();
-
             var parser = new RabbitMqConnectionStringParser(connectionString);
 
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
@@ -42,7 +40,7 @@
                 .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
             config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.SingleInstance)
-             .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Name)
+             .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue)
              .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
 
             config.Configurer.ConfigureComponent<RabbitMqRoutingKeyBuilder>(DependencyLifecycle.SingleInstance)

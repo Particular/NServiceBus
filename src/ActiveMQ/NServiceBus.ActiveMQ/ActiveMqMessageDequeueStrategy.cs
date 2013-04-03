@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Unicast.Queuing;
+    using NServiceBus.Unicast.Transport.Transactional;
     using Receivers;
     using SessionFactories;
     using Unicast.Transport;

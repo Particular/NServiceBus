@@ -9,7 +9,6 @@ namespace NServiceBus.Testing
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using Transports.Msmq;
 
     /// <summary>
     /// Entry class used for unit testing
@@ -62,8 +61,6 @@ namespace NServiceBus.Testing
 
         private static void InitializeInternal()
         {
-            Address.SetParser<MsmqAddress>();
-
             Configure.Instance
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)

@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public AzureServiceBusTopicPublisher()
         {
-            Topic = Address.Local.Name + ".events"; // allows overriding for bridge scenario
+            Topic = Address.Local.Queue + ".events"; // allows overriding for bridge scenario
         }
 
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)

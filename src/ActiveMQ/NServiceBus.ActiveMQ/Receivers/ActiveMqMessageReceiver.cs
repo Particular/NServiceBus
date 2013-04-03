@@ -36,7 +36,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
         {
             this.messageProcessor.Start(transactionSettings);
 
-            this.defaultConsumer = this.messageProcessor.CreateMessageConsumer("queue://" + address.Name);
+            this.defaultConsumer = this.messageProcessor.CreateMessageConsumer("queue://" + address.Queue);
             this.defaultConsumer.Listener += this.messageProcessor.ProcessMessage;
 
             if (address == Address.Local)

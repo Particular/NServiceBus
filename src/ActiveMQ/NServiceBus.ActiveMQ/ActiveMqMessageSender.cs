@@ -13,7 +13,7 @@
 
         public void Send(TransportMessage message, Address address)
         {
-            this.messageProducer.SendMessage(message, address.Name, "queue://");
+            this.messageProducer.SendMessage(message, address.Queue, "queue://");
         }
     }
 }

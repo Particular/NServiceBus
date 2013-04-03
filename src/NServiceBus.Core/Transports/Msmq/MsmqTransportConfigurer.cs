@@ -7,7 +7,6 @@ namespace NServiceBus.Transports.Msmq
     {
         public void Configure(Configure config)
         {
-            Address.SetParser<MsmqAddress>();
             config.MsmqTransport();
         }
     }

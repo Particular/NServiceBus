@@ -2,10 +2,8 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using NUnit.Framework;
     using Timeout.Core;
-    using Transports.Msmq;
 
     [TestFixture]
     public class When_removing_timeouts_from_the_storage : InMemoryDBFixture
@@ -17,17 +15,10 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 
             var timeout = new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(-1),
-                    CorrelationId = "boo",
-                    Destination = new MsmqAddress("timeouts", Environment.MachineName),
-                    SagaId = Guid.NewGuid(),
-                    State = new byte[] { 1, 1, 133, 200 },
-                    Headers = headers,
-                    OwningTimeoutManager = Configure.EndpointName,
+                    Time = DateTime.UtcNow.AddHours(-1), CorrelationId = "boo", Destination = new Address("timeouts", Environment.MachineName), SagaId = Guid.NewGuid(), State = new byte[] {1, 1, 133, 200}, Headers = headers, OwningTimeoutManager = Configure.EndpointName,
                 };
             persister.Add(timeout);
 
-            Thread.Sleep(2000);
             TimeoutData timeoutData;
             persister.TryRemove(timeout.Id, out timeoutData);
 

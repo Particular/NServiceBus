@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast.Subscriptions
 	/// </summary>
     public interface ISubscriptionStorage
     {
+
         /// <summary>
         /// Subscribes the given client address to messages of the given types.
         /// </summary>

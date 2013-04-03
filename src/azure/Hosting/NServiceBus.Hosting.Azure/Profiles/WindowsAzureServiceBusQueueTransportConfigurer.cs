@@ -13,9 +13,6 @@ namespace NServiceBus
     {
         public void Configure(Configure config)
         {
-            Address.SetParser<AzureAddress>();
-
-
             if (RoleEnvironment.IsAvailable && !IsHostedIn.ChildHostProcess())
             {
                 config.AzureConfigurationSource();

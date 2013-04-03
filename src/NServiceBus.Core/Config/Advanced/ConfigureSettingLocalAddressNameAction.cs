@@ -46,7 +46,6 @@ namespace NServiceBus
             defineLocalAddressNameFunc = setLocalAddressNameFunc;
             return config;
         }
-
         /// <summary>
         /// Execute function that returns the NServiceBus local addresses name. If not override by the user, NServiceBus defaults will be used.
         /// See: <a href="http://nservicebus.com/faq/HowToSpecifyYourInputQueueName.aspx">Here</a> for more details.

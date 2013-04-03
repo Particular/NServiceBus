@@ -8,7 +8,7 @@ namespace NServiceBus.Testing
         public string Id { get; set; }
         public string ReturnAddress
         {
-            get { return ReplyToAddress.FullName;  }
+            get { return ReplyToAddress.ToString();  }
             set { ReplyToAddress = Address.Parse(value);  }
         }
 

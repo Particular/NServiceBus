@@ -8,7 +8,7 @@
                 {
                     var properties = RabbitMqTransportMessageExtensions.FillRabbitMqProperties(message,channel.CreateBasicProperties());
 
-                    channel.BasicPublish(string.Empty, address.Name, true, false, properties, message.Body);
+                    channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
                 });
         }
 

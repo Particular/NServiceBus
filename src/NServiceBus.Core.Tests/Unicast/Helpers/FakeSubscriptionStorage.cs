@@ -28,6 +28,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
                                               });
         }
 
+
         public IEnumerable<Address> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             var result = new List<Address>();
@@ -39,7 +40,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
 
             return result;
         }
-
         public void FakeSubscribe<T>(Address address)
         {
             ((ISubscriptionStorage)this).Subscribe(address, new[] { new MessageType(typeof(T)) });

@@ -52,7 +52,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         {
             gatewayHeaderManager.MutateOutgoing(null, responseMessage);
 
-            Assert.AreEqual(Address.Parse(responseMessage.Headers[Headers.RouteTo]).FullName, addressOfOriginatingEndpoint.FullName);
+            Assert.AreEqual(Address.Parse(responseMessage.Headers[Headers.RouteTo]), addressOfOriginatingEndpoint);
         }
     }
 }

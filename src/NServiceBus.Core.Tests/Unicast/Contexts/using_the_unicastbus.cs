@@ -20,7 +20,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Subscriptions.SubcriberSideFiltering;
     using Timeout;
     using Transports;
-    using Transports.Msmq;
     using Unicast.Messages;
     using UnitOfWork;
 
@@ -63,7 +62,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
-            MasterNodeAddress = new MsmqAddress(localAddress, "MasterNode");
+            MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
@@ -71,8 +70,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 {
                     DefaultToNonPersistentMessages = false
                 };
-
-            Address.SetParser<MsmqAddress>();
 
             try
             {
@@ -184,7 +181,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected Address RegisterMessageType<T>()
         {
-            var address = new MsmqAddress(typeof(T).Name, "localhost");
+            var address = new Address(typeof(T).Name, "localhost");
             RegisterMessageType<T>(address);
 
             return address;
@@ -196,6 +193,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             MessageSerializer.Initialize(new[] { typeof(T) });
             router.RegisterRoute(typeof(T), address);
             messageRegistry.RegisterMessageType(typeof(T));
+
         }
 
         protected void StartBus()

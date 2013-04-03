@@ -37,7 +37,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             transportMessage.Headers[Headers.OriginatingSite] = returnInfo.OriginatingSite;
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
-                transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.FullName;
+                transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.ToString();
         }
 
         public void Init()

@@ -362,7 +362,7 @@ namespace NServiceBus.Unicast
             AssertHasLocalAddress();
            
             var destination = GetAddressForMessageType(messageType);
-            if (Address.Local == destination)
+            if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
 
             SubscriptionManager.Subscribe(messageType, destination);
@@ -1473,6 +1473,7 @@ namespace NServiceBus.Unicast
 
             if (destination != Address.Undefined)
                 return destination;
+
 
             if (messageMapper != null && !messageType.IsInterface)
             {

@@ -13,11 +13,9 @@ namespace NServiceBus.Hosting.Tests
         [SetUp]
         public void SetUp()
         {
-            Address.SetParser<MsmqAddress>();
-
-            Configure.With(new[] { typeof(TransportRoleHandler), typeof(MyTransportConfigurer) })
-                .DefineEndpointName("myTests")
-                .DefaultBuilder();
+            Configure.With(new[] {typeof (TransportRoleHandler), typeof (MyTransportConfigurer)})
+                     .DefineEndpointName("myTests")
+                     .DefaultBuilder();
 
             roleManager = new RoleManager(new[] {typeof (TransportRoleHandler).Assembly});
         }

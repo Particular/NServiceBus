@@ -15,7 +15,7 @@
             var conventionBasedAddressToTimeoutManager = MasterNodeAddress.SubScope("Timeouts");
 
             RegisterMessageType<DeferedMessage>();
-            bus.Defer(TimeSpan.FromDays(1), new DeferedMessage());
+            bus.Defer(TimeSpan.FromDays(1),new DeferedMessage());
 
             VerifyThatMessageWasSentTo(conventionBasedAddressToTimeoutManager);
         }

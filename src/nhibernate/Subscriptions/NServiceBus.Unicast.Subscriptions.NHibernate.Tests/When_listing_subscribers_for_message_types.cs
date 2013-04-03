@@ -16,8 +16,8 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(MessageTypes.MessageA);
 
-            Assert.AreEqual(2, subscriptionsForMessageType.Count());
-            Assert.AreEqual(TestClients.ClientA.FullName, subscriptionsForMessageType.First().FullName);
+            Assert.AreEqual(2,subscriptionsForMessageType.Count());
+            Assert.AreEqual(TestClients.ClientA, subscriptionsForMessageType.First());
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
             
             var subscriptionsForMessageType = storage.GetSubscriberAddressesForMessage(new[] {  new MessageType(typeof(ISomeInterface)), new MessageType(typeof(ISomeInterface2)), new MessageType(typeof(ISomeInterface3)) });
 
-            Assert.AreEqual(1, subscriptionsForMessageType.Count());
+            Assert.AreEqual(1,subscriptionsForMessageType.Count());
         }
     }
 }

@@ -46,7 +46,7 @@
                 if (messageType == null)
                 {
                     //we can look at doing more advanced lookups in the future
-                    Logger.WarnFormat("Could not determine message type for message identifier: {0}", messageTypeString);
+                    Logger.WarnFormat("Could not determine message type for message identifier: {0}",messageTypeString);
                 }
 
                 if (messageType != null)

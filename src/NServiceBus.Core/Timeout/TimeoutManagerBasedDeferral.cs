@@ -15,7 +15,7 @@
         {
             message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
 
-            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.FullName;
+            message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.ToString();
 
             try
             {

@@ -5,7 +5,6 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using System.Linq;
     using NUnit.Framework;
     using Timeout.Core;
-    using Transports.Msmq;
 
     [TestFixture]
     public class When_fetching_timeouts_from_storage : InMemoryDBFixture
@@ -21,7 +20,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                   {
                                       Time = DateTime.UtcNow.AddHours(-1),
                                       CorrelationId = "boo",
-                                      Destination = new MsmqAddress("timeouts", Environment.MachineName),
+                                      Destination = new Address("timeouts", Environment.MachineName),
                                       SagaId = Guid.NewGuid(),
                                       State = new byte[] { 0, 0, 133 },
                                       Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" }},
@@ -41,7 +40,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             {
                 Time = nextTime,
                 CorrelationId = "boo",
-                Destination = new MsmqAddress("timeouts", Environment.MachineName),
+                Destination = new Address("timeouts", Environment.MachineName),
                 SagaId = Guid.NewGuid(),
                 State = new byte[] { 0, 0, 133 },
                 Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } },
