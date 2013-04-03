@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Configuration;
-    using System.Globalization;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -309,71 +308,6 @@ namespace NServiceBus
 sb.AppendLine("Reason: " + exception);
 
             Logger.Warn(sb.ToString());
-        }
-
-        /// <summary>
-        /// Allows to override the default RavenDB database naming convention.
-        /// </summary>
-        /// <param name="convention">The mapping convention to use instead.</param>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "If you need to customise Raven database naming convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure DefineRavenDatabaseNamingConvention(this Configure config, Func<string> convention)
-        {
-            return config;
-        }
-
-        /// <summary>
-        /// Allows to override the default RavenDB tag name convention for the specified type.
-        /// </summary>
-        /// <param name="convention">The method referenced by a Func delegate for finding the tag name for the specified type.</param>
-        [ObsoleteEx(Message = "If you need to customise Raven FindTypeTagName convention, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static void DefineRavenTagNameConvention(Func<Type, string> convention)
-        {
-        }
-
-        /// <summary>
-        /// Disables RavenDB installation.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "You don't need to call this since Raven is now installed via powershell cmdlet, see http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure DisableRavenInstall(this Configure config)
-        {
-            return config;
-        }
-
-        /// <summary>
-        /// Installs RavenDB if needed.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "Use the powershell cmdlet to install Raven instead. See http://nservicebus.com/powershell.aspx", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure InstallRavenIfNeeded(this Configure config)
-        {
-            return config;
-        }
-
-        /// <summary>
-        /// Disables the Raven compression.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "If you need to disable Raven request compression, you can either initialise Raven using config.RavenPersistence(IDocumentStore documentStore) or use config.CustomiseRavenPersistence(Action<IDocumentStore> callback).", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure DisableRequestCompression(this Configure config)
-        {
-            return config;
-        }
-
-        /// <summary>
-        /// Enables the Raven compression.
-        /// </summary>
-        /// <param name="config">The configuration object.</param>
-        /// <returns>The configuration object.</returns>
-        [ObsoleteEx(Message = "RequestCompression is on by default from v4.0.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure EnableRequestCompression(this Configure config)
-        {
-            return config;
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureRavenPersistence));
