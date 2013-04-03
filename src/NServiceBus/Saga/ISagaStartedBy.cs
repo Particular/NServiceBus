@@ -7,6 +7,7 @@ namespace NServiceBus.Saga
     /// the saga will be created.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [ObsoleteEx(Replacement = "IAmStartedByMessages<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
     public interface ISagaStartedBy<T> : IHandleMessages<T>
     {
     }
