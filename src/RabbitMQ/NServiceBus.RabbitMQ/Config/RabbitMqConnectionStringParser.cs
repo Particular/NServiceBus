@@ -2,6 +2,7 @@
 {
     using System;
     using System.Data.Common;
+    using Settings;
     using global::RabbitMQ.Client;
 
     public class RabbitMqConnectionStringParser : DbConnectionStringBuilder
@@ -55,11 +56,27 @@
             return ContainsKey("prefetchCount") ? ushort.Parse(this["prefetchCount"] as string) : DefaultPrefetchCount;
         }
 
+        public TimeSpan GetMaxWaitTimeForConfirms()
+        {
+            return ContainsKey("maxWaitTimeForConfirms") ? TimeSpan.Parse(this["maxWaitTimeForConfirms"] as string) : DefaultWaitTimeForConfirms;
+        }
+
+        public bool UsePublisherConfirms()
+        {
+            var defaultValue = SettingsHolder.Get<bool>("Endpoint.DurableMessages");
+
+            if (!ContainsKey("usePublisherConfirms"))
+            {
+                return defaultValue;
+            }
+
+            return bool.Parse(this["usePublisherConfirms"] as string);
+        }
+
 
         const ushort DefaultHeartBeatInSeconds = 5;
         const ushort DefaultPrefetchCount = 1;
-
-
+        static TimeSpan DefaultWaitTimeForConfirms = TimeSpan.FromSeconds(30);
     }
 
     public class ConnectionRetrySettings

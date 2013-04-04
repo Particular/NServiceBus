@@ -11,7 +11,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
     public class TimeoutPersisterReceiver
     {
-
         public IPersistTimeouts TimeoutsPersister { get; set; }
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
@@ -31,6 +30,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public void Stop()
         {
             tokenSource.Cancel();
+            resetEvent.WaitOne();
         }
 
         void StartPoller()
@@ -52,12 +52,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
                }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
-
         void Poll(object obj)
         {
             var cancellationToken = (CancellationToken)obj;
 
             var startSlice = DateTime.UtcNow.AddYears(-10);
+
+            resetEvent.Reset();
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -108,6 +109,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
             }
+
+            resetEvent.Set();
         }
 
         static TransportMessage CreateTransportMessage(string timeoutId)
@@ -133,7 +136,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        readonly object lockObject = new object();   
+        readonly object lockObject = new object();
+        readonly ManualResetEvent resetEvent = new ManualResetEvent(true);
         CancellationTokenSource tokenSource;
         volatile bool timeoutPushed;
         DateTime nextRetrieval = DateTime.UtcNow;

@@ -15,7 +15,6 @@
     {
         private readonly List<INotifyMessageReceived> messageReceivers = new List<INotifyMessageReceived>();
         private readonly INotifyMessageReceivedFactory notifyMessageReceivedFactory;
-        private readonly IMessageCounter pendingMessageCounter;
         private readonly ISessionFactory sessionFactory;
 
         private Address address;
@@ -29,11 +28,9 @@
         /// <param name="notifyMessageReceivedFactory"></param>
         public ActiveMqMessageDequeueStrategy(
             INotifyMessageReceivedFactory notifyMessageReceivedFactory, 
-            IMessageCounter pendingMessageCounter,
             ISessionFactory sessionFactory)
         {
             this.notifyMessageReceivedFactory = notifyMessageReceivedFactory;
-            this.pendingMessageCounter = pendingMessageCounter;
             this.sessionFactory = sessionFactory;
         }
 
@@ -73,8 +70,6 @@
             {
                 messageReceiver.Stop();
             }
-
-            this.pendingMessageCounter.Wait(60000);
 
             foreach (INotifyMessageReceived messageReceiver in messageReceivers)
             {

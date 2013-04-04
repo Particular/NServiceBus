@@ -31,7 +31,6 @@ namespace NServiceBus
 
         /// <summary>
         /// Sets the address of this endpoint.
-        /// Will throw an exception if overwriting a previous value (but value will still be set).
         /// </summary>
         /// <param name="queue">The queue name.</param>
         public static void InitializeLocalAddress(string queue)

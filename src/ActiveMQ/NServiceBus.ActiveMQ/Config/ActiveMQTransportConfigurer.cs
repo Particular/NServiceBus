@@ -47,7 +47,6 @@
             config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProcessor>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
-            config.Configurer.ConfigureComponent<MessageCounter>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);

@@ -5,7 +5,6 @@ namespace NServiceBus.Management.Retries
     using Logging;
     using Satellites;
     using Transports;
-    using Unicast.Queuing;
     using TransportMessageHelpers = Helpers.TransportMessageHelpers;
 
     public class SecondLevelRetries : ISatellite

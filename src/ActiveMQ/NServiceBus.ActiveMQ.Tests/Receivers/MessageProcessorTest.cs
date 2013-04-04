@@ -21,7 +21,6 @@
         private Mock<IActiveMqMessageMapper> activeMqMessageMapperMock;
         private Mock<ISession> session;
         private Mock<IActiveMqPurger> purger;
-        private Mock<IMessageCounter> pendingMessageCounterMock;
         private Mock<ITransactionScopeFactory> transactionScopeFactoryMock;
         private string order;
 
@@ -38,11 +37,9 @@
             this.sessionFactoryMock = new Mock<ISessionFactory>();
             this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
             this.purger = new Mock<IActiveMqPurger>();
-            this.pendingMessageCounterMock = new Mock<IMessageCounter>();
             this.transactionScopeFactoryMock = new Mock<ITransactionScopeFactory>();
 
             this.testee = new MessageProcessor(
-                this.pendingMessageCounterMock.Object,
                 this.activeMqMessageMapperMock.Object,
                 this.sessionFactoryMock.Object,
                 this.purger.Object,
@@ -95,7 +92,7 @@ order = string.Empty;
             this.StartTestee();
             this.testee.ProcessMessage(message);
 
-            order.Should().Be("IncCounter_StartTx_TxMessageAccepted_MsgProcessed_TxComplete_EndProcess_TxDispose_DecCounter_");
+            order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_TxComplete_EndProcess_TxDispose_");
         }
 
         [Test]
@@ -115,7 +112,7 @@ order = string.Empty;
             this.StartTestee();
             this.testee.ProcessMessage(message);
 
-            order.Should().Be("IncCounter_StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_DecCounter_");
+            order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_");
         }
 
         [Test]
@@ -135,34 +132,7 @@ order = string.Empty;
             this.StartTestee();
             this.testee.ProcessMessage(message);
 
-            order.Should().Be("IncCounter_StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_DecCounter_");
-        }
-
-        [Test]
-        public void WhenStoppedRightAfterIncrementingCounter_MessageIsNotProcessedAndTransactionRollbacked()
-        {
-            var message = new Mock<IMessage>().Object;
-
-            this.SetuptransactionOrderTracking(message);
-            this.pendingMessageCounterMock.Setup(c => c.Increment()).Callback(
-                () =>
-                    {
-                        this.order += "IncCounter_";
-                        this.testee.Stop();
-                    });
-
-
-            this.testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
-            this.testee.TryProcessMessage = m =>
-            {
-                order += "MsgProcessed_";
-                return true;
-            };
-
-            this.StartTestee();
-            this.testee.ProcessMessage(message);
-
-            order.Should().Be("IncCounter_StartTx_TxDispose_DecCounter_");
+            order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_");
         }
 
         [Test]
@@ -183,7 +153,7 @@ order = string.Empty;
             this.testee.Stop();
             this.testee.ProcessMessage(message);
 
-            order.Should().Be("IncCounter_StartTx_TxDispose_DecCounter_");
+            order.Should().Be("");
         }
 
         [Test]
@@ -240,8 +210,6 @@ order = string.Empty;
             transactionScopeMock.Setup(tx => tx.Complete()).Callback(() => this.order += "TxComplete_");
             transactionScopeMock.Setup(tx => tx.MessageAccepted(message)).Callback(() => this.order += "TxMessageAccepted_");
             transactionScopeMock.Setup(tx => tx.Dispose()).Callback(() => this.order += "TxDispose_");
-            this.pendingMessageCounterMock.Setup(c => c.Increment()).Callback(() => this.order += "IncCounter_");
-            this.pendingMessageCounterMock.Setup(c => c.Decrement()).Callback(() => this.order += "DecCounter_");
 
             this.transactionScopeFactoryMock.Setup(
                 f => f.CreateNewTransactionScope(It.IsAny<TransactionSettings>(), It.IsAny<ISession>()))

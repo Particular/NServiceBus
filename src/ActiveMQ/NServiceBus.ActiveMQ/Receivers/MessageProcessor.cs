@@ -6,20 +6,19 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Util;
-    using NServiceBus.Unicast.Transport.Transactional;
     using SessionFactories;
     using TransactonsScopes;
     using Unicast.Transport;
 
     public class MessageProcessor : IProcessMessages
     {
-        private readonly IMessageCounter pendingMessagesCounter;
         private readonly IActiveMqMessageMapper activeMqMessageMapper;
         private readonly IActiveMqPurger purger;
         private readonly ISessionFactory sessionFactory;
         private readonly ITransactionScopeFactory transactionScopeFactory;
+        readonly AutoResetEvent resetEvent = new AutoResetEvent(true);
 
-        private volatile bool stop = false;
+        private volatile bool stop;
         private ISession session;
         private TransactionSettings transactionSettings;
         private bool disposed;
@@ -30,13 +29,11 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
 
         public MessageProcessor(
-            IMessageCounter pendingMessagesCounter,
             IActiveMqMessageMapper activeMqMessageMapper,
             ISessionFactory sessionFactory,
             IActiveMqPurger purger,
             ITransactionScopeFactory transactionScopeFactory)
         {
-            this.pendingMessagesCounter = pendingMessagesCounter;
             this.activeMqMessageMapper = activeMqMessageMapper;
             this.sessionFactory = sessionFactory;
             this.purger = purger;
@@ -45,64 +42,68 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         ~MessageProcessor()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         public virtual void Start(TransactionSettings transactionSettings)
         {
             this.transactionSettings = transactionSettings;
-            this.session = this.sessionFactory.GetSession();
+            session = sessionFactory.GetSession();
         }
 
         public void Stop()
         {
-            this.stop = true;
-            Thread.MemoryBarrier(); // Full fence to prevent writing of stop and reading of pending message count to be reordered. 
+            stop = true;
+            resetEvent.WaitOne();
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool diposing)
+        private void Dispose(bool disposing)
         {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
-            if (diposing)
+            if (disposing)
             {
-                this.sessionFactory.Release(this.session);
+                sessionFactory.Release(session);
             }
 
-            this.disposed = true;
+            disposed = true;
         }
 
         public void ProcessMessage(IMessage message)
         {
+            if (stop)
+            {
+                return;
+            }
+
             try
             {
-                this.pendingMessagesCounter.Increment();
+                resetEvent.Reset();
 
-                Thread.MemoryBarrier(); // Full fence to prevent writing pending message count and reading of stop to be reordered. 
-
-                using (var tx = transactionScopeFactory.CreateNewTransactionScope(this.transactionSettings, this.session))
+                if (stop)
                 {
-                    if (this.stop)
-                    {
-                        return;
-                    }
+                    resetEvent.Set();
+                    return;
+                }
 
+                using (var tx = transactionScopeFactory.CreateNewTransactionScope(transactionSettings, session))
+                {
                     tx.MessageAccepted(message);
                     TransportMessage transportMessage = null;
                     Exception exception = null;
 
                     try
                     {
-                        transportMessage = this.activeMqMessageMapper.CreateTransportMessage(message);
+                        transportMessage = activeMqMessageMapper.CreateTransportMessage(message);
                         if (TryProcessMessage(transportMessage))
                         {
                             tx.Complete();
@@ -120,29 +121,29 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             }
             finally
             {
-                this.pendingMessagesCounter.Decrement();
+                resetEvent.Set();
             }
         }
 
         public IMessageConsumer CreateMessageConsumer(string destination)
         {
-            IDestination d = SessionUtil.GetDestination(this.session, destination);
-            this.PurgeIfNecessary(this.session, d);
-            var consumer = this.session.CreateConsumer(d);
-            ((MessageConsumer)consumer).CreateTransactionScopeForAsyncMessage = this.CreateTransactionScopeForAsyncMessage;
+            IDestination d = SessionUtil.GetDestination(session, destination);
+            this.PurgeIfNecessary(session, d);
+            var consumer = session.CreateConsumer(d);
+            ((MessageConsumer)consumer).CreateTransactionScopeForAsyncMessage = CreateTransactionScopeForAsyncMessage;
             return consumer;
         }
 
         private TransactionScope CreateTransactionScopeForAsyncMessage()
         {
-            return this.transactionScopeFactory.CreateTransactionScopeForAsyncMessage(transactionSettings);
+            return transactionScopeFactory.CreateTransactionScopeForAsyncMessage(transactionSettings);
         }
 
         private void PurgeIfNecessary(ISession session, IDestination destination)
         {
-            if (this.PurgeOnStartup)
+            if (PurgeOnStartup)
             {
-                this.purger.Purge(session, destination);
+                purger.Purge(session, destination);
             }
         }
     }

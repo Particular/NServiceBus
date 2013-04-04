@@ -25,9 +25,8 @@
                                  .EnableDistributedTransactions());
 
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
-            pendingMessagesCounterMock = new Mock<IMessageCounter>();
             sessionFactroyMock = new Mock<ISessionFactory>();
-            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, this.pendingMessagesCounterMock.Object, this.sessionFactroyMock.Object);
+            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, this.sessionFactroyMock.Object);
             messageReceivers = new List<Mock<INotifyMessageReceived>>();
             stoppedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
             disposedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
@@ -43,7 +42,6 @@
         private List<Mock<INotifyMessageReceived>> stoppedMessageReceivers;
         private List<Mock<INotifyMessageReceived>> disposedMessageReceivers;
         private readonly Func<TransportMessage, bool> tryReceiveMessage = m => true;
-        private Mock<IMessageCounter> pendingMessagesCounterMock;
         private Mock<ISessionFactory> sessionFactroyMock;
 
         private void VerifyAllReceiversAreStarted(Address address, TransactionSettings settings)
@@ -103,22 +101,6 @@
             testee.Stop();
 
             disposedMessageReceivers.Should().BeEquivalentTo(messageReceivers);
-        }
-
-        [Test]
-        public void WhenStoped_ThenReceiversAreNotDisposedUntilAllPendingMessagesAreProcessed()
-        {
-            const int InitialNumberOfWorkers = 5;
-            var address = new Address("someQueue", "machine");
-
-            pendingMessagesCounterMock.Setup(mr => mr.Wait(It.IsAny<int>()))
-                .Callback<int>(t => this.disposedMessageReceivers.Count.Should().Be(0));
-
-            testee.Init(address, TransactionSettings.Default, m => { return true; }, (s, exception) => { });
-            testee.Start(InitialNumberOfWorkers);
-            testee.Stop();
-
-            this.pendingMessagesCounterMock.VerifyAll();
         }
 
         [Test]
