@@ -4,14 +4,14 @@ namespace NServiceBus.CircuitBreakers
     using System.Threading;
     using Logging;
 
-    public class RepetedFailuresOverTimeCircuitBreaker : ICircuitBreaker
+    public class RepeatedFailuresOverTimeCircuitBreaker : ICircuitBreaker
     {
-        public RepetedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction)
+        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction)
             : this(name, timeToWaitBeforeTriggering, triggerAction, TimeSpan.FromSeconds(1))
         {
         }
 
-        public RepetedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction, TimeSpan delayAfterFailure)
+        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction, TimeSpan delayAfterFailure)
         {
             this.name = name;
             this.delayAfterFailure = delayAfterFailure;
@@ -29,7 +29,7 @@ namespace NServiceBus.CircuitBreakers
                 return false;
 
             timer.Change(Timeout.Infinite, Timeout.Infinite);
-            Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
+            Logger.DebugFormat("The circuit breaker for {0} is now disarmed", name);
 
             return true;
         }
@@ -41,7 +41,7 @@ namespace NServiceBus.CircuitBreakers
             if (newValue == 1)
             {
                 timer.Change(timeToWaitBeforeTriggering, NoPeriodicTriggering);
-                Logger.InfoFormat("The circuit breaker for {0} is now in the armed state", name);
+                Logger.DebugFormat("The circuit breaker for {0} is now in the armed state", name);
             }
 
 
@@ -55,7 +55,6 @@ namespace NServiceBus.CircuitBreakers
                 Logger.WarnFormat("The circuit breaker for {0} will now be triggered", name);
                 triggerAction(lastException);
             }
-
         }
 
         readonly Action<Exception> triggerAction;
@@ -66,6 +65,6 @@ namespace NServiceBus.CircuitBreakers
         long failureCount;
         Exception lastException;
         static readonly TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RepetedFailuresOverTimeCircuitBreaker));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(RepeatedFailuresOverTimeCircuitBreaker));
     }
 }
