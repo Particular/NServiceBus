@@ -15,5 +15,14 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="type"></param>
         /// <returns></returns>
         SubscriptionClient Create(Address address, Type type);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="topicPath"></param>
+        /// <param name="subscriptionname"></param>
+        /// <returns></returns>
+        SubscriptionClient Create(Type eventType, string topicPath, string subscriptionname);
     }
 }
