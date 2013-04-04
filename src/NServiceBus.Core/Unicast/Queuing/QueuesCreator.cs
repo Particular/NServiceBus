@@ -14,6 +14,7 @@ namespace NServiceBus.Unicast.Queuing
     public class QueuesCreator : INeedInitialization, INeedToInstallSomething<Windows>
     {
         public ICreateQueues QueueCreator { get; set; }
+
         /// <summary>
         /// Performs the installation providing permission for the given user.
         /// </summary>

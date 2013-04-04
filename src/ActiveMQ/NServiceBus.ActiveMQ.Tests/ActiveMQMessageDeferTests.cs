@@ -3,7 +3,6 @@
     using System;
     using FluentAssertions;
     using Moq;
-    using NServiceBus.Unicast.Queuing;
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
 
@@ -52,7 +51,7 @@
  
             this.testee.ClearDeferredMessages(headerKey, headerValue);
 
-            sentToAddress.Queue.Should().Be("localqueue.activemqschedulermanagement");
+            sentToAddress.Queue.Should().Be("localqueue.ActiveMqSchedulerManagement");
             sentMessage.Headers.Should().Contain(ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader, expectedSelector);
         }
     }

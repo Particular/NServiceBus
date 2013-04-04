@@ -66,7 +66,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             var replyToAddress = message.NMSReplyTo == null
                                      ? null
-                                     : new Address(message.NMSReplyTo.ToString(), string.Empty, true);
+                                     : new Address(message.NMSReplyTo.ToString(), string.Empty);
 
             transportMessage.ReplyToAddress = replyToAddress;
             transportMessage.CorrelationId = message.NMSCorrelationID;
