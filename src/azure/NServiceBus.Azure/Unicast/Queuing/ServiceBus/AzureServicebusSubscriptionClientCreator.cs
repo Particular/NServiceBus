@@ -47,19 +47,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                                     EnableDeadLetteringOnFilterEvaluationExceptions
                             };
 
-                        var typefilter =
-                            new SqlFilter("user.[" + Headers.EnclosedMessageTypes + "] LIKE '" + eventType.AssemblyQualifiedName + "'");
+                        var filter = string.Format( "[{0}] LIKE '{1}%' OR [{0}] LIKE '%{1}%' OR [{0}] LIKE '%{1}' OR [{0}] = '{1}'", Headers.EnclosedMessageTypes, eventType.AssemblyQualifiedName);
+                        var typefilter = new SqlFilter(filter);
 
                         NamespaceClient.CreateSubscription(description, typefilter);
 
-                        var client = Factory.CreateSubscriptionClient(topicPath, subscriptionname, ReceiveMode.PeekLock);
-                        try {
-                            client.RemoveRule("$Default");
-                        }
-                        catch (MessagingEntityNotFoundException)
-                        {
-                            // this is ok.
-                        }
                     }
                 }
                 catch (MessagingEntityAlreadyExistsException)
