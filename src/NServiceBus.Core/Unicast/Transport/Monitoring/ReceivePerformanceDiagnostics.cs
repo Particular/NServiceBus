@@ -51,7 +51,7 @@ namespace NServiceBus.Unicast.Transport.Monitoring
                 && SetupCounter("# of msgs failures / sec", ref failureRateCounter);
         }
 
-        bool SetupCounter(string counterName,ref PerformanceCounter counter)
+        bool SetupCounter(string counterName, ref PerformanceCounter counter)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace NServiceBus.Unicast.Transport.Monitoring
                     receiveAddress.Queue, counterName);
                 return false;
             }
-            Logger.DebugFormat("Throughput counter initialized for transport: {0}", receiveAddress);
+            Logger.DebugFormat("'{0}' counter initialized for '{1}'", counterName, receiveAddress);
             return true;
         }
 
