@@ -5,6 +5,8 @@ namespace NServiceBus
     using System.IO;
     using System.Net;
     using System.Text;
+    using Config;
+    using Gateway.Persistence;
     using Logging;
     using Newtonsoft.Json;
     using Persistence.Raven;
@@ -12,7 +14,10 @@ namespace NServiceBus
     using Raven.Abstractions.Extensions;
     using Raven.Client;
     using Raven.Client.Document;
+    using Saga;
     using Settings;
+    using Timeout.Core;
+    using Unicast.Subscriptions;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>
@@ -148,6 +153,14 @@ namespace NServiceBus
             RavenSessionFactory.GetDatabaseName = convention;
 
             return config;
+        }
+
+        public static void RegisterDefaults()
+        {
+            Infrastructure.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
+            Infrastructure.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
+            Infrastructure.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
+            Infrastructure.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
         }
 
         static Configure InternalRavenPersistence(this Configure config, DocumentStore documentStore)

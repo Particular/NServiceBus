@@ -357,6 +357,12 @@ namespace NServiceBus
             ForAllTypes<INeedToInstallSomething<Windows>>(
                 t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
+            ForAllTypes<IFinalizeConfiguration>(t =>
+            {
+                var ini = (IFinalizeConfiguration)Activator.CreateInstance(t);
+                ini.FinalizeConfiguration();
+            });
+
             initialized = true;
 
             if (ConfigurationComplete != null)
@@ -481,6 +487,19 @@ namespace NServiceBus
             return Instance.Configurer.ConfigureComponent<T>(lifecycle);
         }
 
+        /// <summary>
+        /// Configures the given type with the given lifecycle
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lifecycle"></param>
+        /// <returns></returns>
+        public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
+        {
+            if (Instance == null)
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+
+            return Instance.Configurer.ConfigureComponent(type, lifecycle);
+        }
 
 
         /// <summary>

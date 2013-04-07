@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Faults;
     using Hosting.Profiles;
-    using Saga;
     using Unicast.Subscriptions;
 
     internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig, IWantTheListOfActiveProfiles
@@ -15,13 +14,7 @@
             {
                 Configure.Instance.MessageForwardingInCaseOfFault();
             }
-
-            if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
-            {
-                Configure.Instance.RavenSagaPersister();
-            }
-
-
+           
             if (Config is AsA_Publisher && !Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
             {
                 Configure.Instance.RavenSubscriptionStorage();

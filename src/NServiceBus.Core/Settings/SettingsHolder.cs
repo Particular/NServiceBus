@@ -49,6 +49,14 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <param name="key">The key to use to store the setting.</param>
         /// <param name="value">The setting value.</param>
+        public static void SetDefault<T>(object value)
+        {
+            SetDefault(typeof(T).FullName,value);
+        }
+        public static void SetDefault<T>(Action value)
+        {
+            SetDefault(typeof(T).FullName, value);
+        }
         public static void SetDefault(string key, object value)
         {
             Defaults[key] = value;
@@ -58,6 +66,22 @@ namespace NServiceBus.Settings
         {
            Overrides.Clear();
            Defaults.Clear();
+        }
+
+        public static T GetOrDefault<T>(string key)
+        {
+            object result;
+            if (Overrides.TryGetValue(key, out result))
+            {
+                return (T)result;
+            }
+
+            if (Defaults.TryGetValue(key, out result))
+            {
+                return (T)result;
+            }
+
+            return default(T);
         }
     }
 }

@@ -2,18 +2,12 @@
 {
     using Faults;
     using Hosting.Profiles;
-    using Saga;
     using Unicast.Subscriptions;
 
     internal class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
-            {
-                Configure.Instance.RavenSagaPersister();
-            }
-
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
             {
                 Configure.Instance.MessageForwardingInCaseOfFault();

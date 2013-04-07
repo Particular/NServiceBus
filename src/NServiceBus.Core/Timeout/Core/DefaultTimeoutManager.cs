@@ -2,7 +2,6 @@ namespace NServiceBus.Timeout.Core
 {
     using System;
     using Transports;
-    using Unicast.Queuing;
 
     /// <summary>
     /// Default implementation for <see cref="IManageTimeouts"/>
