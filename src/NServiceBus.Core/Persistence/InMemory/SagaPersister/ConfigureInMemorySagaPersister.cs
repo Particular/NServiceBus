@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using SagaPersisters.InMemory;
+    using Persistence.InMemory.SagaPersister;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the in memory saga persister.

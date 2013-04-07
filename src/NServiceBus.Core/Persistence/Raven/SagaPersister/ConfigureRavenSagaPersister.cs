@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
     using Persistence.Raven;
+    using Persistence.Raven.SagaPersister;
     using Raven.Client;
-    using SagaPersisters.Raven;
 
     public static class ConfigureRavenSagaPersister
     {

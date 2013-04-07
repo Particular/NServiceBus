@@ -1,4 +1,4 @@
-namespace NServiceBus.SagaPersisters.Raven
+namespace NServiceBus.Persistence.Raven.SagaPersister
 {
     using System;
     using System.Collections.Concurrent;
@@ -6,9 +6,8 @@ namespace NServiceBus.SagaPersisters.Raven
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-    using Persistence.Raven;
+    using Raven;
     using Saga;
-
     using global::Raven.Abstractions.Commands;
     using global::Raven.Client;
 

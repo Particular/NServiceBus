@@ -6,6 +6,7 @@ using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Persistence.InMemory.SagaPersister;
     using Saga;
 
     class When_completing_a_saga_with_unique_property_with_InMemory_persister

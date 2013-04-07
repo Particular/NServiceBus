@@ -1,4 +1,4 @@
-namespace NServiceBus.SagaPersisters.InMemory
+namespace NServiceBus.Persistence.InMemory.SagaPersister
 {
     using System;
     using System.Collections.Generic;

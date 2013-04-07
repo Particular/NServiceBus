@@ -1,23 +1,20 @@
 ﻿using NServiceBus.Faults;
 using NServiceBus.Hosting.Profiles;
-using NServiceBus.Saga;
 using NServiceBus.Unicast.Subscriptions;
 
 
 namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    
+    using Persistence.InMemory;
+
     internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {
-            Configure.Instance.UseInMemoryTimeoutPersister();
-            
+            InMemoryPersistence.UseAsDefault();
+
             Configure.Instance.AsMasterNode()
                 .DefaultToInMemoryGatewayPersistence();
-
-            if (!Configure.Instance.Configurer.HasComponent<ISagaPersister>())
-                Configure.Instance.InMemorySagaPersister();
 
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.InMemoryFaultManagement();

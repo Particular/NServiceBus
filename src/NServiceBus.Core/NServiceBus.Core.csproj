@@ -102,8 +102,9 @@
     <Compile Include="ConfigureGateway.cs" />
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
-    <Compile Include="ConfigureInMemorySagaPersister.cs" />
-    <Compile Include="ConfigureInMemorySubscriptionStorage.cs" />
+    <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
+    <Compile Include="Persistence\InMemory\SagaPersister\ConfigureInMemorySagaPersister.cs" />
+    <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="ConfigureJsonSerializer.cs" />
     <Compile Include="ConfigureLicenseExtensions.cs" />
     <Compile Include="ConfigureMasterNode.cs" />
@@ -114,7 +115,7 @@
     <Compile Include="Config\Feature.cs" />
     <Compile Include="Features\IFeature.cs" />
     <Compile Include="Persistence\Raven\ConfigureRavenPersistence.cs" />
-    <Compile Include="Persistence\Raven\ConfigureRavenSagaPersister.cs" />
+    <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
     <Compile Include="Persistence\Raven\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
@@ -361,8 +362,8 @@
     <Compile Include="Rhino.Licensing\LicenseValidator.cs" />
     <Compile Include="Rhino.Licensing\RhinoLicensingException.cs" />
     <Compile Include="Rhino.Licensing\StringLicenseValidator.cs" />
-    <Compile Include="SagaPersisters\InMemory\InMemorySagaPersister.cs" />
-    <Compile Include="SagaPersisters\Raven\RavenSagaPersister.cs" />
+    <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
+    <Compile Include="Persistence\Raven\SagaPersister\RavenSagaPersister.cs" />
     <Compile Include="Sagas\Impl\AutoCorrelateSagaOnReplyMutator.cs" />
     <Compile Include="Sagas\Impl\Configure.cs" />
     <Compile Include="Sagas\Impl\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
