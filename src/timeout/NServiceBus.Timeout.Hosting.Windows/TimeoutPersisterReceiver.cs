@@ -64,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
+                    Thread.Sleep(TimeSpan.FromSeconds(Math.Min(Math.Max((nextRetrieval - DateTime.UtcNow).TotalSeconds, 0), SecondsToSleepBetweenPolls)));
                     continue;
                 }
 
