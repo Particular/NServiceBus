@@ -12,8 +12,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         {
             InMemoryPersistence.UseAsDefault();
 
-            Configure.Instance.AsMasterNode()
-                .DefaultToInMemoryGatewayPersistence();
+            Configure.Instance.AsMasterNode();
 
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
                 Configure.Instance.InMemoryFaultManagement();

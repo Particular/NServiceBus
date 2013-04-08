@@ -103,6 +103,8 @@
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\DisplayFeatureStatus.cs" />
+    <Compile Include="Gateway\DefaultInputAddress.cs" />
+    <Compile Include="Gateway\Gateway.cs" />
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\SagaPersister\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
@@ -522,7 +524,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Gateway\Installation\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>

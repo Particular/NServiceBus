@@ -357,6 +357,10 @@ namespace NServiceBus
             ForAllTypes<INeedToInstallSomething<Windows>>(
                 t => Instance.Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
+
+            //lockdown the settings
+            SettingsHolder.PreventChanges();
+
             ForAllTypes<IFinalizeConfiguration>(t =>
             {
                 var ini = (IFinalizeConfiguration)Activator.CreateInstance(t);
@@ -496,9 +500,33 @@ namespace NServiceBus
         public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
         {
             if (Instance == null)
-                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component()");
 
             return Instance.Configurer.ConfigureComponent(type, lifecycle);
+        }
+
+        /// <summary>
+        /// Returns true if the given component exists in the container
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool HasComponent<T>()
+        {
+            return HasComponent(typeof (T));
+        }
+
+       
+        /// <summary>
+        /// Returns true if the given component exists in the container
+        /// </summary>
+        /// <param name="componentType"></param>
+        /// <returns></returns>
+        public static bool HasComponent(Type componentType)
+        {
+            if (Instance == null)
+                throw new InvalidOperationException("You need to call Configure.With() before calling Configure.HasComponent");
+
+            return Instance.Configurer.HasComponent(componentType);
         }
 
 

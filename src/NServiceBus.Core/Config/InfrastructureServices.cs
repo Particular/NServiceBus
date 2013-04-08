@@ -127,7 +127,14 @@ namespace NServiceBus.Config
 
             foreach (var serviceStatus in InfrastructureServices.CurrentStatus)
             {
-                statusText.AppendLine(string.Format("{0} - {1}", serviceStatus.Service.Name,serviceStatus.Enabled ? "Enabled" : "Disabled"));
+                var provider = "Not defined";
+
+                if (Configure.HasComponent(serviceStatus.Service))
+                {
+                    provider = Configure.Instance.Builder.Build(serviceStatus.Service).GetType().FullName;
+                }
+
+                statusText.AppendLine(string.Format("{0} provided by {1} - {2}", serviceStatus.Service.Name, provider, serviceStatus.Enabled ? "Enabled" : "Disabled"));
             }
 
             Logger.InfoFormat("Infrastructure services: \n{0}",statusText);

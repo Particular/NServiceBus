@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
-    using System;
-    using System.Collections.Generic;
     using Faults;
     using Hosting.Profiles;
 
-    internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig, IWantTheListOfActiveProfiles
+    internal class IntegrationProfileHandler : IHandleProfile<Integration>
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -16,9 +14,5 @@
          
             WindowsInstallerRunner.RunInstallers = true;
         }
-
-        public IConfigureThisEndpoint Config { get; set; }
-
-        public IEnumerable<Type> ActiveProfiles { get; set; }
     }
 }

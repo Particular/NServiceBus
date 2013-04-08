@@ -2,9 +2,8 @@
 {
     using Faults;
     using Hosting.Profiles;
-    using Unicast.Subscriptions;
 
-    internal class ProductionProfileHandler : IHandleProfile<Production>, IWantTheEndpointConfig
+    internal class ProductionProfileHandler : IHandleProfile<Production>
     {
         void IHandleProfile.ProfileActivated()
         {
@@ -13,7 +12,5 @@
                 Configure.Instance.MessageForwardingInCaseOfFault();
             }
         }
-
-        public IConfigureThisEndpoint Config { get; set; }
     }
 }
