@@ -29,8 +29,8 @@ namespace NServiceBus.Timeout.Hosting.Windows.Config
             
             Configure.Component<TimeoutPersisterReceiver>(DependencyLifecycle.SingleInstance);
 
-            Infrastructure.Enable<IPersistTimeouts>();
-            Infrastructure.Enable<IManageTimeouts>();
+            InfrastructureServices.Enable<IPersistTimeouts>();
+            InfrastructureServices.Enable<IManageTimeouts>();
         }
     }
 }

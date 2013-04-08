@@ -83,5 +83,22 @@ namespace NServiceBus.Settings
 
             return default(T);
         }
+
+        public static bool HasSetting<T>()
+        {
+            var key = typeof (T).FullName;
+
+            if (Overrides.ContainsKey(key))
+            {
+                return true;
+            }
+
+            if (Defaults.ContainsKey(key))
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast
+namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Queuing.Msmq.Config
+namespace NServiceBus.Transports.Msmq.Config
 {
     using System.Runtime.InteropServices;
     using System.Text;

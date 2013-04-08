@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using Faults;
     using Hosting.Profiles;
-    using Unicast.Subscriptions;
 
     internal class IntegrationProfileHandler : IHandleProfile<Integration>, IWantTheEndpointConfig, IWantTheListOfActiveProfiles
     {
@@ -14,12 +13,7 @@
             {
                 Configure.Instance.MessageForwardingInCaseOfFault();
             }
-           
-            if (Config is AsA_Publisher && !Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
-            {
-                Configure.Instance.RavenSubscriptionStorage();
-            }
-
+         
             WindowsInstallerRunner.RunInstallers = true;
         }
 

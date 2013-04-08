@@ -157,10 +157,10 @@ namespace NServiceBus
 
         public static void RegisterDefaults()
         {
-            Infrastructure.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
-            Infrastructure.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
-            Infrastructure.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
-            Infrastructure.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
+            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
+            InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
+            InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
+            InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
         }
 
         static Configure InternalRavenPersistence(this Configure config, DocumentStore documentStore)

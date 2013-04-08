@@ -10,10 +10,10 @@
     {
         public static void UseAsDefault()
         {
-            Infrastructure.SetDefaultFor<ISagaPersister>(() => Configure.Instance.InMemorySagaPersister());
-            Infrastructure.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseInMemoryTimeoutPersister());
-            Infrastructure.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseInMemoryGatewayPersister());
-            Infrastructure.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.InMemorySubscriptionStorage());
+            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.InMemorySagaPersister());
+            InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseInMemoryTimeoutPersister());
+            InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseInMemoryGatewayPersister());
+            InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.InMemorySubscriptionStorage());
         }
     }
 }

@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using Config;
+    using Features;
     using Logging;
     using Transports.Msmq;
     using Transports.Msmq.Config;

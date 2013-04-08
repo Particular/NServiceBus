@@ -7,7 +7,7 @@
     {
         public void Init()
         {
-            Infrastructure.SetDefaultFor<IManageTimeouts>(typeof(DefaultTimeoutManager), DependencyLifecycle.SingleInstance);
+            InfrastructureServices.SetDefaultFor<IManageTimeouts>(typeof(DefaultTimeoutManager), DependencyLifecycle.SingleInstance);
         }
     }
 }

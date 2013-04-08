@@ -12,11 +12,6 @@
             {
                 Configure.Instance.MessageForwardingInCaseOfFault();
             }
-
-            if (Config is AsA_Publisher && !Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
-            {
-                Configure.Instance.RavenSubscriptionStorage();
-            }
         }
 
         public IConfigureThisEndpoint Config { get; set; }

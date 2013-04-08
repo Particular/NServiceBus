@@ -9,7 +9,7 @@
         public void FinalizeConfiguration()
         {
             if(Feature.IsEnabled<Features.Sagas>())
-                Infrastructure.Enable<ISagaPersister>();
+                InfrastructureServices.Enable<ISagaPersister>();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace NServiceBus.Features
     /// <summary>
     /// Displays the current status of the features
     /// </summary>
-    public class DisplayFeatureStatus:IWantToRunWhenConfigurationIsComplete
+    public class FeatureStatus:IWantToRunWhenConfigurationIsComplete
     {
         public void Run()
         {
@@ -18,6 +18,6 @@ namespace NServiceBus.Features
             Logger.InfoFormat("Features: \n{0}",statusText);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(DisplayFeatureStatus));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(FeatureStatus));
     }
 }

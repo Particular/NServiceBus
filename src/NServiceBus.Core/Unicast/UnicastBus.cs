@@ -27,6 +27,7 @@ namespace NServiceBus.Unicast
     using Serialization;
     using Settings;
     using Subscriptions;
+    using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Transport;
     using Transports;
     using UnitOfWork;

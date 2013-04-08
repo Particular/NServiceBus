@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Unicast.Subscriptions.SubcriberSideFiltering
+﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering
 {
-    using Logging;
-    using MessageMutator;
-    using ObjectBuilder;
+    using NServiceBus.Logging;
+    using NServiceBus.MessageMutator;
+    using NServiceBus.ObjectBuilder;
 
     public class FilteringMutator:IMutateIncomingMessages
     {

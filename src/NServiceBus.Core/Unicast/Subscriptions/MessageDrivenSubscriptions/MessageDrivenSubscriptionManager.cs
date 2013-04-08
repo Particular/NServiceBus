@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Unicast.Subscriptions
+﻿namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
@@ -204,18 +203,5 @@
 
         }
 
-    }
-
-    public class NoopSubscriptionAuthorizer : IAuthorizeSubscriptions
-    {
-        public bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers)
-        {
-            return true;
-        }
-
-        public bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers)
-        {
-            return true;
-        }
     }
 }
