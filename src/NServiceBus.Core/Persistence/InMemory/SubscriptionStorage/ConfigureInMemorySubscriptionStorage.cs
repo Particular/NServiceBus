@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using Unicast.Subscriptions.InMemory;
+    using Persistence.InMemory.SubscriptionStorage;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.

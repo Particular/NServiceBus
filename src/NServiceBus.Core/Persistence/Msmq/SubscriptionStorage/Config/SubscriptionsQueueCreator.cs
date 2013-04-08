@@ -1,6 +1,6 @@
-namespace NServiceBus.Unicast.Subscriptions.Msmq.Config
+namespace NServiceBus.Persistence.Msmq.SubscriptionStorage.Config
 {
-    using Queuing;
+    using NServiceBus.Unicast.Queuing;
 
     /// <summary>
     /// Signals to create MSMQ subscription queue

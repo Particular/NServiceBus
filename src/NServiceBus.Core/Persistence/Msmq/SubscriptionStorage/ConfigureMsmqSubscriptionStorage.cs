@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using Config;
     using Logging;
-    using Unicast.Subscriptions.Msmq;
+    using Persistence.Msmq.SubscriptionStorage;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.

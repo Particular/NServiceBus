@@ -1,13 +1,14 @@
-namespace NServiceBus.Unicast.Subscriptions.Msmq
+namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 {
     using System;
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using Logging;
-    using Settings;
-    using Transports.Msmq;
-    using MessageType = Subscriptions.MessageType;
+    using NServiceBus.Logging;
+    using NServiceBus.Settings;
+    using NServiceBus.Transports.Msmq;
+    using Unicast.Subscriptions;
+    using MessageType = Unicast.Subscriptions.MessageType;
 
     /// <summary>
 	/// Provides functionality for managing message subscriptions

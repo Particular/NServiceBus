@@ -1,8 +1,9 @@
-namespace NServiceBus.Unicast.Subscriptions.Raven
+namespace NServiceBus.Persistence.Raven.SubscriptionStorage
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Persistence.Raven;
+    using NServiceBus.Persistence.Raven;
+    using Unicast.Subscriptions;
     using global::Raven.Client;
 
     public class RavenSubscriptionStorage : ISubscriptionStorage

@@ -1,8 +1,9 @@
-namespace NServiceBus.Unicast.Subscriptions.InMemory
+namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using Unicast.Subscriptions;
 
     /// <summary>
     /// In memory implementation of the subscription storage

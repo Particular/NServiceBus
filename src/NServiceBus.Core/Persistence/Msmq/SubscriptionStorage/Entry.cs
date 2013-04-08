@@ -1,6 +1,7 @@
-namespace NServiceBus.Unicast.Subscriptions.Msmq
+namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 {
     using System;
+    using Unicast.Subscriptions;
 
     /// <summary>
     /// Describes an entry in the list of subscriptions.
