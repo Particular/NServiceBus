@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
 {
     using NServiceBus.Persistence.Raven;
+    using NServiceBus.Persistence.Raven.SubscriptionStorage;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
     using Unicast.Subscriptions;
-    using Unicast.Subscriptions.Raven;
 
     public class WithRavenSubscriptionStorage
     {

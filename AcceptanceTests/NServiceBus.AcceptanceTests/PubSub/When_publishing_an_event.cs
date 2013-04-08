@@ -3,9 +3,10 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
-    using Unicast.Subscriptions;
     using ScenarioDescriptors;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_publishing_an_event : NServiceBusAcceptanceTest
     {
@@ -15,7 +16,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
                         {
-                            if (Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                            if (Feature.IsEnabled<MessageDrivenSubscriptions>())
                             {
                                 Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
                                     (sender, args) =>

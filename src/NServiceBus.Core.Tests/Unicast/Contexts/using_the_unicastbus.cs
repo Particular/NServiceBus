@@ -17,7 +17,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Serializers.XML;
     using Settings;
     using Subscriptions;
-    using Subscriptions.SubcriberSideFiltering;
+    using Subscriptions.MessageDrivenSubscriptions;
+    using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Timeout;
     using Transports;
     using Unicast.Messages;

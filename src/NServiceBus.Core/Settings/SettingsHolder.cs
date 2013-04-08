@@ -3,6 +3,7 @@ namespace NServiceBus.Settings
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Configuration;
 
     /// <summary>
     /// Setting container.
@@ -11,7 +12,7 @@ namespace NServiceBus.Settings
     {
         static readonly ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         static readonly ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-  
+
         /// <summary>
         /// Gets the setting value.
         /// </summary>
@@ -23,7 +24,7 @@ namespace NServiceBus.Settings
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T) result;
+                return (T)result;
             }
 
             if (Defaults.TryGetValue(key, out result))
@@ -41,6 +42,8 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public static void Set(string key, object value)
         {
+            EnsureWriteEnabled();
+
             Overrides[key] = value;
         }
 
@@ -49,15 +52,78 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <param name="key">The key to use to store the setting.</param>
         /// <param name="value">The setting value.</param>
+        public static void SetDefault<T>(object value)
+        {
+            SetDefault(typeof(T).FullName, value);
+        }
+        public static void SetDefault<T>(Action value)
+        {
+            SetDefault(typeof(T).FullName, value);
+        }
         public static void SetDefault(string key, object value)
         {
+            EnsureWriteEnabled();
+
             Defaults[key] = value;
         }
 
         public static void Reset()
         {
-           Overrides.Clear();
-           Defaults.Clear();
+            EnsureWriteEnabled();
+
+            Overrides.Clear();
+            Defaults.Clear();
         }
+
+        public static T GetOrDefault<T>(string key)
+        {
+            object result;
+            if (Overrides.TryGetValue(key, out result))
+            {
+                return (T)result;
+            }
+
+            if (Defaults.TryGetValue(key, out result))
+            {
+                return (T)result;
+            }
+
+            return default(T);
+        }
+
+        public static bool HasSetting<T>()
+        {
+            var key = typeof(T).FullName;
+
+            if (Overrides.ContainsKey(key))
+            {
+                return true;
+            }
+
+            if (Defaults.ContainsKey(key))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Locks the settings to prevent further modifications
+        /// </summary>
+        public static void PreventChanges()
+        {
+            locked = true;
+        }
+
+        static void EnsureWriteEnabled()
+        {
+            if (locked)
+            {
+                throw new ConfigurationErrorsException(string.Format("The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline"));
+            }
+        }
+
+        static bool locked;
     }
 }

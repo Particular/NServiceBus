@@ -3,19 +3,19 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Features;
     using Notifications;
     using ObjectBuilder;
     using Receiving;
     using Routing;
     using Satellites;
+    using Settings;
     using Transports;
     using Unicast;
-    using Unicast.Queuing;
-
+   
     public class GatewaySender : ISatellite
     {
-        private readonly Address localAddress = ConfigureGateway.GatewayInputAddress;
-
+       
         public UnicastBus UnicastBus { get; set; }
         public IBuilder Builder { get; set; }
         public IManageReceiveChannels ChannelManager { get; set; }
@@ -49,12 +49,12 @@ namespace NServiceBus.Gateway.Sending
 
         public Address InputAddress
         {
-            get { return localAddress; }
+            get { return SettingsHolder.Get<Address>("Gateway.InputAddress"); }
         }
 
         public bool Disabled
         {
-            get { return localAddress == null; }
+            get { return !Feature.IsEnabled<Gateway>(); }
         }
 
         public void Start()
@@ -76,7 +76,7 @@ namespace NServiceBus.Gateway.Sending
             //todo - do we need to clone? check with Jonathan O
             messageToDispatch.Headers[Headers.DestinationSites] = destinationSite.Key;
 
-            MessageSender.Send(messageToDispatch, localAddress);
+            MessageSender.Send(messageToDispatch, InputAddress);
         }
 
         private void SendToSite(TransportMessage transportMessage, Site targetSite)

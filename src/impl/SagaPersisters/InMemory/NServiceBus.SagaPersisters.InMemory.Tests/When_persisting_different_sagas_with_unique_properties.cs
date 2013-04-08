@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Persistence.InMemory.SagaPersister;
     using Saga;
 
     public class When_persisting_different_sagas_with_unique_properties

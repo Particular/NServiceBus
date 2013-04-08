@@ -1,6 +1,7 @@
 namespace NServiceBus.Settings
 {
     using System;
+    using Persistence.InMemory;
 
     class DefaultEndpointSettings: ISetDefaultSettings
     {
@@ -30,6 +31,8 @@ namespace NServiceBus.Settings
         /// </summary>
         public Endpoint AsVolatile()
         {
+            InMemoryPersistence.UseAsDefault();
+
             Configure.Transactions.Disable();
             Configure.Transactions.Advanced(s => s.DoNotWrapHandlersExecutionInATransactionScope()
                                                   .DisableDistributedTransactions());

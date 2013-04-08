@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using Persistence.InMemory.SagaPersister;
     using Saga;
 
     public class When_completing_a_saga_with_the_InMemory_persister

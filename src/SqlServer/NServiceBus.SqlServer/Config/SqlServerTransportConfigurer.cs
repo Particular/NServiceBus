@@ -1,7 +1,7 @@
 namespace NServiceBus.Transports.SQLServer.Config
 {
     using System;
-    using NServiceBus.Unicast.Queuing.Installers;
+    using Unicast.Queuing.Installers;
 
     /// <summary>
     /// Configures NServiceBus to use SqlServer as the default transport
