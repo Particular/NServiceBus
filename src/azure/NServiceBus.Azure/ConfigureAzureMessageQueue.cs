@@ -14,8 +14,6 @@ namespace NServiceBus
 
             var configSection = Configure.GetConfigSection<AzureQueueConfig>();
 
-            Address.InitializeAddressMode(AddressMode.Remote);
-            
             if (configSection != null)
             {
                 queueClient = CloudStorageAccount.Parse(configSection.ConnectionString).CreateCloudQueueClient();

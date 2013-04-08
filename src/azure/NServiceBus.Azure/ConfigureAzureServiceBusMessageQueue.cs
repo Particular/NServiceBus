@@ -19,8 +19,6 @@ namespace NServiceBus
             if (configSection == null)
                 throw new ConfigurationErrorsException("No AzureServiceBusQueueConfig configuration section found");
 
-            Address.InitializeAddressMode(AddressMode.Remote);
-
             ServiceBusEnvironment.SystemConnectivity.Mode = (ConnectivityMode) Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
 
             if(string.IsNullOrEmpty(configSection.ConnectionString) && (string.IsNullOrEmpty(configSection.IssuerKey) || string.IsNullOrEmpty(configSection.ServiceNamespace) ))
