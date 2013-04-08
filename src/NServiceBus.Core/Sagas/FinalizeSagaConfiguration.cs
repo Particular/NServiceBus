@@ -8,8 +8,10 @@
     {
         public void FinalizeConfiguration()
         {
-            if(Feature.IsEnabled<Features.Sagas>())
-                InfrastructureServices.Enable<ISagaPersister>();
+            if (!Feature.IsEnabled<Sagas>())
+                return;
+
+            InfrastructureServices.Enable<ISagaPersister>();
         }
     }
 }

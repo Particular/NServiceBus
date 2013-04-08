@@ -14,6 +14,9 @@
     {
         public void FinalizeConfiguration()
         {
+            if(!Feature.IsEnabled<Gateway>())
+                return;
+            
             ConfigureChannels();
 
             ConfigureReceiver();
