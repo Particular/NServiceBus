@@ -1,9 +1,9 @@
-namespace NServiceBus.Sagas.Impl
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Saga;
+    using NServiceBus.Saga;
 
     /// <summary>
     /// Defining <see cref="IHandleTimeouts{T}"/> as valid system messages
@@ -15,9 +15,9 @@ namespace NServiceBus.Sagas.Impl
         /// </summary>
         public void Init()
         {
-            var sagas = NServiceBus.Configure.TypesToScan.Where(Configure.IsSagaType).ToList();
+            var sagas = Configure.TypesToScan.Where(Features.Sagas.IsSagaType).ToList();
 
-            NServiceBus.Configure.Instance.AddSystemMessagesAs(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
+            Configure.Instance.AddSystemMessagesAs(t => IsTypeATimeoutHandledByAnySaga(t, sagas));
         }
 
         static bool IsTypeATimeoutHandledByAnySaga(Type type, IEnumerable<Type> sagas)

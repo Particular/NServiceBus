@@ -1,7 +1,7 @@
-namespace NServiceBus.Sagas.Impl.Finders
+namespace NServiceBus.Sagas.Finders
 {
     using System;
-    using Saga;
+    using NServiceBus.Saga;
 
     /// <summary>
     /// Finds sagas based on the sagaid header

@@ -1,16 +1,16 @@
-namespace NServiceBus.Sagas.Impl
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Finders;
-    using IdGeneration;
-    using Logging;
-    using ObjectBuilder;
-    using Saga;
-    using Transports;
-    using Unicast;
+    using NServiceBus.IdGeneration;
+    using NServiceBus.Logging;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Saga;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
 
     /// <summary>
     /// Dispatch factory that can dispatch messages to sagas
@@ -37,7 +37,7 @@ namespace NServiceBus.Sagas.Impl
 
                 if (sagaEntity == null)
                 {
-                    sagaType = Configure.GetSagaTypeToStartIfMessageNotFoundByFinder(message, finder);
+                    sagaType = Features.Sagas.GetSagaTypeToStartIfMessageNotFoundByFinder(message, finder);
                     if (sagaType == null)
                         continue;
 
@@ -53,7 +53,7 @@ namespace NServiceBus.Sagas.Impl
                     if (entitiesHandled.Contains(sagaEntity))
                         continue; // don't call the same saga twice
 
-                    sagaType = Configure.GetSagaTypeForSagaEntityType(sagaEntity.GetType());
+                    sagaType = Features.Sagas.GetSagaTypeForSagaEntityType(sagaEntity.GetType());
                 }
 
                 if (messageHandlerType.IsAssignableFrom(sagaType))
@@ -126,7 +126,7 @@ namespace NServiceBus.Sagas.Impl
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)
         {
-            var sagaEntityType = Configure.GetSagaEntityTypeForSagaType(sagaType);
+            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
             if (sagaEntityType == null)
                 throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
@@ -159,7 +159,7 @@ namespace NServiceBus.Sagas.Impl
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Configure.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+                var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
                     logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
@@ -190,12 +190,12 @@ namespace NServiceBus.Sagas.Impl
             if (sagaType == null)
                 return null;
 
-            return Configure.GetSagaEntityTypeForSagaType(sagaType);
+            return Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
         }
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
-            MethodInfo method = Configure.GetFindByMethodForFinder(finder, message);
+            MethodInfo method = Features.Sagas.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
                 return method.Invoke(finder, new object[] { message }) as IContainSagaData;

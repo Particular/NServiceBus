@@ -1,7 +1,8 @@
-namespace NServiceBus.Sagas.Impl
+namespace NServiceBus.Sagas
 {
     using System;
-    using Saga;
+    using NServiceBus.Logging;
+    using NServiceBus.Saga;
 
     /// <summary>
     /// Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
@@ -12,10 +13,12 @@ namespace NServiceBus.Sagas.Impl
     {
         void IHandleReplyingToNullOriginator.TriedToReplyToNullOriginator()
         {
-            if (Configure.Logger.IsDebugEnabled)
+            if (Logger.IsDebugEnabled)
                 throw new InvalidOperationException
                     (
                     "Originator of saga has not provided a return address - cannot reply.");
         }
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(ReplyingToNullOriginatorDispatcher));
     }
 }

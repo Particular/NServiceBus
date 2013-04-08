@@ -1,10 +1,10 @@
-namespace NServiceBus.Sagas.Impl
+namespace NServiceBus.Sagas
 {
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
-    using Saga;
-    using Utils.Reflection;
+    using NServiceBus.Saga;
+    using NServiceBus.Utils.Reflection;
 
     /// <summary>
     /// Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
@@ -20,7 +20,7 @@ namespace NServiceBus.Sagas.Impl
             ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
             ThrowIfNotPropertyLambdaExpression(messageProperty, messageProp);
 
-            Configure.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
+            Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
         }
 
         private static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
