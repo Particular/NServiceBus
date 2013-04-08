@@ -3,6 +3,7 @@ namespace NServiceBus.Satellites
     using System;
     using System.Linq;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Config;
     using Logging;
     using ObjectBuilder;
@@ -14,26 +15,31 @@ namespace NServiceBus.Satellites
 
         public void Start()
         {
-            Configure.Instance.Builder
-                .BuildAll<ISatellite>()
-                .ToList()
-                .ForEach(s =>
+            var satellitesList = Configure.Instance.Builder
+                                          .BuildAll<ISatellite>()
+                                          .ToList()
+                                          .Where(s => !s.Disabled)
+                                          .ToList();
+
+            var satelliteContexts = new SatelliteContext[satellitesList.Count];
+
+            Parallel.For(0, satellitesList.Count, index =>
                 {
-                    if (s.Disabled)
-                    {
-                        return;
-                    }
+                    var satellite = satellitesList[index];
+
+                    Logger.DebugFormat("Starting {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
+                                       index + 1, satellitesList.Count);
 
                     var ctx = new SatelliteContext
-                    {
-                        Instance = s
-                    };
+                        {
+                            Instance = satellite
+                        };
 
-                    if (s.InputAddress != null)
+                    if (satellite.InputAddress != null)
                     {
                         ctx.Transport = Builder.Build<TransportReceiver>();
 
-                        var advancedSatellite = s as IAdvancedSatellite;
+                        var advancedSatellite = satellite as IAdvancedSatellite;
                         if (advancedSatellite != null)
                         {
                             var receiverCustomization = advancedSatellite.GetReceiverCustomization();
@@ -44,27 +50,33 @@ namespace NServiceBus.Satellites
 
                     StartSatellite(ctx);
 
-                    satellites.Add(ctx);
+                    satelliteContexts[index] = ctx;
+
+                    Logger.DebugFormat("Started {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
+                                       index + 1, satellitesList.Count);
+
                 });
+
+            satellites.AddRange(satelliteContexts);
         }
 
         public void Stop()
         {
-            for (int index   = 0; index < satellites.Count; index++)
-            {
-                var ctx = satellites[index];
-
-                Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName, index + 1, satellites.Count);
-
-                if (ctx.Transport != null)
+            Parallel.ForEach(satellites, (ctx, state, index) =>
                 {
-                    ctx.Transport.Stop();
-                }
+                    Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
+                                       index + 1, satellites.Count);
 
-                ctx.Instance.Stop();
+                    if (ctx.Transport != null)
+                    {
+                        ctx.Transport.Stop();
+                    }
 
-                Logger.DebugFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName, index + 1, satellites.Count);
-            }
+                    ctx.Instance.Stop();
+
+                    Logger.DebugFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
+                                       index + 1, satellites.Count);
+                });
         }
 
         void HandleMessageReceived(object sender, TransportMessageReceivedEventArgs e, ISatellite satellite)
@@ -73,19 +85,22 @@ namespace NServiceBus.Satellites
             {
                 if (!satellite.Handle(e.Message))
                 {
-                    ((ITransport)sender).AbortHandlingCurrentMessage();
+                    ((ITransport) sender).AbortHandlingCurrentMessage();
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("{0} satellite could not handle message.", satellite.GetType().AssemblyQualifiedName), ex);
+                Logger.Error(
+                    string.Format("{0} satellite could not handle message.", satellite.GetType().AssemblyQualifiedName),
+                    ex);
                 throw;
-            }            
+            }
         }
 
         void StartSatellite(SatelliteContext ctx)
         {
-            Logger.DebugFormat("Starting satellite {0} for {1}.", ctx.Instance.GetType().AssemblyQualifiedName, ctx.Instance.InputAddress);
+            Logger.DebugFormat("Starting satellite {0} for {1}.", ctx.Instance.GetType().AssemblyQualifiedName,
+                               ctx.Instance.InputAddress);
 
             try
             {
@@ -103,17 +118,18 @@ namespace NServiceBus.Satellites
             }
             catch (Exception ex)
             {
-                Logger.Error(string.Format("Satellite {0} failed to start.", ctx.Instance.GetType().AssemblyQualifiedName), ex);
+                Logger.Error(
+                    string.Format("Satellite {0} failed to start.", ctx.Instance.GetType().AssemblyQualifiedName), ex);
 
                 if (ctx.Transport != null)
                 {
-                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);                        
+                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);
                 }
             }
         }
-     
-        static readonly ILog Logger = LogManager.GetLogger(typeof(SatelliteLauncher));
 
-        private readonly List<SatelliteContext> satellites = new List<SatelliteContext>();
-    }   
+        static readonly ILog Logger = LogManager.GetLogger(typeof (SatelliteLauncher));
+
+        readonly List<SatelliteContext> satellites = new List<SatelliteContext>();
+    }
 }

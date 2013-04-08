@@ -17,6 +17,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <summary>
         /// 
         /// </summary>
+        public ICreateSubscriptionClients ClientCreator { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="eventType"></param>
         /// <param name="original"></param>
         public void Subscribe(Type eventType, Address original)
@@ -24,10 +29,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             var publisherAddress = Address.Parse(original.Queue + ".events");
             var subscriptionname = Configure.EndpointName + "." + eventType.Name;
 
-            if (!NamespaceClient.SubscriptionExists(publisherAddress.Queue, subscriptionname))
-            {
-                NamespaceClient.CreateSubscription(publisherAddress.Queue, subscriptionname);
-            }
+            ClientCreator.Create(eventType, publisherAddress.Queue, subscriptionname);
 
             // how to make the correct strategy listen to this subscription
 

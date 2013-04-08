@@ -24,6 +24,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         {
             var topicPath = address.Queue;
             var subscriptionname = Configure.EndpointName + "." + eventType.Name;
+            return Create(eventType, topicPath, subscriptionname);
+        }
+
+        public SubscriptionClient Create(Type eventType, string topicPath, string subscriptionname)
+        {
             if (NamespaceClient.TopicExists(topicPath))
             {
                 try
@@ -42,10 +47,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                                     EnableDeadLetteringOnFilterEvaluationExceptions
                             };
 
-                        var typefilter =
-                            new SqlFilter(Headers.EnclosedMessageTypes + " LIKE ‘" + eventType.AssemblyQualifiedName + "’");
+                        var filter = string.Format( "[{0}] LIKE '{1}%' OR [{0}] LIKE '%{1}%' OR [{0}] LIKE '%{1}' OR [{0}] = '{1}'", Headers.EnclosedMessageTypes, eventType.AssemblyQualifiedName);
+                        var typefilter = new SqlFilter(filter);
 
                         NamespaceClient.CreateSubscription(description, typefilter);
+
                     }
                 }
                 catch (MessagingEntityAlreadyExistsException)
@@ -54,6 +60,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 }
 
                 return Factory.CreateSubscriptionClient(topicPath, subscriptionname, ReceiveMode.PeekLock);
+               
             }
             return null;
         }

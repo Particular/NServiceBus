@@ -2,9 +2,9 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
 {
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Persistence.Raven.SubscriptionStorage;
     using NUnit.Framework;
     using Unicast.Subscriptions;
-    using Unicast.Subscriptions.Raven;
 
     [TestFixture]
     public class When_receiving_duplicate_subscription_messages : WithRavenSubscriptionStorage

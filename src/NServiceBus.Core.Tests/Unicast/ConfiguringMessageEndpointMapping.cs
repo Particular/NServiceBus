@@ -64,11 +64,11 @@ namespace NServiceBus.Unicast.Tests
 
             var messageOwners = Configure.Instance.Builder.Build<IRouteMessages>();
 
-            Assert.AreEqual("type", messageOwners.GetDestinationFor(typeof(MessageA)).Queue);
-            Assert.AreEqual("namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Queue);
-            Assert.AreEqual("assembly", messageOwners.GetDestinationFor(typeof(MessageD)).Queue);
-            Assert.AreEqual("messageswithtype", messageOwners.GetDestinationFor(typeof(MessageE)).Queue);
-            Assert.AreEqual("namespace", messageOwners.GetDestinationFor(typeof(MessageF)).Queue);
+            Assert.AreEqual("Type", messageOwners.GetDestinationFor(typeof(MessageA)).Queue);
+            Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Queue);
+            Assert.AreEqual("Assembly", messageOwners.GetDestinationFor(typeof(MessageD)).Queue);
+            Assert.AreEqual("MessagesWithType", messageOwners.GetDestinationFor(typeof(MessageE)).Queue);
+            Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageF)).Queue);
         }
 
         public class CustomUnicastBusConfig : IProvideConfiguration<UnicastBusConfig>

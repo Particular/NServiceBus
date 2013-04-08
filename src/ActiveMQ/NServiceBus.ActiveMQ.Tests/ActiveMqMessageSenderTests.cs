@@ -23,7 +23,7 @@
             const string Queue = "QueueName";
             var message = new TransportMessage();
 
-            this.testee.Send(message, new Address(Queue, "SomeMachineName", true));
+            this.testee.Send(message, new Address(Queue, "SomeMachineName"));
 
             this.messageProducerMock.Verify(mp => mp.SendMessage(message, Queue, "queue://"));
         }

@@ -2,11 +2,11 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 {
     using System;
     using NServiceBus.Persistence.Raven;
+    using NServiceBus.Persistence.Raven.SagaPersister;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Embedded;
     using NServiceBus.Saga;
-    using SagaPersisters.Raven;
 
     public abstract class Raven_saga_persistence_concern
     {

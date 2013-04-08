@@ -80,7 +80,6 @@
     <Compile Include="Receivers\TransactonsScopes\NoTransactionScope.cs" />
     <Compile Include="Receivers\ActiveMqMessageReceiver.cs" />
     <Compile Include="ActiveMqMessageSender.cs" />
-    <Compile Include="ActiveMqSubscriptionStorage.cs" />
     <Compile Include="Receivers\TransactonsScopes\ActiveMqTransaction.cs" />
     <Compile Include="Receivers\TransactonsScopes\DTCTransactionScope.cs" />
     <Compile Include="Receivers\EventConsumer.cs" />

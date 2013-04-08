@@ -2,19 +2,19 @@ namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
     using Channels;
+    using Features;
     using Logging;
     using Notifications;
     using ObjectBuilder;
     using Routing;
     using Satellites;
+    using Settings;
     using Transports;
-    using Unicast.Queuing;
 
     public class GatewayReceiver : ISatellite
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(GatewayReceiver));
         private readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
-        private readonly Address returnAddress = ConfigureGateway.GatewayInputAddress;
 
         public GatewayReceiver()
         {
@@ -25,7 +25,7 @@ namespace NServiceBus.Gateway.Receiving
         public IManageReceiveChannels ChannelManager { get; set; }
         public IRouteMessagesToEndpoints EndpointRouter { get; set; }
         public IBuilder builder { get; set; }
-
+       
         public void Stop()
         {
             Logger.InfoFormat("Receiver is shutting down");
@@ -56,14 +56,13 @@ namespace NServiceBus.Gateway.Receiving
 
         public bool Disabled
         {
-            get
-            {
-                return returnAddress == null;
-            }
+            get { return !Feature.IsEnabled<Gateway>(); }
         }
 
         public void Start()
         {
+            replyToAddress = SettingsHolder.Get<Address>("Gateway.InputAddress");
+
             foreach (ReceiveChannel receiveChannel in ChannelManager.GetReceiveChannels())
             {
                 var receiver = builder.Build<IReceiveMessagesFromSites>();
@@ -80,7 +79,7 @@ namespace NServiceBus.Gateway.Receiving
         {
             TransportMessage messageToSend = e.Message;
 
-            messageToSend.ReplyToAddress = returnAddress;
+            messageToSend.ReplyToAddress = replyToAddress;
 
             Address destination = EndpointRouter.GetDestinationFor(messageToSend);
 
@@ -88,5 +87,8 @@ namespace NServiceBus.Gateway.Receiving
 
             MessageSender.Send(messageToSend, destination);
         }
+
+        Address replyToAddress;
+
     }
 }

@@ -6,6 +6,8 @@ using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
 {
+    using Features;
+
     public static class ConfigureAzureMessageQueue
     {
         public static Configure AzureMessageQueue(this Configure config)
@@ -14,8 +16,6 @@ namespace NServiceBus
 
             var configSection = Configure.GetConfigSection<AzureQueueConfig>();
 
-            Address.InitializeAddressMode(AddressMode.Remote);
-            
             if (configSection != null)
             {
                 queueClient = CloudStorageAccount.Parse(configSection.ConnectionString).CreateCloudQueueClient();

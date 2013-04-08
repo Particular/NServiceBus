@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 {
     using System;
+    using NServiceBus.Persistence.Raven.SagaPersister;
     using NUnit.Framework;
-    using SagaPersisters.Raven;
 
     public class When_updating_a_saga_property_that_does_not_have_a_unique_attribute : Raven_saga_persistence_concern
     {

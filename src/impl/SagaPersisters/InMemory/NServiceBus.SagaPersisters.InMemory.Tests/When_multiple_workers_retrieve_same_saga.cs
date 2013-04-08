@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Persistence;
+    using Persistence.InMemory.SagaPersister;
     using Saga;
 
     class When_multiple_workers_retrieve_same_saga

@@ -2,12 +2,13 @@ namespace NServiceBus.Serializers.Json
 {
     using System.Globalization;
     using System.IO;
+    using System.Reflection;
     using System.Runtime.Serialization.Formatters;
-
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using Raven.Abstractions.Logging;
     using Serialization;
     using System;
     using System.Collections.Generic;
@@ -65,7 +66,15 @@ namespace NServiceBus.Serializers.Json
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
         {
-            var jsonSerializer = JsonSerializer.Create(serializerSettings);
+            var settings = serializerSettings;
+
+            var dynamicTypeToSerializeTo = messageTypes != null && messageTypes.Count == 1 ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
+            if (dynamicTypeToSerializeTo != null)
+            {
+                settings.TypeNameHandling = TypeNameHandling.None;
+            }
+
+            JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
 
             var reader = CreateJsonReader(stream);
@@ -75,6 +84,10 @@ namespace NServiceBus.Serializers.Json
 
             if (firstTokenType == JsonToken.StartArray)
             {
+                if (dynamicTypeToSerializeTo != null)
+                {
+                    return (object[]) jsonSerializer.Deserialize(reader, dynamicTypeToSerializeTo.MakeArrayType());
+                }
                 return jsonSerializer.Deserialize<object[]>(reader);
             }
             if (messageTypes != null && messageTypes.Any())

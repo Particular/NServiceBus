@@ -2,9 +2,9 @@
 {
     using System.Linq;
     using System.Transactions;
+    using NServiceBus.Persistence.Raven.SubscriptionStorage;
     using NUnit.Framework;
     using Unicast.Subscriptions;
-    using Unicast.Subscriptions.Raven;
 
     [TestFixture]
     public class When_receiving_a_subscription_message : WithRavenSubscriptionStorage

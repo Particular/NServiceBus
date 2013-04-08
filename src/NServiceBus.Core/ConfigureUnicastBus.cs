@@ -8,6 +8,7 @@ namespace NServiceBus
     using Unicast.Publishing;
     using Unicast.Queuing;
     using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.

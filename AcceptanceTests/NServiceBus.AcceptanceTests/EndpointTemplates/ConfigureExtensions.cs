@@ -13,9 +13,9 @@
     using NServiceBus.Serializers.Binary;
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
-    using SagaPersisters.InMemory;
+    using Persistence.InMemory.SagaPersister;
+    using Persistence.Raven.SagaPersister;
     using SagaPersisters.NHibernate;
-    using SagaPersisters.Raven;
 
     public static class ConfigureExtensions
     {
@@ -98,7 +98,7 @@
             }
                 
             if (type == typeof (SagaPersister))
-            {
+            { 
                 return config.UseNHibernateSagaPersister();
 
             }

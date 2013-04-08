@@ -64,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
+                    Thread.Sleep(TimeSpan.FromSeconds(Math.Min(Math.Max((nextRetrieval - DateTime.UtcNow).TotalSeconds, 0), SecondsToSleepBetweenPolls)));
                     continue;
                 }
 
@@ -104,7 +104,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
 
                 if (nextRetrieval > maxNextRetrieval)
+                {
                     nextRetrieval = maxNextRetrieval;
+                }
 
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
@@ -142,8 +144,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         volatile bool timeoutPushed;
         DateTime nextRetrieval = DateTime.UtcNow;
         
-        readonly ICircuitBreaker circuitBreaker = new RepetedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity",TimeSpan.FromMinutes(2), 
-                            ex => Configure.Instance.RaiseCriticalError("Repeted failures when fetching timeouts from storage, endpoint will be terminated", ex));
+        readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2), 
+                            ex => Configure.Instance.RaiseCriticalError("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
         
         static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
     }

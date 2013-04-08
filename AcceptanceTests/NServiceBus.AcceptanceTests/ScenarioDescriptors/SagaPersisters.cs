@@ -2,9 +2,9 @@
 {
     using System.Collections.Generic;
     using AcceptanceTesting.Support;
-    using NServiceBus.SagaPersisters.InMemory;
     using NServiceBus.SagaPersisters.NHibernate;
-    using NServiceBus.SagaPersisters.Raven;
+    using Persistence.InMemory.SagaPersister;
+    using Persistence.Raven.SagaPersister;
 
     public static class SagaPersisters
     {

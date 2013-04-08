@@ -10,9 +10,12 @@ namespace NServiceBus
     [Serializable]
     public class Address : ISerializable
     {
-        private static AddressMode addressMode = AddressMode.Local;
         private static string defaultMachine = Environment.MachineName;
         private static bool preventChanges;
+
+        readonly string queueLowerCased;
+        readonly string machineLowerCased;
+
 
         /// <summary>
         /// Undefined address.
@@ -55,19 +58,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the name of the machine to be used when none is specified in the address.
-        /// </summary>
-        /// <param name="mode"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        public static void InitializeAddressMode(AddressMode mode)
-        {
-            addressMode = mode;
-
-            if (preventChanges)
-                throw new InvalidOperationException("Overwriting a previously set address mode is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
-        }
-
-        /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
         /// <param name="destination">The full address to parse.</param>
@@ -96,26 +86,17 @@ namespace NServiceBus
             return new Address(queue, machine);
         }
 
-        ///<summary>
-        /// Instantiate a new Address for a known queue on a given machine.
-        ///</summary>
-        ///<param name="queueName">The queue name.</param>
-        ///<param name="machineName">The machine name.</param>
-        public Address(string queueName, string machineName) :
-            this(queueName, machineName, false)
-        {
-        }
-
         /// <summary>
         /// Instantiate a new Address for a known queue on a given machine.
         /// </summary>
         ///<param name="queueName">The queue name.</param>
         ///<param name="machineName">The machine name.</param>
-        /// <param name="caseSensitive">If <code>true</code> makes the address case sensitive.</param>
-        public Address(string queueName, string machineName, bool caseSensitive)
+        public Address(string queueName, string machineName)
         {
-            Queue = caseSensitive ? queueName : queueName.ToLower();
-            Machine = caseSensitive || addressMode != AddressMode.Local ? machineName : machineName.ToLower();
+            Queue = queueName;
+            queueLowerCased = queueName.ToLower();
+            Machine = machineName ?? defaultMachine;
+            machineLowerCased = Machine.ToLower();
         }
         
         /// <summary>
@@ -127,6 +108,8 @@ namespace NServiceBus
         {
             Queue = info.GetString("Queue");
             Machine = info.GetString("Machine");
+            queueLowerCased = info.GetString("queueLowerCased");
+            machineLowerCased = info.GetString("machineLowerCased");
         }
 
         /// <summary>
@@ -139,6 +122,8 @@ namespace NServiceBus
         {
             info.AddValue("Queue", Queue);
             info.AddValue("Machine", Machine);
+            info.AddValue("queueLowerCased", queueLowerCased);
+            info.AddValue("machineLowerCased", machineLowerCased);
         }
 
         /// <summary>
@@ -160,7 +145,7 @@ namespace NServiceBus
         {
             unchecked
             {
-                return ((Queue != null ? Queue.GetHashCode() : 0) * 397) ^ (Machine != null ? Machine.GetHashCode() : 0);
+                return ((queueLowerCased != null ? queueLowerCased.GetHashCode() : 0) * 397) ^ (machineLowerCased != null ? machineLowerCased.GetHashCode() : 0);
             }
         }
 
@@ -231,13 +216,13 @@ namespace NServiceBus
         /// <summary>
         /// Check this is equal to other Address
         /// </summary>
-        /// <param name="other">refrence addressed to be checked with this</param>
+        /// <param name="other">reference addressed to be checked with this</param>
         /// <returns>true if this is equal to other</returns>
         private bool Equals(Address other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(other.Queue, Queue) && Equals(other.Machine, Machine);
+            return other.queueLowerCased.Equals(queueLowerCased) && other.machineLowerCased.Equals(machineLowerCased);
         }
     }
 }
