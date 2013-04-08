@@ -1,6 +1,7 @@
 ﻿﻿namespace NServiceBus
 {
     using Config;
+    using Features;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.

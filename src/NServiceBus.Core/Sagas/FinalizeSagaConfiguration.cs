@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Sagas
 {
     using Config;
+    using Features;
     using Saga;
 
     public class FinalizeSagaConfiguration : IFinalizeConfiguration
