@@ -2,7 +2,6 @@
 using NServiceBus.Config;
 using NServiceBus.Hosting.Azure;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Sagas.Impl;
 using NServiceBus.Unicast.Config;
 
 

@@ -5,17 +5,14 @@
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
 
-    public class MessageDrivenSubscriptions : IFeature, IFinalizeConfiguration
+    public class MessageDrivenSubscriptions : IFeature
     {
-        public void FinalizeConfiguration()
+        public void Initialize()
         {
-            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
-                return;
-
             Configure.Component<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
             Configure.Component<FilteringMutator>(DependencyLifecycle.InstancePerCall);
             Configure.Component<SubscriptionPredicatesEvaluator>(DependencyLifecycle.SingleInstance);
-       
+
             InfrastructureServices.Enable<ISubscriptionStorage>();
         }
     }

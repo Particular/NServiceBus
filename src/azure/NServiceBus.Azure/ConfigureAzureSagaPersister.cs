@@ -48,9 +48,6 @@ namespace NServiceBus
             string connectionString,
             bool autoUpdateSchema)
         {
-            if (!Sagas.Impl.Configure.SagasWereFound)
-                return config; //no sagas - don't need to do anything
-
             var nhibernateProperties = MsSqlConfiguration.Azure(connectionString);
 
             var builder = new SessionFactoryBuilder(Configure.TypesToScan);

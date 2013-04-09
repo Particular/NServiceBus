@@ -14,17 +14,34 @@
         /// <typeparam name="T"></typeparam>
         public static void Enable<T>() where T:IFeature
         {
-            SettingsHolder.Set(typeof(T).FullName,true);
+            Enable(typeof(T));
+        }
+
+        // <summary>
+        /// Enables the give feature
+        /// </summary>
+        public static void Enable(Type featureType) 
+        {
+            SettingsHolder.Set(featureType.FullName, true);
         }
 
         /// <summary>
         /// Turns the given feature off
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public static void Disable<T>()
+        public static void Disable<T>() where T : IFeature
         {
-            SettingsHolder.Set(typeof(T).FullName, false);
+           Disable(typeof(T));
         }
+
+        /// <summary>
+        /// Turns the given feature off
+        /// </summary>
+        public static void Disable(Type featureType)
+        {
+            SettingsHolder.Set(featureType.FullName, false);
+        }
+
 
         /// <summary>
         /// Returns true if the given feature is enabled

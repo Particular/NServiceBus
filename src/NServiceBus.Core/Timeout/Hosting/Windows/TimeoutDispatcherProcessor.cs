@@ -2,29 +2,30 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using Features;
     using Satellites;
     using Transports;
     using Unicast.Transport;
 
     public class TimeoutDispatcherProcessor : IAdvancedSatellite
     {  
-        public static readonly Address TimeoutDispatcherAddress;
-
         public ISendMessages MessageSender { get; set; }
 
         public IPersistTimeouts TimeoutsPersister { get; set; }
+        
         public TimeoutPersisterReceiver TimeoutPersisterReceiver { get; set; }
       
-        static TimeoutDispatcherProcessor()
+        public Address InputAddress
         {
-            TimeoutDispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
+            get
+            {
+                return TimeoutManager.DispatcherAddress;
+            }
         }
-
-        public Address InputAddress { get { return TimeoutDispatcherAddress; } }
 
         public bool Disabled
         {
-            get { return !TimeoutManager.Enabled; }
+            get { return !Feature.IsEnabled<TimeoutManager>(); }
         }
 
         public bool Handle(TransportMessage message)

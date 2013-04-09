@@ -16,11 +16,6 @@
         public static Configure Sagas(this Configure config)
         {
             Feature.Enable<Features.Sagas>();
-
-            NServiceBus.Sagas.Impl.Configure
-                .With(config.Configurer, config.Builder)
-                .SagasIn(Configure.TypesToScan);
-
             return config;
         }
     }

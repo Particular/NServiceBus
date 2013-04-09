@@ -2,9 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using NServiceBus.Persistence.InMemory.TimeoutPersister;
     using NServiceBus.Persistence.Raven;
+    using NServiceBus.Persistence.Raven.TimeoutPersister;
     using NServiceBus.Timeout.Core;
-    using NServiceBus.Timeout.Hosting.Windows.Persistence;
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Document;
