@@ -2,12 +2,9 @@ namespace NServiceBus
 {
     using System;
     using Config;
-    using Timeout;
     using Transports;
     using Unicast.Config;
     using Unicast.Publishing;
-    using Unicast.Queuing;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
@@ -40,9 +37,11 @@ namespace NServiceBus
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
-            if ((unicastConfig != null) && (!String.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
+            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
+            {
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
-
+            }
+                
             return config.GetMasterNodeAddress().SubScope("Timeouts");
         }
 

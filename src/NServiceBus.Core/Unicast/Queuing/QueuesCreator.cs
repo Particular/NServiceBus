@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Queuing
 {
+    using System;
     using System.Linq;
     using Installation;
     using Installation.Environments;
@@ -35,6 +36,11 @@ namespace NServiceBus.Unicast.Queuing
 
             foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => !wantQueueCreatedInstance.IsDisabled))
             {
+                if (wantQueueCreatedInstance.Address == null)
+                {
+                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address",wantQueueCreatedInstance.GetType().FullName));
+                }
+
                 QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
                 Logger.DebugFormat("Verified that the queue: [{0}] existed", wantQueueCreatedInstance.Address);
             }

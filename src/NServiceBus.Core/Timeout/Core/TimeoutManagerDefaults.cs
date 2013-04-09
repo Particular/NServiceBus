@@ -1,7 +1,6 @@
-﻿namespace NServiceBus.Timeout.Hosting.Windows.Config
+﻿namespace NServiceBus.Timeout.Core
 {
-    using Core;
-    using NServiceBus.Config;
+    using Config;
 
     public class TimeoutManagerDefaults : IWantToRunBeforeConfiguration
     {

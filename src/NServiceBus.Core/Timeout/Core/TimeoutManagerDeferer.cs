@@ -5,7 +5,7 @@
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutManagerBasedDeferral:IDeferMessages
+    public class TimeoutManagerDeferer:IDeferMessages
     {
         public ISendMessages MessageSender { get; set; }
         public Address TimeoutManagerAddress { get; set; }
@@ -38,6 +38,6 @@
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        readonly static ILog Log = LogManager.GetLogger(typeof(TimeoutManagerBasedDeferral));
+        readonly static ILog Log = LogManager.GetLogger(typeof(TimeoutManagerDeferer));
     }
 }
