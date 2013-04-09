@@ -12,7 +12,7 @@
 
     public class Gateway:IFeature
     {
-        public void Initalize()
+        public void Initialize()
         {
             ConfigureChannels();
 

@@ -11,7 +11,7 @@
 
     public class Sagas : IFeature
     {
-        public void Initalize()
+        public void Initialize()
         {
             Configure.Component<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
 

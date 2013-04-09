@@ -8,6 +8,6 @@ namespace NServiceBus.Features
         /// <summary>
         /// Called when the feature should perform its initialization. This call will only happen if the feature is enabled.
         /// </summary>
-        void Initalize();
+        void Initialize();
     }
 }

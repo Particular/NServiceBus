@@ -7,7 +7,7 @@
 
     public class MessageDrivenSubscriptions : IFeature
     {
-        public void Initalize()
+        public void Initialize()
         {
             Configure.Component<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
             Configure.Component<FilteringMutator>(DependencyLifecycle.InstancePerCall);

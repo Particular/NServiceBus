@@ -14,7 +14,7 @@
                         return;
 
                     var feature = (IFeature)Activator.CreateInstance(t);
-                    feature.Initalize();
+                    feature.Initialize();
 
                     Logger.DebugFormat("Feature initalized: {0}",t.FullName);
                 });
