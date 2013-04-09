@@ -28,6 +28,9 @@ namespace NServiceBus.Transports.SQLServer
 
         public void CreateQueueIfNecessary(Address address, string account)
         {
+            if (address == null)
+                return;
+
             using (var connection = new SqlConnection(ConnectionString))
             {
                 var sql = string.Format(Ddl, address.Queue);
