@@ -1,9 +1,9 @@
-namespace NServiceBus.Timeout.Hosting.Windows.Persistence
+namespace NServiceBus.Persistence.InMemory.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Core;
+    using Timeout.Core;
 
     public class InMemoryTimeoutPersistence : IPersistTimeouts
     {

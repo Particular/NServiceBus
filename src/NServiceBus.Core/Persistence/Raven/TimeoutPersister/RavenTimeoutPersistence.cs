@@ -1,15 +1,15 @@
-namespace NServiceBus.Timeout.Hosting.Windows.Persistence
+namespace NServiceBus.Persistence.Raven.TimeoutPersister
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Text;
-    using Core;
+    using Timeout.Core;
     using Logging;
-    using NServiceBus.Persistence.Raven;
-    using Raven.Client;
-    using Raven.Client.Linq;
+    using Raven;
+    using global::Raven.Client;
+    using global::Raven.Client.Linq;
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {

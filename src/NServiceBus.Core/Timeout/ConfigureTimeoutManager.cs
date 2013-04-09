@@ -1,8 +1,9 @@
 namespace NServiceBus
 {
     using Features;
+    using Persistence.InMemory.TimeoutPersister;
     using Persistence.Raven;
-    using Timeout.Hosting.Windows.Persistence;
+    using Persistence.Raven.TimeoutPersister;
 
     public static class ConfigureTimeoutManager
     {
