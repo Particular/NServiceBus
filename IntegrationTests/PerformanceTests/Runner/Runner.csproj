@@ -99,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestSuites\SqlServer.ps1" />
     <None Include="TestSuites\Transports-Sagas.ps1" />
     <None Include="TestSuites\Transports-SuppressDTC-Sagas.ps1" />
     <None Include="TestSuites\Transports-TwoPhaseCommit.ps1" />

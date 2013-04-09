@@ -21,7 +21,7 @@
     public class SqlServerPollingDequeueStrategy : IDequeueMessages
     {
         private const string SqlReceive =
-            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY TimeStamp ASC) 
 			DELETE FROM message 
 			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
 			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
