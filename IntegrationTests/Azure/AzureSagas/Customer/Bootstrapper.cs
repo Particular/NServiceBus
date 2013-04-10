@@ -34,7 +34,7 @@ namespace Customer
                      .AzureMessageQueue().JsonSerializer()
                      .Sagas().AzureSagaPersister()
 
-                     .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
+                     .UseAzureTimeoutPersister()
 
                      .UnicastBus()
                      .DoNotAutoSubscribe()

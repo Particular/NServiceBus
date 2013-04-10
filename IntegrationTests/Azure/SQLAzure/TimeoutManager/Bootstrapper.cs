@@ -30,7 +30,6 @@ namespace TimeoutManager
                     .AzureMessageQueue().JsonSerializer()
                .DefineEndpointName("notused")
                .UseAzureTimeoutPersister()
-               .ListenOnAzureStorageQueues()
                .UnicastBus()
                    .LoadMessageHandlers()
                    .IsTransactional(true)

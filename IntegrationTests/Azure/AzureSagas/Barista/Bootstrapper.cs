@@ -32,7 +32,7 @@ namespace Barista
                      .AzureMessageQueue().JsonSerializer()
                      .AzureSubcriptionStorage()
                      .Sagas().AzureSagaPersister()
-                     .UseAzureTimeoutPersister().ListenOnAzureStorageQueues()
+                     .UseAzureTimeoutPersister()
                      .UnicastBus()
                      .LoadMessageHandlers()
                      .CreateBus()
