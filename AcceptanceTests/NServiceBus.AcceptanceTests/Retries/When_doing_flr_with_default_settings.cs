@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
+    using Config;
     using Faults;
     using EndpointTemplates;
     using AcceptanceTesting;
@@ -31,7 +32,7 @@
                             b.Given(bus => bus.SendLocal(new MessageToBeRetried()));
                         })
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
-                    .Repeat(r => r.For<AllTransports>(Transports.RabbitMQ, Transports.ActiveMQ))
+                    .Repeat(r => r.For<AllTransports>(Transports.ActiveMQ))
                     .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
                     .Run();
 
@@ -51,7 +52,7 @@
                             });
                     })
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
-                    .Repeat(r => r.For<AllTransports>(Transports.RabbitMQ))
+                    .Repeat(r => r.For<AllTransports>())
                     .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
                     .Run();
 
@@ -70,7 +71,9 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
+                EndpointSetup<DefaultServer>(
+                    c => c.Configurer.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance))
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 1);
             }
 
             class CustomFaultManager : IManageMessageFailures
