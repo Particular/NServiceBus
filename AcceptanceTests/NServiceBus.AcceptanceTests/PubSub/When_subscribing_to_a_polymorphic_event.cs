@@ -14,40 +14,20 @@
         public void Event_should_be_delivered()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => b.Given((bus, context) =>
-                        {
-                            if (Feature.IsEnabled<MessageDrivenSubscriptions>())
-                            {
-                                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                                    (sender, args) =>
-                                        {
-                                            lock (context)
-                                            {
-                                                context.NumberOfSubscribers++;
-
-                                                if (context.NumberOfSubscribers >= 2)
-                                                {
-                                                    context.Subscriber1Subscribed = true;
-                                                    context.Subscriber2Subscribed = true;
-                                                }
-                                            }
-                                        };
-                            }
-
-                        })
+                    .WithEndpoint<Publisher>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
                     .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<IMyEvent>();
 
-                            if (!Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
                                 context.Subscriber1Subscribed = true;
                         }))
                     .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                         {
                             bus.Subscribe<MyEvent>();
 
-                            if (!Configure.Instance.Configurer.HasComponent<MessageDrivenSubscriptionManager>())
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
                                 context.Subscriber2Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
@@ -117,6 +97,21 @@
                 {
                     Context.Subscriber2GotTheEvent = true;
                 }
+            }
+        }
+        static void EnableNotificationsOnSubscribe(Context context)
+        {
+            if (Feature.IsEnabled<MessageDrivenSubscriptions>())
+            {
+                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
+                    (sender, args) =>
+                    {
+                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                            context.Subscriber1Subscribed = true;
+
+                        if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                            context.Subscriber2Subscribed = true;
+                    };
             }
         }
 

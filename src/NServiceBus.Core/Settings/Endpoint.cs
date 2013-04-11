@@ -1,6 +1,7 @@
 namespace NServiceBus.Settings
 {
     using System;
+    using Features;
     using Persistence.InMemory;
 
     class DefaultEndpointSettings: ISetDefaultSettings
@@ -51,6 +52,7 @@ namespace NServiceBus.Settings
         public Endpoint AsSendOnly()
         {
             SettingsHolder.Set("Endpoint.SendOnly", true);
+            Feature.Disable<TimeoutManager>();
             return this;
         }
 

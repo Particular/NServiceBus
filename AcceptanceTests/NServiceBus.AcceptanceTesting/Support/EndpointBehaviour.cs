@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Text;
     using Customization;
 
     [Serializable]
@@ -26,7 +28,7 @@
         public List<Action<Configure>> CustomConfig { get; set; }
     }
 
-   
+
     [Serializable]
     public class GivenDefinition<TContext> : IGivenDefinition where TContext : ScenarioContext
     {
@@ -35,20 +37,20 @@
             givenAction2 = action;
         }
 
-        public GivenDefinition(Action<IBus,TContext> action)
+        public GivenDefinition(Action<IBus, TContext> action)
         {
             givenAction = action;
         }
 
         public Action<IBus> GetAction(ScenarioContext context)
         {
-            if(givenAction2 != null)
+            if (givenAction2 != null)
                 return bus => givenAction2(bus);
 
-            return bus => givenAction(bus, (TContext) context);
+            return bus => givenAction(bus, (TContext)context);
         }
 
-        readonly Action<IBus,TContext> givenAction;
+        readonly Action<IBus, TContext> givenAction;
         readonly Action<IBus> givenAction2;
 
     }
@@ -68,36 +70,43 @@
             busAndContextAction = actionWithContext;
         }
 
-        public void ExecuteAction(ScenarioContext context, IBus bus)
+
+        public Action<IBus> GetAction(ScenarioContext context)
         {
             var c = context as TContext;
+            var type = context.GetType();
 
-            if (!condition(c))
+            var builder = new StringBuilder();
+            builder.AppendLine("Evaluation condition" + condition + ", Context: ");
+
+            foreach (var p in type.GetProperties())
             {
-                return;
+                builder.AppendLine(string.Format(p.Name + ":" + p.GetValue(context, null)));
             }
 
-            lock (lockObj)
-            {
-                if (executed)
-                {
-                    return;
-                }
 
+            Action<IBus> actionToPerform = bus => { };
+
+            var isConditionTrue = condition(c);
+
+            if (isConditionTrue)
+            {
                 if (busAction != null)
-                {
-                    busAction(bus);
-                    executed = true;
-                    return;
-                }
-
-                busAndContextAction(bus, c);
-                executed = true;
+                    actionToPerform = busAction;
+                else
+                    actionToPerform = bus => busAndContextAction(bus, c);
             }
+
+            builder.AppendLine("Condition evaluated to: " + isConditionTrue);
+
+
+            return bus =>
+                {
+                    Debug.WriteLine(builder.ToString());
+                    actionToPerform(bus);
+                };
         }
 
-        object lockObj = new object();
-        private bool executed;
         readonly Predicate<TContext> condition;
 
         readonly Action<IBus> busAction;
@@ -113,6 +122,7 @@
 
     public interface IWhenDefinition
     {
-        void ExecuteAction(ScenarioContext context, IBus bus);
+        Action<IBus> GetAction(ScenarioContext context);
+
     }
 }

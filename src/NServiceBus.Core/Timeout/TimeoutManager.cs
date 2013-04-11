@@ -26,10 +26,6 @@
             if (Configure.Instance.GetMasterNodeAddress() != Address.Local )
                 return false;
 
-            //send only endpoints doesn't need a TM
-            if(SettingsHolder.Get<bool>("Endpoint.SendOnly")) 
-                return false;
-
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
             //if the user has specified another TM we don't need to run our own
