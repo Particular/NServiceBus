@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using Customization;
 
     [Serializable]
@@ -69,23 +68,36 @@
             busAndContextAction = actionWithContext;
         }
 
-      
-        public Action<IBus> GetAction(ScenarioContext context)
+        public void ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = context as TContext;
 
             if (!condition(c))
             {
-            
-                return bus => { Debug.Write("Condition is false"); };
+                return;
             }
 
-            if (busAction != null)
-                return busAction;
+            lock (lockObj)
+            {
+                if (executed)
+                {
+                    return;
+                }
 
-            return bus => busAndContextAction(bus,c);
+                if (busAction != null)
+                {
+                    busAction(bus);
+                    executed = true;
+                    return;
+                }
+
+                busAndContextAction(bus, c);
+                executed = true;
+            }
         }
 
+        object lockObj = new object();
+        private bool executed;
         readonly Predicate<TContext> condition;
 
         readonly Action<IBus> busAction;
@@ -99,9 +111,8 @@
     }
 
 
-   public interface IWhenDefinition
+    public interface IWhenDefinition
     {
-        Action<IBus> GetAction(ScenarioContext context);
-
+        void ExecuteAction(ScenarioContext context, IBus bus);
     }
 }

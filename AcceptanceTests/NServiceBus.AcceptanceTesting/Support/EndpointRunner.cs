@@ -1,10 +1,7 @@
-﻿using System.Security.Permissions;
-
-namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.Remoting.Lifetime;
     using System.Threading.Tasks;
     using NServiceBus.Installation.Environments;
@@ -18,7 +15,6 @@ namespace NServiceBus.AcceptanceTesting.Support
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         EndpointBehaviour behaviour;
-        TimeSpan testExecutionTimeout;
 
         public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour, IDictionary<Type, string> routingTable, string endpointName)
         {
@@ -26,7 +22,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             {
                 behaviour = endpointBehaviour;
                 scenarioContext = run.ScenarioContext;
-                testExecutionTimeout = run.TestExecutionTimeout;
                 configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
                 configuration.EndpointName = endpointName;
 
@@ -55,7 +50,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
         }
 
-        void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
+        private void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
         {
 
             //HACK: kick off another thread so that we'll read the context after the actual value has changed
@@ -64,10 +59,10 @@ namespace NServiceBus.AcceptanceTesting.Support
                 {
                     foreach (var when in behaviour.Whens)
                     {
-                        var action = when.GetAction(scenarioContext);
-                        action(bus);
-                    }                    
+                        when.ExecuteAction(scenarioContext, bus);
+                    }
                 });
+
         }
 
         public Result Start()

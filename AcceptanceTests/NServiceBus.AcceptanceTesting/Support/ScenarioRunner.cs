@@ -156,11 +156,8 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                 runTimer.Stop();
 
-                Parallel.ForEach(runners, runner =>
-                    {
-                        shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()).ToList()
-                               .ForEach(v => v.Verify(runDescriptor.ScenarioContext));
-                    });
+                Parallel.ForEach(runners, runner => shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()).ToList()
+                                                           .ForEach(v => v.Verify(runDescriptor.ScenarioContext)));
             }
             catch (Exception ex)
             {
@@ -261,7 +258,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 })).ToArray();
 
             if(!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
-                throw new Exception("Starting enpoints took longer than 2 minutes");
+                throw new Exception("Starting endpoints took longer than 2 minutes");
         }
 
         static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
@@ -283,7 +280,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 })).ToArray();
 
             if(!Task.WaitAll(tasks,TimeSpan.FromMinutes(2)))
-                throw new Exception("Stopping enpoints took longer than 2 minutes");
+                throw new Exception("Stopping endpoints took longer than 2 minutes");
         }
 
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehaviour> behaviorDescriptors)
