@@ -43,12 +43,11 @@ namespace NServiceBus.Scheduling
         private static void ExecuteTask(ScheduledTask scheduledTask)
         {
             logger.InfoFormat("Start executing scheduled task {0}", scheduledTask.Name);
-            var cts = new CancellationTokenSource();
             var sw = new Stopwatch();            
             sw.Start();
 
             Task.Factory
-                .StartNew(scheduledTask.Task, cts.Token, TaskCreationOptions.None, TaskScheduler.Default)
+                .StartNew(scheduledTask.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
                 .ContinueWith(_ =>
                                   {
                                       sw.Stop();
