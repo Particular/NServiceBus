@@ -1113,7 +1113,7 @@ namespace NServiceBus.Unicast
 
                 dispatchers.ForEach(dispatch =>
                     {
-                        Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, handlerTypeToInvoke);
+                        Log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
                         try
                         {
                             dispatch();
