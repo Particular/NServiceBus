@@ -11,6 +11,7 @@
     using global::RabbitMQ.Client.Events;
 
     [TestFixture, Category("Integration")]
+    [Explicit("requires rabbit node")]
     public class When_sending_a_message_over_rabbitmq : RabbitMqContext
     {
         const string TESTQUEUE = "testendpoint";
