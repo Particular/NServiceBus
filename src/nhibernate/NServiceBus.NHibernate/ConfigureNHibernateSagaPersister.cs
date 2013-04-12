@@ -47,11 +47,6 @@
         /// <returns>The configuration object.</returns>
         public static Configure UseNHibernateSagaPersister(this Configure config)
         {
-            if (!Sagas.Impl.Configure.SagasWereFound)
-            {
-                return config; //no sagas - don't need to do anything
-            }
-
             var configSection = Configure.GetConfigSection<NHibernateSagaPersisterConfig>();
 
             if (configSection != null)
@@ -85,11 +80,6 @@
         /// <returns>The <see cref="Configure" /> object.</returns>
         public static Configure UseNHibernateSagaPersister(this Configure config, Configuration configuration)
         {
-            if (!Sagas.Impl.Configure.SagasWereFound)
-            {
-                return config; //no sagas - don't need to do anything
-            }
-
             foreach (var property in configuration.Properties)
             {
                 ConfigureNHibernate.SagaPersisterProperties[property.Key] = property.Value;
@@ -100,11 +90,6 @@
 
         static Configure UseNHibernateSagaPersisterInternal(this Configure config, Configuration configuration, bool autoUpdateSchema)
         {
-            if (!Sagas.Impl.Configure.SagasWereFound)
-            {
-                return config; //no sagas - don't need to do anything
-            }
-
             ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(ConfigureNHibernate.SagaPersisterProperties);
 
             SagaPersisters.NHibernate.Config.Installer.Installer.RunInstaller = autoUpdateSchema;

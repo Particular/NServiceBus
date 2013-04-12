@@ -155,6 +155,7 @@
     <Compile Include="Performance\NServiceBusPerformanceTest.cs" />
     <Compile Include="Performance\Receive\Receive_performance.cs" />
     <Compile Include="Performance\Sagas\Saga_performance.cs" />
+    <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
     <Compile Include="Retries\When_message_fails_with_retries_set_to_0.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
+    <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_disabled.cs" />
     <Compile Include="Transactions\When_receiving_a_message_with_dtc_enabled.cs" />

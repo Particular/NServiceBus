@@ -10,9 +10,9 @@
     using NServiceBus.Gateway.Routing.Sites;
     using NServiceBus.Gateway.Sending;
 
-    public class Gateway:IFeature,IFinalizeConfiguration
+    public class Gateway:IFeature
     {
-        public void FinalizeConfiguration()
+        public void Initialize()
         {
             ConfigureChannels();
 

@@ -2,33 +2,23 @@ namespace NServiceBus.Timeout.Hosting.Windows
 {
     using System;
     using Core;
+    using Features;
     using Satellites;
     using Transports;
-    using Unicast.Queuing;
     using Unicast.Transport;
 
 
     public class TimeoutMessageProcessor : IAdvancedSatellite
     {
-        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
-        const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
-
-        static readonly Address TimeoutManagerAddress;
-
         public ISendMessages MessageSender { get; set; }
 
         public IManageTimeouts TimeoutManager { get; set; }
 
-        static TimeoutMessageProcessor()
-        {
-            TimeoutManagerAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");            
-        }
-
-        public Address InputAddress { get { return TimeoutManagerAddress; } }
+        public Address InputAddress { get { return Features.TimeoutManager.InputAddress; } }
 
         public bool Disabled
         {
-            get { return !NServiceBus.TimeoutManager.Enabled; }
+            get { return !Feature.IsEnabled<TimeoutManager>(); }
         }
 
         public void Start()
@@ -129,5 +119,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 TimeoutManager.PushTimeout(data);
             }
         }
+
+        const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
+        const string TimeoutIdToDispatchHeader = "NServiceBus.Timeout.TimeoutIdToDispatch";
     }
 }

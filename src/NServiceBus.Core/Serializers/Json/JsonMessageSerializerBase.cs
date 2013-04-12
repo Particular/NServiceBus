@@ -2,13 +2,11 @@ namespace NServiceBus.Serializers.Json
 {
     using System.Globalization;
     using System.IO;
-    using System.Reflection;
     using System.Runtime.Serialization.Formatters;
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using Raven.Abstractions.Logging;
     using Serialization;
     using System;
     using System.Collections.Generic;

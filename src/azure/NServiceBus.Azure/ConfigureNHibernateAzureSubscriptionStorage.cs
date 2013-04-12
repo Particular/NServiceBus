@@ -77,8 +77,6 @@ namespace NServiceBus
 
             config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
 
-            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
             return config;
 
         }        

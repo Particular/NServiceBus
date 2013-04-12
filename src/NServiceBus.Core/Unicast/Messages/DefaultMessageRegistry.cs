@@ -40,7 +40,11 @@
                 {
                     Logger.InfoFormat("Message type: {0} could not be determined by a Type.GetType, scanning known messages for a match", messageTypeString);
 
-                    messageType = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString).MessageType;
+                    var firstOrDefault = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
+                    if (firstOrDefault != null)
+                    {
+                        messageType = firstOrDefault.MessageType;
+                    }
                 }
 
                 if (messageType == null)

@@ -5,6 +5,7 @@ namespace NServiceBus
     using Logging;
     using Transports.Msmq;
     using Transports.Msmq.Config;
+    using Unicast.Publishing;
     using Unicast.Queuing.Installers;
     using Unicast.Transport;
 
@@ -40,6 +41,7 @@ Here is an example of what is required:
             config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 

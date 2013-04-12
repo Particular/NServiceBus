@@ -2,12 +2,9 @@ namespace NServiceBus
 {
     using System;
     using Config;
-    using Timeout;
     using Transports;
     using Unicast.Config;
     using Unicast.Publishing;
-    using Unicast.Queuing;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
@@ -40,9 +37,11 @@ namespace NServiceBus
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 
-            if ((unicastConfig != null) && (!String.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress)))
+            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.TimeoutManagerAddress))
+            {
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
-
+            }
+                
             return config.GetMasterNodeAddress().SubScope("Timeouts");
         }
 
@@ -56,30 +55,6 @@ namespace NServiceBus
             if (ConfigureUnicastBus.Instance != null)
                 if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
                     ConfigureUnicastBus.Instance.LoadMessageHandlers();
-        }
-    }
-
-    class EnsureDefaultSubscriptionManager : IWantToRunBeforeConfigurationIsFinalized
-    {
-
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IManageSubscriptions>())
-                Configure.Instance.Configurer.ConfigureComponent<MessageDrivenSubscriptionManager>(
-                    DependencyLifecycle.SingleInstance);
-
-        }
-    }
-
-
-    class EnsureDefaultPublisher : IWantToRunBeforeConfigurationIsFinalized
-    {
-
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
-                Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
         }
     }
 }

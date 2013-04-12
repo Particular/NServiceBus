@@ -144,14 +144,20 @@
                             messageProcessedOk = tryProcessMessage(transportMessage);
                         }
 
-                        if (!autoAck && messageProcessedOk)
+                        if (!autoAck)
                         {
-                            channel.BasicAck(message.DeliveryTag, false);
+                            if (messageProcessedOk)
+                                channel.BasicAck(message.DeliveryTag, false);
+                            else
+                                channel.BasicReject(message.DeliveryTag, true);
                         }
                     }
                     catch (Exception ex)
                     {
                         exception = ex;
+
+                        if (!autoAck)
+                            channel.BasicReject(message.DeliveryTag, true);
                     }
                     finally
                     {

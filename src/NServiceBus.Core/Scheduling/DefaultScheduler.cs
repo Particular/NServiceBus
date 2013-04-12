@@ -2,6 +2,7 @@ namespace NServiceBus.Scheduling
 {
     using System;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
@@ -42,12 +43,11 @@ namespace NServiceBus.Scheduling
         private static void ExecuteTask(ScheduledTask scheduledTask)
         {
             logger.InfoFormat("Start executing scheduled task {0}", scheduledTask.Name);
-            
             var sw = new Stopwatch();            
             sw.Start();
 
             Task.Factory
-                .StartNew(scheduledTask.Task, TaskCreationOptions.None)
+                .StartNew(scheduledTask.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
                 .ContinueWith(_ =>
                                   {
                                       sw.Stop();

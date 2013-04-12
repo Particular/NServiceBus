@@ -75,6 +75,7 @@
     <Compile Include="GatewayPersister\NHibernate\Config\GatewayMessageMap.cs" />
     <Compile Include="GatewayPersister\NHibernate\GatewayPersister.cs" />
     <Compile Include="GatewayPersister\NHibernate\Installer\Installer.cs" />
+    <Compile Include="Persistence\NHibernate\NHibernatePersistence.cs" />
     <Compile Include="Persistence\NHibernate\AddressUserType.cs" />
     <Compile Include="Persistence\NHibernate\ConfigureNHibernate.cs" />
     <Compile Include="Persistence\NHibernate\NHibernateSettingRetriever.cs" />

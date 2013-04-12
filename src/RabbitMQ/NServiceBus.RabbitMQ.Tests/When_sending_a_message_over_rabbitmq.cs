@@ -179,7 +179,7 @@
         {
             MakeSureQueueExists(TESTQUEUE);
 
-            sender.Send(message, Address.Parse("TestEndpoint@localhost"));
+            sender.Send(message, Address.Parse(TESTQUEUE));
         }
 
         BasicDeliverEventArgs Consume(string id)
