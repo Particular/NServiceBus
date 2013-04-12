@@ -376,7 +376,7 @@
 
         static IEnumerable<Type> GetMessageTypesThatRequireStartingTheSaga(Type sagaType)
         {
-            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(ISagaStartedBy<>));
+            return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>));
         }
 
         static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
