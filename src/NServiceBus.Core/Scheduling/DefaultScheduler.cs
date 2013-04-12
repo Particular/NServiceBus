@@ -2,8 +2,7 @@ namespace NServiceBus.Scheduling
 {
     using System;
     using System.Diagnostics;
-    using System.Threading;
-    using System.Threading.Tasks;
+
     using Logging;
 
     public class DefaultScheduler : IScheduler
@@ -46,13 +45,10 @@ namespace NServiceBus.Scheduling
             var sw = new Stopwatch();            
             sw.Start();
 
-            Task.Factory
-                .StartNew(scheduledTask.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
-                .ContinueWith(_ =>
-                                  {
-                                      sw.Stop();
-                                      logger.InfoFormat("Scheduled task {0} run for {1}", scheduledTask.Name, sw.Elapsed.ToString());
-                                  });
+            scheduledTask.Task();
+
+            sw.Stop();
+            logger.InfoFormat("Scheduled task {0} run for {1}", scheduledTask.Name, sw.Elapsed.ToString());
         }
 
         private void DeferTask(ScheduledTask task)
