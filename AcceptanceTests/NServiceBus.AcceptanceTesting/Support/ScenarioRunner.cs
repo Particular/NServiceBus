@@ -293,6 +293,8 @@ namespace NServiceBus.AcceptanceTesting.Support
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
 
 
+
+
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 

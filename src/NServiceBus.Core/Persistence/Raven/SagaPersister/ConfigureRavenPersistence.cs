@@ -18,6 +18,7 @@ namespace NServiceBus
     using Settings;
     using Timeout.Core;
     using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
     /// <summary>

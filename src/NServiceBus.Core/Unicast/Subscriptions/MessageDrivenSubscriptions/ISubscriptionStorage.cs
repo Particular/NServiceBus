@@ -1,4 +1,4 @@
-namespace NServiceBus.Unicast.Subscriptions
+namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
 

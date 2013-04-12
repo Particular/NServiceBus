@@ -486,8 +486,8 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\SubcriberSideFiltering\SubscriptionPredicatesEvaluator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptionManager.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\InMemorySubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\Storage\ISubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\Storage\MessageType.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\ISubscriptionStorage.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageType.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Config\SubscriptionsQueueCreator.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />

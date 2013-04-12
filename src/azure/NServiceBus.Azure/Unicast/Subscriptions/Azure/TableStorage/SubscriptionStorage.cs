@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Subscriptions.Azure.TableStorage
     using System.Collections.Generic;
     using System.Linq;
     using System.Transactions;
+    using MessageDrivenSubscriptions;
     using global::NHibernate.Criterion;
 
     /// <summary>

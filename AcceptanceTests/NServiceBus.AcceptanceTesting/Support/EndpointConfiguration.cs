@@ -14,7 +14,16 @@
 
         public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
 
-        public string EndpointName { get; set; }
+        public string EndpointName
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(CustomEndpointName))
+                    return CustomEndpointName;
+                return endpointName;
+            }
+            set { endpointName = value; }
+        }
 
         public Type BuilderType { get; set; }
 
@@ -22,6 +31,12 @@
 
         public Address AddressOfAuditQueue { get; set; }
 
-        public IDictionary<Type,object> UserDefinedConfigSections { get; private set; }
+        public IDictionary<Type, object> UserDefinedConfigSections { get; private set; }
+
+        public string CustomMachineName { get; set; }
+
+        public string CustomEndpointName { get; set; }
+
+        string endpointName;
     }
 }

@@ -8,6 +8,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     using NServiceBus.Settings;
     using NServiceBus.Transports.Msmq;
     using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
     /// <summary>
