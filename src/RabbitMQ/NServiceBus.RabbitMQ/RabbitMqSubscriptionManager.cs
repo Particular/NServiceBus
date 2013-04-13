@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
+    using Routing;
 
     public class RabbitMqSubscriptionManager : IManageSubscriptions
     {
@@ -8,27 +9,21 @@
 
         public string EndpointQueueName { get; set; }
 
-        public Func<Address,Type, string> ExchangeName { get; set; }
-
-        public RabbitMqRoutingKeyBuilder RoutingKeyBuilder { get; set; }
+        public IRoutingTopology RoutingTopology { get; set; }
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = RoutingKeyBuilder.GetRoutingKeyForBinding(eventType);
-
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
-                channel.QueueBind(EndpointQueueName, ExchangeName(publisherAddress,eventType), routingKey);
+                RoutingTopology.SetupSubscription(channel, eventType, EndpointQueueName);
             }
         }
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
-            var routingKey = RoutingKeyBuilder.GetRoutingKeyForBinding(eventType);
-
             using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
-                channel.QueueUnbind(EndpointQueueName, ExchangeName(publisherAddress, eventType), routingKey, null);
+                RoutingTopology.TeardownSubscription(channel, eventType, EndpointQueueName);
             }
         }
     }

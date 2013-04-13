@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
+    using Routing;
     using Settings;
 
     public class RabbitMqConventions
@@ -36,6 +37,7 @@
 
             SettingsHolder.SetDefault("Conventions.RabbitMq.ExchangeNameForPubSub", exchangeNameConvention);
             SettingsHolder.SetDefault("Conventions.RabbitMq.RoutingKeyForEvent", routingKeyConvention);
+            SettingsHolder.SetDefault("Conventions.RabbitMq.RoutingTopology", new DirectRoutingTopology{ExchangeNameConvention = exchangeNameConvention});
         }
     }
 }

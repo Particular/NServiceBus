@@ -2,6 +2,7 @@
 {
     using System;
     using NServiceBus.Unicast.Queuing.Installers;
+    using Routing;
     using Settings;
     using Unicast.Subscriptions;
     using RabbitMQ = NServiceBus.RabbitMQ;
@@ -16,7 +17,6 @@
         protected override void InternalConfigure(Configure config, string connectionString)
         {
             var parser = new RabbitMqConnectionStringParser(connectionString);
-
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
             {
 
@@ -37,11 +37,11 @@
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);
 
             config.Configurer.ConfigureComponent<RabbitMqMessagePublisher>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
+                .ConfigureProperty(p => p.RoutingTopology, SettingsHolder.Get<IRoutingTopology>("Conventions.RabbitMq.RoutingTopology"));
 
             config.Configurer.ConfigureComponent<RabbitMqSubscriptionManager>(DependencyLifecycle.SingleInstance)
              .ConfigureProperty(p => p.EndpointQueueName, Address.Local.Queue)
-             .ConfigureProperty(p => p.ExchangeName, SettingsHolder.Get<Func<Address, Type, string>>("Conventions.RabbitMq.ExchangeNameForPubSub"));
+             .ConfigureProperty(p => p.RoutingTopology, SettingsHolder.Get<IRoutingTopology>("Conventions.RabbitMq.RoutingTopology"));
 
             config.Configurer.ConfigureComponent<RabbitMqRoutingKeyBuilder>(DependencyLifecycle.SingleInstance)
             .ConfigureProperty(p => p.GenerateRoutingKey, SettingsHolder.Get<Func<Type, string>>("Conventions.RabbitMq.RoutingKeyForEvent"));

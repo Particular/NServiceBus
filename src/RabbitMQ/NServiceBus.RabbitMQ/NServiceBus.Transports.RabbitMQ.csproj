@@ -65,6 +65,9 @@
     <Compile Include="RabbitMqRoutingKeyBuilder.cs" />
     <Compile Include="RabbitMqTransportMessageExtensions.cs" />
     <Compile Include="RabbitMqUnitOfWork.cs" />
+    <Compile Include="Routing\DirectRoutingTopology.cs" />
+    <Compile Include="Routing\IRoutingTopology.cs" />
+    <Compile Include="Routing\ConventionalRoutingTopology.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
