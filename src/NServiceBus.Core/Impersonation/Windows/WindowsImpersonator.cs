@@ -3,9 +3,9 @@ namespace NServiceBus.Impersonation.Windows
     using System.Security.Principal;
 
     /// <summary>
-    /// Ímpersonates the client if needed
+    /// Impersonates the client if needed
     /// </summary>
-    public class WindowsImpersonator : IImpersonateClients
+    public class WindowsImpersonator : ExtractIncomingPrincipal
     {
         public IPrincipal GetPrincipal(TransportMessage message)
         {

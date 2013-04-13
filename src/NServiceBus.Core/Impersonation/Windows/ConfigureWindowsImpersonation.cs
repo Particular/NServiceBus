@@ -8,7 +8,7 @@ namespace NServiceBus.Impersonation.Windows
         public void Run()
         {
             //default to Windows impersonation if no other impersonation is configured
-            if (Configure.Instance.Configurer.HasComponent<IImpersonateClients>())
+            if (Configure.Instance.Configurer.HasComponent<ExtractIncomingPrincipal>())
                 return;
 
             Configure.Instance.Configurer.ConfigureComponent<WindowsIdentityEnricher>(DependencyLifecycle.SingleInstance);

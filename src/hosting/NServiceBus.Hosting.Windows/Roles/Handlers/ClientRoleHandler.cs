@@ -31,7 +31,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                             .DisableNotifications()
                             .DisableSecondLevelRetries()
                             .UnicastBus()
-                            .ImpersonateSender(false);
+                            .RunHandlersUnderIncomingPrincipal(false);
 
         }
     }

@@ -108,7 +108,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
-            FuncBuilder.Register<IImpersonateClients>(() => new WindowsImpersonator());
+            FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
 
             unicastBus = new UnicastBus
             {

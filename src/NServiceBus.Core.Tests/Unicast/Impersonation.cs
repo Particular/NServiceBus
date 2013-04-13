@@ -15,7 +15,7 @@
 
             RegisterMessageType<EventMessage>();
 
-            ConfigureImpersonation.ImpersonateSender(null, true);
+            ConfigureImpersonation.RunHandlersUnderIncomingPrincipal(null, true);
 
             RegisterMessageHandlerType<MyHandler>();
             receivedMessage.Headers[Headers.WindowsIdentityName] = "TestUser";

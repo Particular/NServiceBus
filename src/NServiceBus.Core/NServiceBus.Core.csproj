@@ -282,7 +282,7 @@
     </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
-    <Compile Include="Impersonation\IImpersonateClients.cs" />
+    <Compile Include="Impersonation\ExtractIncomingPrincipal.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsImpersonation.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
     <Compile Include="Impersonation\Windows\WindowsImpersonator.cs" />

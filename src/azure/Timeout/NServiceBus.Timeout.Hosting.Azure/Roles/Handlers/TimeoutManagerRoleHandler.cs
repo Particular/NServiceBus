@@ -7,8 +7,6 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
-    using Core;
-
     /// <summary>
     /// Handles configuration related to the timeout manager role
     /// </summary>
@@ -35,7 +33,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 .UseAzureTimeoutPersister()
                 .Sagas()
                 .UnicastBus()
-                    .ImpersonateSender(false);
+                    .RunHandlersUnderIncomingPrincipal(false);
         }
 
         public IConfigureThisEndpoint Config { get; set; }

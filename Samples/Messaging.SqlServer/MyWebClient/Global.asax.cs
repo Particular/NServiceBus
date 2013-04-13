@@ -19,7 +19,7 @@ namespace MyWebClient
                      .UseTransport<SqlServer>()
                      .PurgeOnStartup(true)
                      .UnicastBus()
-                     .ImpersonateSender(false)
+                     .RunHandlersUnderIncomingPrincipal(false)
                      .CreateBus()
                      .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>()
                                            .Install());
