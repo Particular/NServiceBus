@@ -3,14 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Routing;
 
     public class RabbitMqMessagePublisher : IPublishMessages
     {
+        public IRoutingTopology RoutingTopology { get; set; }
+
+
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
             var eventType = eventTypes.First();//we route on the first event for now
 
-            var routingKey = RoutingKeyBuilder.GetRoutingKeyForPublish(eventType);
 
 
             UnitOfWork.Add(channel =>
@@ -18,16 +21,12 @@
                     var properties = RabbitMqTransportMessageExtensions.FillRabbitMqProperties(message,
                                                                                                channel.CreateBasicProperties());
 
-                    channel.BasicPublish(ExchangeName(Address.Local, eventType), routingKey, true, false, properties, message.Body);
+                    RoutingTopology.Publish(channel, eventType, message, properties);
                 });
 
             //we don't know if there was a subscriber so we just return true
             return true;
         }
-
-        public RabbitMqRoutingKeyBuilder RoutingKeyBuilder { get; set; }
-
-        public Func<Address, Type, string> ExchangeName { get; set; }
 
         public RabbitMqUnitOfWork UnitOfWork { get; set; }
     }
