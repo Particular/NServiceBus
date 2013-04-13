@@ -10,7 +10,7 @@
     using NServiceBus.Saga;
 
     public class ProcessOrderSaga : Saga<OrderData>,
-                                    ISagaStartedBy<InventoryResponse>,
+                                    IAmStartedByMessages<InventoryResponse>,
                                     IHandleMessages<CancelOrder>,
                                     IHandleTimeouts<BuyersRemorseIsOver>
     {
