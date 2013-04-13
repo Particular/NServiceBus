@@ -72,7 +72,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
             catch (OperationCanceledException)
             {
-                Console.Out.WriteLine("Testrun aborted due to test failures");
+                Console.Out.WriteLine("Test run aborted due to test failures");
             }
 
             var failedRuns = results.Where(s => s.Result.Failed).ToList();
@@ -125,7 +125,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 Console.Out.WriteLine("Test failed: {0}", runResult.Exception);
             else
             {
-                Console.Out.WriteLine("Result: Successfull - Duration: {0}", runResult.TotalTime);
+                Console.Out.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
                 Console.Out.WriteLine("------------------------------------------------------");
 
             }

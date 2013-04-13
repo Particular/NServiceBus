@@ -59,10 +59,8 @@
 
                             foreach (var when in behaviour.Whens)
                             {
-                                var action = when.GetAction(scenarioContext);
-                                action(bus);
+                                when.ExecuteAction(scenarioContext, bus);
                             }
-                            
                         }
                     });
 
