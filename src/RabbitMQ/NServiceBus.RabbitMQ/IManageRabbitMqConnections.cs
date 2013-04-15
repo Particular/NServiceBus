@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
+    using EasyNetQ;
     using global::RabbitMQ.Client;
 
     public interface IManageRabbitMqConnections
     {
-        IConnection GetConnection(ConnectionPurpose purpose);
+        IPersistentConnection GetConnection(ConnectionPurpose purpose);
     }
 
     public enum ConnectionPurpose

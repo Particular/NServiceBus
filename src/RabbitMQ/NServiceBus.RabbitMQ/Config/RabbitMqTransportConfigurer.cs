@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
+    using EasyNetQ;
+    using EasyNetQ.ConnectionString;
     using NServiceBus.Unicast.Queuing.Installers;
     using Settings;
     using Unicast.Subscriptions;
@@ -19,11 +21,21 @@
 
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
             {
-
-                var connectionManager = new RabbitMqConnectionManager(parser.BuildConnectionFactory(), parser.BuildConnectionRetrySettings());
+                var connectionStringParser = new ConnectionStringParser();
+                var connectionConfiguration = connectionStringParser.Parse(connectionString);
+                config.Configurer.ConfigureComponent<IConnectionConfiguration>(() => connectionConfiguration, DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>(x => new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>(), DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent<IConnectionFactory>(x => new ConnectionFactoryWrapper(
+                                                                         x.Build<IConnectionConfiguration>(),
+                                                                         x.Build<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>()), DependencyLifecycle.InstancePerCall);
+                var connectionFactory = NServiceBus.Configure.Instance.Builder.Build < IConnectionFactory>();
+                
+//                var connectionManager = new RabbitMqConnectionManager(parser.BuildConnectionFactory(), parser.BuildConnectionRetrySettings());
+                var connectionManager = new RabbitMqConnectionManager(connectionFactory, parser.BuildConnectionRetrySettings());
 
                 config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);
             }
+
 
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)

@@ -1,20 +1,22 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using Config;
+    using EasyNetQ;
     using Logging;
     using global::RabbitMQ.Client;
 
     public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
     {
-        public RabbitMqConnectionManager(ConnectionFactory connectionFactory,ConnectionRetrySettings retrySettings)
+        public RabbitMqConnectionManager(IConnectionFactory connectionFactory,ConnectionRetrySettings retrySettings)
         {
             this.connectionFactory = connectionFactory;
             this.retrySettings = retrySettings;
         }
 
-        public IConnection GetConnection(ConnectionPurpose purpose)
+        public IPersistentConnection GetConnection(ConnectionPurpose purpose)
         {
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
 
@@ -23,11 +25,16 @@
                 if (connectionFailed)
                     throw connectionFailedReason;
 
-                return connection ?? (connection = TryCreateConnection());
+                if (!connections.ContainsKey(purpose)) {
+                    connections.Add(purpose, TryCreateConnection());
+                }
+
+                var connection = connections[purpose];
+                return connection;
             }
         }
 
-        IConnection TryCreateConnection()
+        PersistentConnection TryCreateConnection()
         {
             int retries = 0;
             Exception exception = null;
@@ -42,13 +49,10 @@
                         Logger.InfoFormat("Issuing retry attempt {0}", retries);
                     }
 
-                    
-                    var connection = connectionFactory.CreateConnection();
-
-                    connection.ConnectionShutdown += ConnectionOnConnectionShutdown;
+                    var connection = new PersistentConnection(connectionFactory, new EasyNetQLogger(Logger));
 
                     if(retries > 0)
-                        Logger.InfoFormat("Connection to {0} re-established",connectionFactory.HostName);
+                        Logger.InfoFormat("Connection to {0} re-established",connectionFactory.CurrentHost.Host);
 
                     return connection;
                 }
@@ -57,7 +61,7 @@
                     connectionFailedReason = ex;
                     retries++;
 
-                    Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.HostName, ex);
+                    Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.CurrentHost.Host, ex);
                 }
 
                 
@@ -70,17 +74,6 @@
 
             throw exception;
 
-        }
-
-        void ConnectionOnConnectionShutdown(IConnection currentConnection, ShutdownEventArgs reason)
-        {
-            Logger.WarnFormat("The connection the the RabbitMq broker was closed, reason: {0} , going to reconnect",reason);
-
-            lock (connectionFactory)
-            {
-                //setting the connection to null will cause the next call to try to create a new connection
-                connection = null;
-            }
         }
 
         public void Dispose()
@@ -99,20 +92,27 @@
             if (disposing)
             {
                 // Dispose managed resources.
+                if (connections == null)
+                {
+                    return;
+                }
+
+                foreach (var persistentConnection in connections) {
+                    var connection = persistentConnection.Value;
                 if (connection == null)
                 {
                     return;
                 }
 
-                connection.ConnectionShutdown -= ConnectionOnConnectionShutdown;
-
-                if (connection.IsOpen)
+                if (connection.IsConnected)
                 {
                     connection.Close();
                 }
 
                 connection.Dispose();
                 connection = null;
+                }
+
             }
 
             disposed = true;
@@ -123,9 +123,11 @@
             Dispose(false);
         }
 
-        readonly ConnectionFactory connectionFactory;
+        readonly IConnectionFactory connectionFactory;
+//        readonly ConnectionFactory connectionFactory;
         readonly ConnectionRetrySettings retrySettings;
-        IConnection connection;
+//        IConnection connection;
+        readonly IDictionary<ConnectionPurpose, PersistentConnection> connections = new Dictionary<ConnectionPurpose, PersistentConnection>();
         static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));
         bool connectionFailed;
         Exception connectionFailedReason;
