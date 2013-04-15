@@ -52,6 +52,26 @@
     <Compile Include="Config\RabbitMqConventionExtensions.cs" />
     <Compile Include="Config\RabbitMqConventions.cs" />
     <Compile Include="DefaultRoutingKeyConvention.cs" />
+    <Compile Include="EasyNetQLogger.cs" />
+    <Compile Include="EasyNetQ\ConnectionString\ConnectionStringGrammar.cs" />
+    <Compile Include="EasyNetQ\ConnectionString\IConnectionStringParser.cs" />
+    <Compile Include="EasyNetQ\DefaultClusterHostSelectionStrategy.cs" />
+    <Compile Include="EasyNetQ\EasyNetQException.cs" />
+    <Compile Include="EasyNetQ\IClusterHostSelectionStrategy.cs" />
+    <Compile Include="EasyNetQ\IConnectionConfiguration.cs" />
+    <Compile Include="EasyNetQ\IConnectionFactory.cs" />
+    <Compile Include="EasyNetQ\IEasyNetQLogger.cs" />
+    <Compile Include="EasyNetQ\PersistentConnection.cs" />
+    <Compile Include="EasyNetQ\Sprache\Failure.cs" />
+    <Compile Include="EasyNetQ\Sprache\IFailure.cs" />
+    <Compile Include="EasyNetQ\Sprache\Input.cs" />
+    <Compile Include="EasyNetQ\Sprache\IResultOfT.cs" />
+    <Compile Include="EasyNetQ\Sprache\ISuccess.cs" />
+    <Compile Include="EasyNetQ\Sprache\Parse.cs" />
+    <Compile Include="EasyNetQ\Sprache\ParseException.cs" />
+    <Compile Include="EasyNetQ\Sprache\ParserOfT.cs" />
+    <Compile Include="EasyNetQ\Sprache\ResultHelper.cs" />
+    <Compile Include="EasyNetQ\Sprache\Success.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringParser.cs" />
@@ -79,7 +99,10 @@
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="EasyNetQ\licence.txt" />
+    <Content Include="EasyNetQ\readme.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
