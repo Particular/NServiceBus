@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Transactions;
     using Config;
+    using EasyNetQ;
     using NServiceBus;
     using NUnit.Framework;
     using NServiceBus.Transports.RabbitMQ;
@@ -27,8 +28,7 @@
             if (exchangeName == "amq.topic")
                 return;
 
-            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
-            using (var channel = connection.CreateModel())
+            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 try
                 {
@@ -42,7 +42,7 @@
 
             }
 
-            using (var channel = connection.CreateModel())
+            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 try
                 {
@@ -61,7 +61,10 @@
         public void SetUp()
         {
             receivedMessages = new BlockingCollection<TransportMessage>();
-            connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
+            var config = new ConnectionConfiguration {Hosts = new[] {new HostConfiguration {Host = "localhost",Port=5672}}};
+            var selectionStrategy = new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>();
+            var connectionFactory = new ConnectionFactoryWrapper(config, selectionStrategy);
+            connectionManager = new RabbitMqConnectionManager(connectionFactory,new ConnectionRetrySettings());
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager,UsePublisherConfirms = true,MaxWaitTimeForConfirms = TimeSpan.FromSeconds(10) };
 
