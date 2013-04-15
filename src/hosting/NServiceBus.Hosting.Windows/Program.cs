@@ -117,6 +117,11 @@
                                                                        serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
                                                                    }
 
+                                                                   if (arguments.OtherArgs.Any())
+                                                                   {
+                                                                       serviceCommandLine.AddRange(arguments.OtherArgs);
+                                                                   }
+
                                                                    var commandLine = String.Join(" ", serviceCommandLine);
                                                                    x.SetServiceCommandLine(commandLine);
 
