@@ -25,12 +25,14 @@
                 if (connectionFailed)
                     throw connectionFailedReason;
 
-                if (!connections.ContainsKey(purpose)) {
-                    connections.Add(purpose, TryCreateConnection());
-                }
-
-                var connection = connections[purpose];
-                return connection;
+                return connection ?? (connection = TryCreateConnection());
+//                if (!connections.ContainsKey(purpose)) {
+//                    Logger.Info(string.Format("Opening up {0} connection",purpose));
+//                    connections.Add(purpose, TryCreateConnection());
+//                }
+//
+//                var connection = connections[purpose];
+//                return connection;
             }
         }
 
@@ -92,13 +94,6 @@
             if (disposing)
             {
                 // Dispose managed resources.
-                if (connections == null)
-                {
-                    return;
-                }
-
-                foreach (var persistentConnection in connections) {
-                    var connection = persistentConnection.Value;
                 if (connection == null)
                 {
                     return;
@@ -111,7 +106,27 @@
 
                 connection.Dispose();
                 connection = null;
-                }
+
+//                if (connections == null)
+//                {
+//                    return;
+//                }
+//
+//                foreach (var persistentConnection in connections) {
+//                    var connection = persistentConnection.Value;
+//                if (connection == null)
+//                {
+//                    return;
+//                }
+//
+//                if (connection.IsConnected)
+//                {
+//                    connection.Close();
+//                }
+//
+//                connection.Dispose();
+//                connection = null;
+//                }
 
             }
 
@@ -126,8 +141,8 @@
         readonly IConnectionFactory connectionFactory;
 //        readonly ConnectionFactory connectionFactory;
         readonly ConnectionRetrySettings retrySettings;
-//        IConnection connection;
-        readonly IDictionary<ConnectionPurpose, PersistentConnection> connections = new Dictionary<ConnectionPurpose, PersistentConnection>();
+        PersistentConnection connection;
+//        readonly IDictionary<ConnectionPurpose, PersistentConnection> connections = new Dictionary<ConnectionPurpose, PersistentConnection>();
         static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));
         bool connectionFailed;
         Exception connectionFailedReason;

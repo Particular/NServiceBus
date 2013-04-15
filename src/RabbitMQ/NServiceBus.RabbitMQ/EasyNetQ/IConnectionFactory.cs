@@ -61,9 +61,10 @@ namespace EasyNetQ
             return dictionary;
         }
 
-        public virtual IConnection CreateConnection()
-        {
-            return clusterHostSelectionStrategy.Current().ConnectionFactory.CreateConnection();
+        public virtual IConnection CreateConnection() {
+            var connectionFactoryInfo = clusterHostSelectionStrategy.Current();
+            var connectionFactory = connectionFactoryInfo.ConnectionFactory;
+            return connectionFactory.CreateConnection();
         }
 
         public virtual IHostConfiguration CurrentHost

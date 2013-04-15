@@ -50,6 +50,7 @@ namespace EasyNetQ
 
         // HACK: bringing EasyNetQ into NSB
         public void Close() {
+            connection.ConnectionShutdown -= OnConnectionShutdown;
             connection.Close();    
         }
 
