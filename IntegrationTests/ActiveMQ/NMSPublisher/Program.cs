@@ -73,13 +73,13 @@ namespace NMSPublisher
                             PublishEvent(session);
                             break;
                         case 's':
-                            StartSaga(session, "queue://mypublisher");
+                            StartSaga(session, "queue://Mypublisher");
                             break;
                         case 'n':
                             SendCommand(session, "queue://subscribernms", new MyRequest1());
                             break;
                         case 'c':
-                            SendCommand(session, "queue://subscriber1", new MyRequestNMS());
+                            SendCommand(session, "queue://Subscriber1", new MyRequestNMS());
                             break;
                     }
                 }

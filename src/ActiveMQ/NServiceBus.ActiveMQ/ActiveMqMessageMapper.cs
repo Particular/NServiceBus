@@ -5,18 +5,23 @@ namespace NServiceBus.Transports.ActiveMQ
     using Apache.NMS;
     using Apache.NMS.Util;
 
+    using NServiceBus.Serialization;
+
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {
         public const string ErrorCodeKey = "ErrorCode";
-        
+
+        readonly IMessageSerializer serializer;
+
         private readonly IMessageTypeInterpreter messageTypeInterpreter;
 
         private readonly IActiveMqMessageEncoderPipeline encoderPipeline;
 
         private readonly IActiveMqMessageDecoderPipeline decoderPipeline;
 
-        public ActiveMqMessageMapper(IMessageTypeInterpreter messageTypeInterpreter, IActiveMqMessageEncoderPipeline encoderPipeline, IActiveMqMessageDecoderPipeline decoderPipeline)
+        public ActiveMqMessageMapper(IMessageSerializer serializer, IMessageTypeInterpreter messageTypeInterpreter, IActiveMqMessageEncoderPipeline encoderPipeline, IActiveMqMessageDecoderPipeline decoderPipeline)
         {
+            this.serializer = serializer;
             this.messageTypeInterpreter = messageTypeInterpreter;
             this.encoderPipeline = encoderPipeline;
             this.decoderPipeline = decoderPipeline;
@@ -107,6 +112,11 @@ namespace NServiceBus.Transports.ActiveMQ
             if (!transportMessage.Headers.ContainsKey(Headers.NServiceBusVersion))
             {
                 transportMessage.Headers[Headers.NServiceBusVersion] = "4.0.0.0";
+            }
+
+            if (!transportMessage.Headers.ContainsKey(Headers.ContentType))
+            {
+                transportMessage.Headers[Headers.ContentType] = this.serializer.ContentType;
             }
 
             return transportMessage;

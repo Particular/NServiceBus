@@ -10,6 +10,7 @@
 
     using Moq;
 
+    using NServiceBus.Serialization;
     using NServiceBus.Transports.ActiveMQ;
 
     using NUnit.Framework;
@@ -25,15 +26,18 @@
 
         private Mock<IActiveMqMessageEncoderPipeline> encoderPipeline;
 
+        Mock<IMessageSerializer> serializer;
+
         [SetUp]
         public void SetUp()
         {
             this.session = new Mock<ISession>();
+            this.serializer = new Mock<IMessageSerializer>();
             this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
             this.encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
             this.decoderPipeline = new Mock<IActiveMqMessageDecoderPipeline>();
 
-            this.testee = new ActiveMqMessageMapper(this.messageTypeInterpreter.Object, this.encoderPipeline.Object, this.decoderPipeline.Object);
+            this.testee = new ActiveMqMessageMapper(this.serializer.Object, this.messageTypeInterpreter.Object, this.encoderPipeline.Object, this.decoderPipeline.Object);
         }
 
         [Test]
@@ -98,7 +102,7 @@
         }
 
         [Test]
-        public void CreateTransportMessage_IfNServiceBusVersioIsDefined_ShouldAssignNServiceBusVersion()
+        public void CreateTransportMessage_IfNServiceBusVersionIsDefined_ShouldAssignNServiceBusVersion()
         {
             const string Version = "2.0.0.0";
             var message = CreateTextMessage(string.Empty);
@@ -110,7 +114,7 @@
         }
 
         [Test]
-        public void CreateTransportMessage_IfNServiceBusVersioIsNotDefined_ShouldAssignDefaultNServiceBusVersion()
+        public void CreateTransportMessage_IfNServiceBusVersionIsNotDefined_ShouldAssignDefaultNServiceBusVersion()
         {
             const string Version = "4.0.0.0";
             var message = CreateTextMessage(string.Empty);
@@ -118,6 +122,29 @@
             var result = this.testee.CreateTransportMessage(message);
 
             result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfContentTypeIsDefined_ShouldAssignContentType()
+        {
+            var message = CreateTextMessage(string.Empty);
+            message.Properties[Headers.ContentType] = ContentTypes.Xml;
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.ContentType].Should().Be(ContentTypes.Xml);
+        }
+
+        [Test]
+        public void CreateTransportMessage_IfContentTypeIsNotDefined_ShouldAssignContentType()
+        {
+            this.serializer.Setup(s => s.ContentType).Returns(ContentTypes.Xml);
+
+            var message = CreateTextMessage(string.Empty);
+
+            var result = this.testee.CreateTransportMessage(message);
+
+            result.Headers[Headers.ContentType].Should().Be(ContentTypes.Xml);
         }
 
         [Test]
