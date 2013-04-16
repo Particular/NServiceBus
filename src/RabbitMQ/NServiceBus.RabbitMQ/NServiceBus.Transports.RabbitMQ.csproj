@@ -79,6 +79,7 @@
     <Compile Include="EasyNetQ\Sprache\ParserOfT.cs" />
     <Compile Include="EasyNetQ\Sprache\ResultHelper.cs" />
     <Compile Include="EasyNetQ\Sprache\Success.cs" />
+    <Compile Include="ConnectionConfigurationExtensions.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqConnectionStringParser.cs" />

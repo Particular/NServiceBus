@@ -234,6 +234,7 @@
 
         static RabbitMqConnectionManager SetupRabbitMqConnectionManager(string connectionString) {
             var config = new ConnectionStringParser().Parse(connectionString);
+            config.OverrideClientProperties();
             var selectionStrategy = new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>();
             var connectionFactory = new ConnectionFactoryWrapper(config, selectionStrategy);
             var newConnectionManager = new RabbitMqConnectionManager(connectionFactory, new ConnectionRetrySettings());

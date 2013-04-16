@@ -23,16 +23,17 @@
             {
                 var connectionStringParser = new ConnectionStringParser();
                 var connectionConfiguration = connectionStringParser.Parse(connectionString);
-                config.Configurer.ConfigureComponent<IConnectionConfiguration>(() => connectionConfiguration, DependencyLifecycle.SingleInstance);
-                config.Configurer.ConfigureComponent<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>(x => new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>(), DependencyLifecycle.InstancePerCall);
-                config.Configurer.ConfigureComponent<IConnectionFactory>(x => new ConnectionFactoryWrapper(
-                                                                         x.Build<IConnectionConfiguration>(),
-                                                                         x.Build<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>()), DependencyLifecycle.InstancePerCall);
+                connectionConfiguration.OverrideClientProperties();
+                config.Configurer.ConfigureComponent(() => connectionConfiguration, DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>(x => 
+                    new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>(), DependencyLifecycle.InstancePerCall);
+                config.Configurer.ConfigureComponent<IConnectionFactory>(x =>
+                    new ConnectionFactoryWrapper(
+                        x.Build<IConnectionConfiguration>(),
+                        x.Build<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>()), DependencyLifecycle.InstancePerCall);
                 var connectionFactory = NServiceBus.Configure.Instance.Builder.Build < IConnectionFactory>();
                 
-//                var connectionManager = new RabbitMqConnectionManager(parser.BuildConnectionFactory(), parser.BuildConnectionRetrySettings());
                 var connectionManager = new RabbitMqConnectionManager(connectionFactory, parser.BuildConnectionRetrySettings());
-
                 config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);
             }
 
@@ -66,8 +67,5 @@
 
             EndpointInputQueueCreator.Enabled = true;
         }
-
-
-
     }
 }
