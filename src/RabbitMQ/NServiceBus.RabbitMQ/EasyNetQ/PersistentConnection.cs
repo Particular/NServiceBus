@@ -5,14 +5,6 @@ using RabbitMQ.Client.Exceptions;
 
 namespace EasyNetQ
 {
-    public interface IPersistentConnection : IDisposable
-    {
-        event Action Connected;
-        event Action Disconnected;
-        bool IsConnected { get; }
-        IModel CreateModel();
-    }
-
     /// <summary>
     /// A connection that attempts to reconnect if the inner connection is closed.
     /// </summary>
