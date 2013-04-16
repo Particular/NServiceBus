@@ -33,14 +33,12 @@
 
         readonly string rabbitMqCtl = Path.Combine(RabbitMqDir, "rabbitmqctl.bat");
         readonly string rabbitMqServer = Path.Combine(RabbitMqDir, "rabbitmq-server.bat");
-        protected RabbitMqConnectionManager connectionManager;
-        protected RabbitMqDequeueStrategy dequeueStrategy;
+        RabbitMqConnectionManager connectionManager;
+        RabbitMqDequeueStrategy dequeueStrategy;
         protected int[] erlangProcessesRunningBeforeTheTest;
-        protected TransportMessage message;
         BlockingCollection<TransportMessage> receivedMessages;
-        protected TransportMessage roundTrippedMessage;
-        protected RabbitMqMessageSender sender;
-        protected RabbitMqUnitOfWork unitOfWork;
+        RabbitMqMessageSender sender;
+        RabbitMqUnitOfWork unitOfWork;
 
         protected class RabbitNode
         {
@@ -79,7 +77,7 @@
         }
 
         static void InvokeExternalProgram(string program, string args, Dictionary<string,string> customEnvVars = null) {
-            ProcessStartInfo startInfo = new ProcessStartInfo {UseShellExecute = false, RedirectStandardOutput = true, FileName = program, Arguments = args};
+            ProcessStartInfo startInfo = new ProcessStartInfo {UseShellExecute = false, RedirectStandardOutput = true, FileName = program, Arguments = args,CreateNoWindow = true,WindowStyle = ProcessWindowStyle.Hidden};
             var environmentVariables = startInfo.EnvironmentVariables;
 
             if (customEnvVars != null) {
@@ -112,6 +110,7 @@
             StartUpRabbitNodes();
             ClusterRabbitNodes();
             SetHAPolicy();
+            Logger.Fatal("RabbitMQ cluster setup complete");
         }
 
         [TestFixtureTearDown]
@@ -128,14 +127,14 @@
         }
 
         void ClusterRabbitNodes() {
-            ClusterRabbitNode(RabbitNodes[2], RabbitNodes[1]);
-            ClusterRabbitNode(RabbitNodes[3], RabbitNodes[1]);
+            ClusterRabbitNode(2, 1);
+            ClusterRabbitNode(3, 1);
         }
 
         void ResetCluster() {
-            InvokeRabbitMqCtl(RabbitNodes[1], "start_app");
-            ClusterRabbitNode(RabbitNodes[2], RabbitNodes[1], withReset: true);
-            ClusterRabbitNode(RabbitNodes[3], RabbitNodes[1], withReset: true);
+            StartNode(1);
+            ClusterRabbitNode(2, 1, withReset: true);
+            ClusterRabbitNode(3, 1, withReset: true);
         }
 
         void SetHAPolicy() {
@@ -153,7 +152,9 @@
             }
         }
 
-        void ClusterRabbitNode(RabbitNode node, RabbitNode clusterToNode, bool withReset = false) {
+        void ClusterRabbitNode(int fromNodeNumber, int toNodeNumber, bool withReset = false) {
+            var node = RabbitNodes[fromNodeNumber];
+            var clusterToNode = RabbitNodes[toNodeNumber];
             InvokeRabbitMqCtl(node, "stop_app");
             if (withReset) {
                 InvokeRabbitMqCtl(node, "reset");
@@ -163,10 +164,15 @@
         }
 
         protected TransportMessage SendAndReceiveAMessage() {
+            TransportMessage message; 
+            return SendAndReceiveAMessage(out message);
+        }
+
+        protected TransportMessage SendAndReceiveAMessage(out TransportMessage sentMessage) {
             Logger.Info("Sending a message");
-            roundTrippedMessage = null;
-            message = new TransportMessage();
+            var message = new TransportMessage();
             sender.Send(message, Address.Parse(QueueName));
+            sentMessage = message;
             var receivedMessage = WaitForMessage();
             return receivedMessage;
         }
@@ -177,7 +183,7 @@
         }
 
         static ColoredConsoleTarget GetConsoleLoggingTarget() {
-            return new ColoredConsoleTarget {Layout = "${longdate:universalTime=true} | ${logger:shortname=true:padding=-50} | ${message} | ${exception:format=tostring}"};
+            return new ColoredConsoleTarget {Layout = "${longdate:universalTime=true} | ${logger:shortname=true} | ${message} | ${exception:format=tostring}"};
         }
 
         static NLogViewerTarget GetNLogViewerLoggingTarget() {
@@ -252,6 +258,16 @@
             string connectionString = string.Concat("host=" ,string.Join(",", hosts));
             Logger.Info("Connection string is: '{0}'", connectionString);
             return connectionString;
+        }
+
+        protected void StopNode(int nodeNumber) {
+            Logger.Warn("Stopping node {0}",nodeNumber);
+            InvokeRabbitMqCtl(RabbitNodes[nodeNumber], "stop_app");
+        }
+
+        protected void StartNode(int nodeNumber) {
+            Logger.Info("Starting node {0}",nodeNumber);
+            InvokeRabbitMqCtl(RabbitNodes[nodeNumber], "start_app");
         }
     }
 }
