@@ -41,7 +41,10 @@ function Replace(
     Set-Content $filename
 }
 
-$script:baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
+$a = New-Object -ComObject Scripting.FileSystemObject
+$f = $a.GetFolder((Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)))
+$script:baseDir = $f.ShortPath
+
 cd $script:baseDir
 cd ..\..\..\Samples
 Sync -transport "RabbitMQ" -connectionString "host=localhost"
