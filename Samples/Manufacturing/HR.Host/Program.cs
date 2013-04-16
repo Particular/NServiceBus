@@ -17,7 +17,7 @@ namespace HR.Host
                     .PurgeOnStartup(false)
                     .InMemorySubscriptionStorage()
                 .UnicastBus()
-                    .ImpersonateSender(false)
+                    .RunHandlersUnderIncomingPrincipal(false)
                     .LoadMessageHandlers()
                 .CreateBus()
                 .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());

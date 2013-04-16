@@ -1,7 +1,4 @@
-using Microsoft.WindowsAzure.ServiceRuntime;
-using NServiceBus.Config;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Serialization;
 using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
@@ -25,7 +22,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
             return instance
                 .Sagas()
                 .UnicastBus()
-                    .ImpersonateSender(false);
+                    .RunHandlersUnderIncomingPrincipal(false);
         }
 
 

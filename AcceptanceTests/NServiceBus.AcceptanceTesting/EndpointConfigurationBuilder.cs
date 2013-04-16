@@ -19,6 +19,20 @@
             return this;
         }
 
+        public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
+        {
+            configuration.CustomMachineName = customMachineName;
+
+            return this;
+        }
+
+        public EndpointConfigurationBuilder CustomEndpointName(string customEndpointName)
+        {
+            configuration.CustomEndpointName = customEndpointName;
+
+            return this;
+        }
+        
 
         public EndpointConfigurationBuilder AppConfig(string path)
         {
@@ -111,5 +125,6 @@
             
             return this;
         }
+
     }
 }

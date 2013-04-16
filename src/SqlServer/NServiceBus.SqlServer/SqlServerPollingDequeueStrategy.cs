@@ -21,7 +21,7 @@
     public class SqlServerPollingDequeueStrategy : IDequeueMessages
     {
         private const string SqlReceive =
-            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST) ORDER BY TimeStamp ASC) 
+            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY TimeStamp ASC) 
 			DELETE FROM message 
 			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
 			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
@@ -166,8 +166,7 @@
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                Exception exception = null;
-                TransportMessage message = null;
+                var result = new ReceiveResult();
 
                 try
                 {
@@ -175,44 +174,58 @@
                     {
                         if (settings.DontUseDistributedTransactions)
                         {
-                            message = TryReceiveWithNativeTransaction();
+                            result = TryReceiveWithNativeTransaction();
                         }
                         else
                         {
-                            message = TryReceiveWithDTCTransaction();
+                            result = TryReceiveWithDTCTransaction();
                         }
                     }
                     else
                     {
-                        message = TryReceiveWithNoTransaction();
+                        result = TryReceiveWithNoTransaction();
                     }
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
+                    result.Exception = ex;
                 }
                 finally
                 {
-                    endProcessMessage(message != null ? message.Id : null, exception);
+                    endProcessMessage(result.Message != null ? result.Message.Id : null, result.Exception);
                 }
 
-                backOff.Wait(() => message == null);
+                backOff.Wait(() => result.Message == null);
             }
         }
 
-        TransportMessage TryReceiveWithNoTransaction()
+        ReceiveResult TryReceiveWithNoTransaction()
         {
+            var result = new ReceiveResult();
+         
             var message = Receive();
 
-            if (message != null)
+            if (message == null)
+                return result;
+
+            result.Message = message;
+            try
             {
-                tryProcessMessage(message);
+                tryProcessMessage(message);    
+
             }
-            return message;
+            catch (Exception ex)
+            {
+                result.Exception = ex;
+            }
+            
+            return result;
         }
 
-        TransportMessage TryReceiveWithDTCTransaction()
+        ReceiveResult TryReceiveWithDTCTransaction()
         {
+            var result = new ReceiveResult();
+             
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
             {
                 var message = Receive();
@@ -220,21 +233,32 @@
                 if (message == null)
                 {
                     scope.Complete();
-                    return null;
+                    return result;
                 }
 
-                if (tryProcessMessage(message))
+                result.Message = message;
+
+                try
                 {
-                    scope.Complete();
+                    if (tryProcessMessage(message))
+                    {
+                        scope.Complete();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result.Exception = ex;
                 }
 
-                return message;
+                return result;
             }
            
         }
 
-        TransportMessage TryReceiveWithNativeTransaction()
+        ReceiveResult TryReceiveWithNativeTransaction()
         {
+            var result = new ReceiveResult();
+          
             using (var connection = new SqlConnection(ConnectionString))
             {
                 try
@@ -243,9 +267,7 @@
                 }
                 catch (Exception ex)
                 {
-                    circuitBreaker.Execute(
-                                    () =>
-                                    Configure.Instance.RaiseCriticalError("Failed to open a sql connection.", ex));
+                    circuitBreaker.Execute(() =>Configure.Instance.RaiseCriticalError("Failed to open a sql connection.", ex));
 
                     throw;
                 }
@@ -272,24 +294,36 @@
                     if (message == null)
                     {
                         transaction.Commit();
-                        return null;
+                        return result;
                     }
+                    
+                    result.Message = message;
 
-                    if (MessageSender != null)
+                   
+                    try
                     {
-                        MessageSender.SetTransaction(transaction);
-                    }
+                        if (MessageSender != null)
+                        {
+                            MessageSender.SetTransaction(transaction);
+                        }
+                        
+                        if (tryProcessMessage(message))
+                        {
+                            transaction.Commit();
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                        }
 
-                    if (tryProcessMessage(message))
-                    {
-                        transaction.Commit();
                     }
-                    else
+                    catch (Exception ex)
                     {
+                        result.Exception = ex;
                         transaction.Rollback();
                     }
 
-                    return message;
+                    return result;
                 }
             }
           
@@ -376,7 +410,7 @@
             return null;
         }
 
-        private IsolationLevel GetSqlIsolationLevel(System.Transactions.IsolationLevel isolationLevel)
+        IsolationLevel GetSqlIsolationLevel(System.Transactions.IsolationLevel isolationLevel)
         {
             switch (isolationLevel)
             {
@@ -397,6 +431,12 @@
             }
 
             return IsolationLevel.ReadCommitted;
+        }
+
+        class ReceiveResult
+        {
+            public Exception Exception { get; set; }
+            public TransportMessage Message { get; set; }
         }
     }
 }

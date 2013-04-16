@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Text;
     using Customization;
 
     [Serializable]
@@ -27,7 +28,7 @@
         public List<Action<Configure>> CustomConfig { get; set; }
     }
 
-   
+
     [Serializable]
     public class GivenDefinition<TContext> : IGivenDefinition where TContext : ScenarioContext
     {
@@ -36,20 +37,20 @@
             givenAction2 = action;
         }
 
-        public GivenDefinition(Action<IBus,TContext> action)
+        public GivenDefinition(Action<IBus, TContext> action)
         {
             givenAction = action;
         }
 
         public Action<IBus> GetAction(ScenarioContext context)
         {
-            if(givenAction2 != null)
+            if (givenAction2 != null)
                 return bus => givenAction2(bus);
 
-            return bus => givenAction(bus, (TContext) context);
+            return bus => givenAction(bus, (TContext)context);
         }
 
-        readonly Action<IBus,TContext> givenAction;
+        readonly Action<IBus, TContext> givenAction;
         readonly Action<IBus> givenAction2;
 
     }
@@ -69,28 +70,44 @@
             busAndContextAction = actionWithContext;
         }
 
-      
-        public Action<IBus> GetAction(ScenarioContext context)
+        public void ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = context as TContext;
 
-            if (!condition(c))
+            if (executed)
             {
-            
-                return bus => { Debug.Write("Condition is false"); };
+                return;
             }
 
-            if (busAction != null)
-                return busAction;
+            if (!condition(c))
+            {
+                return;
+            }
 
-            return bus => busAndContextAction(bus,c);
+            lock (lockObj)
+            {
+                if (executed)
+                {
+                    return;
+                }
+
+                if (busAction != null)
+                {
+                    busAction(bus);
+                    executed = true;
+                    return;
+                }
+
+                busAndContextAction(bus, c);
+                executed = true;
+            }
         }
 
         readonly Predicate<TContext> condition;
-
         readonly Action<IBus> busAction;
-
         readonly Action<IBus, TContext> busAndContextAction;
+        readonly object lockObj = new object();
+        bool executed;
     }
 
     public interface IGivenDefinition
@@ -99,9 +116,9 @@
     }
 
 
-   public interface IWhenDefinition
+    public interface IWhenDefinition
     {
-        Action<IBus> GetAction(ScenarioContext context);
+        void ExecuteAction(ScenarioContext context, IBus bus);
 
     }
 }

@@ -31,7 +31,6 @@ namespace TimeoutManager
                     .AzureMessageQueue().JsonSerializer()
                 .DefineEndpointName("TimeoutManager")
                 .UseAzureTimeoutPersister()
-                .ListenOnAzureStorageQueues()
                 .UnicastBus()
                     .LoadMessageHandlers()
                 .CreateBus()

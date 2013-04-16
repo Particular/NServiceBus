@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace NServiceBus
 {
     using IdGeneration;
+    using Support;
 
     /// <summary>
     /// An envelope used by NServiceBus to package messages for transmission.
@@ -23,7 +24,7 @@ namespace NServiceBus
         {
             Id = CombGuid.Generate().ToString();
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
-            Headers.Add(NServiceBus.Headers.OriginatingMachine, Environment.MachineName);
+            Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
         }
 

@@ -67,7 +67,6 @@ namespace MyServer
                .AzureMessageQueue()
                     .JsonSerializer()
                 .UseAzureTimeoutPersister()
-                .ListenOnAzureStorageQueues()
                .Sagas().AzureSagaPersister()
                .UnicastBus()
                     .LoadMessageHandlers()

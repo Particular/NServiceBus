@@ -14,8 +14,12 @@
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
     using Persistence.InMemory.SagaPersister;
+    using Persistence.InMemory.SubscriptionStorage;
+    using Persistence.Msmq.SubscriptionStorage;
     using Persistence.Raven.SagaPersister;
+    using Persistence.Raven.SubscriptionStorage;
     using SagaPersisters.NHibernate;
+    using Unicast.Subscriptions.NHibernate;
 
     public static class ConfigureExtensions
     {
@@ -100,13 +104,42 @@
             if (type == typeof (SagaPersister))
             { 
                 return config.UseNHibernateSagaPersister();
-
             }
                 
             throw new InvalidOperationException("Unknown persister:" + persister);
         }
 
 
+        public static Configure DefineSubscriptionStorage(this Configure config, string persister)
+        {
+            if (string.IsNullOrEmpty(persister))
+                return config.InMemorySubscriptionStorage();
+
+            var type = Type.GetType(persister);
+
+            if (type == typeof(InMemorySubscriptionStorage))
+                return config.InMemorySubscriptionStorage();
+
+            if (type == typeof(RavenSubscriptionStorage))
+            {
+                config.RavenPersistence(() => "url=http://localhost:8080");
+                return config.RavenSubscriptionStorage();
+
+            }
+
+            if (type == typeof(SubscriptionStorage))
+            {
+                return config.UseNHibernateSubscriptionPersister();
+            }
+
+
+            if (type == typeof(MsmqSubscriptionStorage))
+            {
+                return config.MsmqSubscriptionStorage();
+            }
+
+            throw new InvalidOperationException("Unknown persister:" + persister);
+        }
 
         public static Configure DefineBuilder(this Configure config, string builder)
         {

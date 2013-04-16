@@ -7,6 +7,7 @@ using NServiceBus.Unicast.Queuing.Azure;
 namespace NServiceBus
 {
     using Features;
+    using Unicast.Publishing;
 
     public static class ConfigureAzureMessageQueue
     {
@@ -33,6 +34,7 @@ namespace NServiceBus
                 .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<AzureMessageQueueSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<PollingDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
 
             if (configSection != null)
             {

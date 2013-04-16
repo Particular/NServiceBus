@@ -57,28 +57,4 @@ namespace NServiceBus
                     ConfigureUnicastBus.Instance.LoadMessageHandlers();
         }
     }
-
-    class EnsureDefaultSubscriptionManager : IWantToRunBeforeConfigurationIsFinalized
-    {
-
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IManageSubscriptions>())
-                Configure.Instance.Configurer.ConfigureComponent<MessageDrivenSubscriptionManager>(
-                    DependencyLifecycle.SingleInstance);
-
-        }
-    }
-
-
-    class EnsureDefaultPublisher : IWantToRunBeforeConfigurationIsFinalized
-    {
-
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IPublishMessages>())
-                Configure.Instance.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
-        }
-    }
 }

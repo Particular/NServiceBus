@@ -1,13 +1,12 @@
-﻿using System.Security.Permissions;
-
-namespace NServiceBus.AcceptanceTesting.Support
+﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.Remoting.Lifetime;
+    using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Installation.Environments;
+    using Installation.Environments;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -18,7 +17,8 @@ namespace NServiceBus.AcceptanceTesting.Support
         EndpointConfiguration configuration;
         ScenarioContext scenarioContext;
         EndpointBehaviour behaviour;
-        TimeSpan testExecutionTimeout;
+        Semaphore contextChanged = new Semaphore(0, int.MaxValue);
+        bool stopped = false;
 
         public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour, IDictionary<Type, string> routingTable, string endpointName)
         {
@@ -26,10 +26,14 @@ namespace NServiceBus.AcceptanceTesting.Support
             {
                 behaviour = endpointBehaviour;
                 scenarioContext = run.ScenarioContext;
-                testExecutionTimeout = run.TestExecutionTimeout;
                 configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
                 configuration.EndpointName = endpointName;
 
+                if (!string.IsNullOrEmpty(configuration.CustomMachineName))
+                {
+                    NServiceBus.Support.RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
+                }
+                
                 config = configuration.GetConfiguration(run, routingTable);
 
                 //apply custom config settings
@@ -47,6 +51,19 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                 Configure.Instance.ForInstallationOn<Windows>().Install();
 
+                Task.Factory.StartNew(() =>
+                    {
+                        while (!stopped)
+                        {
+                            contextChanged.WaitOne();
+
+                            foreach (var when in behaviour.Whens)
+                            {
+                                when.ExecuteAction(scenarioContext, bus);
+                            }
+                        }
+                    });
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -57,18 +74,9 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
         {
-
-            //HACK: kick off another thread so that we'll read the context after the actual value has changed
-            // we need to find a better way
-            Task.Factory.StartNew(() =>
-                {
-                    foreach (var when in behaviour.Whens)
-                    {
-                        var action = when.GetAction(scenarioContext);
-                        action(bus);
-                    }                    
-                });
+            contextChanged.Release();
         }
+
 
         public Result Start()
         {
@@ -80,10 +88,10 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                     action(bus);
                 }
-               
+
                 bus.Start();
 
-               
+
                 return Result.Success();
             }
             catch (Exception ex)
@@ -96,8 +104,13 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             try
             {
+                stopped = true;
+                
                 scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
+                
                 bus.Dispose();
+
+                
 
                 return Result.Success();
             }

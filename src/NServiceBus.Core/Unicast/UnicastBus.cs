@@ -1113,7 +1113,7 @@ namespace NServiceBus.Unicast
 
                 dispatchers.ForEach(dispatch =>
                     {
-                        Log.DebugFormat("Dispatching message {0} to handler{1}", messageType, handlerTypeToInvoke);
+                        Log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
                         try
                         {
                             dispatch();
@@ -1279,10 +1279,10 @@ namespace NServiceBus.Unicast
         {
             if (!ConfigureImpersonation.Impersonate)
                 return;
-            var impersonator = childBuilder.Build<IImpersonateClients>();
+            var impersonator = childBuilder.Build<ExtractIncomingPrincipal>();
 
             if (impersonator == null)
-                throw new InvalidOperationException("Impersonation is configured for this endpoint but no implementation of IImpersonateClients found. Please register one");
+                throw new InvalidOperationException("Run handler under incoming principal is configured for this endpoint but no implementation of ExtractIncomingPrincipal has been found. Please register one.");
 
             var principal = impersonator.GetPrincipal(message);
 

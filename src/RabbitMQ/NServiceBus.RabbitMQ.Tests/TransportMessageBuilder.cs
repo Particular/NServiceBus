@@ -5,7 +5,7 @@
 
     public class TransportMessageBuilder
     {
-        readonly TransportMessage message = new TransportMessage();
+        readonly TransportMessage message = new TransportMessage{Recoverable = true};
     
         public TransportMessageBuilder WithBody(byte[] body)
         {

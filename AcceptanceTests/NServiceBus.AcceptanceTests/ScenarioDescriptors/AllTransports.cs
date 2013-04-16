@@ -29,4 +29,13 @@
             Remove(Transports.SqlServer);
         }
     }
+
+    public class AllTransportsWithMessageDrivenPubSub : AllTransports
+    {
+        public AllTransportsWithMessageDrivenPubSub()
+        {
+            Remove(Transports.ActiveMQ);
+            Remove(Transports.RabbitMQ);
+        }
+    }
 }

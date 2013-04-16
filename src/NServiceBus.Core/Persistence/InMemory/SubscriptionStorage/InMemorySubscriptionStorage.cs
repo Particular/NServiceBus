@@ -4,6 +4,7 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
     using System.Collections.Generic;
     using System.Linq;
     using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
     /// In memory implementation of the subscription storage

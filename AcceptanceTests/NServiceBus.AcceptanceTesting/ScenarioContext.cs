@@ -51,9 +51,7 @@
                   
                     if (Target.ContextPropertyChanged != null && method.StartsWith("set"))
                     {
-                        //Debug.WriteLine("Change: " + method);
-
-                        Target.ContextPropertyChanged(Target, new EventArgs { });
+                        Target.ContextPropertyChanged(Target, EventArgs.Empty);
                     }
                 }
 

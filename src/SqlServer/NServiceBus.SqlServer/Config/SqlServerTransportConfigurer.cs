@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports.SQLServer.Config
 {
     using System;
+    using Unicast.Publishing;
     using Unicast.Queuing.Installers;
 
     /// <summary>
@@ -15,6 +16,9 @@ namespace NServiceBus.Transports.SQLServer.Config
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
+            //Until we refactor the whole address system
+            Address.IgnoreMachineName();
+
             if (String.IsNullOrEmpty(connectionString))
             {
                 throw new ArgumentException("Sql Transport connection string cannot be empty or null.");
@@ -28,7 +32,10 @@ namespace NServiceBus.Transports.SQLServer.Config
 
             config.Configurer.ConfigureComponent<SqlServerPollingDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString)
-                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested); ;
+                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+
+            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+
 
             EndpointInputQueueCreator.Enabled = true;
         }

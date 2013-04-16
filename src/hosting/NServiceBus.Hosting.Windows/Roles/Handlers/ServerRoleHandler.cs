@@ -19,7 +19,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
                 .Sagas()
                 .PurgeOnStartup(false)
                 .UnicastBus()
-                .ImpersonateSender(true);
+                .RunHandlersUnderIncomingPrincipal(true);
         }
     }
 }

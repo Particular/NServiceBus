@@ -31,8 +31,6 @@
             public bool Subscriber1GotTheEvent { get; set; }
 
             public bool Subscriber2GotTheEvent { get; set; }
-
-            public int NumberOfSubscribers { get; set; }
         }
 
         public class CentralizedPublisher : EndpointConfigurationBuilder

@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
     using System.Collections.Generic;
     using System.Linq;
     using Subscriptions;
+    using Subscriptions.MessageDrivenSubscriptions;
 
     public class FakeSubscriptionStorage : ISubscriptionStorage
     {

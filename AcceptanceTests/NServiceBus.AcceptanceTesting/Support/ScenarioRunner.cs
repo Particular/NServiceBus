@@ -72,7 +72,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
             catch (OperationCanceledException)
             {
-                Console.Out.WriteLine("Testrun aborted due to test failures");
+                Console.Out.WriteLine("Test run aborted due to test failures");
             }
 
             var failedRuns = results.Where(s => s.Result.Failed).ToList();
@@ -125,7 +125,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 Console.Out.WriteLine("Test failed: {0}", runResult.Exception);
             else
             {
-                Console.Out.WriteLine("Result: Successfull - Duration: {0}", runResult.TotalTime);
+                Console.Out.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
                 Console.Out.WriteLine("------------------------------------------------------");
 
             }
@@ -156,11 +156,8 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                 runTimer.Stop();
 
-                Parallel.ForEach(runners, runner =>
-                    {
-                        shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()).ToList()
-                               .ForEach(v => v.Verify(runDescriptor.ScenarioContext));
-                    });
+                Parallel.ForEach(runners, runner => shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()).ToList()
+                                                           .ForEach(v => v.Verify(runDescriptor.ScenarioContext)));
             }
             catch (Exception ex)
             {
@@ -261,7 +258,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 })).ToArray();
 
             if(!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
-                throw new Exception("Starting enpoints took longer than 2 minutes");
+                throw new Exception("Starting endpoints took longer than 2 minutes");
         }
 
         static void StopEndpoints(IEnumerable<EndpointRunner> endpoints)
@@ -283,7 +280,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 })).ToArray();
 
             if(!Task.WaitAll(tasks,TimeSpan.FromMinutes(2)))
-                throw new Exception("Stopping enpoints took longer than 2 minutes");
+                throw new Exception("Stopping endpoints took longer than 2 minutes");
         }
 
         static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehaviour> behaviorDescriptors)
@@ -294,6 +291,8 @@ namespace NServiceBus.AcceptanceTesting.Support
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
+
+
 
 
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);

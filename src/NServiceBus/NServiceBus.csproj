@@ -76,6 +76,7 @@
     <Compile Include="CompletionResult.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
+    <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="Headers.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="MessageMutator\IMessageMutator.cs" />
     <Compile Include="NServiceBusVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saga\ContainSagaData.cs" />
     <Compile Include="Saga\HasCompleted.cs" />
     <Compile Include="Saga\IConfigurable.cs" />
     <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />

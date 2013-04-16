@@ -12,6 +12,8 @@
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
+        
+        static Address CustomErrorQ = Address.Parse("MyErrorQ");
         [Test]
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {
@@ -22,16 +24,20 @@
                             var transport = (TransportReceiver) unicastBus.Transport;
                             var fm = (FaultManager) transport.FailureManager;
 
-                            context.IsDone = fm.ErrorQueue == Address.Parse("MyErrorQ");
+                            context.ErrorQueueUsedByTheEndpoint = fm.ErrorQueue;
+                            context.IsDone = true;
                         }))
                     .Done(c => c.IsDone)
                     .Repeat(r => r.For(Transports.Msmq))
+                    .Should(c=>Assert.AreEqual(CustomErrorQ,c.ErrorQueueUsedByTheEndpoint,"The error queue should have been overrided"))
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
             public bool IsDone{ get; set; }
+
+            public Address ErrorQueueUsedByTheEndpoint { get; set; }
         }
 
         public class ConfigOverrideEndpoint : EndpointConfigurationBuilder
@@ -48,11 +54,10 @@
 
                     return new MessageForwardingInCaseOfFaultConfig
                     {
-                        ErrorQueue = "MyErrorQ"
+                        ErrorQueue = CustomErrorQ.ToString()
                     };
                 }
             }
-
         }
     }
 

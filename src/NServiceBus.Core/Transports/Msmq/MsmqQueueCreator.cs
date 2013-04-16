@@ -5,6 +5,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Security.Principal;
     using Config;
     using Logging;
+    using Support;
 
     public class MsmqQueueCreator : ICreateQueues
     {
@@ -31,7 +32,7 @@ namespace NServiceBus.Transports.Msmq
 
             var q = GetFullPathWithoutPrefix(address);
 
-            var isRemote = address.Machine != Environment.MachineName.ToLower();
+            var isRemote = address.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
             if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
