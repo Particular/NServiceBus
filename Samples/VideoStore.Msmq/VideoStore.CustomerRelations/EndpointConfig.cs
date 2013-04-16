@@ -9,7 +9,7 @@
     {
         public void Start()
         {
-            Console.Out.WriteLine("The VideoStore.CustomerRelations endpoint is now started and subscribed to events from VideoStore.ProcessOrder");
+            Console.Out.WriteLine("The VideoStore.CustomerRelations endpoint is now started and subscribed to events from VideoStore.Sales");
         }
 
         public void Stop()
