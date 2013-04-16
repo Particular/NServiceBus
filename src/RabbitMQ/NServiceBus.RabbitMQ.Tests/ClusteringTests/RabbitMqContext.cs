@@ -7,6 +7,8 @@
     using EasyNetQ;
     using EasyNetQ.ConnectionString;
     using Logging.Loggers.NLogAdapter;
+    using NLog;
+    using NLog.Config;
     using NLog.Targets;
     using NServiceBus;
     using NUnit.Framework;
@@ -17,6 +19,8 @@
 
     public class RabbitMqContext
     {
+        protected static Logger Logger = LogManager.GetCurrentClassLogger();
+
         protected void MakeSureQueueExists(string queueName)
         {
             using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
@@ -59,6 +63,17 @@
             }
         }
 
+        protected void SetupTestLogger() {
+                        var log4View = new NLogViewerTarget {Address = "udp://127.0.0.1:12345", IncludeCallSite = true, AppInfo = "IntegrationTest"};
+            log4View.Parameters.Add(new NLogViewerParameterInfo {Layout = "${exception:format=tostring}", Name = "Exception"});
+            log4View.Parameters.Add(new NLogViewerParameterInfo {Layout = "${stacktrace}", Name = "StackTrace"});
+            var console = new ColoredConsoleTarget {Layout = "${longdate:universalTime=true} | ${logger:padding=-50} | ${message} | ${exception:format=tostring}"};
+            var config = LogManager.Configuration = new LoggingConfiguration();
+            config.AddTarget("log4view",log4View);
+            config.AddTarget("console",console);
+            config.LoggingRules.Add(new LoggingRule("*",LogLevel.Debug,log4View));
+            config.LoggingRules.Add(new LoggingRule("*",LogLevel.Debug,console));
+        }
         protected void OutputLogging() {
             var log4View = new NLogViewerTarget {Address = "udp://127.0.0.1:12345", IncludeCallSite = true, AppInfo = "IntegrationTest"};
             log4View.Parameters.Add(new NLogViewerParameterInfo {Layout = "${exception:format=tostring}", Name = "Exception"});
