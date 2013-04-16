@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClusteringTests\RabbitMqContext.cs" />
+    <Compile Include="ClusteringTests\TestContext.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster.cs" />
     <Compile Include="ConnectionStringParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -84,7 +84,9 @@
       <Name>NServiceBus.Transports.RabbitMQ</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="ClusteringTests\readme.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
