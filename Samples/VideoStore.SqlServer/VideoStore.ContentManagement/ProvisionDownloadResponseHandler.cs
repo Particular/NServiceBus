@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus;
-using VideoStore.Messages.Events;
-using VideoStore.Messages.RequestResponse;
-
-namespace VideoStore.ContentManagement
+﻿namespace VideoStore.ContentManagement
 {
+    using System;
+    using System.Collections.Generic;
+    using Messages.Events;
+    using Messages.RequestResponse;
+    using NServiceBus;
+
     public class ProvisionDownloadResponseHandler : IHandleMessages<ProvisionDownloadResponse>
     {
         public IBus Bus { get; set; }

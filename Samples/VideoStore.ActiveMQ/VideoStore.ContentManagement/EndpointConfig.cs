@@ -9,7 +9,7 @@ namespace VideoStore.ContentManagement
     {
         public void Start()
         {
-            Console.Out.WriteLine("The VideoStore.ContentManagement endpoint is now started and subscribed to OrderAccpted events from VideoStore.Sales");
+            Console.Out.WriteLine("The VideoStore.ContentManagement endpoint is now started and subscribed to OrderAccepted events from VideoStore.Sales");
         }
 
         public void Stop()

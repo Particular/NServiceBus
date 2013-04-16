@@ -51,10 +51,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DebugFlagMutator.cs">
+    <Compile Include="..\VideoStore.ContentManagement\DebugFlagMutator.cs">
       <Link>DebugFlagMutator.cs</Link>
     </Compile>
-    <Compile Include="..\UnobtrusiveMessageConventions.cs">
+    <Compile Include="..\VideoStore.ContentManagement\UnobtrusiveMessageConventions.cs">
       <Link>UnobtrusiveMessageConventions.cs</Link>
     </Compile>
     <Compile Include="EndpointConfig.cs">

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace VideoStore.Messages.Events
+﻿namespace VideoStore.Messages.Events
 {
+    using System;
+
     public class ClientBecamePreferred 
     {
         public string ClientId { get; set; }

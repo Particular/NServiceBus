@@ -17,7 +17,7 @@
                 Debugger.Break();
             }
 
-            Console.Out.WriteLine("Provision the videos and make the Url's available to the Content management for download ...[{0}] video(s) to provision", String.Join(", ", message.VideoIds));
+            Console.Out.WriteLine("Provision the videos and make the Urls available to the Content management for download ...[{0}] video(s) to provision", String.Join(", ", message.VideoIds));
 
             Bus.Reply(new ProvisionDownloadResponse
                 {

@@ -1,11 +1,10 @@
-﻿namespace VideoStore.ProcessOrder
+﻿namespace VideoStore.Sales
 {
     using System;
     using System.Diagnostics;
     using VideoStore.Common;
     using VideoStore.Messages.Commands;
     using VideoStore.Messages.Events;
-    using VideoStore.Messages.RequestResponse;
     using NServiceBus;
     using NServiceBus.Saga;
 

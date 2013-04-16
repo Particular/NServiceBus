@@ -10,12 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FC318F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Messages", "VideoStore.Messages\VideoStore.Messages.csproj", "{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VideoStore.Common", "VideoStore.Common", "{6043F8B6-4564-4031-9677-3C82AD897E37}"
-	ProjectSection(SolutionItems) = preProject
-		DebugFlagMutator.cs = DebugFlagMutator.cs
-		UnobtrusiveMessageConventions.cs = UnobtrusiveMessageConventions.cs
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.CustomerRelations", "VideoStore.CustomerRelations\VideoStore.CustomerRelations.csproj", "{CD522757-4C40-49C7-94C5-CD5DA956BAFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Operations", "VideoStore.Operations\VideoStore.Operations.csproj", "{0B353423-4655-4523-B4E0-F191DDDF0ABF}"

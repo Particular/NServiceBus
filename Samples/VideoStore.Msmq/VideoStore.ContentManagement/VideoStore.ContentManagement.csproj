@@ -59,12 +59,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\DebugFlagMutator.cs">
-      <Link>DebugFlagMutator.cs</Link>
-    </Compile>
-    <Compile Include="..\UnobtrusiveMessageConventions.cs">
-      <Link>UnobtrusiveMessageConventions.cs</Link>
-    </Compile>
+    <Compile Include="DebugFlagMutator.cs" />
     <Compile Include="EndpointConfig.cs">
     </Compile>
     <Compile Include="OrderAcceptedHandler.cs">
@@ -72,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
     </Compile>
     <Compile Include="ProvisionDownloadResponseHandler.cs" />
+    <Compile Include="UnobtrusiveMessageConventions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

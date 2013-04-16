@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VideoStore.Messages.Events;
-using NServiceBus;
-
-namespace VideoStore.CustomerRelations
+﻿namespace VideoStore.CustomerRelations
 {
+    using System;
+    using Messages.Events;
+    using NServiceBus;
+
     class SendLimitedTimeOffer : IHandleMessages<ClientBecamePreferred>
     {
         public void Handle(ClientBecamePreferred message)

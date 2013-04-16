@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VideoStore.Messages.Commands;
-using VideoStore.Messages.Events;
-using NServiceBus;
-
-namespace VideoStore.CustomerRelations
+﻿namespace VideoStore.CustomerRelations
 {
+    using System;
+    using Messages.Events;
+    using NServiceBus;
+
     class SendWelcomePacket : IHandleMessages<ClientBecamePreferred>
     {
         public IBus Bus { get; set; }
+
         public void Handle(ClientBecamePreferred message)
         {
             Console.WriteLine("Handler WhenCustomerIsPreferredSendWelcomeEmail invoked for CustomerId: {0}", message.ClientId);

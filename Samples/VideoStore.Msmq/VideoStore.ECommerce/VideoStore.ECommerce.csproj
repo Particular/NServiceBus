@@ -150,7 +150,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\UnobtrusiveMessageConventions.cs">
+    <Compile Include="..\VideoStore.ContentManagement\UnobtrusiveMessageConventions.cs">
       <Link>UnobtrusiveMessageConventions.cs</Link>
     </Compile>
     <Compile Include="Controllers\HomeController.cs">

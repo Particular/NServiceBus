@@ -1,11 +1,9 @@
-﻿using VideoStore.Messages.RequestResponse;
-
-namespace VideoStore.DownloadVideos
+﻿namespace VideoStore.ContentManagement
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
-    using Common;
+    using VideoStore.Common;
+    using VideoStore.Messages.RequestResponse;
     using VideoStore.Messages.Events;
     using NServiceBus;
 
@@ -17,7 +15,7 @@ namespace VideoStore.DownloadVideos
 
         public void Handle(OrderAccepted message)
         {
-            Console.WriteLine("Order # {0} has been accepted, Let's provision the download -- Sending ProvisionDownloadReqiest to the VideoStore.Operations endpoint", message.OrderNumber);
+            Console.WriteLine("Order # {0} has been accepted, Let's provision the download -- Sending ProvisionDownloadRequest to the VideoStore.Operations endpoint", message.OrderNumber);
             if (DebugFlagMutator.Debug)
             {
                 Debugger.Break();

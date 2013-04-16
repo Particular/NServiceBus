@@ -43,17 +43,22 @@
     </Compile>
     <Compile Include="Commands\SubmitOrder.cs">
     </Compile>
-    <Compile Include="Events\ClientBecamePreferred.cs"></Compile>
+    <Compile Include="Events\ClientBecamePreferred.cs">
+</Compile>
     <Compile Include="Events\OrderAccepted.cs">
     </Compile>
-    <Compile Include="Events\OrderCancelled.cs"></Compile>
+    <Compile Include="Events\OrderCancelled.cs">
+</Compile>
     <Compile Include="Events\DownloadIsReady.cs">
     </Compile>
-    <Compile Include="Events\OrderPlaced.cs"></Compile>
+    <Compile Include="Events\OrderPlaced.cs">
+</Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
     </Compile>
-    <Compile Include="RequestResponse\ProvisionDownloadRequest.cs"></Compile>
-    <Compile Include="RequestResponse\ProvisionDownloadResponse.cs"></Compile>
+    <Compile Include="RequestResponse\ProvisionDownloadRequest.cs">
+</Compile>
+    <Compile Include="RequestResponse\ProvisionDownloadResponse.cs">
+</Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets">
   </Import>

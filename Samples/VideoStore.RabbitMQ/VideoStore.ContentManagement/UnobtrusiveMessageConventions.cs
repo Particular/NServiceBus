@@ -1,6 +1,5 @@
 ﻿namespace VideoStore.Common
 {
-    using System;
     using NServiceBus;
 
     class UnobtrusiveMessageConventions : IWantToRunBeforeConfiguration
