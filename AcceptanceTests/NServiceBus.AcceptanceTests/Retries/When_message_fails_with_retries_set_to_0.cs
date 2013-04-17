@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Retries
 {
     using System;
+    using System.Collections.Generic;
     using Config;
     using Faults;
     using EndpointTemplates;
@@ -20,6 +21,8 @@
                     .Run();
 
             Assert.AreEqual(1, context.NumberOfTimesInvoked,"No FLR should be in use if MaxRetries is set to 0");
+            Assert.AreEqual(Environment.MachineName, context.HeadersOfTheFailedMessage[Headers.ProcessingMachine], "The receiver should attach the machine name as a header");
+            Assert.True(context.HeadersOfTheFailedMessage[Headers.ProcessingEndpoint].Contains("RetryEndpoint"), "The receiver should attach its endpoint name as a header");
         }
 
         public class Context : ScenarioContext
@@ -27,6 +30,8 @@
             public int NumberOfTimesInvoked { get; set; }
 
             public bool HandedOverToSlr { get; set; }
+
+            public Dictionary<string, string> HeadersOfTheFailedMessage { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -52,6 +57,7 @@
                 public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
                 {
                     Context.HandedOverToSlr = true;
+                    Context.HeadersOfTheFailedMessage = message.Headers;
                 }
 
                 public void Init(Address address)

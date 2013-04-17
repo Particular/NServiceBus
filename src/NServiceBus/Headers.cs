@@ -180,6 +180,16 @@
         public const string OriginatingMachine = "NServiceBus.OriginatingMachine";
 
         /// <summary>
+        /// Name of the endpoint where the given message was processed(success or failure)
+        /// </summary>
+        public const string ProcessingEndpoint = "NServiceBus.ProcessingEndpoint";
+
+        /// <summary>
+        /// Machine name of the endpoint where the given message was processed(success or failure)
+        /// </summary>
+        public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
+
+        /// <summary>
         /// The original reply to address for successfully processed messages
         /// </summary>
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
