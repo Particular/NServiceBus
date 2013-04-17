@@ -16,7 +16,7 @@
             this.retrySettings = retrySettings;
         }
 
-        public IPersistentConnection GetConnection(ConnectionPurpose purpose)
+        public IConnection GetConnection(ConnectionPurpose purpose)
         {
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
 

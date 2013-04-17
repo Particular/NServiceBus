@@ -5,10 +5,13 @@ using RabbitMQ.Client.Exceptions;
 
 namespace EasyNetQ
 {
+    using System.Collections;
+    using RabbitMQ.Client.Events;
+
     /// <summary>
     /// A connection that attempts to reconnect if the inner connection is closed.
     /// </summary>
-    public class PersistentConnection : IPersistentConnection
+    public class PersistentConnection : IPersistentConnection, IConnection
     {
         private const int connectAttemptIntervalMilliseconds = 5000;
 
@@ -40,10 +43,14 @@ namespace EasyNetQ
             get { return connection != null && connection.IsOpen && !disposed; }
         }
 
-        // HACK: bringing EasyNetQ into NSB
         public void Close() {
             connection.ConnectionShutdown -= OnConnectionShutdown;
             connection.Close();    
+        }
+
+        public void Close(int timeout) {
+            connection.ConnectionShutdown -= OnConnectionShutdown;
+            connection.Close(timeout);
         }
 
         IConnection connection;
@@ -137,6 +144,89 @@ namespace EasyNetQ
             if (disposed) return;
             disposed = true;
             if (connection != null) connection.Dispose();
+        }
+
+        public void Abort() {
+            connection.Abort();
+        }
+
+        public void Abort(ushort reasonCode, string reasonText) {
+            connection.Abort(reasonCode, reasonText);
+        }
+
+        public void Abort(int timeout) {
+            connection.Abort(timeout);
+        }
+
+        public void Abort(ushort reasonCode, string reasonText, int timeout) {
+            connection.Abort(reasonCode, reasonText, timeout);
+        }
+
+        public AmqpTcpEndpoint Endpoint {
+            get { return connection.Endpoint; }
+        }
+
+        public IProtocol Protocol {
+            get { return connection.Protocol; }
+        }
+
+        public ushort ChannelMax {
+            get { return connection.ChannelMax; }
+        }
+
+        public uint FrameMax {
+            get { return connection.FrameMax; }
+        }
+
+        public ushort Heartbeat {
+            get { return connection.Heartbeat; }
+        }
+
+        public IDictionary ClientProperties {
+            get { return connection.ClientProperties; }
+        }
+
+        public IDictionary ServerProperties {
+            get { return connection.ServerProperties; }
+        }
+
+        public AmqpTcpEndpoint[] KnownHosts {
+            get { return connection.KnownHosts; }
+        }
+
+        public ShutdownEventArgs CloseReason {
+            get { return connection.CloseReason; }
+        }
+
+        public bool IsOpen {
+            get { return connection.IsOpen; }
+        }
+
+        public bool AutoClose {
+            get { return connection.AutoClose; }
+            set { connection.AutoClose = value; }
+        }
+
+        public IList ShutdownReport {
+            get { return connection.ShutdownReport; }
+        }
+
+        public event ConnectionShutdownEventHandler ConnectionShutdown {
+            add { connection.ConnectionShutdown += value; }
+            remove { connection.ConnectionShutdown -= value; }
+        }
+
+        public event CallbackExceptionEventHandler CallbackException {
+            add { connection.CallbackException += value; }
+            remove { connection.CallbackException -= value; }
+        }
+
+        public void Close(ushort reasonCode, string reasonText, int timeout) {
+            connection.Close(reasonCode, reasonText, timeout);
+        }
+
+        public void Close(ushort reasonCode, string reasonText) {
+            connection.Close(reasonCode, reasonText);
         }
     }
 }
