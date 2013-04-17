@@ -45,7 +45,7 @@
             foreach (var subscriber in subscribers)
             {
                 //this is unicast so we give the message a unique ID
-                message.Id = CombGuid.Generate().ToString();
+                message.ChangeMessageId(CombGuid.Generate().ToString());
 
                 MessageSender.Send(message,subscriber);
             }

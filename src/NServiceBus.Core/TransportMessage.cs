@@ -48,6 +48,16 @@ namespace NServiceBus
         string id;
 
         /// <summary>
+        /// Use this method to change the stable ID of the given message.
+        /// </summary>
+        /// <param name="newId"></param>
+        public void ChangeMessageId(string newId)
+        {
+            id = newId;
+            Headers[NServiceBus.Headers.IdForCorrelation] = newId;
+        }
+
+        /// <summary>
         /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
         /// </summary>
         public string IdForCorrelation
