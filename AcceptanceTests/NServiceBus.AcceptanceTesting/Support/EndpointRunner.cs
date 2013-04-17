@@ -29,6 +29,11 @@
                 configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
                 configuration.EndpointName = endpointName;
 
+                if (!string.IsNullOrEmpty(configuration.CustomMachineName))
+                {
+                    NServiceBus.Support.RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
+                }
+                
                 config = configuration.GetConfiguration(run, routingTable);
 
                 //apply custom config settings
@@ -54,10 +59,8 @@
 
                             foreach (var when in behaviour.Whens)
                             {
-                                var action = when.GetAction(scenarioContext);
-                                action(bus);
+                                when.ExecuteAction(scenarioContext, bus);
                             }
-                            
                         }
                     });
 

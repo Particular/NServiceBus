@@ -70,48 +70,44 @@
             busAndContextAction = actionWithContext;
         }
 
-
-        public Action<IBus> GetAction(ScenarioContext context)
+        public void ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = context as TContext;
-            var type = context.GetType();
 
-            var builder = new StringBuilder();
-            builder.AppendLine("Evaluation condition" + condition + ", Context: ");
-
-            foreach (var p in type.GetProperties())
+            if (executed)
             {
-                builder.AppendLine(string.Format(p.Name + ":" + p.GetValue(context, null)));
+                return;
             }
 
-
-            Action<IBus> actionToPerform = bus => { };
-
-            var isConditionTrue = condition(c);
-
-            if (isConditionTrue)
+            if (!condition(c))
             {
-                if (busAction != null)
-                    actionToPerform = busAction;
-                else
-                    actionToPerform = bus => busAndContextAction(bus, c);
+                return;
             }
 
-            builder.AppendLine("Condition evaluated to: " + isConditionTrue);
-
-
-            return bus =>
+            lock (lockObj)
+            {
+                if (executed)
                 {
-                    Debug.WriteLine(builder.ToString());
-                    actionToPerform(bus);
-                };
+                    return;
+                }
+
+                if (busAction != null)
+                {
+                    busAction(bus);
+                    executed = true;
+                    return;
+                }
+
+                busAndContextAction(bus, c);
+                executed = true;
+            }
         }
 
         readonly Predicate<TContext> condition;
-
         readonly Action<IBus> busAction;
-
         readonly Action<IBus, TContext> busAndContextAction;
+        readonly object lockObj = new object();
+        bool executed;
     }
 
     public interface IGivenDefinition
@@ -122,7 +118,7 @@
 
     public interface IWhenDefinition
     {
-        Action<IBus> GetAction(ScenarioContext context);
+        void ExecuteAction(ScenarioContext context, IBus bus);
 
     }
 }

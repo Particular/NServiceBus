@@ -6,6 +6,7 @@
     using IdGeneration;
     using Queuing;
     using Subscriptions;
+    using Subscriptions.MessageDrivenSubscriptions;
     using Transports;
 
 

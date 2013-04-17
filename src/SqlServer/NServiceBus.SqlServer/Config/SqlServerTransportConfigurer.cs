@@ -16,6 +16,9 @@ namespace NServiceBus.Transports.SQLServer.Config
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
+            //Until we refactor the whole address system
+            Address.IgnoreMachineName();
+
             if (String.IsNullOrEmpty(connectionString))
             {
                 throw new ArgumentException("Sql Transport connection string cannot be empty or null.");

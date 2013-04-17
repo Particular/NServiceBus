@@ -15,7 +15,7 @@ top of things.
 ## Making Changes
 
 * Create a feature branch from where you want to base your work.
-  * This is usually the develop branch since we never do any work off our master branch. The master is always our lastest stable release
+  * This is usually the develop branch since we never do any work off our master branch. The master is always our latest stable release
   * Only target release branches if you are certain your fix must be on that
     branch.
   * To quickly create a feature branch based on develop; `git branch

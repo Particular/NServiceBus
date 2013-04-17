@@ -5,20 +5,20 @@
     [string]$connectionString
 )
 {
-    robocopy Messaging.Msmq Messaging.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config *.suo
-	Rename-Item Messaging.$transport\Messaging.Msmq.sln Messaging.$transport.sln
+    robocopy VideoStore.Msmq VideoStore.$transport /MIR /FFT /Z /XA:H /W:5 /xf packages.config *.suo
+	Rename-Item VideoStore.$transport\VideoStore.Msmq.sln VideoStore.$transport.sln
     
-    (dir -Path .\Messaging.$transport -Filter *.config -Recurse) | foreach {  
+    (dir -Path .\VideoStore.$transport -Filter *.config -Recurse) | foreach {  
         Replace $_.FullName "cacheSendConnection=true" $connectionString
     }
         
-    Replace "Messaging.$transport\MyWebClient\Global.asax.cs" "UseTransport<Msmq>" "UseTransport<$transport>"
+    Replace "VideoStore.$transport\VideoStore.ECommerce\Global.asax.cs" "UseTransport<Msmq>" "UseTransport<$transport>"
     
-    (dir -Path .\Messaging.$transport -Filter EndpointConfig.cs -Recurse) | foreach {  
+    (dir -Path .\VideoStore.$transport -Filter EndpointConfig.cs -Recurse) | foreach {  
         Replace $_.FullName "UsingTransport<Msmq>" "UsingTransport<$transport>"
     }
     
-    (dir -Path .\Messaging.$transport -Filter *.csproj -Recurse) | foreach {  
+    (dir -Path .\VideoStore.$transport -Filter *.csproj -Recurse) | foreach {  
         ..\tools\scripts\SyncSamples\msxsl.exe $_.FullName ..\tools\scripts\SyncSamples\TransformProj.xslt -o $_.FullName fileName=$script:baseDir\$transport.xml
     
         Replace $_.FullName "xmlns="""""
@@ -41,7 +41,10 @@ function Replace(
     Set-Content $filename
 }
 
-$script:baseDir = Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)
+$a = New-Object -ComObject Scripting.FileSystemObject
+$f = $a.GetFolder((Split-Path (Resolve-Path $MyInvocation.MyCommand.Path)))
+$script:baseDir = $f.ShortPath
+
 cd $script:baseDir
 cd ..\..\..\Samples
 Sync -transport "RabbitMQ" -connectionString "host=localhost"

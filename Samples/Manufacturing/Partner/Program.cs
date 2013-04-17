@@ -21,7 +21,7 @@ namespace Partner
                 .UseTransport<Msmq>()
                     .PurgeOnStartup(false)
                 .UnicastBus()
-                    .ImpersonateSender(false)
+                    .RunHandlersUnderIncomingPrincipal(false)
                     .LoadMessageHandlers()
                 .CreateBus()
                 .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());

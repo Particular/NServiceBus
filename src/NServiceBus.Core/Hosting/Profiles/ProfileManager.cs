@@ -111,7 +111,7 @@ namespace NServiceBus.Hosting.Profiles
                 {
                     var p = type.GetGenericallyContainedType(typeof(IHandleProfile<>), typeof(IProfile));
                     if (p != null)
-                        activeHandlers.AddRange(from ap in activeProfiles where (p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
+                        activeHandlers.AddRange(from ap in activeProfiles where (type.IsClass && !type.IsAbstract && p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
                 }
 
             var profileHandlers = new List<IHandleProfile>();

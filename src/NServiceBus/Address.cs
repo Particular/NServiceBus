@@ -4,19 +4,14 @@ using System.Runtime.Serialization;
 
 namespace NServiceBus
 {
+    using Support;
+
     ///<summary>
     /// Abstraction for an address on the NServiceBus network.
     ///</summary>
     [Serializable]
     public class Address : ISerializable
     {
-        private static string defaultMachine = Environment.MachineName;
-        private static bool preventChanges;
-
-        readonly string queueLowerCased;
-        readonly string machineLowerCased;
-
-
         /// <summary>
         /// Undefined address.
         /// </summary>
@@ -26,7 +21,9 @@ namespace NServiceBus
         /// Self address.
         /// </summary>
         public static readonly Address Self = new Address("__self", "localhost");
+
         
+
         /// <summary>
         /// Get the address of this endpoint.
         /// </summary>
@@ -58,6 +55,14 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Instructed the address to not consider the machine name
+        /// </summary>
+        public static void IgnoreMachineName()
+        {
+            ignoreMachineName = true;
+        }
+
+        /// <summary>
         /// Parses a string and returns an Address.
         /// </summary>
         /// <param name="destination">The full address to parse.</param>
@@ -70,7 +75,7 @@ namespace NServiceBus
             }
 
             var arr = destination.Split('@');
-            
+
             var queue = arr[0];
             var machine = defaultMachine;
 
@@ -98,7 +103,7 @@ namespace NServiceBus
             Machine = machineName ?? defaultMachine;
             machineLowerCased = Machine.ToLower();
         }
-        
+
         /// <summary>
         /// Deserializes an Address.
         /// </summary>
@@ -155,6 +160,9 @@ namespace NServiceBus
         /// <returns></returns>
         public override string ToString()
         {
+            if (ignoreMachineName)
+                return Queue;
+
             return Queue + "@" + Machine;
         }
 
@@ -222,7 +230,20 @@ namespace NServiceBus
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return other.queueLowerCased.Equals(queueLowerCased) && other.machineLowerCased.Equals(machineLowerCased);
+
+            if (!ignoreMachineName && !other.machineLowerCased.Equals(machineLowerCased))
+                return false;
+
+            return other.queueLowerCased.Equals(queueLowerCased);
+
         }
+
+        static string defaultMachine = RuntimeEnvironment.MachineName;
+        static bool preventChanges;
+
+        readonly string queueLowerCased;
+        readonly string machineLowerCased;
+        static bool ignoreMachineName;
+
     }
 }

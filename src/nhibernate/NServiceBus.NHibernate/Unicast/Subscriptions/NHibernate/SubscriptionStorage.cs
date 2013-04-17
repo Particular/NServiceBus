@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
     using System.Linq;
     using System.Transactions;
     using Logging;
+    using MessageDrivenSubscriptions;
     using global::NHibernate.Criterion;
 
     /// <summary>

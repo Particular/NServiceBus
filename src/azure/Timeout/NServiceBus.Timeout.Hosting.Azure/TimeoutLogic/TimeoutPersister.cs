@@ -15,6 +15,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
     using Logging;
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.StorageClient;
+    using Support;
 
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
@@ -372,7 +373,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         private string GetUniqueEndpointName()
         {
-            var identifier = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Id : Environment.MachineName;
+            var identifier = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Id : RuntimeEnvironment.MachineName;
 
             return Configure.EndpointName + "_" + identifier;
         }

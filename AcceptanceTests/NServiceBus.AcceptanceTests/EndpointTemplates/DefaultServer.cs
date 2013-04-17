@@ -36,7 +36,7 @@
                 config.UseInMemoryTimeoutPersister();
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
-                config.InMemorySubscriptionStorage();
+                config.DefineSubscriptionStorage(settings.GetOrNull("SubscriptionStorage"));
 
             return config.UnicastBus();
         }

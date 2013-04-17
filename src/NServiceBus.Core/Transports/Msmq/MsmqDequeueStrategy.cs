@@ -10,6 +10,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Transactions;
     using CircuitBreakers;
     using Logging;
+    using Support;
     using Unicast.Transport;
     using Unicast.Transport.Transactional;
     using Utils;
@@ -48,11 +49,11 @@ namespace NServiceBus.Transports.Msmq
                 throw new ArgumentException("Input queue must be specified");
             }
 
-            if (!address.Machine.Equals(Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!address.Machine.Equals(RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(
                     string.Format("Input queue [{0}] must be on the same machine as this process [{1}].",
-                                  address, Environment.MachineName));
+                                  address, RuntimeEnvironment.MachineName));
             }
 
             transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };

@@ -47,10 +47,10 @@
 
             if (TryGetEndpointConfigurationTypeFromArguments(arguments, out type))
             {
-                return new EndpointType(type);
+                return new EndpointType(arguments,type);
             }
 
-            return GetEndpointConfigurationType();
+            return GetEndpointConfigurationType(arguments);
         }
 
         /// <summary>
@@ -60,16 +60,20 @@
         /// <exception cref="System.InvalidOperationException">No endpoint configuration found in scanned assemblies. </exception>
         public EndpointType GetEndpointConfigurationType()
         {
+            return GetEndpointConfigurationType(new HostArguments(new string[] {}));
+        }
+        public EndpointType GetEndpointConfigurationType(HostArguments arguments)
+        {
             Type type;
 
             if (TryGetEndpointConfigurationTypeFromConfiguration(out type))
             {
-                return new EndpointType(type);
+                return new EndpointType(arguments,type);
             }
 
             if (TryGetEndpointConfigurationTypeFromScannedAssemblies(out type))
             {
-                return new EndpointType(type);
+                return new EndpointType(arguments,type);
             }
 
             throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +

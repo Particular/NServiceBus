@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FC318FC3-ED0F-4130-BD33-E970AE78A56C}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Messages", "VideoStore.Messages\VideoStore.Messages.csproj", "{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.CustomerRelations", "VideoStore.CustomerRelations\VideoStore.CustomerRelations.csproj", "{CD522757-4C40-49C7-94C5-CD5DA956BAFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Operations", "VideoStore.Operations\VideoStore.Operations.csproj", "{0B353423-4655-4523-B4E0-F191DDDF0ABF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Sales", "VideoStore.Sales\VideoStore.Sales.csproj", "{C2D005B5-065F-4F81-BA1F-259F90E00AEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.ContentManagement", "VideoStore.ContentManagement\VideoStore.ContentManagement.csproj", "{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.ECommerce", "VideoStore.ECommerce\VideoStore.ECommerce.csproj", "{F295D85E-4447-44E4-A9CC-3E017CF2B0D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD522757-4C40-49C7-94C5-CD5DA956BAFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD522757-4C40-49C7-94C5-CD5DA956BAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD522757-4C40-49C7-94C5-CD5DA956BAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD522757-4C40-49C7-94C5-CD5DA956BAFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B353423-4655-4523-B4E0-F191DDDF0ABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B353423-4655-4523-B4E0-F191DDDF0ABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B353423-4655-4523-B4E0-F191DDDF0ABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B353423-4655-4523-B4E0-F191DDDF0ABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2D005B5-065F-4F81-BA1F-259F90E00AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2D005B5-065F-4F81-BA1F-259F90E00AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2D005B5-065F-4F81-BA1F-259F90E00AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2D005B5-065F-4F81-BA1F-259F90E00AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C90A7D6C-99BB-4736-B2E5-D6AEA04A8D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F295D85E-4447-44E4-A9CC-3E017CF2B0D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F295D85E-4447-44E4-A9CC-3E017CF2B0D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F295D85E-4447-44E4-A9CC-3E017CF2B0D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F295D85E-4447-44E4-A9CC-3E017CF2B0D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

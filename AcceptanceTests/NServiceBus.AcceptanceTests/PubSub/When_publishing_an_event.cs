@@ -6,7 +6,6 @@
     using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_publishing_an_event : NServiceBusAcceptanceTest
     {
@@ -14,8 +13,15 @@
         public void Should_be_delivered_to_allsubscribers()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b => 
-                        b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
+                    .WithEndpoint<Publisher>(b =>
+                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        {
+                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
+                                context.Subscriber1Subscribed = true;
+
+                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
+                                context.Subscriber2Subscribed = true;
+                        }))
                         .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent()))
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -43,22 +49,6 @@
                     .Run();
         }
 
-        static void EnableNotificationsOnSubscribe(Context context)
-        {
-            if (Feature.IsEnabled<MessageDrivenSubscriptions>())
-            {
-                Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                    (sender, args) =>
-                        {
-                            if (args.SubscriberReturnAddress.Queue.Contains("Subscriber1"))
-                                context.Subscriber1Subscribed = true;
-
-                            if (args.SubscriberReturnAddress.Queue.Contains("Subscriber2"))
-                                context.Subscriber2Subscribed = true;
-                    };
-            }
-        }
-
         public class Context : ScenarioContext
         {
             public bool Subscriber1GotTheEvent { get; set; }
@@ -69,8 +59,6 @@
             public bool Subscriber1Subscribed { get; set; }
 
             public bool Subscriber2Subscribed { get; set; }
-
-           
         }
 
         public class Publisher : EndpointConfigurationBuilder
