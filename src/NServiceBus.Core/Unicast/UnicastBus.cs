@@ -28,6 +28,7 @@ namespace NServiceBus.Unicast
     using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
+    using Support;
     using Transport;
     using Transports;
     using UnitOfWork;
@@ -359,9 +360,9 @@ namespace NServiceBus.Unicast
 
             if (Configure.SendOnlyMode)
                 throw new InvalidOperationException("It's not allowed for a sendonly endpoint to be a subscriber");
-     
+
             AssertHasLocalAddress();
-           
+
             var destination = GetAddressForMessageType(messageType);
             if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
@@ -391,9 +392,9 @@ namespace NServiceBus.Unicast
 
             if (Configure.SendOnlyMode)
                 throw new InvalidOperationException("It's not allowed for a sendonly endpoint to unsubscribe");
-            
+
             AssertHasLocalAddress();
-            
+
             var destination = GetAddressForMessageType(messageType);
 
             SubscriptionManager.Unsubscribe(messageType, destination);
@@ -713,7 +714,7 @@ namespace NServiceBus.Unicast
 
         public IBus Start()
         {
-            return Start(() => {});
+            return Start(() => { });
         }
 
         public IBus Start(Action startupAction)
@@ -793,7 +794,7 @@ namespace NServiceBus.Unicast
             var tasks = thingsToRunAtStartup.Select(toRun =>
                 {
                     var name = toRun.GetType().AssemblyQualifiedName;
-                    
+
                     var task = new Task(() =>
                         {
                             try
@@ -859,7 +860,7 @@ namespace NServiceBus.Unicast
 
         void PerformAutoSubscribe()
         {
-            if(AutoSubscriptionStrategy == null)
+            if (AutoSubscriptionStrategy == null)
                 return;
 
             AssertHasLocalAddress();
@@ -869,7 +870,7 @@ namespace NServiceBus.Unicast
             {
                 Subscribe(eventType);
 
-                Log.DebugFormat("Autosubscribed to event {0}",eventType);
+                Log.DebugFormat("Autosubscribed to event {0}", eventType);
             }
         }
 
@@ -1073,7 +1074,7 @@ namespace NServiceBus.Unicast
             {
 
                 var messageMetadata = MessageRegistry.GetMessageTypes(m);
-               
+
 
                 using (var stream = new MemoryStream(m.Body))
                 {
@@ -1320,6 +1321,8 @@ namespace NServiceBus.Unicast
         {
             _messageBeingHandled = e.Message;
 
+            AddProcessingInformationHeaders(_messageBeingHandled);
+
             modules = Builder.BuildAll<IMessageModule>().ToList();
 
             modules.ForEach(module =>
@@ -1330,6 +1333,13 @@ namespace NServiceBus.Unicast
 
             modules.Reverse();//make sure that the modules are called in reverse order when processing ends
         }
+
+        void AddProcessingInformationHeaders(TransportMessage message)
+        {
+            message.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
+            message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+        }
+
 
         /// <summary>
         /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
