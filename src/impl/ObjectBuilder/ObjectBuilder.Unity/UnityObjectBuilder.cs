@@ -129,9 +129,21 @@ namespace NServiceBus.ObjectBuilder.Unity
            if (HasComponent(componentType))
                return;
 
-            container.RegisterType<T>(GetLifetimeManager(dependencyLifecycle),
-                                      new InjectionFactory(unityContainer => componentFactory()));
-            DefaultInstances.Add(componentType);
+           var interfaces = GetAllServiceTypesFor(componentType);
+
+           foreach (Type t in interfaces)
+           {
+               if (DefaultInstances.Contains(t))
+               {
+                   container.RegisterType(t, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle), 
+                       new InjectionFactory(unityContainer => componentFactory()));
+               }
+               else
+               {
+                   container.RegisterType(t, GetLifetimeManager(dependencyLifecycle), new InjectionFactory(unityContainer => componentFactory()));
+                   DefaultInstances.Add(t);
+               }
+           }
         }
 
         public void ConfigureProperty(Type concreteComponent, string property, object value)

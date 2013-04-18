@@ -176,6 +176,21 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        public void All_implemented_interfaces_should_be_registered_for_func()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
+
+                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+            },
+            typeof(SpringObjectBuilder));
+        }
+
+        [Test]
         public void Multiple_implementations_should_be_supported()
         {
             ForAllBuilders(builder =>
