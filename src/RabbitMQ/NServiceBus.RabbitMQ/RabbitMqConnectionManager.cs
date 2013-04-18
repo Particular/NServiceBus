@@ -10,10 +10,10 @@
 
     public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
     {
-        public RabbitMqConnectionManager(IConnectionFactory connectionFactory,ConnectionRetrySettings retrySettings)
+        public RabbitMqConnectionManager(IConnectionFactory connectionFactory,IConnectionConfiguration connectionConfiguration)
         {
             this.connectionFactory = connectionFactory;
-            this.retrySettings = retrySettings;
+            this.connectionConfiguration = connectionConfiguration;
         }
 
         public IConnection GetConnection(ConnectionPurpose purpose)
@@ -47,7 +47,7 @@
                 {
                     if (retries > 0)
                     {
-                        Thread.Sleep(retrySettings.DelayBetweenRetries);
+                        Thread.Sleep(connectionConfiguration.DelayBetweenRetries);
                         Logger.InfoFormat("Issuing retry attempt {0}", retries);
                     }
 
@@ -68,7 +68,7 @@
 
                 
             }
-            while (retries <= retrySettings.MaxRetries);
+            while (retries <= connectionConfiguration.MaxRetries);
             
             connectionFailed = true;
 
@@ -140,7 +140,7 @@
 
         readonly IConnectionFactory connectionFactory;
 //        readonly ConnectionFactory connectionFactory;
-        readonly ConnectionRetrySettings retrySettings;
+        readonly IConnectionConfiguration connectionConfiguration;
         PersistentConnection connection;
 //        readonly IDictionary<ConnectionPurpose, PersistentConnection> connections = new Dictionary<ConnectionPurpose, PersistentConnection>();
         static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));

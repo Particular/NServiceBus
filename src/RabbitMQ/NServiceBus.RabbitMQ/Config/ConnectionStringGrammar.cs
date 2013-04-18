@@ -1,18 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Sprache;
-
-namespace EasyNetQ.ConnectionString
+namespace NServiceBus.Transports.RabbitMQ.Config
 {
-    using UpdateConfiguration = Func<ConnectionConfiguration, ConnectionConfiguration>;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using EasyNetQ;
+    using Sprache;
 
     public static class ConnectionStringGrammar
     {
         public static Parser<string> Text = Parse.CharExcept(';').Many().Text();
         public static Parser<ushort> Number = Parse.Number.Select(ushort.Parse);
+        public static Parser<bool> Bool = Text.Select(bool.Parse);
+        public static Parser<TimeSpan> TimeSpanX = Text.Select(TimeSpan.Parse);
 
         public static Parser<IHostConfiguration> Host =
             from host in Parse.Char(c => c != ':' && c != ';' && c != ',', "host").Many().Text()
@@ -21,7 +22,7 @@ namespace EasyNetQ.ConnectionString
 
         public static Parser<IEnumerable<IHostConfiguration>> Hosts = Host.ListDelimitedBy(',');
 
-        public static Parser<UpdateConfiguration> Part = new List<Parser<UpdateConfiguration>>
+        public static Parser<Func<ConnectionConfiguration, ConnectionConfiguration>> Part = new List<Parser<Func<ConnectionConfiguration, ConnectionConfiguration>>>
         {
             // add new connection string parts here
             BuildKeyValueParser("host", Hosts, c => c.Hosts),
@@ -30,12 +31,16 @@ namespace EasyNetQ.ConnectionString
             BuildKeyValueParser("requestedHeartbeat", Number, c => c.RequestedHeartbeat),
             BuildKeyValueParser("username", Text, c => c.UserName),
             BuildKeyValueParser("password", Text, c => c.Password),
-            BuildKeyValueParser("prefetchcount", Number, c => c.PrefetchCount)
+            BuildKeyValueParser("prefetchcount", Number, c => c.PrefetchCount),
+            BuildKeyValueParser("maxRetries", Number, c => c.MaxRetries),
+            BuildKeyValueParser("usePublisherConfirms", Bool, c => c.UsePublisherConfirms),
+            BuildKeyValueParser("maxWaitTimeForConfirms", TimeSpanX, c => c.MaxWaitTimeForConfirms),
+            BuildKeyValueParser("retryDelay", TimeSpanX, c => c.DelayBetweenRetries)
         }.Aggregate((a, b) => a.Or(b));
 
-        public static Parser<IEnumerable<UpdateConfiguration>> ConnectionStringBuilder = Part.ListDelimitedBy(';');
+        public static Parser<IEnumerable<Func<ConnectionConfiguration, ConnectionConfiguration>>> ConnectionStringBuilder = Part.ListDelimitedBy(';');
 
-        public static Parser<UpdateConfiguration> BuildKeyValueParser<T>(
+        public static Parser<Func<ConnectionConfiguration, ConnectionConfiguration>> BuildKeyValueParser<T>(
             string keyName,
             Parser<T> valueParser,
             Expression<Func<ConnectionConfiguration, T>> getter)

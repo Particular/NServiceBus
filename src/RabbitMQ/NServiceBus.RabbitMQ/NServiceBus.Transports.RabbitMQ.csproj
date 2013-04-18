@@ -49,21 +49,21 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\ConnectionStringGrammar.cs" />
+    <Compile Include="Config\IConnectionStringParser.cs" />
     <Compile Include="Config\RabbitMQ.cs" />
     <Compile Include="Config\RabbitMqConventionExtensions.cs" />
     <Compile Include="Config\RabbitMqConventions.cs" />
     <Compile Include="DefaultRoutingKeyConvention.cs" />
     <Compile Include="EasyNetQLogger.cs" />
-    <Compile Include="EasyNetQ\ConnectionConfiguration.cs" />
+    <Compile Include="Config\ConnectionConfiguration.cs" />
     <Compile Include="EasyNetQ\ConnectionFactoryInfo.cs" />
     <Compile Include="EasyNetQ\ConnectionFactoryWrapper.cs" />
-    <Compile Include="EasyNetQ\ConnectionString\ConnectionStringGrammar.cs" />
-    <Compile Include="EasyNetQ\ConnectionString\IConnectionStringParser.cs" />
     <Compile Include="EasyNetQ\DefaultClusterHostSelectionStrategy.cs" />
     <Compile Include="EasyNetQ\EasyNetQException.cs" />
     <Compile Include="EasyNetQ\HostConfiguration.cs" />
     <Compile Include="EasyNetQ\IClusterHostSelectionStrategy.cs" />
-    <Compile Include="EasyNetQ\IConnectionConfiguration.cs" />
+    <Compile Include="Config\IConnectionConfiguration.cs" />
     <Compile Include="EasyNetQ\IConnectionFactory.cs" />
     <Compile Include="EasyNetQ\IEasyNetQLogger.cs" />
     <Compile Include="EasyNetQ\IHostConfiguration.cs" />
@@ -82,7 +82,6 @@
     <Compile Include="ConnectionConfigurationExtensions.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
-    <Compile Include="Config\RabbitMqConnectionStringParser.cs" />
     <Compile Include="Config\RabbitMqTransportConfigurer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqDequeueStrategy.cs" />

@@ -1,9 +1,10 @@
-﻿using System;
-using System.Linq;
-using Sprache;
-
-namespace EasyNetQ.ConnectionString
+﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
+    using System;
+    using System.Linq;
+    using EasyNetQ;
+    using Sprache;
+
     public interface IConnectionStringParser
     {
         IConnectionConfiguration Parse(string connectionString);
@@ -22,7 +23,7 @@ namespace EasyNetQ.ConnectionString
             }
             catch (ParseException parseException)
             {
-                throw new EasyNetQException("Connection String {0}", parseException.Message);
+                throw new Exception(string.Format("Connection String {0}", parseException.Message));
             }
         }
     }

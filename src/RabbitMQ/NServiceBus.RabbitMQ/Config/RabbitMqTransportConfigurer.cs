@@ -2,7 +2,6 @@
 {
     using System;
     using EasyNetQ;
-    using EasyNetQ.ConnectionString;
     using NServiceBus.Unicast.Queuing.Installers;
     using Settings;
     using Unicast.Subscriptions;
@@ -17,13 +16,13 @@
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
-            var parser = new RabbitMqConnectionStringParser(connectionString);
+//            var parser = new RabbitMqConnectionStringParser(connectionString);
 
+            var connectionStringParser = new ConnectionStringParser();
+            var connectionConfiguration = connectionStringParser.Parse(connectionString);
             if (!NServiceBus.Configure.Instance.Configurer.HasComponent<IManageRabbitMqConnections>())
             {
-                var connectionStringParser = new ConnectionStringParser();
-                var connectionConfiguration = connectionStringParser.Parse(connectionString);
-                connectionConfiguration.OverrideClientProperties();
+//                connectionConfiguration.OverrideClientProperties();
                 config.Configurer.ConfigureComponent(() => connectionConfiguration, DependencyLifecycle.SingleInstance);
                 config.Configurer.ConfigureComponent<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>(x => 
                     new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>(), DependencyLifecycle.InstancePerCall);
@@ -33,18 +32,18 @@
                         x.Build<IClusterHostSelectionStrategy<ConnectionFactoryInfo>>()), DependencyLifecycle.InstancePerCall);
                 var connectionFactory = NServiceBus.Configure.Instance.Builder.Build < IConnectionFactory>();
                 
-                var connectionManager = new RabbitMqConnectionManager(connectionFactory, parser.BuildConnectionRetrySettings());
+                var connectionManager = new RabbitMqConnectionManager(connectionFactory, connectionConfiguration);
                 config.Configurer.RegisterSingleton<IManageRabbitMqConnections>(connectionManager);
             }
 
 
             config.Configurer.ConfigureComponent<RabbitMqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested)
-                 .ConfigureProperty(p => p.PrefetchCount, parser.GetPrefetchCount());
+                 .ConfigureProperty(p => p.PrefetchCount, connectionConfiguration.PrefetchCount);
 
             config.Configurer.ConfigureComponent<RabbitMqUnitOfWork>(DependencyLifecycle.InstancePerCall)
-                  .ConfigureProperty(p => p.UsePublisherConfirms, parser.UsePublisherConfirms())
-                  .ConfigureProperty(p => p.MaxWaitTimeForConfirms, parser.GetMaxWaitTimeForConfirms());
+                  .ConfigureProperty(p => p.UsePublisherConfirms, connectionConfiguration.UsePublisherConfirms)
+                  .ConfigureProperty(p => p.MaxWaitTimeForConfirms, connectionConfiguration.MaxWaitTimeForConfirms);
 
 
             config.Configurer.ConfigureComponent<RabbitMqMessageSender>(DependencyLifecycle.InstancePerCall);

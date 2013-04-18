@@ -5,7 +5,7 @@
 
     public interface IManageRabbitMqConnections
     {
-        IPersistentConnection GetConnection(ConnectionPurpose purpose);
+        IConnection GetConnection(ConnectionPurpose purpose);
     }
 
     public enum ConnectionPurpose

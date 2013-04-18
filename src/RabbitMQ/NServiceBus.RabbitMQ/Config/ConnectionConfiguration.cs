@@ -5,35 +5,40 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using NServiceBus.Settings;
 
     public class ConnectionConfiguration : IConnectionConfiguration
     {
+        public const ushort DefaultHeartBeatInSeconds = 5;
+        public const ushort DefaultPrefetchCount = 1;
+        public const ushort DefaultPort = 5672;
+        public static TimeSpan DefaultWaitTimeForConfirms = TimeSpan.FromSeconds(30);
+
         public ushort Port { get; set; }
         public string VirtualHost { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
         public ushort RequestedHeartbeat { get; set; }
         public ushort PrefetchCount { get; set; }
+        public ushort MaxRetries { get; set; }
+        public bool UsePublisherConfirms { get; set; }
+        public TimeSpan MaxWaitTimeForConfirms { get; set; }
+        public TimeSpan DelayBetweenRetries { get; set; }
         public IDictionary<string, string> ClientProperties { get; private set; } 
-
         public IEnumerable<IHostConfiguration> Hosts { get; set; }
-
 
         public ConnectionConfiguration()
         {
             // set default values
-            Port = 5672;
+            Port = DefaultPort;
             VirtualHost = "/";
             UserName = "guest";
             Password = "guest";
-            RequestedHeartbeat = 0;
+            RequestedHeartbeat = DefaultHeartBeatInSeconds;
+            PrefetchCount = DefaultPrefetchCount;
+            UsePublisherConfirms = SettingsHolder.GetOrDefault<bool>("Endpoint.DurableMessages");
+            MaxWaitTimeForConfirms = DefaultWaitTimeForConfirms;
 
-            // prefetchCount determines how many messages will be allowed in the local in-memory queue
-            // setting to zero makes this infinite, but risks an out-of-memory exception.
-            // set to 50 based on this blog post:
-            // http://www.rabbitmq.com/blog/2012/04/25/rabbitmq-performance-measurements-part-2/
-            PrefetchCount = 50;
-            
             Hosts = new List<IHostConfiguration>();
             ClientProperties = new Dictionary<string, string>();
             SetDefaultClientProperties(ClientProperties);
@@ -47,13 +52,13 @@
             var applicationPath = Path.GetDirectoryName(applicationNameAndPath);
             var hostname = Environment.MachineName;
 
-            clientProperties.Add("client_api", "EasyNetQ");
-            clientProperties.Add("easynetq_version", version);
+            clientProperties.Add("client_api", "NServiceBus - EasyNetQ");
+            clientProperties.Add("nservicebus_version", version);
             clientProperties.Add("application", applicationName);
             clientProperties.Add("application_location", applicationPath);
             clientProperties.Add("machine_name", hostname);
             clientProperties.Add("user", UserName);
-            clientProperties.Add("connected", DateTime.Now.ToString("MM/dd/yy HH:mm:ss"));
+            clientProperties.Add("connected", DateTime.Now.ToString("G"));
 
         }
 
@@ -61,7 +66,7 @@
         {
             if (!Hosts.Any())
             {
-                throw new EasyNetQException("Invalid connection string. 'host' value must be supplied. e.g: \"host=myserver\"");
+                throw new Exception("Invalid connection string. 'host' value must be supplied. e.g: \"host=myserver\"");
             }
             foreach (var hostConfiguration in Hosts)
             {

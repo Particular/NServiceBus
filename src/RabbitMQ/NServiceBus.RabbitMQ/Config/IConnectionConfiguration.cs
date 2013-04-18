@@ -2,6 +2,8 @@
 
 namespace EasyNetQ
 {
+    using System;
+
     public interface IConnectionConfiguration
     {
         ushort Port { get; }
@@ -13,5 +15,9 @@ namespace EasyNetQ
         IDictionary<string, string> ClientProperties { get; } 
         
         IEnumerable<IHostConfiguration> Hosts { get; }
+        ushort MaxRetries { get; set; }
+        TimeSpan DelayBetweenRetries { get; set; }
+        bool UsePublisherConfirms { get; set; }
+        TimeSpan MaxWaitTimeForConfirms { get; set; }
     }
 }

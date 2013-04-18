@@ -9,7 +9,6 @@
     using System.Linq;
     using Config;
     using EasyNetQ;
-    using EasyNetQ.ConnectionString;
     using Logging.Loggers.NLogAdapter;
     using NLog;
     using NLog.Config;
@@ -103,9 +102,8 @@
 
         [TestFixtureSetUp]
         public void TestContextFixtureSetup() {
-            SetupTestDebugLogger();
+            SetupNLog(LogLevel.Trace);
             Logger.Trace("Running TestContextFixtureSetup");
-            SetupNServiceBusLogger(LogLevel.Debug);
             CaptureExistingErlangProcesses();
             StartUpRabbitNodes();
             ClusterRabbitNodes();
@@ -177,11 +175,6 @@
             return receivedMessage;
         }
 
-        protected void SetupTestDebugLogger() {
-            SimpleConfigurator.ConfigureForTargetLogging(GetNLogViewerLoggingTarget(),LogLevel.Trace);
-            SimpleConfigurator.ConfigureForTargetLogging(GetConsoleLoggingTarget(),LogLevel.Trace);
-        }
-
         static ColoredConsoleTarget GetConsoleLoggingTarget() {
             return new ColoredConsoleTarget {Layout = "${longdate:universalTime=true} | ${logger:shortname=true} | ${message} | ${exception:format=tostring}"};
         }
@@ -193,7 +186,7 @@
             return log4View;
         }
 
-        protected void SetupNServiceBusLogger(LogLevel logLevel) {
+        protected void SetupNLog(LogLevel logLevel) {
             var nLogViewerTarget = GetNLogViewerLoggingTarget();
             var consoleTarget = GetConsoleLoggingTarget();
             NLogConfigurator.Configure(new object[] {nLogViewerTarget, consoleTarget}, logLevel.ToString());
@@ -234,10 +227,10 @@
 
         static RabbitMqConnectionManager SetupRabbitMqConnectionManager(string connectionString) {
             var config = new ConnectionStringParser().Parse(connectionString);
-            config.OverrideClientProperties();
+//            config.OverrideClientProperties();
             var selectionStrategy = new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>();
             var connectionFactory = new ConnectionFactoryWrapper(config, selectionStrategy);
-            var newConnectionManager = new RabbitMqConnectionManager(connectionFactory, new ConnectionRetrySettings());
+            var newConnectionManager = new RabbitMqConnectionManager(connectionFactory, config);
             return newConnectionManager;
         }
 
