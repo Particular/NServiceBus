@@ -19,9 +19,10 @@
                     .Done(c=>c.WasCalled)
                     .Repeat(r =>
                             r
-                                .For<AllTransports>()
-                                .For<AllBuilders>()
-                                .For<AllSerializers>()
+                            .For(Transports.Msmq)
+                                //.For<AllTransports>()
+                                //.For<AllBuilders>()
+                                //.For<AllSerializers>()
                 )
                     .Should(c =>
                         {
@@ -29,6 +30,8 @@
                             Assert.AreEqual(1, c.TimesCalled, "The message handler should only be invoked once");
                             Assert.AreEqual(Environment.MachineName, c.ReceivedHeaders[Headers.OriginatingMachine], "The sender should attach the machine name as a header");
                             Assert.True(c.ReceivedHeaders[Headers.OriginatingEndpoint].Contains("Sender"), "The sender should attach its endpoint name as a header");
+                            Assert.AreEqual(Environment.MachineName, c.ReceivedHeaders[Headers.ProcessingMachine], "The receiver should attach the machine name as a header");
+                            Assert.True(c.ReceivedHeaders[Headers.ProcessingEndpoint].Contains("Receiver"), "The receiver should attach its endpoint name as a header");
                         })
                     .Run();
         }
