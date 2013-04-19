@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
-    using EasyNetQ;
     using global::RabbitMQ.Client;
 
     public interface IManageRabbitMqConnections

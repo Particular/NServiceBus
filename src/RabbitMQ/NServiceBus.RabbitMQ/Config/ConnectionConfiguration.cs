@@ -1,10 +1,13 @@
-﻿namespace EasyNetQ
+﻿using IHostConfiguration = EasyNetQ.IHostConfiguration;
+
+namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using EasyNetQ;
     using NServiceBus.Settings;
 
     public class ConnectionConfiguration : IConnectionConfiguration
@@ -13,6 +16,8 @@
         public const ushort DefaultPrefetchCount = 1;
         public const ushort DefaultPort = 5672;
         public static TimeSpan DefaultWaitTimeForConfirms = TimeSpan.FromSeconds(30);
+        IDictionary<string, string> clientProperties = new Dictionary<string, string>();
+        IEnumerable<IHostConfiguration> hosts= new List<IHostConfiguration>();
 
         public ushort Port { get; set; }
         public string VirtualHost { get; set; }
@@ -24,8 +29,15 @@
         public bool UsePublisherConfirms { get; set; }
         public TimeSpan MaxWaitTimeForConfirms { get; set; }
         public TimeSpan DelayBetweenRetries { get; set; }
-        public IDictionary<string, string> ClientProperties { get; private set; } 
-        public IEnumerable<IHostConfiguration> Hosts { get; set; }
+        public IDictionary<string, string> ClientProperties {
+            get { return clientProperties; }
+            private set { clientProperties = value; }
+        }
+
+        public IEnumerable<IHostConfiguration> Hosts {
+            get { return hosts; }
+            set { hosts = value; }
+        }
 
         public ConnectionConfiguration()
         {
@@ -39,12 +51,10 @@
             UsePublisherConfirms = SettingsHolder.GetOrDefault<bool>("Endpoint.DurableMessages");
             MaxWaitTimeForConfirms = DefaultWaitTimeForConfirms;
 
-            Hosts = new List<IHostConfiguration>();
-            ClientProperties = new Dictionary<string, string>();
-            SetDefaultClientProperties(ClientProperties);
+            SetDefaultClientProperties();
         }
 
-        private void SetDefaultClientProperties(IDictionary<string, string> clientProperties)
+        private void SetDefaultClientProperties()
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             var applicationNameAndPath = Environment.GetCommandLineArgs()[0];

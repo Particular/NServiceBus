@@ -49,7 +49,7 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConnectionStringGrammar.cs" />
+    <Compile Include="Config\ConnectionStringParser.cs" />
     <Compile Include="Config\IConnectionStringParser.cs" />
     <Compile Include="Config\RabbitMQ.cs" />
     <Compile Include="Config\RabbitMqConventionExtensions.cs" />
@@ -69,17 +69,6 @@
     <Compile Include="EasyNetQ\IHostConfiguration.cs" />
     <Compile Include="EasyNetQ\IPersistentConnection.cs" />
     <Compile Include="EasyNetQ\PersistentConnection.cs" />
-    <Compile Include="EasyNetQ\Sprache\Failure.cs" />
-    <Compile Include="EasyNetQ\Sprache\IFailure.cs" />
-    <Compile Include="EasyNetQ\Sprache\Input.cs" />
-    <Compile Include="EasyNetQ\Sprache\IResultOfT.cs" />
-    <Compile Include="EasyNetQ\Sprache\ISuccess.cs" />
-    <Compile Include="EasyNetQ\Sprache\Parse.cs" />
-    <Compile Include="EasyNetQ\Sprache\ParseException.cs" />
-    <Compile Include="EasyNetQ\Sprache\ParserOfT.cs" />
-    <Compile Include="EasyNetQ\Sprache\ResultHelper.cs" />
-    <Compile Include="EasyNetQ\Sprache\Success.cs" />
-    <Compile Include="ConnectionConfigurationExtensions.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
     <Compile Include="Config\RabbitMqTransportConfigurer.cs" />

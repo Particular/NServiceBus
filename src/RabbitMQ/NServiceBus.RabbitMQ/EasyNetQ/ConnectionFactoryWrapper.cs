@@ -4,6 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Transports.RabbitMQ.Config;
     using RabbitMQ.Client;
 
     public class ConnectionFactoryWrapper : IConnectionFactory

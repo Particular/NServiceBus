@@ -60,10 +60,8 @@
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_all_nodes_are_up.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_first_node_is_unavailable.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_nodes_start_going_down.cs" />
+    <Compile Include="ConnectionString\ConnectionConfigurationTests.cs" />
     <Compile Include="ConnectionString\ConnectionStringParserTests.cs" />
-    <Compile Include="ConnectionString\ConnectionStringGrammarTests.cs" />
-    <Compile Include="ConnectionString\ConnectionStringTests.cs" />
-    <Compile Include="ConnectionString\TestExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqContext.cs" />
     <Compile Include="TestCategory.cs" />

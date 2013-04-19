@@ -2,6 +2,8 @@
 
 namespace EasyNetQ
 {
+    using NServiceBus.Transports.RabbitMQ.Config;
+
     public interface IConnectionFactory
     {
         IConnection CreateConnection();
