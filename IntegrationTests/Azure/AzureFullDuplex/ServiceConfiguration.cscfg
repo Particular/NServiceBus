@@ -8,8 +8,8 @@
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
   </Role>
   <Role name="OrderService">
@@ -18,12 +18,12 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="orderserviceinputqueue" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Production NServiceBus.OnAzureTableStorage NServiceBus.WithAzureStorageQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

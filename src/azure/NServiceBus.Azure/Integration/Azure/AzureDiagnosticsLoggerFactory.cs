@@ -9,6 +9,10 @@ using NServiceBus.Logging;
 
 namespace NServiceBus.Integration.Azure
 {
+    using System.Security;
+    using Microsoft.WindowsAzure.Storage;
+    using CloudStorageAccount = Microsoft.WindowsAzure.CloudStorageAccount;
+
     /// <summary>
     /// 
     /// </summary>
@@ -43,36 +47,49 @@ namespace NServiceBus.Integration.Azure
 
         public void ConfigureAzureDiagnostics()
         {
-            if (Enable)
-            {
-                var exists = Trace.Listeners.Cast<TraceListener>().Count(tracelistener => tracelistener.GetType().IsAssignableFrom(typeof(DiagnosticMonitorTraceListener))) > 0;
-                if (!exists) Trace.Listeners.Add(new DiagnosticMonitorTraceListener());
-            }
-            else
-            {
-                var exists = Trace.Listeners.Cast<TraceListener>().Count(tracelistener => tracelistener.GetType().IsAssignableFrom(typeof(ConsoleTraceListener))) > 0;
-                if (!exists) Trace.Listeners.Add(new ConsoleTraceListener());
-            }
+            //if (Enable)
+            //{
+            //    var exists = Trace.Listeners.Cast<TraceListener>().Count(tracelistener => tracelistener.GetType().IsAssignableFrom(typeof(DiagnosticMonitorTraceListener))) > 0;
+            //    if (!exists)
+            //    {
+            //        try
+            //        {
+            //            var listener = new DiagnosticMonitorTraceListener();
+            //            Trace.Listeners.Add(listener);
+            //        }
+            //        catch (SecurityException)
+            //        {
+            //            return;
+            //        }
+                    
+            //    }
+            //}
+            //else
+            //{
+            //    var exists = Trace.Listeners.Cast<TraceListener>().Count(tracelistener => tracelistener.GetType().IsAssignableFrom(typeof(ConsoleTraceListener))) > 0;
+            //    if (!exists) 
+            Trace.Listeners.Add(new ConsoleTraceListener());
+            //}
 
-            if (!RoleEnvironment.IsAvailable || !InitializeDiagnostics) return;
+            //if (!RoleEnvironment.IsAvailable || !InitializeDiagnostics) return;
 
-            var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());
+            //var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());
 
-            var roleInstanceDiagnosticManager = cloudStorageAccount.CreateRoleInstanceDiagnosticManager(
-                RoleEnvironment.DeploymentId,
-                RoleEnvironment.CurrentRoleInstance.Role.Name,
-                RoleEnvironment.CurrentRoleInstance.Id);
+            //var roleInstanceDiagnosticManager = cloudStorageAccount.CreateRoleInstanceDiagnosticManager(
+            //    RoleEnvironment.DeploymentId,
+            //    RoleEnvironment.CurrentRoleInstance.Role.Name,
+            //    RoleEnvironment.CurrentRoleInstance.Id);
 
-            var configuration = roleInstanceDiagnosticManager.GetCurrentConfiguration();
+            //var configuration = roleInstanceDiagnosticManager.GetCurrentConfiguration();
 
-            if (configuration == null) // to remain backward compatible with sdk 1.2
-            {
-                configuration = DiagnosticMonitor.GetDefaultInitialConfiguration();
+            //if (configuration == null) // to remain backward compatible with sdk 1.2
+            //{
+            //    configuration = DiagnosticMonitor.GetDefaultInitialConfiguration();
 
-                ConfigureDiagnostics(configuration);
+            //    ConfigureDiagnostics(configuration);
 
-                DiagnosticMonitor.Start(cloudStorageAccount, configuration);
-            }
+            //    DiagnosticMonitor.Start(cloudStorageAccount, configuration);
+            //}
            
         }
 

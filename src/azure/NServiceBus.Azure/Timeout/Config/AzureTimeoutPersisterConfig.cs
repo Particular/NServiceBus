@@ -1,9 +1,15 @@
 using System.Configuration;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus.Azure
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AzureTimeoutPersisterConfig : ConfigurationSection
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [ConfigurationProperty("ConnectionString", IsRequired = false, DefaultValue = "UseDevelopmentStorage=true")]
         public string ConnectionString
         {
@@ -11,6 +17,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             set { this["ConnectionString"] = value; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [ConfigurationProperty("TimeoutManagerDataTableName", IsRequired = false, DefaultValue = "TimeoutManagerDataTable")]
         public string TimeoutManagerDataTableName
         {
@@ -18,6 +27,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             set { this["TimeoutManagerDataTableName"] = value; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [ConfigurationProperty("TimeoutDataTableName", IsRequired = false, DefaultValue = "TimeoutDataTableName")]
         public string TimeoutDataTableName
         {
@@ -25,6 +37,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             set { this["TimeoutDataTableName"] = value; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [ConfigurationProperty("CatchUpInterval", IsRequired = false, DefaultValue = 3600)]
         public int CatchUpInterval
         {
@@ -32,6 +47,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
             set { this["CatchUpInterval"] = value; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         [ConfigurationProperty("PartitionKeyScope", IsRequired = false, DefaultValue = "yyyMMddHH")]
         public string PartitionKeyScope
         {

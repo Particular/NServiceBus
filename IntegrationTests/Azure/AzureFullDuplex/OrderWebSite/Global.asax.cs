@@ -4,8 +4,6 @@ using System.Web;
 using MyMessages;
 using log4net;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Integration.Azure;
 
 namespace OrderWebSite
 {
@@ -18,20 +16,22 @@ namespace OrderWebSite
 
         private static IBus ConfigureNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             var bus = Configure.With()
                   .DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m))
-                 // .DefiningEventsAs(m => typeof(IDefineMessages).IsAssignableFrom(m))
-                  //.DefiningCommandsAs(m => typeof(IDefineMessages).IsAssignableFrom(m))
-                  .DefaultBuilder()
-                  .Log4Net(new AzureAppender())
+                        .DefaultBuilder()
                   .AzureConfigurationSource()
+                  .AzureDiagnosticsLogger()
                   .AzureMessageQueue()
-                    .JsonSerializer()
-                    .QueuePerInstance()
-                    .PurgeOnStartup(true)
-                  .UnicastBus()
-                      .LoadMessageHandlers()
-                      .IsTransactional(true)
+                        .JsonSerializer()
+                        .QueuePerInstance()
+                        .PurgeOnStartup(true)
+                   .UnicastBus()
+                       .DisableGateway()
+                       .DisableNotifications()
+                       .DisableSecondLevelRetries()
+                       .DisableTimeoutManager()
                   .CreateBus()
                 .Start();
 

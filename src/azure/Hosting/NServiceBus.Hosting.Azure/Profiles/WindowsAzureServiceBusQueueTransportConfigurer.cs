@@ -23,7 +23,6 @@ namespace NServiceBus
                 config.JsonSerializer();
             }
 
-
             config.AzureServiceBusMessageQueue();
         }
     }

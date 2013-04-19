@@ -1,15 +1,9 @@
 namespace NServiceBus
 {
     using System;
-    using System.Reflection;
     using Config;
-    using NHibernate.Cfg;
-    using NHibernate.Drivers.Azure.TableStorage;
-    using NHibernate.Mapping.ByCode;
-    using NHibernate.Tool.hbm2ddl;
-    using Unicast.Publishing;
-    using Unicast.Subscriptions.Azure.TableStorage;
-    using Unicast.Subscriptions.Azure.TableStorage.Config;
+    using Microsoft.WindowsAzure.Storage;
+    using Unicast.Subscriptions;
 
     /// <summary>
     /// Configuration extensions for the NHibernate subscription storage
@@ -23,13 +17,8 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure AzureSubcriptionStorage(this Configure config)
         {
-
             var configSection = Configure.GetConfigSection<AzureSubscriptionStorageConfig>();
-
-            if (configSection == null)
-            {
-                throw new InvalidOperationException("No configuration section for NHibernate Azure Subscription Storage found. Please add a NHibernateAzureSubscriptionStorageConfig section to you configuration file");
-            }
+            if (configSection == null) { return config; }
 
             return AzureSubcriptionStorage(config, configSection.ConnectionString, configSection.CreateSchema, configSection.TableName);
         }
@@ -49,33 +38,14 @@ namespace NServiceBus
             string tableName)
         {
 
-          var cfg = new Configuration()
-            .DataBaseIntegration(x =>
-                                   {
-                                     x.ConnectionString = connectionString;
-                                     x.ConnectionProvider<TableStorageConnectionProvider>();
-                                     x.Dialect<TableStorageDialect>();
-                                     x.Driver<TableStorageDriver>();
-                                   });
+            SubscriptionServiceContext.SubscriptionTableName = tableName;
+            SubscriptionServiceContext.CreateIfNotExist = createSchema;
 
-          SubscriptionMap.TableName = tableName;
+            var account = CloudStorageAccount.Parse(connectionString);
+            SubscriptionServiceContext.Init(account.CreateCloudTableClient());
 
-          var mapper = new ModelMapper();
-          mapper.AddMappings(Assembly.GetExecutingAssembly().GetExportedTypes());
-          var faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
-          cfg.AddMapping(faultMappings);
-          
-          if (createSchema)
-          {
-            new SchemaExport(cfg).Execute(true, true, false);
-          }
-
-          var sessionSource = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
-
-            config.Configurer.RegisterSingleton<ISubscriptionStorageSessionProvider>(sessionSource);
-
-            config.Configurer.ConfigureComponent<SubscriptionStorage>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(() => new AzureSubscriptionStorage(account), DependencyLifecycle.InstancePerCall);
 
             return config;
 

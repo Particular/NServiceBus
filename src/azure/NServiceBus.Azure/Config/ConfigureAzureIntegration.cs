@@ -1,6 +1,6 @@
 using NServiceBus.Integration.Azure;
 
-namespace NServiceBus.Config
+namespace NServiceBus
 {
     public static class ConfigureAzureIntegration
     {

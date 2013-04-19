@@ -1,13 +1,16 @@
 using System.Linq;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+
+namespace NServiceBus.Azure
 {
+    using Microsoft.WindowsAzure.Storage.Auth;
+    using Microsoft.WindowsAzure.Storage.Table;
+    using Microsoft.WindowsAzure.Storage.Table.DataServices;
+
     public class ServiceContext : TableServiceContext
     {
-        public ServiceContext(string baseAddress, StorageCredentials credentials)
-            : base(baseAddress, credentials)
+        public ServiceContext(CloudTableClient client)
+            : base(client)
         {
         }
 

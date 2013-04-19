@@ -1,6 +1,6 @@
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus.Azure
 {
-    using Core;
+    using Timeout.Core;
 
     public interface IDetermineWhoCanSend
     {

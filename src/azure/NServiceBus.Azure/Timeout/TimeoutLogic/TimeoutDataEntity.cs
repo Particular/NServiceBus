@@ -1,8 +1,9 @@
 using System;
-using Microsoft.WindowsAzure.StorageClient;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus.Azure
 {
+    using Microsoft.WindowsAzure.Storage.Table.DataServices;
+
     public class TimeoutDataEntity : TableServiceEntity
     {
         public TimeoutDataEntity(){}

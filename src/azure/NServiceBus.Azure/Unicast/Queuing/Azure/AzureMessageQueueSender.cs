@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Transactions;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Serialization;
 
 namespace NServiceBus.Unicast.Queuing.Azure
 {
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Queue;
     using Transports;
 
     /// <summary>
@@ -113,7 +114,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void CreateQueue(string queueName)
         {
-            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
+            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
         }
 
         private string SanitizeQueueName(string queueName)

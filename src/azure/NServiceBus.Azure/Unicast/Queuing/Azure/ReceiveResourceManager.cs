@@ -1,8 +1,9 @@
 namespace NServiceBus.Unicast.Queuing.Azure
 {
     using System.Transactions;
-    using Microsoft.WindowsAzure.StorageClient;
-
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Queue;
+    
     public class ReceiveResourceManager : IEnlistmentNotification
     {
         private readonly CloudQueue queue;
@@ -25,9 +26,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
             {
                 queue.DeleteMessage(receivedMessage);
             }
-            catch (StorageClientException ex)
+            catch (StorageException ex)
             {
-                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound) throw;
+                if (ex.RequestInformation.HttpStatusCode != 404) throw;
             }
             enlistment.Done();
         }

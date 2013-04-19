@@ -1,8 +1,10 @@
 using NServiceBus.Timeout.Core;
 using NServiceBus.Timeout.Hosting.Windows;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus
 {
+    using Azure;
+
     public static class ConfigureTimeoutManager
     {
         /// <summary>

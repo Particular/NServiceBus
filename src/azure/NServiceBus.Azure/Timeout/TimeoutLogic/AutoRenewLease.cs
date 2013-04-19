@@ -1,42 +1,35 @@
-﻿using Microsoft.WindowsAzure.StorageClient;
-using System;
+﻿using System;
 using System.Threading;
 using System.Net;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus.Azure
 {
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Blob;
+
     public class AutoRenewLease : IDisposable
     {
         public bool HasLease { get { return leaseId != null; } }
 
-        private readonly CloudBlob blob;
+        private readonly CloudBlockBlob blob;
         private readonly string leaseId;
         private Thread renewalThread;
         private bool disposed;
 
-        public AutoRenewLease(CloudBlob blob)
+        public AutoRenewLease(CloudBlockBlob blob)
         {
             this.blob = blob;
-            blob.Container.CreateIfNotExist();
-            try
-            {
-                blob.UploadByteArray(new byte[0], new BlobRequestOptions { AccessCondition = AccessCondition.IfNoneMatch("*") });
-            }
-            catch (StorageClientException e)
-            {
-                if (e.ErrorCode != StorageErrorCode.BlobAlreadyExists
-                    && e.StatusCode != HttpStatusCode.PreconditionFailed) // 412 from trying to modify a blob that's leased
-                {
-                    throw;
-                }
-            }
-            leaseId = blob.TryAcquireLease();
+            blob.Container.CreateIfNotExists();
+           leaseId = blob.TryAcquireLease();
             if (HasLease)
             {
                 renewalThread = new Thread(() =>
                 {
                     Thread.Sleep(TimeSpan.FromSeconds(40));
-                    blob.RenewLease(leaseId);
+                    blob.RenewLease(new AccessCondition()
+                        {
+                            LeaseId = leaseId
+                        });
                 });
                 renewalThread.Start();
             }
@@ -57,7 +50,10 @@ namespace NServiceBus.Timeout.Hosting.Azure
                     if (renewalThread != null)
                     {
                         renewalThread.Abort();
-                        blob.ReleaseLease(leaseId);
+                        blob.ReleaseLease(new AccessCondition()
+                            {
+                                LeaseId = leaseId
+                            });
                         renewalThread = null;
                     }
                 }

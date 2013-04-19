@@ -24,8 +24,7 @@ namespace NServiceBus
             }
 
             config
-                .AzureMessageQueue()
-                .AzureSubcriptionStorage();
+                .AzureMessageQueue();
 
         }
 

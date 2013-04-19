@@ -7,7 +7,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Transactions;
-    using Microsoft.WindowsAzure.StorageClient;
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Queue;
     using Serialization;
 
     public class AzureMessageQueueReceiver
@@ -74,7 +75,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             useTransactions = transactional;
             queue = Client.GetQueueReference(SanitizeQueueName(address.Queue));
-            queue.CreateIfNotExist();
+            queue.CreateIfNotExists();
 
 			if (PurgeOnStartup)
 				queue.Clear();
@@ -117,7 +118,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                         messages.Enqueue(receivedMessage);
                     }
                 });
-               queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), callback, null);
+               queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), null, null, callback, null);
             }
 
             return messages.Count != 0 ? messages.Dequeue() : null;
@@ -129,9 +130,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
             {
                 queue.DeleteMessage(message);
             }
-            catch (StorageClientException ex)
+            catch (StorageException ex)
             {
-                if (ex.ErrorCode != StorageErrorCode.ResourceNotFound ) throw;
+                if (ex.RequestInformation.HttpStatusCode != 404) throw;
             }
         }
 
@@ -172,7 +173,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         public void CreateQueue(string queueName)
         {
-            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExist();
+            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
         }
 
         private string SanitizeQueueName(string queueName)
@@ -181,7 +182,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
             // yet dots are not supported in azure storage names
             // that's why we replace them here.
 
-            return queueName.Replace('.', '-');
+            return queueName.Replace('.', '-').ToLowerInvariant();
         }
 
         private bool useTransactions;

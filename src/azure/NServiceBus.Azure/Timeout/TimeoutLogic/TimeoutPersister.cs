@@ -2,29 +2,31 @@
 using System.Threading;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace NServiceBus.Timeout.Hosting.Azure
+namespace NServiceBus.Azure
 {
     using System;
     using System.Collections.Generic;
     using System.Data.Services.Client;
+    using System.IO;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
     using System.Web.Script.Serialization;
-    using Core;
     using Logging;
-    using Microsoft.WindowsAzure;
-    using Microsoft.WindowsAzure.StorageClient;
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Blob;
     using Support;
-
+    using Timeout.Core;
+    
     public class TimeoutPersister : IPersistTimeouts, IDetermineWhoCanSend
     {
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            List<Tuple<string, DateTime>> results;
+            List<Tuple<string, DateTime>> results = new List<Tuple<string, DateTime>>();
             try
             {
-                var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+                var now = DateTime.UtcNow;
+                var context = new ServiceContext(account.CreateCloudTableClient());
                 TimeoutManagerDataEntity lastSuccessfullReadEntity;
                 var lastSuccessfullRead = TryGetLastSuccessfullRead(context, out lastSuccessfullReadEntity)
                                               ? lastSuccessfullReadEntity.LastSuccessfullRead
@@ -35,35 +37,42 @@ namespace NServiceBus.Timeout.Hosting.Azure
                 if (lastSuccessfullRead.HasValue)
                 {
                     result = (from c in context.TimeoutData
-                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(PartitionKeyScope)) > 0
-                              && c.PartitionKey.CompareTo(DateTime.UtcNow.ToString(PartitionKeyScope)) <= 0
+                              where c.PartitionKey.CompareTo(lastSuccessfullRead.Value.ToString(PartitionKeyScope)) >= 0
+                              && c.PartitionKey.CompareTo(now.ToString(PartitionKeyScope)) <= 0
                                     && c.OwningTimeoutManager == Configure.EndpointName
-                              select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
+                              select c).ToList().OrderBy(c => c.Time);
                 }
                 else
                 {
                     result = (from c in context.TimeoutData
                               where c.OwningTimeoutManager == Configure.EndpointName
-                              select c).AsTableServiceQuery<TimeoutDataEntity>().Execute().ToList().OrderBy(c => c.Time);
+                              select c).ToList().OrderBy(c => c.Time);
                 }
 
                 var allTimeouts = result.ToList();
-                var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= DateTime.UtcNow).ToList();
-                var futureTimeouts = allTimeouts.Where(c => c.Time > DateTime.UtcNow).ToList();
+                if (allTimeouts.Count == 0)
+                {
+                    nextTimeToRunQuery = now.AddSeconds(1);
+                    return results;
+                }
+
+                var pastTimeouts = allTimeouts.Where(c => c.Time > startSlice && c.Time <= now).ToList();
+                var futureTimeouts = allTimeouts.Where(c => c.Time > now).ToList();
 
                 if (lastSuccessfullReadEntity != null && lastSuccessfullRead.HasValue)
                 {
-                    lastSuccessfullRead = lastSuccessfullRead.Value.AddSeconds(CatchUpInterval);
+                    var catchingUp = lastSuccessfullRead.Value.AddSeconds(CatchUpInterval);
+                    lastSuccessfullRead = catchingUp > now ? now : catchingUp;
                     lastSuccessfullReadEntity.LastSuccessfullRead = lastSuccessfullRead.Value;
                 }
 
                 var future = futureTimeouts.FirstOrDefault();
                 nextTimeToRunQuery = lastSuccessfullRead.HasValue ? lastSuccessfullRead.Value
-                                         : (future != null ? future.Time : DateTime.UtcNow);
+                                         : (future != null ? future.Time : now.AddSeconds(1));
                 
                 results = pastTimeouts
-                   .Where(c => string.IsNullOrEmpty(c.RowKey))
-                   .Select(c => new Tuple<String, DateTime>(c.PartitionKey, c.Time))
+                   .Where(c => !string.IsNullOrEmpty(c.RowKey))
+                   .Select(c => new Tuple<String, DateTime>(c.RowKey, c.Time))
                    .Distinct()
                    .ToList();
 
@@ -79,7 +88,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public void Add(TimeoutData timeout)
         {
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+            var context = new ServiceContext(account.CreateCloudTableClient());
             var hash = Hash(timeout);
             TimeoutDataEntity timeoutDataEntity;
             if (TryGetTimeoutData(context, hash, string.Empty, out timeoutDataEntity)) return;
@@ -134,7 +143,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
         {
             timeoutData = null;
 
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+            var context = new ServiceContext(account.CreateCloudTableClient());
             try
             {
                 TimeoutDataEntity timeoutDataEntity;
@@ -183,7 +192,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public void RemoveTimeoutBy(Guid sagaId)
         {
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+            var context = new ServiceContext(account.CreateCloudTableClient());
             try
             {
                 var results = (from c in context.TimeoutData
@@ -232,7 +241,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         public bool CanSend(TimeoutData data)
         {
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+            var context = new ServiceContext(account.CreateCloudTableClient());
             TimeoutDataEntity timeoutDataEntity;
             if (!TryGetTimeoutData(context, data.Id, string.Empty, out timeoutDataEntity)) return false;
 
@@ -263,12 +272,14 @@ namespace NServiceBus.Timeout.Hosting.Azure
         private void Init(string connectionstring)
         {
             account = CloudStorageAccount.Parse(connectionstring);
-            var context = new ServiceContext(account.TableEndpoint.ToString(), account.Credentials);
+            var context = new ServiceContext(account.CreateCloudTableClient());
             var tableClient = account.CreateCloudTableClient();
-            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutManagerDataTableName);
-            tableClient.CreateTableIfNotExist(ServiceContext.TimeoutDataTableName);
+            var table = tableClient.GetTableReference(ServiceContext.TimeoutManagerDataTableName);
+            table.CreateIfNotExists();
+            table = tableClient.GetTableReference(ServiceContext.TimeoutDataTableName);
+            table.CreateIfNotExists();
             container = account.CreateCloudBlobClient().GetContainerReference("timeoutstate");
-            container.CreateIfNotExist();
+            container.CreateIfNotExists();
 
             MigrateExistingTimeouts(context);
         }
@@ -327,14 +338,32 @@ namespace NServiceBus.Timeout.Hosting.Azure
         private string Upload(byte[] state, string stateAddress)
         {
             var blob = container.GetBlockBlobReference(stateAddress);
-            blob.UploadByteArray(state);
+            using (var stream = new MemoryStream(state))
+            {
+                blob.UploadFromStream(stream);
+            }
             return stateAddress;
         }
 
         private byte[] Download(string stateAddress)
         {
             var blob = container.GetBlockBlobReference(stateAddress);
-            return blob.DownloadByteArray();
+            using (var stream = new MemoryStream())
+            {
+                blob.DownloadToStream(stream);
+                stream.Position = 0;
+
+                var buffer = new byte[16*1024];
+                using (var ms = new MemoryStream())
+                {
+                    int read;
+                    while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, read);
+                    }
+                    return ms.ToArray();
+                }
+            }
         }
 
         private string Serialize(Dictionary<string, string> headers)
@@ -353,7 +382,7 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
         private void RemoveState(string stateAddress)
         {
-            var blob = container.GetBlobReference(stateAddress);
+            var blob = container.GetBlockBlobReference(stateAddress);
             blob.DeleteIfExists();
         }
 

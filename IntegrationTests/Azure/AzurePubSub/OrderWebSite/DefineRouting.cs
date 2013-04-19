@@ -3,7 +3,7 @@ using NServiceBus.Config.ConfigurationSource;
 
 namespace OrderWebSite
 {
-    class ConfigOverride : IProvideConfiguration<UnicastBusConfig>
+    class DefineRouting : IProvideConfiguration<UnicastBusConfig>
     {
         public UnicastBusConfig GetConfiguration()
         {

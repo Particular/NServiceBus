@@ -1,20 +1,24 @@
 using NServiceBus.Logging;
 using NServiceBus.Logging.Loggers;
 
-namespace NServiceBus.Integration.Azure
+namespace NServiceBus
 {
+    using Integration.Azure;
+
     public static class SetLoggingLibrary
     {
-        public static void ConsoleLogger(this Configure config)
+        public static Configure ConsoleLogger(this Configure config)
         {
             LogManager.LoggerFactory = new ConsoleLoggerFactory();
+            return config;
         }
 
-        public static void AzureDiagnosticsLogger(this Configure config, bool enable, bool initialize = true)
+        public static Configure AzureDiagnosticsLogger(this Configure config, bool enable = true, bool initialize = true)
         {
             var factory = new AzureDiagnosticsLoggerFactory {Enable = enable, InitializeDiagnostics = initialize};
             factory.ConfigureAzureDiagnostics();
             LogManager.LoggerFactory = factory;
+            return config;
         }
     }
 }
