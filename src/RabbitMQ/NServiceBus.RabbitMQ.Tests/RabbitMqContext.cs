@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Transactions;
     using Config;
     using NServiceBus;
     using NUnit.Framework;
-    using NServiceBus.Transports.RabbitMQ;
-    using Settings;
+    using RabbitMQ;
+    using Routing;
     using global::RabbitMQ.Client;
     using TransactionSettings = Unicast.Transport.TransactionSettings;
 
@@ -28,19 +27,7 @@
                 return;
 
             var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
-            using (var channel = connection.CreateModel())
-            {
-                try
-                {
-                    channel.ExchangeDelete(exchangeName);
-                }
-                catch (Exception)
-                {
-
-                }
-
-
-            }
+            DeleteExchange(exchangeName);
 
             using (var channel = connection.CreateModel())
             {
@@ -56,10 +43,27 @@
             }
         }
 
+        void DeleteExchange(string exchangeName)
+        {
+            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
+            using (var channel = connection.CreateModel())
+            {
+                try
+                {
+                    channel.ExchangeDelete(exchangeName);
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+
 
         [SetUp]
         public void SetUp()
         {
+            var routingTopology = new ConventionalRoutingTopology();
+            //var routingTopology = new DirectRoutingTopology { ExchangeNameConvention = ExchangeNameConvention };
             receivedMessages = new BlockingCollection<TransportMessage>();
             connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
@@ -67,30 +71,26 @@
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 
-            RoutingKeyBuilder = new RabbitMqRoutingKeyBuilder
-                {
-                    GenerateRoutingKey = DefaultRoutingKeyConvention.GenerateRoutingKey
-                };
 
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
-
+            
             MakeSureQueueExists(MYRECEIVEQUEUE);
 
+            DeleteExchange(MYRECEIVEQUEUE);
             MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE),null));
+            
+            
 
             MessagePublisher = new RabbitMqMessagePublisher
                 {
                     UnitOfWork = unitOfWork,
-                    ExchangeName = ExchangeNameConvention,
-                    RoutingKeyBuilder = RoutingKeyBuilder
-                    
+                    RoutingTopology = routingTopology
                 };
             subscriptionManager = new RabbitMqSubscriptionManager
             {
                 ConnectionManager = connectionManager,
                 EndpointQueueName = MYRECEIVEQUEUE,
-                ExchangeName = ExchangeNameConvention,
-                RoutingKeyBuilder = RoutingKeyBuilder
+                RoutingTopology = routingTopology
             };
 
             dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, (m) =>
@@ -135,7 +135,6 @@
 
         BlockingCollection<TransportMessage> receivedMessages;
 
-        protected const string PUBLISHERNAME = "publisherendpoint";
         protected const string MYRECEIVEQUEUE = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
         protected RabbitMqConnectionManager connectionManager;
@@ -143,6 +142,5 @@
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
         protected RabbitMqUnitOfWork unitOfWork;
-        protected RabbitMqRoutingKeyBuilder RoutingKeyBuilder;
     }
 }

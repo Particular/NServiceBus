@@ -46,6 +46,20 @@ namespace NServiceBus.Settings
 
             Overrides[key] = value;
         }
+        /// <summary>
+        /// Sets the value
+        /// </summary>
+        /// <param name="key">The key to use to store the setting.</param>
+        /// <param name="value">The setting value.</param>
+        public static void Set<T>(object value)
+        {
+            Set(typeof(T).FullName, value);
+        }
+        public static void Set<T>(Action value)
+        {
+            Set(typeof(T).FullName, value);
+        }
+
 
         /// <summary>
         /// Sets the default setting value.

@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast.Transport
     using System.Runtime.Serialization;
     using Management.Retries;
     using Monitoring;
-    using Support;
     using Transports;
 
     /// <summary>
@@ -283,7 +282,6 @@ namespace NServiceBus.Unicast.Transport
 
         void ProcessMessage(TransportMessage message)
         {
-            AddProcessingInformationHeaders(message);
             if (string.IsNullOrWhiteSpace(message.Id))
             {
                 Logger.Error("Message without message id detected");
@@ -379,12 +377,6 @@ namespace NServiceBus.Unicast.Transport
             Receiver.Stop();
 
             isStarted = false;
-        }
-
-        void AddProcessingInformationHeaders(TransportMessage message)
-        {
-            message.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
-            message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
         }
 
         private Exception OnStartedMessageProcessing(TransportMessage msg)

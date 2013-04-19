@@ -153,6 +153,7 @@ namespace NServiceBus
         {
         }
 
+        // ------------  Configuration extentions, please C# give us extention properties to avoid all this ---
         private static Endpoint endpoint;
 
         public static Endpoint Endpoint { get { return endpoint ?? (endpoint = new Endpoint()); } }
@@ -161,10 +162,12 @@ namespace NServiceBus
 
         public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
 
-        public static Conventions Conventions { get { return conventions ?? (conventions = new Conventions()); } }
+        public static TransportSettings Transports { get { return transports ?? (transports = new TransportSettings()); } }
 
-        private static Conventions conventions;
+        private static TransportSettings transports;
 
+        // ------------  End Configuration extentions ---
+        
         /// <summary>
         /// True if this endpoint is operating in send only mode
         /// </summary>
