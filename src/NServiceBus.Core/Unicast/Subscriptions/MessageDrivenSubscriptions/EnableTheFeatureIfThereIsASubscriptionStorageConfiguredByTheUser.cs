@@ -2,7 +2,6 @@
 {
     using Features;
     using Logging;
-    using Subscriptions;
 
     /// <summary>
     /// This class handles backwards compatibility. If there is a ISubscription storage registered by the user we should use

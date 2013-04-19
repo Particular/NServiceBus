@@ -62,8 +62,8 @@
         [SetUp]
         public void SetUp()
         {
-            //var routingTopology = new ConventionalRoutingTopology();
-            var routingTopology = new DirectRoutingTopology { ExchangeNameConvention = ExchangeNameConvention };
+            var routingTopology = new ConventionalRoutingTopology();
+            //var routingTopology = new DirectRoutingTopology { ExchangeNameConvention = ExchangeNameConvention };
             receivedMessages = new BlockingCollection<TransportMessage>();
             connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
 
@@ -71,10 +71,6 @@
 
             sender = new RabbitMqMessageSender { UnitOfWork = unitOfWork };
 
-            RoutingKeyBuilder = new RabbitMqRoutingKeyBuilder
-                {
-                    GenerateRoutingKey = DefaultRoutingKeyConvention.GenerateRoutingKey
-                };
 
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
             
@@ -146,6 +142,5 @@
         protected RabbitMqMessagePublisher MessagePublisher;
         protected RabbitMqSubscriptionManager subscriptionManager;
         protected RabbitMqUnitOfWork unitOfWork;
-        protected RabbitMqRoutingKeyBuilder RoutingKeyBuilder;
     }
 }

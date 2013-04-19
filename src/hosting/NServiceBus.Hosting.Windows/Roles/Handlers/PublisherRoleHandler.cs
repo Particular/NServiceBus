@@ -17,7 +17,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            Feature.Enable<MessageDrivenSubscriptions>();
+            Feature.EnableByDefault<MessageDrivenSubscriptions>();
 
             return null;
         }

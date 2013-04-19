@@ -4,6 +4,5 @@
 
     public class RabbitMQ : ITransportDefinition
     {
-         
     }
 }

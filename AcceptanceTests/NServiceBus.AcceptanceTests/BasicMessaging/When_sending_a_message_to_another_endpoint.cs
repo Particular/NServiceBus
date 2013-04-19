@@ -13,17 +13,16 @@
         [Test]
         public void Should_receive_the_message()
         {
-            Scenario.Define(()=>new Context{Id = Guid.NewGuid()})
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage { Id = context.Id })))
                     .WithEndpoint<Receiver>()
-                    .Done(c=>c.WasCalled)
+                    .Done(c => c.WasCalled)
                     .Repeat(r =>
                             r
-                            .For(Transports.Msmq)
-                                //.For<AllTransports>()
-                                //.For<AllBuilders>()
-                                //.For<AllSerializers>()
-                )
+                                .For<AllTransports>()
+                                .For<AllBuilders>()
+                                .For<AllSerializers>()
+                    )
                     .Should(c =>
                         {
                             Assert.True(c.WasCalled, "The message handler should be called");
@@ -52,7 +51,7 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(typeof (Receiver));
+                    .AddMapping<MyMessage>(typeof(Receiver));
             }
         }
 

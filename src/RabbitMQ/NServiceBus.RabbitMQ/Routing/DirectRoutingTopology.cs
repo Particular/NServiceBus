@@ -8,42 +8,32 @@
     /// </summary>
     public class DirectRoutingTopology:IRoutingTopology
     {
-        public DirectRoutingTopology()
-        {
-            ExchangeNameConvention = (a, t) => AmqpTopicExchange;
-        }
+        public Func<Address, Type, string> ExchangeNameConvention { get; set; }
+
+        public Func<Type, string> RoutingKeyConvention { get; set; }
 
         public void SetupSubscription(IModel channel, Type type, string subscriberName)
         {
             CreateExchange(channel, ExchangeName());
-            channel.QueueBind(subscriberName, ExchangeName(), RoutingKey(type));
+            channel.QueueBind(subscriberName, ExchangeName(), GetRoutingKeyForBinding(type));
         }
 
         public void TeardownSubscription(IModel channel, Type type, string subscriberName)
         {
-            channel.QueueUnbind(subscriberName, ExchangeName(), RoutingKey(type), null);
+            channel.QueueUnbind(subscriberName, ExchangeName(), GetRoutingKeyForBinding(type), null);
         }
 
         public void Publish(IModel channel, Type type, TransportMessage message, IBasicProperties properties)
         {
-            channel.BasicPublish(ExchangeName(), RoutingKey(type), true, false, properties, message.Body);
+            channel.BasicPublish(ExchangeName(), GetRoutingKeyForPublish(type), true, false, properties, message.Body);
         }
 
-        public Func<Address, Type, string> ExchangeNameConvention { get; set; }
-
-        const string AmqpTopicExchange = "amq.topic";
-
-        private readonly RabbitMqRoutingKeyBuilder routingKeyBuilder = new RabbitMqRoutingKeyBuilder
-        {
-            GenerateRoutingKey = DefaultRoutingKeyConvention.GenerateRoutingKey
-        };
-
-        private string ExchangeName()
+        string ExchangeName()
         {
             return ExchangeNameConvention(null,null);
         }
 
-        private static void CreateExchange(IModel channel, string exchangeName)
+        static void CreateExchange(IModel channel, string exchangeName)
         {
             if (exchangeName == AmqpTopicExchange)
                 return;
@@ -57,9 +47,22 @@
             }
         }
 
-        private string RoutingKey(Type eventType)
+        string GetRoutingKeyForPublish(Type eventType)
         {
-            return routingKeyBuilder.GetRoutingKeyForBinding(eventType);
+            return RoutingKeyConvention(eventType);
         }
+
+        string GetRoutingKeyForBinding(Type eventType)
+        {
+            if (eventType == typeof(IEvent) || eventType == typeof(object))
+                return "#";
+
+
+            return RoutingKeyConvention(eventType) + ".#";
+        }
+
+        const string AmqpTopicExchange = "amq.topic";
+
+
     }
 }
