@@ -340,5 +340,6 @@ task ZipOutput {
 }
 
 task CreateMSI {
-    Invoke-psake .\MSI.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
+	Invoke-psake .\Setup.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
+	Invoke-psake .\MSI.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
 }
