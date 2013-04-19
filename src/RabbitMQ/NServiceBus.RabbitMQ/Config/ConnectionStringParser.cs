@@ -6,6 +6,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
     using System.Collections.Generic;
     using System.Data.Common;
     using EasyNetQ;
+    using System.Linq;
 
     public class ConnectionStringParser : DbConnectionStringBuilder, IConnectionStringParser
     {
@@ -61,16 +62,13 @@ namespace NServiceBus.Transports.RabbitMQ.Config
         }
 
         IEnumerable<IHostConfiguration> ParseHosts(string hostsConnectionString) {
-            var hosts = hostsConnectionString.Split(',');
-            foreach (var hostAndPort in hosts) {
-                var parts = hostAndPort.Split(':');
-                var host = parts[0];
-                var port = connectionConfiguration.Port;
-                if (parts.Length == 2) {
-                    port = ushort.Parse(parts[1]);
-                }
-                yield return new HostConfiguration{Host = host, Port = port};
-            }
+            var hostsAndPorts = hostsConnectionString.Split(',');
+            return (from hostAndPort in hostsAndPorts
+                    select hostAndPort.Split(':') into hostParts 
+                    let host = hostParts.ElementAt(0) 
+                    let portString = hostParts.ElementAtOrDefault(1) 
+                    let port = (portString == null)? connectionConfiguration.Port : ushort.Parse(portString) 
+                    select new HostConfiguration{Host = host, Port = port});
         }
     }
 }
