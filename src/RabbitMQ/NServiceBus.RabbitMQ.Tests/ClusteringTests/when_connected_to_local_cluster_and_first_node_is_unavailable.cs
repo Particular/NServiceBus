@@ -5,6 +5,7 @@ namespace NServiceBus.Transports.RabbitMQ.Tests.ClusteringTests
 
     [TestFixture]
     [Category(TestCategory.Integration)]
+    [Explicit("Long running test")]
     public class when_connected_to_local_cluster_and_first_node_is_unavailable : TestContext
     {
         TransportMessage sentMessage;

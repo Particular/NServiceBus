@@ -5,6 +5,7 @@
 
     [TestFixture]
     [Category(TestCategory.Integration)]
+    [Explicit("Long running test")]
     public class when_connected_to_local_cluster_and_all_nodes_are_up : TestContext
     {
         TransportMessage sentMessage;
