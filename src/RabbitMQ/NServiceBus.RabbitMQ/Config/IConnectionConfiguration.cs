@@ -17,7 +17,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
         
         IEnumerable<IHostConfiguration> Hosts { get; }
         ushort MaxRetries { get; set; }
-        TimeSpan DelayBetweenRetries { get; set; }
+        TimeSpan RetryDelay { get; set; }
         bool UsePublisherConfirms { get; set; }
         TimeSpan MaxWaitTimeForConfirms { get; set; }
     }

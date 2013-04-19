@@ -47,7 +47,7 @@
                 {
                     if (retries > 0)
                     {
-                        Thread.Sleep(connectionConfiguration.DelayBetweenRetries);
+                        Thread.Sleep(connectionConfiguration.RetryDelay);
                         Logger.InfoFormat("Issuing retry attempt {0}", retries);
                     }
 

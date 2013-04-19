@@ -40,7 +40,7 @@
             Assert.AreEqual(connectionConfiguration.MaxRetries, 4);
             Assert.AreEqual(connectionConfiguration.UsePublisherConfirms, true);
             Assert.AreEqual(connectionConfiguration.MaxWaitTimeForConfirms, new TimeSpan(2, 3, 39)); //02:03:39
-            Assert.AreEqual(connectionConfiguration.DelayBetweenRetries, new TimeSpan(1, 2, 3)); //01:02:03
+            Assert.AreEqual(connectionConfiguration.RetryDelay, new TimeSpan(1, 2, 3)); //01:02:03
         }
 
         [Test]
@@ -122,7 +122,7 @@
         [Test]
         public void Should_parse_the_retry_delay() {
             connectionConfiguration = parser.Parse("host=localhost;retryDelay=00:00:10");
-            Assert.AreEqual(TimeSpan.FromSeconds(10), connectionConfiguration.DelayBetweenRetries);
+            Assert.AreEqual(TimeSpan.FromSeconds(10), connectionConfiguration.RetryDelay);
         }
 
         [Test]
@@ -135,6 +135,12 @@
         public void Should_parse_the_virtual_hostname() {
             connectionConfiguration = parser.Parse("host=localhost;virtualHost=myVirtualHost");
             Assert.AreEqual("myVirtualHost", connectionConfiguration.VirtualHost);
+        }
+
+        [Test]
+        [ExpectedException(typeof(Exception))]
+        public void Should_throw_if_given_badly_formatted_max_wait_time_for_confirms() {
+            parser.Parse("host=localhost;maxWaitTimeForConfirms=00:0d0:10");
         }
 
         [Test]

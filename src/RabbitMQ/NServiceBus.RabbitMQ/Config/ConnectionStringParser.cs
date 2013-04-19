@@ -4,7 +4,9 @@ namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data.Common;
+    using System.Text.RegularExpressions;
     using EasyNetQ;
     using System.Linq;
 
@@ -19,38 +21,16 @@ namespace NServiceBus.Transports.RabbitMQ.Config
             {
                 connectionConfiguration = new ConnectionConfiguration();
 
+                foreach(var pair in 
+                    (from property in typeof(ConnectionConfiguration).GetProperties()
+                     let match = Regex.Match(connectionString, string.Format("[^\\w]*{0}=(?<{0}>[^;]+)", property.Name), RegexOptions.IgnoreCase)
+                     where match.Success
+                     select new { Property = property, match.Groups[property.Name].Value }))
+                    pair.Property.SetValue(connectionConfiguration, TypeDescriptor.GetConverter(pair.Property.PropertyType).ConvertFromString(pair.Value),null);
+
+                // i suppose i should just provide a custom typedescriptor for the host part of the connection string but i can't be bothered...
                 if (ContainsKey("host"))
                     connectionConfiguration.Hosts = ParseHosts(this["host"] as string);
-
-                if (ContainsKey("virtualHost"))
-                    connectionConfiguration.VirtualHost = this["virtualHost"] as string;
-
-                if (ContainsKey("username"))
-                    connectionConfiguration.UserName = this["username"] as string;
-
-                if (ContainsKey("password"))
-                    connectionConfiguration.Password = this["password"] as string;
-
-                if (ContainsKey("port"))
-                    connectionConfiguration.Port = ushort.Parse(this["port"] as string);
-
-                if( ContainsKey("requestedHeartbeat")) 
-                    connectionConfiguration.RequestedHeartbeat = ushort.Parse(this["requestedHeartbeat"] as string);
-
-                if( ContainsKey("prefetchCount")) 
-                    connectionConfiguration.PrefetchCount = ushort.Parse(this["prefetchCount"] as string);
-
-                if (ContainsKey("maxRetries"))
-                    connectionConfiguration.MaxRetries = ushort.Parse(this["maxRetries"] as string);
-
-                if (ContainsKey("retryDelay"))
-                    connectionConfiguration.DelayBetweenRetries = TimeSpan.Parse(this["retryDelay"] as string);
-
-                if (ContainsKey("usePublisherConfirms"))
-                    connectionConfiguration.UsePublisherConfirms = bool.Parse(this["usePublisherConfirms"] as string);
-
-                if (ContainsKey("maxWaitTimeForConfirms"))
-                    connectionConfiguration.MaxWaitTimeForConfirms = TimeSpan.Parse(this["maxWaitTimeForConfirms"] as string);
 
                 connectionConfiguration.Validate();
                 return connectionConfiguration;

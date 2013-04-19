@@ -28,7 +28,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
         public ushort MaxRetries { get; set; }
         public bool UsePublisherConfirms { get; set; }
         public TimeSpan MaxWaitTimeForConfirms { get; set; }
-        public TimeSpan DelayBetweenRetries { get; set; }
+        public TimeSpan RetryDelay { get; set; }
         public IDictionary<string, string> ClientProperties {
             get { return clientProperties; }
             private set { clientProperties = value; }
