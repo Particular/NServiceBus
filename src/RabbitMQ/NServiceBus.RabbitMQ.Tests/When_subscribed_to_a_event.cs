@@ -132,7 +132,7 @@
         {
             Subscribe<MyEvent>();
 
-            subscriptionManager.Unsubscribe(typeof(MyEvent), Address.Parse(PUBLISHERNAME));
+            subscriptionManager.Unsubscribe(typeof(MyEvent), Address.Parse(ExchangeNameConvention(null, null)));
 
             //publish a event that that this publisher isn't subscribed to
             Publish<MyEvent>();
@@ -140,10 +140,9 @@
             AsserNoEventReceived();
         }
 
-
         void Subscribe<T>()
         {
-            subscriptionManager.Subscribe(typeof(T), Address.Parse(PUBLISHERNAME));
+            subscriptionManager.Subscribe(typeof(T), Address.Parse(ExchangeNameConvention(null,null)));
         }
 
         void Publish<T>()
