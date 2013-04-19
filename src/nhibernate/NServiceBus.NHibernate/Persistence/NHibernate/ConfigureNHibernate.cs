@@ -144,7 +144,7 @@ Here is an example of what is required:
         /// <param name="props">Properties to validate.</param>
         public static void ThrowIfRequiredPropertiesAreMissing(IDictionary<string, string> props)
         {
-            if (props.ContainsKey(Environment.ConnectionString) && props.ContainsKey(Environment.Dialect))
+            if ((props.ContainsKey(Environment.ConnectionString) || props.ContainsKey(Environment.ConnectionStringName)) && props.ContainsKey(Environment.Dialect))
             {
                 return;
             }
