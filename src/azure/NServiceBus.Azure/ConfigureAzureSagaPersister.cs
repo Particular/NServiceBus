@@ -1,12 +1,11 @@
 ﻿using System;
 using NServiceBus.Config;
-using NServiceBus.SagaPersisters.NHibernate;
-using NServiceBus.SagaPersisters.Azure.Config.Internal;
 
 namespace NServiceBus
 {
-    using UnitOfWork.NHibernate;
-
+    using Microsoft.WindowsAzure.Storage;
+    using SagaPersisters.Azure;
+    
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for the NHibernate saga persister on top of Azure table storage.
     /// </summary>
@@ -48,19 +47,9 @@ namespace NServiceBus
             string connectionString,
             bool autoUpdateSchema)
         {
-            var nhibernateProperties = MsSqlConfiguration.Azure(connectionString);
+            var account = CloudStorageAccount.Parse(connectionString);
 
-            var builder = new SessionFactoryBuilder(Configure.TypesToScan);
-
-            var sessionFactory = builder.Build(nhibernateProperties, autoUpdateSchema);
-
-            if (sessionFactory == null)
-                throw new InvalidOperationException("Could not create session factory for saga persistence.");
-
-            config.Configurer.ConfigureComponent<UnitOfWorkManager>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.SessionFactory, sessionFactory);
-
-            config.Configurer.ConfigureComponent<SagaPersister>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent(() => new AzureSagaPersister(account, autoUpdateSchema), DependencyLifecycle.InstancePerCall);
 
             return config;
         }

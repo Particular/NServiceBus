@@ -6,9 +6,9 @@ namespace NServiceBus
     using Unicast.Subscriptions;
 
     /// <summary>
-    /// Configuration extensions for the NHibernate subscription storage
+    /// Configuration extensions for the subscription storage
     /// </summary>
-    public static class ConfigureNHibernateAzureSubscriptionStorage
+    public static class ConfigureAzureSubscriptionStorage
     {
         /// <summary>
         /// Configures NHibernate Azure Subscription Storage , Settings etc are read from custom config section

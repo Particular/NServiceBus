@@ -70,12 +70,6 @@
       <HintPath>..\..\..\lib\Azure\Microsoft.WindowsAzure.StorageClient.dll</HintPath>
     </Reference>
     <Reference Include="msshrtmi, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
-    <Reference Include="NHibernate">
-      <HintPath>..\..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Drivers.Azure.TableStorage">
-      <HintPath>..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -100,25 +94,27 @@
     <Compile Include="ConfigureAzureMessageQueue.cs" />
     <Compile Include="ConfigureAzureSagaPersister.cs" />
     <Compile Include="ConfigureAzureServiceBusMessageQueue.cs" />
-    <Compile Include="ConfigureNHibernateAzureSubscriptionStorage.cs" />
+    <Compile Include="ConfigureAzureSubscriptionStorage.cs" />
     <Compile Include="Config\AzureDataBusConfig.cs" />
     <Compile Include="Config\AzureQueueConfig.cs" />
     <Compile Include="Config\AzureSagaPersisterConfig.cs" />
     <Compile Include="Config\AzureServiceBusPersistence.cs" />
     <Compile Include="Config\AzureServiceBusQueueConfig.cs" />
     <Compile Include="Config\AzureSubscriptionStorageConfig.cs" />
-    <Compile Include="Config\ConfigureAzureIntegration.cs" />
+    <Compile Include="ConfigureAzureIntegration.cs" />
     <Compile Include="Config\AzureStoragePersistence.cs" />
     <Compile Include="Config\QueueIndividualizer.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\BlobStorageDataBus.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\Block.cs" />
-    <Compile Include="Integration\Azure\AzureConfigurationSettings.cs" />
-    <Compile Include="Integration\Azure\AzureConfigurationSource.cs" />
-    <Compile Include="Integration\Azure\AzureDiagnosticsLogger.cs" />
-    <Compile Include="Integration\Azure\AzureDiagnosticsLoggerFactory.cs" />
-    <Compile Include="Integration\Azure\IAzureConfigurationSettings.cs" />
-    <Compile Include="Integration\Azure\SetLoggingLibrary.cs" />
-    <Compile Include="Timeout\Config\AzureTimeoutPersisterConfig.cs" />
+    <Compile Include="ConfigurationSource\Azure\AzureConfigurationSettings.cs" />
+    <Compile Include="ConfigurationSource\Azure\AzureConfigurationSource.cs" />
+    <Compile Include="Logging\Azure\AzureDiagnosticsLogger.cs" />
+    <Compile Include="Logging\Azure\AzureDiagnosticsLoggerFactory.cs" />
+    <Compile Include="ConfigurationSource\Azure\IAzureConfigurationSettings.cs" />
+    <Compile Include="Logging\Azure\SetLoggingLibrary.cs" />
+    <Compile Include="Config\AzureTimeoutPersisterConfig.cs" />
+    <Compile Include="SagaPersisters\Azure\AzureSagaPersister.cs" />
+    <Compile Include="SagaPersisters\Azure\DictionaryTableEntity.cs" />
     <Compile Include="Timeout\Config\ConfigureTimeoutManager.cs" />
     <Compile Include="Timeout\TimeoutLogic\AutoRenewLease.cs" />
     <Compile Include="Timeout\TimeoutLogic\IDetermineWhoCanSend.cs" />
@@ -126,17 +122,13 @@
     <Compile Include="Timeout\TimeoutLogic\ServiceContext.cs" />
     <Compile Include="Timeout\TimeoutLogic\TimeoutDataEntity.cs" />
     <Compile Include="Timeout\TimeoutLogic\TimeoutPersister.cs" />
-    <Compile Include="Unicast\Queuing\Azure\PollingDequeueStrategy.cs" />
+    <Compile Include="Unicast\Queuing\Storage\PollingDequeueStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SagaPersisters\Azure\Config\Internal\BaseImmutableUserType.cs" />
-    <Compile Include="SagaPersisters\Azure\Config\Internal\MsSqlConfiguration.cs" />
-    <Compile Include="SagaPersisters\Azure\Config\Internal\SessionFactoryBuilder.cs" />
-    <Compile Include="SagaPersisters\Azure\Config\Internal\UtcDateTimeUserType.cs" />
-    <Compile Include="Unicast\Queuing\Azure\AzureMessageQueueReceiver.cs" />
-    <Compile Include="Unicast\Queuing\Azure\AzureMessageQueueSender.cs" />
-    <Compile Include="Unicast\Queuing\Azure\MessageWrapper.cs" />
-    <Compile Include="Unicast\Queuing\Azure\ReceiveResourceManager.cs" />
-    <Compile Include="Unicast\Queuing\Azure\SendResourceManager.cs" />
+    <Compile Include="Unicast\Queuing\Storage\AzureMessageQueueReceiver.cs" />
+    <Compile Include="Unicast\Queuing\Storage\AzureMessageQueueSender.cs" />
+    <Compile Include="Unicast\Queuing\Storage\MessageWrapper.cs" />
+    <Compile Include="Unicast\Queuing\Storage\ReceiveResourceManager.cs" />
+    <Compile Include="Unicast\Queuing\Storage\SendResourceManager.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServicebusDefaults.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusDequeueStrategy.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\AzureServicebusSubscriptionClientCreator.cs" />
@@ -153,23 +145,14 @@
     <Compile Include="Unicast\Queuing\ServiceBus\QueueClientCreator.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\ReceiveResourceManager.cs" />
     <Compile Include="Unicast\Queuing\ServiceBus\SendResourceManager.cs" />
-    <Compile Include="Unicast\Subscriptions\AzureSubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\Azure\TableStorage\Config\SubscriptionMap.cs" />
-    <Compile Include="Unicast\Subscriptions\Azure\TableStorage\ISubscriptionStorageSessionProvider.cs" />
-    <Compile Include="Unicast\Subscriptions\Azure\TableStorage\Subscription.cs" />
-    <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorage.cs" />
-    <Compile Include="Unicast\Subscriptions\Azure\TableStorage\SubscriptionStorageSessionProvider.cs" />
-    <Compile Include="Unicast\Subscriptions\Subscription.cs" />
-    <Compile Include="Unicast\Subscriptions\SubscriptionServiceContext.cs" />
+    <Compile Include="Subscriptions\Azure\AzureSubscriptionStorage.cs" />
+    <Compile Include="Subscriptions\Azure\Subscription.cs" />
+    <Compile Include="Subscriptions\Azure\SubscriptionServiceContext.cs" />
     <Compile Include="WindowsAzureServiceBus.cs" />
     <Compile Include="WindowsAzureServiceBusDefaults.cs" />
     <Compile Include="WindowsAzureStorage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\nhibernate\NServiceBus.NHibernate\NServiceBus.NHibernate.csproj">
-      <Project>{281646e3-32e0-4f4d-bcf6-1dc5efc6c268}</Project>
-      <Name>NServiceBus.NHibernate</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>

@@ -2,7 +2,7 @@
 {
     using NServiceBus;
 
-    public class DeferredMessage:IMessage
+    public class DeferredMessage:ICommand
     {
          
     }
