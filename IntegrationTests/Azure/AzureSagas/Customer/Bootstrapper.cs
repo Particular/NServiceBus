@@ -1,7 +1,5 @@
 using Cashier;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Timeout.Hosting.Azure;
 using StructureMap;
 
 namespace Customer

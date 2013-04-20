@@ -3,7 +3,7 @@ using NServiceBus;
 
 namespace CashierContracts
 {
-    public class NewOrderMessage : IMessage
+    public class NewOrderMessage : ICommand
     {
         public String CustomerName { get; set; }
         public String Drink { get; set; }

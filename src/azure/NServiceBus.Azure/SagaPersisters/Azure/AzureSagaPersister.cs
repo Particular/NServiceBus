@@ -68,10 +68,52 @@
        
         T ISagaPersister.Get<T>(string property, object value)
         {
-            var tableName = typeof(T).Name;
+            var type = typeof (T);
+            var tableName = type.Name;
             var table = client.GetTableReference(tableName);
 
-            var query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterCondition(property, QueryComparisons.Equal, value.ToString()));
+            TableQuery<DictionaryTableEntity> query;
+
+            var propertyInfo = type.GetProperty(property);
+
+            if (propertyInfo.PropertyType == typeof(byte[]))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForBinary(property, QueryComparisons.Equal, (byte[])value));
+            }
+            else if (propertyInfo.PropertyType == typeof(bool))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForBool(property, QueryComparisons.Equal, (bool) value));
+            }
+            else if (propertyInfo.PropertyType == typeof(DateTime))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForDate(property, QueryComparisons.Equal, (DateTime)value));
+            }
+            else if (propertyInfo.PropertyType == typeof(Guid))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForGuid(property, QueryComparisons.Equal, (Guid)value));
+            }
+            else if (propertyInfo.PropertyType == typeof(Int32))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForInt(property, QueryComparisons.Equal, (int)value));
+            }
+            else if (propertyInfo.PropertyType == typeof(Int64))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForLong(property, QueryComparisons.Equal, (long)value));
+            }
+            else if (propertyInfo.PropertyType == typeof(Double))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterConditionForDouble(property, QueryComparisons.Equal, (double)value));
+            }
+            else if (propertyInfo.PropertyType == typeof(string))
+            {
+                query = new TableQuery<DictionaryTableEntity>().Where(TableQuery.GenerateFilterCondition(property, QueryComparisons.Equal, (string)value));
+            }
+            else
+            {
+                throw new NotSupportedException(
+                    string.Format("The property type '{0}' is not supported in windows azure table storage",
+                                  propertyInfo.PropertyType.Name));
+            }
 
             return ToEntity<T>(table.ExecuteQuery(query).FirstOrDefault());
         }
@@ -167,6 +209,10 @@
                 {
                     toPersist.Add(propertyInfo.Name, (Int64) propertyInfo.GetValue(entity, null));
                 }
+                else if (propertyInfo.PropertyType == typeof(Double))
+                {
+                    toPersist.Add(propertyInfo.Name, (Double)propertyInfo.GetValue(entity, null));
+                }
                 else if (propertyInfo.PropertyType == typeof (string))
                 {
                     toPersist.Add(propertyInfo.Name, (string) propertyInfo.GetValue(entity, null));
@@ -215,6 +261,11 @@
                     {
                         var int32 = entity[propertyInfo.Name].Int32Value;
                         propertyInfo.SetValue(toCreate, int32.HasValue ? int32.Value : default(Int32), null);
+                    }
+                    else if (propertyInfo.PropertyType == typeof(Double))
+                    {
+                        var d = entity[propertyInfo.Name].DoubleValue;
+                        propertyInfo.SetValue(toCreate, d.HasValue ? d.Value : default(Int64), null);
                     }
                     else if (propertyInfo.PropertyType == typeof(Int64))
                     {

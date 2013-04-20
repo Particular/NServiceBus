@@ -1,6 +1,6 @@
 using System.Configuration;
 
-namespace NServiceBus.Azure
+namespace NServiceBus.Config
 {
     /// <summary>
     /// 

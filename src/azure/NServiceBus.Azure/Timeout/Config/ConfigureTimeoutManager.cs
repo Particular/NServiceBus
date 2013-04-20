@@ -4,6 +4,7 @@ using NServiceBus.Timeout.Hosting.Windows;
 namespace NServiceBus
 {
     using Azure;
+    using Config;
 
     public static class ConfigureTimeoutManager
     {

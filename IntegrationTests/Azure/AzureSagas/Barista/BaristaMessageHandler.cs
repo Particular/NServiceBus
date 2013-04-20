@@ -37,7 +37,7 @@ namespace Barista
             Data.CustomerName = message.CustomerName;
             Data.Drink = message.Drink;
             Data.OrderId = message.OrderId;
-            Data.Size = message.DrinkSize;
+            Data.Size = (int) message.DrinkSize;
 
             RequestTimeout<CleanUpOrders>(TimeSpan.FromMinutes(1));
                         
@@ -64,7 +64,7 @@ namespace Barista
             if (!Data.OrderIsReady || !Data.OrderIsPaid)
                 return;
 
-            var viewData = new DeliverOrderView(Data.Drink, Data.Size);
+            var viewData = new DeliverOrderView(Data.Drink, (DrinkSize)Data.Size);
             _view.DeliverOrder(viewData);
 
             Bus.Send(new OrderReadyMessage{ Drink =  Data.Drink, CustomerName = Data.CustomerName});
@@ -76,7 +76,7 @@ namespace Barista
         {
             if (!Data.OrderIsReady || !Data.OrderIsPaid)
             {
-                var viewData = new OrderIsTrashedView(Data.Drink, Data.CustomerName, Data.Size);
+                var viewData = new OrderIsTrashedView(Data.Drink, Data.CustomerName, (DrinkSize) Data.Size);
                 _view.TrashOrder(viewData);
                 MarkAsComplete();
             }

@@ -32,12 +32,12 @@ namespace Cashier
             _view.NewOrder(new NewOrderView(message));
 
             Data.Drink = message.Drink;
-            Data.DrinkSize = message.DrinkSize;
+            Data.DrinkSize = (int) message.DrinkSize;
             Data.OrderId = message.OrderId;
             Data.CustomerName = message.CustomerName;
             Data.Amount = CalculateAmountAccordingTo(message.DrinkSize);
 
-            Bus.Publish(new PrepareOrderMessage{ CustomerName = Data.CustomerName, Drink =  Data.Drink, DrinkSize = Data.DrinkSize, OrderId = Data.OrderId});
+            Bus.Send(new PrepareOrderMessage { CustomerName = Data.CustomerName, Drink = Data.Drink, DrinkSize = (DrinkSize)Data.DrinkSize, OrderId = Data.OrderId });
             Bus.Reply(new PaymentRequestMessage { OrderId = Data.OrderId, CustomerName = Data.CustomerName, Amount = Data.Amount });
         }
 
@@ -45,12 +45,12 @@ namespace Cashier
         {
             if(message.Amount == 0)
             {
-                var viewData = new CustomerRefusesToPayView(Data.CustomerName, Data.Amount, Data.Drink, Data.DrinkSize);
+                var viewData = new CustomerRefusesToPayView(Data.CustomerName, Data.Amount, Data.Drink, (DrinkSize) Data.DrinkSize);
                 _view.CustomerRefusesToPay(viewData);
             }
             else
             {
-                var viewData = new ReceivedFullPaymentView(Data.CustomerName, Data.Drink, Data.DrinkSize);
+                var viewData = new ReceivedFullPaymentView(Data.CustomerName, Data.Drink, (DrinkSize) Data.DrinkSize);
                 _view.ReceivedFullPayment(viewData);
 
                 Bus.Publish(new PaymentCompleteMessage{ OrderId =  Data.OrderId});
