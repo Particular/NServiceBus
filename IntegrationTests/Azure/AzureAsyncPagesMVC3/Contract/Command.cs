@@ -2,7 +2,7 @@
 
 namespace Contract
 {
-    public class Command : IMessage
+    public class Command : ICommand
     {
         public int Id { get; set; }
     }
