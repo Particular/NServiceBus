@@ -1,5 +1,6 @@
 namespace NServiceBus.Config
 {
+    using Features;
     using Gateway.Persistence;
     using Saga;
     using Timeout.Core;
@@ -9,7 +10,10 @@ namespace NServiceBus.Config
     {
         public static void UseAsDefault()
         {
-            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.InMemorySagaPersister());
+            Feature.Enable<MessageDrivenSubscriptions>();
+            Feature.Enable<TimeoutManager>();
+
+            InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.AzureSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseAzureTimeoutPersister());
             InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseInMemoryGatewayPersister());
             InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.AzureSubcriptionStorage());

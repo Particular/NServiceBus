@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Config;
+    using Features;
     using Microsoft.WindowsAzure.Storage;
     using Unicast.Subscriptions;
 
@@ -37,7 +38,6 @@ namespace NServiceBus
             bool createSchema, 
             string tableName)
         {
-
             SubscriptionServiceContext.SubscriptionTableName = tableName;
             SubscriptionServiceContext.CreateIfNotExist = createSchema;
 
