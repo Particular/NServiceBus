@@ -50,12 +50,6 @@
     <Reference Include="Common.Logging">
       <HintPath>..\..\..\..\packages\Common.Logging.2.0.0\lib\2.0\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\..\..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Data.Edm, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Data.Edm.5.2.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
@@ -79,12 +73,6 @@
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAzure.Storage.2.0.5.1\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\..\..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.Drivers.Azure.TableStorage">
-      <HintPath>..\..\..\..\lib\NHibernate.Drivers.Azure.TableStorage.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
@@ -93,9 +81,6 @@
     </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\..\binaries\NServiceBus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.NHibernate">
-      <HintPath>..\..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -140,6 +125,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
