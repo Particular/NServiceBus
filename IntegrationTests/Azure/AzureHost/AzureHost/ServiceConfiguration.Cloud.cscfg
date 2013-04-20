@@ -10,8 +10,8 @@
       <Setting name="AzureQueueConfig.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="AzureQueueConfig.QueueName" value="websitequeue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={account};AccountKey={key}" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="ygoeleve" />
