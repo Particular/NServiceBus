@@ -40,7 +40,8 @@ Here is an example of what is required:
                 throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
             }
 
-            SettingsHolder.Set("NServiceBus.Transport.ConnectionString",defaultConnectionString);
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", typeof(T));
+            SettingsHolder.Set("NServiceBus.Transport.ConnectionString", defaultConnectionString);
 
             InternalConfigure(config, defaultConnectionString);
         }

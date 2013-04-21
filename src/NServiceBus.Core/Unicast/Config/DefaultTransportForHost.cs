@@ -1,5 +1,7 @@
 namespace NServiceBus.Unicast.Config
 {
+    using System;
+    using Settings;
     using Transports;
 
 
@@ -11,6 +13,11 @@ namespace NServiceBus.Unicast.Config
         public void Run()
         {
             if (Configure.Instance.Configurer.HasComponent<ISendMessages>())
+            {
+                return;
+            }
+
+            if(SettingsHolder.GetOrDefault<Type>("NServiceBus.Transport.SelectedTransport") != null)
             {
                 return;
             }
