@@ -28,7 +28,6 @@ namespace NServiceBus.Transports.RabbitMQ.Config
                      select new { Property = property, match.Groups[property.Name].Value }))
                     pair.Property.SetValue(connectionConfiguration, TypeDescriptor.GetConverter(pair.Property.PropertyType).ConvertFromString(pair.Value),null);
 
-                // i suppose i should just provide a custom typedescriptor for the host part of the connection string but i can't be bothered...
                 if (ContainsKey("host"))
                     connectionConfiguration.Hosts = ParseHosts(this["host"] as string);
 
