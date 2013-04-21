@@ -9,7 +9,7 @@
     using Unicast.Queuing.Installers;
     using Unicast.Subscriptions;
 
-    public class RabbitMqTranport : ConfigureTransport<RabbitMQ>, IFeature
+    public class RabbitMqTransport : ConfigureTransport<RabbitMQ>, IFeature
     {
         public void Initialize()
         {
@@ -50,7 +50,7 @@
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
-            Feature.Enable<RabbitMqTranport>();
+            Feature.Enable<RabbitMqTransport>();
             InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy), DependencyLifecycle.InstancePerCall);
         }
 
