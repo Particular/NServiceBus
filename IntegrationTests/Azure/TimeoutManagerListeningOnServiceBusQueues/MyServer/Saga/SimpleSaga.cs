@@ -13,7 +13,7 @@
 
             var someState = new Random().Next(10);
 
-            LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
+            LogMessage("Requesting a custom timeout style, state: " + someState);
             RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
             {
                 SomeValue = someState
@@ -32,7 +32,7 @@
 
         public void Timeout(MyTimeOutState state)
         {
-            LogMessage("v3.0 Timeout fired, with state: " + state.SomeValue);
+            LogMessage("Timeout fired, with state: " + state.SomeValue);
 
             LogMessage("Marking the saga as complete, be aware that this will remove the saga from the storage");
             MarkAsComplete();
