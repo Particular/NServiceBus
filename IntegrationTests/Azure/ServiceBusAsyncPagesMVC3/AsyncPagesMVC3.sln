@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AsyncPagesMVC3", "AsyncPagesMVC3\AsyncPagesMVC3.ccproj", "{F32F2A21-92D3-47B9-A06A-8C23CEF55BED}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Website", "Website\Website.csproj", "{12AFC759-8E5F-4B5C-B092-F7FF30A1F8C8}"
