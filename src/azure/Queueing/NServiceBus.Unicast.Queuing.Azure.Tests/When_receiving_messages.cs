@@ -4,11 +4,12 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
-using Microsoft.WindowsAzure.StorageClient;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using Microsoft.WindowsAzure.Storage.Queue;
+
     [TestFixture]
     [Category("Azure")]
     public class When_receiving_messages : AzureQueueFixture

@@ -13,7 +13,7 @@ namespace Cashier
         public virtual Double Amount { get; set; }
         public virtual String CustomerName { get; set; }
         public virtual String Drink { get; set; }
-        public virtual DrinkSize DrinkSize { get; set; }
+        public virtual int DrinkSize { get; set; }
         public virtual Guid OrderId { get; set; }
     }
 }

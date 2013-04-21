@@ -4,7 +4,7 @@ using NServiceBus;
 namespace MyMessages
 {
     [Serializable]
-    public class OrderMessage:IMessage
+    public class OrderMessage:ICommand
     {
         public Guid Id { get; set; }
         public int Quantity { get; set; }

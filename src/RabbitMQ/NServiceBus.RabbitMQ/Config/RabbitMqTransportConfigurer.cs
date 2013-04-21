@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transports.RabbitMQ.Config
+namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
     using EasyNetQ;

@@ -3,8 +3,6 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Integration.Azure;
 
 namespace Website
 {
@@ -16,10 +14,12 @@ namespace Website
 
         private static IBus ConfigureNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             var bus = Configure.With()
                   .DefaultBuilder()
                   .ForMvc()
-                  .Log4Net(new AzureAppender())
+                  .AzureDiagnosticsLogger()
                   .AzureConfigurationSource()
                   .AzureServiceBusMessageQueue()
                     .JsonSerializer()
@@ -28,7 +28,6 @@ namespace Website
                   .UseInMemoryTimeoutPersister()
                   .UnicastBus()
                       .LoadMessageHandlers()
-                      .IsTransactional(true)
                   .CreateBus()
                     .Start();
 

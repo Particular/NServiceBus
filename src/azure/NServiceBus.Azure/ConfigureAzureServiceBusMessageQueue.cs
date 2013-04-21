@@ -14,6 +14,8 @@ namespace NServiceBus
 
         public static Configure AzureServiceBusMessageQueue(this Configure config)
         {
+            AzureServiceBusPersistence.UseAsDefault();
+
             var configSection = Configure.GetConfigSection<AzureServiceBusQueueConfig>();
 
             if (configSection == null)

@@ -1,4 +1,3 @@
-using NServiceBus.Timeout.Hosting.Azure;
 
 namespace MyServer
 {

@@ -18,8 +18,8 @@
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
     </ConfigurationSettings>
   </WebRole>
   <WorkerRole name="Worker" vmsize="Small">
@@ -32,8 +32,8 @@
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
     </ConfigurationSettings>
   </WorkerRole>
 </ServiceDefinition>

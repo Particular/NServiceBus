@@ -1,11 +1,12 @@
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
     using System;
     using MessageInterfaces.MessageMapper.Reflection;
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Queue;
     using Serializers.Json;
 
     public abstract class AzureQueueFixture
@@ -30,10 +31,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         public void Setup()
         {
             client = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.ServerTimeout = TimeSpan.FromSeconds(10);
             nativeQueue = client.GetQueueReference(QueueName);
 
-            nativeQueue.CreateIfNotExist();
+            nativeQueue.CreateIfNotExists();
             nativeQueue.Clear();
 
 

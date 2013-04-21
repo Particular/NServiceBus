@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
-using NServiceBus.Integration.Azure;
-using NServiceBus.Timeout.Hosting.Azure;
 using log4net;
 using MyMessages;
 using NServiceBus;
-using NServiceBus.Config;
 
 namespace OrderWebSite
 {
@@ -19,6 +16,8 @@ namespace OrderWebSite
 		
 		private static IBus ConfigureNServiceBus()
 		{
+		    Configure.Transactions.Enable();
+
             var bus = Configure.With()
                 .DefaultBuilder()
                 .AzureConfigurationSource()
@@ -29,8 +28,6 @@ namespace OrderWebSite
                 .DisableTimeoutManager()
             
                 .UnicastBus()
-                .AutoSubscribePlainMessages()
-                .IsTransactional(true)
                 
                 .CreateBus()
 				.Start();
@@ -57,10 +54,7 @@ namespace OrderWebSite
 
         protected void Application_Error(object sender, EventArgs e)
         {
-            //get reference to the source of the exception chain
-            var ex = Server.GetLastError().GetBaseException();
-
-            LogManager.GetLogger(typeof(Global)).Error(ex.ToString());
+           
         }
 
         protected void Session_End(object sender, EventArgs e)

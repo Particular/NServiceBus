@@ -3,8 +3,8 @@ namespace NServiceBus
     using Config;
     using DataBus;
     using DataBus.Azure.BlobStorage;
-    using Microsoft.WindowsAzure;
-    using Microsoft.WindowsAzure.StorageClient;
+    using Microsoft.WindowsAzure.Storage.Blob;
+    using CloudStorageAccount = Microsoft.WindowsAzure.Storage.CloudStorageAccount;
 
     /// <summary>
 	/// Contains extension methods to NServiceBus.Configure for the azure blob storage data bus

@@ -20,7 +20,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             TimeoutManager.TimeoutPushed += TimeoutsManagerOnTimeoutPushed;
 
-            SecondsToSleepBetweenPolls = 5;
+            SecondsToSleepBetweenPolls = 1;
 
             tokenSource = new CancellationTokenSource();
 
@@ -64,7 +64,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             {
                 if (nextRetrieval > DateTime.UtcNow)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(Math.Min(Math.Max((nextRetrieval - DateTime.UtcNow).TotalSeconds, 0), SecondsToSleepBetweenPolls)));
+                    Thread.Sleep(SecondsToSleepBetweenPolls*1000);
                     continue;
                 }
 

@@ -8,11 +8,8 @@ namespace Worker
       
     }
 
-    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Worker, IWantCustomInitialization
+    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Worker, UsingTransport<WindowsAzureStorage>
     {
-        public void Init()
-        {
-            Configure.With(AllAssemblies.Except("NServiceBus.Hosting.Azure.HostProcess.exe"));
-        }
+        
     }
 }

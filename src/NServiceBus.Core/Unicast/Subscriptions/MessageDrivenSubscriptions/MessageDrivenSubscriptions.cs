@@ -2,7 +2,6 @@
 {
     using Config;
     using Transports;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
 
@@ -27,7 +26,7 @@
 
         public bool EnabledByDefault()
         {
-            return true;
+            return false;
         }
     }
 }

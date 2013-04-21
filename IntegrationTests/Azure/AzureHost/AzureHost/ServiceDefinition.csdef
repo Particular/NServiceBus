@@ -24,8 +24,8 @@
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
     </ConfigurationSettings>
     <LocalResources>
       <LocalStorage name="endpoints" cleanOnRoleRecycle="true" sizeInMB="100" />

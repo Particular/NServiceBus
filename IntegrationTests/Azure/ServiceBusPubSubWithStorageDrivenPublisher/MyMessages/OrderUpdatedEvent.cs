@@ -4,7 +4,7 @@ using NServiceBus;
 namespace MyMessages
 {
     [Serializable]
-    public class OrderUpdatedEvent:IMessage
+    public class OrderUpdatedEvent:IEvent
     {
         public Order UpdatedOrder{ get; set; }
     }

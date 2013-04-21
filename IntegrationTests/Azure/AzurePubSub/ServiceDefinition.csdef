@@ -10,37 +10,36 @@
     </Sites>
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
-      <Setting name="Diagnostics.ConnectionString" />
-      <Setting name="Diagnostics.Level" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="AzureQueueConfig.QueueName" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />      
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
     </ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="HttpIn" protocol="http" port="80" />
     </Endpoints>
     <Imports>
       <Import moduleName="RemoteAccess" />
+      <Import moduleName="Diagnostics" />
     </Imports>
   </WebRole>
   <WorkerRole name="OrderService" enableNativeCodeExecution="true">
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
+      <Setting name="AzureQueueConfig.QueueName" />
       <Setting name="AzureProfileConfig.Profiles" />
-      <Setting name="Diagnostics.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.TableName" />
-      <Setting name="Diagnostics.Level" />
-      <Setting name="UnicastBusConfig.LocalAddress" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
-      <Setting name="AzureQueueConfig.QueueName" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" />
-      <Setting name="MsmqTransportConfig.MaxRetries" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />      
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
     </ConfigurationSettings>
     <Imports>
       <Import moduleName="RemoteAccess" />
       <Import moduleName="RemoteForwarder" />
+      <Import moduleName="Diagnostics" />
     </Imports>
   </WorkerRole>
 </ServiceDefinition>

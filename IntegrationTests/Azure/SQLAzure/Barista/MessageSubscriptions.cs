@@ -17,7 +17,6 @@ namespace Barista
 
         private static readonly Type[] MessageTypes = new Type[]
         {
-            typeof(PrepareOrderMessage),
             typeof(PaymentCompleteMessage)                                                      
         };
         

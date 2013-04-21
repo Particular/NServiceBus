@@ -16,12 +16,12 @@ namespace NServiceBus.Transports.SQLServer
 	                    [Expires] [datetime] NULL,
 	                    [Headers] [varchar](8000) NOT NULL,
 	                    [Body] [varbinary](max) NULL,
-	                    [TimeStamp] [timestamp]
+	                    [RowVersion] [bigint] IDENTITY(1,1) NOT NULL
                     ) ON [PRIMARY];                    
 
-                    CREATE CLUSTERED INDEX [Index_TimeStamp] ON [dbo].[{0}] 
+                    CREATE CLUSTERED INDEX [Index_RowVersion] ON [dbo].[{0}] 
                     (
-	                    [TimeStamp] ASC
+	                    [RowVersion] ASC
                     )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
                     
                   END";

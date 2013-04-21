@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Config
 {
+    using NServiceBus.Config;
     using Subscriptions;
 
     /// <summary>
@@ -13,13 +14,10 @@ namespace NServiceBus.Unicast.Config
 
         public void Run()
         {
-            if (Configure.Instance.Configurer.HasComponent<IAutoSubscriptionStrategy>())
-                return;
-
-            Configure.Instance.Configurer.ConfigureComponent<DefaultAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p=>p.DoNotAutoSubscribeSagas,DoNotAutoSubscribeSagas)
-                .ConfigureProperty(p => p.SubscribePlainMessages, SubscribePlainMessages)
-                .ConfigureProperty(p => p.AllowSubscribeToSelf, AllowSubscribeToSelf);
+            InfrastructureServices.SetDefaultFor<IAutoSubscriptionStrategy>(() => Configure.Component<DefaultAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall)
+                                                                                           .ConfigureProperty(p => p.DoNotAutoSubscribeSagas, DoNotAutoSubscribeSagas)
+                                                                                           .ConfigureProperty(p => p.SubscribePlainMessages, SubscribePlainMessages)
+                                                                                           .ConfigureProperty(p => p.AllowSubscribeToSelf, AllowSubscribeToSelf));
         }
     }
 }

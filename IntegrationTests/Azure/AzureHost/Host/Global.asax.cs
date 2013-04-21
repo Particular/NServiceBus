@@ -21,17 +21,18 @@ namespace Host
 
         private static IBus ConfigureNServiceBus()
         {
+            Configure.Transactions.Enable();
+
             var bus = Configure.With()
                   .DefaultBuilder()
                   .ForMvc()
-                  .Log4Net(new AzureAppender())
+                  .AzureDiagnosticsLogger()
                   .AzureConfigurationSource()
                   .AzureMessageQueue()
                     .JsonSerializer()
                     .QueuePerInstance()
                   .UnicastBus()
                     .LoadMessageHandlers()
-                    .IsTransactional(true)
                   .CreateBus()
                   .Start();
 

@@ -4,7 +4,6 @@
     using Gateway.Persistence;
     using Saga;
     using Timeout.Core;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class NHibernatePersistence

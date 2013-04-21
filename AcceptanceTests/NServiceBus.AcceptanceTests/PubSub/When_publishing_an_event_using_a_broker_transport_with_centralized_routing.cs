@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.PubSub
 {
     using System;
+    using System.Threading;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
@@ -12,7 +13,10 @@
         public void Should_be_delivered_to_allsubscribers_without_the_need_for_config()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<CentralizedPublisher>(b => b.Given((bus, context) => bus.Publish(new MyEvent())))
+                    .WithEndpoint<CentralizedPublisher>(b => b.When(c => c.EndpointsStarted, (bus, context) =>
+                        {
+                            bus.Publish(new MyEvent());
+                        }))
                     .WithEndpoint<CentralizedSubscriber1>()
                     .WithEndpoint<CentralizedSubscriber2>()
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)

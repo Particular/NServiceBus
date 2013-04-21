@@ -1,9 +1,10 @@
 using System.Transactions;
-using Microsoft.WindowsAzure.StorageClient;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using Microsoft.WindowsAzure.Storage.Queue;
+
     [TestFixture]
     [Category("Azure")]
     public class When_sending_messages : AzureQueueFixture
@@ -25,7 +26,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             var destinationQueue = client.GetQueueReference(destinationQueueName);
 
-            destinationQueue.CreateIfNotExist();
+            destinationQueue.CreateIfNotExists();
             destinationQueue.Clear();
 
             return destinationQueue;

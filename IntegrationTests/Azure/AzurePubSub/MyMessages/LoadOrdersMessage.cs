@@ -4,7 +4,7 @@ using NServiceBus;
 namespace MyMessages
 {
     [Serializable]
-    public class LoadOrdersMessage:IMessage
+    public class LoadOrdersMessage: ICommand
     {
         
     }

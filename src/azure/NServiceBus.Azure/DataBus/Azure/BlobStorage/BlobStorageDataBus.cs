@@ -9,9 +9,10 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
     using System.Linq;
     using System.Net;
     using System.Threading;
-    using Microsoft.WindowsAzure.StorageClient;
-    using Microsoft.WindowsAzure.StorageClient.Protocol;
-    
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Blob;
+    using Microsoft.WindowsAzure.Storage.Blob.Protocol;
+
     public class BlobStorageDataBus : IDataBus
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
@@ -37,11 +38,13 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             return stream;
         }
 
+        
+
         public string Put(Stream stream, TimeSpan timeToBeReceived)
         {
             var key = Guid.NewGuid().ToString();
             var blob = container.GetBlockBlobReference(Path.Combine(BasePath, key));
-            blob.Attributes.Metadata["ValidUntil"] = (DateTime.Now + timeToBeReceived).ToString();
+            blob.Metadata["ValidUntil"] = (DateTime.Now + timeToBeReceived).ToString();
             UploadBlobInParallel(blob, stream);
             return key;
         }
@@ -49,7 +52,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
         public void Start()
         {
             ServicePointManager.DefaultConnectionLimit = NumberOfIOThreads;
-            container.CreateIfNotExist();
+            container.CreateIfNotExists();
             timer.Change(0, 300000);
             logger.Info("Blob storage data bus started. Location: " + BasePath);
         }
@@ -74,16 +77,12 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 
                     blockBlob.FetchAttributes();
                     DateTime validUntil;
-                    DateTime.TryParse(blockBlob.Attributes.Metadata["ValidUntil"], out validUntil);
+                    DateTime.TryParse(blockBlob.Metadata["ValidUntil"], out validUntil);
                     if (validUntil == default(DateTime) || validUntil < DateTime.Now)
                         blockBlob.DeleteIfExists();
                 }
             }
-            catch (StorageClientException ex) // to handle race conditions between multiple active instances.
-            {
-                logger.Warn(ex.Message);
-            }
-            catch (StorageServerException ex) // prevent azure hickups from hurting us.
+            catch (StorageException ex) 
             {
                 logger.Warn(ex.Message);
             }
@@ -91,159 +90,31 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
 
         private void UploadBlobInParallel(CloudBlockBlob blob, Stream stream)
         {
-            var blocksToUpload = new Queue<Block>();
-            var order = new List<string>();
-            CalculateBlocks(blocksToUpload, (int)stream.Length, order);
-
-            ExecuteInParallel(() => AsLongAsThereAre(blocksToUpload, block =>
+            try
             {
-                try
-                {
-                    var buffer = new byte[BlockSize];
-                    lock (stream)
-                    {
-                        stream.Position = block.Offset;
-                        stream.Read(buffer, 0, block.Length);
-                    }
-                    using (var memoryStream = new MemoryStream(buffer, 0, block.Length))
-                    {
-                        blob.PutBlock(block.Name, memoryStream, null);
-                    }
-                }
-                catch
-                {
-                    if (++block.Attempt > MaxRetries) throw;
-
-                    lock (blocksToUpload) blocksToUpload.Enqueue(block);
-                }
-            }));
-
-            Commit(blob, order);
-            
-        }
-
-        private void Commit(CloudBlockBlob blob, List<string> originalOrder)
-        {
-            var commitAttempt = 0;
-            while (commitAttempt <= MaxRetries)
+                blob.ServiceClient.ParallelOperationThreadCount = NumberOfIOThreads;
+                blob.UploadFromStream(stream);
+            }
+            catch (StorageException ex)
             {
-                try
-                {
-                    blob.PutBlockList(originalOrder);
-                    break;
-                }
-                catch (Exception)
-                {
-                    commitAttempt++;
-                    if (commitAttempt > MaxRetries) throw;
-                }
+                 logger.Warn(ex.Message);
             }
         }
 
-        private void DownloadBlobInParallel(CloudBlob blob, Stream stream)
+        private void DownloadBlobInParallel(CloudBlockBlob blob, Stream stream)
         {
             try
             {
                 blob.FetchAttributes();
-                var order = new List<string>();
-                var blocksToDownload = new Queue<Block>();
-                CalculateBlocks(blocksToDownload, (int)blob.Properties.Length, order);
-                ExecuteInParallel(() => AsLongAsThereAre(blocksToDownload, block =>
-                {
-                    var s = DownloadBlockFromBlob(blob, block, blocksToDownload); if (s == null) return;
-                    var buffer = new byte[BlockSize];
-                    ExtractBytesFromBlockIntoBuffer(buffer, s, block);
-                    lock (stream)
-                    {
-                        stream.Position = block.Offset;
-                        stream.Write(buffer, 0,block.Length);
-                    }
-                }));
+                blob.ServiceClient.ParallelOperationThreadCount = NumberOfIOThreads;
+                blob.DownloadToStream(stream);
                 stream.Seek(0, SeekOrigin.Begin);
             }
-            catch (StorageClientException ex) // to handle race conditions between multiple active instances.
-            {
-                logger.Warn(ex.Message);
-            }
-            catch (StorageServerException ex) // prevent azure hickups from hurting us.
+            catch (StorageException ex) 
             {
                 logger.Warn(ex.Message);
             }
         }
 
-        private void CalculateBlocks(Queue<Block> blocksToUpload, int blobLength, ICollection<string> order)
-        {
-            var offset = 0;
-            while (blobLength > 0)
-            {
-                var blockLength = Math.Min(BlockSize, blobLength);
-                var block = new Block { Offset = offset, Length = blockLength };
-                blocksToUpload.Enqueue(block);
-                order.Add(block.Name);
-                offset += blockLength;
-                blobLength -= blockLength;
-            }
-        }
-
-        private void ExecuteInParallel(Action action)
-        {
-            var threads = new List<Thread>();
-            for (var i = 0; i < NumberOfIOThreads; i++)
-            {
-                var t = new Thread(new ThreadStart(action));
-                t.Start();
-                threads.Add(t);
-            }
-            foreach (var t in threads) t.Join();
-        }
-
-        private static void AsLongAsThereAre(Queue<Block> blocks, Action<Block> action)
-        {
-            while (true)
-            {
-                Block block;
-                lock (blocks)
-                {
-                    if (blocks.Count == 0)
-                        break;
-
-                    block = blocks.Dequeue();
-                }
-
-                action(block);
-            }
-        }
-
-        private static void ExtractBytesFromBlockIntoBuffer(byte[] buffer, Stream s, Block block)
-        {
-            var offsetInBlock = 0;
-            var remaining = block.Length;
-            while (remaining > 0)
-            {
-                var read = s.Read(buffer, offsetInBlock, remaining);
-                offsetInBlock += read;
-                remaining -= read;
-            }
-        }
-
-        private Stream DownloadBlockFromBlob(CloudBlob blob, Block block, Queue<Block> blocksToDownload)
-        {
-            try
-            {
-                var blobGetRequest = BlobRequest.Get(blob.Uri, 60, null, null);
-                blobGetRequest.Headers.Add("x-ms-range", string.Format(CultureInfo.InvariantCulture, "bytes={0}-{1}", block.Offset, block.Offset + block.Length - 1));
-                var credentials = blob.ServiceClient.Credentials;
-                credentials.SignRequest(blobGetRequest);
-                var response = blobGetRequest.GetResponse() as HttpWebResponse;
-                return response != null ? response.GetResponseStream() : null;
-            }
-            catch
-            {
-                if (++block.Attempt > MaxRetries) throw;
-
-                lock (blocksToDownload) blocksToDownload.Enqueue(block);
-            }
-            return null;
-        }
     }
 }
