@@ -1,7 +1,8 @@
 namespace NServiceBus.Integration.Azure
 {
+    using System;
     using Microsoft.WindowsAzure.ServiceRuntime;
-    using Microsoft.WindowsAzure.ServiceRuntime.Internal;
+    //using Microsoft.WindowsAzure.ServiceRuntime.Internal;
 
     public class AzureConfigurationSettings : IAzureConfigurationSettings
     {
@@ -15,18 +16,29 @@ namespace NServiceBus.Integration.Azure
 
         static string TryGetSetting(string name)
         {
-            //hack: the azure runtime throws if a setting doesn't exists and this seems to be a way of 
-            //checking that a setting is defined. Still ugly stuff though because of the dep on msshrtmi
-
-            string ret;
-            var hr = InteropRoleManager.GetConfigurationSetting(name, out ret);
-
-            if (HResult.Failed(hr))
+            try
+            {
+                return RoleEnvironment.GetConfigurationSettingValue(name);
+            }
+            catch (Exception)
             {
                 return "";
             }
 
-            return ret;
+            // code left in comments here, until build server has sdk installed
+
+            //hack: the azure runtime throws if a setting doesn't exists and this seems to be a way of 
+            //checking that a setting is defined. Still ugly stuff though because of the dep on msshrtmi
+
+            //string ret;
+            //var hr = InteropRoleManager.GetConfigurationSetting(name, out ret);
+
+            //if (HResult.Failed(hr))
+            //{
+            //    return "";
+            //}
+
+            //return ret;
         }
     }
 }
