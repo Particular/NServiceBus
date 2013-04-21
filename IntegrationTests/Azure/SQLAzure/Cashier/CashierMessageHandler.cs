@@ -37,7 +37,7 @@ namespace Cashier
             Data.CustomerName = message.CustomerName;
             Data.Amount = CalculateAmountAccordingTo(message.DrinkSize);
 
-            Bus.Publish(new PrepareOrderMessage(Data.CustomerName, Data.Drink, Data.DrinkSize, Data.OrderId));
+            Bus.Send(new PrepareOrderMessage(Data.CustomerName, Data.Drink, Data.DrinkSize, Data.OrderId));
             Bus.Reply(new PaymentRequestMessage(Data.Amount, message.CustomerName, message.OrderId));
         }
 
