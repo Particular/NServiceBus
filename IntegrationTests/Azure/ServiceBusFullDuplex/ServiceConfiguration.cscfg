@@ -3,11 +3,11 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourNamespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[yourSecret]=" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
@@ -15,12 +15,12 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[yourNamespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[yourSecret]" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
-      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development NServiceBus.OnAzureTableStorage NServiceBus.WithAzureServiceBusQueues" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
-      <Setting name="MsmqTransportConfig.NumberOfWorkerThreads" value="1" />
-      <Setting name="MsmqTransportConfig.MaxRetries" value="5" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>

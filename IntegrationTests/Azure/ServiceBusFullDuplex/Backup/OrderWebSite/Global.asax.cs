@@ -11,6 +11,7 @@ namespace OrderWebSite
     public class Global : HttpApplication
     {
         public static IBus Bus;
+        public static IList<MyMessages.Order> Orders;
         private static IStartableBus _configure;
 
         private static readonly Lazy<IBus> StartBus = new Lazy<IBus>(ConfigureNServiceBus);
@@ -23,23 +24,30 @@ namespace OrderWebSite
             return bus;
         }
 
+        protected void Application_Start(object sender, EventArgs e)
+        {
+            Orders = new List<MyMessages.Order>();
+
+           
+        }
+
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
             if(_configure == null)
-               _configure = Configure.With()
-                  .DefaultBuilder()
-                  .Log4Net(new AzureAppender())
-                  .AzureConfigurationSource()
-                  .AzureMessageQueue()
-                    .JsonSerializer()
-                    .QueuePerInstance()
-                  .AzureDataBus()
-                  .UnicastBus()
-                    .LoadMessageHandlers()
-                    .IsTransactional(true)
-                  .CreateBus();
+                _configure = Configure.With()
+               .DefaultBuilder()
+               .Log4Net(new AzureAppender())
+               .AzureConfigurationSource()
+               .AzureServiceBusMessageQueue()
+               .JsonSerializer()
+               .UseInMemoryTimeoutPersister()
+               .UnicastBus()
+                   .DoNotAutoSubscribe()
+                   .LoadMessageHandlers()
+                   .IsTransactional(true)
+               .CreateBus();
 
-           Bus = StartBus.Value; 
+            Bus = StartBus.Value;
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)

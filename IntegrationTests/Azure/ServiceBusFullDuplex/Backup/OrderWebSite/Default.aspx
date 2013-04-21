@@ -1,5 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="OrderWebSite._Default" %>
-<%@ Import Namespace="System.Data" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" Async="true" CodeBehind="Default.aspx.cs" Inherits="OrderWebSite._Default" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -13,12 +12,11 @@
         <asp:Button ID="btnSubmit" runat="server" OnClick="btnSubmit_Click" Text="Submit Order"  />
     </div>
     <div>
-        Entering a value above 100 will require manager approval (extends the delay 10 seconds) <br />
         Refresh the page after submitting orders (would of course use Ajax for this in production :) )
     </div>
+    <div>
         <a href="Default.aspx">Click here to refresh orderlist</a>
     <div>
-    </div>
     <div>
         <asp:Repeater ID="OrderList" runat="server">
             <HeaderTemplate>

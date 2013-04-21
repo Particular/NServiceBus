@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureThumbnailCreator", "AzureThumbnailCreator.ccproj", "{ADCFC6B6-8BF7-4D56-B6A4-F6D221111666}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureServiceBusFullDuplex", "AzureServiceBusFullDuplex.ccproj", "{ADCFC6B6-8BF7-4D56-B6A4-F6D221111666}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSite", "WebSite\WebSite.csproj", "{F3798C2C-41DC-407C-9EBE-3F10C1CA9A76}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderWebSite", "OrderWebSite\OrderWebSite.csproj", "{F3798C2C-41DC-407C-9EBE-3F10C1CA9A76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{84ACA710-E5B3-4A46-B87A-7C12FB2527A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "OrderService\OrderService.csproj", "{84ACA710-E5B3-4A46-B87A-7C12FB2527A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyMessages", "MyMessages\MyMessages.csproj", "{3871CC9B-235F-4E60-98F7-FEF04DB1201B}"
 EndProject

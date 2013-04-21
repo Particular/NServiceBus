@@ -1,11 +1,9 @@
-using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using NServiceBus.Config;
 using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
 {
-    using Features;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Unicast.Publishing;
