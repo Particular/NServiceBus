@@ -43,8 +43,6 @@
 
             NServiceBus.Configure.Component<RabbitMqQueueCreator>(DependencyLifecycle.InstancePerCall);
 
-            NServiceBus.Configure.Component<NoConfigRequiredAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
-
             InfrastructureServices.Enable<IRoutingTopology>();
 
             EndpointInputQueueCreator.Enabled = true;
@@ -53,6 +51,7 @@
         protected override void InternalConfigure(Configure config, string connectionString)
         {
             Feature.Enable<RabbitMqTranport>();
+            InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy), DependencyLifecycle.InstancePerCall);
         }
 
         protected override string ExampleConnectionStringForErrorMessage

@@ -327,6 +327,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
+            SettingsHolder.Set("UnicastBus.AutoSubscribe",false);
             busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
             return this;
         }

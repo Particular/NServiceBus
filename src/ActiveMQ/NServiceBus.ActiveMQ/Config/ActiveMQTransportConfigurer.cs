@@ -7,6 +7,7 @@
     using System.Text;
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
+    using NServiceBus.Config;
     using NServiceBus.Unicast.Queuing.Installers;
     using Receivers;
     using Receivers.TransactonsScopes;
@@ -50,8 +51,10 @@
                   .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<TransactionScopeFactory>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<NoConfigRequiredAutoSubscriptionStrategy>(DependencyLifecycle.InstancePerCall);
 
+            InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy),DependencyLifecycle.InstancePerCall);
+
+            
             if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
             {
                 config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);

@@ -105,6 +105,7 @@
     <Compile Include="Features\IConditionalFeature.cs" />
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\SetFeatureDefaults.cs" />
+    <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
     <Compile Include="Hosting\Profiles\IHandleAnyProfile.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="ConfigureLicenseExtensions.cs" />
     <Compile Include="ConfigureMasterNode.cs" />
     <Compile Include="Settings\TransportSettings.cs" />
+    <Compile Include="Unicast\Config\SetUnicastBusConfigurationDefaults.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
     <Compile Include="Transports\Msmq\Config\ConfigureMsmqMessageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\ConfigureMsmqSubscriptionStorage.cs" />

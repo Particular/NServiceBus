@@ -19,9 +19,9 @@
                     .Done(c => c.WasCalled)
                     .Repeat(r =>
                             r
-                                .For<AllTransports>()
-                                .For<AllBuilders>()
-                                .For<AllSerializers>()
+                               .For<AllTransports>()
+                               .For<AllBuilders>()
+                               .For<AllSerializers>()
                     )
                     .Should(c =>
                         {
