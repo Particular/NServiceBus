@@ -41,7 +41,7 @@ namespace NServiceBus
             {
                 return Address.Parse(unicastConfig.TimeoutManagerAddress);
             }
-                
+
             return config.GetMasterNodeAddress().SubScope("Timeouts");
         }
 

@@ -29,7 +29,7 @@ namespace NServiceBus.CircuitBreakers
                 return false;
 
             timer.Change(Timeout.Infinite, Timeout.Infinite);
-            Logger.DebugFormat("The circuit breaker for {0} is now disarmed", name);
+            Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
 
             return true;
         }
@@ -41,7 +41,7 @@ namespace NServiceBus.CircuitBreakers
             if (newValue == 1)
             {
                 timer.Change(timeToWaitBeforeTriggering, NoPeriodicTriggering);
-                Logger.DebugFormat("The circuit breaker for {0} is now in the armed state", name);
+                Logger.InfoFormat("The circuit breaker for {0} is now in the armed state", name);
             }
 
 

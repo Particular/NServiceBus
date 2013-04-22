@@ -20,28 +20,6 @@
     /// </summary>
     public class SqlServerPollingDequeueStrategy : IDequeueMessages
     {
-        private const string SqlReceive =
-            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY [RowVersion] ASC) 
-			DELETE FROM message 
-			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
-        private const string SqlPurge = @"DELETE FROM [{0}]";
-
-        private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
-        private static readonly ILog Logger = LogManager.GetLogger(typeof (SqlServerPollingDequeueStrategy));
-
-        private readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
-
-        private Address addressToPoll;
-        private Action<string, Exception> endProcessMessage;
-        private MTATaskScheduler scheduler;
-        private TransactionSettings settings;
-        private string sql;
-        private string tableName;
-        private CancellationTokenSource tokenSource;
-        private TransactionOptions transactionOptions;
-        private Func<TransportMessage, bool> tryProcessMessage;
-
         /// <summary>
         ///     The connection used to open the SQL Server database.
         /// </summary>
@@ -56,7 +34,7 @@
         /// SqlServer <see cref="ISendMessages"/>.
         /// </summary>
         public SqlServerMessageSender MessageSender { get; set; }
-        
+
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
         /// </summary>
@@ -148,10 +126,8 @@
                     {
                         t.Exception.Handle(ex =>
                             {
-                                circuitBreaker.Execute(
-                                    () =>
-                                    Configure.Instance.RaiseCriticalError(
-                                        string.Format("Failed to receive message from '{0}'.", tableName), ex));
+                                Logger.Warn("Failed to connect to the configured SqlServer");
+                                circuitBreaker.Failure(ex);
                                 return true;
                             });
 
@@ -161,7 +137,7 @@
 
         private void Action(object obj)
         {
-            var cancellationToken = (CancellationToken) obj;
+            var cancellationToken = (CancellationToken)obj;
             var backOff = new BackOff(1000);
 
             while (!cancellationToken.IsCancellationRequested)
@@ -186,15 +162,14 @@
                         result = TryReceiveWithNoTransaction();
                     }
                 }
-                catch (Exception ex)
-                {
-                    result.Exception = ex;
-                }
                 finally
                 {
-                    endProcessMessage(result.Message != null ? result.Message.Id : null, result.Exception);
+                    //since we're polling the message will be null when there was nothing in the queue
+                    if (result.Message != null)
+                        endProcessMessage(result.Message.Id, result.Exception);
                 }
 
+                circuitBreaker.Success();
                 backOff.Wait(() => result.Message == null);
             }
         }
@@ -202,7 +177,7 @@
         ReceiveResult TryReceiveWithNoTransaction()
         {
             var result = new ReceiveResult();
-         
+
             var message = Receive();
 
             if (message == null)
@@ -211,21 +186,21 @@
             result.Message = message;
             try
             {
-                tryProcessMessage(message);    
+                tryProcessMessage(message);
 
             }
             catch (Exception ex)
             {
                 result.Exception = ex;
             }
-            
+
             return result;
         }
 
         ReceiveResult TryReceiveWithDTCTransaction()
         {
             var result = new ReceiveResult();
-             
+
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions))
             {
                 var message = Receive();
@@ -252,25 +227,16 @@
 
                 return result;
             }
-           
+
         }
 
         ReceiveResult TryReceiveWithNativeTransaction()
         {
             var result = new ReceiveResult();
-          
+
             using (var connection = new SqlConnection(ConnectionString))
             {
-                try
-                {
-                    connection.Open();
-                }
-                catch (Exception ex)
-                {
-                    circuitBreaker.Execute(() =>Configure.Instance.RaiseCriticalError("Failed to open a sql connection.", ex));
-
-                    throw;
-                }
+                connection.Open();
 
                 using (var transaction = connection.BeginTransaction(GetSqlIsolationLevel(settings.IsolationLevel)))
                 {
@@ -279,15 +245,9 @@
                     {
                         message = ReceiveWithNativeTransaction(connection, transaction);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         transaction.Rollback();
-
-                        circuitBreaker.Execute(
-                                        () =>
-                                        Configure.Instance.RaiseCriticalError(
-                                            string.Format("Failed to receive message from '{0}'.", tableName), ex));
-
                         throw;
                     }
 
@@ -296,17 +256,16 @@
                         transaction.Commit();
                         return result;
                     }
-                    
+
                     result.Message = message;
 
-                   
                     try
                     {
                         if (MessageSender != null)
                         {
                             MessageSender.SetTransaction(transaction);
                         }
-                        
+
                         if (tryProcessMessage(message))
                         {
                             transaction.Commit();
@@ -326,34 +285,23 @@
                     return result;
                 }
             }
-          
+
         }
 
-        private TransportMessage Receive()
+        TransportMessage Receive()
         {
-            try
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                using (var connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
+                connection.Open();
 
-                    using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
-                    {
-                        return ExecuteReader(command);
-                    }
+                using (var command = new SqlCommand(sql, connection) { CommandType = CommandType.Text })
+                {
+                    return ExecuteReader(command);
                 }
             }
-            catch (Exception ex)
-            {
-                circuitBreaker.Execute(
-                                    () =>
-                                    Configure.Instance.RaiseCriticalError(
-                                        string.Format("Failed to receive message from '{0}'.", tableName), ex));
-                throw;
-            }
         }
 
-        private TransportMessage ReceiveWithNativeTransaction(SqlConnection connection, SqlTransaction transaction)
+        TransportMessage ReceiveWithNativeTransaction(SqlConnection connection, SqlTransaction transaction)
         {
             using (var command = new SqlCommand(sql, connection, transaction) { CommandType = CommandType.Text })
             {
@@ -361,14 +309,14 @@
             }
         }
 
-        private static TransportMessage ExecuteReader(SqlCommand command)
+        static TransportMessage ExecuteReader(SqlCommand command)
         {
             using (var dataReader = command.ExecuteReader(CommandBehavior.SingleRow))
             {
                 if (dataReader.Read())
                 {
                     var id = dataReader.GetGuid(0).ToString();
-                   
+
                     DateTime? expireDateTime = null;
                     if (!dataReader.IsDBNull(4))
                     {
@@ -438,5 +386,31 @@
             public Exception Exception { get; set; }
             public TransportMessage Message { get; set; }
         }
+
+        const string SqlReceive =
+         @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY [RowVersion] ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
+        const string SqlPurge = @"DELETE FROM [{0}]";
+
+        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SqlServerPollingDequeueStrategy));
+
+        readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("SqlTransportConnectivity", 
+                            TimeSpan.FromMinutes(2),
+                            ex => Configure.Instance.RaiseCriticalError("Repeted failure when communicating with the SqlServer, connection string", ex),
+                            TimeSpan.FromSeconds(10));
+
+        Address addressToPoll;
+        Action<string, Exception> endProcessMessage;
+        MTATaskScheduler scheduler;
+        TransactionSettings settings;
+        string sql;
+        string tableName;
+        CancellationTokenSource tokenSource;
+        TransactionOptions transactionOptions;
+        Func<TransportMessage, bool> tryProcessMessage;
+
     }
 }
