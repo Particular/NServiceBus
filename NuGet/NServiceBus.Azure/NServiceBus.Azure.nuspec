@@ -15,7 +15,7 @@
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <package id="WindowsAzure.Storage" version="2.0.5.1" targetFramework="net40" />
+      <dependency id="WindowsAzure.Storage" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>
   <files>
