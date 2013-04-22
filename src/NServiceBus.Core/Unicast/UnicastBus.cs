@@ -1024,7 +1024,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            HandleCorrelatedMessage(m, messages);
+            var callbackInvoked = HandleCorrelatedMessage(m, messages);
 
             foreach (var messageToHandle in messages)
             {
@@ -1032,7 +1032,7 @@ namespace NServiceBus.Unicast
 
                 var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
 
-                if (!handlers.Any())
+                if (!callbackInvoked && !handlers.Any())
                 {
                     var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
 
@@ -1167,14 +1167,14 @@ namespace NServiceBus.Unicast
 
         /// <summary>
         /// If the message contains a correlationId, attempts to
-        /// invoke callbacks for that Id.
+        /// invoke callbacks for that Id. Returns true if a callback was invoked
         /// </summary>
         /// <param name="msg">The message to evaluate.</param>
         /// <param name="messages">The logical messages in the transport message.</param>
-        void HandleCorrelatedMessage(TransportMessage msg, object[] messages)
+        bool HandleCorrelatedMessage(TransportMessage msg, object[] messages)
         {
             if (msg.CorrelationId == null)
-                return;
+                return false;
 
             BusAsyncResult busAsyncResult;
 
@@ -1185,7 +1185,7 @@ namespace NServiceBus.Unicast
             }
 
             if (busAsyncResult == null)
-                return;
+                return false;
 
             var statusCode = int.MinValue;
 
@@ -1193,6 +1193,8 @@ namespace NServiceBus.Unicast
                 statusCode = int.Parse(msg.Headers[Headers.ReturnMessageErrorCodeHeader]);
 
             busAsyncResult.Complete(statusCode, messages);
+
+            return true;
         }
 
         /// <summary>
