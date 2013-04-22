@@ -178,7 +178,6 @@ $coreDirs = "unicastTransport", "ObjectBuilder", "config", "faults", "utils","se
 	$assemblies += dir $buildBase\nservicebus.core\NLog.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Abstractions.dll
 	$assemblies += dir $buildBase\nservicebus.core\Raven.Client.Lightweight.dll
-	$assemblies += dir $buildBase\nservicebus.core\rhino.licensing.dll
 	$assemblies += dir $buildBase\nservicebus.core\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $outDir "NServiceBus.Core" $assemblies $attributeAssembly "dll"  $script:ilmergeTargetFramework "$buildBase\NServiceBusCoreMergeLog.txt"  $ilMergeExclude
@@ -516,7 +515,6 @@ function Prepare-Binaries{
 	Copy-Item $buildBase\nservicebus.core\AutoFac.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 	Copy-Item $buildBase\nservicebus.core\Raven*.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll, Raven.Client.Debug.dll, Raven.Client.MvcIntegration.dll
 	Copy-Item $buildBase\nservicebus.core\NLog.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
-	Copy-Item $buildBase\nservicebus.core\rhino.licensing.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 	Copy-Item $buildBase\nservicebus.core\Newtonsoft.Json.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 	Copy-Item $buildBase\nservicebus.core\ICSharpCode.NRefactory.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll
 	Copy-Item $buildBase\nservicebus.core\Esent.Interop.dll $coreOnlyDir\dependencies\ -Exclude **Tests.dll

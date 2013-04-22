@@ -79,13 +79,16 @@
 
         public bool TryRemove(string timeoutId, out TimeoutData timeoutData)
         {
-            using (var session = SessionFactory.OpenSession())
+            int result;
+
+            using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
             {
                 var te = session.Get<TimeoutEntity>(new Guid(timeoutId));
 
                 if (te == null)
                 {
+                    tx.Commit();
                     timeoutData = null;
                     return false;
                 }
@@ -101,11 +104,22 @@
                         Headers = ConvertStringToDictionary(te.Headers),
                     };
 
-                session.Delete(te);
-                tx.Commit();
+                var queryString = string.Format("delete {0} where Id = :id",
+                                        typeof(TimeoutEntity));
+                result = session.CreateQuery(queryString)
+                       .SetParameter("id", new Guid(timeoutId))
+                       .ExecuteUpdate();
 
-                return true;
+                tx.Commit();
             }
+
+            if (result == 0)
+            {
+                timeoutData = null;
+                return false;
+            }
+
+            return true;
         }
 
         public void RemoveTimeoutBy(Guid sagaId)
