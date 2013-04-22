@@ -20,28 +20,6 @@
     /// </summary>
     public class SqlServerPollingDequeueStrategy : IDequeueMessages
     {
-        private const string SqlReceive =
-            @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY [RowVersion] ASC) 
-			DELETE FROM message 
-			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
-			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
-        private const string SqlPurge = @"DELETE FROM [{0}]";
-
-        private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(SqlServerPollingDequeueStrategy));
-
-        private readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
-
-        private Address addressToPoll;
-        private Action<string, Exception> endProcessMessage;
-        private MTATaskScheduler scheduler;
-        private TransactionSettings settings;
-        private string sql;
-        private string tableName;
-        private CancellationTokenSource tokenSource;
-        private TransactionOptions transactionOptions;
-        private Func<TransportMessage, bool> tryProcessMessage;
-
         /// <summary>
         ///     The connection used to open the SQL Server database.
         /// </summary>
@@ -148,10 +126,8 @@
                     {
                         t.Exception.Handle(ex =>
                             {
-                                circuitBreaker.Execute(
-                                    () =>
-                                    Configure.Instance.RaiseCriticalError(
-                                        string.Format("Failed to receive message from '{0}'.", tableName), ex));
+                                Logger.Warn("Failed to connect to the configured SqlServer");
+                                circuitBreaker.Failure(ex);
                                 return true;
                             });
 
@@ -193,6 +169,7 @@
                         endProcessMessage(result.Message.Id, result.Exception);
                 }
 
+                circuitBreaker.Success();
                 backOff.Wait(() => result.Message == null);
             }
         }
@@ -409,5 +386,31 @@
             public Exception Exception { get; set; }
             public TransportMessage Message { get; set; }
         }
+
+        const string SqlReceive =
+         @"WITH message AS (SELECT TOP(1) * FROM [{0}] WITH (UPDLOCK, READPAST, ROWLOCK) ORDER BY [RowVersion] ASC) 
+			DELETE FROM message 
+			OUTPUT deleted.Id, deleted.CorrelationId, deleted.ReplyToAddress, 
+			deleted.Recoverable, deleted.Expires, deleted.Headers, deleted.Body;";
+        const string SqlPurge = @"DELETE FROM [{0}]";
+
+        static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+        static readonly ILog Logger = LogManager.GetLogger(typeof(SqlServerPollingDequeueStrategy));
+
+        readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("SqlTransportConnectivity", 
+                            TimeSpan.FromMinutes(2),
+                            ex => Configure.Instance.RaiseCriticalError("Repeted failure when communicating with the SqlServer, connection string", ex),
+                            TimeSpan.FromSeconds(10));
+
+        Address addressToPoll;
+        Action<string, Exception> endProcessMessage;
+        MTATaskScheduler scheduler;
+        TransactionSettings settings;
+        string sql;
+        string tableName;
+        CancellationTokenSource tokenSource;
+        TransactionOptions transactionOptions;
+        Func<TransportMessage, bool> tryProcessMessage;
+
     }
 }
