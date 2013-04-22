@@ -1,9 +1,8 @@
 ﻿NServiceBus Endpoint Host Service
 
 USAGE:
-   NServiceBus.Host.exe [/installInfrastructure]
-   NServiceBus.Host.exe [/install] [options]
-   NServiceBus.Host.exe [/uninstall] [options]
+   NServiceBus.Host.exe [-install] [options]
+   NServiceBus.Host.exe [-uninstall] [options]
 																
 INSTALL OPTIONS:
 
@@ -25,13 +24,13 @@ If you don't specify the endpoint configuration type either in the command-line 
 
 If you set the service name and sidebyside during installation you will need to specify them when uninstalling them as well, eg:
 
-   NServiceBus.Host.exe /uninstall /serviceName:"MyPublisher" /sidebyside
+   NServiceBus.Host.exe -uninstall -serviceName="MyPublisher" -sidebyside
 	
 EXAMPLES:
-   NServiceBus.Host.exe /install 
-     /serviceName:"MyPublisher" 
-	 /displayName:"My Publisher Service"
-     /description:"Service for publishing event messages" 
-     /endpointConfigurationType:"YourEndpointConfigType.YourNameSpace, YourAssembly"
-     /username:"corp\serviceuser"
-     /password:"p@ssw0rd!" NServiceBus.Production
+   NServiceBus.Host.exe -install 
+     -serviceName="MyPublisher" 
+     -displayName="My Publisher Service"
+     -description="Service for publishing event messages" 
+     -endpointConfigurationType="YourEndpointConfigType.YourNameSpace, YourAssembly"
+     -username="corp\serviceuser"
+     -password="p@ssw0rd!" NServiceBus.Production
