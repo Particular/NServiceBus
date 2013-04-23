@@ -12,12 +12,6 @@
         public virtual IConnectionConfiguration Configuration { get; private set; }
         private readonly IClusterHostSelectionStrategy<ConnectionFactoryInfo> clusterHostSelectionStrategy;
 
-        public ConnectionFactoryWrapper(IConnectionConfiguration connectionConfiguration)
-            : this(connectionConfiguration, new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>())
-        {
-            
-        }
-
         public ConnectionFactoryWrapper(IConnectionConfiguration connectionConfiguration, IClusterHostSelectionStrategy<ConnectionFactoryInfo> clusterHostSelectionStrategy)
         {
             this.clusterHostSelectionStrategy = clusterHostSelectionStrategy;

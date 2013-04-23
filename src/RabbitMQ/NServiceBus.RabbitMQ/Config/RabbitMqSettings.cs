@@ -80,7 +80,7 @@
         {
             Configure.Component<RabbitMqConnectionManager>(DependencyLifecycle.SingleInstance);
 
-            Configure.Component<ConnectionFactoryWrapper>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<IConnectionFactory>(builder =>new ConnectionFactoryWrapper(builder.Build<IConnectionConfiguration>(), new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>()), DependencyLifecycle.InstancePerCall);
         }
     }
 }
