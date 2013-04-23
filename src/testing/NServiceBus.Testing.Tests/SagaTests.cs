@@ -28,6 +28,15 @@ namespace NServiceBus.Testing.Tests
         }
 
         [Test]
+        public void MySagaWithActions()
+        {
+            Test.Saga<MySaga>()
+                .ExpectTimeoutToBeSetIn<StartsSaga>(
+                    (state, span) => Assert.That(() => span, Is.EqualTo(TimeSpan.FromDays(7))))
+                .When(s => s.Handle(new StartsSaga()));
+        }
+
+        [Test]
         public void DiscountTest()
         {
             decimal total = 600;
@@ -39,6 +48,16 @@ namespace NServiceBus.Testing.Tests
                 .ExpectSend<ProcessOrder>(m => m.Total == total*(decimal) 0.9)
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = total}));
+        }
+
+        [Test]
+        public void DiscountTestWithActions()
+        {
+            decimal total = 600;
+
+            Test.Saga<DiscountPolicy>()
+                .ExpectSend<ProcessOrder>(m => Assert.That(() => m.Total, Is.EqualTo(total)))
+                .When(s => s.Handle(new SubmitOrder { Total = total }));
         }
 
         [Test]
@@ -66,6 +85,21 @@ namespace NServiceBus.Testing.Tests
                 .ExpectSendToDestination<ProcessOrder>((m, a) => m.Total == total && a.Queue == "remote.orderqueue")
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = total, IsRemoteOrder = true}));
+        }
+
+        [Test]
+        public void RemoteOrderWithAssertions()
+        {
+            decimal total = 100;
+
+            Test.Saga<DiscountPolicy>()
+                .ExpectSendToDestination<ProcessOrder>((m, a) => 
+                {
+                    Assert.That(() => m.Total, Is.EqualTo(total));
+                    Assert.That(() => a.Queue, Is.EqualTo("remote.orderqueue"));
+                })
+                .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
+                .When(s => s.Handle(new SubmitOrder { Total = total, IsRemoteOrder = true }));
         }
 
 
