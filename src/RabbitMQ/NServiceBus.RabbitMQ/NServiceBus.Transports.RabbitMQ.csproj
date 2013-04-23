@@ -24,7 +24,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.XML</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -48,14 +49,29 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\ConnectionStringParser.cs" />
+    <Compile Include="Config\IConnectionStringParser.cs" />
     <Compile Include="Config\RabbitMqTransport.cs" />
     <Compile Include="Config\RabbitMQ.cs" />
     <Compile Include="Config\RabbitMqSettingsExtensions.cs" />
     <Compile Include="Config\RabbitMqSettings.cs" />
     <Compile Include="DefaultRoutingKeyConvention.cs" />
+    <Compile Include="EasyNetQLogger.cs" />
+    <Compile Include="Config\ConnectionConfiguration.cs" />
+    <Compile Include="EasyNetQ\ConnectionFactoryInfo.cs" />
+    <Compile Include="EasyNetQ\ConnectionFactoryWrapper.cs" />
+    <Compile Include="EasyNetQ\DefaultClusterHostSelectionStrategy.cs" />
+    <Compile Include="EasyNetQ\EasyNetQException.cs" />
+    <Compile Include="EasyNetQ\HostConfiguration.cs" />
+    <Compile Include="EasyNetQ\IClusterHostSelectionStrategy.cs" />
+    <Compile Include="Config\IConnectionConfiguration.cs" />
+    <Compile Include="EasyNetQ\IConnectionFactory.cs" />
+    <Compile Include="EasyNetQ\IEasyNetQLogger.cs" />
+    <Compile Include="EasyNetQ\IHostConfiguration.cs" />
+    <Compile Include="EasyNetQ\IPersistentConnection.cs" />
+    <Compile Include="EasyNetQ\PersistentConnection.cs" />
     <Compile Include="IManageRabbitMqConnections.cs" />
     <Compile Include="RabbitMqConnectionManager.cs" />
-    <Compile Include="Config\RabbitMqConnectionStringParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMqDequeueStrategy.cs" />
     <Compile Include="RabbitMqMessagePublisher.cs" />
@@ -81,7 +97,10 @@
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="EasyNetQ\licence.txt" />
+    <Content Include="EasyNetQ\readme.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

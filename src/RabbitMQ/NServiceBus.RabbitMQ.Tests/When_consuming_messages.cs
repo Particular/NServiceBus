@@ -5,6 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture, Category("Integration")]
+    [Explicit("requires rabbit node")]
     public class When_consuming_messages : RabbitMqContext
     {
         [SetUp]
