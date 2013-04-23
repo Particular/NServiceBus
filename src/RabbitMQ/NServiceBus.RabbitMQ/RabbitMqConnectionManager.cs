@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
-    using System.Threading;
     using Config;
+    using EasyNetQ;
     using Logging;
     using global::RabbitMQ.Client;
 
     public class RabbitMqConnectionManager : IDisposable, IManageRabbitMqConnections
     {
-        public RabbitMqConnectionManager(ConnectionFactory connectionFactory,ConnectionRetrySettings retrySettings)
+        public RabbitMqConnectionManager(IConnectionFactory connectionFactory,IConnectionConfiguration connectionConfiguration)
         {
             this.connectionFactory = connectionFactory;
-            this.retrySettings = retrySettings;
+            this.connectionConfiguration = connectionConfiguration;
         }
 
         public IConnection GetConnection(ConnectionPurpose purpose)
@@ -23,63 +23,7 @@
                 if (connectionFailed)
                     throw connectionFailedReason;
 
-                return connection ?? (connection = TryCreateConnection());
-            }
-        }
-
-        IConnection TryCreateConnection()
-        {
-            int retries = 0;
-            Exception exception = null;
-
-            do
-            {
-                try
-                {
-                    if (retries > 0)
-                    {
-                        Thread.Sleep(retrySettings.DelayBetweenRetries);
-                        Logger.InfoFormat("Issuing retry attempt {0}", retries);
-                    }
-
-                    
-                    var connection = connectionFactory.CreateConnection();
-
-                    connection.ConnectionShutdown += ConnectionOnConnectionShutdown;
-
-                    if(retries > 0)
-                        Logger.InfoFormat("Connection to {0} re-established",connectionFactory.HostName);
-
-                    return connection;
-                }
-                catch (Exception ex)
-                {
-                    connectionFailedReason = ex;
-                    retries++;
-
-                    Logger.Warn("Failed to connect to RabbitMq broker - " + connectionFactory.HostName, ex);
-                }
-
-                
-            }
-            while (retries <= retrySettings.MaxRetries);
-            
-            connectionFailed = true;
-
-            Configure.Instance.RaiseCriticalError("Failed to connect to the RabbitMq broker.", exception);
-
-            throw exception;
-
-        }
-
-        void ConnectionOnConnectionShutdown(IConnection currentConnection, ShutdownEventArgs reason)
-        {
-            Logger.WarnFormat("The connection the the RabbitMq broker was closed, reason: {0} , going to reconnect",reason);
-
-            lock (connectionFactory)
-            {
-                //setting the connection to null will cause the next call to try to create a new connection
-                connection = null;
+                return connection ?? (connection = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay, new EasyNetQLogger(Logger)));
             }
         }
 
@@ -104,9 +48,7 @@
                     return;
                 }
 
-                connection.ConnectionShutdown -= ConnectionOnConnectionShutdown;
-
-                if (connection.IsOpen)
+                if (connection.IsConnected)
                 {
                     connection.Close();
                 }
@@ -123,12 +65,13 @@
             Dispose(false);
         }
 
-        readonly ConnectionFactory connectionFactory;
-        readonly ConnectionRetrySettings retrySettings;
-        IConnection connection;
-        static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));
+        readonly IConnectionFactory connectionFactory;
+        readonly IConnectionConfiguration connectionConfiguration;
+        PersistentConnection connection;
         bool connectionFailed;
         Exception connectionFailedReason;
         bool disposed;
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof(RabbitMqConnectionManager));
     }
 }

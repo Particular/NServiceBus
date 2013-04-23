@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
+    using EasyNetQ;
     using NServiceBus.Config;
     using Settings;
     using RabbitMQ;
@@ -18,6 +19,7 @@
         public RabbitMqSettings()
         {
             InfrastructureServices.SetDefaultFor<IRoutingTopology>(typeof(ConventionalRoutingTopology),DependencyLifecycle.SingleInstance);
+            InfrastructureServices.SetDefaultFor<IManageRabbitMqConnections>(ConfigureDefaultConnectionManager);
         }
 
         /// <summary>
@@ -60,6 +62,25 @@
         {
             InfrastructureServices.RegisterServiceFor<IRoutingTopology>(typeof(T), DependencyLifecycle.SingleInstance);
             return this;
+        }
+
+        /// <summary>
+        /// Registers a custom connection manager te be used
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public RabbitMqSettings UseConnectionManager<T>()
+        {
+            InfrastructureServices.RegisterServiceFor<IManageRabbitMqConnections>(typeof(T), DependencyLifecycle.SingleInstance);
+            return this;
+        }
+
+
+        void ConfigureDefaultConnectionManager()
+        {
+            Configure.Component<RabbitMqConnectionManager>(DependencyLifecycle.SingleInstance);
+
+            Configure.Instance.Configurer.ConfigureComponent<IConnectionFactory>(builder =>new ConnectionFactoryWrapper(builder.Build<IConnectionConfiguration>(), new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>()), DependencyLifecycle.InstancePerCall);
         }
     }
 }

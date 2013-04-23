@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using Config;
+    using EasyNetQ;
     using NServiceBus;
     using NUnit.Framework;
     using RabbitMQ;
@@ -63,9 +64,14 @@
         public void SetUp()
         {
             var routingTopology = new ConventionalRoutingTopology();
-            //var routingTopology = new DirectRoutingTopology { ExchangeNameConvention = ExchangeNameConvention };
             receivedMessages = new BlockingCollection<TransportMessage>();
-            connectionManager = new RabbitMqConnectionManager(new ConnectionFactory { HostName = "localhost" },new ConnectionRetrySettings());
+
+            var config = new ConnectionConfiguration();
+            config.ParseHosts("localhost:5672");
+            
+            var selectionStrategy = new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>();
+            var connectionFactory = new ConnectionFactoryWrapper(config, selectionStrategy);
+            connectionManager = new RabbitMqConnectionManager(connectionFactory, config);
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager,UsePublisherConfirms = true,MaxWaitTimeForConfirms = TimeSpan.FromSeconds(10) };
 
@@ -106,11 +112,10 @@
         [TearDown]
         public void TearDown()
         {
-            connectionManager.Dispose();
-
             if (dequeueStrategy != null)
                 dequeueStrategy.Stop();
-
+            
+            connectionManager.Dispose();
         }
 
         protected virtual string ExchangeNameConvention(Address address,Type eventType)
