@@ -13,9 +13,9 @@ UNINSTALL OPTIONS:
 
 {1}
 
-If no service name is specified NServiceBus will use the full name of the endpoint configuration type (that which implements NServiceBus.IConfigureThisEndpoint) along with the version number of the assembly it is contained within, for example:
+If no service name is specified NServiceBus will use the endpoint name along with the version number of the assembly it is contained within, for example:
 
-   MyPublisher.Endpoint_v1.0.0.0
+   MyProject.MyEndpoint-1.0.0
 	
 The default for the display name is the same value as the service name, and the description defaults to a generic NServiceBus host description.
 
