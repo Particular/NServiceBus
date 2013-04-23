@@ -203,7 +203,7 @@ namespace NServiceBus.Testing
                               select i).Any();
 
             if (!isHandler)
-                throw new ArgumentException("The handler object created does not implement IMessageHandler<T>.", "handlerCreationCallback");
+                throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
 
             var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
