@@ -1,7 +1,7 @@
 namespace NServiceBus.Transports.SQLServer.Config
 {
     using System;
-    using Unicast.Publishing;
+    using Features;
     using Unicast.Queuing.Installers;
 
     /// <summary>
@@ -34,8 +34,7 @@ namespace NServiceBus.Transports.SQLServer.Config
                   .ConfigureProperty(p => p.ConnectionString, connectionString)
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
-            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
-
+            Feature.Enable<MessageDrivenSubscriptions>();
 
             EndpointInputQueueCreator.Enabled = true;
         }

@@ -4,6 +4,7 @@ using NServiceBus.Unicast.Queuing.Azure;
 
 namespace NServiceBus
 {
+    using Features;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Unicast.Publishing;
@@ -35,7 +36,9 @@ namespace NServiceBus
                 .ConfigureProperty(p=>p.PurgeOnStartup,ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<AzureMessageQueueSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<PollingDequeueStrategy>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
+
+            Feature.Enable<MessageDrivenSubscriptions>();
+
 
             if (configSection != null)
             {

@@ -302,6 +302,9 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages as object[], eventMessage);
 
+            if(MessagePublisher == null)
+                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
+
             var subscribersExisted = MessagePublisher.Publish(eventMessage, fullTypes);
 
             if (!subscribersExisted && NoSubscribersForMessage != null)
@@ -367,6 +370,10 @@ namespace NServiceBus.Unicast
             if (Address.Self == destination)
                 throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
 
+
+            if (SubscriptionManager == null)
+                throw new InvalidOperationException("No subscription manager is available");
+
             SubscriptionManager.Subscribe(messageType, destination);
 
             if (SubscriptionPredicatesEvaluator != null)
@@ -396,6 +403,9 @@ namespace NServiceBus.Unicast
             AssertHasLocalAddress();
 
             var destination = GetAddressForMessageType(messageType);
+
+            if (SubscriptionManager == null)
+                throw new InvalidOperationException("No subscription manager is available");
 
             SubscriptionManager.Unsubscribe(messageType, destination);
         }

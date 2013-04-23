@@ -41,7 +41,6 @@ Here is an example of what is required:
             config.Configurer.ConfigureComponent<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
             config.Configurer.ConfigureComponent<MsmqQueueCreator>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<StorageDrivenPublisher>(DependencyLifecycle.InstancePerCall);
 
             var cfg = Configure.GetConfigSection<MsmqMessageQueueConfig>();
 
@@ -65,6 +64,8 @@ Here is an example of what is required:
 
             config.Configurer.ConfigureProperty<MsmqMessageSender>(t => t.Settings, settings);
             config.Configurer.ConfigureProperty<MsmqQueueCreator>(t => t.Settings, settings);
+
+            Feature.Enable<MessageDrivenSubscriptions>();
 
             EndpointInputQueueCreator.Enabled = true;
 

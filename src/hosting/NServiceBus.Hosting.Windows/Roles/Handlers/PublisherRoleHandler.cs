@@ -2,6 +2,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     using Features;
     using Hosting.Roles;
+    using Settings;
     using Unicast.Config;
 
     /// <summary>
@@ -17,7 +18,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            Feature.EnableByDefault<MessageDrivenSubscriptions>();
+            Feature.EnableByDefault<MessageDrivenPublisher>();
 
             return null;
         }

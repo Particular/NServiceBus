@@ -59,7 +59,13 @@
         {
             SettingsHolder.Set(featureType.FullName, false);
         }
-
+        // <summary>
+        /// Disabled the give feature unless explicitly enabled
+        /// </summary>
+        public static void DisableByDefault(Type featureType)
+        {
+            SettingsHolder.SetDefault(featureType.FullName, false);
+        }
 
         /// <summary>
         /// Returns true if the given feature is enabled

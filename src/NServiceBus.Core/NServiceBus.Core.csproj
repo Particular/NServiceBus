@@ -450,7 +450,8 @@
     <Compile Include="Distributor\DistributorSatellite.cs" />
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableTheFeatureIfThereIsASubscriptionStorageConfiguredByTheUser.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableMessageDrivenPublisherIfStorageIsFound.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenPublisher.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
     <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
