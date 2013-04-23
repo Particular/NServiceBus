@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Linq;
+    using Settings;
     using global::RabbitMQ.Client;
 
     /// <summary>
@@ -24,8 +25,7 @@
     {
         public void SetupSubscription(IModel channel, Type type, string subscriberName)
         {
-            CreateExchange(channel, subscriberName);
-            channel.QueueBind(subscriberName, subscriberName, string.Empty);
+            CreateQueueAndExchangeForSubscriber(channel, subscriberName);
             if (type == typeof(IEvent))
             {
                 // Make handlers for IEvent handle all events whether they extend IEvent or not
@@ -33,6 +33,18 @@
             }
             SetupTypeSubscriptions(channel, type);
             channel.ExchangeBind(subscriberName, ExchangeName(type), string.Empty);
+        }
+
+        void CreateQueueAndExchangeForSubscriber(IModel channel, string subscriberName)
+        {
+            if (endpointSubscriptionConfiguredSet.ContainsKey(subscriberName))
+            {
+                return;
+            }
+            CreateQueue(channel, subscriberName);
+            CreateExchange(channel, subscriberName);
+            channel.QueueBind(subscriberName, subscriberName, string.Empty);
+            endpointSubscriptionConfiguredSet[subscriberName] = null;
         }
 
         public void TeardownSubscription(IModel channel, Type type, string subscriberName)
@@ -53,11 +65,32 @@
             channel.BasicPublish(ExchangeName(type), String.Empty, true, false, properties, message.Body);
         }
 
+        public void Send(IModel channel, Address address, TransportMessage message, IBasicProperties properties)
+        {
+            var subscriberName = address.Queue;
+            CreateQueueAndExchangeForSubscriber(channel, subscriberName);
+            channel.BasicPublish(subscriberName, String.Empty, true, false, properties, message.Body);
+        }
+
         private readonly ConcurrentDictionary<Type, string> typeTopologyConfiguredSet = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<string, string> endpointSubscriptionConfiguredSet = new ConcurrentDictionary<string, string>();
 
         private static string ExchangeName(Type type)
         {
             return type.Namespace + ":" + type.Name;
+        }
+
+        private static void CreateQueue(IModel channel, string queueName)
+        {
+            try
+            {
+                var durable = SettingsHolder.Get<bool>("Endpoint.DurableMessages");
+                channel.QueueDeclare(queueName, durable, false, false, null);
+            }
+            catch (Exception)
+            {
+                // TODO: Any better way to make this idempotent?
+            }
         }
 
         private static void CreateExchange(IModel channel, string exchangeName)
