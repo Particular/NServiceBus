@@ -64,12 +64,14 @@
         public void SetUp()
         {
             var routingTopology = new ConventionalRoutingTopology();
-            //var routingTopology = new DirectRoutingTopology { ExchangeNameConvention = ExchangeNameConvention };
             receivedMessages = new BlockingCollection<TransportMessage>();
-            var config = new ConnectionConfiguration {Hosts = new[] {new HostConfiguration {Host = "localhost",Port=5672}}};
+
+            var config = new ConnectionConfiguration();
+            config.ParseHosts("localhost:5672");
+            
             var selectionStrategy = new DefaultClusterHostSelectionStrategy<ConnectionFactoryInfo>();
             var connectionFactory = new ConnectionFactoryWrapper(config, selectionStrategy);
-            connectionManager = new RabbitMqConnectionManager(connectionFactory,config);
+            connectionManager = new RabbitMqConnectionManager(connectionFactory, config);
 
             unitOfWork = new RabbitMqUnitOfWork { ConnectionManager = connectionManager,UsePublisherConfirms = true,MaxWaitTimeForConfirms = TimeSpan.FromSeconds(10) };
 

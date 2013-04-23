@@ -16,7 +16,6 @@ namespace NServiceBus.Transports.RabbitMQ.Config
         IDictionary<string, string> ClientProperties { get; } 
         
         IEnumerable<IHostConfiguration> Hosts { get; }
-        ushort MaxRetries { get; set; }
         TimeSpan RetryDelay { get; set; }
         bool UsePublisherConfirms { get; set; }
         TimeSpan MaxWaitTimeForConfirms { get; set; }

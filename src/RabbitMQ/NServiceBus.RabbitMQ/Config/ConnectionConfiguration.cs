@@ -8,7 +8,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
     using System.Linq;
     using System.Reflection;
     using EasyNetQ;
-    using NServiceBus.Settings;
+    using Settings;
 
     public class ConnectionConfiguration : IConnectionConfiguration
     {
@@ -36,7 +36,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
 
         public IEnumerable<IHostConfiguration> Hosts {
             get { return hosts; }
-            set { hosts = value; }
+            private set { hosts = value; }
         }
 
         public ConnectionConfiguration()
@@ -50,7 +50,8 @@ namespace NServiceBus.Transports.RabbitMQ.Config
             PrefetchCount = DefaultPrefetchCount;
             UsePublisherConfirms = SettingsHolder.GetOrDefault<bool>("Endpoint.DurableMessages");
             MaxWaitTimeForConfirms = DefaultWaitTimeForConfirms;
-
+            MaxRetries = 5;
+            RetryDelay = TimeSpan.FromSeconds(10);
             SetDefaultClientProperties();
         }
 
@@ -86,5 +87,17 @@ namespace NServiceBus.Transports.RabbitMQ.Config
                 }
             }
         }
+
+        public void ParseHosts(string hostsConnectionString)
+        {
+            var hostsAndPorts = hostsConnectionString.Split(',');
+            hosts = (from hostAndPort in hostsAndPorts
+                    select hostAndPort.Split(':') into hostParts
+                    let host = hostParts.ElementAt(0)
+                    let portString = hostParts.ElementAtOrDefault(1)
+                    let port = (portString == null) ? Port : ushort.Parse(portString)
+                    select new HostConfiguration { Host = host, Port = port }).ToList();
+        }
+
     }
 }

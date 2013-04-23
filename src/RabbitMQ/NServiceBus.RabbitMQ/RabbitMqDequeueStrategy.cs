@@ -89,7 +89,7 @@
                     {
                         t.Exception.Handle(ex =>
                             {
-                                circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Failed to start consumer.", ex));
+                                circuitBreaker.Failure(ex);
                                 return true;
                             });
 
@@ -109,6 +109,8 @@
                 var consumer = new QueueingBasicConsumer(channel);
 
                 channel.BasicConsume(workQueue, autoAck, consumer);
+
+                circuitBreaker.Success();
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
@@ -187,7 +189,11 @@
             }
         }
 
-        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
+        readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("RabbitMqConnectivity",
+                    TimeSpan.FromMinutes(2),
+                    ex => Configure.Instance.RaiseCriticalError("Repeted failures when communicating with the RabbitMq broker", ex),
+                    TimeSpan.FromSeconds(5));
+        
         Func<TransportMessage, bool> tryProcessMessage;
         bool autoAck;
         MTATaskScheduler scheduler;

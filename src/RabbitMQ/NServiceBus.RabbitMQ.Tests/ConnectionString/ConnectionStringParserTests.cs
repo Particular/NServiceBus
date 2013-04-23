@@ -37,7 +37,6 @@
             Assert.AreEqual(connectionConfiguration.Port, 12345);
             Assert.AreEqual(connectionConfiguration.RequestedHeartbeat, 3);
             Assert.AreEqual(connectionConfiguration.PrefetchCount, 2);
-            Assert.AreEqual(connectionConfiguration.MaxRetries, 4);
             Assert.AreEqual(connectionConfiguration.UsePublisherConfirms, true);
             Assert.AreEqual(connectionConfiguration.MaxWaitTimeForConfirms, new TimeSpan(2, 3, 39)); //02:03:39
             Assert.AreEqual(connectionConfiguration.RetryDelay, new TimeSpan(1, 2, 3)); //01:02:03
@@ -89,11 +88,6 @@
             Assert.AreEqual("myHost", connectionConfiguration.Hosts.First().Host);
         }
 
-        [Test]
-        public void Should_parse_the_maxretries() {
-            connectionConfiguration = parser.Parse("host=localhost;maxRetries=5");
-            Assert.AreEqual(5, connectionConfiguration.MaxRetries);
-        }
 
         [Test]
         public void Should_parse_the_password() {

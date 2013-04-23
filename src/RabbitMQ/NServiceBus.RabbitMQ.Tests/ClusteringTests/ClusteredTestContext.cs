@@ -11,14 +11,12 @@
     using EasyNetQ;
     using Logging.Loggers.NLogAdapter;
     using NLog;
-    using NLog.Config;
     using NLog.Targets;
     using NUnit.Framework;
     using Unicast.Transport;
 
-    public abstract class TestContext
+    public abstract class ClusteredTestContext
     {
-        const string RabbitMqDir = @"C:\Program Files (x86)\RabbitMQ Server\rabbitmq_server-3.0.2\sbin";
         protected const string QueueName = "testreceiver";
         const string ErlangProcessName = "erl";
         protected static Logger Logger = LogManager.GetCurrentClassLogger();
@@ -30,8 +28,9 @@
                 {3, new RabbitNode {Number = 3, Port = 5675, MgmtPort = 15675, ShouldBeRunning=true}}
             };
 
-        readonly string rabbitMqCtl = Path.Combine(RabbitMqDir, "rabbitmqctl.bat");
-        readonly string rabbitMqServer = Path.Combine(RabbitMqDir, "rabbitmq-server.bat");
+        readonly string rabbitMqCtl = "rabbitmqctl.bat";//make sure that you have the PATH environment variable setup
+        readonly string rabbitMqServer = "rabbitmq-server.bat";//make sure that you have the PATH environment variable setup
+
         RabbitMqConnectionManager connectionManager;
         RabbitMqDequeueStrategy dequeueStrategy;
         protected int[] erlangProcessesRunningBeforeTheTest;

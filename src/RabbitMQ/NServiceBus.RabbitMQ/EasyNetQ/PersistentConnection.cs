@@ -13,14 +13,15 @@ namespace EasyNetQ
     /// </summary>
     public class PersistentConnection : IPersistentConnection, IConnection
     {
-        private const int connectAttemptIntervalMilliseconds = 5000;
-
+       
         private readonly IConnectionFactory connectionFactory;
+        readonly TimeSpan retryDelay;
         private readonly IEasyNetQLogger logger;
 
-        public PersistentConnection(IConnectionFactory connectionFactory, IEasyNetQLogger logger)
+        public PersistentConnection(IConnectionFactory connectionFactory, TimeSpan retryDelay, IEasyNetQLogger logger)
         {
             this.connectionFactory = connectionFactory;
+            this.retryDelay = retryDelay;
             this.logger = logger;
 
             TryToConnect(null);
@@ -58,7 +59,7 @@ namespace EasyNetQ
         void StartTryToConnect()
         {
             var timer = new Timer(TryToConnect);
-            timer.Change(connectAttemptIntervalMilliseconds, Timeout.Infinite);
+            timer.Change(Convert.ToInt32(retryDelay.TotalMilliseconds), Timeout.Infinite);
         }
 
         void TryToConnect(object timer)
@@ -98,8 +99,7 @@ namespace EasyNetQ
             }
             else
             {
-                logger.ErrorWrite("Failed to connected to any Broker. Retrying in {0} ms\n", 
-                    connectAttemptIntervalMilliseconds);
+                logger.ErrorWrite("Failed to connected to any Broker. Retrying in {0}", retryDelay);
                 StartTryToConnect();
             }
         }
@@ -119,9 +119,6 @@ namespace EasyNetQ
             if (disposed) return;
             OnDisconnected();
 
-            // try to reconnect and re-subscribe
-//            logger.InfoWrite("Disconnected from RabbitMQ Broker");
-            // HACK: pulling EasyNetQ into NSB
             logger.InfoWrite("Disconnected from RabbitMQ Broker, reason: {0} , going to reconnect",reason);
 
             TryToConnect(null);

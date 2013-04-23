@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClusteringTests\TestContext.cs" />
+    <Compile Include="ClusteringTests\ClusteredTestContext.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_all_nodes_are_up.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_first_node_is_unavailable.cs" />
     <Compile Include="ClusteringTests\when_connected_to_local_cluster_and_nodes_start_going_down.cs" />

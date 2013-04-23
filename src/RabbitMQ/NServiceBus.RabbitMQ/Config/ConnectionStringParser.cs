@@ -29,7 +29,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
                     pair.Property.SetValue(connectionConfiguration, TypeDescriptor.GetConverter(pair.Property.PropertyType).ConvertFromString(pair.Value),null);
 
                 if (ContainsKey("host"))
-                    connectionConfiguration.Hosts = ParseHosts(this["host"] as string);
+                    connectionConfiguration.ParseHosts(this["host"] as string);
 
                 connectionConfiguration.Validate();
                 return connectionConfiguration;
@@ -38,16 +38,6 @@ namespace NServiceBus.Transports.RabbitMQ.Config
             {
                 throw new Exception(string.Format("Connection String parsing exception {0}", parseException.Message));
             }
-        }
-
-        IEnumerable<IHostConfiguration> ParseHosts(string hostsConnectionString) {
-            var hostsAndPorts = hostsConnectionString.Split(',');
-            return (from hostAndPort in hostsAndPorts
-                    select hostAndPort.Split(':') into hostParts 
-                    let host = hostParts.ElementAt(0) 
-                    let portString = hostParts.ElementAtOrDefault(1) 
-                    let port = (portString == null)? connectionConfiguration.Port : ushort.Parse(portString) 
-                    select new HostConfiguration{Host = host, Port = port});
         }
     }
 }
