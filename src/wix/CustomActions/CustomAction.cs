@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Wix.CustomActions
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Text;
     using Microsoft.Deployment.WindowsInstaller;
@@ -15,7 +16,10 @@
         [CustomAction]
         public static ActionResult InstallMsmq(Session session)
         {
-            session.Log("Installing/Starting MSMQ if necessary.");
+            using (var msgRec = new Record("InstallMsmq", "Installing and starting MSMQ if necessary...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+            }
 
             try
             {
@@ -23,11 +27,17 @@
                     {
                         if (MsmqSetup.StartMsmqIfNecessary(true))
                         {
-                            session.Log("MSMQ installed and configured.");
+                            using (var msgRec = new Record("InstallMsmq", "MSMQ installed and configured", String.Empty))
+                            {
+                                session.Message(InstallMessage.ActionStart, msgRec);
+                            }
                         }
                         else
                         {
-                            session.Log("MSMQ already properly configured.");
+                            using (var msgRec = new Record("InstallMsmq", "MSMQ already properly configured", String.Empty))
+                            {
+                                session.Message(InstallMessage.ActionStart, msgRec);
+                            }
                         }
 
                         session["MSMQ_INSTALL"] = "SUCCESS";
@@ -44,7 +54,10 @@
         [CustomAction]
         public static ActionResult InstallDtc(Session session)
         {
-            session.Log("Installing/Starting DTC if necessary.");
+            using (var msgRec = new Record("InstallDtc", "Installing and starting DTC if necessary...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+            }
 
             try
             {
@@ -53,13 +66,19 @@
                         DtcSetup.StartDtcIfNecessary();
                         session["DTC_INSTALL"] = "SUCCESS";
 
-                        session.Log("DTC installed and configured.");
+                        using (var msgRec = new Record("InstallDtc", "DTC installed and configured", String.Empty))
+                        {
+                            session.Message(InstallMessage.ActionStart, msgRec);
+                        }
+
                     }, session);
 
                 return ActionResult.Success;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                session.Log("InstallDtc failed: {0}", ex);
+
                 return ActionResult.Failure;
             }
         }
@@ -67,7 +86,10 @@
         [CustomAction]
         public static ActionResult InstallRavenDb(Session session)
         {
-            session.Log("Installing RavenDB if necessary.");
+            using (var msgRec = new Record("InstallRavenDb", "Installing RavenDB if necessary...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+            }
 
             try
             {
@@ -75,11 +97,12 @@
 
                 if (!int.TryParse(session["RAVEN_PORT"], out port))
                 {
-                    throw new InvalidOperationException("No RavenDB.Port property found please set it");
+                    session.Log("No RAVEN_PORT property found please set it.");
+
+                    return ActionResult.Failure;
                 }
 
                 string installPath = session["RAVEN_INSTALLPATH"];
-
                    
                 CaptureOut(() =>
                     {
@@ -87,14 +110,19 @@
 
                         session["RAVEN_INSTALL"] = "SUCCESS";
 
-                        session.Log("RavenDB installed and configured.");
+                        using (var msgRec = new Record("InstallRavenDb", "RavenDB installed and configured", String.Empty))
+                        {
+                            session.Message(InstallMessage.ActionStart, msgRec);
+                        }
                     }, session);
 
 
                 return ActionResult.Success;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                session.Log("InstallRavenDb failed: {0}", ex);
+
                 return ActionResult.Failure;
             }
         }
@@ -103,7 +131,11 @@
         [CustomAction]
         public static ActionResult DetectRavenDBPort(Session session)
         {
-            session.Log("Checking if RavenDB is installed");
+            using (var msgRec = new Record("DetectRavenDBPort", "Detecting RavenDB port...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+                session.Message(InstallMessage.Info, msgRec);
+            }
 
             try
             {
@@ -114,7 +146,7 @@
                         if (port != 0)
                         {
                             session["RAVEN_ISINSTALLED"] = "true";
-                            session["RAVEN_PORT"] = port.ToString();
+                            session["RAVEN_PORT"] = port.ToString(CultureInfo.InvariantCulture);
 
                         }
                         else
@@ -134,13 +166,16 @@
         [CustomAction]
         public static ActionResult FindAvailablePort(Session session)
         {
-            session.Log("Finding an available port where RavenDB can be installed");
-
+            using (var msgRec = new Record("FindAvailablePort", "Finding an available port where RavenDB can be installed...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+            }
+            
             try
             {
                 CaptureOut(() =>
                 {
-                        session["PORT_AVAILABLE"] = PortUtils.FindAvailablePort(8080).ToString();
+                        session["PORT_AVAILABLE"] = PortUtils.FindAvailablePort(8080).ToString(CultureInfo.InvariantCulture);
                     
                 }, session);
 
@@ -154,7 +189,7 @@
 
 
         [CustomAction]
-        public static ActionResult IsPortAvaialable(Session session)
+        public static ActionResult IsPortAvailable(Session session)
         {
             try
             {
@@ -162,10 +197,16 @@
 
                 if (!int.TryParse(session["PORT_TOCHECK"], out port))
                 {
-                    throw new InvalidOperationException("No SelectedPort property found please set it");
+                    session.Log("No PORT_TOCHECK property found please set it.");
+
+                    return ActionResult.Failure;
                 }
 
-                session.Log("Checking if port {0} is available", port);
+                using (var msgRec = new Record("IsPortAvailable", string.Format("Checking if port {0} is available", port), String.Empty))
+                {
+                    session.Message(InstallMessage.ActionStart, msgRec);
+                }
+
 
                 CaptureOut(() =>
                     {
@@ -184,17 +225,23 @@
         [CustomAction]
         public static ActionResult InstallPerformanceCounters(Session session)
         {
-            session.Log("Installing NSB performance counters.");
+            using (var msgRec = new Record("InstallPerformanceCounters", "Installing NSB performance counters...", String.Empty))
+            {
+                session.Message(InstallMessage.ActionStart, msgRec);
+            }
 
             try
             {
                 CaptureOut(() =>
                     {
                         PerformanceCounterSetup.SetupCounters();
-                        
-                        session["COUNTERS_ISINSTALLED"] = "false";
 
-                        session.Log("NSB performance counters installed.");
+                        session["COUNTERS_INSTALL"] = "SUCCESS";
+
+                        using (var msgRec = new Record("InstallPerformanceCounters", "NSB performance counters installed", String.Empty))
+                        {
+                            session.Message(InstallMessage.ActionStart, msgRec);
+                        }
                     }, session);
 
                 return ActionResult.Success;

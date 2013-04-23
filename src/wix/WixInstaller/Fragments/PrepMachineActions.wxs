@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Fragment>
+    <Property Id="RAVEN_PORT" Value="0" />
+    
     <Binary Id="CustomActions.dll" SourceFile="$(var.NServiceBus.Wix.CustomActions.TargetDir)$(var.NServiceBus.Wix.CustomActions.TargetName).CA.dll" />
-    <CustomAction Id="InstallMsmqAction" BinaryKey="CustomActions.dll" DllEntry="InstallMsmq" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallRavenDbAction" BinaryKey="CustomActions.dll" DllEntry="InstallRavenDb" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallDtcAction" BinaryKey="CustomActions.dll" DllEntry="InstallDtc" Execute="deferred" Return="check" Impersonate="no" />
-    <CustomAction Id="InstallPerformanceCountersAction" BinaryKey="CustomActions.dll" DllEntry="InstallPerformanceCounters" Execute="deferred" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallMsmqAction" BinaryKey="CustomActions.dll" DllEntry="InstallMsmq" Execute="immediate" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallRavenDbAction" BinaryKey="CustomActions.dll" DllEntry="InstallRavenDb" Execute="immediate" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallDtcAction" BinaryKey="CustomActions.dll" DllEntry="InstallDtc" Execute="immediate" Return="check" Impersonate="no" />
+    <CustomAction Id="InstallPerformanceCountersAction" BinaryKey="CustomActions.dll" DllEntry="InstallPerformanceCounters" Execute="immediate" Return="check" Impersonate="no" />
     <CustomAction Id="IsPrivileged" Error="You must be an admin to run any of the 'Prep My Machine' scripts. Log on as administrator and then retry this installation." />
     <InstallExecuteSequence>
       <Custom Action="IsPrivileged" After="InstallInitialize">
