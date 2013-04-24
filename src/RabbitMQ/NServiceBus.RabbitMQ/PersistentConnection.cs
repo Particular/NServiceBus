@@ -275,7 +275,7 @@ namespace NServiceBus.Transports.RabbitMQ
                 {
                     if (connection.IsOpen)
                     {
-                        connection.Close(10000);
+                        Close(5000);
                     }
 
                     connection.Dispose();
