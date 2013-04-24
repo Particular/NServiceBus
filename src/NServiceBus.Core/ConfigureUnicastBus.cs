@@ -23,6 +23,7 @@ namespace NServiceBus
             {
                 Instance = new ConfigUnicastBus();
                 Instance.Configure(config);
+                Instance.LoadMessageHandlers();
             }
 
             return Instance;
@@ -48,9 +49,9 @@ namespace NServiceBus
         internal static ConfigUnicastBus Instance { get; private set; }
     }
 
-    class EnsureLoadMessageHandlersWasCalled : INeedInitialization
+    class EnsureLoadMessageHandlersWasCalled : IWantToRunBeforeConfigurationIsFinalized
     {
-        void INeedInitialization.Init()
+        public void Run()
         {
             if (ConfigureUnicastBus.Instance != null)
                 if (!ConfigureUnicastBus.Instance.LoadMessageHandlersCalled)
