@@ -70,7 +70,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
 
-        [Test]
+        [Test,Ignore("Not supported any more")]
         public void Inherited_property_classes_should_be_mapped()
         {
             persisterForTestSaga.ShouldContainMappingsFor<PolymorpicPropertyBase>();
@@ -85,7 +85,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persister =
                 sessionFactory.GetEntityPersister(typeof (TestSagaWithTableNameAttribute).FullName).ClassMetadata as
                 global::NHibernate.Persister.Entity.AbstractEntityPersister;
-            Assert.AreEqual(persister.TableName, "MyTestSchema_MyTestTable");
+            Assert.AreEqual(persister.RootTableName, "MyTestSchema_MyTestTable");
         }
 
         [Test]
