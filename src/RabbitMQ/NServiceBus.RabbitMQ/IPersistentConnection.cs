@@ -1,9 +1,9 @@
-namespace EasyNetQ
+namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
-    using RabbitMQ.Client;
+    using global::RabbitMQ.Client;
 
-    public interface IPersistentConnection : IDisposable
+    public interface IPersistentConnection
     {
         event Action Connected;
         event Action Disconnected;

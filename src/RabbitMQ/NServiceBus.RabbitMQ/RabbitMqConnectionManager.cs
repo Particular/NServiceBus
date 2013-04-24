@@ -23,7 +23,7 @@
                 if (connectionFailed)
                     throw connectionFailedReason;
 
-                return connection ?? (connection = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay, new EasyNetQLogger(Logger)));
+                return connection ?? (connection = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay));
             }
         }
 
@@ -46,11 +46,6 @@
                 if (connection == null)
                 {
                     return;
-                }
-
-                if (connection.IsConnected)
-                {
-                    connection.Close();
                 }
 
                 connection.Dispose();
