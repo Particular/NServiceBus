@@ -2,16 +2,16 @@
 {
     using System;
     using System.Diagnostics;
-    using VideoStore.Common;
-    using VideoStore.Messages.Commands;
-    using VideoStore.Messages.Events;
+    using Common;
+    using Messages.Commands;
+    using Messages.Events;
     using NServiceBus;
     using NServiceBus.Saga;
 
-    public class ProcessOrderSaga : Saga<OrderData>,
+    public class ProcessOrderSaga : Saga<ProcessOrderSaga.OrderData>,
                                     IAmStartedByMessages<SubmitOrder>,
                                     IHandleMessages<CancelOrder>,
-                                    IHandleTimeouts<BuyersRemorseIsOver>
+                                    IHandleTimeouts<ProcessOrderSaga.BuyersRemorseIsOver>
     {
         public void Handle(SubmitOrder message)
         {
@@ -72,21 +72,19 @@
             ConfigureMapping<CancelOrder>(m => m.OrderNumber)
                 .ToSaga(s=>s.OrderNumber);
         }
+
+        public class OrderData : ContainSagaData
+        {
+            [Unique]
+            public int OrderNumber { get; set; }
+            public string[] VideoIds { get; set; }
+            public string ClientId { get; set; }
+        }
+
+        public class BuyersRemorseIsOver
+        {
+        }
     }
 
-    public class OrderData : IContainSagaData
-    {
-        public Guid Id { get; set; }
-        public string Originator { get; set; }
-        public string OriginalMessageId { get; set; }
-
-        [Unique]
-        public int OrderNumber { get; set; }
-        public string[] VideoIds { get; set; }
-        public string ClientId { get; set; }
-    }
-
-    public class BuyersRemorseIsOver
-    {
-    }
+    
 }
