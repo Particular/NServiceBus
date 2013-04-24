@@ -63,11 +63,12 @@ namespace NServiceBus.Transports.RabbitMQ.Config
             var applicationPath = Path.GetDirectoryName(applicationNameAndPath);
             var hostname = Environment.MachineName;
 
-            clientProperties.Add("client_api", "NServiceBus - EasyNetQ");
+            clientProperties.Add("client_api", "NServiceBus");
             clientProperties.Add("nservicebus_version", version);
             clientProperties.Add("application", applicationName);
             clientProperties.Add("application_location", applicationPath);
             clientProperties.Add("machine_name", hostname);
+            clientProperties.Add("endpoint_name", Configure.EndpointName);
             clientProperties.Add("user", UserName);
             clientProperties.Add("connected", DateTime.Now.ToString("G"));
 
