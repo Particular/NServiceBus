@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Monitoring
     using UnitOfWork;
 
     /// <summary>
-    /// Stores the start and endtimes for statistic purposes
+    /// Stores the start and end times for statistic purposes
     /// </summary>
     public class ProcessingStatistics : IManageUnitsOfWork, INeedInitialization
     {

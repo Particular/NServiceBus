@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Monitoring
     using System.Diagnostics;
 
     /// <summary>
-    /// Initializes the performcecounters if they are enabled
+    /// Initializes the performance counters if they are enabled
     /// </summary>
     public class PerformanceCounterInitializer : IWantToRunBeforeConfigurationIsFinalized
     {
@@ -26,7 +26,6 @@ namespace NServiceBus.Unicast.Monitoring
         static void SetupCriticalTimePerformanceCounter()
         {
             var criticalTimeCalculator = new CriticalTimeCalculator();
-
             var criticalTimeCounter = InstantiateCounter("Critical Time");
 
             criticalTimeCalculator.Initialize(criticalTimeCounter);
@@ -42,16 +41,9 @@ namespace NServiceBus.Unicast.Monitoring
                 return;
 
             var timeToSLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
-
-
             var slaBreachCounter = InstantiateCounter("SLA violation countdown");
 
-            timeToSLABreachCalculator.SetCounterAction = d =>
-                                                             {
-                                                                 slaBreachCounter.RawValue = Convert.ToInt32(Math.Min(d, Int32.MaxValue));
-                                                             };
-
-            timeToSLABreachCalculator.Initialize(endpointSla);
+            timeToSLABreachCalculator.Initialize(endpointSla, slaBreachCounter);
 
             Configure.Instance.Configurer.RegisterSingleton<EstimatedTimeToSLABreachCalculator>(timeToSLABreachCalculator);
         }

@@ -50,6 +50,7 @@
 
             PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
                                               PerformanceCounterCategoryType.MultiInstance, Counters);
+            PerformanceCounter.CloseSharedResources(); // http://blog.dezfowler.com/2007/08/net-performance-counter-problems.html
         }
 
         static readonly CounterCreationDataCollection Counters = new CounterCreationDataCollection

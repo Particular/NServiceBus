@@ -455,6 +455,11 @@ namespace NServiceBus.Unicast.Transport
             if (disposing)
             {
                 Stop();
+
+                if (currentReceivePerformanceDiagnostics != null)
+                {
+                    currentReceivePerformanceDiagnostics.Dispose();
+                }
             }
 
             disposed = true;
