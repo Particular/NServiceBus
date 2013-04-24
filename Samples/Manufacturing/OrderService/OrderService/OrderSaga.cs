@@ -34,7 +34,7 @@ namespace OrderService
             foreach (Messages.IOrderLine ol in message.OrderLines)
                 Data.UpdateOrderLine(ol.ProductId, ol.Quantity);
 
-            var status = GetStatus(OrderStatusEnum.Recieved, GetOrderLines(Data.OrderLines));
+            var status = GetStatus(OrderStatusEnum.Received, GetOrderLines(Data.OrderLines));
 
             if (message.Done)
             {

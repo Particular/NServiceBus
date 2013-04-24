@@ -3,7 +3,7 @@ namespace OrderService.Messages
     public enum OrderStatusEnum
     {
         Tentative,
-        Recieved,
+        Received,
         Authorized,
         Rejected,
         Accepted
