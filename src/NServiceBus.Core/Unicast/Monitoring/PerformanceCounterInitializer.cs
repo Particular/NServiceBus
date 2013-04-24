@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Monitoring
     using System.Diagnostics;
 
     /// <summary>
-    /// Initializes the peformcecounters if they are enabled
+    /// Initializes the performcecounters if they are enabled
     /// </summary>
     public class PerformanceCounterInitializer : IWantToRunBeforeConfigurationIsFinalized
     {
@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast.Monitoring
             catch (Exception e)
             {
                 throw new InvalidOperationException(
-                    string.Format("NServiceBus performance counter for {0} not set up correctly. Please run the NServiceBus infrastructure installers to rectify this problem.",counterName),
+                    string.Format("NServiceBus performance counter for {0} not set up correctly. Please run the Install-NServiceBusPerformanceCounters cmdlet to rectify this problem.", counterName),
                     e);
             }
             return counter;
