@@ -2,8 +2,10 @@
 {
     using Apache.NMS;
     using Moq;
+
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
+
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
 
     [TestFixture]
     public class NoTransactionScopeTests

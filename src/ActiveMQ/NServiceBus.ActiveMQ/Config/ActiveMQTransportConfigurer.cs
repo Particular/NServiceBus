@@ -7,10 +7,13 @@
     using System.Text;
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
+    using Apache.NMS.Policies;
+
     using NServiceBus.Config;
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
     using NServiceBus.Unicast.Queuing.Installers;
     using Receivers;
-    using Receivers.TransactonsScopes;
+
     using SessionFactories;
     using Settings;
     using Unicast.Subscriptions;
@@ -19,15 +22,18 @@
     /// <summary>
     /// Default configuration for ActiveMQ
     /// </summary>
-    public class ActiveMqTransportConfigurer : ConfigureTransport<NServiceBus.ActiveMQ>
+    public class ActiveMqTransportConfigurer : ConfigureTransport<NServiceBus.ActiveMQ>, IFinalizeConfiguration
     {
+        private static Dictionary<string, string> connectionConfiguration;
+
         private const string UriKey = "ServerUrl";
 
         private const string ResourceManagerIdKey = "ResourceManagerId";
 
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
-            var connectionConfiguration = this.Parse(brokerUri);
+            connectionConfiguration = this.Parse(brokerUri);
+
             config.Configurer.ConfigureComponent<ActiveMqMessageSender>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessagePublisher>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<MessageProducer>(DependencyLifecycle.InstancePerCall);
@@ -45,8 +51,7 @@
 
             config.Configurer.ConfigureComponent<ActiveMqMessageDequeueStrategy>(DependencyLifecycle.InstancePerCall);
             config.Configurer.ConfigureComponent<ActiveMqMessageReceiver>(DependencyLifecycle.InstancePerCall);
-            config.Configurer.ConfigureComponent<MessageProcessor>(DependencyLifecycle.InstancePerCall)
-                  .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+
             config.Configurer.ConfigureComponent<NotifyMessageReceivedFactory>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConsumerName, NServiceBus.Configure.EndpointName);
             config.Configurer.ConfigureComponent<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
@@ -54,30 +59,37 @@
 
             InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy),DependencyLifecycle.InstancePerCall);
 
-            
+            EndpointInputQueueCreator.Enabled = true;
+        }
+
+        public void FinalizeConfiguration()
+        {
+            NServiceBus.Configure.Component<MessageProcessor>(DependencyLifecycle.InstancePerCall)
+                .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
+
             if (!SettingsHolder.Get<bool>("Transactions.Enabled"))
             {
-                config.Configurer.ConfigureComponent<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
-                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
+                NServiceBus.Configure.Component<ActiveMQMessageDefer>(DependencyLifecycle.InstancePerCall);
+                NServiceBus.Configure.Component<ActiveMqSchedulerManagement>(DependencyLifecycle.SingleInstance)
                       .ConfigureProperty(p => p.Disabled, false);
-                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementJobProcessor>(DependencyLifecycle.SingleInstance);
-                config.Configurer.ConfigureComponent<ActiveMqSchedulerManagementCommands>(DependencyLifecycle.SingleInstance);
+                NServiceBus.Configure.Component<ActiveMqSchedulerManagementJobProcessor>(DependencyLifecycle.SingleInstance);
+                NServiceBus.Configure.Component<ActiveMqSchedulerManagementCommands>(DependencyLifecycle.SingleInstance);
 
-                RegisterNoneTransactionSessionFactory(config, connectionConfiguration[UriKey]);
+                RegisterNoneTransactionSessionFactory(connectionConfiguration[UriKey]);
             }
             else
             {
+                var transportConfig = NServiceBus.Configure.GetConfigSection<TransportConfig>();
+
                 if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
                 {
-                    RegisterActiveMQManagedTransactionSessionFactory(config, connectionConfiguration[UriKey]);
+                    RegisterActiveMQManagedTransactionSessionFactory(transportConfig, connectionConfiguration[UriKey]);
                 }
                 else
                 {
-                    RegisterDTCManagedTransactionSessionFactory(config, connectionConfiguration);
+                    RegisterDTCManagedTransactionSessionFactory(transportConfig, connectionConfiguration);
                 }
             }
-
-            EndpointInputQueueCreator.Enabled = true;
         }
 
         private Dictionary<string, string> Parse(string brokerUri)
@@ -85,10 +97,11 @@
             var parts = brokerUri.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             return parts.ToDictionary(
                 p => p.Split('=')[0].Trim(),
-                p => p.Substring(p.IndexOf("=", StringComparison.OrdinalIgnoreCase) + 1).Trim(), StringComparer.OrdinalIgnoreCase);
+                p => p.Substring(p.IndexOf("=", StringComparison.OrdinalIgnoreCase) + 1).Trim(),
+                StringComparer.OrdinalIgnoreCase);
         }
 
-        private static void RegisterNoneTransactionSessionFactory(Configure config, string brokerUri)
+        private static void RegisterNoneTransactionSessionFactory(string brokerUri)
         {
             var connectionFactory = new ConnectionFactory(brokerUri)
                 {
@@ -97,34 +110,36 @@
                 };
             var sessionFactory = new PooledSessionFactory(connectionFactory);
 
-            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
+            NServiceBus.Configure.Component(() => sessionFactory, DependencyLifecycle.SingleInstance);
         }
 
-        private static void RegisterActiveMQManagedTransactionSessionFactory(Configure config, string brokerUri)
+        private static void RegisterActiveMQManagedTransactionSessionFactory(TransportConfig transportConfig, string brokerUri)
         {
             var connectionFactory = new ConnectionFactory(brokerUri)
                 {
-                    AcknowledgementMode = AcknowledgementMode.Transactional
+                    AcknowledgementMode = AcknowledgementMode.Transactional,
+                    RedeliveryPolicy = new RedeliveryPolicy { MaximumRedeliveries = transportConfig.MaxRetries, BackOffMultiplier = 0, UseExponentialBackOff = false }
                 };
             var pooledSessionFactory = new PooledSessionFactory(connectionFactory);
             var sessionFactory = new ActiveMqTransactionSessionFactory(pooledSessionFactory);
 
-            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
+            NServiceBus.Configure.Component(() => sessionFactory, DependencyLifecycle.SingleInstance);
         }
 
-        private static void RegisterDTCManagedTransactionSessionFactory(Configure config, Dictionary<string, string> connectionConfiguration)
+        private static void RegisterDTCManagedTransactionSessionFactory(TransportConfig transportConfig, Dictionary<string, string> connectionConfiguration)
         {
             NetTxConnection.ConfiguredResourceManagerId = connectionConfiguration.ContainsKey(ResourceManagerIdKey) 
                 ? new Guid(connectionConfiguration[ResourceManagerIdKey])
                 : DefaultResourceManagerId;
             var connectionFactory = new NetTxConnectionFactory(connectionConfiguration[UriKey])
             {
-                AcknowledgementMode = AcknowledgementMode.Transactional
+                AcknowledgementMode = AcknowledgementMode.Transactional,
+                RedeliveryPolicy = new RedeliveryPolicy { MaximumRedeliveries = transportConfig.MaxRetries, BackOffMultiplier = 0, UseExponentialBackOff = false }
             };
             var pooledSessionFactory = new PooledSessionFactory(connectionFactory);
             var sessionFactory = new DTCTransactionSessionFactory(pooledSessionFactory);
 
-            config.Configurer.ConfigureComponent(() => sessionFactory, DependencyLifecycle.SingleInstance);
+            NServiceBus.Configure.Component(() => sessionFactory, DependencyLifecycle.SingleInstance);
         }
 
         protected override string ExampleConnectionStringForErrorMessage

@@ -32,7 +32,7 @@
                             b.Given(bus => bus.SendLocal(new MessageToBeRetried()));
                         })
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
-                    .Repeat(r => r.For<AllTransports>(Transports.ActiveMQ))
+                    .Repeat(r => r.For<AllTransports>())
                     .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
                     .Run();
 
