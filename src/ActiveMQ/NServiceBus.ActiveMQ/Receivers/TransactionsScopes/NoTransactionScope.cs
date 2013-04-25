@@ -1,6 +1,7 @@
-namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
+namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 {
     using System;
+
     using Apache.NMS;
 
     public class NoTransactionScope : ITransactionScope
@@ -9,13 +10,13 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (this.disposed)
             {
                 return;
             }
@@ -26,12 +27,12 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
                 
             }
 
-            disposed = true;
+            this.disposed = true;
         }
 
         ~NoTransactionScope()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
 
         public void MessageAccepted(IMessage message)
