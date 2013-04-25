@@ -109,14 +109,12 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             try
             {
                 counter = new PerformanceCounter(CategoryName, counterName, receiveAddress.Queue, false);
-
-                //access the counter type to force a exception to be thrown if the counter doesn't exists
-                PerformanceCounterType t = successRateCounter.CounterType;
+                var t = counter.CounterType; //access the counter type to force a exception to be thrown if the counter doesn't exists
             }
             catch (Exception)
             {
                 Logger.InfoFormat(
-                    "NServiceBus performance counter for {1} not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-PerformanceCounters powershell command to create the counter",
+                    "NServiceBus performance counter for {1} is not set up correctly, no statistics will be emitted for the {0} queue. Execute the Install-NServiceBusPerformanceCounters cmdlet to create the counter.",
                     receiveAddress.Queue, counterName);
                 return false;
             }

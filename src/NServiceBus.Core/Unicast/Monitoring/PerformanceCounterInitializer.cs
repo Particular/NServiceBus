@@ -55,14 +55,12 @@ namespace NServiceBus.Unicast.Monitoring
             try
             {
                 counter = new PerformanceCounter(CategoryName, counterName, Configure.EndpointName, false);
-
-                //access the counter type to force a exception to be thrown if the counter doesn't exists
-                var t = counter.CounterType;
+                var t = counter.CounterType; //access the counter type to force a exception to be thrown if the counter doesn't exists
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException(
-                    string.Format("NServiceBus performance counter for {0} not set up correctly. Please run the Install-NServiceBusPerformanceCounters cmdlet to rectify this problem.", counterName),
+                    string.Format("NServiceBus performance counter for {0} is not set up correctly. Please run Install-NServiceBusPerformanceCounters cmdlet to rectify this problem.", counterName),
                     e);
             }
             return counter;
