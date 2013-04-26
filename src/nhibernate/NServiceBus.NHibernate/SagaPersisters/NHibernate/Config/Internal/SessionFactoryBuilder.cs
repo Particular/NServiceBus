@@ -38,11 +38,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
             var modelMapper =
                 new SagaModelMapper(typesToScan.Except(nhibernateConfiguration.ClassMappings.Select(x => x.MappedClass)));
 
-            using (var stream = modelMapper.Compile())
-            {
-                nhibernateConfiguration.AddInputStream(stream);
-            }
-            
+            nhibernateConfiguration.AddMapping(modelMapper.Compile());
+
             try
             {
                 return nhibernateConfiguration.BuildSessionFactory();

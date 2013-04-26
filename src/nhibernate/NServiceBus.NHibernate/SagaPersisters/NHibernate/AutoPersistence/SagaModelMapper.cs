@@ -111,53 +111,24 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             map.Column(type.LocalMember.Name + "_id");
         }
 
-        public Stream Compile()
-        {
-            var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+		public HbmMapping Compile()
+		{
+      var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+      foreach (var rootClass in hbmMapping.RootClasses)
+      {
+        rootClass.dynamicupdate = true;
+        rootClass.optimisticlock = HbmOptimisticLockMode.All;
+      }
 
-            var setting = new XmlWriterSettings { Indent = true };
-            var serializer = new XmlSerializer(typeof(HbmMapping));
-            using (var memStream = new MemoryStream(2048))
-            {
-                using (var xmlWriter = XmlWriter.Create(memStream, setting))
-                {
-                    serializer.Serialize(xmlWriter, hbmMapping);
-                }
-                memStream.Position = 0;
+      foreach (var hbmSubclass in hbmMapping.UnionSubclasses)
+        hbmSubclass.dynamicupdate = true;
+      foreach (var hbmSubclass in hbmMapping.JoinedSubclasses)
+        hbmSubclass.dynamicupdate = true;
+      foreach (var hbmSubclass in hbmMapping.SubClasses)
+        hbmSubclass.dynamicupdate = true;
 
-                var xmlDoc = new XmlDocument();
-                xmlDoc.Load(memStream);
-
-                var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-                nsmgr.AddNamespace("nh", xmlDoc.DocumentElement.NamespaceURI);
-
-                var elementToExclude = "union-subclass";//"joined-subclass";
-
-
-                var classNodes = xmlDoc.DocumentElement.SelectNodes(string.Format(@"/nh:hibernate-mapping/nh:class[not(nh:{0}) and not(@name = /nh:hibernate-mapping/nh:{0}/@extends)]", elementToExclude), nsmgr);
-
-                if (classNodes != null)
-                {
-                    foreach (XmlElement classNode in classNodes)
-                    {
-                        var optimisticLockAttribute = xmlDoc.CreateAttribute("optimistic-lock");
-                        optimisticLockAttribute.Value = "all";
-                        classNode.Attributes.Append(optimisticLockAttribute);
-
-                        var dynamicUpdateAttribute = xmlDoc.CreateAttribute("dynamic-update");
-                        dynamicUpdateAttribute.Value = "true";
-                        classNode.Attributes.Append(dynamicUpdateAttribute);
-                    }
-                }
-
-                var memStreamOut = new MemoryStream(2048);
-                xmlDoc.Save(memStreamOut);
-
-                memStreamOut.Position = 0;
-
-                return memStreamOut;
-            }
-        }
+		  return hbmMapping;
+		}
 
         private static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites,
                                                                         IEnumerable<Type> typesToScan)
