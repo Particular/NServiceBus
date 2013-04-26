@@ -23,7 +23,7 @@
                 return false;
 
             //if we have a master node configured we should use that timeout manager instead
-            if (Configure.Instance.GetMasterNodeAddress() != Address.Local )
+            if (Configure.Instance.HasMasterNode())
                 return false;
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();

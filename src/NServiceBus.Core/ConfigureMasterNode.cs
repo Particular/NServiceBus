@@ -26,6 +26,11 @@ namespace NServiceBus
             return null;
         }
 
+        public static bool HasMasterNode(this Configure config)
+        {
+            return !string.IsNullOrEmpty(GetMasterNode(config));
+        }
+
         public static Address GetMasterNodeAddress(this Configure config)
         {
             var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();

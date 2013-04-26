@@ -1,11 +1,7 @@
 namespace NServiceBus
 {
-    using System;
     using Config;
-    using Transports;
     using Unicast.Config;
-    using Unicast.Publishing;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
