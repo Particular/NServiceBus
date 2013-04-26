@@ -178,7 +178,23 @@ namespace NServiceBus.Unicast.Transport.Transactional
         void ITransport.Start(Address address)
         {
             MessageReceiver.Init(address, IsTransactional);
-            FailureManager.Init(address);
+
+            var returnAddressForFailures = address;
+
+            //figure out if this transport is the one feeding messages into the unicastbus
+            if (returnAddressForFailures.Queue.ToLower().EndsWith(".worker") || address == Address.Local) //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+            {
+                //GetMasterNodeAddress returns Address.Local if no masternode is defined so we can safely call this for all endpoints
+                returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
+
+                if (address != returnAddressForFailures)
+                {
+                    Logger.InfoFormat("Worker started, failures will be redirected to {0}", returnAddressForFailures);
+                }
+            }
+
+            FailureManager.Init(returnAddressForFailures);
+
             Logger.DebugFormat("Going to start [{0}] receiving thread/s for Address [{1}].", numberOfWorkerThreads, address);
             for (int i = 0; i < numberOfWorkerThreads; i++)
                 AddWorkerThread().Start();
