@@ -39,6 +39,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                     return typeof(IEnumerable).IsAssignableFrom(memberType) &&
                            !(memberType == typeof(string) || memberType == typeof(byte[]) || memberType.IsArray);
                 });
+            Mapper.IsPersistentProperty((info, b) => !HasAttribute<RowVersionAttribute>(info));
             Mapper.BeforeMapClass += ApplyClassConvention;
             Mapper.BeforeMapUnionSubclass += ApplySubClassConvention;
             Mapper.BeforeMapProperty += ApplyPropertyConvention;
@@ -54,6 +55,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                 map.Id(idMapper => idMapper.Generator(Generators.Assigned));
 
             var tableAttribute = GetAttribute<TableNameAttribute>(type);
+
+            var rowVersionProperty = type.GetProperties()
+              .Where(HasAttribute<RowVersionAttribute>)
+              .FirstOrDefault();
+
+            if (rowVersionProperty != null)
+              map.Version(rowVersionProperty, mapper => mapper.Generated(VersionGeneration.Always));
 
             if (tableAttribute != null)
             {
@@ -116,6 +124,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
       var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
       foreach (var rootClass in hbmMapping.RootClasses)
       {
+        if (rootClass.Version != null)
+          continue;
+
         rootClass.dynamicupdate = true;
         rootClass.optimisticlock = HbmOptimisticLockMode.All;
       }
@@ -188,6 +199,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
         {
             var attributes = type.GetCustomAttributes(typeof(T), false);
             return attributes.FirstOrDefault() as T;
+        }
+
+        private static bool HasAttribute<T>(MemberInfo mi) where T : Attribute
+        {
+          var attributes = mi.GetCustomAttributes(typeof (T), false);
+          return attributes.Any();
         }
     }
 }
