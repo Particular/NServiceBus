@@ -122,6 +122,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 		public HbmMapping Compile()
 		{
       var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+      
+      ApplyOptimisticLockingOnMapping(hbmMapping);
+
+		  return hbmMapping;
+		}
+
+    static void ApplyOptimisticLockingOnMapping(HbmMapping hbmMapping)
+    {
       foreach (var rootClass in hbmMapping.RootClasses)
       {
         if (rootClass.Version != null)
@@ -137,9 +145,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
         hbmSubclass.dynamicupdate = true;
       foreach (var hbmSubclass in hbmMapping.SubClasses)
         hbmSubclass.dynamicupdate = true;
-
-		  return hbmMapping;
-		}
+    }
 
         private static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites,
                                                                         IEnumerable<Type> typesToScan)
