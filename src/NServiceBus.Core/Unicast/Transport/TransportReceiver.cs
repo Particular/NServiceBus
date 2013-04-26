@@ -179,7 +179,16 @@ namespace NServiceBus.Unicast.Transport
 
             receiveAddress = address;
 
-            FailureManager.Init(address);
+            var returnAddressForFailures = address;
+
+            if (Configure.Instance.WorkerRunsOnThisEndpoint() && returnAddressForFailures.Queue.ToLower().EndsWith(".worker"))
+            {
+                returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
+
+                Logger.InfoFormat("Worker started, failures will be redirected to {0}",returnAddressForFailures);
+            }
+
+            FailureManager.Init(returnAddressForFailures);
 
             firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
 

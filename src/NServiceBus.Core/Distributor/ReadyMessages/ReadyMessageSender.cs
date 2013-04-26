@@ -32,15 +32,11 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         void TransportOnFinishedMessageProcessing(object sender, EventArgs eventArgs)
         {
-            if (Bus.CurrentMessageContext.Headers.ContainsKey(NServiceBus.Headers.Retries))
-            {
-                return;
-            }
-
-            SendReadyMessage(1);
+            //if there was a failure this "send" will be rolled back
+            SendReadyMessage();
         }
 
-        void SendReadyMessage(int capacityAvailable, bool isStarting = false)
+        void SendReadyMessage(int capacityAvailable = 1, bool isStarting = false)
         {
             //we use the actual address to make sure that the worker inside the masternode will check in correctly
             var readyMessage = ControlMessage.Create(Bus.InputAddress);
