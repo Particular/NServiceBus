@@ -25,23 +25,11 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void SetUp()
         {
             var assemblyContainingSagas = typeof (TestSaga).Assembly;
-            
-            var modelMapper = new SagaModelMapper(assemblyContainingSagas.GetTypes());
+
+            var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
             var properties = SQLiteConfiguration.InMemory();
-            var configuration = new Configuration().AddProperties(properties);
 
-            HbmMapping hbmMapping = modelMapper.Compile();
-
-            var setting = new XmlWriterSettings { Indent = true };
-            var serializer = new XmlSerializer(typeof(HbmMapping));
-            using (var fileStream = File.Open("When_automapping_sagas_mapping.xml", FileMode.Create))
-            {
-                serializer.Serialize(fileStream, hbmMapping);
-            }
-
-            configuration.AddMapping(hbmMapping);
-
-            sessionFactory = configuration.BuildSessionFactory() as SessionFactoryImpl;
+            sessionFactory = builder.Build(new Configuration().AddProperties(properties)) as SessionFactoryImpl;
 
             persisterForTestSaga = sessionFactory.GetEntityPersisterFor<TestSaga>();
         }
