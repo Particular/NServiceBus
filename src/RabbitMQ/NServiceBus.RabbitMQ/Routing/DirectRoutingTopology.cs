@@ -28,6 +28,11 @@
             channel.BasicPublish(ExchangeName(), GetRoutingKeyForPublish(type), true, false, properties, message.Body);
         }
 
+        public void Send(IModel channel, Address address, TransportMessage message, IBasicProperties properties)
+        {
+            channel.BasicPublish(string.Empty, address.Queue, true, false, properties, message.Body);
+        }
+
         string ExchangeName()
         {
             return ExchangeNameConvention(null,null);
