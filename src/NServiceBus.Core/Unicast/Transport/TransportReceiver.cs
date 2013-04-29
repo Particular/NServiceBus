@@ -181,7 +181,8 @@ namespace NServiceBus.Unicast.Transport
 
             var returnAddressForFailures = address;
 
-            if (Configure.Instance.WorkerRunsOnThisEndpoint() && returnAddressForFailures.Queue.ToLower().EndsWith(".worker"))
+            if (Configure.Instance.WorkerRunsOnThisEndpoint() 
+                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker")|| address ==Address.Local )) //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
             {
                 returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
 
