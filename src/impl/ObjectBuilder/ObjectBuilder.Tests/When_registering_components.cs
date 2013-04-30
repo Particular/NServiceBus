@@ -209,6 +209,24 @@ namespace ObjectBuilder.Tests
             ,typeof(WindsorObjectBuilder));
         }
 
+		[Test]
+		public void Given_lookupType_should_be_used_as_service_in_the_registration_when_RegisterSingleton()
+		{
+			ForAllBuilders( builder =>
+			{
+				var expected = new InheritedFromSomeClass();
+				builder.RegisterSingleton( typeof( SomeClass ), expected );
+
+				Assert.NotNull( builder.Build( typeof( SomeClass ) ) );
+				Assert.AreEqual( expected, builder.Build( typeof( SomeClass ) ) );
+
+				var childBuilder = builder.BuildChildContainer();
+				Assert.NotNull( childBuilder.Build( typeof( SomeClass ) ) );
+				Assert.AreEqual( expected, childBuilder.Build( typeof( SomeClass ) ) );
+
+			} );
+		}
+
         [Test]
         public void Generic_interfaces_should_be_registered()
         {
@@ -320,6 +338,10 @@ namespace ObjectBuilder.Tests
     public class SomeClass : ISomeInterface
     {
     }
+
+	public class InheritedFromSomeClass : SomeClass
+	{
+	}
 
     public class SomeOtherClass : ISomeInterface
     {
