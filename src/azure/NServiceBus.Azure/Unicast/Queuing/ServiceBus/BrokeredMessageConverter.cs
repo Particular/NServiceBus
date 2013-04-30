@@ -32,7 +32,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     (MessageIntentEnum)
                     Enum.Parse(typeof(MessageIntentEnum), message.Properties[Headers.MessageIntent].ToString());
                 t.Id = message.MessageId;
-                t.ReplyToAddress = Address.Parse(message.ReplyTo); // Will this work?
+                if ( !String.IsNullOrWhiteSpace( message.ReplyTo ) )
+                {
+                    t.ReplyToAddress = Address.Parse( message.ReplyTo ); // Will this work?
+                }
 
                 t.Body = rawMessage;
             }
