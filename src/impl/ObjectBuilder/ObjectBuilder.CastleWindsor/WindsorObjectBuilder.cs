@@ -160,7 +160,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
             }
 
-            var services = GetAllServiceTypesFor(instance.GetType()).Union(new[]{lookupType});
+            var services = GetAllServiceTypesFor(instance.GetType());
 
             container.Register(Component.For(services).Activator<ExternalInstanceActivatorWithDecommissionConcern>().Instance(instance).LifestyleSingleton());
         }
