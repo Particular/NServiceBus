@@ -99,7 +99,10 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                         brokeredMessage.Properties[Headers.MessageIntent] = message.MessageIntent.ToString();
                         brokeredMessage.MessageId = message.Id;
-                        brokeredMessage.ReplyTo = message.ReplyToAddress.ToString();
+                        if ( message.ReplyToAddress != null )
+                        {
+                            brokeredMessage.ReplyTo = message.ReplyToAddress.ToString();
+                        }
                         
                         sender.Send(brokeredMessage);
                         sent = true;
