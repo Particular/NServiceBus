@@ -1,4 +1,4 @@
-namespace NServiceBus.Management.Retries
+namespace NServiceBus.SecondLevelRetries.Helpers
 {
     public static class SecondLevelRetriesHeaders
     {

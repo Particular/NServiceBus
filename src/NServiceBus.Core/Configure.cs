@@ -11,6 +11,7 @@ namespace NServiceBus
     using Config;
     using Config.ConfigurationSource;
     using Config.Conventions;
+    using Features;
     using Installation;
     using Installation.Environments;
     using Logging;
@@ -165,6 +166,11 @@ namespace NServiceBus
         public static TransportSettings Transports { get { return transports ?? (transports = new TransportSettings()); } }
 
         private static TransportSettings transports;
+
+
+        public static FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
+
+        private static FeatureSettings features;
 
         // ------------  End Configuration extentions ---
 
@@ -357,7 +363,7 @@ namespace NServiceBus
                 .ToList().ForEach(o => o.Run());
         }
 
-        
+
         /// <summary>
         /// Applies the given action to all the scanned types that can be assigned to T 
         /// </summary>
@@ -596,27 +602,24 @@ namespace NServiceBus
 
             var logAsWarn = details.Any(d => d.Item2 > thresholdForWarning);
 
-            if (Logger.IsDebugEnabled || logAsWarn)
+            var detailsMessage = new StringBuilder();
+
+            detailsMessage.AppendLine(" - Details:");
+
+            foreach (var detail in details.OrderByDescending(d => d.Item2))
             {
-                var stringBuilder = new StringBuilder();
-
-                stringBuilder.AppendLine(" - Details:");
-
-                foreach (var detail in details.OrderByDescending(d => d.Item2))
-                {
-                    stringBuilder.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
-                }
-
-                message += stringBuilder;
+                detailsMessage.AppendLine(string.Format("{0} - {1:f4} s", detail.Item1.FullName, detail.Item2.TotalSeconds));
             }
+
 
             if (logAsWarn)
             {
-                Logger.Warn(message);
+                Logger.Warn(message + detailsMessage);
             }
             else
             {
                 Logger.Info(message);
+                Logger.Debug(detailsMessage.ToString());
             }
         }
 

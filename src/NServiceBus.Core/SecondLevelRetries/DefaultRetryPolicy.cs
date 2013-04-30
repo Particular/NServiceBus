@@ -1,4 +1,4 @@
-namespace NServiceBus.Management.Retries
+namespace NServiceBus.SecondLevelRetries
 {
     using System;
     using Helpers;
@@ -7,9 +7,14 @@ namespace NServiceBus.Management.Retries
     {
         public static int NumberOfRetries = 3;
         public static TimeSpan TimeIncrease = TimeSpan.FromSeconds(10);
+        public static Func<TransportMessage, TimeSpan> RetryPolicy = Validate;
 
-        public static TimeSpan Validate(TransportMessage message)
+
+        static TimeSpan Validate(TransportMessage message)
         {
+            if (HasReachedMaxTime(message))
+                return TimeSpan.MinValue;
+
             var numberOfRetries = TransportMessageHelpers.GetNumberOfRetries(message);
 
             var timeToIncreaseInTicks = TimeIncrease.Ticks*(numberOfRetries + 1);
@@ -18,7 +23,7 @@ namespace NServiceBus.Management.Retries
             return numberOfRetries >= NumberOfRetries ? TimeSpan.MinValue : timeIncrease;
         }
 
-        public static bool HasTimedOut(TransportMessage message)
+        static bool HasReachedMaxTime(TransportMessage message)
         {
             var timestampHeader = TransportMessageHelpers.GetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp);
 

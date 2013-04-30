@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
     using Transports;
@@ -11,11 +10,6 @@
     /// </summary>
     public class TimeoutManager : IConditionalFeature
     {
-        public bool EnabledByDefault()
-        {
-            return true;
-        }
-        
         public bool ShouldBeEnabled()
         {
             //has the user already specified a custom deferal method

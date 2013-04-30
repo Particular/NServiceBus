@@ -1,16 +1,15 @@
-namespace NServiceBus.Management.Retries
+namespace NServiceBus.SecondLevelRetries
 {
     using System;
+    using Helpers;
     using Faults.Forwarder;
     using Logging;
     using Satellites;
     using Transports;
     using TransportMessageHelpers = Helpers.TransportMessageHelpers;
 
-    public class SecondLevelRetries : ISatellite
+    public class SecondLevelRetriesProcessor : ISatellite
     {
-        readonly ILog Logger = LogManager.GetLogger(typeof(SecondLevelRetries));
-
         public ISendMessages MessageSender { get; set; }
         public IDeferMessages MessageDeferrer { get; set; }  
         
@@ -20,9 +19,7 @@ namespace NServiceBus.Management.Retries
 
         public FaultManager FaultManager { get; set; }
 
-        public static Func<TransportMessage, TimeSpan> RetryPolicy = DefaultRetryPolicy.Validate;
-
-        public static Func<TransportMessage, bool> TimeoutPolicy = DefaultRetryPolicy.HasTimedOut;
+        public Func<TransportMessage, TimeSpan> RetryPolicy { get; set; }
 
         public void Start()
         {            
@@ -42,9 +39,8 @@ namespace NServiceBus.Management.Retries
             }
 
             var defer = RetryPolicy.Invoke(message);
-            var hasTimedOut = TimeoutPolicy.Invoke(message);
 
-            if (defer < TimeSpan.Zero || hasTimedOut)
+            if (defer < TimeSpan.Zero)
             {
                 SendToErrorQueue(message);
                 return true;
@@ -81,5 +77,7 @@ namespace NServiceBus.Management.Retries
 
             MessageDeferrer.Defer(message, retryMessageAt, addressOfFaultingEndpoint);
         }
+
+        readonly ILog Logger = LogManager.GetLogger(typeof(SecondLevelRetriesProcessor));
     }
 }

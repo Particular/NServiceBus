@@ -154,6 +154,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
+    <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetriesTests.cs" />
     <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />

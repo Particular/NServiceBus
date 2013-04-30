@@ -4,7 +4,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Management.Retries.Tests
 {
-    using Helpers;
+    using SecondLevelRetries;
+    using SecondLevelRetries.Helpers;
 
     [TestFixture]
     public class DefaultRetryPolicyTests
@@ -23,7 +24,7 @@ namespace NServiceBus.Management.Retries.Tests
         {            
             for (int i=0; i<3; i++)
             {                
-                var timeSpan = DefaultRetryPolicy.Validate(_message);
+                var timeSpan = DefaultRetryPolicy.RetryPolicy(_message);
                 
                 Defer();
 
@@ -35,7 +36,7 @@ namespace NServiceBus.Management.Retries.Tests
         public void The_default_time_out_should_be_1_day()
         {
             TransportMessageHelpers.SetHeader(_message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddDays(-1).AddSeconds(-1)));
-            var hasTimedOut = DefaultRetryPolicy.HasTimedOut(_message);
+            var hasTimedOut = DefaultRetryPolicy.RetryPolicy(_message) == TimeSpan.MinValue;
             Assert.IsTrue(hasTimedOut);
         }
 

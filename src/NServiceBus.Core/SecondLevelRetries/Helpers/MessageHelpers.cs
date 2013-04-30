@@ -1,4 +1,4 @@
-namespace NServiceBus.Management.Retries.Helpers
+namespace NServiceBus.SecondLevelRetries.Helpers
 {
     using System.Messaging;
 

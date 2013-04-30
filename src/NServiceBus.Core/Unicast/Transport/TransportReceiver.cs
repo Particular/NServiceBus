@@ -6,8 +6,8 @@ namespace NServiceBus.Unicast.Transport
     using Faults;
     using Logging;
     using System.Runtime.Serialization;
-    using Management.Retries;
     using Monitoring;
+    using SecondLevelRetries;
     using Transports;
 
     /// <summary>
@@ -305,15 +305,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
                 {
-                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
-                    if (Configure.Instance.Builder.Build<SecondLevelRetries>().Disabled)
-                    {
-                        Logger.ErrorFormat("Message has failed the maximum number of times allowed, ID={0}.", message.IdForCorrelation);
-                    }
-                    else
-                    {
-                        Logger.WarnFormat("Message has failed the maximum number of times allowed, message will be handed over to SLR, ID={0}.", message.IdForCorrelation);
-                    }
+                  
 
                     OnFinishedMessageProcessing();
 

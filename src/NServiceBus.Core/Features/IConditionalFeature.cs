@@ -10,11 +10,5 @@ namespace NServiceBus.Features
         /// </summary>
         /// <returns></returns>
         bool ShouldBeEnabled();
-
-        /// <summary>
-        /// True if the feature should be on by default
-        /// </summary>
-        /// <returns></returns>
-        bool EnabledByDefault();
     }
 }

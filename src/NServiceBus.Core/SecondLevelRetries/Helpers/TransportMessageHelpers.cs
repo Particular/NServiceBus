@@ -1,7 +1,7 @@
-namespace NServiceBus.Management.Retries.Helpers
+namespace NServiceBus.SecondLevelRetries.Helpers
 {
     using System;
-    using Transports.Msmq;
+    using NServiceBus.Transports.Msmq;
 
     public static class TransportMessageHelpers
     {

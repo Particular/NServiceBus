@@ -13,17 +13,8 @@
 
                 if (feature is IConditionalFeature)
                 {
-                    if (((IConditionalFeature) feature).EnabledByDefault())
-                    {
-                        Feature.EnableByDefault(t);
-                        Logger.DebugFormat("Feature {0} has requested to be enabled by default", t.Name);
-                        
-                    }
-                    else
-                    {
-                        Feature.DisableByDefault(t);
-                        Logger.DebugFormat("Feature {0} has requested to be disabled by default", t.Name);
-                    }
+                    Feature.EnableByDefault(t);
+                    Logger.DebugFormat("Feature {0} is conditional and will be enabled by default", t.FeatureName());
                 }
             });
         }

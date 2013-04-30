@@ -5,19 +5,18 @@ using NUnit.Framework;
 namespace NServiceBus.Management.Retries.Tests
 {
     using Faults.Forwarder;
-    using Helpers;
+    using SecondLevelRetries;
+    using SecondLevelRetries.Helpers;
     using Transports;
-    using Unicast.Queuing;
 
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        readonly SecondLevelRetries satellite = new SecondLevelRetries();
+        readonly SecondLevelRetriesProcessor satellite = new SecondLevelRetriesProcessor();
         readonly FakeMessageSender messageSender = new FakeMessageSender();
         readonly FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
         readonly Address ERROR_QUEUE = new Address("error","localhost");
         readonly Address RETRIES_QUEUE = new Address("retries", "localhost");
-        readonly Address TIMEOUT_MANAGER_QUEUE = new Address("timeouts", "localhost");
         readonly Address ORIGINAL_QUEUE = new Address("org", "hostname");
         TransportMessage message;
 
@@ -30,8 +29,7 @@ namespace NServiceBus.Management.Retries.Tests
             satellite.MessageSender = messageSender;
             satellite.MessageDeferrer = deferrer;
 
-            SecondLevelRetries.RetryPolicy = DefaultRetryPolicy.Validate;
-            SecondLevelRetries.TimeoutPolicy = DefaultRetryPolicy.HasTimedOut;
+            satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
 
             message = new TransportMessage {Headers = new Dictionary<string, string>()};
         }
@@ -41,7 +39,7 @@ namespace NServiceBus.Management.Retries.Tests
         {
             var expected = new Address("clientQ", "myMachine");
             message.ReplyToAddress = expected;
-            SecondLevelRetries.RetryPolicy = _ => TimeSpan.MinValue;
+            satellite.RetryPolicy = _ => TimeSpan.MinValue;
 
             satellite.Handle(message);
 
@@ -68,7 +66,7 @@ namespace NServiceBus.Management.Retries.Tests
         public void Message_should_be_sent_to_real_errorQ_if_defer_timespan_is_less_than_zero()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
-            SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.MinValue; };
+            satellite.RetryPolicy = _ => { return TimeSpan.MinValue; };
 
             satellite.Handle(message);
 
@@ -78,8 +76,8 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void Message_should_be_sent_to_retryQ_if_defer_timespan_is_greater_than_zero()
         {
-            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");                        
-            SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
 
             satellite.Handle(message);
 
@@ -106,7 +104,7 @@ namespace NServiceBus.Management.Retries.Tests
 
             satellite.Handle(message);
 
-            SecondLevelRetries.TimeoutPolicy = _ => true;
+            TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddDays(-2)));
             
              satellite.Handle(message);
 
@@ -116,9 +114,8 @@ namespace NServiceBus.Management.Retries.Tests
         [Test]
         public void A_message_should_only_be_able_to_retry_during_N_minutes()
         {
-            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
-            SecondLevelRetries.TimeoutPolicy = _ => { return true; };
-
+            TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
+            TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.Now.AddDays(-2)));
             satellite.Handle(message);
 
             Assert.AreEqual(ERROR_QUEUE, messageSender.MessageSentTo);
@@ -128,7 +125,7 @@ namespace NServiceBus.Management.Retries.Tests
         public void For_each_retry_the_NServiceBus_Retries_header_should_be_increased()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
-            SecondLevelRetries.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };            
+            satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };            
 
             for (int i = 0; i < 10; i++)
             {
@@ -142,7 +139,7 @@ namespace NServiceBus.Management.Retries.Tests
         public void Message_should_be_routed_to_the_failing_endpoint_when_the_time_is_up()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, ORIGINAL_QUEUE.ToString());
-            SecondLevelRetries.RetryPolicy = _ => TimeSpan.FromSeconds(1);
+            satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
 

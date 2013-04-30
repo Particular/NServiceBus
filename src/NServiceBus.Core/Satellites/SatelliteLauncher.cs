@@ -52,7 +52,7 @@ namespace NServiceBus.Satellites
 
                     satelliteContexts[index] = ctx;
 
-                    Logger.DebugFormat("Started {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
+                    Logger.InfoFormat("Started {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
                                        index + 1, satellitesList.Count);
 
                 });
@@ -74,7 +74,7 @@ namespace NServiceBus.Satellites
 
                     ctx.Instance.Stop();
 
-                    Logger.DebugFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
+                    Logger.InfoFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
                                        index + 1, satellites.Count);
                 });
         }
