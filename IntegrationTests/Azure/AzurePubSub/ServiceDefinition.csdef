@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-10.1.8">
+<ServiceDefinition name="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2013-03.2.0">
   <WebRole name="OrderWebSite" enableNativeCodeExecution="true">
     <Sites>
       <Site name="Web">
@@ -11,7 +11,7 @@
     <ConfigurationSettings>
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureQueueConfig.QueueName" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" />
       <Setting name="TransportConfig.MaxRetries" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />
@@ -31,7 +31,7 @@
       <Setting name="AzureProfileConfig.Profiles" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" />
       <Setting name="AzureSubscriptionStorageConfig.TableName" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />      
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" />
       <Setting name="TransportConfig.MaxRetries" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" />

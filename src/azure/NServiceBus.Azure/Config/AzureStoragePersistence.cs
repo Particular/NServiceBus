@@ -11,6 +11,7 @@ namespace NServiceBus.Config
         public static void UseAsDefault()
         {
             Feature.Enable<MessageDrivenSubscriptions>();
+            Feature.Enable<MessageDrivenPublisher>();
             Feature.Enable<TimeoutManager>();
 
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.AzureSagaPersister());
