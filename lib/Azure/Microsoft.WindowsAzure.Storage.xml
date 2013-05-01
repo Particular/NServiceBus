@@ -164,12 +164,13 @@
             <param name="options">An object that specifies any additional options for the request.</param>
             <param name="operationContext">An <see cref="T:Microsoft.WindowsAzure.Storage.OperationContext"/> object for tracking the current operation.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Blob.BlobWriteStreamBase.#ctor(Microsoft.WindowsAzure.Storage.Blob.CloudPageBlob,System.Int64,Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Blob.BlobWriteStreamBase.#ctor(Microsoft.WindowsAzure.Storage.Blob.CloudPageBlob,System.Int64,System.Boolean,Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
             <summary>
             Initializes a new instance of the BlobWriteStreamBase class for a page blob.
             </summary>
             <param name="pageBlob">Blob reference to write to.</param>
             <param name="pageBlobSize">Size of the page blob.</param>
+            <param name="createNew">Use <c>true</c> if the page blob is newly created, <c>false</c> otherwise.</param>
             <param name="accessCondition">An object that represents the access conditions for the blob. If null, no condition is used.</param>
             <param name="options">An object that specifies any additional options for the request.</param>
             <param name="operationContext">An <see cref="T:Microsoft.WindowsAzure.Storage.OperationContext"/> object for tracking the current operation.</param>
@@ -237,12 +238,13 @@
             <param name="options">An object that specifies any additional options for the request.</param>
             <param name="operationContext">An <see cref="T:Microsoft.WindowsAzure.Storage.OperationContext"/> object for tracking the current operation.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Blob.BlobWriteStream.#ctor(Microsoft.WindowsAzure.Storage.Blob.CloudPageBlob,System.Int64,Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Blob.BlobWriteStream.#ctor(Microsoft.WindowsAzure.Storage.Blob.CloudPageBlob,System.Int64,System.Boolean,Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
             <summary>
             Initializes a new instance of the BlobWriteStream class for a page blob.
             </summary>
             <param name="pageBlob">Blob reference to write to.</param>
             <param name="pageBlobSize">Size of the page blob.</param>
+            <param name="createNew">Use <c>true</c> if the page blob is newly created, <c>false</c> otherwise.</param>
             <param name="accessCondition">An object that represents the access conditions for the blob. If null, no condition is used.</param>
             <param name="options">An object that specifies any additional options for the request.</param>
             <param name="operationContext">An <see cref="T:Microsoft.WindowsAzure.Storage.OperationContext"/> object for tracking the current operation.</param>
@@ -316,6 +318,7 @@
             </summary>
             <param name="blockData">Data to be uploaded</param>
             <param name="blockId">Block ID</param>
+            <param name="blockMD5">MD5 hash of the data to be uploaded</param>
             <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.Storage.Blob.BlobWriteStream.WritePages(System.IO.Stream,System.Int64,System.String,Microsoft.WindowsAzure.Storage.Core.Util.ChainedAsyncResult{Microsoft.WindowsAzure.Storage.Core.NullType})">
@@ -325,6 +328,7 @@
             </summary>
             <param name="pageData">Data to be uploaded</param>
             <param name="offset">Offset within the page blob</param>
+            <param name="contentMD5">MD5 hash of the data to be uploaded</param>
             <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         </member>
         <member name="T:Microsoft.WindowsAzure.Storage.Blob.CloudBlobClient">
@@ -1983,6 +1987,16 @@
             An interface required for Windows Azure blob types. The <see cref="T:Microsoft.WindowsAzure.Storage.Blob.CloudBlockBlob"/> and <see cref="T:Microsoft.WindowsAzure.Storage.Blob.CloudPageBlob"/> classes implement the <see cref="T:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob"/> interface.
             </summary>
         </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob.OpenRead(Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
+            <summary>
+            Opens a stream for reading from the blob.
+            </summary>
+            <param name="accessCondition">An <see cref="T:Microsoft.WindowsAzure.Storage.AccessCondition"/> object that represents the access conditions for the blob. If <c>null</c>, no condition is used.</param>
+            <param name="options">A <see cref="T:Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions"/> object that specifies any additional options for the request.</param>
+            <param name="operationContext">An <see cref="T:Microsoft.WindowsAzure.Storage.OperationContext"/> object that represents the context for the current operation.</param>
+            <returns>A stream to be used for reading from the blob.</returns>
+            <remarks>On the <see cref="T:System.IO.Stream"/> object returned by this method, the <see cref="M:System.IO.Stream.EndRead(System.IAsyncResult)"/> method must be called exactly once for every <see cref="M:System.IO.Stream.BeginRead(System.Byte[],System.Int32,System.Int32,System.AsyncCallback,System.Object)"/> call. Failing to end a read process before beginning another read can cause unknown behavior.</remarks>
+        </member>
         <member name="M:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob.UploadFromStream(System.IO.Stream,Microsoft.WindowsAzure.Storage.AccessCondition,Microsoft.WindowsAzure.Storage.Blob.BlobRequestOptions,Microsoft.WindowsAzure.Storage.OperationContext)">
             <summary>
             Uploads a stream to the Windows Azure Blob Service. 
@@ -2569,6 +2583,21 @@
             Ends an asynchronous operation to abort an ongoing blob copy operation.
             </summary>
             <param name="asyncResult">An <see cref="T:System.IAsyncResult"/> that references the pending asynchronous operation.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob.GetSharedAccessSignature(Microsoft.WindowsAzure.Storage.Blob.SharedAccessBlobPolicy)">
+            <summary>
+            Returns a shared access signature for the blob.
+            </summary>
+            <param name="policy">The access policy for the shared access signature.</param>
+            <returns>A shared access signature.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob.GetSharedAccessSignature(Microsoft.WindowsAzure.Storage.Blob.SharedAccessBlobPolicy,System.String)">
+            <summary>
+            Returns a shared access signature for the blob.
+            </summary>
+            <param name="policy">The access policy for the shared access signature.</param>
+            <param name="groupPolicyIdentifier">A container-level access policy.</param>
+            <returns>A shared access signature.</returns>
         </member>
         <member name="P:Microsoft.WindowsAzure.Storage.Blob.ICloudBlob.Name">
             <summary>
@@ -6530,6 +6559,16 @@
             Represents a message in the Windows Azure Queue service.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaximumMessageSize">
+            <summary>
+            The maximum message size in bytes.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaximumNumberOfMessagesToPeek">
+            <summary>
+            The maximum number of messages that can be peeked at a time.
+            </summary>
+        </member>
         <member name="M:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.#ctor(System.Byte[])">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage"/> class with the given byte array.
@@ -6542,19 +6581,9 @@
             </summary>
             <param name="content">The new message content.</param>
         </member>
-        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxMessageSize">
-            <summary>
-            The maximum message size in bytes.
-            </summary>
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxTimeToLive">
+        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaximumTimeToLive">
             <summary>
             The maximum amount of time a message is kept in the queue.
-            </summary>
-        </member>
-        <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxNumberOfMessagesToPeek">
-            <summary>
-            The maximum number of messages that can be peeked at a time.
             </summary>
         </member>
         <member name="F:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.utf8Encoder">
@@ -6572,6 +6601,13 @@
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage"/> class with the given string.
             </summary>
             <param name="content">The content of the message as a string of text.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage"/> class with the given message ID and pop receipt.
+            </summary>
+            <param name="messageId">The message ID.</param>
+            <param name="popReceipt">The pop receipt token.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.#ctor(System.String,System.Boolean)">
             <summary>
@@ -6593,6 +6629,24 @@
             Sets the content of this message.
             </summary>
             <param name="content">The new message content.</param>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxMessageSize">
+            <summary>
+            Gets the maximum message size in bytes.
+            </summary>
+            <value>The maximum message size in bytes.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxTimeToLive">
+            <summary>
+            Gets the maximum amount of time a message is kept in the queue.
+            </summary>
+            <value>The maximum amount of time a message is kept in the queue.</value>
+        </member>
+        <member name="P:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.MaxNumberOfMessagesToPeek">
+            <summary>
+            Gets the maximum number of messages that can be peeked at a time.
+            </summary>
+            <value>The maximum number of messages that can be peeked at a time.</value>
         </member>
         <member name="P:Microsoft.WindowsAzure.Storage.Queue.CloudQueueMessage.AsBytes">
             <summary>
@@ -7465,6 +7519,12 @@
             Blocks the calling thread until the async operation is completed.
             </summary>
         </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Core.Util.StorageCommandAsyncResult.UpdateCompletedSynchronously(System.Boolean)">
+            <summary>
+            Updates the CompletedSynchronously flag with another asynchronous operation result.
+            </summary>
+            <param name="lastOperationCompletedSynchronously">Set to <c>true</c> if the last operation was completed synchronously; <c>false</c> if it was completed asynchronously.</param>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Storage.Core.Util.StorageCommandAsyncResult.AsyncState">
             <summary>
             Gets A user-defined object that contains information about the asynchronous operation.
@@ -7539,6 +7599,16 @@
             A handle to a CSP created by a call to CryptAcquireContext.
             </summary>
         </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Core.Util.NativeMD5.disposed">
+            <summary>
+            Whether this object has been torn down or not.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Core.Util.NativeMD5.Finalize">
+            <summary>
+            Finalizes an instance of the NativeMD5 class, unhooking it from all events.
+            </summary>
+        </member>
         <member name="M:Microsoft.WindowsAzure.Storage.Core.Util.NativeMD5.Create">
             <summary>
             Create a Fisma hash.
@@ -7570,6 +7640,11 @@
         <member name="M:Microsoft.WindowsAzure.Storage.Core.Util.NativeMD5.Dispose">
             <summary>
             Releases the unmanaged resources and optionally releases the managed resources.
+            </summary>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.Core.Util.NativeMD5.DisposeUnmanagedResources">
+            <summary>
+            Releases the unmanaged resources.
             </summary>
         </member>
         <member name="T:Microsoft.WindowsAzure.Storage.Table.CloudTable">
@@ -9030,6 +9105,12 @@
             </summary>
             <value>A lease ID, or null if no condition exists.</value>
         </member>
+        <member name="P:Microsoft.WindowsAzure.Storage.AccessCondition.IsConditional">
+            <summary>
+            Determines whether the access condition is one of the four conditional headers.
+            </summary>
+            <value><c>true</c> if the access condition is a conditional header; otherwise, <c>false</c>.</value>
+        </member>
         <member name="T:Microsoft.WindowsAzure.Storage.CloudStorageAccount">
             <summary>
             Represents a Windows Azure Storage account.
@@ -9553,6 +9634,18 @@
             <param name="message">The message to translate.</param>
             <returns>The translated <see cref="T:Microsoft.WindowsAzure.Storage.RequestResult"/>.</returns>
         </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.RequestResult.ReadXml(System.Xml.XmlReader)">
+            <summary>
+            Generates a serializable RequestResult from its XML representation.
+            </summary>
+            <param name="reader">The <see cref="T:System.Xml.XmlReader"/> stream from which the RequestResult is deserialized.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.RequestResult.WriteXml(System.Xml.XmlWriter)">
+            <summary>
+            Converts a serializable RequestResult object into its XML representation.
+            </summary>
+            <param name="writer">The <see cref="T:System.Xml.XmlWriter"/> stream to which the RequestResult is serialized.</param>
+        </member>
         <member name="P:Microsoft.WindowsAzure.Storage.RequestResult.HttpStatusCode">
             <summary>
             Gets or sets the HTTP status code for the request.
@@ -9655,6 +9748,21 @@
             <param name="message">The message.</param>
             <param name="inner">The inner exception.</param>
         </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.StorageException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.StorageException"/> class with serialized data.
+            </summary>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> object that holds the serialized object data for the exception being thrown.</param>
+            <remarks>This constructor is called during deserialization to reconstitute the exception object transmitted over a stream.</remarks>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.StorageException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> object with the data needed to serialize the target object.
+            </summary>
+            <param name="context">The destination context for this serialization.</param>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> object to populate with data.</param>
+        </member>
         <member name="M:Microsoft.WindowsAzure.Storage.StorageException.TranslateException(System.Exception,Microsoft.WindowsAzure.Storage.RequestResult)">
             <summary>
             Translates the specified exception into a storage exception.
@@ -9691,6 +9799,18 @@
             </summary>
             <param name="inputStream">The input stream.</param>
             <returns>The error details.</returns>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.StorageExtendedErrorInformation.ReadXml(System.Xml.XmlReader)">
+            <summary>
+            Generates a serializable StorageExtendedErrorInformation from its XML representation.
+            </summary>
+            <param name="reader">The <see cref="T:System.Xml.XmlReader"/> stream from which the StorageExtendedErrorInformation is deserialized.</param>
+        </member>
+        <member name="M:Microsoft.WindowsAzure.Storage.StorageExtendedErrorInformation.WriteXml(System.Xml.XmlWriter)">
+            <summary>
+            Converts a serializable StorageExtendedErrorInformation object into its XML representation.
+            </summary>
+            <param name="writer">The <see cref="T:System.Xml.XmlWriter"/> stream to which the StorageExtendedErrorInformation is serialized.</param>
         </member>
         <member name="P:Microsoft.WindowsAzure.Storage.StorageExtendedErrorInformation.ErrorCode">
             <summary>
@@ -12972,7 +13092,7 @@
             <param name="etag">The entity's current ETag.</param>
             <param name="properties">The entity's properties, indexed by property name.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.DynamicTableEntity.#ctor(System.String,System.String,System.DateTime,System.String,System.Collections.Generic.IDictionary{System.String,Microsoft.WindowsAzure.Storage.Table.EntityProperty})">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.DynamicTableEntity.#ctor(System.String,System.String,System.DateTimeOffset,System.String,System.Collections.Generic.IDictionary{System.String,Microsoft.WindowsAzure.Storage.Table.EntityProperty})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.DynamicTableEntity"/> class with the entity's partition key, row key, time stamp, ETag (if available/required), and properties.
             </summary>
@@ -13099,35 +13219,35 @@
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
             <returns>A new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> of the byte array.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForBool(System.Boolean)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForBool(System.Nullable{System.Boolean})">
             <summary>
             Creates a new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> object that represents the specified <see cref="T:System.Boolean"/> value.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
             <returns>A new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> of the <see cref="T:System.Boolean"/> type.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForDouble(System.Double)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForDouble(System.Nullable{System.Double})">
             <summary>
             Creates a new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> object that represents the specified <see cref="T:System.Double"/> value.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
             <returns>A new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> of the <see cref="T:System.Double"/> type.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForGuid(System.Guid)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForGuid(System.Nullable{System.Guid})">
             <summary>
             Creates a new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> object that represents the specified <see cref="T:System.Guid"/> value.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
             <returns>A new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> of the <see cref="T:System.Guid"/> type.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForInt(System.Int32)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForInt(System.Nullable{System.Int32})">
             <summary>
             Creates a new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> object that represents the specified <see cref="T:System.Int32"/> value.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
             <returns>A new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> of the <see cref="T:System.Int32"/> type.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForLong(System.Int64)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.GeneratePropertyForLong(System.Nullable{System.Int64})">
             <summary>
             Creates a new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> object that represents the specified <see cref="T:System.Int64"/> value.
             </summary>
@@ -13148,7 +13268,7 @@
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Boolean)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Nullable{System.Boolean})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> class by using the
             <see cref="T:System.Boolean"/> value of the property.
@@ -13169,28 +13289,28 @@
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Double)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Nullable{System.Double})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> class by using the
             <see cref="T:System.Double"/> value of the property.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Guid)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Nullable{System.Guid})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> class by using the
             <see cref="T:System.Guid"/> value of the property.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Int32)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Nullable{System.Int32})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> class by using the
             <see cref="T:System.Int32"/> value of the property.
             </summary>
             <param name="input">The value for the new <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/>.</param>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Int64)">
+        <member name="M:Microsoft.WindowsAzure.Storage.Table.EntityProperty.#ctor(System.Nullable{System.Int64})">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Storage.Table.EntityProperty"/> class by using the
             <see cref="T:System.Int64"/> value of the property.
@@ -13831,6 +13951,11 @@
             <summary>
             The query select clause name.
             </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Table.Protocol.TableConstants.MinDateTime">
+            <summary>
+            The minimum DateTime supported.
+            </summary> 
         </member>
         <member name="T:Microsoft.WindowsAzure.Storage.Table.Protocol.TableErrorCodeStrings">
             <summary>
@@ -15256,6 +15381,181 @@
             Gets or sets the default service version.
             </summary>
             <value>The default service version identifier.</value>
+        </member>
+        <member name="T:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings">
+            <summary>
+            Provides error code strings that are common to all storage services.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.UnsupportedHttpVerb">
+            <summary>
+            The specified HTTP verb is not supported.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.MissingContentLengthHeader">
+            <summary>
+            The Content-Length header is required for this request.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.MissingRequiredHeader">
+            <summary>
+            A required header was missing.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.MissingRequiredXmlNode">
+            <summary>
+            A required XML node was missing.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.UnsupportedHeader">
+            <summary>
+            One or more header values are not supported.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.UnsupportedXmlNode">
+            <summary>
+            One or more XML nodes are not supported.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidHeaderValue">
+            <summary>
+            One or more header values are invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidXmlNodeValue">
+            <summary>
+            One or more XML node values are invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.MissingRequiredQueryParameter">
+            <summary>
+            A required query parameter is missing.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.UnsupportedQueryParameter">
+            <summary>
+            One or more query parameters is not supported.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidQueryParameterValue">
+            <summary>
+            One or more query parameters are invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.OutOfRangeQueryParameterValue">
+            <summary>
+            One or more query parameters are out of range.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidUri">
+            <summary>
+            The URI is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidHttpVerb">
+            <summary>
+            The HTTP verb is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.EmptyMetadataKey">
+            <summary>
+            The metadata key is empty.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.RequestBodyTooLarge">
+            <summary>
+            The request body is too large.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidXmlDocument">
+            <summary>
+            The specified XML document is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InternalError">
+            <summary>
+            An internal error occurred.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.AuthenticationFailed">
+            <summary>
+            Authentication failed.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.Md5Mismatch">
+            <summary>
+            The specified MD5 hash does not match the server value.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidMd5">
+            <summary>
+            The specified MD5 hash is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.OutOfRangeInput">
+            <summary>
+            The input is out of range.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidInput">
+            <summary>
+            The input is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.OperationTimedOut">
+            <summary>
+            The operation timed out.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ResourceNotFound">
+            <summary>
+            The specified resource was not found.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidMetadata">
+            <summary>
+            The specified metadata is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.MetadataTooLarge">
+            <summary>
+            The specified metadata is too large.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ConditionNotMet">
+            <summary>
+            The specified condition was not met.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.InvalidRange">
+            <summary>
+            The specified range is invalid.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ContainerNotFound">
+            <summary>
+            The specified container was not found.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ContainerAlreadyExists">
+            <summary>
+            The specified container already exists.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ContainerDisabled">
+            <summary>
+            The specified container is disabled.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ContainerBeingDeleted">
+            <summary>
+            The specified container is being deleted.
+            </summary>
+        </member>
+        <member name="F:Microsoft.WindowsAzure.Storage.Shared.Protocol.StorageErrorCodeStrings.ServerBusy">
+            <summary>
+            The server is busy.
+            </summary>
         </member>
     </members>
 </doc>

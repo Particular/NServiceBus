@@ -11,8 +11,7 @@ namespace NServiceBus.Integration.Azure
 {
     using System.Security;
     using Microsoft.WindowsAzure.Storage;
-    using CloudStorageAccount = Microsoft.WindowsAzure.CloudStorageAccount;
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -72,22 +71,21 @@ namespace NServiceBus.Integration.Azure
 
             if (!RoleEnvironment.IsAvailable || !InitializeDiagnostics) return;
 
-            var cloudStorageAccount = CloudStorageAccount.Parse(GetConnectionString());
-
-            var roleInstanceDiagnosticManager = cloudStorageAccount.CreateRoleInstanceDiagnosticManager(
+            var roleInstanceDiagnosticManager = CloudAccountDiagnosticMonitorExtensions.CreateRoleInstanceDiagnosticManager(
+                GetConnectionString(),
                 RoleEnvironment.DeploymentId,
                 RoleEnvironment.CurrentRoleInstance.Role.Name,
                 RoleEnvironment.CurrentRoleInstance.Id);
 
             var configuration = roleInstanceDiagnosticManager.GetCurrentConfiguration();
 
-            if (configuration == null) // to remain backward compatible with sdk 1.2
+            if (configuration == null) 
             {
                 configuration = DiagnosticMonitor.GetDefaultInitialConfiguration();
-
+                
                 ConfigureDiagnostics(configuration);
 
-                DiagnosticMonitor.Start(cloudStorageAccount, configuration);
+                DiagnosticMonitor.Start(ConnectionStringKey, configuration);
             }
            
         }
