@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using Settings;
     using Timeout.Core;
     using Timeout.Hosting.Windows;
     using Transports;
@@ -11,11 +10,6 @@
     /// </summary>
     public class TimeoutManager : IConditionalFeature
     {
-        public bool EnabledByDefault()
-        {
-            return true;
-        }
-        
         public bool ShouldBeEnabled()
         {
             //has the user already specified a custom deferal method
@@ -23,7 +17,7 @@
                 return false;
 
             //if we have a master node configured we should use that timeout manager instead
-            if (Configure.Instance.GetMasterNodeAddress() != Address.Local )
+            if (Configure.Instance.HasMasterNode())
                 return false;
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();

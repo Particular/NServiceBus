@@ -3,9 +3,6 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
-    using Transports;
-    using Unicast.Queuing;
-
     /// <summary>
     /// Handles configuration related to the client role
     /// </summary>
@@ -18,18 +15,13 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
-            {
-                Configure.Instance.MsmqTransport();
-            }
-
             Configure.Transactions.Disable();
+            Configure.Features.Disable<Features.SecondLevelRetries>();
 
             return Configure.Instance
                             .PurgeOnStartup(true)
                             .DisableTimeoutManager()
                             .DisableNotifications()
-                            .DisableSecondLevelRetries()
                             .UnicastBus()
                             .RunHandlersUnderIncomingPrincipal(false);
 

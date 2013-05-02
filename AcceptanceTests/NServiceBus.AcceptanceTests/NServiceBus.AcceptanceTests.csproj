@@ -59,14 +59,14 @@
       <HintPath>..\..\packages\Common.Logging.1.2.0\lib\1.0\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="Iesi.Collections">
-      <HintPath>..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+      <HintPath>..\..\packages\Iesi.Collections.3.3.3.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\binaries\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
-      <HintPath>..\..\packages\NHibernate.3.3.1.4000\lib\Net35\NHibernate.dll</HintPath>
+      <HintPath>..\..\packages\NHibernate.3.3.3.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="Ninject">
       <HintPath>..\..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
@@ -160,6 +160,7 @@
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
+    <Compile Include="Retries\When_messages_fails_flr.cs" />
     <Compile Include="Retries\When_message_fails_with_retries_set_to_0.cs" />
     <Compile Include="Retries\When_doing_flr_with_default_settings.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance.cs" />

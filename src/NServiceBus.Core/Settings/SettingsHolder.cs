@@ -105,9 +105,8 @@ namespace NServiceBus.Settings
             return default(T);
         }
 
-        public static bool HasSetting<T>()
+        public static bool HasSetting(string key)
         {
-            var key = typeof(T).FullName;
 
             if (Overrides.ContainsKey(key))
             {
@@ -120,6 +119,13 @@ namespace NServiceBus.Settings
             }
 
             return false;
+        }
+
+        public static bool HasSetting<T>()
+        {
+            var key = typeof(T).FullName;
+
+            return HasSetting(key);
         }
 
         /// <summary>

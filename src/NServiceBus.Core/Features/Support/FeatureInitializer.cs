@@ -16,6 +16,7 @@
             {
                 if (!Feature.IsEnabled(t))
                 {
+                    Logger.InfoFormat("Conditionally feature {0} has been explicitly disabled", t.FeatureName());
                     return;
                 }
 
@@ -24,7 +25,7 @@
                 if (!feature.ShouldBeEnabled())
                 {
                     Feature.Disable(t);
-                    Logger.DebugFormat("{0} - Conditionally disabled", t.Name);
+                    Logger.DebugFormat("{0} - Conditionally disabled", t.FeatureName());
                 }
             });
 
@@ -39,7 +40,7 @@
                 {
                     if (!Feature.IsEnabled(t))
                     {
-                        statusText.AppendLine(string.Format("{0} - Disabled", t.Name));
+                        statusText.AppendLine(string.Format("{0} - Disabled", t.FeatureName()));
                         return;
                     }
 
@@ -47,7 +48,7 @@
                  
                     feature.Initialize();
 
-                    statusText.AppendLine(string.Format("{0} - Enabled", t.Name));
+                    statusText.AppendLine(string.Format("{0} - Enabled", t.FeatureName()));
                 });
 
             Logger.InfoFormat("Features: \n{0}", statusText);

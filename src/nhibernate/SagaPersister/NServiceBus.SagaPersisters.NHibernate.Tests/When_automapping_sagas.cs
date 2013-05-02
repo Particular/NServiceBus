@@ -1,10 +1,16 @@
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using System;
+    using System.IO;
     using System.Linq;
+    using System.Xml;
+    using System.Xml.Serialization;
+    using AutoPersistence;
     using Config.Internal;
     using NUnit.Framework;
     using global::NHibernate.Cfg;
+    using global::NHibernate.Cfg.MappingSchema;
+    using global::NHibernate.Engine;
     using global::NHibernate.Id;
     using global::NHibernate.Impl;
     using global::NHibernate.Persister.Entity;
@@ -21,7 +27,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var assemblyContainingSagas = typeof (TestSaga).Assembly;
 
             var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
-
             var properties = SQLiteConfiguration.InMemory();
 
             sessionFactory = builder.Build(new Configuration().AddProperties(properties)) as SessionFactoryImpl;
@@ -131,6 +136,22 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.IsNotNull(p);
 
             Assert.AreEqual(global::NHibernate.NHibernateUtil.Serializable.GetType(), p.Type.GetType());
+        }
+
+        [Test]
+        public void Versioned_Property_should_override_optimistic_lock()
+        {
+
+          var persister1 = sessionFactory.GetEntityPersisterFor<SagaWithVersionedPropertyAttribute>();
+          var persister2 = sessionFactory.GetEntityPersisterFor<SagaWithoutVersionedPropertyAttribute>();
+        
+          Assert.True(persister1.IsVersioned);
+          Assert.False(persister1.EntityMetamodel.IsDynamicUpdate);
+          Assert.AreEqual(Versioning.OptimisticLock.Version, persister1.EntityMetamodel.OptimisticLockMode);
+
+          Assert.True(persister2.EntityMetamodel.IsDynamicUpdate);
+          Assert.AreEqual(Versioning.OptimisticLock.All, persister2.EntityMetamodel.OptimisticLockMode);
+          Assert.False(persister2.IsVersioned);
         }
     }
 

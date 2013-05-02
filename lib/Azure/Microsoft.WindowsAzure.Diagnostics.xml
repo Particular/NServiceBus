@@ -177,23 +177,23 @@
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions">
             <summary>
-            Provides extension methods to the <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> class.
+            Provides extension methods to the DiagnosticMonitor class
             </summary>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions.CreateDeploymentDiagnosticManager(Microsoft.WindowsAzure.CloudStorageAccount,System.String)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions.CreateDeploymentDiagnosticManager(System.String,System.String)">
             <summary>
-            Creates a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager"/> class for the specified deployment.
+            Creates a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager"/> class for the specified deployment
             </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
+            <param name="connectionString">Storage account connection string.</param>
             <param name="deploymentId">The deployment ID for the current deployment.</param>
             <returns>A <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager"/> object.</returns>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions.CreateRoleInstanceDiagnosticManager(Microsoft.WindowsAzure.CloudStorageAccount,System.String,System.String,System.String)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.CloudAccountDiagnosticMonitorExtensions.CreateRoleInstanceDiagnosticManager(System.String,System.String,System.String,System.String)">
             <summary>
             Creates an new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.RoleInstanceDiagnosticManager"/> class for the specified deployment, role, 
             and instance.
-            </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
+            </summary>"
+            <param name="connectionString">Storage account connection string.</param>
             <param name="deploymentId">The deployment ID for the current deployment.</param>
             <param name="roleName">The name of the role in the specified deployment.</param>
             <param name="roleInstanceId">The role instance ID.</param>
@@ -288,12 +288,10 @@
             </summary>
             <value>The config request.</value>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Workaround.UsePathStyleAddressing(System.Uri)">
+        <member name="F:Microsoft.WindowsAzure.Diagnostics.ControlChannel.serializer">
             <summary>
-            Determines if a URI requires path style addressing
+            XML serializer for configuration request.
             </summary>
-            <param name="uri"></param>
-            <returns></returns>
         </member>
         <member name="T:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorStartupInfo">
             <summary>
@@ -305,9 +303,9 @@
             Creates an inital configuration for the diagnostic monitor.
             </summary>
         </member>
-        <member name="P:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorStartupInfo.StorageAccount">
+        <member name="P:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorStartupInfo.StorageAccountConnectionString">
             <summary>
-            Gets or sets the storage account to which logs are transferred.
+            Gets or sets the connection string for storage account to which logs are transferrred.
             </summary>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorStartupInfo.DeploymentId">
@@ -485,12 +483,12 @@
             Represents information about ongoing data transfers from the local logs to a Windows Azure storage account.
             </summary>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.OnDemandTransferInfo.FromQueueMessage(Microsoft.WindowsAzure.StorageClient.CloudQueueMessage)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.OnDemandTransferInfo.FromQueueMessage(System.String)">
             <summary>
             Constructs an OnDemandTransferInfo object from queue messages sent by a diagnostic monitor on completion of an on-demand
             transfer.
             </summary>
-            <param name="queueMessage">The queue message.</param>
+            <param name="queueMessage">The queue message content.</param>
             <returns>An <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.OnDemandTransferInfo"/> object.</returns>
         </member>
         <member name="P:Microsoft.WindowsAzure.Diagnostics.Management.OnDemandTransferInfo.RequestId">
@@ -1831,25 +1829,19 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor.Start(Microsoft.WindowsAzure.CloudStorageAccount,Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorConfiguration)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor.StartWithConnectionString(System.String,Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorConfiguration)">
             <summary>
-            Starts a diagnostic monitor with a user-defined initial configuration.
+            Starts a diagnostic monitor with an explicitly supplied storage connection string and initial configuration.
             </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
+            <param name="connectionString">The connection string to a storage account.</param>
             <param name="initialConfiguration">A <see cref="T:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitorConfiguration"/> object that
             provides a custom initial configuration.</param>
-            <returns>
-            A <see cref="T:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor"/> object.
-            </returns>
+            <returns>A <see cref="T:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor"/> object.</returns>
             <remarks>
             <para>
-            This method starts a diagnostic monitor with the specified storage account and initial configuration.
-            Data buffers are written to the specified storage account.
-            </para>
-            <para>
-            This method also registers for notification of changes to configuration settings.
-            If the value of the connection string is changed, the monitoring agent will be
-            automatically reconfigured to use the new connection.
+            This method starts a diagnostic monitor with the specified initial configuration. 
+            Data buffers are written to the storage account indicated by the connection string. The storage
+            account may be the well-known development storage account, or a Windows Azure storage account in the cloud.
             </para>
             <para>
             See <a href="http://go.microsoft.com/fwlink/?LinkId=168943">Configuring Connection Strings</a> for more information 
@@ -1857,11 +1849,11 @@
             </para>
             </remarks>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor.UpdateStorageAccount(Microsoft.WindowsAzure.CloudStorageAccount)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor.UpdateStorageAccount(System.String)">
             <summary>
             Updates the storage account information for the current diagnostic monitor.
             </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
+            <param name="connectionString">Storage account connection string.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.Diagnostics.DiagnosticMonitor.Shutdown">
             <summary>
@@ -1933,13 +1925,6 @@
             about how to construct a connection string to a storage account.
             </para>
             </remarks>
-        </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager.#ctor(Microsoft.WindowsAzure.CloudStorageAccount,System.String)">
-            <summary>
-            Creates a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager"/> class.
-            </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
-            <param name="deploymentId">The deployment ID.</param>
         </member>
         <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.DeploymentDiagnosticManager.GetRoleNames">
             <summary>
@@ -2020,11 +2005,11 @@
             Class for remotely mananging the configruation and diagnostic data for a given role instnace.
             </summary>
         </member>
-        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.RoleInstanceDiagnosticManager.#ctor(Microsoft.WindowsAzure.CloudStorageAccount,System.String,System.String,System.String)">
+        <member name="M:Microsoft.WindowsAzure.Diagnostics.Management.RoleInstanceDiagnosticManager.#ctor(System.String,System.String,System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.WindowsAzure.Diagnostics.Management.RoleInstanceDiagnosticManager"/> class.
             </summary>
-            <param name="storageAccount">A <see cref="T:Microsoft.WindowsAzure.CloudStorageAccount"/> object.</param>
+            <param name="connectionString">Storage account connection string.</param>
             <param name="deploymentId">The deployment ID.</param>
             <param name="roleName">The name of the role.</param>
             <param name="roleInstanceId">The role instance ID.</param>

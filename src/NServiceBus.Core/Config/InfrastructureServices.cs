@@ -166,7 +166,7 @@ namespace NServiceBus.Config
                 statusText.AppendLine(string.Format("{0} provided by {1} - {2}", serviceStatus.Service.Name, provider, serviceStatus.Enabled ? "Enabled" : "Disabled"));
             }
 
-            Logger.InfoFormat("Infrastructure services: \n{0}",statusText);
+            Logger.DebugFormat("Infrastructure services: \n{0}",statusText);
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(DisplayInfrastructureServicesStatus));

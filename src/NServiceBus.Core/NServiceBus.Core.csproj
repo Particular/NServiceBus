@@ -102,9 +102,14 @@
     <Compile Include="ConfigureGateway.cs" />
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
+    <Compile Include="Features\FeatureSettings.cs" />
     <Compile Include="Features\IConditionalFeature.cs" />
+    <Compile Include="Features\Support\FeatureExtensions.cs" />
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\SetFeatureDefaults.cs" />
+    <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
+    <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
+    <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
@@ -114,7 +119,7 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="ConfigureJsonSerializer.cs" />
     <Compile Include="ConfigureLicenseExtensions.cs" />
-    <Compile Include="ConfigureMasterNode.cs" />
+    <Compile Include="MasterNode\ConfigureMasterNode.cs" />
     <Compile Include="Settings\TransportSettings.cs" />
     <Compile Include="Unicast\Config\SetUnicastBusConfigurationDefaults.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
@@ -129,7 +134,7 @@
     <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
-    <Compile Include="ConfigureSecondLevelRetriesExtensions.cs" />
+    <Compile Include="SecondLevelRetries\Config\ConfigureSecondLevelRetriesExtensions.cs" />
     <Compile Include="Timeout\ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="ConfigureXmlSerializer.cs" />
@@ -146,7 +151,7 @@
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Config\Logging.cs" />
-    <Compile Include="Config\MasterNodeConfig.cs" />
+    <Compile Include="MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Config\MessageEndpointMapping.cs" />
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
@@ -181,8 +186,8 @@
     <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
-    <Compile Include="Config\SecondLevelRetriesConfig.cs" />
-    <Compile Include="Config\SecondLevelRetriesConfiguration.cs" />
+    <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetries.cs" />
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\Config\Bootstrapper.cs" />
@@ -322,11 +327,11 @@
     <Compile Include="Logging\LoggingLibraryException.cs" />
     <Compile Include="Logging\LogManager.cs" />
     <Compile Include="MailMessage.cs" />
-    <Compile Include="Management\Retries\DefaultRetryPolicy.cs" />
-    <Compile Include="Management\Retries\Helpers\MessageHelpers.cs" />
-    <Compile Include="Management\Retries\Helpers\TransportMessageHelpers.cs" />
-    <Compile Include="Management\Retries\SecondLevelRetries.cs" />
-    <Compile Include="Management\Retries\SecondLevelRetriesHeaders.cs" />
+    <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
+    <Compile Include="SecondLevelRetries\Helpers\MessageHelpers.cs" />
+    <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
+    <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
     <Compile Include="MessageConventions.cs" />
     <Compile Include="MessageHeaders\Bootstrapper.cs" />
     <Compile Include="MessageHeaders\MessageHeaderManager.cs" />
@@ -528,6 +533,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="SecondLevelRetries\Retries\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>

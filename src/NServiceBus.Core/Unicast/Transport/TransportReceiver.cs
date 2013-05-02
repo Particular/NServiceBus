@@ -6,8 +6,8 @@ namespace NServiceBus.Unicast.Transport
     using Faults;
     using Logging;
     using System.Runtime.Serialization;
-    using Management.Retries;
     using Monitoring;
+    using SecondLevelRetries;
     using Transports;
 
     /// <summary>
@@ -179,7 +179,17 @@ namespace NServiceBus.Unicast.Transport
 
             receiveAddress = address;
 
-            FailureManager.Init(address);
+            var returnAddressForFailures = address;
+
+            if (Configure.Instance.WorkerRunsOnThisEndpoint() 
+                && (returnAddressForFailures.Queue.ToLower().EndsWith(".worker")|| address ==Address.Local )) //this is a hack until we can refactor the SLR to be a feature. "Worker" is there to catch the local worker in the distributor
+            {
+                returnAddressForFailures = Configure.Instance.GetMasterNodeAddress();
+
+                Logger.InfoFormat("Worker started, failures will be redirected to {0}",returnAddressForFailures);
+            }
+
+            FailureManager.Init(returnAddressForFailures);
 
             firstLevelRetries = new FirstLevelRetries(TransactionSettings.MaxRetries, FailureManager);
 
@@ -295,15 +305,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
                 {
-                    //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
-                    if (Configure.Instance.Builder.Build<SecondLevelRetries>().Disabled)
-                    {
-                        Logger.ErrorFormat("Message has failed the maximum number of times allowed, ID={0}.", message.IdForCorrelation);
-                    }
-                    else
-                    {
-                        Logger.WarnFormat("Message has failed the maximum number of times allowed, message will be handed over to SLR, ID={0}.", message.IdForCorrelation);
-                    }
+                  
 
                     OnFinishedMessageProcessing();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Features;
 
 namespace OrderWebSite
 {
@@ -15,6 +16,8 @@ namespace OrderWebSite
 		
 		private static IBus ConfigureNServiceBus()
 		{
+            Feature.Enable<MessageDrivenSubscriptions>();
+
 		    Configure.Transactions.Enable();
 
             var bus = Configure.With()
@@ -24,7 +27,7 @@ namespace OrderWebSite
                     .QueuePerInstance()
                 .JsonSerializer()
                 .DisableTimeoutManager()
-            
+                
                 .UnicastBus()
                 
                 .CreateBus()

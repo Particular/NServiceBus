@@ -186,7 +186,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
                 // generate a guid from the hash:
                 var value = new Guid(hashBytes);
 
-                var id = string.Format("{0}/{1}/{2}", sagaType.FullName, uniqueProperty.Key, value);
+                var id = string.Format("{0}/{1}/{2}", sagaType.FullName.Replace('+', '-'), uniqueProperty.Key, value);
 
                 // raven has a size limit of 255 bytes == 127 unicode chars
                 if (id.Length > 127)

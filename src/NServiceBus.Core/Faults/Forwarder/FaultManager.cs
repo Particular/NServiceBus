@@ -44,7 +44,19 @@ namespace NServiceBus.Faults.Forwarder
                     return;
                 }
 
-                sender.Send(message, destinationQ);                
+                sender.Send(message, destinationQ);
+
+                //HACK: We need this hack here till we refactor the SLR to be a first class concept in the TransportReceiver
+                if (RetriesErrorQueue == null)
+                {
+                    Logger.ErrorFormat("Message has failed FLR and will be moved to the configured error q, ID={0}.", message.IdForCorrelation);
+                }
+                else
+                {
+                    var retryAttempt = SecondLevelRetries.Helpers.TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+
+                    Logger.WarnFormat("Message has failed FLR and will be handed over to SLR for retry attempt: {0}, MessageID={1}.",retryAttempt, message.IdForCorrelation);
+                }
             }
             catch (Exception exception)
             {

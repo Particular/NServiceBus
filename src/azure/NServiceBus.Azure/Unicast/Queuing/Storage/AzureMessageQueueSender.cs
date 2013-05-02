@@ -122,8 +122,9 @@ namespace NServiceBus.Unicast.Queuing.Azure
             // The auto queue name generation uses namespaces which includes dots, 
             // yet dots are not supported in azure storage names
             // that's why we replace them here.
+            // and make sure there are no upper cases
 
-            return queueName.Replace('.', '-');
+            return queueName.Replace('.', '-').ToLowerInvariant();
         }
     }
 }

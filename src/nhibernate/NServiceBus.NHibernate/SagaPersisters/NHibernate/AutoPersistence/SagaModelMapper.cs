@@ -39,6 +39,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                     return typeof(IEnumerable).IsAssignableFrom(memberType) &&
                            !(memberType == typeof(string) || memberType == typeof(byte[]) || memberType.IsArray);
                 });
+            Mapper.IsPersistentProperty((info, b) => !HasAttribute<RowVersionAttribute>(info));
             Mapper.BeforeMapClass += ApplyClassConvention;
             Mapper.BeforeMapUnionSubclass += ApplySubClassConvention;
             Mapper.BeforeMapProperty += ApplyPropertyConvention;
@@ -54,6 +55,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                 map.Id(idMapper => idMapper.Generator(Generators.Assigned));
 
             var tableAttribute = GetAttribute<TableNameAttribute>(type);
+
+            var rowVersionProperty = type.GetProperties()
+              .Where(HasAttribute<RowVersionAttribute>)
+              .FirstOrDefault();
+
+            if (rowVersionProperty != null)
+              map.Version(rowVersionProperty, mapper => mapper.Generated(VersionGeneration.Always));
 
             if (tableAttribute != null)
             {
@@ -111,53 +119,33 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
             map.Column(type.LocalMember.Name + "_id");
         }
 
-        public Stream Compile()
-        {
-            var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+		public HbmMapping Compile()
+		{
+      var hbmMapping = Mapper.CompileMappingFor(_entityTypes);
+      
+      ApplyOptimisticLockingOnMapping(hbmMapping);
 
-            var setting = new XmlWriterSettings { Indent = true };
-            var serializer = new XmlSerializer(typeof(HbmMapping));
-            using (var memStream = new MemoryStream(2048))
-            {
-                using (var xmlWriter = XmlWriter.Create(memStream, setting))
-                {
-                    serializer.Serialize(xmlWriter, hbmMapping);
-                }
-                memStream.Position = 0;
+		  return hbmMapping;
+		}
 
-                var xmlDoc = new XmlDocument();
-                xmlDoc.Load(memStream);
+    static void ApplyOptimisticLockingOnMapping(HbmMapping hbmMapping)
+    {
+      foreach (var rootClass in hbmMapping.RootClasses)
+      {
+        if (rootClass.Version != null)
+          continue;
 
-                var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
-                nsmgr.AddNamespace("nh", xmlDoc.DocumentElement.NamespaceURI);
+        rootClass.dynamicupdate = true;
+        rootClass.optimisticlock = HbmOptimisticLockMode.All;
+      }
 
-                var elementToExclude = "union-subclass";//"joined-subclass";
-
-
-                var classNodes = xmlDoc.DocumentElement.SelectNodes(string.Format(@"/nh:hibernate-mapping/nh:class[not(nh:{0}) and not(@name = /nh:hibernate-mapping/nh:{0}/@extends)]", elementToExclude), nsmgr);
-
-                if (classNodes != null)
-                {
-                    foreach (XmlElement classNode in classNodes)
-                    {
-                        var optimisticLockAttribute = xmlDoc.CreateAttribute("optimistic-lock");
-                        optimisticLockAttribute.Value = "all";
-                        classNode.Attributes.Append(optimisticLockAttribute);
-
-                        var dynamicUpdateAttribute = xmlDoc.CreateAttribute("dynamic-update");
-                        dynamicUpdateAttribute.Value = "true";
-                        classNode.Attributes.Append(dynamicUpdateAttribute);
-                    }
-                }
-
-                var memStreamOut = new MemoryStream(2048);
-                xmlDoc.Save(memStreamOut);
-
-                memStreamOut.Position = 0;
-
-                return memStreamOut;
-            }
-        }
+      foreach (var hbmSubclass in hbmMapping.UnionSubclasses)
+        hbmSubclass.dynamicupdate = true;
+      foreach (var hbmSubclass in hbmMapping.JoinedSubclasses)
+        hbmSubclass.dynamicupdate = true;
+      foreach (var hbmSubclass in hbmMapping.SubClasses)
+        hbmSubclass.dynamicupdate = true;
+    }
 
         private static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites,
                                                                         IEnumerable<Type> typesToScan)
@@ -217,6 +205,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
         {
             var attributes = type.GetCustomAttributes(typeof(T), false);
             return attributes.FirstOrDefault() as T;
+        }
+
+        private static bool HasAttribute<T>(MemberInfo mi) where T : Attribute
+        {
+          var attributes = mi.GetCustomAttributes(typeof (T), false);
+          return attributes.Any();
         }
     }
 }

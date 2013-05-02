@@ -113,8 +113,16 @@ namespace NServiceBus
         {
             Queue = info.GetString("Queue");
             Machine = info.GetString("Machine");
-            queueLowerCased = info.GetString("queueLowerCased");
-            machineLowerCased = info.GetString("machineLowerCased");
+            
+            if (!String.IsNullOrEmpty(Queue))
+            {
+                queueLowerCased = Queue.ToLower();
+            }
+
+            if (!String.IsNullOrEmpty(Machine))
+            {
+                machineLowerCased = Machine.ToLower();
+            }
         }
 
         /// <summary>
@@ -127,8 +135,6 @@ namespace NServiceBus
         {
             info.AddValue("Queue", Queue);
             info.AddValue("Machine", Machine);
-            info.AddValue("queueLowerCased", queueLowerCased);
-            info.AddValue("machineLowerCased", machineLowerCased);
         }
 
         /// <summary>
