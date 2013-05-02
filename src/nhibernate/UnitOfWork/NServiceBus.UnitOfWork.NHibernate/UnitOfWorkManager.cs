@@ -35,7 +35,11 @@ namespace NServiceBus.UnitOfWork.NHibernate
                     return;
 
                 if (ex != null)
-                    session.Transaction.Rollback();
+                {
+                    // Due to a race condition in NH3.3, explicit rollback can cause exceptions and corrupt the connection pool. 
+                    // Especially if there are more than one NH session taking part in the DTC transaction
+                    //session.Transaction.Rollback();
+                }
                 else
                     session.Transaction.Commit();
             }
