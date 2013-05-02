@@ -48,11 +48,23 @@ namespace NServiceBus.Scheduling
 
             Task.Factory
                 .StartNew(scheduledTask.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
-                .ContinueWith(_ =>
-                                  {
-                                      sw.Stop();
-                                      logger.InfoFormat("Scheduled task {0} run for {1}", scheduledTask.Name, sw.Elapsed.ToString());
-                                  });
+                .ContinueWith(task =>
+                    {
+                        sw.Stop();
+
+                        if (task.IsFaulted)
+                        {
+                            task.Exception.Handle(ex =>
+                            {
+                                logger.Error(String.Format("Failed to execute scheduled task {0}", scheduledTask.Name), ex);
+                                return true;
+                            });
+                        }
+                        else
+                        {
+                            logger.InfoFormat("Scheduled task {0} run for {1}", scheduledTask.Name, sw.Elapsed.ToString());
+                        }
+                    });
         }
 
         private void DeferTask(ScheduledTask task)
