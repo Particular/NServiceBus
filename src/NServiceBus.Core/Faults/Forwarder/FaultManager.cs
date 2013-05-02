@@ -53,7 +53,9 @@ namespace NServiceBus.Faults.Forwarder
                 }
                 else
                 {
-                    Logger.WarnFormat("Message has failed FLR and will be handed over to SLR, ID={0}.", message.IdForCorrelation);
+                    var retryAttempt = SecondLevelRetries.Helpers.TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+
+                    Logger.WarnFormat("Message has failed FLR and will be handed over to SLR for retry attempt: {0}, MessageID={1}.",retryAttempt, message.IdForCorrelation);
                 }
             }
             catch (Exception exception)
