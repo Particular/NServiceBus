@@ -5,10 +5,12 @@
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
+
+    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
+
     using NUnit.Framework;
     using NServiceBus.Transports.ActiveMQ;
     using NServiceBus.Transports.ActiveMQ.Receivers;
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes;
     using NServiceBus.Transports.ActiveMQ.SessionFactories;
     using TransactionSettings = Unicast.Transport.TransactionSettings;
 

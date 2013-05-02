@@ -1,9 +1,11 @@
-namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
+namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 {
     using System;
     using System.Transactions;
+
     using Apache.NMS;
-    using SessionFactories;
+
+    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     public class DTCTransactionScope : ITransactionScope
     {
@@ -16,19 +18,19 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
         public DTCTransactionScope(ISession session, TransactionOptions transactionOptions, ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
-            transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
+            this.transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
             this.sessionFactory.SetSessionForCurrentThread(session);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed)
+            if (this.disposed)
             {
                 return;
             }
@@ -37,19 +39,19 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
             {
                 // Dispose managed resources.
                 this.sessionFactory.RemoveSessionForCurrentThread();
-                transactionScope.Dispose();
-                if (!complete)
+                this.transactionScope.Dispose();
+                if (!this.complete)
                 {
                     throw new Exception();
                 }
             }
 
-            disposed = true;
+            this.disposed = true;
         }
 
         ~DTCTransactionScope()
         {
-            Dispose(false);
+            this.Dispose(false);
         }
 
         public void MessageAccepted(IMessage message)
@@ -58,8 +60,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactonsScopes
 
         public void Complete()
         {
-            complete = true;
-            transactionScope.Complete();
+            this.complete = true;
+            this.transactionScope.Complete();
         }
     }
 }
