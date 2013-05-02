@@ -87,7 +87,7 @@
     <Compile Include="Receivers\IProcessMessages.cs" />
     <Compile Include="Receivers\TransactionsScopes\TransactionScopeFactory.cs" />
     <Compile Include="SessionFactories\ActiveMqTransactionSessionFactory.cs" />
-    <Compile Include="Config\ActiveMQTransportConfigurer.cs" />
+    <Compile Include="Config\ActiveMqTransport.cs" />
     <Compile Include="Decoders\ByteMessageDecoder.cs" />
     <Compile Include="Decoders\ControlMessageDecoder.cs" />
     <Compile Include="DestinationEvaluator.cs" />
