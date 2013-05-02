@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for WindowsAzureServiceBus    
     /// </summary>
-    public class WindowsAzureServiceBus : ITransportDefinition
+    public class WindowsAzureServiceBus : ITransportDefinition,HasNativePubSubSupport
     {
 
     }

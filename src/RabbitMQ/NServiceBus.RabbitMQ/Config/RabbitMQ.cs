@@ -2,7 +2,7 @@
 {
     using Transports;
 
-    public class RabbitMQ : ITransportDefinition
+    public class RabbitMQ : ITransportDefinition, HasNativePubSubSupport
     {
     }
 }
