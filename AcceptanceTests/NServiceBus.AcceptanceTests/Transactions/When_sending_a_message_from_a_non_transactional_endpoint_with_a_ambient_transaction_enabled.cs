@@ -16,7 +16,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.TestComplete)
-                    .Repeat(r => r.For<AllTransports>())
+                    .Repeat(r => r.For<AllTransports>(Transports.ActiveMQ))
                     .Should(c =>
                         {
                             Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit");
