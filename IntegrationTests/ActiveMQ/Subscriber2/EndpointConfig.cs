@@ -1,6 +1,7 @@
 ﻿namespace Subscriber2
 {
     using NServiceBus;
+    using NServiceBus.Features;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
@@ -17,7 +18,7 @@
                 .UnicastBus()
                     .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
 
-           Configure.Instance.DisableSecondLevelRetries();
+            Configure.Features.Disable<SecondLevelRetries>();
         }
     }
 }
