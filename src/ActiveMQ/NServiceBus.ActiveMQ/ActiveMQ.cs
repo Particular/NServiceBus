@@ -2,8 +2,8 @@
 {
     using Transports;
 
-    public class ActiveMQ : ITransportDefinition, HasNativePubSubSupport
+    public class ActiveMQ : TransportDefinition
     {
-
+        public override bool HasNativePubSubSupport { get { return true; } }
     }
 }

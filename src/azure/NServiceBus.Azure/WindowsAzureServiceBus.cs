@@ -1,13 +1,12 @@
 namespace NServiceBus
 {
     using Transports;
-    using Unicast.Transport;
 
     /// <summary>
     /// Transport definition for WindowsAzureServiceBus    
     /// </summary>
-    public class WindowsAzureServiceBus : ITransportDefinition,HasNativePubSubSupport
+    public class WindowsAzureServiceBus : TransportDefinition
     {
-
+        public override bool HasNativePubSubSupport { get { return true; } }
     }
 }

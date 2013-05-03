@@ -63,7 +63,7 @@ namespace NServiceBus.Hosting.Tests
     }
 
 
-    public class MyTestTransport : ITransportDefinition
+    public class MyTestTransport : TransportDefinition
     {
     }
 

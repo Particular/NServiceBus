@@ -2,7 +2,8 @@
 {
     using Transports;
 
-    public class RabbitMQ : ITransportDefinition, HasNativePubSubSupport
+    public class RabbitMQ : TransportDefinition
     {
+        public override bool HasNativePubSubSupport { get { return true; } }
     }
 }

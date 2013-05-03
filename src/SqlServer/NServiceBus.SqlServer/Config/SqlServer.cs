@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// TransportDefinition for SqlServer
     /// </summary>
-    public class SqlServer : ITransportDefinition
+    public class SqlServer : TransportDefinition
     {
     }
 }
