@@ -11,7 +11,7 @@
     {
         public void Initialize()
         {
-            var transportDefinition = SettingsHolder.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
             if (transportDefinition != null && transportDefinition.HasNativePubSubSupport)
             {
