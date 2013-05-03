@@ -1,5 +1,6 @@
 namespace NServiceBus.Unicast.Config
 {
+    using AutomaticSubscriptions;
     using NServiceBus.Config;
     using Settings;
     using Subscriptions;

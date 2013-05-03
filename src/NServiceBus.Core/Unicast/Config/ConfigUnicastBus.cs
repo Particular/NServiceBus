@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using Features;
     using Logging;
     using Messages;
     using NServiceBus.Config;
@@ -325,10 +326,11 @@ namespace NServiceBus.Unicast.Config
         /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
         /// </summary>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.Disable<AutoSubscribe>()")]
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
-            SettingsHolder.Set("UnicastBus.AutoSubscribe",false);
-            busConfig.ConfigureProperty(b => b.AutoSubscribe, false);
+            Features.Disable<AutoSubscribe>();
+
             return this;
         }
 
@@ -339,9 +341,11 @@ namespace NServiceBus.Unicast.Config
         /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
         /// </summary>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotAutoSubscribeSagas())")]
         public ConfigUnicastBus DoNotAutoSubscribeSagas()
         {
-            ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
+            Features.AutoSubscribe(f => f.DoNotAutoSubscribeSagas());
+            //ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
             return this;
         }
        
@@ -349,9 +353,10 @@ namespace NServiceBus.Unicast.Config
         /// Allow the bus to subscribe to itself
         /// </summary>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotRequireExplicitRouting())")]
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
-            ApplyDefaultAutoSubscriptionStrategy.AllowSubscribeToSelf = true;
+            Features.AutoSubscribe(f => f.DoNotRequireExplicitRouting());
             return this;
         }
 
@@ -360,9 +365,10 @@ namespace NServiceBus.Unicast.Config
         /// Commands will NOT be auto subscribed
         /// </summary>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.AutoSubscribePlainMessages())")]
         public ConfigUnicastBus AutoSubscribePlainMessages()
         {
-            ApplyDefaultAutoSubscriptionStrategy.SubscribePlainMessages = true;
+            Features.AutoSubscribe(f => f.AutoSubscribePlainMessages());
             return this;
         }
 

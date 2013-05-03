@@ -8,6 +8,11 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Indicates that the transport is capable of supporting the publish and subscribe pattern natively
         /// </summary>
-        public virtual bool HasNativePubSubSupport{ get { return false; } }
+        public virtual bool HasNativePubSubSupport { get { return false; } }
+
+        /// <summary>
+        /// Indicates that the transport has a central store for subscriptions
+        /// </summary>
+        public virtual bool HasSupportForCentralizedPubSub { get { return false; } }
     }
 }

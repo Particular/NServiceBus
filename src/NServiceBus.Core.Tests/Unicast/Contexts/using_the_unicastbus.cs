@@ -48,9 +48,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected MessageHandlerRegistry handlerRegistry;
 
-        protected DefaultAutoSubscriptionStrategy autoSubscriptionStrategy;
-
-
+     
         [SetUp]
         public void SetUp()
         {
@@ -93,12 +91,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
                 };
-            autoSubscriptionStrategy = new DefaultAutoSubscriptionStrategy
-                {
-                    HandlerRegistry = handlerRegistry,
-                    MessageRouter = router
-                };
-
+            
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
@@ -117,7 +110,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
-                AutoSubscribe = true,
                 MessageMapper = MessageMapper,
                 MessagePublisher = new StorageDrivenPublisher
                     {
@@ -133,8 +125,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageRegistry = messageRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 HandlerRegistry = handlerRegistry,
-                MessageRouter = router,
-                AutoSubscriptionStrategy = autoSubscriptionStrategy
+                MessageRouter = router
 
             };
             bus = unicastBus;
