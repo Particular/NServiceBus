@@ -8,7 +8,7 @@
     public class AddUnicastBusConfig : AddConfigSection
     {
         const string Instructions = @"To register all message types defined in an assembly:
-      <add Assembly=""assembly"" endpoint=""queue@machinename"" />
+      <add Assembly=""assembly"" Endpoint=""queue@machinename"" />
       
       To register all message types defined in an assembly with a specific namespace (it does not include sub namespaces):
       <add Assembly=""assembly"" Namespace=""namespace"" Endpoint=""queue@machinename"" />

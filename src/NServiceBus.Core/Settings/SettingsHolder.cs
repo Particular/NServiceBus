@@ -4,6 +4,8 @@ namespace NServiceBus.Settings
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq.Expressions;
+    using Utils.Reflection;
 
     /// <summary>
     /// Setting container.
@@ -21,15 +23,25 @@ namespace NServiceBus.Settings
         /// <returns>The setting value.</returns>
         public static T Get<T>(string key)
         {
+            return (T) Get(key);
+        }
+
+        /// <summary>
+        /// Gets the setting value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static object Get(string key)
+        {
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T)result;
+                return result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T)result;
+                return result;
             }
 
             throw new KeyNotFoundException(String.Format("The given key ({0}) was not present in the dictionary.", key));
@@ -59,6 +71,20 @@ namespace NServiceBus.Settings
         {
             Set(typeof(T).FullName, value);
         }
+
+        /// <summary>
+        /// Sets the value of the given property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        public static void SetProperty<T>(Expression<Func<T, object>> property, object value)
+        {
+            var prop = Reflect<T>.GetProperty(property);
+
+            Set(typeof(T).FullName + "." + prop.Name, value);
+        }
+
 
 
         /// <summary>
@@ -145,5 +171,20 @@ namespace NServiceBus.Settings
         }
 
         static bool locked;
+
+        public static void ApplyTo<T>()
+        {
+            var targetType = typeof (T);
+
+            foreach (var property in targetType.GetProperties())
+            {
+                var settingsKey = targetType.FullName + "." + property.Name; 
+                
+                if (HasSetting(settingsKey))
+                {
+                    Configure.Instance.Configurer.ConfigureProperty<T>(property.Name, Get(settingsKey));
+                }
+            }
+        }
     }
 }

@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.Unicast.Subscriptions
+﻿namespace NServiceBus.AutomaticSubscriptions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Logging;
-    using Routing;
+    using Unicast.Routing;
     using Saga;
+    using Unicast;
 
     /// <summary>
     /// The default strategy for auto subscriptions.
@@ -25,7 +25,7 @@
         /// <summary>
         /// If set to true the endpoint will subscribe to it self even if no endpoint mappings exists
         /// </summary>
-        public bool AllowSubscribeToSelf { get; set; }
+        public bool DoNotRequireExplicitRouting { get; set; }
 
         /// <summary>
         /// if true messages that are handled by sagas wont be auto subscribed
@@ -39,40 +39,15 @@
 
         public IEnumerable<Type> GetEventsToSubscribe()
         {
-            var eventTypes = GetEventsToAutoSubscribe();
-            foreach (var eventType in eventTypes)
-            {
-                var otherHandlersThanSagas = HandlerRegistry.GetHandlerTypes(eventType).Any(t => !typeof(ISaga).IsAssignableFrom(t));
-
-                if (DoNotAutoSubscribeSagas && !otherHandlersThanSagas)
-                {
-                    Log.InfoFormat("Message type {0} is not auto subscribed since its only handled by sagas and auto subscription for sagas is currently turned off", eventType);
-                    continue;
-                }
-
-                yield return eventType;
-            }
-        }
-
-       
-        IEnumerable<Type> GetEventsToAutoSubscribe()
-        {
-            var eventsHandled = HandlerRegistry.GetMessageTypes()
+            return HandlerRegistry.GetMessageTypes()
+                //get all potential messages
                 .Where(t => !MessageConventionExtensions.IsCommandType(t) && (SubscribePlainMessages || MessageConventionExtensions.IsEventType(t)))
+                //get messages that has routing if required
+                .Where(t => DoNotRequireExplicitRouting || MessageRouter.GetDestinationFor(t) != Address.Undefined)
+                //get messages with other handlers than sagas if needed
+                .Where(t => !DoNotAutoSubscribeSagas || HandlerRegistry.GetHandlerTypes(t).Any(handler => !typeof(ISaga).IsAssignableFrom(handler)))
                 .ToList();
-
-            if (AllowSubscribeToSelf)
-            {
-                return eventsHandled;
-            }
-
-            var eventsWithRouting = eventsHandled.Where(e => MessageRouter.GetDestinationFor(e) != Address.Undefined).ToList();
-
-            return eventsWithRouting;
         }
-
-
-        readonly static ILog Log = LogManager.GetLogger(typeof(DefaultAutoSubscriptionStrategy));
     }
 
 }

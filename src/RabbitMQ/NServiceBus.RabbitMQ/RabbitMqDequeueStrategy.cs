@@ -6,8 +6,6 @@
     using System.Threading.Tasks.Schedulers;
     using CircuitBreakers;
     using Logging;
-    using NServiceBus.Unicast.Transport.Transactional;
-    using NServiceBus.Utils;
     using Unicast.Transport;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
@@ -191,7 +189,7 @@
 
         readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("RabbitMqConnectivity",
                     TimeSpan.FromMinutes(2),
-                    ex => Configure.Instance.RaiseCriticalError("Repeted failures when communicating with the RabbitMq broker", ex),
+                    ex => Configure.Instance.RaiseCriticalError("Repeated failures when communicating with the RabbitMq broker", ex),
                     TimeSpan.FromSeconds(5));
         
         Func<TransportMessage, bool> tryProcessMessage;

@@ -8,6 +8,7 @@
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Policies;
+    using AutomaticSubscriptions;
     using Config;
     using Transports;
     using Transports.ActiveMQ;
@@ -89,7 +90,6 @@
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
             Feature.Enable<ActiveMqTransport>();
-            InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy), DependencyLifecycle.InstancePerCall);
         }
 
        

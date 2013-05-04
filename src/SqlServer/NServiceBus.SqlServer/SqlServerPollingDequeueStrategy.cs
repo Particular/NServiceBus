@@ -399,7 +399,7 @@
 
         readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("SqlTransportConnectivity", 
                             TimeSpan.FromMinutes(2),
-                            ex => Configure.Instance.RaiseCriticalError("Repeted failures when communicating with SqlServer", ex),
+                            ex => Configure.Instance.RaiseCriticalError("Repeated failures when communicating with SqlServer", ex),
                             TimeSpan.FromSeconds(10));
 
         Address addressToPoll;

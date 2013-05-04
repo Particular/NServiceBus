@@ -1,6 +1,7 @@
 ﻿namespace MyPublisher
 {
     using NServiceBus;
+    using NServiceBus.Features;
 
     class EndpointConfig :  IConfigureThisEndpoint, AsA_Publisher,IWantCustomInitialization
     {
@@ -15,7 +16,7 @@
                 .UseTransport<ActiveMQ>(() => "ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?transport.randomize=false&transport.timeout=5000")
                 .XmlSerializer(dontWrapSingleMessages: true);
 
-            Configure.Instance.DisableSecondLevelRetries();
+            Configure.Features.Disable<SecondLevelRetries>();
         }
     }
 }

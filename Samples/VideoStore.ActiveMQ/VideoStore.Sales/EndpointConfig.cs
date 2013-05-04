@@ -3,15 +3,8 @@ namespace VideoStore.Sales
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<ActiveMQ>, IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<ActiveMQ>
     {
-        public void Init()
-        {
-            Configure.With()
-                     .DefaultBuilder()
-                     .UnicastBus()
-                        .DoNotAutoSubscribe();
-        }
     }
 
 

@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for WindowsAzureStorage
     /// </summary>
-    public class WindowsAzureStorage : ITransportDefinition
+    public class WindowsAzureStorage : TransportDefinition
     {
 
     }

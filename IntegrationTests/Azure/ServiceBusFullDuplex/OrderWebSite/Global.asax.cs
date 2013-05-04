@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web;
 using NServiceBus;
+using NServiceBus.Features;
 
 namespace OrderWebSite
 {
@@ -14,6 +15,8 @@ namespace OrderWebSite
 
         private static IBus ConfigureNServiceBus()
         {
+            Configure.Features.Disable<AutoSubscribe>();
+
             var bus = Configure.With()
                .DefaultBuilder()
                .AzureDiagnosticsLogger()
@@ -21,7 +24,6 @@ namespace OrderWebSite
                .AzureServiceBusMessageQueue()
                .JsonSerializer()
                .UnicastBus()
-                   .DoNotAutoSubscribe()
                    .CreateBus()
                 .Start();
 

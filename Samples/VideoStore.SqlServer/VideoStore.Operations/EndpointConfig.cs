@@ -3,15 +3,8 @@ namespace VideoStore.Operations
     using System;
     using NServiceBus;
 
-	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<SqlServer>, IWantCustomInitialization
+	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<SqlServer>
     {
-        public void Init()
-        {
-            Configure.With()
-                     .DefaultBuilder()
-                     .UnicastBus()
-                     .DoNotAutoSubscribe();
-        }
     }
 	
     public class MyClass : IWantToRunWhenBusStartsAndStops

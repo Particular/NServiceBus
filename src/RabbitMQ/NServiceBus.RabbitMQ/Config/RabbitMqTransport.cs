@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using AutomaticSubscriptions;
     using Config;
     using Settings;
     using Transports;
@@ -46,7 +47,6 @@
         protected override void InternalConfigure(Configure config, string connectionString)
         {
             Feature.Enable<RabbitMqTransport>();
-            InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(NoConfigRequiredAutoSubscriptionStrategy), DependencyLifecycle.InstancePerCall);
         }
 
         protected override string ExampleConnectionStringForErrorMessage

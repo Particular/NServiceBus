@@ -49,18 +49,6 @@ namespace NServiceBus.Unicast
             _messageBeingHandled = null;
         }
 
-        /// <summary>
-        /// When set, when starting up, the bus performs 
-        /// a subscribe operation for message types for which it has
-        /// handlers and that are owned by a different endpoint.
-        /// Default is true.
-        /// </summary>
-        public bool AutoSubscribe
-        {
-            get { return autoSubscribe; }
-            set { autoSubscribe = value; }
-        }
-
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -756,11 +744,6 @@ namespace NServiceBus.Unicast
                     transport.Start(InputAddress);
                 }
 
-                if (autoSubscribe)
-                {
-                    PerformAutoSubscribe();
-                }
-
                 started = true;
             }
 
@@ -866,29 +849,6 @@ namespace NServiceBus.Unicast
             }
             set { inputAddress = value; }
         }
-
-
-        void PerformAutoSubscribe()
-        {
-            if (AutoSubscriptionStrategy == null)
-                return;
-
-            AssertHasLocalAddress();
-
-            foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
-                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never autosubscribe system messages
-            {
-                Subscribe(eventType);
-
-                Log.DebugFormat("Autosubscribed to event {0}", eventType);
-            }
-        }
-
-        /// <summary>
-        /// The strategy to use when determining which events to automatically subscribe to
-        /// </summary>
-        public IAutoSubscriptionStrategy AutoSubscriptionStrategy { get; set; }
-
 
         void AssertHasLocalAddress()
         {
