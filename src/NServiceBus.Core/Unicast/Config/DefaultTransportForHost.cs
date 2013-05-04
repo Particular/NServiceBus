@@ -1,6 +1,5 @@
 namespace NServiceBus.Unicast.Config
 {
-    using System;
     using Settings;
     using Transports;
 
@@ -17,7 +16,7 @@ namespace NServiceBus.Unicast.Config
                 return;
             }
 
-            if(SettingsHolder.GetOrDefault<Type>("NServiceBus.Transport.SelectedTransport") != null)
+            if(SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport") != null)
             {
                 return;
             }

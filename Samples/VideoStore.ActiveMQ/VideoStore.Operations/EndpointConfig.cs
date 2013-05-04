@@ -3,15 +3,8 @@ namespace VideoStore.Operations
     using System;
     using NServiceBus;
 
-	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<ActiveMQ>, IWantCustomInitialization
+	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, UsingTransport<ActiveMQ>
     {
-        public void Init()
-        {
-            Configure.With()
-                     .DefaultBuilder()
-                     .UnicastBus()
-                     .DoNotAutoSubscribe();
-        }
     }
 	
     public class MyClass : IWantToRunWhenBusStartsAndStops

@@ -1,6 +1,7 @@
 ﻿namespace Subscriber2
 {
     using NServiceBus;
+    using NServiceBus.Features;
 
     public class EndpointConfig : IConfigureThisEndpoint, AsA_Server, IWantCustomInitialization
     {
@@ -8,16 +9,18 @@
         
         public void Init()
         {
-            var config = Configure.With()
-                //this overrides the NServiceBus default convention of IEvent
-                .CastleWindsorBuilder() // just to show we can mix and match containers
-                .FileShareDataBus(BasePath)
-                .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
-                .UseTransport<ActiveMQ>(() => "ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000")
-                .UnicastBus()
-                    .DoNotAutoSubscribe(); //managed by the class Subscriber2Endpoint
+            Configure.Features.Disable<AutoSubscribe>();
+            Configure.Features.Disable<SecondLevelRetries>();
 
-           Configure.Instance.DisableSecondLevelRetries();
+            Configure.With()
+                //this overrides the NServiceBus default convention of IEvent
+                     .CastleWindsorBuilder() // just to show we can mix and match containers
+                     .FileShareDataBus(BasePath)
+                     .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
+                     .UseTransport<ActiveMQ>(
+                         () =>"ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000");
+
+
         }
     }
 }

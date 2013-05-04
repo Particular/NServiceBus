@@ -99,7 +99,13 @@ namespace NServiceBus.ObjectBuilder.Common
         IConfigureComponents IConfigureComponents.ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
-            Container.ConfigureProperty(typeof(T), prop.Name, value);
+            
+            return ((IConfigureComponents)this).ConfigureProperty<T>(prop.Name,value);
+        }
+
+        IConfigureComponents IConfigureComponents.ConfigureProperty<T>(string propertyName, object value)
+        {
+            Container.ConfigureProperty(typeof(T), propertyName, value);
 
             return this;
         }

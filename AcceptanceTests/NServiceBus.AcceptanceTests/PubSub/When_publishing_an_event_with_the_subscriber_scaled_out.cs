@@ -78,7 +78,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
                     .AddMapping<MyEvent>(typeof(Publisher))
                     .CustomMachineName(Server1)
                     .CustomEndpointName("MyEndpoint")
@@ -99,7 +99,7 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => c.UnicastBus().DoNotAutoSubscribe())
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher))
                         .CustomMachineName(Server2)
                         .CustomEndpointName("MyEndpoint")

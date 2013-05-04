@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for MSMQ
     /// </summary>
-    public class Msmq : ITransportDefinition
+    public class Msmq : TransportDefinition
     {
 
     }

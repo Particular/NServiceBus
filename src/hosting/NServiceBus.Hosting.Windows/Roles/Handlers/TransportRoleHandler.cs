@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Roles.Handlers
     /// <summary>
     /// Configuring the right transport based on  UsingTransport<T> role on the endpoint config
     /// </summary>
-    public class TransportRoleHandler : IConfigureRole<UsingTransport<ITransportDefinition>>
+    public class TransportRoleHandler : IConfigureRole<UsingTransport<TransportDefinition>>
     {
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
@@ -18,7 +18,7 @@ namespace NServiceBus.Hosting.Roles.Handlers
                 specifier.GetType()
                          .GetInterfaces()
                          .SelectMany(i => i.GetGenericArguments())
-                         .Single(t => typeof (ITransportDefinition).IsAssignableFrom(t));
+                         .Single(t => typeof (TransportDefinition).IsAssignableFrom(t));
 
             Configure.Instance.UseTransport(transportDefinitionType);
 

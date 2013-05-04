@@ -90,6 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
+    <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
+    <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
+    <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
+    <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="BusExtensions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
@@ -172,7 +176,7 @@
     <Compile Include="Transports\IManageSubscriptions.cs" />
     <Compile Include="Transports\IPublishMessages.cs" />
     <Compile Include="Transports\ISendMessages.cs" />
-    <Compile Include="Transports\ITransportDefinition.cs" />
+    <Compile Include="Transports\TransportDefinition.cs" />
     <Compile Include="Transports\Msmq\Config\Msmq.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqSettings.cs" />
     <Compile Include="Transports\Msmq\HeaderInfo.cs" />
@@ -445,7 +449,6 @@
     <Compile Include="Unicast\BuilderExtensions.cs" />
     <Compile Include="Unicast\BusAsyncResult.cs" />
     <Compile Include="Unicast\Callback.cs" />
-    <Compile Include="Unicast\Config\ApplyDefaultAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
@@ -459,9 +462,8 @@
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenPublisher.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
-    <Compile Include="Unicast\Subscriptions\NoConfigRequiredAutoSubscriptionStrategy.cs" />
-    <Compile Include="Unicast\Subscriptions\DefaultAutoSubscriptionStrategy.cs" />
-    <Compile Include="Unicast\Subscriptions\IAutoSubscriptionStrategy.cs" />
+    <Compile Include="AutomaticSubscriptions\DefaultAutoSubscriptionStrategy.cs" />
+    <Compile Include="AutomaticSubscriptions\IAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\IUnicastBus.cs" />
     <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
