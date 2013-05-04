@@ -7,6 +7,9 @@ namespace NServiceBus
     /// </summary>
     public class WindowsAzureServiceBus : TransportDefinition
     {
-        public override bool HasNativePubSubSupport { get { return true; } }
+        public WindowsAzureServiceBus()
+        {
+            HasNativePubSubSupport = true;
+        }
     }
 }
