@@ -10,7 +10,7 @@
     class Program
     {
         static string licensePath;
-        static bool useHKLM;
+        static bool useHKCU;
 
         [STAThread]
         static int Main(string[] args)
@@ -55,10 +55,11 @@
 
         static bool TryToWriteToRegistry(string selectedLicenseText, RegistryView view)
         {
-            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
-            if (useHKLM)
+            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+
+            if (useHKCU)
             {
-                rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+                rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
             }
 
             using (
@@ -85,11 +86,11 @@
             optionSet = new OptionSet
                 {
                     {
-                        "machine-wide|m",
-                        @"Installs license in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_CURRENT_USER\SOFTWARE\NServiceBus"
+                        "current-user|c",
+                        @"Installs license in HKEY_CURRENT_USER\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus"
                         , s => action = () =>
                             {
-                                useHKLM = true;
+                                useHKCU = true;
                                 return true;
                             }
                     },

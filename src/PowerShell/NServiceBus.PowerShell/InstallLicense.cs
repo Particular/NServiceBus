@@ -13,8 +13,8 @@
         [Parameter(Mandatory = true, Position = 0, HelpMessage = "License file path", ValueFromPipeline = true)]
         public string Path { get; set; }
 
-        [Parameter(Mandatory = false, HelpMessage = @"Installs license in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_CURRENT_USER\SOFTWARE\NServiceBus")]
-        public bool UseHKLM { get; set; }
+        [Parameter(Mandatory = false, HelpMessage = @"Installs license in HKEY_CURRENT_USER\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus")]
+        public bool UseHKCU { get; set; }
 
         protected override void ProcessRecord()
         {
@@ -34,10 +34,11 @@
 
         void TryToWriteToRegistry(string selectedLicenseText, RegistryView view)
         {
-            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
-            if (UseHKLM)
+            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+
+            if (UseHKCU)
             {
-                rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+                rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
             }
 
             using (var registryKey = rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
