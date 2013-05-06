@@ -127,8 +127,7 @@
                     message.ReplyToAddress.ToString();
             }
             command.Parameters.Add("Recoverable", SqlDbType.Bit).Value = message.Recoverable;
-            if (message.TimeToBeReceived.Ticks > DateTime.MaxValue.Ticks - DateTime.UtcNow.Ticks ||
-                message.TimeToBeReceived.Ticks < DateTime.MinValue.Ticks - DateTime.UtcNow.Ticks)
+            if (message.TimeToBeReceived == TimeSpan.MaxValue)
             {
                 command.Parameters.Add("Expires", SqlDbType.DateTime).Value = DBNull.Value;
             }
