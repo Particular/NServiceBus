@@ -44,8 +44,6 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
-            Log4Net();
-
             string threshold = null;
 
             var cfg = Configure.GetConfigSection<Config.Logging>();

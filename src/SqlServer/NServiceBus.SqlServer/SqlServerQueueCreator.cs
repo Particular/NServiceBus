@@ -14,7 +14,7 @@ namespace NServiceBus.Transports.SQLServer
 	                    [ReplyToAddress] [varchar](255) NULL,
 	                    [Recoverable] [bit] NOT NULL,
 	                    [Expires] [datetime] NULL,
-	                    [Headers] [varchar](8000) NOT NULL,
+	                    [Headers] [varchar](max) NOT NULL,
 	                    [Body] [varbinary](max) NULL,
 	                    [RowVersion] [bigint] IDENTITY(1,1) NOT NULL
                     ) ON [PRIMARY];                    

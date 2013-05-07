@@ -37,7 +37,7 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
                 appenderForNServiceBusToLogTo.Threshold = Log4NetAppenderFactory.ConvertToLogLevel(thresholdForNServiceBusToLogWith);
 
             if (appenderForNServiceBusToLogTo.Threshold == null)
-                appenderForNServiceBusToLogTo.Threshold =Log4NetAppenderFactory.ConvertToLogLevel("Info");
+                appenderForNServiceBusToLogTo.Threshold = Log4NetAppenderFactory.ConvertToLogLevel("Info");
 
             appenderForNServiceBusToLogTo.ActivateOptions();
 

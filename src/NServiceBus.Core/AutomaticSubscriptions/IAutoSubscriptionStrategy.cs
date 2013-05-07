@@ -4,7 +4,7 @@ namespace NServiceBus.AutomaticSubscriptions
     using System.Collections.Generic;
 
     /// <summary>
-    /// Abstracts the stragtegy for selecting which events to autosubscribe to during startup
+    /// Abstracts the strategy for selecting which events to autosubscribe to during startup
     /// </summary>
     public interface IAutoSubscriptionStrategy
     {
