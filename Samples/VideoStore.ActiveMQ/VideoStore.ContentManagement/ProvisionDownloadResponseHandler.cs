@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Messages.Events;
     using Messages.RequestResponse;
     using NServiceBus;
+    using VideoStore.Common;
 
     public class ProvisionDownloadResponseHandler : IHandleMessages<ProvisionDownloadResponse>
     {
@@ -22,6 +24,10 @@
 
         public void Handle(ProvisionDownloadResponse message)
         {
+            if (DebugFlagMutator.Debug)
+            {
+                Debugger.Break();
+            }
 
             Console.WriteLine("Download for Order # {0} has been provisioned, Publishing Download ready event", message.OrderNumber);
          

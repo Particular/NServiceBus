@@ -20,6 +20,7 @@ namespace VideoStore.ECommerce
                      .PurgeOnStartup(true)
                      .UnicastBus()
                      .RunHandlersUnderIncomingPrincipal(false)
+                     .RijndaelEncryptionService()
                      .CreateBus()
                      .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>()
                                            .Install());

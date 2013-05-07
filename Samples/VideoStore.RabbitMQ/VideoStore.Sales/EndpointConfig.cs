@@ -3,8 +3,14 @@ namespace VideoStore.Sales
     using System;
     using NServiceBus;
 
-    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<RabbitMQ>
+    public class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher, UsingTransport<RabbitMQ>, IWantCustomInitialization
     {
+        public void Init()
+        {
+            Configure.With()
+                .DefaultBuilder()
+                .RijndaelEncryptionService();
+        }
     }
 
 
