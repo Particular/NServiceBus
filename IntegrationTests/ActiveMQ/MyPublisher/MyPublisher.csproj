@@ -56,6 +56,9 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Notifications">
+      <HintPath>..\..\..\binaries\NServiceBus.Notifications.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Transports.ActiveMQ">
       <HintPath>..\..\..\binaries\NServiceBus.Transports.ActiveMQ.dll</HintPath>
     </Reference>

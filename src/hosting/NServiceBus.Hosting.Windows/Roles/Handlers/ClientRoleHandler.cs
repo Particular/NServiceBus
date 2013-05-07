@@ -21,7 +21,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
             return Configure.Instance
                             .PurgeOnStartup(true)
                             .DisableTimeoutManager()
-                            .DisableNotifications()
                             .UnicastBus()
                             .RunHandlersUnderIncomingPrincipal(false);
 

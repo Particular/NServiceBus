@@ -194,6 +194,7 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **.Tests.*, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **.Tests.*
+	Copy-Item $outDir\NServiceBus.Notifications.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\autofac"

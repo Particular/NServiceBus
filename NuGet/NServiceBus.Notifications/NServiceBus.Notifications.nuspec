@@ -1,0 +1,24 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Notifications</id>
+    <title>NServiceBus Notifications</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
+    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
+    <projectUrl>http://nservicebus.com/</projectUrl>
+    <iconUrl>http://a2.twimg.com/profile_images/1203939022/nServiceBus_Twitter_Logo_reasonably_small.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The Notifications component for the NServicebus</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies>
+      <dependency id="NServiceBus" version="4.0.0-alpha0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="\binaries\NServiceBus.Notifications.???" target="lib\net40" />
+  </files>
+</package>

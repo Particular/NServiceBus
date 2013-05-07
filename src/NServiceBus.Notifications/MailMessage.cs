@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Net.Mail;
     using System.Text;
 
+
     /// <summary>
     /// Represents an e-mail message that can be sent using the <see cref="IBus"/>.
     /// </summary>

@@ -13,11 +13,19 @@ namespace NServiceBus.Notifications
     {
         private readonly IMessageSerializer messageSerializer;
 
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="messageSerializer"></param>
         public NotificationSatellite(IMessageSerializer messageSerializer)
         {
             this.messageSerializer = messageSerializer;
         }
 
+        /// <summary>
+        /// This method is called when a message is available to be processed.
+        /// </summary>
+        /// <param name="message">The <see cref="TransportMessage"/> received.</param>
         public bool Handle(TransportMessage message)
         {
             SendEmail sendEmail;
@@ -36,21 +44,33 @@ namespace NServiceBus.Notifications
             return true;
         }
 
+        /// <summary>
+        /// Starts the <see cref="ISatellite"/>.
+        /// </summary>
         public void Start()
         {
             //no-op
         }
 
+        /// <summary>
+        /// Stops the <see cref="ISatellite"/>.
+        /// </summary>
         public void Stop()
         {
             //no-op
         }
 
+        /// <summary>
+        /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
+        /// </summary>
         public Address InputAddress
         {
             get { return Configure.Instance.GetMasterNodeAddress().SubScope("Notifications"); }
         }
 
+        /// <summary>
+        /// Set to <code>true</code> to disable this <see cref="ISatellite"/>.
+        /// </summary>
         public bool Disabled
         {
             get

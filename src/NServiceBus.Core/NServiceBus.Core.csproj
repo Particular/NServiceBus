@@ -94,7 +94,6 @@
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
-    <Compile Include="BusExtensions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="ConfigureBinarySerializer.cs" />
@@ -146,7 +145,6 @@
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
-    <Compile Include="Config\ConfigureNotifications.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
@@ -330,7 +328,6 @@
     <Compile Include="Logging\Loggers\NullLoggerFactory.cs" />
     <Compile Include="Logging\LoggingLibraryException.cs" />
     <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="MailMessage.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicy.cs" />
     <Compile Include="SecondLevelRetries\Helpers\MessageHelpers.cs" />
     <Compile Include="SecondLevelRetries\Helpers\TransportMessageHelpers.cs" />
@@ -343,9 +340,6 @@
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />
     <Compile Include="MonitoringConfig.cs" />
-    <Compile Include="Notifications\NotificationSatellite.cs" />
-    <Compile Include="Notifications\RegisterSystemMessages.cs" />
-    <Compile Include="Notifications\SendEmail.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\ComponentConfig.cs" />
@@ -535,6 +529,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Notifications\" />
     <Folder Include="SecondLevelRetries\Retries\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
