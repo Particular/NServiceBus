@@ -136,7 +136,7 @@ namespace NServiceBus.Integration.Azure
             }
             catch (Exception)
             {
-                return LogLevel.Warning;
+                return LogLevel.Information;
             }
         }
 
