@@ -3,7 +3,7 @@ namespace NServiceBus.Notifications
     /// <summary>
     /// Send email wrapper class to be used internally when sending an email using Bus.SendEmail().
     /// </summary>
-    public class SendEmail
+    internal class SendEmail
     {
         /// <summary>
         /// The <see cref="MailMessage"/>.

@@ -154,7 +154,7 @@ namespace NServiceBus
         {
         }
 
-        // ------------  Configuration extentions, please C# give us extention properties to avoid all this ---
+        // ------------  Configuration extensions, please C# give us extension properties to avoid all this ---
         private static Endpoint endpoint;
 
         public static Endpoint Endpoint { get { return endpoint ?? (endpoint = new Endpoint()); } }
@@ -166,7 +166,6 @@ namespace NServiceBus
         public static TransportSettings Transports { get { return transports ?? (transports = new TransportSettings()); } }
 
         private static TransportSettings transports;
-
 
         public static FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
 

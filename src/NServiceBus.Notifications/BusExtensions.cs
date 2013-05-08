@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using Features;
     using Notifications;
 
     /// <summary>
@@ -15,8 +16,8 @@ namespace NServiceBus
         /// <param name="message">The <see cref="MailMessage"/> to send.</param>
         public static void SendEmail(this IBus bus, MailMessage message)
         {
-            if (ConfigureNotifications.NotificationsDisabled)
-                throw new InvalidOperationException("Send email is not supported if notifications is disabled. Please remove Configure.DisableNotifications() from your config.");
+            if (!Feature.IsEnabled<Features.Notifications>())
+                throw new InvalidOperationException("Notifications feature is disabled. You need to ensure that this feature is enabled.");
 
             bus.Send(Configure.Instance.GetMasterNodeAddress().SubScope("Notifications"), new SendEmail
                                              {

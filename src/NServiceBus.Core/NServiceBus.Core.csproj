@@ -529,7 +529,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Notifications\" />
     <Folder Include="SecondLevelRetries\Retries\" />
     <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
