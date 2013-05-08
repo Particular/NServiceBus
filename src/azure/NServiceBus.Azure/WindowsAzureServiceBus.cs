@@ -10,6 +10,7 @@ namespace NServiceBus
         public WindowsAzureServiceBus()
         {
             HasNativePubSubSupport = true;
+            HasSupportForCentralizedPubSub = true;
         }
     }
 }
