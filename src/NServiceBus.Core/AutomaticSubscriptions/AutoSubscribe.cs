@@ -5,9 +5,9 @@
     using Settings;
     using Transports;
 
-    public class AutoSubscribe : IConditionalFeature
+    public class AutoSubscribe : Feature
     {
-        public void Initialize()
+        public override void Initialize()
         {
             InfrastructureServices.Enable<IAutoSubscriptionStrategy>();
 
@@ -27,9 +27,12 @@
                 
         }
 
-        public bool ShouldBeEnabled()
+        public override bool IsDefault
         {
-            return true;
+            get
+            {
+                return true;
+            }
         }
     }
 }

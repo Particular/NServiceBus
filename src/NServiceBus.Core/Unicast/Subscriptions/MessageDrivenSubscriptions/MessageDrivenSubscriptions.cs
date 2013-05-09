@@ -3,9 +3,9 @@
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
 
-    public class MessageDrivenSubscriptions : IFeature
+    public class MessageDrivenSubscriptions : Feature
     {
-        public void Initialize()
+        public override void Initialize()
         {
             Configure.Component<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
             Configure.Component<FilteringMutator>(DependencyLifecycle.InstancePerCall);

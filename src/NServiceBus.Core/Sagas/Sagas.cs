@@ -9,9 +9,9 @@
     using NServiceBus.Sagas.Finders;
     using Saga;
 
-    public class Sagas : IFeature
+    public class Sagas : Feature
     {
-        public void Initialize()
+        public override void Initialize()
         {
             Configure.Component<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
 
@@ -27,7 +27,6 @@
             {
                Logger.InfoFormat("The saga feature was enabled but no saga implementations could be found. No need to enable the configured saga persister"); 
             }
-                
         }
 
         /// <summary>

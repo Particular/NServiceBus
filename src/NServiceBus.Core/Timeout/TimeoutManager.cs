@@ -6,11 +6,19 @@
     using Transports;
 
     /// <summary>
-    /// This feature provides message deferral based on a external timeoutmanager.
+    /// This feature provides message deferral based on a external timeou tmanager.
     /// </summary>
-    public class TimeoutManager : IConditionalFeature
+    public class TimeoutManager : Feature
     {
-        public bool ShouldBeEnabled()
+        public override bool IsDefault
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public override bool ShouldBeEnabled()
         {
             //has the user already specified a custom deferal method
             if (Configure.HasComponent<IDeferMessages>())
@@ -29,7 +37,7 @@
             return true;
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             DispatcherAddress = Address.Parse(Configure.EndpointName).SubScope("TimeoutsDispatcher");
             InputAddress = Address.Parse(Configure.EndpointName).SubScope("Timeouts");

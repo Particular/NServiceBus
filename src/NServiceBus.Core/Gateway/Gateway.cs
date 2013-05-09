@@ -10,9 +10,9 @@
     using NServiceBus.Gateway.Routing.Sites;
     using NServiceBus.Gateway.Sending;
 
-    public class Gateway:IFeature
+    public class Gateway : Feature
     {
-        public void Initialize()
+        public override void Initialize()
         {
             ConfigureChannels();
 
@@ -23,15 +23,18 @@
             InfrastructureServices.Enable<IPersistMessages>();
         }
 
-
         static void ConfigureChannels()
         {
             var channelFactory = new ChannelFactory();
 
-            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+            foreach (
+                var type in
+                    Configure.TypesToScan.Where(t => typeof (IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
                 channelFactory.RegisterReceiver(type);
 
-            foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+            foreach (
+                var type in
+                    Configure.TypesToScan.Where(t => typeof (IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
                 channelFactory.RegisterSender(type);
 
             Configure.Instance.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
@@ -63,7 +66,7 @@
             Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
             Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
             Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                                               .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
+                     .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
 
         }
     }

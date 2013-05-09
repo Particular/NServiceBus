@@ -5,55 +5,53 @@
     using Config;
     using Logging;
 
-    public class FeatureInitializer : IFinalizeConfiguration,IWantToRunBeforeConfigurationIsFinalized
+    public class FeatureInitializer : IFinalizeConfiguration, IWantToRunBeforeConfigurationIsFinalized
     {
         /// <summary>
         /// Go trough all conditional features and figure out if the should be enabled or not
         /// </summary>
         public void Run()
         {
-            Configure.Instance.ForAllTypes<IConditionalFeature>(t =>
-            {
-                if (!Feature.IsEnabled(t))
+            Configure.Instance.ForAllTypes<Feature>(t =>
                 {
-                    Logger.InfoFormat("Conditionally feature {0} has been explicitly disabled", t.FeatureName());
-                    return;
-                }
+                    var feature = (Feature)Activator.CreateInstance(t);
 
-                var feature = (IConditionalFeature)Activator.CreateInstance(t);
+                    if (feature.IsDefault && !Feature.IsEnabled(t))
+                    {
+                        Logger.InfoFormat("Default feature {0} has been explicitly disabled", feature.Name);
+                        return;
+                    }
 
-                if (!feature.ShouldBeEnabled())
-                {
-                    Feature.Disable(t);
-                    Logger.DebugFormat("{0} - Conditionally disabled", t.FeatureName());
-                }
-            });
-
-
+                    if (feature.IsDefault && !feature.ShouldBeEnabled())
+                    {
+                        Feature.Disable(t);
+                        Logger.DebugFormat("Default feature {0} disabled", feature.Name);
+                    }
+                });
         }
 
         public void FinalizeConfiguration()
         {
             var statusText = new StringBuilder();
 
-            Configure.Instance.ForAllTypes<IFeature>(t =>
+            Configure.Instance.ForAllTypes<Feature>(t =>
                 {
+                    var feature = (Feature)Activator.CreateInstance(t);
+
                     if (!Feature.IsEnabled(t))
                     {
-                        statusText.AppendLine(string.Format("{0} - Disabled", t.FeatureName()));
+                        statusText.AppendLine(string.Format("{0} - Disabled", feature.Name));
                         return;
                     }
 
-                    var feature = (IFeature)Activator.CreateInstance(t);
-                 
                     feature.Initialize();
 
-                    statusText.AppendLine(string.Format("{0} - Enabled", t.FeatureName()));
+                    statusText.AppendLine(string.Format("{0} - Enabled", feature.Name));
                 });
 
             Logger.InfoFormat("Features: \n{0}", statusText);
         }
-        
-        static readonly ILog Logger = LogManager.GetLogger(typeof(FeatureInitializer));
+
+        static readonly ILog Logger = LogManager.GetLogger(typeof (FeatureInitializer));
     }
 }

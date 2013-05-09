@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports
 {
     using System;
+    using Features;
     using Settings;
     using Unicast.Transport;
 
@@ -19,7 +20,7 @@ namespace NServiceBus.Transports
     /// <typeparam name="T"></typeparam>
     public interface IConfigureTransport<T> : IConfigureTransport where T : TransportDefinition{}
 
-    public abstract class ConfigureTransport<T> : IConfigureTransport<T> where T : TransportDefinition
+    public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition
     {
         public void Configure(Configure config)
         {

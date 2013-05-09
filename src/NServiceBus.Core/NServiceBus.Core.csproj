@@ -106,10 +106,8 @@
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
-    <Compile Include="Features\IConditionalFeature.cs" />
-    <Compile Include="Features\Support\FeatureExtensions.cs" />
     <Compile Include="Features\Support\FeatureInitializer.cs" />
-    <Compile Include="Features\Support\SetFeatureDefaults.cs" />
+    <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
@@ -131,7 +129,6 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="Features\IFeature.cs" />
     <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenPersistence.cs" />
     <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
     <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />

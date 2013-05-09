@@ -7,9 +7,9 @@
     using Unicast.Publishing;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    public class MessageDrivenPublisher : IFeature
+    public class MessageDrivenPublisher : Feature
     {
-        public void Initialize()
+        public override void Initialize()
         {
             var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
 
@@ -24,7 +24,7 @@
             InfrastructureServices.Enable<ISubscriptionStorage>();
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(MessageDrivenPublisher));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(MessageDrivenPublisher));
     }
 
 

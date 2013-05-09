@@ -6,9 +6,9 @@ namespace NServiceBus.Features
     using NServiceBus.SecondLevelRetries;
     using Settings;
 
-    public class SecondLevelRetries : IConditionalFeature
+    public class SecondLevelRetries : Feature
     {
-        public bool ShouldBeEnabled()
+        public override bool ShouldBeEnabled()
         {
             // if we're not using the Fault Forwarder, we should act as if SLR is disabled
             //this will change when we make SLR a first class citizen
@@ -27,8 +27,15 @@ namespace NServiceBus.Features
             return retriesConfig.Enabled;
         }
 
+        public override bool IsDefault
+        {
+            get
+            {
+                return true;
+            }
+        }
 
-        public void Initialize()
+        public override void Initialize()
         {
             var retriesConfig = Configure.GetConfigSection<SecondLevelRetriesConfig>();
 

@@ -8,7 +8,6 @@
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Policies;
-    using AutomaticSubscriptions;
     using Config;
     using Transports;
     using Transports.ActiveMQ;
@@ -17,16 +16,14 @@
     using Transports.ActiveMQ.SessionFactories;
     using Unicast.Queuing.Installers;
     using Settings;
-    using Unicast.Subscriptions;
     using MessageProducer = Transports.ActiveMQ.MessageProducer;
 
     /// <summary>
     /// Default configuration for ActiveMQ
     /// </summary>
-    public class ActiveMqTransport : ConfigureTransport<ActiveMQ>, IFeature
+    public class ActiveMqTransport : ConfigureTransport<ActiveMQ>
     {
-        
-        public void Initialize()
+        public override void Initialize()
         {
             var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
 
@@ -89,10 +86,8 @@
 
         protected override void InternalConfigure(Configure config, string brokerUri)
         {
-            Feature.Enable<ActiveMqTransport>();
+            Enable<ActiveMqTransport>();
         }
-
-       
         
         protected override string ExampleConnectionStringForErrorMessage
         {

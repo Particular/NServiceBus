@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using AutomaticSubscriptions;
     using Config;
     using Settings;
     using Transports;
@@ -8,11 +7,10 @@
     using Transports.RabbitMQ.Config;
     using Transports.RabbitMQ.Routing;
     using Unicast.Queuing.Installers;
-    using Unicast.Subscriptions;
 
-    public class RabbitMqTransport : ConfigureTransport<RabbitMQ>, IFeature
+    public class RabbitMqTransport : ConfigureTransport<RabbitMQ>
     {
-        public void Initialize()
+        public override void Initialize()
         {
             var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
             var connectionConfiguration = new ConnectionStringParser().Parse(connectionString);
@@ -46,7 +44,7 @@
 
         protected override void InternalConfigure(Configure config, string connectionString)
         {
-            Feature.Enable<RabbitMqTransport>();
+            Enable<RabbitMqTransport>();
         }
 
         protected override string ExampleConnectionStringForErrorMessage

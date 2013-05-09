@@ -5,7 +5,6 @@ namespace NServiceBus
     using Logging;
     using Transports.Msmq;
     using Transports.Msmq.Config;
-    using Unicast.Publishing;
     using Unicast.Queuing.Installers;
     using Unicast.Transport;
 
