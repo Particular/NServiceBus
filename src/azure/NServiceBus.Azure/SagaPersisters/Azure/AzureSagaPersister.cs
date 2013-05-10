@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Reflection;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Table;
@@ -115,7 +116,25 @@
                                   propertyInfo.PropertyType.Name));
             }
 
-            return ToEntity<T>(table.ExecuteQuery(query).FirstOrDefault());
+            try
+            {
+                return ToEntity<T>(table.ExecuteQuery(query).FirstOrDefault());
+            }
+            catch (WebException ex)
+            {
+                // occurs when table has not yet been created, but already looking for absence of instance
+                if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
+                {
+                    var response = (HttpWebResponse) ex.Response;
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        return default(T);
+                    }
+                }
+
+                throw;
+            }
+            
         }
 
         /// <summary>
