@@ -39,6 +39,7 @@
             try
             {
                 host.Install(username);
+                host.Stop();
             }
             catch (Exception ex)
             {

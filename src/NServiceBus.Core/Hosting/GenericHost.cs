@@ -59,11 +59,7 @@ namespace NServiceBus.Hosting
                 if (bus != null)
                 {
                     bus.Shutdown();
-
-                    if (bus is IDisposable)
-                    {
-                        ((IDisposable)bus).Dispose();
-                    }
+                    bus.Dispose();
 
                     bus = null;
                 }
