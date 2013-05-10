@@ -39,7 +39,7 @@
             try
             {
                 host.Install(username);
-                host.Stop();
+                Configure.Instance.Builder.Dispose();
             }
             catch (Exception ex)
             {
