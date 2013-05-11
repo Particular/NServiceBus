@@ -8,6 +8,8 @@ namespace NServiceBus.Gateway.Channels.Http
     using Logging;
     using Utils;
 
+    [ChannelType("http")]
+    [ChannelType("https")]
     public class HttpChannelSender : IChannelSender
     {
         public void Send(string remoteUrl, IDictionary<string,string> headers,Stream data)
