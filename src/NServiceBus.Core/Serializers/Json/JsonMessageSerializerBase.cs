@@ -66,7 +66,7 @@ namespace NServiceBus.Serializers.Json
         {
             var settings = serializerSettings;
 
-            var dynamicTypeToSerializeTo = messageTypes != null && messageTypes.Count == 1 ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
+            var dynamicTypeToSerializeTo = messageTypes != null ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
             if (dynamicTypeToSerializeTo != null)
             {
                 settings.TypeNameHandling = TypeNameHandling.None;
