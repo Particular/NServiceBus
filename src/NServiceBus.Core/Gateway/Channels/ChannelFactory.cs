@@ -1,6 +1,7 @@
 namespace NServiceBus.Gateway.Channels
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
 
     public interface IChannelFactory
@@ -39,7 +40,11 @@ namespace NServiceBus.Gateway.Channels
 
         public void RegisterSender(Type sender)
         {
-            RegisterSender(sender, sender.Name.Substring(0, sender.Name.IndexOf("Channel")));
+            var channelTypes = sender.GetCustomAttributes(true).OfType<ChannelTypeAttribute>().ToList();
+            if(channelTypes.Any())
+                channelTypes.ForEach(type => RegisterSender(sender, type.Type));
+            else
+                RegisterSender(sender, sender.Name.Substring(0, sender.Name.IndexOf("Channel")));
         }
 
         public void RegisterSender(Type sender, string type)
