@@ -99,6 +99,7 @@
     <Compile Include="ConfigureAzureIntegration.cs" />
     <Compile Include="Config\AzureStoragePersistence.cs" />
     <Compile Include="Config\QueueIndividualizer.cs" />
+    <Compile Include="Config\AzureServiceBusTransport.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\BlobStorageDataBus.cs" />
     <Compile Include="DataBus\Azure\BlobStorage\Block.cs" />
     <Compile Include="ConfigurationSource\Azure\AzureConfigurationSettings.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Timeout\TimeoutLogic\ServiceContext.cs" />
     <Compile Include="Timeout\TimeoutLogic\TimeoutDataEntity.cs" />
     <Compile Include="Timeout\TimeoutLogic\TimeoutPersister.cs" />
+    <Compile Include="Unicast\Queuing\ServiceBus\AzureServiceBusQueueCreator.cs" />
     <Compile Include="Unicast\Queuing\Storage\PollingDequeueStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unicast\Queuing\Storage\AzureMessageQueueReceiver.cs" />
@@ -143,8 +145,7 @@
     <Compile Include="Subscriptions\Azure\AzureSubscriptionStorage.cs" />
     <Compile Include="Subscriptions\Azure\Subscription.cs" />
     <Compile Include="Subscriptions\Azure\SubscriptionServiceContext.cs" />
-    <Compile Include="WindowsAzureServiceBus.cs" />
-    <Compile Include="WindowsAzureServiceBusDefaults.cs" />
+    <Compile Include="AzureServiceBus.cs" />
     <Compile Include="WindowsAzureStorage.cs" />
   </ItemGroup>
   <ItemGroup>

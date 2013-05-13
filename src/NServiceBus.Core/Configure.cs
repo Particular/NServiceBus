@@ -386,16 +386,19 @@ namespace NServiceBus
         /// <returns></returns>
         public static T GetConfigSection<T>() where T : class,new()
         {
-            if (instance != null)
-                if (instance.configurer != null)
-                    if (instance.configurer.HasComponent<IProvideConfiguration<T>>())
-                    {
-                        var configSource = instance.Builder.Build<IProvideConfiguration<T>>();
-                        if (configSource != null)
-                            return configSource.GetConfiguration();
-                    }
+            if(TypesToScan == null)
+                return ConfigurationSource.GetConfiguration<T>();
 
-            return ConfigurationSource.GetConfiguration<T>();
+            var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
+
+            if (sectionOverrideType == null)
+                return ConfigurationSource.GetConfiguration<T>();
+
+            var sectionOverride = Activator.CreateInstance(sectionOverrideType) as IProvideConfiguration<T>;
+
+            return sectionOverride.GetConfiguration();
+
+            
         }
 
         /// <summary>

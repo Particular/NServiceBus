@@ -5,7 +5,7 @@ namespace NServiceBus
 {
     using Integration.Azure;
 
-    public static class SetLoggingLibrary
+    public static class SetLoggingLibraryForAzure
     {
         public static Configure ConsoleLogger(this Configure config)
         {

@@ -59,6 +59,19 @@
                                         typeof(SqlServer).AssemblyQualifiedName
                                     }
                                 }
+        };
+
+        public static readonly RunDescriptor WindowsAzureServiceBus = new RunDescriptor
+        {
+            Key = "WindowsAzureServiceBus",
+            Settings =
+                new Dictionary<string, string>
+                                {
+                                    {
+                                        "Transport",
+                                        typeof(WindowsAzureServiceBus).AssemblyQualifiedName
+                                    }
+                                }
         };  
     }
 }

@@ -1,7 +1,6 @@
 namespace NServiceBus.Config
 {
     using Features;
-    using Gateway.Persistence;
     using Saga;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;

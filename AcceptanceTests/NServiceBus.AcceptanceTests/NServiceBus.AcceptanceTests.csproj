@@ -80,6 +80,9 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Azure">
+      <HintPath>..\..\binaries\NServiceBus.Azure.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
@@ -148,6 +151,7 @@
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
     <Compile Include="EndpointTemplates\BusExtensions.cs" />
+    <Compile Include="EndpointTemplates\AzureServiceBusOverrides.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />

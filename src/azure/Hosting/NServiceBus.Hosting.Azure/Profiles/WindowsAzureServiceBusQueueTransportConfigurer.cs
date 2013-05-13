@@ -9,7 +9,7 @@ namespace NServiceBus
     /// <summary>
     /// Configures windows azure servicebus as the underlying transport.
     /// </summary>
-    public class WindowsAzureServiceBusQueueTransportConfigurer : IConfigureTransport<NServiceBus.WindowsAzureServiceBus>
+    public class WindowsAzureServiceBusQueueTransportConfigurer : IConfigureTransport<NServiceBus.AzureServiceBus>
     {
         public void Configure(Configure config)
         {
