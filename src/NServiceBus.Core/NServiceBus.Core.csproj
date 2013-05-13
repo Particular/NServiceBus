@@ -112,6 +112,7 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
@@ -179,7 +180,6 @@
     <Compile Include="Transports\Msmq\MsmqDequeueStrategy.cs" />
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
-    <Compile Include="Transports\Msmq\MsmqTransportConfigurer.cs" />
     <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
