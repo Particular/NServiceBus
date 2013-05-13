@@ -3,6 +3,8 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
+    using Features;
+
     /// <summary>
     /// Handles configuration related to the server role
     /// </summary>
@@ -14,9 +16,10 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <param name="specifier"></param>
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
-        {         
+        {
+            Feature.EnableByDefault<Sagas>();
+
             return Configure.Instance
-                .Sagas()
                 .PurgeOnStartup(false)
                 .UnicastBus()
                 .RunHandlersUnderIncomingPrincipal(true);
