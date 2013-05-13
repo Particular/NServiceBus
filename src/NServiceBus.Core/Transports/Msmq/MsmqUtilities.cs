@@ -226,10 +226,7 @@ namespace NServiceBus.Transports.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
             }
 
-            if (!string.IsNullOrWhiteSpace(message.CorrelationId))
-            {
-                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
-            }
+            result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
 
             result.Recoverable = message.Recoverable;
 

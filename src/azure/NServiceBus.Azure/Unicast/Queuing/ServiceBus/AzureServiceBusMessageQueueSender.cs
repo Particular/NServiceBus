@@ -89,7 +89,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 {
                     using (var brokeredMessage = message.Body != null ? new BrokeredMessage(message.Body) : new BrokeredMessage())
                     {
-                        if (!string.IsNullOrWhiteSpace(message.CorrelationId)) brokeredMessage.CorrelationId = message.CorrelationId;
+                        brokeredMessage.CorrelationId = message.CorrelationId;
                         if (message.TimeToBeReceived < TimeSpan.MaxValue) brokeredMessage.TimeToLive = message.TimeToBeReceived;
                         
                         foreach (var header in message.Headers)

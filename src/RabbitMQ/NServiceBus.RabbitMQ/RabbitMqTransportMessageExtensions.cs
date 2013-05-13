@@ -14,8 +14,7 @@
         {
             properties.MessageId = message.Id;
 
-            if (!string.IsNullOrEmpty(message.CorrelationId))
-                properties.CorrelationId = message.CorrelationId;
+            properties.CorrelationId = message.CorrelationId;
 
             if (message.TimeToBeReceived < TimeSpan.MaxValue)
                 properties.Expiration = message.TimeToBeReceived.TotalMilliseconds.ToString();
