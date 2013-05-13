@@ -23,6 +23,7 @@ namespace NServiceBus
         public TransportMessage()
         {
             Id = CombGuid.Generate().ToString();
+            CorrelationId = Id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
@@ -33,15 +34,14 @@ namespace NServiceBus
         /// </summary>
         public string Id
         {
-            get { return id; }
+            get
+            {
+                return id;
+            }
             set
             {
                 id = value;
-
-                //preserve the ID if one id isn't already present
-                if (!Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) ||
-                    string.IsNullOrEmpty(Headers[NServiceBus.Headers.IdForCorrelation]))
-                    Headers[NServiceBus.Headers.IdForCorrelation] = value;
+                Headers["CorrId"] = id;
             }
         }
 
@@ -53,20 +53,18 @@ namespace NServiceBus
         /// <param name="newId"></param>
         public void ChangeMessageId(string newId)
         {
-            id = newId;
-            Headers[NServiceBus.Headers.IdForCorrelation] = newId;
+            Id = newId;
+            CorrelationId = newId;
         }
 
         /// <summary>
         /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Id")]
         public string IdForCorrelation
         {
             get
             {
-                if (Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) && (!string.IsNullOrWhiteSpace(Headers[NServiceBus.Headers.IdForCorrelation])))
-                    return Headers[NServiceBus.Headers.IdForCorrelation];
-
                 return Id;
             }
         }

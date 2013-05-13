@@ -10,12 +10,12 @@ namespace NServiceBus.Faults.InMemory
     {
         void IManageMessageFailures.SerializationFailedForMessage(TransportMessage message, Exception e)
         {
-            logger.Error("Serialization failed for message with ID " + message.IdForCorrelation + ".", e);
+            logger.Error("Serialization failed for message with ID " + message.Id + ".", e);
         }
 
         void IManageMessageFailures.ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
         {
-            logger.Error("Message processing always fails for message with ID " + message.IdForCorrelation + ".", e);
+            logger.Error("Message processing always fails for message with ID " + message.Id + ".", e);
         }
 
         /// <summary>

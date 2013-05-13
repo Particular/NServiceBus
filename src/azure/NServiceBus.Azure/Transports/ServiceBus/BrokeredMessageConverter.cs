@@ -19,9 +19,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
             else
             {
-                t = new TransportMessage();
-                if (!string.IsNullOrWhiteSpace(message.CorrelationId)) t.CorrelationId = message.CorrelationId;
-                t.TimeToBeReceived = message.TimeToLive;
+                t = new TransportMessage
+                        {
+                            CorrelationId = message.CorrelationId,
+                            TimeToBeReceived = message.TimeToLive
+                        };
 
                 foreach (var header in message.Properties)
                 {

@@ -194,12 +194,12 @@ namespace NServiceBus.Transports.Msmq
             if (string.IsNullOrWhiteSpace(msmqMsg.Label))
                 return;
 
-            if (msmqMsg.Label.Contains(Headers.IdForCorrelation))
+            if (msmqMsg.Label.Contains("CorrId"))
             {
-                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.IdForCorrelation)) + Headers.IdForCorrelation.Length + 2;
-                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.IdForCorrelation)) - idStartIndex;
+                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", "CorrId")) + "CorrId".Length + 2;
+                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", "CorrId")) - idStartIndex;
 
-                result.Headers[Headers.IdForCorrelation] = msmqMsg.Label.Substring(idStartIndex, idCount);
+                result.Headers["CorrId"] = msmqMsg.Label.Substring(idStartIndex, idCount);
             }
 
             if (msmqMsg.Label.Contains(Headers.WindowsIdentityName) && !result.Headers.ContainsKey(Headers.WindowsIdentityName))
@@ -226,10 +226,7 @@ namespace NServiceBus.Transports.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
             }
 
-            if (!string.IsNullOrWhiteSpace(message.CorrelationId))
-            {
-                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
-            }
+            result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
 
             result.Recoverable = message.Recoverable;
 
@@ -262,8 +259,8 @@ namespace NServiceBus.Transports.Msmq
                 ? transportMessage.Headers[Headers.WindowsIdentityName] : string.Empty;
 
             msmqMessage.Label =
-                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", Headers.IdForCorrelation, Headers.WindowsIdentityName,
-                    transportMessage.IdForCorrelation, windowsIdentityName);
+                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", "CorrId", Headers.WindowsIdentityName,
+                    transportMessage.Id, windowsIdentityName);
         }
 
         private const string DIRECTPREFIX = "DIRECT=OS:";

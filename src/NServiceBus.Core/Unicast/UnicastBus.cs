@@ -404,7 +404,7 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
             if (_messageBeingHandled.ReplyToAddress == null)
                 throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://nservicebus.com/OnewaySendonlyendpoints.aspx");
-            SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.IdForCorrelation, MessageIntentEnum.Send, messages);
+            SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId, MessageIntentEnum.Send, messages);
         }
 
         void IBus.Reply<T>(Action<T> messageConstructor)
@@ -420,7 +420,7 @@ namespace NServiceBus.Unicast
             var returnMessage = ControlMessage.Create(Address.Local);
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
-            returnMessage.CorrelationId = _messageBeingHandled.IdForCorrelation;
+            returnMessage.CorrelationId = _messageBeingHandled.CorrelationId;
 
             InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
@@ -642,7 +642,12 @@ namespace NServiceBus.Unicast
 
             var result = new List<string>();
 
-            var toSend = new TransportMessage { CorrelationId = correlationId, MessageIntent = messageIntent };
+            var toSend = new TransportMessage { MessageIntent = messageIntent };
+
+            if (!string.IsNullOrEmpty(correlationId))
+            {
+                toSend.CorrelationId = correlationId;
+            }
 
             MapTransportMessageFor(messages, toSend);
 
@@ -1328,7 +1333,7 @@ namespace NServiceBus.Unicast
                                  Body = m.Body,
                                  CorrelationId = m.CorrelationId,
                                  Headers = m.Headers,
-                                 Id = m.IdForCorrelation,
+                                 Id = m.CorrelationId,
                                  MessageIntent = m.MessageIntent,
                                  Recoverable = m.Recoverable,
                                  ReplyToAddress = Address.Local,

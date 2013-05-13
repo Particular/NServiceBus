@@ -9,7 +9,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         public static void Map(IDictionary<string,string> from, TransportMessage to)
         {
             to.Id = from[NServiceBus + Id];
-            to.CorrelationId = from[NServiceBus + CorrelationId];
+            to.CorrelationId = @from[NServiceBus + CorrelationId] ?? to.Id;
 
             bool recoverable;
             if(bool.TryParse(from[NServiceBus + Recoverable], out recoverable))

@@ -336,7 +336,7 @@ namespace NServiceBus.Unicast.Transport
                     var serializationException = exceptionFromMessageHandling.GetBaseException() as  SerializationException;
                     if (serializationException != null)
                     {
-                        Logger.Error("Failed to serialize message with ID: " + message.IdForCorrelation, serializationException);
+                        Logger.Error("Failed to serialize message with ID: " + message.Id, serializationException);
                         FailureManager.SerializationFailedForMessage(message, serializationException);
                     }
                     else

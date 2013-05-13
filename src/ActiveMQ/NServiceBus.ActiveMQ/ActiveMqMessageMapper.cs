@@ -33,10 +33,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             jmsmessage.NMSMessageId = message.Id;
 
-            if (message.CorrelationId != null)
-            {
-                jmsmessage.NMSCorrelationID = message.CorrelationId;
-            }
+            jmsmessage.NMSCorrelationID = message.CorrelationId;
 
             if (message.TimeToBeReceived < TimeSpan.FromMilliseconds(uint.MaxValue))
             {
