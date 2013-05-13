@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Serialization;
+    using Transports.StorageQueues;
 
     public class AzureMessageQueueReceiver
     {
@@ -74,7 +75,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Init(Address address, bool transactional)
         {
             useTransactions = transactional;
-            queue = Client.GetQueueReference(SanitizeQueueName(address.Queue));
+
+            var queueName = AzureMessageQueueUtils.GetQueueName(address);
+
+            queue = Client.GetQueueReference(queueName);
             queue.CreateIfNotExists();
 
 			if (PurgeOnStartup)
@@ -171,10 +175,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
         }
 
-        public void CreateQueue(string queueName)
-        {
-            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
-        }
+        //public void CreateQueue(string queueName)
+        //{
+        //    Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
+        //}
 
         private string SanitizeQueueName(string queueName)
         {

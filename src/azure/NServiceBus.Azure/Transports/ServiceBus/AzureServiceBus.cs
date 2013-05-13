@@ -5,9 +5,9 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for WindowsAzureServiceBus    
     /// </summary>
-    public class WindowsAzureServiceBus : TransportDefinition
+    public class AzureServiceBus : TransportDefinition
     {
-        public WindowsAzureServiceBus()
+        public AzureServiceBus()
         {
             HasNativePubSubSupport = true;
             HasSupportForCentralizedPubSub = true;

@@ -18,10 +18,9 @@
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r =>
-                            r
-                               .For<AllTransports>()
-                               .For<AllBuilders>()
+                            r.For<AllTransports>()
                                .For<AllSerializers>()
+                                  .For<AllSerializers>()
                     )
                     .Should(c =>
                         {

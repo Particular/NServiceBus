@@ -86,6 +86,19 @@ namespace NServiceBus.Settings
         }
 
 
+        /// <summary>
+        /// Sets the default value of the given property
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="property"></param>
+        /// <param name="value"></param>
+        public static void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
+        {
+            var prop = Reflect<T>.GetProperty(property);
+
+            SetDefault(typeof(T).FullName + "." + prop.Name, value);
+        }
+
 
         /// <summary>
         /// Sets the default setting value.

@@ -1,8 +1,10 @@
 namespace NServiceBus.Hosting.Tests
 {
+    using System;
     using NUnit.Framework;
     using Roles;
     using Roles.Handlers;
+    using Settings;
     using Transports;
     using Transports.Msmq;
     using Unicast.Config;
@@ -36,7 +38,7 @@ namespace NServiceBus.Hosting.Tests
             var handler = new DefaultTransportForHost();
             handler.Run();
 
-            Assert.IsInstanceOf<MsmqMessageSender>(Configure.Instance.Builder.Build<ISendMessages>());
+            Assert.True(SettingsHolder.Get<TransportDefinition>("NServiceBus.Transport.SelectedTransport") is Msmq);
         }
 
         [Test]
