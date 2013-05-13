@@ -26,8 +26,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="original"></param>
         public void Subscribe(Type eventType, Address original)
         {
-            var publisherAddress = Address.Parse(original.Queue + ".events");
-            var subscriptionname = Configure.EndpointName + "." + eventType.Name;
+            var publisherAddress = Address.Parse(AzureServiceBusPublisherAddressConvention.Create(original));
+            var subscriptionname = AzureServiceBusSubscriptionNameConvention.Create(eventType);
 
             ClientCreator.Create(eventType, publisherAddress.Queue, subscriptionname);
 
@@ -55,8 +55,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="original"></param>
         public void Unsubscribe(Type eventType, Address original)
         {
-            var publisherAddress = Address.Parse(original.Queue + ".events");
-            var subscriptionname = Configure.EndpointName + "." + eventType.Name;
+            var publisherAddress = Address.Parse(AzureServiceBusPublisherAddressConvention.Create(original));
+            var subscriptionname = AzureServiceBusSubscriptionNameConvention.Create(eventType);
 
             if (NamespaceClient.SubscriptionExists(publisherAddress.Queue, subscriptionname))
             {
@@ -64,6 +64,22 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
 
             // unhook the listener
+        }
+    }
+
+    public static class AzureServiceBusPublisherAddressConvention
+    {
+        public static string Create(Address address)
+        {
+            return address.Queue + ".events";
+        }
+    }
+
+    public static class AzureServiceBusSubscriptionNameConvention
+    {
+        public static string Create(Type eventType)
+        {
+            return Configure.EndpointName + "." + eventType.Name;
         }
     }
 }
