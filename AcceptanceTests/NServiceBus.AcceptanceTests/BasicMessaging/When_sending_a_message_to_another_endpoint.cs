@@ -18,8 +18,9 @@
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r =>
-                            r
-                               .For(Transports.AzureStorageQueue).For(Builders.Spring)
+                            r.For<AllTransports>()
+                               .For<AllSerializers>()
+                                  .For<AllSerializers>()
                     )
                     .Should(c =>
                         {

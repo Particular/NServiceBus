@@ -180,7 +180,9 @@
                 {typeof (SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
                 {typeof (ActiveMQ), @"ServerUrl=activemq:tcp://localhost:61616"},
                 {typeof (Msmq), @"cacheSendConnection=false;journal=false;"},
-                {typeof (AzureStorageQueue), Environment.GetEnvironmentVariable("AzureStorageQueue.ConnectionString") }
+                {typeof (AzureStorageQueue), Environment.GetEnvironmentVariable("AzureStorageQueue.ConnectionString") },
+                {typeof (AzureServiceBus), Environment.GetEnvironmentVariable("AzureServiceBus.ConnectionString") }
+
             };
     }
 }

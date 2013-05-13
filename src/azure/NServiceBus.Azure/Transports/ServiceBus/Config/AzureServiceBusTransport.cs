@@ -7,6 +7,7 @@
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure.ServiceRuntime;
+    using Settings;
     using Transports;
     using Unicast.Queuing.Azure.ServiceBus;
 
@@ -14,9 +15,9 @@
     {
         protected override void InternalConfigure(Configure config)
         {
-            var configSection = GetConfigSection();
+            var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
 
-            if (!string.IsNullOrEmpty(configSection.QueueName))
+            if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))
             {
                 NServiceBus.Configure.Instance.DefineEndpointName(configSection.QueuePerInstance ? QueueIndividualizer.Individualize(configSection.QueueName) : configSection.QueueName);
                 Address.InitializeLocalAddress(NServiceBus.Configure.EndpointName);
@@ -27,8 +28,13 @@
                 Address.InitializeLocalAddress(NServiceBus.Configure.EndpointName);
             }
 
+            var serverWaitTime = AzureServicebusDefaults.DefaultServerWaitTime;
+
+            if (configSection != null)
+                serverWaitTime = configSection.ServerWaitTime;
+
             // make sure the transaction stays open a little longer than the long poll.
-            NServiceBus.Configure.Transactions.Advanced(settings => settings.DefaultTimeout(TimeSpan.FromSeconds(configSection.ServerWaitTime * 1.1)).IsolationLevel(IsolationLevel.Serializable));
+            NServiceBus.Configure.Transactions.Advanced(settings => settings.DefaultTimeout(TimeSpan.FromSeconds(serverWaitTime * 1.1)).IsolationLevel(IsolationLevel.Serializable));
 
             
             Enable<AzureServiceBusTransport>();
@@ -36,14 +42,7 @@
             AzureServiceBusPersistence.UseAsDefault();
         }
 
-        static AzureServiceBusQueueConfig GetConfigSection()
-        {
-            var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
-
-            if (configSection == null)
-                throw new ConfigurationErrorsException("No AzureServiceBusQueueConfig configuration section found");
-            return configSection;
-        }
+     
 
         static bool IsRoleEnvironmentAvailable()
         {
@@ -59,11 +58,16 @@
 
         public override void Initialize()
         {
-            var configSection = GetConfigSection();
+            var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
 
-            ServiceBusEnvironment.SystemConnectivity.Mode = (ConnectivityMode)Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
+            ServiceBusEnvironment.SystemConnectivity.Mode =  configSection == null ?  ConnectivityMode.Tcp : (ConnectivityMode)Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
 
-            if (string.IsNullOrEmpty(configSection.ConnectionString) && (string.IsNullOrEmpty(configSection.IssuerKey) || string.IsNullOrEmpty(configSection.ServiceNamespace)))
+            var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
+
+            if (string.IsNullOrEmpty(connectionString) && configSection != null)
+                connectionString = configSection.ConnectionString;
+
+            if (string.IsNullOrEmpty(connectionString) && (configSection == null || string.IsNullOrEmpty(configSection.IssuerKey) || string.IsNullOrEmpty(configSection.ServiceNamespace)))
             {
                 throw new ConfigurationErrorsException("No Servicebus Connection information specified, either set the ConnectionString or set the IssuerKey and ServiceNamespace properties");
             }
@@ -71,11 +75,11 @@
             NamespaceManager namespaceClient;
             MessagingFactory factory;
             Uri serviceUri;
-            if (!string.IsNullOrEmpty(configSection.ConnectionString))
+            if (!string.IsNullOrEmpty(connectionString))
             {
-                namespaceClient = NamespaceManager.CreateFromConnectionString(configSection.ConnectionString);
+                namespaceClient = NamespaceManager.CreateFromConnectionString(connectionString);
                 serviceUri = namespaceClient.Address;
-                factory = MessagingFactory.CreateFromConnectionString(configSection.ConnectionString);
+                factory = MessagingFactory.CreateFromConnectionString(connectionString);
             }
             else
             {
@@ -94,6 +98,12 @@
             var config = NServiceBus.Configure.Instance;
           
             config.Configurer.ConfigureComponent<AzureServiceBusDequeueStrategy>(DependencyLifecycle.InstancePerCall);
+
+            if (configSection == null)
+            {
+                //hack: just to get the defaults, we should refactor this to support specifying the values on the NServiceBus/Transport connection string as well
+                configSection = new AzureServiceBusQueueConfig(); 
+            }
 
             if (!config.Configurer.HasComponent<ISendMessages>())
             {

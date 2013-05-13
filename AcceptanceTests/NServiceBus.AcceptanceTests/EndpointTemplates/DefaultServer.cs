@@ -56,7 +56,6 @@
                                      t.Assembly != Assembly.GetExecutingAssembly() || //exlude all test types by default
                                      t.DeclaringType == endpointConfiguration.BuilderType.DeclaringType || //but include types on the test level
                                      t.DeclaringType == endpointConfiguration.BuilderType).ToList(); //and the specific types for this endpoint
-            types.Add(typeof(AzureServiceBusOverrides));
             
             return types;
 
