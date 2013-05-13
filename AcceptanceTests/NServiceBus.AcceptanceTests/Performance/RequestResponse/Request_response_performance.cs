@@ -12,7 +12,7 @@
     public class Request_response_performance : NServiceBusPerformanceTest
     {
         static int NumberOfTestMessages = 1000;
-        static int ConcurrencyLevel = 30;
+        static int ConcurrencyLevel = 15;
 
         [Test]
         public void With_dtc_enabled()
@@ -37,7 +37,7 @@
         {
             public ClientEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.PurgeOnStartup(true))
+                EndpointSetup<DefaultServer>()
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel)
                     .AddMapping<MyMessage>(typeof(ServerEndpoint));
             }
@@ -72,7 +72,7 @@
         {
             public ServerEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.PurgeOnStartup(true))
+                EndpointSetup<DefaultServer>()
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel);
             }
 
