@@ -36,7 +36,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             if (errorQueue == null)
             {
-                Logger.Error("Message processing always fails for message with ID " + message.IdForCorrelation + ".", e);
+                Logger.Error("Message processing always fails for message with ID " + message.Id + ".", e);
                 return;
             }
 
