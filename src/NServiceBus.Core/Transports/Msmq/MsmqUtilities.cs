@@ -263,7 +263,7 @@ namespace NServiceBus.Transports.Msmq
 
             msmqMessage.Label =
                 string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", Headers.IdForCorrelation, Headers.WindowsIdentityName,
-                    transportMessage.IdForCorrelation, windowsIdentityName);
+                    transportMessage.Id, windowsIdentityName);
         }
 
         private const string DIRECTPREFIX = "DIRECT=OS:";
