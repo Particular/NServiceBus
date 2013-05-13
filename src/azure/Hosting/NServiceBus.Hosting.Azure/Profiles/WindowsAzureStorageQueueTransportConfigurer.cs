@@ -9,7 +9,7 @@ namespace NServiceBus
     /// <summary>
     /// Configures windows azure storage queues as the underlying transport.
     /// </summary>
-    public class WindowsAzureStorageQueueTransportConfigurer : IConfigureTransport<NServiceBus.WindowsAzureStorage>, IWantTheEndpointConfig
+    public class WindowsAzureStorageQueueTransportConfigurer : IConfigureTransport<NServiceBus.AzureStorageQueue>, IWantTheEndpointConfig
     {
         public void Configure(Configure config)
         {

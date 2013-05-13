@@ -148,10 +148,5 @@
         {
             get { return "todo - refactor the transport to use a connection string instead of a custom section"; }
         }
-
-        public static void Apply()
-        {
-           
-        }
     }
 }

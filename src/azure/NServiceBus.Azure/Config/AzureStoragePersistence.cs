@@ -1,6 +1,5 @@
 namespace NServiceBus.Config
 {
-    using Features;
     using Saga;
     using Timeout.Core;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -9,10 +8,6 @@ namespace NServiceBus.Config
     {
         public static void UseAsDefault()
         {
-            Feature.Enable<MessageDrivenSubscriptions>();
-            Feature.Enable<StorageDrivenPublisher>();
-            Feature.Enable<TimeoutManager>();
-
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.AzureSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseAzureTimeoutPersister());
             InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.AzureSubcriptionStorage());

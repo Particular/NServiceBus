@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
     using System.Collections.Generic;
+    using Features;
     using NServiceBus.AcceptanceTesting.Support;
 
     public static class Transports
@@ -61,17 +62,31 @@
                                 }
         };
 
-        public static readonly RunDescriptor WindowsAzureServiceBus = new RunDescriptor
+        public static readonly RunDescriptor AzureServiceBus = new RunDescriptor
         {
-            Key = "WindowsAzureServiceBus",
+            Key = "AzureServiceBus",
             Settings =
                 new Dictionary<string, string>
                                 {
                                     {
                                         "Transport",
-                                        typeof(WindowsAzureServiceBus).AssemblyQualifiedName
+                                        typeof(AzureServiceBus).AssemblyQualifiedName
+                                    }
+                                }
+        };
+        public static readonly RunDescriptor AzureStorageQueue = new RunDescriptor
+        {
+            Key = "AzureStorageQueue",
+            Settings =
+                new Dictionary<string, string>
+                                {
+                                    {
+                                        "Transport",
+                                        typeof(AzureStorageQueue).AssemblyQualifiedName
                                     }
                                 }
         };  
+
+        
     }
 }

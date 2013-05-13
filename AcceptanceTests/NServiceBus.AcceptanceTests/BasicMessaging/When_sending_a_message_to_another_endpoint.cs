@@ -19,9 +19,7 @@
                     .Done(c => c.WasCalled)
                     .Repeat(r =>
                             r
-                               .For<AllTransports>()
-                               .For<AllBuilders>()
-                               .For<AllSerializers>()
+                               .For(Transports.AzureStorageQueue).For(Builders.Spring)
                     )
                     .Should(c =>
                         {
