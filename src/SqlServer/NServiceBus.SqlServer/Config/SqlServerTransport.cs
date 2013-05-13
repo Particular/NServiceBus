@@ -16,7 +16,7 @@ namespace NServiceBus.Features
             get { return @"Data Source=.\SQLEXPRESS;Initial Catalog=nservicebus;Integrated Security=True"; }
         }
 
-        protected override void InternalConfigure(Configure config, string connectionString)
+        protected override void InternalConfigure(Configure config)
         {
             Enable<SqlServerTransport>();
             Enable<MessageDrivenSubscriptions>();

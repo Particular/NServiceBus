@@ -34,12 +34,19 @@ namespace NServiceBus.Transports
             SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", Activator.CreateInstance<T>());
             SettingsHolder.Set("NServiceBus.Transport.ConnectionString", defaultConnectionString);
 
-            InternalConfigure(config, defaultConnectionString);
+            InternalConfigure(config);
         }
 
-        protected abstract void InternalConfigure(Configure config, string connectionString);
+        protected abstract void InternalConfigure(Configure config);
 
         protected abstract string ExampleConnectionStringForErrorMessage { get; }
+
+
+        protected virtual bool RequiresConnectionString
+        {
+            get { return true; }
+        }
+
 
         static string GetConfigFileIfExists()
         {

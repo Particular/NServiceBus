@@ -84,7 +84,7 @@
             }
         }
 
-        protected override void InternalConfigure(Configure config, string brokerUri)
+        protected override void InternalConfigure(Configure config)
         {
             Enable<ActiveMqTransport>();
         }
