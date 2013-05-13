@@ -44,7 +44,7 @@ namespace NServiceBus.Integration.Azure
 
         private static Configuration GetConfigurationHandler()
         {
-            if (IsWebsite()) return WebConfigurationManager.OpenWebConfiguration("/");
+            if (IsWebsite()) return WebConfigurationManager.OpenWebConfiguration(HostingEnvironment.ApplicationVirtualPath);
 
             return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
         }
