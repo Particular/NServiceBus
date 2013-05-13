@@ -11,7 +11,7 @@
             {
                 var feature = (Feature)Activator.CreateInstance(t);
 
-                if (feature.IsDefault)
+                if (feature.IsEnabledByDefault)
                 {
                     Feature.EnableByDefault(t);
                     Logger.DebugFormat("Feature {0} will be enabled by default", feature.Name);

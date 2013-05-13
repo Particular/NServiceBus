@@ -28,7 +28,7 @@
         /// <summary>
         /// Return <c>true</c> if this is a default <see cref="Feature"/> that needs to be turned on automatically.
         /// </summary>
-        public virtual bool IsDefault
+        public virtual bool IsEnabledByDefault
         {
             get { return false; }
         }

@@ -10,7 +10,7 @@
     /// </summary>
     public class TimeoutManager : Feature
     {
-        public override bool IsDefault
+        public override bool IsEnabledByDefault
         {
             get
             {
