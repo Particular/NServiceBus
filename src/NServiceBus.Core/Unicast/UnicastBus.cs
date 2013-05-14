@@ -642,7 +642,12 @@ namespace NServiceBus.Unicast
 
             var result = new List<string>();
 
-            var toSend = new TransportMessage { CorrelationId = correlationId, MessageIntent = messageIntent };
+            var toSend = new TransportMessage { MessageIntent = messageIntent };
+
+            if (!string.IsNullOrEmpty(correlationId))
+            {
+                toSend.CorrelationId = correlationId;
+            }
 
             MapTransportMessageFor(messages, toSend);
 
