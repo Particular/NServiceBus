@@ -11,7 +11,7 @@
     public class When_using_callbacks_in_a_scaleout_scenario : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public void Each_client_should_have_a_unique_input_queue_to_avoid_processing_each_others_callbacks()
         {
             Scenario.Define(() => new Context{Id = Guid.NewGuid()})
                     .WithEndpoint<Client>(b => b.CustomConfig(c=>RuntimeEnvironment.MachineNameAction = () => "ClientA")
@@ -22,7 +22,7 @@
                          .Register(r => context.CallbackBFired = true)))
                     .WithEndpoint<Server>()
                     .Done(c => c.NumberOfResponses >= 2)
-                    .Repeat(r =>r.For<AllBrokerTransports>(Transports.ActiveMQ)
+                    .Repeat(r =>r.For<AllBrokerTransports>()
                     )
                     .Should(c =>
                         {

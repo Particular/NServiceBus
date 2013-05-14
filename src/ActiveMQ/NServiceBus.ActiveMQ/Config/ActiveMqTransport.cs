@@ -25,6 +25,11 @@
     {
         public override void Initialize()
         {
+            if (!SettingsHolder.GetOrDefault<bool>("ScaleOut.UseSingleBrokerQueue"))
+            {
+                Address.InitializeLocalAddress(Address.Local.Queue + "." + Address.Local.Machine);
+            }
+
             var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
 
             var connectionConfiguration = Parse(connectionString);
