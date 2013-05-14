@@ -18,6 +18,7 @@ namespace NServiceBus.Features
 
         protected override void InternalConfigure(Configure config)
         {
+            
             Enable<SqlServerTransport>();
             Enable<MessageDrivenSubscriptions>();
         }
@@ -25,7 +26,7 @@ namespace NServiceBus.Features
         public override void Initialize()
         {
             //Until we refactor the whole address system
-            Address.IgnoreMachineName();
+            CustomizeAddress();
             
             var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
 
@@ -45,6 +46,17 @@ namespace NServiceBus.Features
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 
             EndpointInputQueueCreator.Enabled = true;
+        }
+
+        static void CustomizeAddress()
+        {
+            Address.IgnoreMachineName();
+
+            if (!SettingsHolder.GetOrDefault<bool>("ScaleOut.UseSingleBrokerQueue"))
+            {
+                Address.InitializeLocalAddress(Address.Local.Queue + "." + Address.Local.Machine);
+            }
+         
         }
     }
 }

@@ -171,7 +171,16 @@ namespace NServiceBus
 
         private static FeatureSettings features;
 
-        // ------------  End Configuration extentions ---
+        // ------------  End Configuration extensions ---
+       
+        /// <summary>
+        /// Allows the user to control how the current endpoint behaves when scaled out
+        /// </summary>
+        /// <param name="customScaleOutSettings"></param>
+        public static void ScaleOut(Action<ScaleOutSettings> customScaleOutSettings)
+        {
+            customScaleOutSettings(new ScaleOutSettings());
+        }
 
         /// <summary>
         /// True if this endpoint is operating in send only mode

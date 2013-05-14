@@ -9,6 +9,7 @@
     using Config.ConfigurationSource;
     using Hosting.Helpers;
     using NServiceBus;
+    using Settings;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -23,6 +24,7 @@
             var transportToUse = settings.GetOrNull("Transport");
 
             Configure.Features.Enable<Features.Sagas>();
+            SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(types)
                             .DefineEndpointName(endpointConfiguration.EndpointName)
