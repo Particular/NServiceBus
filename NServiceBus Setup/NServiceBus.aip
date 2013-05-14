@@ -475,7 +475,7 @@
     <ROW Action="InstallPerformanceCounters" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallPerformanceCounters"/>
     <ROW Action="InstallRavenDb" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallRavenDb"/>
     <ROW Action="Launch_Offline_HTML" Type="194" Source="viewer.exe" Target="&quot;[#NServiceBus4.0BetaReleaseNotes.htm]&quot;" Options="1"/>
-    <ROW Action="Launch_Online_URL" Type="194" Source="viewer.exe" Target="http://support.nservicebus.com/customer/portal/topics/387535-getting-started/articles" Options="1"/>
+    <ROW Action="Launch_Online_URL" Type="194" Source="viewer.exe" Target="http://www.particular.net/Installation-completed?installer=NServiceBus" Options="1"/>
     <ROW Action="Launch_Studio_Installer" Type="194" Source="viewer.exe" Target="&quot;[#Studio.exe]&quot;" WithoutSeq="true" Options="1"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]Particular Software\[ProductName]\v[MY_VERSION]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]" MultiBuildTarget="DefaultBuild:[ProgramMenuFolder]Particular Software\[ProductName]\v[MY_VERSION]"/>
