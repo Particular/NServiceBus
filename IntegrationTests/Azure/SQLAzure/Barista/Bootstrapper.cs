@@ -3,10 +3,12 @@ using StructureMap;
 
 namespace Barista
 {
+    using NServiceBus.Features;
+
     public class Bootstrapper
     {
         private Bootstrapper()
-        {}
+        { }
 
         public static void Bootstrap()
         {
@@ -21,14 +23,13 @@ namespace Barista
 
         private static void BootstrapNServiceBus()
         {
-             Configure.Transactions.Enable();
-
+            Configure.Transactions.Enable();
+            Configure.Features.Enable<Sagas>();
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
                 .AzureMessageQueue().JsonSerializer()
                 .UseNHibernateSubscriptionPersister()
-                .Sagas()
                 .UseNHibernateSagaPersister()
                 .UseNHibernateTimeoutPersister()
                 .UnicastBus()

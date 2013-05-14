@@ -4,6 +4,7 @@ namespace MyServer
     using System;
     using DeferedProcessing;
     using NServiceBus;
+    using NServiceBus.Features;
     using Saga;
 
     public class Program
@@ -59,6 +60,7 @@ namespace MyServer
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Features.Enable<Sagas>();
 
             Bus = Configure.With()
                .DefineEndpointName("MyServer")
@@ -66,7 +68,7 @@ namespace MyServer
                .AzureServiceBusMessageQueue()
                     .JsonSerializer()
                 .UseAzureTimeoutPersister()
-               .Sagas().AzureSagaPersister()
+               .AzureSagaPersister()
                .UnicastBus()
                     .LoadMessageHandlers()
                .CreateBus()

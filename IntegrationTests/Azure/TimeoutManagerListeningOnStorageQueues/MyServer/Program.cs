@@ -5,6 +5,7 @@ namespace MyServer
     using System;
     using DeferedProcessing;
     using NServiceBus;
+    using NServiceBus.Features;
     using Saga;
 
     public class Program
@@ -44,7 +45,7 @@ namespace MyServer
         static void DeferMessage()
         {
             Bus.Defer(TimeSpan.FromSeconds(10), new DeferredMessage());
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds")); 
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sent a message that is deferred for 10 seconds"));
         }
 
         static void StartSaga()
@@ -53,21 +54,22 @@ namespace MyServer
                               {
                                   OrderId = Guid.NewGuid()
                               });
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
+            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"));
         }
 
-    
+
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
-            
+            Configure.Features.Enable<Sagas>();
+
             Bus = Configure.With()
                .DefineEndpointName("MyServer")
                .DefaultBuilder()
                .AzureMessageQueue()
                     .JsonSerializer()
                 .UseAzureTimeoutPersister()
-               .Sagas().AzureSagaPersister()
+               .AzureSagaPersister()
                .UnicastBus()
                     .LoadMessageHandlers()
                .CreateBus()

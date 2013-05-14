@@ -3,6 +3,8 @@ using StructureMap;
 
 namespace Cashier
 {
+    using NServiceBus.Features;
+
     public class Bootstrapper
     {
         private Bootstrapper()
@@ -22,6 +24,7 @@ namespace Cashier
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Features.Enable<Sagas>();
 
             Configure.With()
                 .Log4Net()
@@ -29,7 +32,6 @@ namespace Cashier
                 .AzureMessageQueue()
                 .JsonSerializer()
                 .UseNHibernateSubscriptionPersister()
-                .Sagas()
                 .UseNHibernateSagaPersister()
                 .UseNHibernateTimeoutPersister()
                 .UnicastBus()
