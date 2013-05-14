@@ -24,7 +24,7 @@ namespace OrderWebSite
             Feature.Disable<TimeoutManager>();
             
             var bus = Configure.With()
-                  .DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m))
+                  .DefiningMessagesAs(t => typeof (IDefineMessages).IsAssignableFrom(t) && t != typeof(IDefineMessages))
                         .DefaultBuilder()
                   .AzureConfigurationSource()
                   .AzureDiagnosticsLogger()
