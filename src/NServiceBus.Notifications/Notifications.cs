@@ -17,7 +17,7 @@ namespace NServiceBus.Features
         /// <summary>
         /// Return <c>true</c> if this is a default <see cref="Feature"/> that needs to be turned on automatically.
         /// </summary>
-        public override bool IsDefault
+        public override bool IsEnabledByDefault
         {
             get { return true; }
         }

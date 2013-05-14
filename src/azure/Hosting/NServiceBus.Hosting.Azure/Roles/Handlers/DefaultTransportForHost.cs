@@ -12,7 +12,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
                 return;
             }
 
-            Configure.Instance.UseTransport<WindowsAzureStorage>();
+            Configure.Instance.UseTransport<AzureStorageQueue>();
         }
     }
 }

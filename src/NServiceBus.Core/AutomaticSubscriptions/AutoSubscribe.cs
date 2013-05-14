@@ -27,7 +27,7 @@
                 
         }
 
-        public override bool IsDefault
+        public override bool IsEnabledByDefault
         {
             get
             {

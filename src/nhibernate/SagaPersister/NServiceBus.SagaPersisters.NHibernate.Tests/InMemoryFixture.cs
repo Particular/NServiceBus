@@ -41,10 +41,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             ConfigureNHibernate.Init();
 
 
+            Configure.Features.Enable<Features.Sagas>();
             Configure.With(typeof(TestSaga).Assembly.GetTypes())
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
-                .Sagas()
                 .UseNHibernateSagaPersister();
 
             var builder = new SessionFactoryBuilder(Configure.TypesToScan);

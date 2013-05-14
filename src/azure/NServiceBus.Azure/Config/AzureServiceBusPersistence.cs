@@ -1,6 +1,5 @@
 namespace NServiceBus.Config
 {
-    using Features;
     using Saga;
     using Timeout.Core;
 
@@ -8,9 +7,6 @@ namespace NServiceBus.Config
     {
         public static void UseAsDefault()
         {
-            Feature.Enable<TimeoutManager>();
-
-
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.AzureSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseAzureTimeoutPersister());
         }

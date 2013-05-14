@@ -2,6 +2,7 @@ namespace NServiceBus.Transports.Msmq.Config
 {
     using System.Runtime.InteropServices;
     using System.Text;
+    using Features;
     using Logging;
     using NServiceBus.Config;
 
@@ -34,7 +35,7 @@ namespace NServiceBus.Transports.Msmq.Config
         /// </summary>
         public void Run()
         {
-            if (!ConfigureMsmqMessageQueue.Selected)
+            if (!Feature.IsEnabled<MsmqTransport>())
                 return;
             
             uint capacity = 24;

@@ -64,7 +64,6 @@
             if (arguments.Install)
             {
                 WindowsInstaller.Install(args, endpointConfigurationFile);
-                return;
             }
             
             IRunConfiguration cfg = RunnerConfigurator.New(x =>

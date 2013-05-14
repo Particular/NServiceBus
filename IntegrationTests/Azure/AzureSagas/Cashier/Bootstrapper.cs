@@ -1,14 +1,10 @@
-using System.Globalization;
-using System.Threading;
-using NServiceBus.Timeout.Hosting.Azure;
-using log4net.Core;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.Integration.Azure;
 using StructureMap;
 
 namespace Cashier
 {
+    using NServiceBus.Features;
+
     public class Bootstrapper
     {
         private Bootstrapper()
@@ -28,13 +24,14 @@ namespace Cashier
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Features.Enable<Sagas>();
 
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
                 .AzureMessageQueue().JsonSerializer()
                 .AzureSubcriptionStorage()
-                .Sagas().AzureSagaPersister()
+                .AzureSagaPersister()
                 .UseAzureTimeoutPersister()
                 .UnicastBus()
                 .LoadMessageHandlers()

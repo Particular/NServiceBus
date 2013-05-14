@@ -5,10 +5,9 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Hosting.Helpers;
+    using AcceptanceTesting.Support;
+    using Config.ConfigurationSource;
+    using Hosting.Helpers;
     using NServiceBus;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -23,16 +22,22 @@
 
             var transportToUse = settings.GetOrNull("Transport");
 
+            Configure.Features.Enable<Features.Sagas>();
+
             var config = Configure.With(types)
                             .DefineEndpointName(endpointConfiguration.EndpointName)
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .CustomConfigurationSource(configSource)
                             .DefineSerializer(settings.GetOrNull("Serializer"))
                             .DefineTransport(transportToUse)
-                            .Sagas()
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
-            if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer") || transportToUse.Contains("RabbitMq"))
+            if (transportToUse == null || 
+                transportToUse.Contains("Msmq") || 
+                transportToUse.Contains("SqlServer") || 
+                transportToUse.Contains("RabbitMq") || 
+                transportToUse.Contains("AzureServiceBus") ||
+                transportToUse.Contains("AzureStorageQueue"))
                 config.UseInMemoryTimeoutPersister();
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
@@ -51,7 +56,8 @@
                                      t =>
                                      t.Assembly != Assembly.GetExecutingAssembly() || //exlude all test types by default
                                      t.DeclaringType == endpointConfiguration.BuilderType.DeclaringType || //but include types on the test level
-                                     t.DeclaringType == endpointConfiguration.BuilderType); //and the specific types for this endpoint
+                                     t.DeclaringType == endpointConfiguration.BuilderType).ToList(); //and the specific types for this endpoint
+            
             return types;
 
         }

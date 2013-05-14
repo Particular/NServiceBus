@@ -16,13 +16,13 @@
                 {
                     var feature = (Feature)Activator.CreateInstance(t);
 
-                    if (feature.IsDefault && !Feature.IsEnabled(t))
+                    if (feature.IsEnabledByDefault && !Feature.IsEnabled(t))
                     {
                         Logger.InfoFormat("Default feature {0} has been explicitly disabled", feature.Name);
                         return;
                     }
 
-                    if (feature.IsDefault && !feature.ShouldBeEnabled())
+                    if (feature.IsEnabledByDefault && !feature.ShouldBeEnabled())
                     {
                         Feature.Disable(t);
                         Logger.DebugFormat("Default feature {0} disabled", feature.Name);

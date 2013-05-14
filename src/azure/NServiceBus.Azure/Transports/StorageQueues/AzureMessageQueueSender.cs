@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Transports;
+    using Transports.StorageQueues;
 
     /// <summary>
     /// 
@@ -44,7 +45,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             var sendClient = GetClientForConnectionString(address.Machine) ?? Client;
 
-            var sendQueue = sendClient.GetQueueReference(SanitizeQueueName(address.Queue));
+            var sendQueue = sendClient.GetQueueReference(AzureMessageQueueUtils.GetQueueName(address));
 
             if (!sendQueue.Exists())
                 throw new QueueNotFoundException();
@@ -110,21 +111,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 MessageSerializer.Serialize(new IMessage[] { toSend }, stream);
                 return new CloudQueueMessage(stream.ToArray());
             }
-        }
-
-        public void CreateQueue(string queueName)
-        {
-            Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
-        }
-
-        private string SanitizeQueueName(string queueName)
-        {
-            // The auto queue name generation uses namespaces which includes dots, 
-            // yet dots are not supported in azure storage names
-            // that's why we replace them here.
-            // and make sure there are no upper cases
-
-            return queueName.Replace('.', '-').ToLowerInvariant();
         }
     }
 }

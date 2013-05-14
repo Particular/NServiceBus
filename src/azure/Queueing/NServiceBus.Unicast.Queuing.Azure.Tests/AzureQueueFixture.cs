@@ -1,4 +1,3 @@
-using Microsoft.WindowsAzure;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
@@ -49,8 +48,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
             receiver = new AzureMessageQueueReceiver
             {
                 Client = client,
-                MessageSerializer = new JsonMessageSerializer(new MessageMapper())
-
+                MessageSerializer = new JsonMessageSerializer(new MessageMapper()),
             };
 
             receiver.Init(QueueName, true);

@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
     /// <summary>
     /// Handles configuration related to the server role
     /// </summary>
-    public class WorkerRoleHandler : IConfigureRole<AsA_Worker>, IWantTheEndpointConfig
+    public class WorkerRoleHandler : IConfigureRole<AsA_Worker>
     {
         /// <summary>
         /// Configures the UnicastBus with typical settings for a server on azure
@@ -15,18 +15,12 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            var instance = Configure.Instance;
-
             Configure.Transactions.Enable();
-            
-            return instance
-                .Sagas()
-                .UnicastBus()
+            Configure.Features.Enable<Features.Sagas>();
+
+            return Configure.Instance.UnicastBus()
                     .RunHandlersUnderIncomingPrincipal(false);
         }
-
-
-        public IConfigureThisEndpoint Config { get; set; }
     }
 }
                     

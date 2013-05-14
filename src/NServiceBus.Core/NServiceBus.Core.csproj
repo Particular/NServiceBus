@@ -114,6 +114,7 @@
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Unicast\BackwardCompatibility\MutateCorrelationIdOfIncomingTransportMessages.cs" />
     <Compile Include="Unicast\BackwardCompatibility\MutateCorrelationIdOfOutgoingTransportMessages.cs" />
+    <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
@@ -181,7 +182,6 @@
     <Compile Include="Transports\Msmq\MsmqDequeueStrategy.cs" />
     <Compile Include="Transports\Msmq\MsmqMessageSender.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
-    <Compile Include="Transports\Msmq\MsmqTransportConfigurer.cs" />
     <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
@@ -453,7 +453,7 @@
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableMessageDrivenPublisherIfStorageIsFound.cs" />
-    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenPublisher.cs" />
+    <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\NoopSubscriptionAuthorizer.cs" />
     <Compile Include="AutomaticSubscriptions\DefaultAutoSubscriptionStrategy.cs" />

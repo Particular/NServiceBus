@@ -82,7 +82,6 @@
     <Compile Include="AzureQueueFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_configuring_the_azure_queue.cs" />
-    <Compile Include="When_creating_a_queue.cs" />
     <Compile Include="When_initializing_the_queue.cs" />
     <Compile Include="When_receiving_messages.cs" />
     <Compile Include="When_sending_messages.cs" />

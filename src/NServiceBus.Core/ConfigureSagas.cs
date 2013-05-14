@@ -1,6 +1,5 @@
 ﻿﻿namespace NServiceBus
 {
-    using Config;
     using Features;
 
     /// <summary>
@@ -13,6 +12,7 @@
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
+        [ObsoleteEx(Replacement = "Configure.Features.Enable<Sagas>()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]    
         public static Configure Sagas(this Configure config)
         {
             Feature.Enable<Features.Sagas>();

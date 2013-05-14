@@ -30,7 +30,7 @@
                 file.WriteLine(string.Join(";", summary.RunDescriptor.Key, testCategory,testCase, c.NumberOfTestMessages, messagesPerSecondsProcessed));
             }
 
-            Console.Out.WriteLine("##teamcity[buildStatisticValue key='{0}' value='{1}']", summary.RunDescriptor.Key + "." + testCategory + "." + testCase, Convert.ToInt16(messagesPerSecondsProcessed));
+            Console.Out.WriteLine("##teamcity[buildStatisticValue key='{0}' value='{1:0}']", summary.RunDescriptor.Key + "." + testCategory + "." + testCase, messagesPerSecondsProcessed);
         }
 
 

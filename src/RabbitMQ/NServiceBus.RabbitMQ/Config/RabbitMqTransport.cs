@@ -42,7 +42,7 @@
         }
 
 
-        protected override void InternalConfigure(Configure config, string connectionString)
+        protected override void InternalConfigure(Configure config)
         {
             Enable<RabbitMqTransport>();
         }

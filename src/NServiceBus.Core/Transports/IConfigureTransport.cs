@@ -18,28 +18,34 @@ namespace NServiceBus.Transports
     /// The generic counterpart to IConfigureTransports
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IConfigureTransport<T> : IConfigureTransport where T : TransportDefinition{}
+    public interface IConfigureTransport<T> : IConfigureTransport where T : TransportDefinition { }
 
     public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition
     {
         public void Configure(Configure config)
         {
-            string defaultConnectionString = TransportConnectionString.GetConnectionStringOrNull();
+            var connectionString = TransportConnectionString.GetConnectionStringOrNull();
 
-            if (defaultConnectionString == null)
+            if (connectionString == null && RequiresConnectionString)
             {
                 throw new InvalidOperationException(String.Format(Message, GetConfigFileIfExists(), typeof(T).Name, ExampleConnectionStringForErrorMessage));
             }
 
+            SettingsHolder.Set("NServiceBus.Transport.ConnectionString", connectionString);
             SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", Activator.CreateInstance<T>());
-            SettingsHolder.Set("NServiceBus.Transport.ConnectionString", defaultConnectionString);
 
-            InternalConfigure(config, defaultConnectionString);
+            InternalConfigure(config);
         }
 
-        protected abstract void InternalConfigure(Configure config, string connectionString);
+        protected abstract void InternalConfigure(Configure config);
 
         protected abstract string ExampleConnectionStringForErrorMessage { get; }
+
+        protected virtual bool RequiresConnectionString
+        {
+            get { return true; }
+        }
+
 
         static string GetConfigFileIfExists()
         {
