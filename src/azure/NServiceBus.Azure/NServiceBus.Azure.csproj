@@ -86,6 +86,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureAzureBlobStorageDataBus.cs" />
+    <Compile Include="Transports\ServiceBus\AzureServiceBusPublisherAddressConvention.cs" />
+    <Compile Include="Transports\ServiceBus\AzureServiceBusSubscriptionNameConvention.cs" />
     <Compile Include="Transports\ServiceBus\Config\IsHostedIn.cs" />
     <Compile Include="Transports\StorageQueues\Config\ConfigureAzureMessageQueue.cs" />
     <Compile Include="ConfigureAzureSagaPersister.cs" />

@@ -66,20 +66,4 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             // unhook the listener
         }
     }
-
-    public static class AzureServiceBusPublisherAddressConvention
-    {
-        public static string Create(Address address)
-        {
-            return address.Queue + ".events";
-        }
-    }
-
-    public static class AzureServiceBusSubscriptionNameConvention
-    {
-        public static string Create(Type eventType)
-        {
-            return Configure.EndpointName + "." + eventType.Name;
-        }
-    }
 }
