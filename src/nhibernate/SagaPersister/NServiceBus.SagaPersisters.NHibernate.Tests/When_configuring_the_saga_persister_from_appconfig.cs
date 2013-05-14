@@ -14,10 +14,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [SetUp]
         public void SetUp()
         {
+            Configure.Features.Enable<Features.Sagas>();
             config = Configure.With(new[] { typeof(MySaga).Assembly })
                 .DefineEndpointName("xyz")
                 .DefaultBuilder()
-                .Sagas()
                 .UseNHibernateSagaPersister();
         }
 

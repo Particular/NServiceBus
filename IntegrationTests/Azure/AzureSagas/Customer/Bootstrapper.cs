@@ -26,16 +26,14 @@ namespace Customer
         {
             Configure.Transactions.Enable();
             Configure.Features.Disable<AutoSubscribe>();
+            Configure.Features.Enable<Sagas>();
 
             Configure.With()
                      .Log4Net()
                      .StructureMapBuilder(ObjectFactory.Container)
-
                      .AzureMessageQueue().JsonSerializer()
-                     .Sagas().AzureSagaPersister()
-
+                     .AzureSagaPersister()
                      .UseAzureTimeoutPersister()
-
                      .UnicastBus()
                      .LoadMessageHandlers()
                      .CreateBus()

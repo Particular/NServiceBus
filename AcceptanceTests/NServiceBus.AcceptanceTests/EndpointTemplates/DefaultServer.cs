@@ -22,13 +22,14 @@
 
             var transportToUse = settings.GetOrNull("Transport");
 
+            Configure.Features.Enable<Features.Sagas>();
+
             var config = Configure.With(types)
                             .DefineEndpointName(endpointConfiguration.EndpointName)
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .CustomConfigurationSource(configSource)
                             .DefineSerializer(settings.GetOrNull("Serializer"))
                             .DefineTransport(transportToUse)
-                            .Sagas()
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
             if (transportToUse == null || 

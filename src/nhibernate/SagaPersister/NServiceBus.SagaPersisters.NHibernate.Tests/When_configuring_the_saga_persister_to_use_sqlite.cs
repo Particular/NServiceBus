@@ -1,8 +1,7 @@
 ﻿namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using NUnit.Framework;
-    using global::NHibernate;
-
+ 
     [TestFixture]
     public class When_configuring_the_saga_persister_to_use_sqlite
     {
@@ -11,10 +10,11 @@
         [SetUp]
         public void SetUp()
         {
+            Configure.Features.Enable<Features.Sagas>();
+         
             config = Configure.With(new[] { typeof(MySaga).Assembly})
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
-                .Sagas()
                 .UseNHibernateSagaPersister();
         }
 

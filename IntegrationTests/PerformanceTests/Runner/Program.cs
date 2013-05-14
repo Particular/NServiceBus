@@ -8,7 +8,7 @@ namespace Runner
     using System.Transactions;
 
     using NServiceBus;
-    
+    using NServiceBus.Features;
     using Runner.Saga;
 
     class Program
@@ -62,14 +62,16 @@ namespace Runner
 
             if (saga)
             {
+                Configure.Features.Enable<Sagas>();
+
                 if (nhibernate)
                 {
-                    config.Sagas().UseNHibernateSagaPersister();
+                    config.UseNHibernateSagaPersister();
 
                 }
                 else
                 {
-                    config.Sagas().RavenSagaPersister();
+                    config.RavenSagaPersister();
                 }
             }
 
