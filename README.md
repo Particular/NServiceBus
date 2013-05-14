@@ -152,15 +152,6 @@ http://www.apache.org/licenses/LICENSE-2.0.txt
 ******************************
 
 
-SQLite is in the public domain as described here:
-
-http://www.sqlite.org/copyright.html
-
-SQLite binaries are linked into the NServiceBus distribution allowed under the license terms described above.
-
-******************************
-
-
 Rhino Mocks is licensed under the BSD License as described here:
 
 http://www.ayende.com/projects/rhino-mocks.aspx
@@ -168,3 +159,18 @@ http://www.ayende.com/projects/rhino-mocks.aspx
 Rhino Mocks binaries are merged into NServiceBus allowed under the license terms described here:
 
 http://www.opensource.org/licenses/bsd-license.php
+
+******************************
+
+RavenDB is under both a OSS and a commercial license described here
+
+http://ravendb.net/licensing
+
+The commercial version can be used free of charge for NServiceBus specific storage needs like:
+
+Subscriptions, Sagas, Timeouts, etc 
+
+Application specific use requires a paid RavenDB license
+
+RavenDB binaries are linked into the NServiceBus distribution allowed under the license terms described above.
+
