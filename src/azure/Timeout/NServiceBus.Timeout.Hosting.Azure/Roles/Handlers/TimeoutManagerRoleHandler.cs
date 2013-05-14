@@ -7,6 +7,8 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
+    using NServiceBus.Azure;
+
     /// <summary>
     /// Handles configuration related to the timeout manager role
     /// </summary>

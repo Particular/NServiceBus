@@ -3,10 +3,12 @@
     using System;
     using System.Configuration;
     using System.Transactions;
+    using Azure;
     using Config;
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure.ServiceRuntime;
+    using Serialization;
     using Settings;
     using Transports;
     using Unicast.Queuing.Azure.ServiceBus;
@@ -15,6 +17,16 @@
     {
         protected override void InternalConfigure(Configure config)
         {
+            if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
+            {
+                config.AzureConfigurationSource();
+            }
+
+            if (!config.Configurer.HasComponent<IMessageSerializer>())
+            {
+                config.JsonSerializer();
+            }
+
             var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
 
             if (configSection != null && !string.IsNullOrEmpty(configSection.QueueName))

@@ -44,8 +44,6 @@ namespace NServiceBus
             var account = CloudStorageAccount.Parse(connectionString);
             SubscriptionServiceContext.Init(account.CreateCloudTableClient());
 
-            Feature.Enable<MessageDrivenSubscriptions>();
-
             config.Configurer.ConfigureComponent(() => new AzureSubscriptionStorage(account), DependencyLifecycle.InstancePerCall);
 
             return config;

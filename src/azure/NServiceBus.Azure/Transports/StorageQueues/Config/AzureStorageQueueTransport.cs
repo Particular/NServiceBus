@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using Azure;
     using Config;
     using Microsoft.WindowsAzure.ServiceRuntime;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
+    using Serialization;
     using Settings;
     using Transports;
     using Transports.StorageQueues;
@@ -18,6 +20,16 @@
             EnableByDefault<MessageDrivenSubscriptions>();
             EnableByDefault<StorageDrivenPublisher>();
             EnableByDefault<TimeoutManager>();
+
+            if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
+            {
+                config.AzureConfigurationSource();
+            }
+
+            if (!config.Configurer.HasComponent<IMessageSerializer>())
+            {
+                config.JsonSerializer();
+            }
 
             AzureStoragePersistence.UseAsDefault();
 
