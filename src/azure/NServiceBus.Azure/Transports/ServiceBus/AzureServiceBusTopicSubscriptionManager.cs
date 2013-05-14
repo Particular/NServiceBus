@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="original"></param>
         public void Subscribe(Type eventType, Address original)
         {
-            var publisherAddress = Address.Parse(AzureServiceBusPublisherAddressConvention.Create(original));
+            var publisherAddress = Address.Parse(AzureServiceBusPublisherAddressConventionForSubscriptions.Create(original));
             var subscriptionname = AzureServiceBusSubscriptionNameConvention.Create(eventType);
 
             ClientCreator.Create(eventType, publisherAddress.Queue, subscriptionname);
