@@ -22,7 +22,7 @@
                          .Register(r => context.CallbackBFired = true)))
                     .WithEndpoint<Server>()
                     .Done(c => c.NumberOfResponses >= 2)
-                    .Repeat(r =>r.For<AllBrokerTransports>(Transports.ActiveMQ,Transports.RabbitMQ)
+                    .Repeat(r =>r.For<AllBrokerTransports>(Transports.ActiveMQ)
                     )
                     .Should(c =>
                         {
