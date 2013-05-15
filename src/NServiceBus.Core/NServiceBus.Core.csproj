@@ -116,8 +116,6 @@
     <Compile Include="Unicast\BackwardCompatibility\MutateIdOfOutgoingTransportMessages.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\MutateCorrelationIdOfIncomingTransportMessages.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\MutateCorrelationIdOfOutgoingTransportMessages.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
