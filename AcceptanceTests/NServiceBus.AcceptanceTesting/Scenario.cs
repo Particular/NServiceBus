@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using Customization;
     using Support;
 
     public class Scenario
@@ -70,10 +71,10 @@
             var runDescriptors = builder.Build();
 
             if (!runDescriptors.Any())
-                runDescriptors.Add(new RunDescriptor
-                {
-                    Key = "Default"
-                });
+            {
+                Console.Out.WriteLine("No active rundescriptors was found for this test, test will not be executed");
+                return new List<TContext>();
+            }
 
             foreach (var runDescriptor in runDescriptors)
             {
@@ -134,7 +135,7 @@
         
         int limitTestParallelismTo;
         readonly IList<EndpointBehaviour> behaviours = new List<EndpointBehaviour>();
-        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
+        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
 

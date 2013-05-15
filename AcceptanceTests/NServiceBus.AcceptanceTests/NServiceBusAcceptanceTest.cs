@@ -17,6 +17,8 @@ namespace NServiceBus.AcceptanceTests
                     var testName = GetType().Name;
                     return t.FullName.Replace(baseNs + ".", "").Replace(testName + "+", "");
                 };
+
+            Conventions.DefaultRunDescriptor = () => ScenarioDescriptors.Transports.Default;
         }
     }
 }

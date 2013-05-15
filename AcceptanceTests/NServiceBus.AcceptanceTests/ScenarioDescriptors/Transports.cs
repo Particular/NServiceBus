@@ -25,6 +25,11 @@
         {
             get
             {
+                var specificTransport = Environment.GetEnvironmentVariable("Transport.UseSpecific");
+
+                if (!string.IsNullOrEmpty(specificTransport))
+                    return AllAvailable.Single(r => r.Key == specificTransport);
+
                 var transportsOtherThanMsmq = AllAvailable.Where(t => t != Msmq);
 
                 if (transportsOtherThanMsmq.Count() == 1)
@@ -54,12 +59,13 @@
         public static RunDescriptor SqlServer
         {
             get { return AllAvailable.Single(r => r.Key == "SqlServer"); }
-        } 
+        }
 
         static IEnumerable<RunDescriptor> GetAllAvailable()
         {
             var foundTransportDefinitions = TypeScanner.GetAllTypesAssignableTo<TransportDefinition>();
 
+            
             foreach (var transportDefinitionType in foundTransportDefinitions)
             {
                 var key = transportDefinitionType.Name;

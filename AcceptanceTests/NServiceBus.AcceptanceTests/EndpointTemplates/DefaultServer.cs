@@ -17,11 +17,6 @@
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
         {
             var settings = runDescriptor.Settings;
-            if (!settings.Any())
-            {
-                settings = ScenarioDescriptors.Transports.Default.Settings;
-            }
-
             
             SetupLogging(endpointConfiguration);
 
