@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.Net;
     using System.Text;
     using Config;
+    using Gateway.Deduplication;
     using Gateway.Persistence;
     using Logging;
     using Newtonsoft.Json;
@@ -161,6 +162,7 @@ namespace NServiceBus
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
             InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
+            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseRavenGatewayDeduplication());
             InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
         }
 

@@ -84,8 +84,7 @@ namespace NServiceBus.Gateway.Sending
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
             //todo - derive this from the message and the channeltype
-            Builder.Build<IdempotentChannelForwarder>()
-                   .Forward(transportMessage, targetSite);
+            Builder.Build<IForwardMessagesToSites>().Forward(transportMessage, targetSite);
 
             Notifier.RaiseMessageForwarded(Address.Local.ToString(), targetSite.Channel.Type, transportMessage);
 

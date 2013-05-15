@@ -28,4 +28,5 @@ Artifacts
 LogFiles
 csx
 *.ncrunchproject
+*.ncrunchsolution
 _NCrunch_NServiceBus/*

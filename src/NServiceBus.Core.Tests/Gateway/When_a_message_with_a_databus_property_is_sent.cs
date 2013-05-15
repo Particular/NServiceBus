@@ -5,7 +5,6 @@
     using System.IO;
     using NUnit.Framework;
 
-    [TestFixture, Ignore("Need to redo all this tests because the gateway is now a satellite!")]
     public class When_a_message_with_a_databus_property_is_sent : via_the_gateway
     {
         [Test]
