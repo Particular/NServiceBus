@@ -21,13 +21,11 @@
                         .Given((bus, context) => bus.Send(new MyRequest { Id = context.Id, Client = RuntimeEnvironment.MachineName })
                          .Register(r => context.CallbackBFired = true)))
                     .WithEndpoint<Server>()
-                    .Done(c => c.NumberOfResponses >= 2)
+                    .Done(c => c.ClientAGotResponse && c.ClientBGotResponse)
                     .Repeat(r =>r.For<AllBrokerTransports>()
                     )
                     .Should(c =>
                         {
-                            Assert.True(c.ClientAGotResponse, "ClientA should get a response");
-                            Assert.True(c.ClientBGotResponse, "ClientB should get a response");
                             Assert.True(c.CallbackAFired, "Callback on ClientA should fire");
                             Assert.True(c.CallbackBFired, "Callback on ClientB should fire");
                             Assert.False(c.ResponseEndedUpAtTheWrongClient, "One of the responses ended up at the wrong client");
@@ -38,9 +36,6 @@
         public class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-
-
-            public int NumberOfResponses { get; set; }
 
             public bool ClientAGotResponse { get; set; }
 
@@ -81,8 +76,6 @@
 
                     if (RuntimeEnvironment.MachineName != response.Client)
                         Context.ResponseEndedUpAtTheWrongClient = true;
-
-                    Context.NumberOfResponses++;
                 }
             }
         }
