@@ -2,7 +2,7 @@
 {
     using NServiceBus.MessageMutator;
 
-    public class MutateCorrelationIdOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
+    public class MutateIdOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
         /// <summary>
         /// Unsure that the IdForCorrelation header is copied over to the correlation id when set.
@@ -10,15 +10,15 @@
         /// <param name="transportMessage">Transport Message to mutate.</param>
         public void MutateIncoming(TransportMessage transportMessage)
         {
-            if (transportMessage.Headers.ContainsKey(Headers.IdForCorrelation))
+            if (transportMessage.Headers.ContainsKey("CorrId"))
             {
-                transportMessage.CorrelationId = transportMessage.Headers[Headers.IdForCorrelation];
+                transportMessage.Id = transportMessage.Headers["CorrId"];
             }
         }
 
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<MutateCorrelationIdOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<MutateIdOfIncomingTransportMessages>(DependencyLifecycle.InstancePerCall);
         }
     }
 }
