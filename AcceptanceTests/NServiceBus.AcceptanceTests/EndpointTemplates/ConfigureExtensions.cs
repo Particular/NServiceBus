@@ -41,16 +41,12 @@
             return config;
         }
 
-        public static Configure DefineTransport(this Configure config, string transport)
+        public static Configure DefineTransport(this Configure config, IDictionary<string,string> settings)
         {
-            var transportType = Type.GetType(transport);
+            var transportType = Type.GetType(settings["Transport"]);
 
-            if (DefaultConnectionStrings.ContainsKey(transportType))
-            {
-                return config.UseTransport(transportType, () => DefaultConnectionStrings[transportType]);
-            }
+                return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
 
-            return config.UseTransport(transportType);
         }
 
         public static Configure DefineSerializer(this Configure config, string serializer)
@@ -168,16 +164,5 @@
 
             throw new InvalidOperationException("Unknown builder:" + builder);
         }
-
-        private static readonly Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
-            {
-                {typeof (RabbitMQ), "host=localhost"},
-                {typeof (SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-                {typeof (ActiveMQ), @"ServerUrl=activemq:tcp://localhost:61616"},
-                {typeof (Msmq), @"cacheSendConnection=false;journal=false;"},
-                {typeof (AzureStorageQueue), Environment.GetEnvironmentVariable("AzureStorageQueue.ConnectionString") },
-                {typeof (AzureServiceBus), Environment.GetEnvironmentVariable("AzureServiceBus.ConnectionString") }
-
-            };
     }
 }

@@ -1,15 +1,17 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using AcceptanceTesting.Support;
+    using Hosting.Helpers;
 
     public class AllTransports : ScenarioDescriptor
     {
         public AllTransports()
         {
-            Add(Transports.Msmq);
-            Add(Transports.ActiveMQ);
-            Add(Transports.RabbitMQ);
-            Add(Transports.SqlServer);
+            AddRange(Transports.AllAvailable);
         }
     }
 
@@ -45,5 +47,29 @@
             Remove(Transports.ActiveMQ);
             Remove(Transports.RabbitMQ);
         }
+    }
+
+    public class TypeScanner
+    {
+
+        public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
+        {
+            return AvailableAssemblies.SelectMany(a => a.GetTypes())
+                                      .Where(t => typeof (T).IsAssignableFrom(t) && t != typeof(T))
+                                      .ToList();
+        }
+
+        static IEnumerable<Assembly> AvailableAssemblies
+        {
+            get
+            {
+                if (assemblies == null)
+                    assemblies = AssemblyScanner.GetScannableAssemblies().Assemblies;
+
+                return assemblies;
+            }
+        }
+
+        static List<Assembly> assemblies;
     }
 }

@@ -6,7 +6,6 @@
     using AcceptanceTesting;
     using Faults.Forwarder;
     using NUnit.Framework;
-    using ScenarioDescriptors;
     using Unicast;
     using Unicast.Transport;
 
@@ -17,7 +16,6 @@
         [Test]
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {
-
             var context = Scenario.Define<Context>()
                     .WithEndpoint<ConfigOverrideEndpoint>(b => b.When(c => c.EndpointsStarted, (bus, cc) =>
                         {

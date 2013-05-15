@@ -17,17 +17,19 @@
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
         {
             var settings = runDescriptor.Settings;
+            if (!settings.Any())
+            {
+                settings = ScenarioDescriptors.Transports.Default.Settings;
+            }
+
+            
             SetupLogging(endpointConfiguration);
 
             var types = GetTypesToUse(endpointConfiguration);
 
             var transportToUse = settings.GetOrNull("Transport");
 
-            if (string.IsNullOrEmpty(transportToUse))
-            {
-                transportToUse = ScenarioDescriptors.Transports.Default.Settings["Transport"];
-            }
-
+            
             Configure.Features.Enable<Features.Sagas>();
             SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
@@ -36,7 +38,7 @@
                             .DefineBuilder(settings.GetOrNull("Builder"))
                             .CustomConfigurationSource(configSource)
                             .DefineSerializer(settings.GetOrNull("Serializer"))
-                            .DefineTransport(transportToUse)
+                            .DefineTransport(settings)
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
             if (transportToUse == null || 
