@@ -46,6 +46,8 @@ namespace NServiceBus.Gateway.HeaderManagement
         public const string NServiceBus = "NServiceBus.";
         public const string Id = "Id";
         public const string CallType = "CallType";
+        public const string DATABUS_PREFIX = "NServiceBus.DataBus.";
+
         const string CorrelationId = "CorrelationId";
         const string Recoverable = "Recoverable";
         const string ReplyToAddress = "ReplyToAddress";

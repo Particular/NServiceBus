@@ -12,6 +12,7 @@ namespace NServiceBus.Gateway.Sending
     using Routing;
     using Utils;
 
+    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public class IdempotentChannelForwarder : IForwardMessagesToSites
     {
         private readonly IChannelFactory channelFactory;
@@ -31,14 +32,14 @@ namespace NServiceBus.Gateway.Sending
 
             using (var messagePayload = new MemoryStream(message.Body))
             {
-                Transmit(channelSender, targetSite, CallType.Submit, headers, messagePayload);
+                Transmit(channelSender, targetSite, CallType.LegacySubmit, headers, messagePayload);
             }
 
             TransmittDataBusProperties(channelSender, targetSite, headers);
 
             using (var stream = new MemoryStream(0))
             {
-                Transmit(channelSender, targetSite, CallType.Ack, headers, stream);
+                Transmit(channelSender, targetSite, CallType.LegacyAck, headers, stream);
             }
         }
 
@@ -59,7 +60,7 @@ namespace NServiceBus.Gateway.Sending
         {
             var headersToSend = new Dictionary<string, string>(headers);
 
-            foreach (string headerKey in headers.Keys.Where(headerKey => headerKey.Contains(DATABUS_PREFIX)))
+            foreach (string headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
             {
                 if (DataBus == null)
                     throw new InvalidOperationException(
@@ -70,14 +71,12 @@ namespace NServiceBus.Gateway.Sending
                 var databusKeyForThisProperty = headers[headerKey];
 
                 using (var stream = DataBus.Get(databusKeyForThisProperty))
-                    Transmit(channelSender, targetSite, CallType.DatabusProperty, headersToSend, stream);
+                    Transmit(channelSender, targetSite, CallType.LegacyDatabusProperty, headersToSend, stream);
             }
         }
 
 
         public IDataBus DataBus { get; set; }
-
-        private const string DATABUS_PREFIX = "NServiceBus.DataBus.";
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelForwarder));
     }

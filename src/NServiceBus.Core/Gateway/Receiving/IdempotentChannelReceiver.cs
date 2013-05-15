@@ -46,9 +46,9 @@ namespace NServiceBus.Gateway.Receiving
                 {
                     switch (callInfo.Type)
                     {
-                        case CallType.Submit: HandleSubmit(callInfo); break;
-                        case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
-                        case CallType.Ack: HandleAck(callInfo); break;
+                        case CallType.LegacySubmit: HandleSubmit(callInfo); break;
+                        case CallType.LegacyDatabusProperty: HandleDatabusProperty(callInfo); break;
+                        case CallType.LegacyAck: HandleAck(callInfo); break;
                     }
 
                     scope.Complete();
