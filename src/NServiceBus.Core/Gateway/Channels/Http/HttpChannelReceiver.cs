@@ -13,6 +13,7 @@ namespace NServiceBus.Gateway.Channels.Http
     using HeaderManagement;
     using Logging;
     using Utils;
+    using Receiving;
 
     public class HttpChannelReceiver : IChannelReceiver
     {
@@ -96,7 +97,7 @@ namespace NServiceBus.Gateway.Channels.Http
 
                 Logger.Debug("Http request processing complete.");
             }
-            catch (HttpChannelException ex)
+            catch (ChannelException ex)
             {
                 CloseResponseAndWarn(ctx, ex.Message, ex.StatusCode);
             }

@@ -73,23 +73,23 @@ namespace NServiceBus.Gateway.Receiving
        
             string callType = headers[GatewayHeaders.CallTypeHeader];
             if (!Enum.IsDefined(typeof(CallType), callType))
-                throw new HttpChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
 
             var type = (CallType)Enum.Parse(typeof(CallType), callType);
 
             var clientId = headers[GatewayHeaders.ClientIdHeader];
             if (clientId == null)
-                throw new HttpChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
 
             var md5 = headers[HttpHeaders.ContentMd5Key];
 
             if (md5 == null)
-                throw new HttpChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
+                throw new ChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
 
             var hash = Hasher.Hash(receivedData.Data);
 
             if (receivedData.Data.Length > 0 && hash != md5)
-                throw new HttpChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
+                throw new ChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
 
 
             return new CallInfo
