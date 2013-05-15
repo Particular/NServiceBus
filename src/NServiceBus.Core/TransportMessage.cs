@@ -34,8 +34,15 @@ namespace NServiceBus
         /// </summary>
         public string Id
         {
-            get { return id; }
-            set { id = value; }
+            get
+            {
+                return id;
+            }
+            set
+            {
+                id = value;
+                Headers["CorrId"] = id;
+            }
         }
 
         string id;
@@ -58,7 +65,7 @@ namespace NServiceBus
         {
             get
             {
-                return CorrelationId;
+                return Id;
             }
         }
 
@@ -66,20 +73,7 @@ namespace NServiceBus
         /// Gets/sets the unique identifier of another message bundle
         /// this message bundle is associated with.
         /// </summary>
-        public string CorrelationId
-        {
-            get
-            {
-                return correlationId;
-            }
-            set
-            {
-                correlationId = value;
-                Headers[NServiceBus.Headers.IdForCorrelation] = correlationId;
-            }
-        }
-
-        string correlationId;
+        public string CorrelationId { get; set; }
 
         /// <summary>
         /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
