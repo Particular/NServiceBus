@@ -61,7 +61,6 @@
         [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
         public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
-
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
@@ -146,6 +145,7 @@
         /// <summary>
         /// Used for correlation id message.
         /// </summary>
+        [ObsoleteEx(Message = "The IdForCorrelation header is replaced by Id", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public const string IdForCorrelation = "CorrId";
 
         /// <summary>

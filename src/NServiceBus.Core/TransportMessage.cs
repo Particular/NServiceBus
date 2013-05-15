@@ -46,14 +46,40 @@ namespace NServiceBus
         /// <param name="newId"></param>
         public void ChangeMessageId(string newId)
         {
-            id = newId;
+            Id = newId;
+            CorrelationId = newId;
+        }
+
+        /// <summary>
+        /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Id")]
+        public string IdForCorrelation
+        {
+            get
+            {
+                return CorrelationId;
+            }
         }
 
         /// <summary>
         /// Gets/sets the unique identifier of another message bundle
         /// this message bundle is associated with.
         /// </summary>
-        public string CorrelationId { get; set; }
+        public string CorrelationId
+        {
+            get
+            {
+                return correlationId;
+            }
+            set
+            {
+                correlationId = value;
+                Headers[NServiceBus.Headers.IdForCorrelation] = correlationId;
+            }
+        }
+
+        string correlationId;
 
         /// <summary>
         /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
