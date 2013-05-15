@@ -3,6 +3,7 @@
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
+    using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.Gateway.Persistence;
     using NServiceBus.Gateway.Receiving;
@@ -66,10 +67,16 @@
 
         static void ConfigureReceiver()
         {
-            Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessagesFromSites>())
+            {
+                Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
+                Configure.Component<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            }
+
+            Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
+
             Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                      .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
-
         }
     }
 }

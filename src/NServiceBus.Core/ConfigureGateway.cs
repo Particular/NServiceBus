@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Features;
+    using Gateway.Deduplication;
     using Gateway.Persistence;
     using Gateway.Persistence.Raven;
     using Persistence.Raven;
@@ -56,6 +57,7 @@ namespace NServiceBus
         public static Configure UseInMemoryGatewayPersister(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<InMemoryDeduplication>(DependencyLifecycle.SingleInstance);
             return config;
         }
 

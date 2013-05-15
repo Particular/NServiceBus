@@ -109,6 +109,10 @@
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
+    <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
+    <Compile Include="Gateway\Deduplication\InMemoryDeduplication.cs" />
+    <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
+    <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />

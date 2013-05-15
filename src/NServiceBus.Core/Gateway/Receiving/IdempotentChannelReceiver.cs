@@ -13,6 +13,7 @@ namespace NServiceBus.Gateway.Receiving
     using Sending;
     using Utils;
 
+    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public class IdempotentChannelReceiver : IReceiveMessagesFromSites
     {
         public IdempotentChannelReceiver(IChannelFactory channelFactory, IPersistMessages persister)
@@ -44,17 +45,20 @@ namespace NServiceBus.Gateway.Receiving
 
                 using (var scope = DefaultTransactionScope())
                 {
-                    switch (callInfo.Type)
-                    {
-                        case CallType.Submit: HandleSubmit(callInfo); break;
-                        case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
-                        case CallType.Ack: HandleAck(callInfo); break;
-                    }
-
+                    DispatchReceivedCallInfo(callInfo);
                     scope.Complete();
                 }
-
             }
+        }
+
+        internal void DispatchReceivedCallInfo(CallInfo callInfo)
+        {
+            switch (callInfo.Type)
+            {
+                case CallType.Submit: HandleSubmit(callInfo); break;
+                case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
+                case CallType.Ack: HandleAck(callInfo); break;
+            }            
         }
 
         static TransactionScope DefaultTransactionScope()
