@@ -145,7 +145,7 @@
         /// <summary>
         /// Used for correlation id message.
         /// </summary>
-        [ObsoleteEx(Message = "The IdForCorrelation header is replaced by Id", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "The IdForCorrelation header is replaced by Id", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public const string IdForCorrelation = "CorrId";
 
         /// <summary>
