@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web;
 using MyMessages;
+using NServiceBus.Features;
 using log4net;
 using NServiceBus;
 
@@ -18,8 +19,12 @@ namespace OrderWebSite
         {
             Configure.Transactions.Enable();
 
+            Feature.Disable<Gateway>();
+            Feature.Disable<SecondLevelRetries>();
+            Feature.Disable<TimeoutManager>();
+            
             var bus = Configure.With()
-                  .DefiningMessagesAs(m => typeof (IDefineMessages).IsAssignableFrom(m))
+                  .DefiningMessagesAs(t => typeof (IDefineMessages).IsAssignableFrom(t) && t != typeof(IDefineMessages))
                         .DefaultBuilder()
                   .AzureConfigurationSource()
                   .AzureDiagnosticsLogger()
@@ -28,10 +33,6 @@ namespace OrderWebSite
                         .QueuePerInstance()
                         .PurgeOnStartup(true)
                    .UnicastBus()
-                       .DisableGateway()
-                       .DisableNotifications()
-                       .DisableSecondLevelRetries()
-                       .DisableTimeoutManager()
                   .CreateBus()
                 .Start();
 

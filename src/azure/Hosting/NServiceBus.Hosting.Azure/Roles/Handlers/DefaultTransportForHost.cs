@@ -1,5 +1,6 @@
 namespace NServiceBus.Hosting.Azure.Roles.Handlers
 {
+    using Settings;
     using Transports;
 
     public class DefaultTransportForHost : IWantToRunBeforeConfigurationIsFinalized
@@ -8,6 +9,11 @@ namespace NServiceBus.Hosting.Azure.Roles.Handlers
         {
 
             if (Configure.Instance.Configurer.HasComponent<ISendMessages>())
+            {
+                return;
+            }
+
+            if (SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport") != null)
             {
                 return;
             }

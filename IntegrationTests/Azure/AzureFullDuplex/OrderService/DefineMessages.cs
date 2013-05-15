@@ -7,7 +7,7 @@ namespace OrderService
     {
         public void Init()
         {
-            Configure.Instance.DefiningMessagesAs(m => typeof(IDefineMessages).IsAssignableFrom(m));
+            Configure.Instance.DefiningMessagesAs(t => typeof(IDefineMessages).IsAssignableFrom(t) && t != typeof(IDefineMessages) );
         }
     }
 }

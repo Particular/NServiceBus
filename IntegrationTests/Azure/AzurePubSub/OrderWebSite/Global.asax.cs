@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Web;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Features;
 
 namespace OrderWebSite
 {
@@ -16,6 +17,10 @@ namespace OrderWebSite
 		private static IBus ConfigureNServiceBus()
 		{
 		    Configure.Transactions.Enable();
+
+            Feature.Disable<Gateway>();
+            Feature.Disable<SecondLevelRetries>();
+            Feature.Disable<TimeoutManager>();
             
             var bus = Configure.With()
                 .DefaultBuilder()
@@ -24,11 +29,6 @@ namespace OrderWebSite
                     .BinarySerializer()
                     .QueuePerInstance()
                 .UnicastBus()
-                    .DisableGateway()
-                    .DisableNotifications()
-                    .DisableSecondLevelRetries()
-                    .DisableTimeoutManager()
-
                 .CreateBus()
 				.Start();
 

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
 
     public class AllTransports : ScenarioDescriptor
     {
@@ -18,6 +18,14 @@
         public AllDtcTransports()
         {   
             Remove(Transports.RabbitMQ);
+        }
+    }
+
+    public class AllBrokerTransports : AllTransports
+    {
+        public AllBrokerTransports()
+        {
+            Remove(Transports.Msmq);
         }
     }
 

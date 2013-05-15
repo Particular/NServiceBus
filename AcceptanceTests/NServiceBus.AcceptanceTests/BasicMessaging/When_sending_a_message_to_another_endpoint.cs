@@ -20,7 +20,7 @@
                     .Repeat(r =>
                             r.For<AllTransports>()
                                .For<AllSerializers>()
-                                  .For<AllSerializers>()
+                                  .For<AllBuilders>()
                     )
                     .Should(c =>
                         {

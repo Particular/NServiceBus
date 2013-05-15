@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using NServiceBus.Features;
 
 namespace OrderService
 {
@@ -6,11 +7,9 @@ namespace OrderService
     {
         public void Init()
         {
-            Configure.Instance
-                     .DisableGateway()
-                     .DisableNotifications()
-                     .DisableSecondLevelRetries()
-                     .DisableTimeoutManager();
+            Feature.Disable<Gateway>();
+            Feature.Disable<SecondLevelRetries>();
+            Feature.Disable<TimeoutManager>();
         }
     }
 }

@@ -2,6 +2,6 @@
 
 namespace OrderService
 {
-    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Worker, UsingTransport<WindowsAzureServiceBus>
+    public class EndpointConfiguration : IConfigureThisEndpoint, AsA_Worker, UsingTransport<AzureServiceBus>
     { }
 }

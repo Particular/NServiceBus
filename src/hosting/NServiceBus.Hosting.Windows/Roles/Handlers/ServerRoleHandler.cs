@@ -17,6 +17,8 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
+            Configure.ScaleOut(s=>s.UseSingleBrokerQueue());
+
             Feature.EnableByDefault<Sagas>();
 
             return Configure.Instance

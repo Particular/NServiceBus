@@ -3,7 +3,7 @@
   <Role name="OrderWebSite">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[namespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
@@ -15,7 +15,7 @@
   <Role name="OrderService">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[namespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
       <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />

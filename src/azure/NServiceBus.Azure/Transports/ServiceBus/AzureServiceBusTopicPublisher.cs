@@ -20,19 +20,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         public MessagingFactory Factory { get; set; }
         public NamespaceManager NamespaceClient { get; set; }
-        public string Topic { get; set; }
-
         private readonly Dictionary<string, TopicClient> senders = new Dictionary<string, TopicClient>();
         private static readonly object SenderLock = new Object();
 
-        public AzureServiceBusTopicPublisher()
-        {
-            Topic = Address.Local.Queue + ".events"; // allows overriding for bridge scenario
-        }
-
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
-            var sender = GetTopicClientForDestination(Topic);
+            var sender = GetTopicClientForDestination(AzureServiceBusPublisherAddressConvention.Create(Address.Local));
 
             if (sender == null) return false;
 

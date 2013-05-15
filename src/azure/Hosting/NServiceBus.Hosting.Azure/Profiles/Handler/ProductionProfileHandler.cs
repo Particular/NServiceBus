@@ -1,5 +1,5 @@
 ﻿using NServiceBus.Hosting.Profiles;
-using NServiceBus.Integration.Azure;
+using NServiceBus.Azure;
 using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers

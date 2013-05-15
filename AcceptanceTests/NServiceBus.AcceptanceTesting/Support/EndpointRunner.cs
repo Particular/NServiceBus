@@ -33,11 +33,11 @@
                 {
                     NServiceBus.Support.RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
                 }
-                
-                config = configuration.GetConfiguration(run, routingTable);
 
                 //apply custom config settings
                 endpointBehaviour.CustomConfig.ForEach(customAction => customAction(config));
+                config = configuration.GetConfiguration(run, routingTable);
+
 
 
                 if (scenarioContext != null)
