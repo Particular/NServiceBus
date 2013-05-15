@@ -1,11 +1,15 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
     using System.Collections.Generic;
-    using Features;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
 
     public static class Transports
     {
+        public static RunDescriptor Default
+        {
+            get { return Msmq; }
+        }
+
         public static readonly RunDescriptor ActiveMQ = new RunDescriptor
             {
                 Key = "ActiveMQ",

@@ -61,7 +61,7 @@
             return this;
         }
 
-        public void Run(TimeSpan? testExecutionTimeout = null)
+        public IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null)
         {
             var builder = new RunDescriptorsBuilder();
 
@@ -89,6 +89,8 @@
             sw.Stop();
 
             Console.Out.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+
+            return runDescriptors.Select(r => (TContext)r.ScenarioContext);
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
@@ -103,6 +105,12 @@
             limitTestParallelismTo = maxParallelism;
 
             return this;
+        }
+
+
+        TContext IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
+        {
+            return Run(testExecutionTimeout).Single();
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)

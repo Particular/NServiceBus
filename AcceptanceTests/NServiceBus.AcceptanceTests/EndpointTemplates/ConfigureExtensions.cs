@@ -43,11 +43,6 @@
 
         public static Configure DefineTransport(this Configure config, string transport)
         {
-            if (string.IsNullOrEmpty(transport))
-            {
-                return config.UseTransport<Msmq>();
-            }
-
             var transportType = Type.GetType(transport);
 
             if (DefaultConnectionStrings.ContainsKey(transportType))

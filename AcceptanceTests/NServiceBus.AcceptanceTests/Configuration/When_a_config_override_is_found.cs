@@ -12,30 +12,32 @@
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
-        
+
         static Address CustomErrorQ = Address.Parse("MyErrorQ");
         [Test]
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<ConfigOverrideEndpoint>(b => b.When(c => c.EndpointsStarted, (bus, context) =>
-                        {
-                            var unicastBus = (UnicastBus) bus;
-                            var transport = (TransportReceiver) unicastBus.Transport;
-                            var fm = (FaultManager) transport.FailureManager;
 
-                            context.ErrorQueueUsedByTheEndpoint = fm.ErrorQueue;
-                            context.IsDone = true;
+            var context = Scenario.Define<Context>()
+                    .WithEndpoint<ConfigOverrideEndpoint>(b => b.When(c => c.EndpointsStarted, (bus, cc) =>
+                        {
+                            var unicastBus = (UnicastBus)bus;
+                            var transport = (TransportReceiver)unicastBus.Transport;
+                            var fm = (FaultManager)transport.FailureManager;
+
+                            cc.ErrorQueueUsedByTheEndpoint = fm.ErrorQueue;
+                            cc.IsDone = true;
                         }))
                     .Done(c => c.IsDone)
-                    .Repeat(r => r.For(Transports.Msmq))
-                    .Should(c=>Assert.AreEqual(CustomErrorQ,c.ErrorQueueUsedByTheEndpoint,"The error queue should have been changed"))
                     .Run();
+
+            Assert.AreEqual(CustomErrorQ, context.ErrorQueueUsedByTheEndpoint, "The error queue should have been changed");
+
         }
 
         public class Context : ScenarioContext
         {
-            public bool IsDone{ get; set; }
+            public bool IsDone { get; set; }
 
             public Address ErrorQueueUsedByTheEndpoint { get; set; }
         }
@@ -44,7 +46,7 @@
         {
             public ConfigOverrideEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>c.MessageForwardingInCaseOfFault());
+                EndpointSetup<DefaultServer>(c => c.MessageForwardingInCaseOfFault());
             }
 
             public class ConfigErrorQueue : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>

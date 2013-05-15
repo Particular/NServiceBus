@@ -23,6 +23,11 @@
 
             var transportToUse = settings.GetOrNull("Transport");
 
+            if (string.IsNullOrEmpty(transportToUse))
+            {
+                transportToUse = ScenarioDescriptors.Transports.Default.Settings["Transport"];
+            }
+
             Configure.Features.Enable<Features.Sagas>();
             SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
