@@ -109,6 +109,7 @@
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
+    <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />

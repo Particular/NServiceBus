@@ -17,13 +17,13 @@ namespace NServiceBus.Gateway.Sending
     public enum CallType
     {
         [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        LegacySubmit,
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        LegacyAck,
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        LegacyDatabusProperty,
-
         Submit,
-        DatabusProperty
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        Ack,
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        DatabusProperty,
+
+        SingleCallSubmit,
+        SingleCallDatabusProperty
     }
 }

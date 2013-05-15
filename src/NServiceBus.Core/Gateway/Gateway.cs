@@ -42,7 +42,10 @@
 
         static void ConfigureSender()
         {
-            Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
+            if (!Configure.Instance.Configurer.HasComponent<IForwardMessagesToSites>())
+                Configure.Component<SingleCallChannelForwarder>(DependencyLifecycle.InstancePerCall);
+
+            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
 
@@ -63,7 +66,6 @@
 
         static void ConfigureReceiver()
         {
-            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
             Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
             Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                      .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
