@@ -25,7 +25,7 @@
                                        });
                         })
                     .Done(c => c.TimeoutReceived)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Run();
         }
 
