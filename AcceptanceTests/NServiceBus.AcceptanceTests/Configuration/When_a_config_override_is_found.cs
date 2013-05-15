@@ -29,7 +29,7 @@
                         }))
                     .Done(c => c.IsDone)
                     .Repeat(r => r.For(Transports.Msmq))
-                    .Should(c=>Assert.AreEqual(CustomErrorQ,c.ErrorQueueUsedByTheEndpoint,"The error queue should have been overrided"))
+                    .Should(c=>Assert.AreEqual(CustomErrorQ,c.ErrorQueueUsedByTheEndpoint,"The error queue should have been changed"))
                     .Run();
         }
 

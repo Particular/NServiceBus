@@ -55,7 +55,7 @@
                     {
                         while (!stopped)
                         {
-                            contextChanged.WaitOne();
+                            contextChanged.WaitOne(TimeSpan.FromSeconds(5)); //we spin around each 5 s since the callback mechanism seems to be shaky
 
                             foreach (var when in behaviour.Whens)
                             {

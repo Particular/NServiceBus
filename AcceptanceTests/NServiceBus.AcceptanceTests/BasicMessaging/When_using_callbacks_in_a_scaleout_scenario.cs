@@ -29,7 +29,7 @@
                             Assert.True(c.ClientAGotResponse, "ClientA should get a response");
                             Assert.True(c.ClientBGotResponse, "ClientB should get a response");
                             Assert.True(c.CallbackAFired, "Callback on ClientA should fire");
-                            Assert.True(c.CallbackBFired, "Callback on ClientA should fire");
+                            Assert.True(c.CallbackBFired, "Callback on ClientB should fire");
                             Assert.False(c.ResponseEndedUpAtTheWrongClient, "One of the responses ended up at the wrong client");
                         })
                     .Run();
