@@ -2,7 +2,6 @@
 {
     using NUnit.Framework;
 
-    [TestFixture, Ignore("Need to redo all this tests because the gateway is now a satellite!")]
     public class When_a_message_is_sent : via_the_gateway
     {
         [Test]

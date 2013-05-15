@@ -117,6 +117,14 @@
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
+    <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
+    <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
+    <Compile Include="Gateway\Deduplication\InMemoryDeduplication.cs" />
+    <Compile Include="Gateway\Deduplication\Raven\RavenDBDeduplication.cs" />
+    <Compile Include="Gateway\Deduplication\Sql\SqlDeduplication.cs" />
+    <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
+    <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
+    <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
@@ -242,7 +250,7 @@
     <Compile Include="Gateway\Channels\Channel.cs" />
     <Compile Include="Gateway\Channels\ChannelFactory.cs" />
     <Compile Include="Gateway\Channels\Http\DefaultResponder.cs" />
-    <Compile Include="Gateway\Channels\Http\HttpChannelException.cs" />
+    <Compile Include="Gateway\Receiving\ChannelException.cs" />
     <Compile Include="Gateway\Channels\Http\HttpChannelReceiver.cs" />
     <Compile Include="Gateway\Channels\Http\HttpChannelSender.cs" />
     <Compile Include="Gateway\Channels\Http\HttpHeaders.cs" />
@@ -546,6 +554,7 @@
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Gateway\Deduplication\Sql\Schema.sql" />
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />
