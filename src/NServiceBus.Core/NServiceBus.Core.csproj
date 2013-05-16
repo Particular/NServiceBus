@@ -113,6 +113,7 @@
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
     <Compile Include="Gateway\Deduplication\InMemoryDeduplication.cs" />
     <Compile Include="Gateway\Deduplication\Raven\RavenDBDeduplication.cs" />
+    <Compile Include="Gateway\Deduplication\Sql\SqlDeduplication.cs" />
     <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
     <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
@@ -540,6 +541,7 @@
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Gateway\Deduplication\Sql\Schema.sql" />
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />
     <None Include="Resources\logo.png" />
     <None Include="Resources\formicon.ico" />
