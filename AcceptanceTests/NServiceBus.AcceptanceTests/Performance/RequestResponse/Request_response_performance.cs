@@ -21,7 +21,7 @@
                     .WithEndpoint<ClientEndpoint>(b => b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.Send(new MyMessage()))))
                     .WithEndpoint<ServerEndpoint>()
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.SqlServer))
+                    .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
