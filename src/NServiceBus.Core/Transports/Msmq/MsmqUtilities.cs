@@ -175,40 +175,7 @@ namespace NServiceBus.Transports.Msmq
                 }
             }
 
-            if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
-            {
-                ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
-            }
-       
             return result;
-        }
-
-        /// <summary>
-        /// For backward compatibility, extract the V2.6 MSMQ label content (IdForCorrelation and WindowsIdentityName) 
-        /// into the V3.X transport message.
-        /// </summary>
-        /// <param name="msmqMsg">Received MSMQ message</param>
-        /// <param name="result">Transport message to be filled from MSMQ message label</param>
-        private static void ExtractMsmqMessageLabelInformationForBackwardCompatibility(Message msmqMsg, TransportMessage result)
-        {
-            if (string.IsNullOrWhiteSpace(msmqMsg.Label))
-                return;
-
-            if (msmqMsg.Label.Contains("CorrId"))
-            {
-                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", "CorrId")) + "CorrId".Length + 2;
-                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", "CorrId")) - idStartIndex;
-
-                result.Headers["CorrId"] = msmqMsg.Label.Substring(idStartIndex, idCount);
-            }
-
-            if (msmqMsg.Label.Contains(Headers.WindowsIdentityName) && !result.Headers.ContainsKey(Headers.WindowsIdentityName))
-            {
-                int winStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.WindowsIdentityName)) + Headers.WindowsIdentityName.Length + 2;
-                int winCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.WindowsIdentityName)) - winStartIndex;
-
-                result.Headers.Add(Headers.WindowsIdentityName, msmqMsg.Label.Substring(winStartIndex, winCount));
-            }
         }
 
         /// <summary>
@@ -243,24 +210,7 @@ namespace NServiceBus.Transports.Msmq
 
             result.AppSpecific = (int)message.MessageIntent;
 
-            FillLabelForBackwardsCompatabilityWhileSending(message, result);
-
             return result;
-        }
-        /// <summary>
-        /// Fill MSMQ message's label to be compatible with NServiceBus V2.6
-        /// </summary>
-        /// <param name="transportMessage"></param>
-        /// <param name="msmqMessage"></param>
-        static void FillLabelForBackwardsCompatabilityWhileSending(TransportMessage transportMessage, Message msmqMessage)
-        {
-            string windowsIdentityName =
-                (transportMessage.Headers.ContainsKey(Headers.WindowsIdentityName) && (!string.IsNullOrWhiteSpace(transportMessage.Headers[Headers.WindowsIdentityName])))
-                ? transportMessage.Headers[Headers.WindowsIdentityName] : string.Empty;
-
-            msmqMessage.Label =
-                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", "CorrId", Headers.WindowsIdentityName,
-                    transportMessage.Id, windowsIdentityName);
         }
 
         private const string DIRECTPREFIX = "DIRECT=OS:";

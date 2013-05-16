@@ -29,6 +29,9 @@
                 {
                     producer.Send(this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
                 }
+
+                // We assign here the Id to the underlying id which was chosen by the broker.
+                message.Id = jmsMessage.NMSMessageId;
             }
             finally
             {
