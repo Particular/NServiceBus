@@ -14,35 +14,36 @@
                 if (item != null)
                     return false;
 
-                return persistence.Add(new MessageData(clientId, timeReceived));
+                return persistence.Add(new GatewayMessage { Id = clientId, TimeReceived = timeReceived });
             }
         }
 
-        private class MessageData
+        private class MessageDataComparer : IEqualityComparer<GatewayMessage>
         {
-            public MessageData(string id, DateTime received)
-            {
-                Id = id;
-                Received = received;
-            }
-
-            public string Id;
-            public DateTime Received;
-        }
-
-        private class MessageDataComparer : IEqualityComparer<MessageData>
-        {
-            public bool Equals(MessageData x, MessageData y)
+            public bool Equals(GatewayMessage x, GatewayMessage y)
             {
                 return x.Id == y.Id;
             }
 
-            public int GetHashCode(MessageData obj)
+            public int GetHashCode(GatewayMessage obj)
             {
                 return obj.Id.GetHashCode();
             }
         }
 
-        readonly ISet<MessageData> persistence = new HashSet<MessageData>(new MessageDataComparer());
+        readonly ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
+
+        public int DeleteDeliveredMessages(DateTime until)
+        {
+            var count = 0;
+            lock (persistence)
+            {
+                var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();
+                count = items.Count();
+
+                items.ForEach(item => persistence.Remove(item));
+            }
+            return count;
+        }
     }
 }
