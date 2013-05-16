@@ -49,7 +49,7 @@
                               context.NumberOfSubcriptionsReceived++;
                       }))
                     .Done(c => c.SubcribersOfTheEvent != null)
-                    .Repeat(r => r.For(Transports.SqlServer).For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
+                    .Repeat(r => r.For(Transports.Default).For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
                     .Should(c =>
                     {
                         Assert.AreEqual(1, c.SubcribersOfTheEvent.Count(), "There should only be one logical subscriber");
