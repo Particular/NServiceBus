@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using Config;
     using Config.ConfigurationSource;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTesting;
+    using EndpointTemplates;
+    using AcceptanceTesting;
     using NUnit.Framework;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using ScenarioDescriptors;
 
     public class When_using_encryption : NServiceBusAcceptanceTest
     {

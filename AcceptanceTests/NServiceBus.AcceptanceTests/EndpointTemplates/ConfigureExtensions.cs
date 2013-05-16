@@ -43,6 +43,9 @@
 
         public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
         {
+            if (!settings.ContainsKey("Transport"))
+                settings = ScenarioDescriptors.Transports.Default.Settings;
+
             var transportType = Type.GetType(settings["Transport"]);
 
             return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
