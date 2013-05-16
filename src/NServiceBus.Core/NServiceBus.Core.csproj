@@ -109,8 +109,10 @@
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
+    <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
     <Compile Include="Gateway\Deduplication\InMemoryDeduplication.cs" />
+    <Compile Include="Gateway\Deduplication\Raven\RavenDBDeduplication.cs" />
     <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
     <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />

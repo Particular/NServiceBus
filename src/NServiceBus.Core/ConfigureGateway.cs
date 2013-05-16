@@ -73,6 +73,7 @@ namespace NServiceBus
                 config.RavenPersistence();
 
             config.Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.SingleInstance);
+            config.Configurer.ConfigureComponent<RavenDBDeduplication>(DependencyLifecycle.SingleInstance);
             return config;
         }
     }
