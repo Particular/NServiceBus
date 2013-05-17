@@ -42,8 +42,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 t.Body = rawMessage;
             }
 
-            if (t.Id == null) t.Id = Guid.NewGuid().ToString();
-
             return t;
         }
 

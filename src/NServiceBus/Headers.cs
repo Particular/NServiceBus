@@ -62,6 +62,12 @@
         public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
         /// <summary>
+        /// Header containing a stable message id for a message.
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string MessageId = "NServiceBus.MessageId";
+
+        /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
         public const string HeaderName = "Header";

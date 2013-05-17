@@ -22,8 +22,8 @@ namespace NServiceBus
         /// </summary>
         public TransportMessage()
         {
-            Id = CombGuid.Generate().ToString();
-            CorrelationId = Id;
+            id = CombGuid.Generate().ToString();
+            CorrelationId = id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
@@ -36,12 +36,20 @@ namespace NServiceBus
         {
             get
             {
-                return id;
+                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+                {
+                    // TODO: or better return null?
+                    return id;
+                }
+
+                return Headers[NServiceBus.Headers.MessageId];
             }
             set
             {
-                id = value;
-                Headers["CorrId"] = id;
+                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+                {
+                    Headers[NServiceBus.Headers.MessageId] = value;
+                }
             }
         }
 
@@ -51,9 +59,9 @@ namespace NServiceBus
         /// Use this method to change the stable ID of the given message.
         /// </summary>
         /// <param name="newId"></param>
-        public void ChangeMessageId(string newId)
+        internal void ChangeMessageId(string newId)
         {
-            Id = newId;
+            id = newId;
             CorrelationId = newId;
         }
 

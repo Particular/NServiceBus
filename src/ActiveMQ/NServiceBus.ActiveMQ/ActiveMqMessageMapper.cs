@@ -31,8 +31,7 @@ namespace NServiceBus.Transports.ActiveMQ
         {
             IMessage jmsmessage = this.encoderPipeline.Encode(message, session);
 
-            jmsmessage.NMSMessageId = message.Id;
-
+            // We only assign the correlation id because the message id is chosen by the broker.
             jmsmessage.NMSCorrelationID = message.CorrelationId;
 
             if (message.TimeToBeReceived < TimeSpan.FromMilliseconds(uint.MaxValue))
