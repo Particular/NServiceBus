@@ -54,7 +54,14 @@
                 }
 
                 if (messageType != null)
-                    yield return messages[messageType];
+                {
+                    if (messages.ContainsKey(messageType))
+                        yield return messages[messageType];
+                    else
+                    {
+                        Logger.ErrorFormat("Asked for Message Metadata for a message of type {0}, which it has not been registered. If you are using unobtrusive mode, you need to register your types", messageType);
+                    }
+                }
             }
         }
 
