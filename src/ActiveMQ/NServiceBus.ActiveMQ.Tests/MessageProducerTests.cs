@@ -55,7 +55,7 @@
         }
 
         [Test]
-        public void WhenSendingASendMessage_()
+        public void WhenSendingAMessage()
         {
             const string Destination = "TheDestination";
             const string DestinationPrefix = "TheDestinationPrefix";
@@ -69,6 +69,23 @@
             this.testee.SendMessage(message, Destination, DestinationPrefix);
 
             producerMock.Verify(p => p.Send(destination, jmsMessage));
+        }
+
+        [Test]
+        public void WhenSendingAMessage_ThenAssignTransportMessageIdToJmsMessageId()
+        {
+            const string Destination = "TheDestination";
+            const string DestinationPrefix = "TheDestinationPrefix";
+
+            var message = new TransportMessage();
+            var sessionMock = this.SetupCreateSession();
+            this.SetupCreateProducer(sessionMock);
+            var jmsMessage = this.SetupCreateJmsMessageFromTransportMessage(message, sessionMock.Object);
+            this.SetupGetDestination(sessionMock, Destination, DestinationPrefix);
+
+            this.testee.SendMessage(message, Destination, DestinationPrefix);
+
+            message.Id.Should().BeEquivalentTo(jmsMessage.NMSMessageId);
         }
 
         private IDestination SetupGetDestination(Mock<ISession> sessionMock, string Destination, string DestinationPrefix)
@@ -89,7 +106,9 @@
 
         private IMessage SetupCreateJmsMessageFromTransportMessage(TransportMessage message, ISession session)
         {
-            var jmsMessage = new Mock<IMessage>().Object;
+            var jmsMessage = new Mock<IMessage>().SetupAllProperties().Object;
+            jmsMessage.NMSMessageId = Guid.NewGuid().ToString();
+
             this.activeMqMessageMapperMock.Setup(m => m.CreateJmsMessage(message, session)).Returns(jmsMessage);
             return jmsMessage;
         }
