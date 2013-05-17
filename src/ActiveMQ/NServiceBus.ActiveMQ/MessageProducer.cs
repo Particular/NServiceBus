@@ -31,7 +31,8 @@
                 }
 
                 // We assign here the Id to the underlying id which was chosen by the broker.
-                message.Id = jmsMessage.NMSMessageId;
+                // TODO: Why do we need this daniel/remo?
+                //message.Id = jmsMessage.NMSMessageId;
             }
             finally
             {

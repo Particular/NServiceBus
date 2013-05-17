@@ -71,7 +71,7 @@
             producerMock.Verify(p => p.Send(destination, jmsMessage));
         }
 
-        [Test]
+        [Test, Ignore("Why do we need this daniel/remo")]
         public void WhenSendingAMessage_ThenAssignTransportMessageIdToJmsMessageId()
         {
             const string Destination = "TheDestination";

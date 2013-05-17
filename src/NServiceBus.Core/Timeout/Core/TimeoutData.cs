@@ -73,7 +73,7 @@ namespace NServiceBus.Timeout.Core
                 Headers.Remove(OriginalReplyToAddress);
             }
 
-            var transportMessage = new TransportMessage
+            var transportMessage = new TransportMessage(Id,Headers)
             {
                 ReplyToAddress = replyToAddress,
                 Recoverable = true,
@@ -81,11 +81,8 @@ namespace NServiceBus.Timeout.Core
                 Body = State
             };
 
-            if (Headers != null)
-            {
-                transportMessage.Headers = Headers;
-            }
-            else if (SagaId != Guid.Empty)
+
+            if (SagaId != Guid.Empty)
             {
                 transportMessage.Headers[NServiceBus.Headers.SagaId] = SagaId.ToString();
             }

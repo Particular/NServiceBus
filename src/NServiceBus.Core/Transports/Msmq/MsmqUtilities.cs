@@ -65,7 +65,7 @@ namespace NServiceBus.Transports.Msmq
 
                 return PREFIX_TCP + localIp + PRIVATE + value.Queue;
             }
-                
+
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
@@ -78,7 +78,7 @@ namespace NServiceBus.Transports.Msmq
                     ni =>
                     ni.OperationalStatus == OperationalStatus.Up &&
                     ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                    .SelectMany(ni=>ni.GetIPProperties().UnicastAddresses).ToList();
+                    .SelectMany(ni => ni.GetIPProperties().UnicastAddresses).ToList();
 
             var firstWithMatchingFamily =
                 availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
@@ -138,40 +138,50 @@ namespace NServiceBus.Transports.Msmq
         /// <returns></returns>
         public static TransportMessage Convert(Message m)
         {
-            var result = new TransportMessage
+            var headers = DeserializeMessageHeaders(m);
+
+            var result = new TransportMessage(m.Id, headers)
             {
-                Id = m.Id,
                 CorrelationId =
                     (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
                          ? null
-                         : m.CorrelationId.Replace("\\0","")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
+                         : m.CorrelationId.Replace("\\0", "")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
                 ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
             };
 
-            if (Enum.IsDefined(typeof (MessageIntentEnum), m.AppSpecific))
-                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
+            if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
+                result.MessageIntent = (MessageIntentEnum)m.AppSpecific;
 
             m.BodyStream.Position = 0;
             result.Body = new byte[m.BodyStream.Length];
             m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
-            if (m.Extension.Length > 0)
+            return result;
+        }
+
+        static Dictionary<string, string> DeserializeMessageHeaders(Message m)
+        {
+            var result = new Dictionary<string, string>();
+
+            if (m.Extension.Length == 0)
+                return result;
+
+            object o;
+            using (var stream = new MemoryStream(m.Extension))
             {
-                object o;
-                using (var stream = new MemoryStream(m.Extension))
-                using (var reader = XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
                 {
                     o = headerSerializer.Deserialize(reader);
                 }
+            }
 
-                foreach (var pair in o as List<HeaderInfo>)
+            foreach (var pair in o as List<HeaderInfo>)
+            {
+                if (pair.Key != null)
                 {
-                    if (pair.Key != null)
-                    {
-                        result.Headers[pair.Key] = pair.Value;
-                    }
+                    result.Add(pair.Key, pair.Value);
                 }
             }
 

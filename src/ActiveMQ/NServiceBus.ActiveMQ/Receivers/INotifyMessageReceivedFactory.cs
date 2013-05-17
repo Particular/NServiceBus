@@ -4,6 +4,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
     public interface INotifyMessageReceivedFactory
     {
-        INotifyMessageReceived CreateMessageReceiver(Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage);
+        INotifyMessageReceived CreateMessageReceiver(Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage);
     }
 }

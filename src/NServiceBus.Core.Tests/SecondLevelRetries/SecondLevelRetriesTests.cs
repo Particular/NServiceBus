@@ -31,7 +31,7 @@ namespace NServiceBus.Management.Retries.Tests
 
             satellite.RetryPolicy = DefaultRetryPolicy.RetryPolicy;
 
-            message = new TransportMessage {Headers = new Dictionary<string, string>()};
+            message = new TransportMessage();
         }
 
         [Test]

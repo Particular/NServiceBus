@@ -1,6 +1,7 @@
 namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Apache.NMS;
     using Apache.NMS.Util;
@@ -61,7 +62,9 @@ namespace NServiceBus.Transports.ActiveMQ
 
         public TransportMessage CreateTransportMessage(IMessage message)
         {
-            var transportMessage = new TransportMessage();
+            var headers = ExtractHeaders(message);
+
+            var transportMessage = new TransportMessage(message.NMSMessageId, headers);
 
             this.decoderPipeline.Decode(transportMessage, message);
 
@@ -73,21 +76,7 @@ namespace NServiceBus.Transports.ActiveMQ
             transportMessage.CorrelationId = message.NMSCorrelationID;
             transportMessage.TimeToBeReceived = message.NMSTimeToLive;
             transportMessage.Recoverable = message.NMSDeliveryMode == MsgDeliveryMode.Persistent;
-            transportMessage.Id = message.NMSMessageId;
-
-            foreach (var key in message.Properties.Keys)
-            {
-                var keyString = (string)key;
-                if (keyString == ErrorCodeKey)
-                {
-                    continue;
-                }
-                
-                transportMessage.Headers[ConvertMessageHeaderKeyFromActiveMQ(keyString)] = message.Properties[keyString] != null 
-                                                                                               ? message.Properties[keyString].ToString() 
-                                                                                               : null;
-            }
-
+          
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
                 var type = this.messageTypeInterpreter.GetAssemblyQualifiedName(message.NMSType);
@@ -116,6 +105,27 @@ namespace NServiceBus.Transports.ActiveMQ
             }
 
             return transportMessage;
+        }
+
+        static Dictionary<string,string> ExtractHeaders(IMessage message)
+        {
+            var result = new Dictionary<string, string>();
+
+            foreach (var key in message.Properties.Keys)
+            {
+                var keyString = (string) key;
+                if (keyString == ErrorCodeKey)
+                {
+                    continue;
+                }
+
+                result.Add(ConvertMessageHeaderKeyFromActiveMQ(keyString), message.Properties[keyString] != null
+                                                                                               ? message.Properties[keyString]
+                                                                                                     .ToString()
+                                                                                               : null);
+            }
+
+            return result;
         }
 
         public static string ConvertMessageHeaderKeyToActiveMQ(string headerKey)

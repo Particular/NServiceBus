@@ -23,10 +23,32 @@ namespace NServiceBus
         public TransportMessage()
         {
             id = CombGuid.Generate().ToString();
+            Headers[NServiceBus.Headers.MessageId] = id;
             CorrelationId = id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
+        }
+
+        /// <summary>
+        /// Creates a new TransportMessage with the given id and headers
+        /// </summary>
+        /// <param name="existingHeaders"></param>
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
+        {
+            if (existingHeaders == null)
+                existingHeaders = new Dictionary<string, string>();
+
+            headers = existingHeaders;
+
+
+            id = existingId;
+
+            //only update the "stable id" if there isn't one present already
+            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+            {
+                Headers[NServiceBus.Headers.MessageId] = existingId;
+            } 
         }
 
         /// <summary>
@@ -38,18 +60,10 @@ namespace NServiceBus
             {
                 if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
                 {
-                    // TODO: or better return null?
                     return id;
                 }
 
                 return Headers[NServiceBus.Headers.MessageId];
-            }
-            set
-            {
-                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
-                {
-                    Headers[NServiceBus.Headers.MessageId] = value;
-                }
             }
         }
 
@@ -113,7 +127,7 @@ namespace NServiceBus
             set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
         }
 
-        
+
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
@@ -132,12 +146,11 @@ namespace NServiceBus
         /// </summary>
         public Dictionary<string, string> Headers
         {
-            get { return headers ?? (headers = new Dictionary<string, string>()); }
-            set { headers = value; }
+            get { return headers; }
         }
 
 
-        Dictionary<string, string> headers;
+        readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message

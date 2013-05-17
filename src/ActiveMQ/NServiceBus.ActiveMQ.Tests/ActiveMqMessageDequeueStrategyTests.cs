@@ -32,7 +32,7 @@
             disposedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
 
             notifyMessageReceivedFactoryMock
-                .Setup(f => f.CreateMessageReceiver(It.IsAny<Func<TransportMessage, bool>>(), It.IsAny<Action<string, Exception>>()))
+                .Setup(f => f.CreateMessageReceiver(It.IsAny<Func<TransportMessage, bool>>(), It.IsAny<Action<TransportMessage, Exception>>()))
                 .Returns(CreateMessageReceiver);
         }
 

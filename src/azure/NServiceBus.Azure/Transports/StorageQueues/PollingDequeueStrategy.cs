@@ -7,8 +7,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Transactions;
     using CircuitBreakers;
     using Transport;
-    using Transport.Transactional;
-    using Utils;
     using Transports;
 
     /// <summary>
@@ -28,7 +26,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
         /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
@@ -126,7 +124,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 }
                 finally
                 {
-                    endProcessMessage(message != null ? message.Id : null, exception);
+                    endProcessMessage(message, exception);
                 }
             }
         }
@@ -138,6 +136,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         MTATaskScheduler scheduler;
         TransactionSettings settings;
         TransactionOptions transactionOptions;
-        Action<string, Exception> endProcessMessage;
+        Action<TransportMessage, Exception> endProcessMessage;
     }
 }

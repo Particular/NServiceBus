@@ -6,9 +6,14 @@ namespace NServiceBus.Gateway.HeaderManagement
 
     public class HeaderMapper
     {
-        public static void Map(IDictionary<string,string> from, TransportMessage to)
+        public static TransportMessage Map(IDictionary<string, string> from)
         {
-            to.Id = from[NServiceBus + Id];
+            if (!from.ContainsKey(GatewayHeaders.IsGatewayMessage))
+                return new TransportMessage();
+
+            var headers = ExtractHeaders(from);
+            var to = new TransportMessage(from[NServiceBus + Id], headers);
+
             to.CorrelationId = @from[NServiceBus + CorrelationId] ?? to.Id;
 
             bool recoverable;
@@ -22,9 +27,22 @@ namespace NServiceBus.Gateway.HeaderManagement
             if (to.TimeToBeReceived < TimeSpan.FromSeconds(1))
                 to.TimeToBeReceived = TimeSpan.FromSeconds(1);
 
+            return to;
+        }
+
+        static Dictionary<string,string> ExtractHeaders(IDictionary<string, string> from)
+        {
+            var result = new Dictionary<string, string>();
+
             foreach (string header in from.Keys)
+            {
                 if (header.Contains(NServiceBus + Headers.HeaderName))
-                    to.Headers[header.Replace(NServiceBus + Headers.HeaderName + ".", "")] =  from[header];
+                {
+                    result.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""),from[header]);
+                }
+            }
+
+            return result;
         }
 
         public static void Map(TransportMessage from, IDictionary<string,string> to)

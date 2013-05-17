@@ -5,8 +5,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     public class NotifyMessageReceivedFactory : INotifyMessageReceivedFactory
     {
         public string ConsumerName { get; set; }
-        
-        public INotifyMessageReceived CreateMessageReceiver(Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+
+        public INotifyMessageReceived CreateMessageReceiver(Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             var messageProcessor = Configure.Instance.Builder.Build<IProcessMessages>();
             messageProcessor.TryProcessMessage = tryProcessMessage;

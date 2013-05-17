@@ -6,6 +6,8 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 {
+    using System.Linq;
+
     public class BrokeredMessageConverter
     {
         public TransportMessage ToTransportMessage(BrokeredMessage message)
@@ -19,21 +21,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
             else
             {
-                t = new TransportMessage
+                t = new TransportMessage(message.MessageId, message.Properties.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value.ToString()))
                         {
                             CorrelationId = message.CorrelationId,
                             TimeToBeReceived = message.TimeToLive
                         };
 
-                foreach (var header in message.Properties)
-                {
-                    t.Headers[header.Key] = header.Value.ToString();
-                }
-
                 t.MessageIntent =
                     (MessageIntentEnum)
                     Enum.Parse(typeof(MessageIntentEnum), message.Properties[Headers.MessageIntent].ToString());
-                t.Id = message.MessageId;
+             
                 if ( !String.IsNullOrWhiteSpace( message.ReplyTo ) )
                 {
                     t.ReplyToAddress = Address.Parse( message.ReplyTo ); // Will this work?

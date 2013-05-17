@@ -1328,11 +1328,10 @@ namespace NServiceBus.Unicast
             if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
                 return;
 
-            var toSend = new TransportMessage
+            var toSend = new TransportMessage(m.Id,m.Headers)
                              {
                                  Body = m.Body,
                                  CorrelationId = m.CorrelationId,
-                                 Headers = m.Headers,
                                  MessageIntent = m.MessageIntent,
                                  Recoverable = m.Recoverable,
                                  ReplyToAddress = Address.Local,
