@@ -32,7 +32,13 @@
         {
             channelReceiver = channelFactory.GetReceiver(channel.Type);
             channelReceiver.DataReceived += DataReceivedOnChannel;
+            receiver.MessageReceived += MessageReceivedOnOldChannel;
             channelReceiver.Start(channel.Address,numWorkerThreads);
+        }
+
+        void MessageReceivedOnOldChannel(object sender, MessageReceivedOnChannelArgs e)
+        {
+            MessageReceived(sender, e);
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
@@ -148,6 +154,7 @@
         public void Dispose()
         {
             channelReceiver.DataReceived -= DataReceivedOnChannel;
+            receiver.MessageReceived -= MessageReceivedOnOldChannel;
             channelReceiver.Dispose();
         }
 
