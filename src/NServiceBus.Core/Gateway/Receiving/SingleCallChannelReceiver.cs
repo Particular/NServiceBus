@@ -105,21 +105,14 @@
 
                 CheckHashOfGatewayStream(stream, callInfo.Headers[HttpHeaders.ContentMd5Key]);
 
-                var msg = new TransportMessage
-                {
-                    Body = new byte[stream.Length],
-                    Headers = new Dictionary<string, string>(),
-                    MessageIntent = MessageIntentEnum.Send,
-                    Recoverable = true
-                };
-
-                stream.Read(msg.Body, 0, msg.Body.Length);
-
-                if (callInfo.Headers.ContainsKey(GatewayHeaders.IsGatewayMessage))
-                    HeaderMapper.Map(headerManager.Reassemble(callInfo.ClientId, callInfo.Headers), msg);
-
                 if (deduplicator.DeduplicateMessage(callInfo.ClientId, DateTime.UtcNow))
+                {
+                    var msg = HeaderMapper.Map(headerManager.Reassemble(callInfo.ClientId, callInfo.Headers));
+                    msg.Body = new byte[stream.Length];
+                    stream.Read(msg.Body, 0, msg.Body.Length);
+
                     MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
+                }
                 else
                     Logger.InfoFormat("Message with id: {0} is already on the bus, dropping the request", callInfo.ClientId);
             }
