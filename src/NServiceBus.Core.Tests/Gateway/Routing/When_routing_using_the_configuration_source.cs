@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace NServiceBus.Gateway.Tests.Routing
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Channels;
@@ -25,7 +24,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         public void Should_read_sites_and_their_keys_from_the_configsource()
         {
              
-            var message = new TransportMessage { Headers = new Dictionary<string, string>() };
+            var message = new TransportMessage();
 
             message.Headers.Add(Headers.DestinationSites, "SiteA");
 

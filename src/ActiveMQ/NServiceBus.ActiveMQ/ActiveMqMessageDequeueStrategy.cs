@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Queuing;
-    using NServiceBus.Unicast.Transport.Transactional;
     using Receivers;
     using SessionFactories;
     using Unicast.Transport;
@@ -20,7 +18,7 @@
         private Address address;
         private TransactionSettings settings;
         private Func<TransportMessage, bool> tryProcessMessage;
-        private Action<string, Exception> endProcessMessage;
+        private Action<TransportMessage, Exception> endProcessMessage;
 
         /// <summary>
         ///     Default constructor.
@@ -41,7 +39,7 @@
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
         /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             settings = transactionSettings;
             this.tryProcessMessage = tryProcessMessage;

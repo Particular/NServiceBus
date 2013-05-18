@@ -126,9 +126,8 @@
 
         protected void SendMessage(string destinationSites,Dictionary<string,string> headers)
         {
-            var message = new TransportMessage
+            var message = new TransportMessage(Guid.NewGuid().ToString(),headers)
                               {
-                                  Headers = headers,
                                   Body = new byte[500],
                                   TimeToBeReceived = TimeSpan.FromDays(1),
                                   ReplyToAddress = GatewayAddressForSiteA

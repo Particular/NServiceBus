@@ -41,21 +41,15 @@
             return config;
         }
 
-        public static Configure DefineTransport(this Configure config, string transport)
+        public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
         {
-            if (string.IsNullOrEmpty(transport))
-            {
-                return config.UseTransport<Msmq>();
-            }
+            if (!settings.ContainsKey("Transport"))
+                settings = ScenarioDescriptors.Transports.Default.Settings;
 
-            var transportType = Type.GetType(transport);
+            var transportType = Type.GetType(settings["Transport"]);
 
-            if (DefaultConnectionStrings.ContainsKey(transportType))
-            {
-                return config.UseTransport(transportType, () => DefaultConnectionStrings[transportType]);
-            }
+            return config.UseTransport(transportType, () => settings["Transport.ConnectionString"]);
 
-            return config.UseTransport(transportType);
         }
 
         public static Configure DefineSerializer(this Configure config, string serializer)
@@ -65,24 +59,24 @@
 
             var type = Type.GetType(serializer);
 
-            if (type == typeof (XmlMessageSerializer))
+            if (type == typeof(XmlMessageSerializer))
                 return config.XmlSerializer();
 
 
-            if (type == typeof (JsonMessageSerializer))
+            if (type == typeof(JsonMessageSerializer))
                 return config.JsonSerializer();
 
 
-            if (type == typeof (BsonMessageSerializer))
+            if (type == typeof(BsonMessageSerializer))
                 return config.BsonSerializer();
 
-            if (type == typeof (MessageSerializer))
+            if (type == typeof(MessageSerializer))
                 return config.BinarySerializer();
 
 
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
-        
+
 
         public static Configure DefineSagaPersister(this Configure config, string persister)
         {
@@ -91,21 +85,21 @@
 
             var type = Type.GetType(persister);
 
-            if (type == typeof (InMemorySagaPersister))
+            if (type == typeof(InMemorySagaPersister))
                 return config.InMemorySagaPersister();
 
-            if (type == typeof (RavenSagaPersister))
+            if (type == typeof(RavenSagaPersister))
             {
                 config.RavenPersistence(() => "url=http://localhost:8080");
                 return config.RavenSagaPersister();
 
             }
-                
-            if (type == typeof (SagaPersister))
-            { 
+
+            if (type == typeof(SagaPersister))
+            {
                 return config.UseNHibernateSagaPersister();
             }
-                
+
             throw new InvalidOperationException("Unknown persister:" + persister);
         }
 
@@ -148,41 +142,30 @@
 
             var type = Type.GetType(builder);
 
-            if (type == typeof (AutofacObjectBuilder))
+            if (type == typeof(AutofacObjectBuilder))
             {
                 ConfigureCommon.With(config, new AutofacObjectBuilder(null));
 
                 return config;
             }
 
-            if (type == typeof (WindsorObjectBuilder))
+            if (type == typeof(WindsorObjectBuilder))
                 return config.CastleWindsorBuilder();
 
-            if (type == typeof (NinjectObjectBuilder))
+            if (type == typeof(NinjectObjectBuilder))
                 return config.NinjectBuilder();
 
-            if (type == typeof (SpringObjectBuilder))
+            if (type == typeof(SpringObjectBuilder))
                 return config.SpringFrameworkBuilder();
 
-            if (type == typeof (StructureMapObjectBuilder))
+            if (type == typeof(StructureMapObjectBuilder))
                 return config.StructureMapBuilder();
 
-            if (type == typeof (UnityObjectBuilder))
+            if (type == typeof(UnityObjectBuilder))
                 return config.StructureMapBuilder();
 
 
             throw new InvalidOperationException("Unknown builder:" + builder);
         }
-
-        private static readonly Dictionary<Type, string> DefaultConnectionStrings = new Dictionary<Type, string>
-            {
-                {typeof (RabbitMQ), "host=localhost"},
-                {typeof (SqlServer), @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-                {typeof (ActiveMQ), @"ServerUrl=activemq:tcp://localhost:61616"},
-                {typeof (Msmq), @"cacheSendConnection=false;journal=false;"},
-                {typeof (AzureStorageQueue), Environment.GetEnvironmentVariable("AzureStorageQueue.ConnectionString") },
-                {typeof (AzureServiceBus), Environment.GetEnvironmentVariable("AzureServiceBus.ConnectionString") }
-
-            };
     }
 }

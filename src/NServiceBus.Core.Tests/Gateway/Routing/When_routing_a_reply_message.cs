@@ -14,7 +14,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         {
             var router = new OriginatingSiteHeaderRouter();
 
-            var message = new TransportMessage { Headers = new Dictionary<string, string>() };
+            var message = new TransportMessage();
 
             var defaultChannel = new Channel
                                      {
@@ -34,7 +34,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         {
             var router = new OriginatingSiteHeaderRouter();
 
-            var message = new TransportMessage { Headers = new Dictionary<string, string>() };
+            var message = new TransportMessage();
             
             Assert.AreEqual(0, router.GetDestinationSitesFor(message).Count());
         }

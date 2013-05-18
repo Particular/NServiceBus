@@ -7,7 +7,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Util;
 
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
+    using TransactionsScopes;
 
     using SessionFactories;
 
@@ -26,7 +26,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
         private TransactionSettings transactionSettings;
         private bool disposed;
 
-        public Action<string, Exception> EndProcessMessage { get; set; }
+        public Action<TransportMessage, Exception> EndProcessMessage { get; set; }
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
         public bool PurgeOnStartup { get; set; }
 
@@ -118,7 +118,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
                     }
                     finally
                     {
-                        EndProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
+                        EndProcessMessage(transportMessage, exception);
                     }
                 }
             }

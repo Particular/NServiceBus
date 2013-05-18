@@ -65,7 +65,7 @@ namespace NServiceBus.Transports.Msmq
 
                 return PREFIX_TCP + localIp + PRIVATE + value.Queue;
             }
-                
+
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
@@ -78,7 +78,7 @@ namespace NServiceBus.Transports.Msmq
                     ni =>
                     ni.OperationalStatus == OperationalStatus.Up &&
                     ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
-                    .SelectMany(ni=>ni.GetIPProperties().UnicastAddresses).ToList();
+                    .SelectMany(ni => ni.GetIPProperties().UnicastAddresses).ToList();
 
             var firstWithMatchingFamily =
                 availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
@@ -138,77 +138,54 @@ namespace NServiceBus.Transports.Msmq
         /// <returns></returns>
         public static TransportMessage Convert(Message m)
         {
-            var result = new TransportMessage
+            var headers = DeserializeMessageHeaders(m);
+
+            var result = new TransportMessage(m.Id, headers)
             {
-                Id = m.Id,
                 CorrelationId =
                     (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
                          ? null
-                         : m.CorrelationId.Replace("\\0","")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
+                         : m.CorrelationId.Replace("\\0", "")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
                 ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
             };
 
-            if (Enum.IsDefined(typeof (MessageIntentEnum), m.AppSpecific))
-                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
+            if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
+                result.MessageIntent = (MessageIntentEnum)m.AppSpecific;
 
             m.BodyStream.Position = 0;
             result.Body = new byte[m.BodyStream.Length];
             m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
-            if (m.Extension.Length > 0)
-            {
-                object o;
-                using (var stream = new MemoryStream(m.Extension))
-                using (var reader = XmlReader.Create(stream, new XmlReaderSettings {CheckCharacters = false}))
-                {
-                    o = headerSerializer.Deserialize(reader);
-                }
-
-                foreach (var pair in o as List<HeaderInfo>)
-                {
-                    if (pair.Key != null)
-                    {
-                        result.Headers[pair.Key] = pair.Value;
-                    }
-                }
-            }
-
-            if (result.Headers.ContainsKey("EnclosedMessageTypes")) // This is a V2.6 message
-            {
-                ExtractMsmqMessageLabelInformationForBackwardCompatibility(m, result);
-            }
-       
             return result;
         }
 
-        /// <summary>
-        /// For backward compatibility, extract the V2.6 MSMQ label content (IdForCorrelation and WindowsIdentityName) 
-        /// into the V3.X transport message.
-        /// </summary>
-        /// <param name="msmqMsg">Received MSMQ message</param>
-        /// <param name="result">Transport message to be filled from MSMQ message label</param>
-        private static void ExtractMsmqMessageLabelInformationForBackwardCompatibility(Message msmqMsg, TransportMessage result)
+        static Dictionary<string, string> DeserializeMessageHeaders(Message m)
         {
-            if (string.IsNullOrWhiteSpace(msmqMsg.Label))
-                return;
+            var result = new Dictionary<string, string>();
 
-            if (msmqMsg.Label.Contains(Headers.IdForCorrelation))
+            if (m.Extension.Length == 0)
+                return result;
+
+            object o;
+            using (var stream = new MemoryStream(m.Extension))
             {
-                int idStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.IdForCorrelation)) + Headers.IdForCorrelation.Length + 2;
-                int idCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.IdForCorrelation)) - idStartIndex;
-
-                result.Headers[Headers.IdForCorrelation] = msmqMsg.Label.Substring(idStartIndex, idCount);
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
+                {
+                    o = headerSerializer.Deserialize(reader);
+                }
             }
 
-            if (msmqMsg.Label.Contains(Headers.WindowsIdentityName) && !result.Headers.ContainsKey(Headers.WindowsIdentityName))
+            foreach (var pair in o as List<HeaderInfo>)
             {
-                int winStartIndex = msmqMsg.Label.IndexOf(string.Format("<{0}>", Headers.WindowsIdentityName)) + Headers.WindowsIdentityName.Length + 2;
-                int winCount = msmqMsg.Label.IndexOf(string.Format("</{0}>", Headers.WindowsIdentityName)) - winStartIndex;
-
-                result.Headers.Add(Headers.WindowsIdentityName, msmqMsg.Label.Substring(winStartIndex, winCount));
+                if (pair.Key != null)
+                {
+                    result.Add(pair.Key, pair.Value);
+                }
             }
+
+            return result;
         }
 
         /// <summary>
@@ -226,10 +203,7 @@ namespace NServiceBus.Transports.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
             }
 
-            if (!string.IsNullOrWhiteSpace(message.CorrelationId))
-            {
-                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
-            }
+            result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
 
             result.Recoverable = message.Recoverable;
 
@@ -246,24 +220,7 @@ namespace NServiceBus.Transports.Msmq
 
             result.AppSpecific = (int)message.MessageIntent;
 
-            FillLabelForBackwardsCompatabilityWhileSending(message, result);
-
             return result;
-        }
-        /// <summary>
-        /// Fill MSMQ message's label to be compatible with NServiceBus V2.6
-        /// </summary>
-        /// <param name="transportMessage"></param>
-        /// <param name="msmqMessage"></param>
-        static void FillLabelForBackwardsCompatabilityWhileSending(TransportMessage transportMessage, Message msmqMessage)
-        {
-            string windowsIdentityName =
-                (transportMessage.Headers.ContainsKey(Headers.WindowsIdentityName) && (!string.IsNullOrWhiteSpace(transportMessage.Headers[Headers.WindowsIdentityName])))
-                ? transportMessage.Headers[Headers.WindowsIdentityName] : string.Empty;
-
-            msmqMessage.Label =
-                string.Format("<{0}>{2}</{0}><{1}>{3}</{1}>", Headers.IdForCorrelation, Headers.WindowsIdentityName,
-                    transportMessage.IdForCorrelation, windowsIdentityName);
         }
 
         private const string DIRECTPREFIX = "DIRECT=OS:";

@@ -19,7 +19,7 @@
                             b.When(context => context.StartSagaMessageReceived, (bus, context) => bus.SendLocal(new CompleteSagaMessage { SomeId = context.Id }));
                         })
                     .Done(c => c.SagaCompleted)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                     {
                         Assert.IsNull(c.UnhandledException);
@@ -39,7 +39,7 @@
                           b.When(context => context.SagaCompleted, (bus, context) => bus.SendLocal(new AnotherMessage { SomeId = context.Id }));
                       })
                     .Done(c => c.AnotherMessageReceived)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                         {
                             Assert.IsNull(c.UnhandledException);

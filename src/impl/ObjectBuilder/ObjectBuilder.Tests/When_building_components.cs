@@ -79,6 +79,22 @@ namespace ObjectBuilder.Tests
                ,typeof(SpringObjectBuilder));
         }
 
+        [Test]
+        public void Should_support_mixed_dependency_styles()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(ComponentWithBothConstructorAndSetterInjection), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(ConstructorDep), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SetterDep), DependencyLifecycle.InstancePerCall);
+
+                var component = builder.Build(typeof(ComponentWithBothConstructorAndSetterInjection)) as ComponentWithBothConstructorAndSetterInjection;
+
+                Assert.NotNull(component.ConstructorDep);
+                Assert.NotNull(component.SetterDep);
+            }, typeof(SpringObjectBuilder));
+        }
+
  
         protected override Action<IContainer> InitializeBuilder()
         {
@@ -117,6 +133,31 @@ namespace ObjectBuilder.Tests
     }
 
     public class ComponentCreatedByFactory
+    {
+    }
+
+    public class ComponentWithBothConstructorAndSetterInjection
+    {
+        readonly ConstructorDep constructorDep;
+
+        public ComponentWithBothConstructorAndSetterInjection(ConstructorDep constructorDep)
+        {
+            this.constructorDep = constructorDep;
+        }
+
+        public ConstructorDep ConstructorDep
+        {
+            get { return constructorDep; }
+        }
+
+        public SetterDep SetterDep { get; set; }
+    }
+
+    public class ConstructorDep
+    {
+    }
+
+    public class SetterDep
     {
     }
 }

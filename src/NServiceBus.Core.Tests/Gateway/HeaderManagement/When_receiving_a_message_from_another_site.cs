@@ -34,7 +34,6 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
 
             responseMessage = new TransportMessage
             {
-                Headers = new Dictionary<string, string>(),
                 CorrelationId = idOfIncommingMessage
             };
         }

@@ -53,7 +53,7 @@ namespace NServiceBus.SecondLevelRetries
 
         void SendToErrorQueue(TransportMessage message)
         {
-            Logger.ErrorFormat("SLR has failed to resolve the issue with message {0} and will be forwarded to the error queue at {1}", message.IdForCorrelation, FaultManager.ErrorQueue);
+            Logger.ErrorFormat("SLR has failed to resolve the issue with message {0} and will be forwarded to the error queue at {1}", message.Id, FaultManager.ErrorQueue);
 
             message.Headers.Remove(Headers.Retries);
 

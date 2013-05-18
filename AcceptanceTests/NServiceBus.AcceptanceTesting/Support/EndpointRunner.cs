@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Installation.Environments;
+    using Logging;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -68,6 +69,7 @@
             }
             catch (Exception ex)
             {
+                Logger.Error("Failed to initalize endpoint " + endpointName,ex);
                 return Result.Failure(ex);
             }
         }
@@ -96,6 +98,8 @@
             }
             catch (Exception ex)
             {
+                Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
+                
                 return Result.Failure(ex);
             }
         }
@@ -116,6 +120,8 @@
             }
             catch (Exception ex)
             {
+                Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
+
                 return Result.Failure(ex);
             }
         }
@@ -136,7 +142,7 @@
         {
             return AppDomain.CurrentDomain.FriendlyName;
         }
-
+        static readonly ILog Logger = LogManager.GetLogger(typeof(EndpointRunner));
 
         [Serializable]
         public class Result : MarshalByRefObject

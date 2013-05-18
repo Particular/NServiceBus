@@ -90,12 +90,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             string originalId = null;
 
-                            if (tm.Headers.ContainsKey(Headers.OriginalId))
-                                originalId = tm.Headers[Headers.OriginalId];
+                            if (tm.Headers.ContainsKey("NServiceBus.OriginalId"))
+                                originalId = tm.Headers["NServiceBus.OriginalId"];
 
 
-                            if (string.IsNullOrEmpty(originalId) && tm.Headers.ContainsKey(Headers.IdForCorrelation))
-                                originalId = tm.Headers[Headers.IdForCorrelation];
+                            if (string.IsNullOrEmpty(originalId) && tm.Headers.ContainsKey("CorrId"))
+                                originalId = tm.Headers["CorrId"];
 
                             if (string.IsNullOrEmpty(originalId) || messageId != originalId)
                                 continue;

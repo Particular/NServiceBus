@@ -12,7 +12,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
     using CircuitBreakers;
     using Transport;
     using Transports;
-    using Utils;
 
     /// <summary>
     /// Azure service bus implementation if <see cref="IDequeueMessages" />.
@@ -22,7 +21,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         private Address address;
         private TransactionSettings settings;
         private Func<TransportMessage, bool> tryProcessMessage;
-        private Action<string, Exception> endProcessMessage;
+        private Action<TransportMessage, Exception> endProcessMessage;
         private TransactionOptions transactionOptions;
         private readonly Queue pendingMessages = Queue.Synchronized(new Queue());
         private readonly IList<INotifyReceivedMessages> notifiers = new List<INotifyReceivedMessages>();
@@ -54,7 +53,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
         /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
-        public virtual void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        public virtual void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             settings = transactionSettings;
             this.tryProcessMessage = tryProcessMessage;
@@ -164,7 +163,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 }
                 finally
                 {
-                    endProcessMessage(transportMessage != null ? transportMessage.Id : null, exception);
+                    endProcessMessage(transportMessage, exception);
                 }
             }
         }

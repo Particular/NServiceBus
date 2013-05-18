@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace NServiceBus.Management.Retries.Tests
@@ -16,7 +15,7 @@ namespace NServiceBus.Management.Retries.Tests
         [SetUp]
         public void SetUp()
         {
-            _message = new TransportMessage {Headers = new Dictionary<string, string>()};
+            _message = new TransportMessage();
         }
 
         [Test]

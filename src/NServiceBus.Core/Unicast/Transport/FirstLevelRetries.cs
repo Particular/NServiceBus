@@ -30,7 +30,7 @@
 
                 if (TryInvokeFaultManager(message, e.Item2))
                 {
-                    ClearFailuresForMessage(messageId);
+                    ClearFailuresForMessage(message);
                 }
 
                 return true;
@@ -39,15 +39,16 @@
             return false;
         }
 
-        public void ClearFailuresForMessage(string messageId)
+        public void ClearFailuresForMessage(TransportMessage message)
         {
+            string messageId = message.Id;
             Tuple<int, Exception> e;
             failuresPerMessage.TryRemove(messageId, out e);
         }
 
-        public void IncrementFailuresForMessage(string messageId, Exception e)
+        public void IncrementFailuresForMessage(TransportMessage message, Exception e)
         {
-            failuresPerMessage.AddOrUpdate(messageId, new Tuple<int, Exception>(1, e),
+            failuresPerMessage.AddOrUpdate(message.Id, new Tuple<int, Exception>(1, e),
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
