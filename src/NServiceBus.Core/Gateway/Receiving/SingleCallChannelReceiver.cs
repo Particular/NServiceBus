@@ -16,14 +16,12 @@
 
     public class SingleCallChannelReceiver : IReceiveMessagesFromSites
     {
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        public IdempotentChannelReceiver Receiver { get; set; }
-
-        public SingleCallChannelReceiver(IChannelFactory channelFactory, IDeduplicateMessages deduplicator, DataBusHeaderManager headerManager)
+        public SingleCallChannelReceiver(IChannelFactory channelFactory, IDeduplicateMessages deduplicator, DataBusHeaderManager headerManager, IdempotentChannelReceiver receiver)
         {
             this.channelFactory = channelFactory;
             this.deduplicator = deduplicator;
             this.headerManager = headerManager;
+            this.receiver = receiver;
         }
 
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
@@ -51,7 +49,7 @@
                     {
                         case CallType.SingleCallDatabusProperty: HandleDatabusProperty(callInfo); break;
                         case CallType.SingleCallSubmit: HandleSubmit(callInfo); break;
-                        default: Receiver.DispatchReceivedCallInfo(callInfo); break;
+                        default: receiver.DispatchReceivedCallInfo(callInfo); break;
                     }
                     scope.Complete();
                 }
@@ -158,7 +156,9 @@
         readonly IDeduplicateMessages deduplicator;
         readonly DataBusHeaderManager headerManager;
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        readonly IdempotentChannelReceiver receiver;
 
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
     }
 }

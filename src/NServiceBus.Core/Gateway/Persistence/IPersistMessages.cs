@@ -7,6 +7,7 @@ namespace NServiceBus.Gateway.Persistence
     /// <summary>
     /// Provides the basic functionality to persist Gateway messages.
     /// </summary>
+    [ObsoleteEx(Replacement = "IDeduplicateMessages", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public interface IPersistMessages
     {
         /// <summary>
