@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Receiving;
 
     public class DataBusHeaderManager
     {
@@ -21,11 +22,26 @@
 
         public IDictionary<string, string> Reassemble(string clientId, IDictionary<string, string> input)
         {
+            var expectedDatabusProperties = input.Where(kv => kv.Key.Contains(HeaderMapper.DATABUS_PREFIX)).ToList();
+            if (!expectedDatabusProperties.Any())
+                return input;
+
             lock (headers)
-            {
+            {                
                 IDictionary<string, string> collection;
-                if (headers.TryGetValue(clientId, out collection))
-                    collection.ToList().ForEach(kv => input[kv.Key] = kv.Value);
+                if (!headers.TryGetValue(clientId, out collection))
+                    throw new ChannelException(412, string.Format("Expected {0} databus properties. None were received. Please resubmit.",
+                                                    expectedDatabusProperties.Count));
+
+                foreach (var propertyHeader in expectedDatabusProperties)
+                {
+                    if (!collection.ContainsKey(propertyHeader.Key))
+                        throw new ChannelException(412, string.Format("Databus property {0} was never received. Please resubmit.",
+                                                        propertyHeader.Key));
+                    input[propertyHeader.Key] = collection[propertyHeader.Key];
+                }                                
+
+                headers.Remove(clientId);
             }
             return input;
         }
