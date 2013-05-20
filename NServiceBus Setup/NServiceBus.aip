@@ -61,7 +61,7 @@
     <ROW Component="INSTALL_RAVENDB" ComponentId="{B3148F5E-98E7-41D0-8CD1-6870E48B1B6F}" Directory_="APPDIR" Attributes="4" KeyPath="INSTALL_RAVENDB" Options="1"/>
     <ROW Component="LICENSE.md" ComponentId="{F5E99794-0A85-4ED7-8F61-2322C51D8804}" Directory_="NServiceBus_Dir" Attributes="0" KeyPath="LICENSE.md" Type="0"/>
     <ROW Component="NServiceBus4.0BetaReleaseNotes.htm" ComponentId="{94A15127-37D1-4099-9F91-325F7A4E1F90}" Directory_="OfflineHtml_Dir" Attributes="0" KeyPath="NServiceBus4.0BetaReleaseNotes.htm" Type="0"/>
-    <ROW Component="Port" ComponentId="{061C5F0D-1CAD-434E-960E-C603317BBC21}" Directory_="APPDIR" Attributes="4" KeyPath="Port"/>
+    <ROW Component="Port" ComponentId="{061C5F0D-1CAD-434E-960E-C603317BBC21}" Directory_="APPDIR" Attributes="260" KeyPath="Port"/>
     <ROW Component="ProductInformation" ComponentId="{E4677B4C-C6E7-4FB9-8DF5-7AFE47955CD3}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="RavenPort" ComponentId="{9D2583D4-3CB8-4392-B787-0E9CB51B26CD}" Directory_="APPDIR" Attributes="4" KeyPath="RavenPort"/>
     <ROW Component="RavenPort_1" ComponentId="{611451AA-C5D4-4938-AC3C-6404EC5F3411}" Directory_="APPDIR" Attributes="260" KeyPath="RavenPort_1"/>
@@ -71,7 +71,7 @@
     <ROW Component="ServiceBus" ComponentId="{BC64C14D-73A1-434D-A45D-C778F8AE166B}" Directory_="APPDIR" Attributes="260" KeyPath="ServiceBus_1"/>
     <ROW Component="Studio.exe" ComponentId="{5E73ADCD-FE7C-418D-A214-540F759C6EA5}" Directory_="Tools_Dir" Attributes="0" KeyPath="Studio.exe"/>
     <ROW Component="Tools_SH" ComponentId="{08B97540-1114-4BB7-9536-BA0F54E093C6}" Directory_="APPDIR" Attributes="4" Condition="TOOLS_SH OR INSTALL_ALL_SHORTCUTS" KeyPath="Tools_SH"/>
-    <ROW Component="TrialStart" ComponentId="{7A967027-5397-4C23-8B1D-43E489AC01C0}" Directory_="APPDIR" Attributes="4" KeyPath="TrialStart"/>
+    <ROW Component="TrialStart" ComponentId="{7A967027-5397-4C23-8B1D-43E489AC01C0}" Directory_="APPDIR" Attributes="260" KeyPath="TrialStart"/>
     <ROW Component="UploadEndpointURL" ComponentId="{631A542D-7942-45E7-A065-811151AB9D1E}" Directory_="APPDIR" Attributes="4" KeyPath="UploadEndpointURL"/>
     <ROW Component="UploadEndpointURL_1" ComponentId="{CAF89D40-ABC9-464B-B871-F2AA20082F3D}" Directory_="APPDIR" Attributes="260" KeyPath="UploadEndpointURL_1"/>
     <ROW Component="UsageDataCollectionApproved" ComponentId="{D100EEE4-6068-4DDD-B406-9A3486FF1818}" Directory_="APPDIR" Attributes="4" KeyPath="UsageDataCollectionApproved"/>
