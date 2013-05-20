@@ -530,7 +530,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SecondLevelRetries\Retries\" />
-    <Folder Include="Serializers\Json\Config\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
