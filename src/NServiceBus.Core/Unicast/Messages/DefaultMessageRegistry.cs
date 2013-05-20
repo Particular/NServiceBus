@@ -20,42 +20,47 @@
 
         public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
         {
-            IEnumerable<string> messageTypeStrings = null;
-            if (message.Headers.ContainsKey(Headers.EnclosedMessageTypes))
-            {
-                var header = message.Headers[Headers.EnclosedMessageTypes];
+            var messageMetadatas = new List<MessageMetadata>();
+            string header;
 
-                if (!string.IsNullOrEmpty(header))
-                    messageTypeStrings = header.Split(';');
+            if (!message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out header))
+            {
+                return messageMetadatas;
+            }
+            if (string.IsNullOrEmpty(header))
+            {
+                return messageMetadatas;
             }
 
-            if (messageTypeStrings == null)
-                yield break;
-
-            foreach (var messageTypeString in messageTypeStrings)
+            foreach (var messageTypeString in header.Split(';'))
             {
                 var messageType = Type.GetType(messageTypeString, false);
 
                 if (messageType == null)
                 {
-                    Logger.InfoFormat("Message type: {0} could not be determined by a Type.GetType, scanning known messages for a match", messageTypeString);
+                    Logger.InfoFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.", messageTypeString);
 
-                    var firstOrDefault = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
-                    if (firstOrDefault != null)
+                    var messageMetadata = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
+                    if (messageMetadata == null)
                     {
-                        messageType = firstOrDefault.MessageType;
+                        continue;
                     }
+                    messageType = messageMetadata.MessageType;
                 }
-
-                if (messageType == null)
+                MessageMetadata metadata;
+                if (messages.TryGetValue(messageType, out metadata))
                 {
-                    //we can look at doing more advanced lookups in the future
-                    Logger.WarnFormat("Could not determine message type for message identifier: {0}",messageTypeString);
+                    messageMetadatas.Add(metadata);
+                    continue;
                 }
-
-                if (messageType != null)
-                    yield return messages[messageType];
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, check your type scanning conventions.", messageTypeString,messageType.FullName);
             }
+
+            if (messageMetadatas.Count == 0 && message.MessageIntent != MessageIntentEnum.Publish)
+            {
+                Logger.WarnFormat("Could not determine message type from message header '{0}'.", header);
+            }
+            return messageMetadatas;
         }
 
         public IEnumerable<MessageMetadata> GetAllMessages()
@@ -67,20 +72,19 @@
         public void RegisterMessageType(Type messageType)
         {
             var metadata = new MessageMetadata
-                {
-                    MessageType = messageType,
-                    Recoverable = !DefaultToNonPersistentMessages
-                };
+                           {
+                               MessageType = messageType,
+                               Recoverable = !DefaultToNonPersistentMessages,
+                               TimeToBeReceived = MessageConventionExtensions.TimeToBeReceivedAction(messageType)
+                           };
 
             if (MessageConventionExtensions.IsExpressMessageType(messageType))
                 metadata.Recoverable = false;
 
-            metadata.TimeToBeReceived = MessageConventionExtensions.TimeToBeReceivedAction(messageType);
-
             messages[messageType] = metadata;
         }
 
-        readonly IDictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();
+        readonly Dictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();
 
         public bool DefaultToNonPersistentMessages { get; set; }
 
