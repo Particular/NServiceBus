@@ -26,7 +26,6 @@
                      )
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                         {
-                            var bbb = Feature.IsEnabled<MessageDrivenSubscriptions>();
                             bus.Subscribe<MyEvent>();
 
                             if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
