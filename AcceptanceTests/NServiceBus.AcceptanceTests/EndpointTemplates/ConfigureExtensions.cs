@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using AcceptanceTesting;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.CastleWindsor;
@@ -16,6 +17,7 @@
     using Persistence.InMemory.SagaPersister;
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
+    using Persistence.NHibernate;
     using Persistence.Raven.SagaPersister;
     using Persistence.Raven.SubscriptionStorage;
     using SagaPersisters.NHibernate;
@@ -23,6 +25,8 @@
 
     public static class ConfigureExtensions
     {
+        static string NHibernateConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
+
         public static string GetOrNull(this IDictionary<string, string> dictionary, string key)
         {
             if (!dictionary.ContainsKey(key))
@@ -97,6 +101,14 @@
 
             if (type == typeof(SagaPersister))
             {
+                NHibernateSettingRetriever.ConnectionStrings = () =>
+                {
+                    var c = new ConnectionStringSettingsCollection();
+
+                    c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
+                    return c;
+
+                };
                 return config.UseNHibernateSagaPersister();
             }
 
@@ -123,6 +135,14 @@
 
             if (type == typeof(SubscriptionStorage))
             {
+                NHibernateSettingRetriever.ConnectionStrings = () =>
+                    {
+                        var c = new ConnectionStringSettingsCollection();
+                        
+                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
+                        return c;
+
+                    };
                 return config.UseNHibernateSubscriptionPersister();
             }
 

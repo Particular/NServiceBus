@@ -195,7 +195,6 @@
     <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

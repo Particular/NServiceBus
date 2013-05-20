@@ -39,8 +39,7 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10)
-                    .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10);
             }
 
             public class MySaga : Saga<MySaga.MySagaData>,IAmStartedByMessages<MyMessage>

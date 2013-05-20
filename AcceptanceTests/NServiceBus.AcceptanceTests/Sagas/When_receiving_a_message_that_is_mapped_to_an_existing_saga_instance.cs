@@ -46,8 +46,7 @@
                 EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a =>
                     {
                         a.DoNotWrapHandlersExecutionInATransactionScope();
-                    }))
-                   .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
+                    }));
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
