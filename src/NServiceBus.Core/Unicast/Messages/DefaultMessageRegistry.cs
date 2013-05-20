@@ -38,7 +38,7 @@
 
                 if (messageType == null)
                 {
-                    Logger.InfoFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.", messageTypeString);
+                    Logger.InfoFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.MessageId: {1}", messageTypeString, message.Id);
 
                     var messageMetadata = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
                     if (messageMetadata == null)
@@ -53,12 +53,12 @@
                     messageMetadatas.Add(metadata);
                     continue;
                 }
-                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, check your type scanning conventions.", messageTypeString,messageType.FullName);
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, check your type scanning conventions. MessageId: {2}", messageTypeString,messageType.FullName,message.Id);
             }
 
             if (messageMetadatas.Count == 0 && message.MessageIntent != MessageIntentEnum.Publish)
             {
-                Logger.WarnFormat("Could not determine message type from message header '{0}'.", header);
+                Logger.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", header, message.Id);
             }
             return messageMetadatas;
         }
