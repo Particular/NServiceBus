@@ -62,7 +62,7 @@
                                      t.DeclaringType == endpointConfiguration.BuilderType.DeclaringType || //but include types on the test level
                                      t.DeclaringType == endpointConfiguration.BuilderType).ToList(); //and the specific types for this endpoint
             
-            return types;
+            return types.Where(t=>!endpointConfiguration.TypesToExclude.Contains(t)).ToList();
 
         }
 

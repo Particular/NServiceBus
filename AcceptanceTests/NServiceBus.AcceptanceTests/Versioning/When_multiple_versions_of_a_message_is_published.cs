@@ -43,7 +43,7 @@
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
                     .Repeat(r =>r.For<AllTransports>(Transports.ActiveMQ) //until #1098 is fixed
-                        .For(Serializers.Binary)) //versioning isn't supported for binary serialization
+                                    .For<AllSerializers>(Serializers.Binary)) //versioning isn't supported for binary serialization
                     .Should(c =>
                         {
                             //put asserts in here if needed
@@ -75,6 +75,7 @@
             public V1Subscriber()
             {
                 EndpointSetup<DefaultServer>()
+                    .ExcludeType<V2Event>()
                     .AddMapping<V1Event>(typeof(V2Publisher));
 
             }
