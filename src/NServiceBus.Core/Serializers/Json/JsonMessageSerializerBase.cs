@@ -69,7 +69,11 @@ namespace NServiceBus.Serializers.Json
             var dynamicTypeToSerializeTo = messageTypes != null ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
             if (dynamicTypeToSerializeTo != null)
             {
-                settings.TypeNameHandling = TypeNameHandling.None;
+                settings = new JsonSerializerSettings{
+                        TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                        TypeNameHandling = TypeNameHandling.None,
+                        Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
+                };
             }
 
             JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
