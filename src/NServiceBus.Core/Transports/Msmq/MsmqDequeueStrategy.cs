@@ -37,7 +37,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="settings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
         /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
-        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        public void Init(Address address, TransactionSettings settings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
@@ -155,7 +155,7 @@ namespace NServiceBus.Transports.Msmq
         {
             Message message = null;
             Exception exception = null;
-
+            TransportMessage transportMessage = null;
             try
             {
                 if (transactionSettings.IsTransactional)
@@ -175,7 +175,9 @@ namespace NServiceBus.Transports.Msmq
 
                             UnitOfWork.SetTransaction(msmqTransaction);
 
-                            if (ProcessMessage(message))
+                            transportMessage = ConvertMessage(message);
+
+                            if (ProcessMessage(transportMessage))
                             {
                                 msmqTransaction.Commit();
                             }
@@ -200,7 +202,9 @@ namespace NServiceBus.Transports.Msmq
                                 return;
                             }
 
-                            if (ProcessMessage(message))
+                            transportMessage = ConvertMessage(message);
+
+                            if (ProcessMessage(transportMessage))
                             {
                                 scope.Complete();
                             }
@@ -217,7 +221,9 @@ namespace NServiceBus.Transports.Msmq
                         return;
                     }
 
-                    ProcessMessage(message);
+                    transportMessage = ConvertMessage(message);
+
+                    ProcessMessage(transportMessage);
                 }
             }
             catch (Exception ex)
@@ -226,7 +232,7 @@ namespace NServiceBus.Transports.Msmq
             }
             finally
             {
-                endProcessMessage(message != null ? message.Id : null, exception);
+                endProcessMessage(transportMessage, exception);
 
                 semaphore.Release();
             }
@@ -259,27 +265,28 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        bool ProcessMessage(Message message)
+        bool ProcessMessage(TransportMessage message)
         {
-            TransportMessage transportMessage;
+            if (message != null)
+            {
+                return tryProcessMessage(message);
+            }
+
+            return true;
+        }
+
+        TransportMessage ConvertMessage(Message message)
+        {
             try
             {
-                transportMessage = MsmqUtilities.Convert(message);
+                return MsmqUtilities.Convert(message);
             }
             catch (Exception ex)
             {
                 Logger.Error("Error in converting message to TransportMessage.", ex);
 
-                //todo DeadLetter the message
-                return true;
+                return new TransportMessage(Guid.Empty.ToString(),null);
             }
-
-            if (transportMessage != null)
-            {
-                return tryProcessMessage(transportMessage);
-            }
-
-            return true;
         }
 
         [DebuggerNonUserCode]
@@ -342,6 +349,6 @@ namespace NServiceBus.Transports.Msmq
         TransactionSettings transactionSettings;
         Address endpointAddress;
         TransactionOptions transactionOptions;
-        Action<string, Exception> endProcessMessage;
+        Action<TransportMessage, Exception> endProcessMessage;
     }
 }

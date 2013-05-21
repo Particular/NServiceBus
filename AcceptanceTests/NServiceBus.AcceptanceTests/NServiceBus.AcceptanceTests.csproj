@@ -193,9 +193,9 @@
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />
+    <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

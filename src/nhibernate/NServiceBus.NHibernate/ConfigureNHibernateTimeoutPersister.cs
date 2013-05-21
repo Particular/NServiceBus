@@ -22,9 +22,6 @@ namespace NServiceBus
         /// An example that shows the minimum configuration:
         /// <code lang="XML" escaped="true">
         ///  <appSettings>
-        ///    <!-- dialect is the only required NHibernate property -->
-        ///    <add key="NServiceBus/Persistence/NHibernate/dialect" value="NHibernate.Dialect.MsSql2008Dialect"/>
-        /// 
         ///    <!-- other optional settings examples -->
         ///    <add key="NServiceBus/Persistence/NHibernate/connection.provider" value="NHibernate.Connection.DriverConnectionProvider"/>
         ///    <add key="NServiceBus/Persistence/NHibernate/connection.driver_class" value="NHibernate.Driver.Sql2008ClientDriver"/>

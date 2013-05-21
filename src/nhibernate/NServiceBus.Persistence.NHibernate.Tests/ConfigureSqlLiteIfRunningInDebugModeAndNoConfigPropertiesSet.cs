@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Persistence.NHibernate.Tests
 {
     using System.Collections.Generic;
-    using Logging;
     using NUnit.Framework;
-    using NUnit.Mocks;
 
     [TestFixture]
     public class ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet
@@ -16,13 +14,6 @@
                 Assert.Ignore("Can't run this unit test with debugger attached.");
                 return;
             }
-            
-            var loggerFactory = new DynamicMock(typeof (ILoggerFactory));
-            var log = new DynamicMock(typeof (ILog));
-            loggerFactory.ExpectAndReturn("GetLogger", log.MockInstance, typeof(ConfigureNHibernate));
-            log.ExpectNoCall("WarnFormat");
-
-            LogManager.LoggerFactory = (ILoggerFactory)loggerFactory.MockInstance;
 
             var properties = new Dictionary<string, string>();
             ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(properties);
@@ -38,13 +29,6 @@
                 Assert.Ignore("Debugger needs to be attached to run this unit test.");
                 return;
             }
-
-            var loggerFactory = new DynamicMock(typeof (ILoggerFactory));
-            var log = new DynamicMock(typeof (ILog));
-            loggerFactory.ExpectAndReturn("GetLogger", log.MockInstance, typeof (ConfigureNHibernate));
-            log.Expect("WarnFormat");
-
-            LogManager.LoggerFactory = (ILoggerFactory) loggerFactory.MockInstance;
 
             var properties = new Dictionary<string, string>();
             ConfigureNHibernate.ConfigureSqlLiteIfRunningInDebugModeAndNoConfigPropertiesSet(properties);

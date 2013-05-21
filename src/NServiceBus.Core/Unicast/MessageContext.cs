@@ -39,7 +39,7 @@ namespace NServiceBus.Unicast
 
         string IMessageContext.Id
         {
-            get { return transportMessage.IdForCorrelation; }
+            get { return transportMessage.Id; }
         }
 
         Address IMessageContext.ReplyToAddress

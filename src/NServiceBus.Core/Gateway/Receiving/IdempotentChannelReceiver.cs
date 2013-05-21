@@ -141,17 +141,11 @@ namespace NServiceBus.Gateway.Receiving
                 return;    
             }
             
-            var msg = new TransportMessage
-                          {
-                              Body = outMessage,
-                              Recoverable = true
-                          };
+         
+            var msg = HeaderMapper.Map(outHeaders);
 
-
-            if (outHeaders.ContainsKey(GatewayHeaders.IsGatewayMessage))
-                HeaderMapper.Map(outHeaders, msg);
-
-
+            msg.Body = outMessage;
+                             
             MessageReceived(this, new MessageReceivedOnChannelArgs { Message = msg });
         }
 

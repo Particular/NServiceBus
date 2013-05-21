@@ -1,11 +1,11 @@
-using System;
-using NUnit.Framework;
-
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using System;
+    using NUnit.Framework;
     using Persistence.InMemory.SagaPersister;
     using Saga;
 
+    [TestFixture]
     public class When_persisting_a_saga_with_the_same_unique_property_as_another_saga
     {
         [Test]

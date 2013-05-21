@@ -76,7 +76,7 @@
             {
                 var transportConfig = NServiceBus.Configure.GetConfigSection<TransportConfig>();
 
-                var maxRetries = transportConfig == null ? 5 : transportConfig.MaxRetries;
+                var maxRetries = transportConfig == null ? 6 : transportConfig.MaxRetries + 1;
 
                 if (SettingsHolder.Get<bool>("Transactions.SuppressDistributedTransactions"))
                 {

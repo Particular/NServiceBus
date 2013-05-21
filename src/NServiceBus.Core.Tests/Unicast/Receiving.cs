@@ -86,7 +86,7 @@
 
             ReceiveMessage(receivedMessage);
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.RelatedTo] == receivedMessage.IdForCorrelation), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.RelatedTo] == receivedMessage.CorrelationId), Arg<Address>.Is.Anything));
         }
     }
 

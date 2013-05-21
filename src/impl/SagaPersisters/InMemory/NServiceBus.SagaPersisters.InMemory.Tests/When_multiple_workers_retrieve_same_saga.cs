@@ -7,6 +7,7 @@
     using Persistence.InMemory.SagaPersister;
     using Saga;
 
+    [TestFixture]
     class When_multiple_workers_retrieve_same_saga
     {
         [Test]

@@ -18,7 +18,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         {
             Assert.DoesNotThrow(() => ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(new Dictionary<string, string>
                                                                                                   {
-                                                                                                      {"dialect", "Boo"},
                                                                                                       {"connection.connection_string", "asdad"}
                                                                                                   }));
         }
@@ -28,7 +27,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         {
             Assert.DoesNotThrow(() => ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(new Dictionary<string, string>
                                                                                                   {
-                                                                                                      {"dialect", "Boo"},
                                                                                                       {"connection.connection_string_name", "asdad"}
                                                                                                   }));
         }

@@ -254,8 +254,10 @@ namespace NServiceBus.Unicast.Transport
         }
 
 
-        void EndProcess(string messageId, Exception ex)
+        void EndProcess(TransportMessage message, Exception ex)
         {
+            var messageId = message != null ? message.Id : null;
+
             if (needToAbort)
                 return;
 
@@ -265,7 +267,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (messageId != null)
                 {
-                    firstLevelRetries.ClearFailuresForMessage(messageId);
+                    firstLevelRetries.ClearFailuresForMessage(message);
                 }
 
                 currentReceivePerformanceDiagnostics.MessageProcessed();
@@ -282,7 +284,7 @@ namespace NServiceBus.Unicast.Transport
 
             if (TransactionSettings.IsTransactional && messageId != null)
             {
-                firstLevelRetries.IncrementFailuresForMessage(messageId, ex);
+                firstLevelRetries.IncrementFailuresForMessage(message, ex);
             }
 
             OnFailedMessageProcessing(ex);
@@ -336,7 +338,7 @@ namespace NServiceBus.Unicast.Transport
                     var serializationException = exceptionFromMessageHandling.GetBaseException() as  SerializationException;
                     if (serializationException != null)
                     {
-                        Logger.Error("Failed to serialize message with ID: " + message.IdForCorrelation, serializationException);
+                        Logger.Error("Failed to serialize message with ID: " + message.Id, serializationException);
                         FailureManager.SerializationFailedForMessage(message, serializationException);
                     }
                     else

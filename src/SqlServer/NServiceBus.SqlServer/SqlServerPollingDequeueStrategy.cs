@@ -47,7 +47,7 @@
         ///     Needs to be called by <see cref="IDequeueMessages" /> after the message has been processed regardless if the outcome was successful or not.
         /// </param>
         public void Init(Address address, TransactionSettings transactionSettings,
-                         Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+                         Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
@@ -166,7 +166,7 @@
                 {
                     //since we're polling the message will be null when there was nothing in the queue
                     if (result.Message != null)
-                        endProcessMessage(result.Message.Id, result.Exception);
+                        endProcessMessage(result.Message, result.Exception);
                 }
 
                 circuitBreaker.Success();
@@ -336,13 +336,11 @@
                     var body = dataReader.IsDBNull(6) ? null : dataReader.GetSqlBinary(6).Value;
                     var replyToAddress = dataReader.IsDBNull(2) ? null : Address.Parse(dataReader.GetString(2));
 
-                    var message = new TransportMessage
+                    var message = new TransportMessage(id,headers)
                         {
-                            Id = id,
                             CorrelationId = correlationId,
                             ReplyToAddress = replyToAddress,
                             Recoverable = recoverable,
-                            Headers = headers,
                             Body = body
                         };
 
@@ -403,7 +401,7 @@
                             TimeSpan.FromSeconds(10));
 
         Address addressToPoll;
-        Action<string, Exception> endProcessMessage;
+        Action<TransportMessage, Exception> endProcessMessage;
         MTATaskScheduler scheduler;
         TransactionSettings settings;
         string sql;

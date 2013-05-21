@@ -292,9 +292,8 @@
 
         private TransportMessage CreateTransportMessage()
         {
-            return new TransportMessage
+            return new TransportMessage(Guid.NewGuid().ToString(),new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "FancyHeader" }, })
                 {
-                    Headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "FancyHeader" }, },
                     Recoverable = true,
                     TimeToBeReceived = TimeSpan.FromSeconds(2),
                     ReplyToAddress = new Address("someAddress", "localhorst")

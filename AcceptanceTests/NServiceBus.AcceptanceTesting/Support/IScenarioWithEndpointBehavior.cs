@@ -11,7 +11,7 @@
 
         IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
-        void Run(TimeSpan? testExecutionTimeout = null);
+        TContext Run(TimeSpan? testExecutionTimeout = null);
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
 
@@ -26,6 +26,6 @@
 
         IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism);
 
-        void Run(TimeSpan? testExecutionTimeout = null);
+        IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null);
     }
 }

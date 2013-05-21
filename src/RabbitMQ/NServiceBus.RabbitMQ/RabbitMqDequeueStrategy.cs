@@ -38,7 +38,7 @@
         /// <param name="transactionSettings">The <see cref="TransactionSettings"/> to be used by <see cref="IDequeueMessages"/>.</param>
         /// <param name="tryProcessMessage">Called when a message has been dequeued and is ready for processing.</param>
         /// <param name="endProcessMessage">Needs to be called by <see cref="IDequeueMessages"/> after the message has been processed regardless if the outcome was successful or not.</param>
-        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<string, Exception> endProcessMessage)
+        public void Init(Address address, TransactionSettings transactionSettings, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
@@ -122,11 +122,12 @@
                         continue;
                     }
 
+                    TransportMessage transportMessage = null;
+                  
                     try
                     {
                         var messageProcessedOk = false;
 
-                        TransportMessage transportMessage = null;
                         try
                         {
                             transportMessage = RabbitMqTransportMessageExtensions.ToTransportMessage(message);
@@ -161,7 +162,7 @@
                     }
                     finally
                     {
-                        endProcessMessage(message != null ? message.BasicProperties.MessageId : null, exception);
+                        endProcessMessage(transportMessage, exception);
                     }
                 }
             }
@@ -197,7 +198,7 @@
         MTATaskScheduler scheduler;
         readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
         string workQueue;
-        Action<string, Exception> endProcessMessage;
+        Action<TransportMessage, Exception> endProcessMessage;
 
         static ILog Logger = LogManager.GetLogger(typeof(RabbitMqDequeueStrategy));
     }

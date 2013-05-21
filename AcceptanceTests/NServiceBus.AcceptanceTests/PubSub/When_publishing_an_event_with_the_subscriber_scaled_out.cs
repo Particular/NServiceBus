@@ -49,7 +49,8 @@
                               context.NumberOfSubcriptionsReceived++;
                       }))
                     .Done(c => c.SubcribersOfTheEvent != null)
-                    .Repeat(r => r.For(Transports.SqlServer).For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
+                    .Repeat(r => r.For(Transports.SqlServer)
+                        .For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
                     .Should(c =>
                     {
                         Assert.AreEqual(1, c.SubcribersOfTheEvent.Count(), "There should only be one logical subscriber");
@@ -69,8 +70,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultServer>()
-                      .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
+                EndpointSetup<DefaultServer>();
             }
         }
 
@@ -79,10 +79,9 @@
             public Subscriber1()
             {
                 EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(Publisher))
+                    .AddMapping<MyEvent>(typeof (Publisher))
                     .CustomMachineName(Server1)
-                    .CustomEndpointName("MyEndpoint")
-                    .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config");
+                    .CustomEndpointName("MyEndpoint");
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -102,8 +101,7 @@
                 EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
                         .AddMapping<MyEvent>(typeof(Publisher))
                         .CustomMachineName(Server2)
-                        .CustomEndpointName("MyEndpoint")
-                        .AppConfig(".\\NServiceBus.AcceptanceTests.dll.config"); ;
+                        .CustomEndpointName("MyEndpoint");
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

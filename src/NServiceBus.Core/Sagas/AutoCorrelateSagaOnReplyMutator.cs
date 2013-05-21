@@ -34,10 +34,6 @@ namespace NServiceBus.Sagas
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            //if correlation id is not set this is not a replay so we can just return
-            if (string.IsNullOrEmpty(transportMessage.CorrelationId))
-                return;
-
             if(string.IsNullOrEmpty(originatingSagaId))
                 return;
 

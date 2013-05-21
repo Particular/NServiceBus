@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using Customization;
     using Support;
 
     public class Scenario
@@ -61,7 +62,7 @@
             return this;
         }
 
-        public void Run(TimeSpan? testExecutionTimeout = null)
+        public IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null)
         {
             var builder = new RunDescriptorsBuilder();
 
@@ -70,10 +71,10 @@
             var runDescriptors = builder.Build();
 
             if (!runDescriptors.Any())
-                runDescriptors.Add(new RunDescriptor
-                {
-                    Key = "Default"
-                });
+            {
+                Console.Out.WriteLine("No active rundescriptors was found for this test, test will not be executed");
+                return new List<TContext>();
+            }
 
             foreach (var runDescriptor in runDescriptors)
             {
@@ -89,6 +90,8 @@
             sw.Stop();
 
             Console.Out.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+
+            return runDescriptors.Select(r => (TContext)r.ScenarioContext);
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> action)
@@ -103,6 +106,12 @@
             limitTestParallelismTo = maxParallelism;
 
             return this;
+        }
+
+
+        TContext IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
+        {
+            return Run(testExecutionTimeout).Single();
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)
@@ -126,7 +135,7 @@
         
         int limitTestParallelismTo;
         readonly IList<EndpointBehaviour> behaviours = new List<EndpointBehaviour>();
-        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => { };
+        Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;
 

@@ -61,6 +61,11 @@
         [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
         public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
+        /// <summary>
+        /// Header containing a stable message id for a message.
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string MessageId = "NServiceBus.MessageId";
 
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
@@ -146,6 +151,7 @@
         /// <summary>
         /// Used for correlation id message.
         /// </summary>
+        [ObsoleteEx(Message = "The IdForCorrelation header is replaced by Id", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public const string IdForCorrelation = "CorrId";
 
         /// <summary>
@@ -156,7 +162,7 @@
         /// <summary>
         /// Header key for setting/getting the ID of the message as it was when it failed processing.
         /// </summary>
-        [ObsoleteEx(Message = "The OriginalId headers is replaced by the IdForCorrelation header since they are now equivalent", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Message = "The OriginalId headers is replaced by the Id since they are now equivalent", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public const string OriginalId = "NServiceBus.OriginalId";
 
         /// <summary>

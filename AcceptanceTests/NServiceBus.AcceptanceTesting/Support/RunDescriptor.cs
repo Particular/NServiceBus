@@ -7,6 +7,24 @@
     [Serializable]
     public class RunDescriptor : MarshalByRefObject
     {
+        protected bool Equals(RunDescriptor other)
+        {
+            return string.Equals(Key, other.Key);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((RunDescriptor) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Key != null ? Key.GetHashCode() : 0);
+        }
+
         public RunDescriptor()
         {
             Settings = new Dictionary<string, string>();

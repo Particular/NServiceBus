@@ -8,9 +8,12 @@
         public EndpointConfiguration()
         {
             UserDefinedConfigSections = new Dictionary<Type, object>();
+            TypesToExclude = new List<Type>();
         }
 
         public IDictionary<Type, Type> EndpointMappings { get; set; }
+
+        public IList<Type> TypesToExclude { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, Configure> GetConfiguration { get; set; }
 

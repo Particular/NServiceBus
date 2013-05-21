@@ -126,5 +126,11 @@
             return this;
         }
 
+        public EndpointConfigurationBuilder ExcludeType<T>()
+        {
+            configuration.TypesToExclude.Add(typeof(T));
+
+            return this;
+        }
     }
 }

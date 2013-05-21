@@ -159,15 +159,13 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 if (m == null)
                     throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
 
-                var message = new TransportMessage
+                var message = new TransportMessage(m.Id,m.Headers)
                 {
-                    Id = m.Id,
                     Body = m.Body,
                     CorrelationId = m.CorrelationId,
                     Recoverable = m.Recoverable,
                     ReplyToAddress = Address.Parse(m.ReplyToAddress),
                     TimeToBeReceived = m.TimeToBeReceived,
-                    Headers = m.Headers,
                     MessageIntent = m.MessageIntent
                 };
 
@@ -175,20 +173,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
         }
 
-        //public void CreateQueue(string queueName)
-        //{
-        //    Client.GetQueueReference(SanitizeQueueName(queueName)).CreateIfNotExists();
-        //}
-
-        private string SanitizeQueueName(string queueName)
-        {
-            // The auto queue name generation uses namespaces which includes dots, 
-            // yet dots are not supported in azure storage names
-            // that's why we replace them here.
-
-            return queueName.Replace('.', '-').ToLowerInvariant();
-        }
-
-        private bool useTransactions;
+        bool useTransactions;
     }
 }

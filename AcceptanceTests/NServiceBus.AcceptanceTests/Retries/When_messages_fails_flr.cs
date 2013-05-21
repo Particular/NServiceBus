@@ -17,7 +17,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<SLREndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
                     .Done(c => c.NumberOfTimesInvoked >= 2)
-                    .Repeat(r=>r.For<AllTransports>(Transports.ActiveMQ))
+                    .Repeat(r=>r.For<AllTransports>())
                     .Should(context =>
                         {
                             Assert.GreaterOrEqual(1,context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");

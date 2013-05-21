@@ -1,13 +1,12 @@
-using System;
-using NServiceBus.SagaPersisters.InMemory;
-using NServiceBus.SagaPersisters.InMemory.Tests;
-using NUnit.Framework;
-
 namespace NServiceBus.SagaPersisters.Raven.Tests
 {
+    using System;
+    using InMemory.Tests;
+    using NUnit.Framework;
     using Persistence.InMemory.SagaPersister;
     using Saga;
 
+    [TestFixture]
     public class When_updating_a_saga_with_the_same_unique_property_value
     {
         [Test]

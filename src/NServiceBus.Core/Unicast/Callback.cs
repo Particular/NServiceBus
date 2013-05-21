@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -55,42 +56,49 @@ namespace NServiceBus.Unicast
 
         Task<int> ICallback.Register()
         {
-            var asyncResult = ((ICallback)this).Register(null, null);
+            var asyncResult = ((ICallback) this).Register(null, null);
             var task = Task<int>.Factory.FromAsync(asyncResult, x =>
-            {
-                var cr = ((CompletionResult)x.AsyncState);
+                {
+                    var cr = ((CompletionResult) x.AsyncState);
 
-                return cr.ErrorCode;
-            });
+                    return cr.ErrorCode;
+                }, TaskCreationOptions.None, TaskScheduler.Default);
+
             return task;
         }
 
         Task<T> ICallback.Register<T>()
         {
-            if (!typeof(T).IsEnum)
-                throw new InvalidOperationException("Register<T> can only be used with enumerations, use Register() to return an integer instead");
+            if (!typeof (T).IsEnum)
+                throw new InvalidOperationException(
+                    "Register<T> can only be used with enumerations, use Register() to return an integer instead");
 
-            var asyncResult = ((ICallback)this).Register(null, null);
+            var asyncResult = ((ICallback) this).Register(null, null);
             var task = Task<T>.Factory.FromAsync(asyncResult, x =>
                 {
-                    var cr = ((CompletionResult)x.AsyncState);
+                    var cr = ((CompletionResult) x.AsyncState);
 
-                   return (T)Enum.Parse(typeof(T), cr.ErrorCode.ToString());
-                });
+                    return (T) Enum.Parse(typeof (T), cr.ErrorCode.ToString(CultureInfo.InvariantCulture));
+                }, TaskCreationOptions.None, TaskScheduler.Default);
+
             return task;
         }
 
         Task<T> ICallback.Register<T>(Func<CompletionResult, T> completion)
         {
-            var asyncResult = ((ICallback)this).Register(null, null);
-            var task = Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult)x.AsyncState));
+            var asyncResult = ((ICallback) this).Register(null, null);
+            var task = Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
+                                                 TaskCreationOptions.None, TaskScheduler.Default);
+
             return task;
         }
 
         Task ICallback.Register(Action<CompletionResult> completion)
         {
-            var asyncResult = ((ICallback)this).Register(null, null);
-            var task = Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult)x.AsyncState));
+            var asyncResult = ((ICallback) this).Register(null, null);
+            var task = Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
+                                              TaskCreationOptions.None, TaskScheduler.Default);
+
             return task;
         }
 

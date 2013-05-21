@@ -16,11 +16,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         [Test]
         public void Should_assign_default_properties_to_all_persisters()
         {
-            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
-                {
-                    {"NServiceBus/Persistence/NHibernate/dialect", dialect}
-                };
-
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection { };
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                 {
                     new ConnectionStringSettings("NServiceBus/Persistence", connectionString)
@@ -30,8 +26,9 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             var expected = new Dictionary<string, string>
                 {
-                    {"dialect", dialect},
-                    {"connection.connection_string", connectionString}
+                     {"dialect", ConfigureNHibernate.DefaultDialect},
+                     {"connection.connection_string", connectionString}
+                   
                 };
 
             CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.DistributorPersisterProperties);
@@ -44,11 +41,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         [Test]
         public void Should_assign_overriden_connectionstring_if_specified()
         {
-            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
-                {
-                    {"NServiceBus/Persistence/NHibernate/dialect", dialect}
-                };
-
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection{};
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                 {
                     new ConnectionStringSettings("NServiceBus/Persistence", connectionString),
@@ -60,13 +53,11 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             var expectedForTimeout = new Dictionary<string, string>
                 {
-                    {"dialect", dialect},
-                    {"connection.connection_string", "timeout_connection_string"}
+                   {"connection.connection_string", "timeout_connection_string"}
                 };
 
             var expectedDefault = new Dictionary<string, string>
                 {
-                    {"dialect", dialect},
                     {"connection.connection_string", connectionString}
                 };
 
@@ -82,7 +73,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         {
             NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
                 {
-                    {"NServiceBus/Persistence/NHibernate/dialect", dialect},
                     {"NServiceBus/Persistence/NHibernate/connection.provider", "provider"},
                     {"NServiceBus/Persistence/NHibernate/connection.driver_class", "driver_class"},
                 };
@@ -96,7 +86,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             var expected = new Dictionary<string, string>
                 {
-                    {"dialect", dialect},
                     {"connection.connection_string", connectionString},
                     {"connection.provider", "provider"},
                     {"connection.driver_class", "driver_class"},
@@ -114,7 +103,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         {
             NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
                 {
-                    {"NServiceBus/Persistence/NHibernate/dialect", dialect},
                     {"myothersetting1", "provider"},
                     {"myothersetting2", "driver_class"},
                 };
@@ -128,7 +116,6 @@ namespace NServiceBus.Persistence.NHibernate.Tests
 
             var expected = new Dictionary<string, string>
                 {
-                    {"dialect", dialect},
                     {"connection.connection_string", connectionString},
                 };
 

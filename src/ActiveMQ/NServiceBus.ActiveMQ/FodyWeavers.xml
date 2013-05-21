@@ -1,8 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Weavers>
-  <Costura>
-    <IncludeAssemblies>
-      Apache.NMS.ActiveMQ
-    </IncludeAssemblies>
-  </Costura>
+  <Costura />
 </Weavers>

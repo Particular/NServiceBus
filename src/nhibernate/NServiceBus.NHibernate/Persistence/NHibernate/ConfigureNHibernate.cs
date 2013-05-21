@@ -21,11 +21,11 @@ namespace NServiceBus.Persistence.NHibernate
     {
         private const string Message =
             @"
-To run NServiceBus with NHibernate you need to at least specify the database connectionstring and a dialect.
+To run NServiceBus with NHibernate you need to at least specify the database connectionstring.
 Here is an example of what is required:
   <appSettings>
-    <!-- dialect is the only required NHibernate property -->
-    <add key=""NServiceBus/Persistence/NHibernate/dialect"" value=""NHibernate.Dialect.MsSql2008Dialect""/>
+    <!-- dialect is defaulted to MsSql2008Dialect, if needed change accordingly -->
+    <add key=""NServiceBus/Persistence/NHibernate/dialect"" value=""NHibernate.Dialect.{your dialect}""/>
 
     <!-- other optional settings examples -->
     <add key=""NServiceBus/Persistence/NHibernate/connection.provider"" value=""NHibernate.Connection.DriverConnectionProvider""/>
@@ -48,6 +48,9 @@ Here is an example of what is required:
         static readonly ILog Logger = LogManager.GetLogger(typeof(ConfigureNHibernate));
         static readonly Regex PropertyRetrievalRegex = new Regex(@"NServiceBus/Persistence/NHibernate/([\W\w]+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static ConnectionStringSettingsCollection connectionStringSettingsCollection;
+
+        public static string DefaultDialect = "NHibernate.Dialect.MsSql2008Dialect";
+
 
         static ConfigureNHibernate()
         {
@@ -85,6 +88,11 @@ Here is an example of what is required:
             if (!String.IsNullOrEmpty(defaultConnectionString))
             {
                 configurationProperties[Environment.ConnectionString] = defaultConnectionString;
+            }
+
+            if (!configurationProperties.ContainsKey(Environment.Dialect))
+            {
+                configurationProperties[Environment.Dialect] = DefaultDialect;
             }
 
             TimeoutPersisterProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
@@ -144,7 +152,7 @@ Here is an example of what is required:
         /// <param name="props">Properties to validate.</param>
         public static void ThrowIfRequiredPropertiesAreMissing(IDictionary<string, string> props)
         {
-            if ((props.ContainsKey(Environment.ConnectionString) || props.ContainsKey(Environment.ConnectionStringName)) && props.ContainsKey(Environment.Dialect))
+            if ((props.ContainsKey(Environment.ConnectionString) || props.ContainsKey(Environment.ConnectionStringName)))
             {
                 return;
             }

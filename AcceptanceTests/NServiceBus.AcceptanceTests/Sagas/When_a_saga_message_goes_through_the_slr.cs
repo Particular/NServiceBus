@@ -16,7 +16,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage { SomeId = Guid.NewGuid() })))
                     .Done(c => c.SecondMessageProcessed)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Run();
         }
 

@@ -22,10 +22,33 @@ namespace NServiceBus
         /// </summary>
         public TransportMessage()
         {
-            Id = CombGuid.Generate().ToString();
+            id = CombGuid.Generate().ToString();
+            Headers[NServiceBus.Headers.MessageId] = id;
+            CorrelationId = id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
+        }
+
+        /// <summary>
+        /// Creates a new TransportMessage with the given id and headers
+        /// </summary>
+        /// <param name="existingHeaders"></param>
+        public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
+        {
+            if (existingHeaders == null)
+                existingHeaders = new Dictionary<string, string>();
+
+            headers = existingHeaders;
+
+
+            id = existingId;
+
+            //only update the "stable id" if there isn't one present already
+            if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+            {
+                Headers[NServiceBus.Headers.MessageId] = existingId;
+            } 
         }
 
         /// <summary>
@@ -33,15 +56,14 @@ namespace NServiceBus
         /// </summary>
         public string Id
         {
-            get { return id; }
-            set
+            get
             {
-                id = value;
+                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+                {
+                    return id;
+                }
 
-                //preserve the ID if one id isn't already present
-                if (!Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) ||
-                    string.IsNullOrEmpty(Headers[NServiceBus.Headers.IdForCorrelation]))
-                    Headers[NServiceBus.Headers.IdForCorrelation] = value;
+                return Headers[NServiceBus.Headers.MessageId];
             }
         }
 
@@ -51,22 +73,20 @@ namespace NServiceBus
         /// Use this method to change the stable ID of the given message.
         /// </summary>
         /// <param name="newId"></param>
-        public void ChangeMessageId(string newId)
+        internal void ChangeMessageId(string newId)
         {
             id = newId;
-            Headers[NServiceBus.Headers.IdForCorrelation] = newId;
+            CorrelationId = newId;
         }
 
         /// <summary>
         /// Gets/sets the identifier that is copied to <see cref="CorrelationId"/>.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Id")]
         public string IdForCorrelation
         {
             get
             {
-                if (Headers.ContainsKey(NServiceBus.Headers.IdForCorrelation) && (!string.IsNullOrWhiteSpace(Headers[NServiceBus.Headers.IdForCorrelation])))
-                    return Headers[NServiceBus.Headers.IdForCorrelation];
-
                 return Id;
             }
         }
@@ -107,7 +127,7 @@ namespace NServiceBus
             set { Headers[NServiceBus.Headers.MessageIntent] = value.ToString(); }
         }
 
-        
+
 
         private TimeSpan timeToBeReceived = TimeSpan.MaxValue;
 
@@ -126,12 +146,11 @@ namespace NServiceBus
         /// </summary>
         public Dictionary<string, string> Headers
         {
-            get { return headers ?? (headers = new Dictionary<string, string>()); }
-            set { headers = value; }
+            get { return headers; }
         }
 
 
-        Dictionary<string, string> headers;
+        readonly Dictionary<string, string> headers = new Dictionary<string, string>();
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message

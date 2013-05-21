@@ -20,7 +20,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<ReceiveEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For<AllTransports>())
+                    .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
@@ -37,7 +37,7 @@
                             SendTestMessages(b);
                         })
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.SqlServer))
+                    .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
@@ -54,7 +54,7 @@
                         SendTestMessages(b);
                     })
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.SqlServer))
+                    .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
@@ -71,7 +71,7 @@
                         SendTestMessages(b);
                     })
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For(Transports.SqlServer))
+                    .Repeat(r => r.For(Transports.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
