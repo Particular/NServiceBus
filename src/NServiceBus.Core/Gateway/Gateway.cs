@@ -3,6 +3,7 @@
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
+    using NServiceBus.Gateway.Deduplication;
     using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.Gateway.Persistence;
@@ -22,6 +23,7 @@
             ConfigureSender();
 
             InfrastructureServices.Enable<IPersistMessages>();
+            InfrastructureServices.Enable<IDeduplicateMessages>();
         }
 
         static void ConfigureChannels()

@@ -20,7 +20,8 @@ namespace SiteB
                 .FileShareDataBus(".\\databus")
                 .RunGateway()//this line configures the gateway.
                 .UseInMemoryTimeoutPersister()
-                .UseInMemoryGatewayPersister() //this tells nservicebus to use Raven to store messages ids for deduplication. If omitted RavenDB will be used by default
+                .UseInMemoryGatewayPersister() // this tells nservicebus to use memory to store messages for deduplication. If omitted RavenDB will be used by default
+                .UseInMemoryGatewayDeduplication() // this tells nservicebus to use memory to store messages ids for deduplication. If omitted RavenDB will be used by default
                 //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
                 .CreateBus()
                 .Start();

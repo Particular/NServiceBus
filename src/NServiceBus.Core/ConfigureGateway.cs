@@ -57,11 +57,21 @@ namespace NServiceBus
         public static Configure UseInMemoryGatewayPersister(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
+
+        /// <summary>
+        /// Use in-memory message deduplication for the gateway.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseInMemoryGatewayDeduplication(this Configure config)
+        {
             config.Configurer.ConfigureComponent<InMemoryDeduplication>(DependencyLifecycle.SingleInstance);
             return config;
         }
 
-       
+
         /// <summary>
         /// Use RavenDB messages persistence by the gateway.
         /// </summary>
@@ -73,6 +83,19 @@ namespace NServiceBus
                 config.RavenPersistence();
 
             config.Configurer.ConfigureComponent<RavenDbPersistence>(DependencyLifecycle.SingleInstance);
+            return config;
+        }
+
+        /// <summary>
+        /// Use RavenDB for message deduplication by the gateway.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public static Configure UseRavenGatewayDeduplication(this Configure config)
+        {
+            if (!config.Configurer.HasComponent<StoreAccessor>())
+                config.RavenPersistence();
+
             config.Configurer.ConfigureComponent<RavenDBDeduplication>(DependencyLifecycle.SingleInstance);
             return config;
         }
