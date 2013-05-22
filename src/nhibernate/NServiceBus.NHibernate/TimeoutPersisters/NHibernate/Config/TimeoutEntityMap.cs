@@ -29,7 +29,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Config
             Property(p => p.Endpoint, pm =>
                                           {
                                               pm.Index("TimeoutEntity_EndpointIdx");
-                                              pm.Length(1024);
+                                              pm.Length(450);
                                           });
         }
     }
