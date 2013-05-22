@@ -102,10 +102,10 @@
 
         static readonly Dictionary<string, string> DefaultConnectionStrings = new Dictionary<string, string>
             {
-                {typeof (RabbitMQ).Name, "host=localhost"},
-                {typeof (SqlServer).Name, @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-                {typeof (ActiveMQ).Name, @"ServerUrl=activemq:tcp://localhost:61616"},
-                {typeof (Msmq).Name, @"cacheSendConnection=false;journal=false;"}
+                {"RabbitMQ", "host=localhost"},
+                {"SqlServer", @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
+                {"ActiveMQ", @"ServerUrl=activemq:tcp://localhost:61616"},
+                {"Msmq", @"cacheSendConnection=false;journal=false;"}
             };
 
 

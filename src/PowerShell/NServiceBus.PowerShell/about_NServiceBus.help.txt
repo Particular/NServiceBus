@@ -40,6 +40,9 @@ LONG DESCRIPTION
                                                        the machine.
 
   Add-NServiceBusMessageForwardingInCaseOfFaultConfig  Adds the required configuration section to
+                                                       the config file.  
+													   
+  Add-NServiceBusUnicastBusConfig                      Adds the required configuration section to
                                                        the config file.
 
   Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
@@ -82,5 +85,6 @@ SEE ALSO
   Test-NServiceBusPerformanceCountersInstallation
   Test-NServiceBusMSMQInstallation
   Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+  Add-NServiceBusUnicastBusConfig
   Set-NServiceBusLocalMachineSettings
   Get-NServiceBusLocalMachineSettings
