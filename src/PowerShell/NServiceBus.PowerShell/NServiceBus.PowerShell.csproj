@@ -50,7 +50,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddConfigSection.cs" />
+    <Compile Include="AddTransportConfig.cs" />
     <Compile Include="AddUnicastBusConfig.cs" />
+    <Compile Include="AddSecondLevelRetriesConfig.cs" />
+    <Compile Include="AddLoggingConfig.cs" />
+    <Compile Include="AddMasterNodeConfig.cs" />
     <Compile Include="Dtc\DtcSetup.cs" />
     <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="Msmq\MsmqSetup.cs" />
