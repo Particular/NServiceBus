@@ -4,6 +4,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
     public static class AzureServiceBusSubscriptionNameConvention
     {
-        public static Func<Type, string> Create =  eventType => Configure.EndpointName + "." + eventType.Name;
+        public static Func<Type, string> Create = eventType => eventType != null ? Configure.EndpointName + "." + eventType.Name : Configure.EndpointName;
     }
 }

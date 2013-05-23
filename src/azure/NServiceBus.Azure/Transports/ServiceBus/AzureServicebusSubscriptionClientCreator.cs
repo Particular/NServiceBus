@@ -47,11 +47,20 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                                     EnableDeadLetteringOnFilterEvaluationExceptions
                             };
 
-                        var filter = string.Format( "[{0}] LIKE '{1}%' OR [{0}] LIKE '%{1}%' OR [{0}] LIKE '%{1}' OR [{0}] = '{1}'", Headers.EnclosedMessageTypes, eventType.AssemblyQualifiedName);
-                        var typefilter = new SqlFilter(filter);
+                        if (eventType != null)
+                        {
+                            var filter =
+                                string.Format(
+                                    "[{0}] LIKE '{1}%' OR [{0}] LIKE '%{1}%' OR [{0}] LIKE '%{1}' OR [{0}] = '{1}'",
+                                    Headers.EnclosedMessageTypes, eventType.AssemblyQualifiedName);
+                            var typefilter = new SqlFilter(filter);
 
-                        NamespaceClient.CreateSubscription(description, typefilter);
-
+                            NamespaceClient.CreateSubscription(description, typefilter);
+                        }
+                        else
+                        {
+                            NamespaceClient.CreateSubscription(description);
+                        }
                     }
                 }
                 catch (MessagingEntityAlreadyExistsException)

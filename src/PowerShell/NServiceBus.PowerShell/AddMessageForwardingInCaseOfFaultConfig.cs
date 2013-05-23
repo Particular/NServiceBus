@@ -9,6 +9,9 @@
     {
         public override void ModifyConfig(XDocument doc)
         {
+            const string Instructions = @"<MessageForwardingInCaseOfFaultConfig 
+    ErrorQueue=""The queue to which errors will be forwarded."" />";
+
             var sectionElement = doc.XPathSelectElement("/configuration/configSections/section[@name='MessageForwardingInCaseOfFaultConfig' and @type='NServiceBus.Config.MessageForwardingInCaseOfFaultConfig, NServiceBus.Core']");
             if (sectionElement == null)
             {
@@ -24,8 +27,9 @@
             var forwardingElement = doc.XPathSelectElement("/configuration/MessageForwardingInCaseOfFaultConfig");
             if (forwardingElement == null)
             {
-                doc.Root.LastNode.AddAfterSelf(new XElement("MessageForwardingInCaseOfFaultConfig",
-                                                         new XAttribute("ErrorQueue", "error")));
+                doc.Root.LastNode.AddAfterSelf(new XComment(Instructions), 
+                                                new XElement("MessageForwardingInCaseOfFaultConfig",
+                                                new XAttribute("ErrorQueue", "error")));
             }
         }
     }
