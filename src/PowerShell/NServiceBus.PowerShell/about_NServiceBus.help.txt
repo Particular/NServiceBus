@@ -54,6 +54,9 @@ LONG DESCRIPTION
   Add-NServiceBusLoggingConfig                         Adds the required configuration section to
                                                        the config file.
 
+  Add-NServiceBusMasterNodeConfig                      Adds the required configuration section to
+                                                       the config file.
+
   Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
                                                        queues.
 
