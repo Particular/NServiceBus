@@ -45,6 +45,18 @@ LONG DESCRIPTION
   Add-NServiceBusUnicastBusConfig                      Adds the required configuration section to
                                                        the config file.
 
+  Add-NServiceBusTransportConfig                       Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusSecondLevelRetriesConfig              Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusLoggingConfig                         Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusMasterNodeConfig                      Adds the required configuration section to
+                                                       the config file.
+
   Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
                                                        queues.
 
@@ -86,5 +98,9 @@ SEE ALSO
   Test-NServiceBusMSMQInstallation
   Add-NServiceBusMessageForwardingInCaseOfFaultConfig
   Add-NServiceBusUnicastBusConfig
+  Add-NServiceBusTransportConfig
+  Add-NServiceBusSecondLevelRetriesConfig
+  Add-NServiceBusLoggingConfig
+  Add-NServiceBusMasterNodeConfig
   Set-NServiceBusLocalMachineSettings
   Get-NServiceBusLocalMachineSettings
