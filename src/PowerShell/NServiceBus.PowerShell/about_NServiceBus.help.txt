@@ -45,6 +45,9 @@ LONG DESCRIPTION
   Add-NServiceBusUnicastBusConfig                      Adds the required configuration section to
                                                        the config file.
 
+  Add-NServiceBusTransportConfig                       Adds the required configuration section to
+                                                       the config file.
+
   Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
                                                        queues.
 

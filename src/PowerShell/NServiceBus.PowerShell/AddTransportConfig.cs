@@ -7,11 +7,10 @@
     [Cmdlet(VerbsCommon.Add, "NServiceBusTransportConfig")]
     public class AddTransportConfig : AddConfigSection
     {
-        const string Instructions = @"TransportConfig Settings:
-      MaxRetries controls the total number of first-level tries each message is allowed.
-      MaximumConcurrencyLevel controls how many threads will process messages simultaneously.
-      MaximumMessageThroughputPerSecond puts a limit on how quickly messages can be processed between
-          all threads. Use MaximumMessageThroughputPerSecond=""0"" to have no throughput limit.";
+        const string Instructions = @"<TransportConfig
+    MaxRetries=""The total number of first-level tries each message is allowed.""
+    MaximumConcurrencyLevel=""The number of threads will process messages simultaneously.""
+    MaximumMessageThroughputPerSecond=""Set a limit on how quickly messages can be processed between all threads. Use a value of 0 to have no throughput limit."" />";
 
         public override void ModifyConfig(XDocument doc)
         {
@@ -27,11 +26,11 @@
             var forwardingElement = doc.XPathSelectElement("/configuration/TransportConfig");
             if (forwardingElement == null)
             {
-                doc.Root.LastNode.AddAfterSelf(new XComment(Instructions));
-                doc.Root.LastNode.AddAfterSelf(new XElement("TransportConfig",
-                        new XAttribute("MaxRetries", "5"),
-                        new XAttribute("MaximumConcurrencyLevel", "1"),
-                        new XAttribute("MaximumMessageThroughputPerSecond", "0")));
+                doc.Root.LastNode.AddAfterSelf(new XComment(Instructions),
+                                               new XElement("TransportConfig",
+                                                            new XAttribute("MaxRetries", "5"),
+                                                            new XAttribute("MaximumConcurrencyLevel", "1"),
+                                                            new XAttribute("MaximumMessageThroughputPerSecond", "0")));
             }
         }
     }
