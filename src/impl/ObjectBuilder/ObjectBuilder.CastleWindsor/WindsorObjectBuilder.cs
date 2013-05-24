@@ -55,7 +55,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// </summary>
         public void Dispose()
         {
-            if (!disposed && scope.IsValueCreated)
+            if (!disposed && scope.IsValueCreated && scope.Value != null)
             {
                 scope.Value.Dispose();
                 scope.Value = null;

@@ -35,10 +35,22 @@ namespace ObjectBuilder.Tests
 
                 var task1 =
                     Task<object>.Factory.StartNew(
-                        () => builder.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
+                        () =>
+                            {
+                                using (var childContainer = builder.BuildChildContainer())
+                                {
+                                    return childContainer.Build(typeof (InstancePerUoWComponent));
+                                }
+                            });
                 var task2 =
                     Task<object>.Factory.StartNew(
-                        () => builder.BuildChildContainer().Build(typeof(InstancePerUoWComponent)));
+                        () =>
+                            {
+                                using (var childContainer = builder.BuildChildContainer())
+                                {
+                                    return childContainer.Build(typeof (InstancePerUoWComponent));
+                                }
+                            });
 
                 Assert.AreNotSame(task1.Result, task2.Result);
 
@@ -52,10 +64,18 @@ namespace ObjectBuilder.Tests
             {
                 builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
 
-                var nestedContainer = builder.BuildChildContainer();
-                var anotherNestedContainer = builder.BuildChildContainer();
+                object instance1, instance2;
+                using (var nestedContainer = builder.BuildChildContainer())
+                {
+                    instance1 = nestedContainer.Build(typeof (InstancePerCallComponent));
+                }
 
-                Assert.AreNotSame(nestedContainer.Build(typeof(InstancePerCallComponent)), anotherNestedContainer.Build(typeof(InstancePerCallComponent)));
+                using (var anotherNestedContainer = builder.BuildChildContainer())
+                {
+                    instance2 = anotherNestedContainer.Build(typeof (InstancePerCallComponent));
+                }
+
+                Assert.AreNotSame(instance1, instance2);
             });
         }
 
@@ -66,18 +86,17 @@ namespace ObjectBuilder.Tests
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                var nestedContainer = builder.BuildChildContainer();
-
-                Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
+                using (var nestedContainer = builder.BuildChildContainer())
+                {
+                    Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
+                }
             },
             typeof(SpringObjectBuilder));
         }
 
-
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
-
             ForAllBuilders(builder =>
             {
                 var singletonInMainContainer = new SingletonComponent();
@@ -86,7 +105,9 @@ namespace ObjectBuilder.Tests
                 builder.Configure(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
 
                 using (var nestedContainer = builder.BuildChildContainer())
+                {
                     nestedContainer.Build(typeof(ComponentThatDependsOfSingleton));
+                }
 
                 Assert.False(SingletonComponent.DisposeCalled);
             },
