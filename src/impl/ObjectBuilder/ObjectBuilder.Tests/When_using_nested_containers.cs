@@ -94,7 +94,7 @@ namespace ObjectBuilder.Tests
             typeof(SpringObjectBuilder));
         }
 
-        [Test, Ignore("Need to figure this out!")]
+        [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
             ForAllBuilders(builder =>
@@ -113,42 +113,77 @@ namespace ObjectBuilder.Tests
             },
             typeof(SpringObjectBuilder));
         }
+        class SingletonComponent : ISingletonComponent, IDisposable
+        {
+            private bool disposed;
+
+            public static bool DisposeCalled;
+
+            public void Dispose()
+            {
+                DisposeCalled = true;
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposed)
+                {
+                    return;
+                }
+
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
+
+                disposed = true;
+            }
+
+            ~SingletonComponent()
+            {
+                Dispose(false);
+            }
+        }
+
+        class ComponentThatDependsOfSingleton : IDisposable
+        {
+            private bool disposed;
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (disposed)
+                {
+                    return;
+                }
+
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                }
+
+                disposed = true;
+            }
+
+            ~ComponentThatDependsOfSingleton()
+            {
+                Dispose(false);
+            }
+        }
     }
 
     public class InstancePerCallComponent
     {
     }
 
-    public class ComponentThatDependsOfSingleton : IDisposable
-    {
-        private bool disposed;
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-            }
-
-            disposed = true;
-        }
-
-        ~ComponentThatDependsOfSingleton()
-        {
-            Dispose(false);
-        }
-    }
+   
 
     public class InstancePerUoWComponent : IDisposable
     {
