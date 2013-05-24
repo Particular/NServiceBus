@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using CircuitBreakers;
     using Transport;
@@ -46,9 +45,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         {
             tokenSource = new CancellationTokenSource();
 
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
-                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
-
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
@@ -61,7 +57,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public void Stop()
         {
             tokenSource.Cancel();
-            scheduler.Dispose();
         }
 
         void StartThread()
@@ -69,7 +64,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
             var token = tokenSource.Token;
 
             Task.Factory
-                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(t =>
                     {
                         t.Exception.Handle(ex =>
@@ -133,7 +128,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         Func<TransportMessage, bool> tryProcessMessage;
         CancellationTokenSource tokenSource;
         Address addressToPoll;
-        MTATaskScheduler scheduler;
         TransactionSettings settings;
         TransactionOptions transactionOptions;
         Action<TransportMessage, Exception> endProcessMessage;

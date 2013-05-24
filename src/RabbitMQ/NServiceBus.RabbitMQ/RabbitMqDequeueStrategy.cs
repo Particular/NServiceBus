@@ -3,7 +3,6 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using CircuitBreakers;
     using Logging;
     using Unicast.Transport;
@@ -53,10 +52,9 @@
         public void Start(int maximumConcurrencyLevel)
         {
             if (PurgeOnStartup)
+            {
                 Purge();
-
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
-                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", workQueue));
+            }
 
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
@@ -70,11 +68,6 @@
         public void Stop()
         {
             tokenSource.Cancel();
-
-            if (scheduler != null)
-            {
-                scheduler.Dispose();
-            }
         }
 
         void StartConsumer()
@@ -82,7 +75,7 @@
             var token = tokenSource.Token;
 
             Task.Factory
-                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(t =>
                     {
                         t.Exception.Handle(ex =>
@@ -195,7 +188,7 @@
         
         Func<TransportMessage, bool> tryProcessMessage;
         bool autoAck;
-        MTATaskScheduler scheduler;
+        //MTATaskScheduler scheduler;
         readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
         string workQueue;
         Action<TransportMessage, Exception> endProcessMessage;

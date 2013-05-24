@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
     using System.Collections;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using CircuitBreakers;
     using Transport;
     using Transports;
@@ -26,7 +25,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         private readonly Queue pendingMessages = Queue.Synchronized(new Queue());
         private readonly IList<INotifyReceivedMessages> notifiers = new List<INotifyReceivedMessages>();
         private CancellationTokenSource tokenSource;
-        private MTATaskScheduler scheduler;
         private readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         
         private const int PeekInterval = 50;
@@ -75,8 +73,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             
             tokenSource = new CancellationTokenSource();
 
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", address));
-
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
@@ -88,7 +84,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             var token = tokenSource.Token;
 
             Task.Factory
-                .StartNew(TryProcessMessage, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(TryProcessMessage, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(t =>
                     {
                         if (t.Exception != null)
@@ -197,6 +193,8 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
             }
 
             notifiers.Clear();
+
+            tokenSource.Cancel();
         }
 
         void CreateAndStartNotifier()
@@ -223,7 +221,5 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
             pendingMessages.Enqueue(brokeredMessage);
         }
-
-        
     }
 }

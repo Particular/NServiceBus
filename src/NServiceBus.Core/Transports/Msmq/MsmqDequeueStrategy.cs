@@ -6,14 +6,11 @@ namespace NServiceBus.Transports.Msmq
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using CircuitBreakers;
     using Logging;
     using Support;
     using Unicast.Transport;
-    using Unicast.Transport.Transactional;
-    using Utils;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for MSMQ.
@@ -82,7 +79,6 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel, String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", endpointAddress));
             semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
             queue.PeekCompleted += OnPeekCompleted;
@@ -98,12 +94,6 @@ namespace NServiceBus.Transports.Msmq
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
-
-            var disposableScheduler = scheduler as IDisposable;
-            if (disposableScheduler != null)
-            {
-                disposableScheduler.Dispose();
-            }
 
             semaphore.Dispose();
             queue.Dispose();
@@ -133,7 +123,7 @@ namespace NServiceBus.Transports.Msmq
             semaphore.Wait();
 
             Task.Factory
-                .StartNew(Action, CancellationToken.None, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(task =>
                     {
                         task.Exception.Handle(ex =>
@@ -153,11 +143,11 @@ namespace NServiceBus.Transports.Msmq
 
         private void Action()
         {
-            Message message = null;
             Exception exception = null;
             TransportMessage transportMessage = null;
             try
             {
+                Message message;
                 if (transactionSettings.IsTransactional)
                 {
                     if (transactionSettings.DontUseDistributedTransactions)
@@ -344,7 +334,6 @@ namespace NServiceBus.Transports.Msmq
         readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
         readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         MessageQueue queue;
-        TaskScheduler scheduler;
         SemaphoreSlim semaphore;
         TransactionSettings transactionSettings;
         Address endpointAddress;

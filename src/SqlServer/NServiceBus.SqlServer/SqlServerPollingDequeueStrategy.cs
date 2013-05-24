@@ -6,7 +6,6 @@
     using System.Data.SqlClient;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Threading.Tasks.Schedulers;
     using System.Transactions;
     using CircuitBreakers;
     using Logging;
@@ -52,7 +51,6 @@
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
 
-            addressToPoll = address;
             settings = transactionSettings;
             transactionOptions = new TransactionOptions
                 {
@@ -80,9 +78,6 @@
         {
             tokenSource = new CancellationTokenSource();
 
-            scheduler = new MTATaskScheduler(maximumConcurrencyLevel,
-                                             String.Format("NServiceBus Dequeuer Worker Thread for [{0}]", addressToPoll));
-
             for (int i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
@@ -95,7 +90,6 @@
         public void Stop()
         {
             tokenSource.Cancel();
-            scheduler.Dispose();
         }
 
         private void PurgeTable()
@@ -121,7 +115,7 @@
             CancellationToken token = tokenSource.Token;
 
             Task.Factory
-                .StartNew(Action, token, token, TaskCreationOptions.None, scheduler)
+                .StartNew(Action, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
                 .ContinueWith(t =>
                     {
                         t.Exception.Handle(ex =>
@@ -400,9 +394,7 @@
                             ex => Configure.Instance.RaiseCriticalError("Repeated failures when communicating with SqlServer", ex),
                             TimeSpan.FromSeconds(10));
 
-        Address addressToPoll;
         Action<TransportMessage, Exception> endProcessMessage;
-        MTATaskScheduler scheduler;
         TransactionSettings settings;
         string sql;
         string tableName;

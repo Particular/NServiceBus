@@ -18,11 +18,13 @@ namespace NServiceBus.Gateway.Channels.Http
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        private TaskScheduler scheduler;
+        private MTATaskScheduler scheduler;
         private bool disposed;
+        CancellationTokenSource tokenSource;
 
         public void Start(string address, int numWorkerThreads)
         {
+            tokenSource = new CancellationTokenSource();
             listener = new HttpListener();
         
             listener.Prefixes.Add(address);
@@ -35,12 +37,11 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin priviliges", address), ex);
+                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin privileges", address), ex);
             }
 
-            var thread = new Thread(HttpServer) { IsBackground = true, Name = string.Format("NServiceBus Gateway Channel Listener for [{0}]", address) };
-            thread.SetApartmentState(ApartmentState.MTA);
-            thread.Start();
+            var token = tokenSource.Token;
+            Task.Factory.StartNew(HttpServer, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public void Dispose()
@@ -58,14 +59,11 @@ namespace NServiceBus.Gateway.Channels.Http
 
             if (disposing)
             {
-                // Dispose managed resources.
-                listener.Stop();
+                tokenSource.Cancel();
 
-                var disposableScheduler = scheduler as IDisposable;
-                if (disposableScheduler != null)
-                {
-                    disposableScheduler.Dispose();
-                }
+                listener.Stop();
+                
+                scheduler.Dispose();
             }
 
             disposed = true;
@@ -145,9 +143,11 @@ namespace NServiceBus.Gateway.Channels.Http
         }
 
 
-        void HttpServer()
+        void HttpServer(object o)
         {
-            while (true)
+            var cancellationToken = (CancellationToken)o;
+
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
