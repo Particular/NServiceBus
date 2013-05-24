@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
     using Settings;
 
     /// <summary>
@@ -8,6 +9,7 @@
     /// </summary>
     public abstract class Feature
     {
+
         /// <summary>
         /// Called when the feature should perform its initialization. This call will only happen if the feature is enabled.
         /// </summary>
@@ -36,9 +38,18 @@
         /// <summary>
         /// Feature name.
         /// </summary>
-        public virtual string Name
+        public string Name
         {
-            get { return GetType().Name.Replace("Feature", String.Empty); }
+            get { return name; }
+        }
+
+        /// <summary>
+        /// True if this specific feature is enabled
+        /// </summary>
+        public bool Enabled
+        {
+            get { return IsEnabled(GetType()); }
+            
         }
 
         /// <summary>
@@ -121,5 +132,176 @@
         {
             return SettingsHolder.GetOrDefault<bool>(feature.FullName);
         }
+
+        /// <summary>
+        /// Returns the category for this feature if any
+        /// </summary>
+        public virtual FeatureCategory Category 
+        {
+            get { return FeatureCategory.None; }
+        }
+
+        /// <summary>
+        /// Gets all features for the given category
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        public static IEnumerable<Feature> ByCategory(FeatureCategory category)
+        {
+            var result = new List<Feature>();
+
+            Configure.Instance.ForAllTypes<Feature>(t =>
+            {
+                var feature = (Feature)Activator.CreateInstance(t);
+
+                if (feature.Category == category)
+                {
+                    result.Add(feature);
+                }
+
+            });
+
+            return result;
+        }
+
+        protected bool Equals(Feature other)
+        {
+            return string.Equals(name, other.name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((Feature)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (name != null ? name.GetHashCode() : 0);
+        }
+
+
+        public static bool operator ==(Feature feature1, Feature feature2)
+        {
+            if (ReferenceEquals(feature1, null))
+            {
+                return ReferenceEquals(feature2, null);
+            }
+
+            return feature1.Equals(feature2);
+        }
+
+        public static bool operator !=(Feature feature1, Feature feature2)
+        {
+            return !(feature1 == feature2);
+        }
+
+        protected Feature()
+        {
+            name = GetType().Name.Replace("Feature", String.Empty);
+        }
+
+
+        string name;
+    }
+
+    public abstract class Feature<T>:Feature where T: FeatureCategory
+    {
+        public override FeatureCategory Category
+        {
+            get { return Activator.CreateInstance<T>(); }
+        }
+    }
+
+    public abstract class FeatureCategory
+    {
+        public FeatureCategory()
+        {
+            name = GetType().Name.Replace(typeof(FeatureCategory).Name, String.Empty);
+        }
+
+        public static FeatureCategory None
+        {
+            get { return new NoneFeatureCategory(); }
+            
+        }
+
+        /// <summary>
+        /// Returns the list of features in the category that should be used
+        /// </summary>
+        public virtual IEnumerable<Feature> GetFeaturesToInitialize()
+        {
+            return new List<Feature>();
+        }
+
+        /// <summary>
+        /// Feature name.
+        /// </summary>
+        public string Name
+        {
+            get { return name; }
+        }
+
+        public IEnumerable<Feature> GetAllAvailableFeatures()
+        {
+            return Feature.ByCategory(this);
+        }
+
+        protected bool Equals(FeatureCategory other)
+        {
+            return string.Equals(name, other.name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != this.GetType())
+            {
+                return false;
+            }
+            return Equals((FeatureCategory)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (name != null ? name.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(FeatureCategory cat1, FeatureCategory cat2)
+        {
+            if (ReferenceEquals(cat1, null))
+            {
+                return ReferenceEquals(cat2, null);
+            }
+
+            return cat1.Equals(cat2);
+        }
+
+        public static bool operator !=(FeatureCategory cat1, FeatureCategory cat2)
+        {
+            return !(cat1 == cat2);
+        }
+
+        string name;
+
+        public class NoneFeatureCategory :FeatureCategory{}
     }
 }

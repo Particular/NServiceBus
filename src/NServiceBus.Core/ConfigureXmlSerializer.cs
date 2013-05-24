@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
-    using MessageInterfaces.MessageMapper.Reflection;
+    using Features;
     using Serializers.XML;
-    using Serializers.XML.Config;
+    using Settings;
 
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -48,20 +48,14 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false, bool dontWrapSingleMessages = false, bool dontWrapRawXml = false)
         {
-            if (!Configure.BuilderIsConfigured())
-            {
-                SetXmlSerializerAsDefault.UseXmlSerializer = true;
-                return config;
-            }
+            SettingsHolder.SetProperty<XmlMessageSerializer>(s=>s.SanitizeInput,sanitizeInput);
+            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingElementForSingleMessages, dontWrapSingleMessages);
+            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, dontWrapRawXml);
 
-            config.Configurer.ConfigureComponent<MessageMapper>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<XmlMessageSerializer>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SanitizeInput, sanitizeInput);
-            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SkipWrappingElementForSingleMessages, dontWrapSingleMessages);
-            config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.SkipWrappingRawXml, dontWrapRawXml);
+            if (!string.IsNullOrEmpty(nameSpace))
+                SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.Namespace, nameSpace);
 
-            if(!string.IsNullOrEmpty(nameSpace))
-                config.Configurer.ConfigureProperty<XmlMessageSerializer>(x => x.Namespace, nameSpace);
+            Feature.Enable<XmlSerialization>();
 
             return config;
         }

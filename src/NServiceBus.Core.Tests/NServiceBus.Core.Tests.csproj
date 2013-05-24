@@ -103,6 +103,7 @@
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
+    <Compile Include="Features\FeatureCategories.cs" />
     <Compile Include="FuncBuilder.cs" />
     <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
     <Compile Include="Gateway\FakeMessageSender.cs" />

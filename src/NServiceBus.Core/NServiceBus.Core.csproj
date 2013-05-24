@@ -115,6 +115,7 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Serializers\XML\Config\Serializers.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Settings\SerializationSettings.cs" />
     <Compile Include="Unicast\BackwardCompatibility\AssignIdForCorrelationToCorrelationIdOfOutgoingTransportMessages.cs" />
@@ -415,7 +416,6 @@
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerBase.cs" />
     <Compile Include="Serializers\XML\Config\MessageTypesInitializer.cs" />
-    <Compile Include="Serializers\XML\Config\SetXmlSerializerAsDefault.cs" />
     <Compile Include="Serializers\XML\XmlMessageSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSanitizingStream.cs" />
     <Compile Include="ServiceAsyncResult.cs" />
