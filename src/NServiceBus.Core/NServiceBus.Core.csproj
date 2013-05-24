@@ -115,6 +115,8 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
+    <Compile Include="Settings\SerializationSettings.cs" />
     <Compile Include="Unicast\BackwardCompatibility\AssignIdForCorrelationToCorrelationIdOfOutgoingTransportMessages.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />

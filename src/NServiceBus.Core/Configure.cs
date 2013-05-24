@@ -171,6 +171,10 @@ namespace NServiceBus
 
         private static FeatureSettings features;
 
+        public static SerializationSettings Serialization { get { return serialization ?? (serialization = new SerializationSettings()); } }
+
+        private static SerializationSettings serialization;
+
         // ------------  End Configuration extensions ---
        
         /// <summary>
