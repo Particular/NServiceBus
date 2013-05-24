@@ -41,24 +41,24 @@
 
         public static RunDescriptor ActiveMQ
         {
-            get { return AllAvailable.Single(r => r.Key == "ActiveMQ"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "ActiveMQ"); }
         }
 
         public static RunDescriptor Msmq
         {
-            get { return AllAvailable.Single(r => r.Key == "Msmq"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "Msmq"); }
         }
 
         public static RunDescriptor RabbitMQ
         {
-            get { return AllAvailable.Single(r => r.Key == "RabbitMQ"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "RabbitMQ"); }
         }
 
 
 
         public static RunDescriptor SqlServer
         {
-            get { return AllAvailable.Single(r => r.Key == "SqlServer"); }
+            get { return AllAvailable.SingleOrDefault(r => r.Key == "SqlServer"); }
         }
 
         static IEnumerable<RunDescriptor> GetAllAvailable()

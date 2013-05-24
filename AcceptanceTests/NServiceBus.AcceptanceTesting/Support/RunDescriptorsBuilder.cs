@@ -9,10 +9,11 @@
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
         readonly List<string> excludes = new List<string>();
-
         public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor
         {
-            excludes.AddRange(runDescriptorsToExclude.Select(r => r.Key.ToLowerInvariant()).ToArray());
+            excludes.AddRange(runDescriptorsToExclude
+                .Where(r=>r != null)
+                .Select(r =>r.Key.ToLowerInvariant()).ToArray());
 
             var sd = Activator.CreateInstance<T>() as ScenarioDescriptor;
 
@@ -21,9 +22,16 @@
 
         public RunDescriptorsBuilder For(params RunDescriptor[] descriptorsToAdd)
         {
+            var toAdd = descriptorsToAdd.Where(r => r != null).ToList();
+
+            if (!toAdd.Any())
+            {
+                emptyPermutationFound = true;
+            }
+
             if (!descriptors.Any())
             {
-                descriptors = descriptorsToAdd.ToList();
+                descriptors = toAdd;
                 return this;
             }
 
@@ -32,7 +40,7 @@
 
             foreach (var existingDescriptor in descriptors)
             {
-                foreach (var descriptorToAdd in descriptorsToAdd.ToList())
+                foreach (var descriptorToAdd in toAdd)
                 {
                     var nd = new RunDescriptor(existingDescriptor);
                     nd.Merge(descriptorToAdd);
@@ -48,6 +56,13 @@
 
         public IList<RunDescriptor> Build()
         {
+            //if we have found a empty permutation this means that we shouldn't run any permutations. This happens when a test is specified to run for a given key
+            // but that key is not avaiable. Eg running tests for sql server but the sql transport isn't available
+            if (emptyPermutationFound)
+            {
+                return new List<RunDescriptor>();
+            }
+
             var environmentExcludes = GetEnvironmentExcludes();
 
             var activeDescriptors = descriptors.Where(d =>
@@ -76,5 +91,9 @@
             Console.Out.WriteLine("Scenarios excluded for this environment: " + env);
             return env.ToLower().Split(';');
         }
+
+        bool emptyPermutationFound;
+
+        
     }
 }
