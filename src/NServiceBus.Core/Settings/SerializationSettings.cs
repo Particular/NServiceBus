@@ -15,5 +15,16 @@ namespace NServiceBus.Settings
 
             return this;
         }
+
+        /// <summary>
+        /// Tells the framework to not wrap out going messages as if there was multiple messages beeing sent
+        /// </summary>
+        /// <returns></returns>
+        public SerializationSettings DontWrapSingleMessages()
+        {
+            SettingsHolder.Set("SerializationSettings.WrapSingleMessages", false);
+
+            return this;
+        }
     }
 }

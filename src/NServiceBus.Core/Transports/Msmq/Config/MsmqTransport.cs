@@ -48,6 +48,9 @@
             Enable<MsmqTransport>();
             Enable<MessageDrivenSubscriptions>();
 
+            //for backwards compatibility
+            SettingsHolder.SetDefault("SerializationSettings.WrapSingleMessages", true);
+
             EndpointInputQueueCreator.Enabled = true;
         }
 

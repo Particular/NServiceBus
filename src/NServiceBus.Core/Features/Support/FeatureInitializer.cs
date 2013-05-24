@@ -88,7 +88,7 @@
                     if (shouldBeInitialized)
                         feature.Initialize();
 
-                    statusText.AppendLine(string.Format("       * {0} - {1}", category.Name, shouldBeInitialized ? "Enabled" : "Disabled"));    
+                    statusText.AppendLine(string.Format("       * {0} - {1}", feature.Name, shouldBeInitialized ? "Enabled" : "Disabled"));    
                 }
 
             });

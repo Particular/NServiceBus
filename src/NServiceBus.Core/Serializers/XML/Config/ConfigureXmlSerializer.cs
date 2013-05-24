@@ -1,9 +1,5 @@
 namespace NServiceBus
 {
-    using Features;
-    using Serializers.XML;
-    using Settings;
-
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
@@ -46,16 +42,17 @@ namespace NServiceBus
         /// </code>
         /// </param>
         /// <returns></returns>
-        public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false, bool dontWrapSingleMessages = false, bool dontWrapRawXml = false)
+        [ObsoleteEx(Replacement = "Configure.Serializers.Xml()", RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false)
         {
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s=>s.SanitizeInput,sanitizeInput);
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingElementForSingleMessages, dontWrapSingleMessages);
-            SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, dontWrapRawXml);
+            Configure.Serialization.Xml(s =>
+                {
+                    if (sanitizeInput)
+                        s.SanitizeInput();
 
-            if (!string.IsNullOrEmpty(nameSpace))
-                SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.Namespace, nameSpace);
-
-            Feature.Enable<XmlSerialization>();
+                    if (!string.IsNullOrEmpty(nameSpace))
+                        s.Namespace(nameSpace);
+                });
 
             return config;
         }

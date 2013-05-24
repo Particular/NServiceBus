@@ -108,6 +108,7 @@
     <Compile Include="ConfigureGateway.cs" />
     <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
+    <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
     <Compile Include="Features\Support\FeatureInitializer.cs" />
     <Compile Include="Features\Support\EnableDefaultFeatures.cs" />
@@ -115,8 +116,10 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
-    <Compile Include="Serializers\XML\Config\Serializers.cs" />
+    <Compile Include="Serializers\Serializers.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
     <Compile Include="Settings\SerializationSettings.cs" />
     <Compile Include="Unicast\BackwardCompatibility\AssignIdForCorrelationToCorrelationIdOfOutgoingTransportMessages.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
@@ -147,7 +150,7 @@
     <Compile Include="SecondLevelRetries\Config\ConfigureSecondLevelRetriesExtensions.cs" />
     <Compile Include="Timeout\ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
-    <Compile Include="ConfigureXmlSerializer.cs" />
+    <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
     <Compile Include="Config\AddressInitializer.cs" />
     <Compile Include="Config\Advanced\ConfigureSettingLocalAddressNameAction.cs" />
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />

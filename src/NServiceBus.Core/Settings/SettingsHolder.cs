@@ -122,7 +122,7 @@ namespace NServiceBus.Settings
 
         public static void Reset()
         {
-            EnsureWriteEnabled();
+            locked = false;
 
             Overrides.Clear();
             Defaults.Clear();

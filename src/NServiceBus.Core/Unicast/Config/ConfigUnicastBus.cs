@@ -403,7 +403,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         static bool IsMessageHandler(Type t)
         {
-            if (t.IsAbstract)
+            if (t.IsAbstract || t.IsGenericType)
                 return false;
 
             return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);

@@ -9,6 +9,7 @@ namespace NServiceBus.Testing
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using DataBus.InMemory;
 
     /// <summary>
     /// Entry class used for unit testing
@@ -61,18 +62,28 @@ namespace NServiceBus.Testing
 
         private static void InitializeInternal()
         {
+            if (initialized)
+                return;
+
+            Configure.Serialization.Xml();
+
             Configure.Instance
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
-                .XmlSerializer()
-                .InMemoryFaultManagement();
+                .InMemoryFaultManagement()
+                .UnicastBus();
 
+            Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+
+            Configure.Instance.Initialize();
+
+            
             var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
             if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
+            //mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
@@ -100,6 +111,8 @@ namespace NServiceBus.Testing
                             });
                 
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => staticOutgoingHeaders;
+
+            initialized = true;
         }
 
         /// <summary>
@@ -236,10 +249,11 @@ namespace NServiceBus.Testing
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
         static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
         static readonly IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+        static bool initialized;
     }
 
     /// <summary>
-    /// Configration source suitable for testing
+    /// Configuration source suitable for testing
     /// </summary>
     public class TestConfigurationSource:IConfigurationSource
     {
