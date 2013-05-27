@@ -16,7 +16,6 @@
                 //this overrides the NServiceBus default convention of IEvent
                      .CastleWindsorBuilder() // just to show we can mix and match containers
                      .FileShareDataBus(BasePath)
-                     .XmlSerializer(dontWrapSingleMessages: true) // crucial for AQ
                      .UseTransport<ActiveMQ>(
                          () =>"ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000");
 

@@ -10,11 +10,10 @@
         public void Init()
         {
             var config = Configure.With()
-                .DefaultBuilder()
-                .PurgeOnStartup(true)
-                .FileShareDataBus(BasePath)
-                .UseTransport<ActiveMQ>(() => "ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000")
-                .XmlSerializer(dontWrapSingleMessages: true);
+                                  .DefaultBuilder()
+                                  .PurgeOnStartup(true)
+                                  .FileShareDataBus(BasePath)
+                                  .UseTransport<ActiveMQ>(() =>"ServerUrl=failover:(tcp://localhost:61616,tcp://localhost:61616)?randomize=false&timeout=5000");
 
             Configure.Features.Disable<SecondLevelRetries>();
         }
