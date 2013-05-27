@@ -27,7 +27,7 @@
             var serializerToUse = availableSerializers.Single(f => f.GetType() == typeof (XmlSerialization));
 
             if (enabledSerializers.Any())
-                serializerToUse = availableSerializers.Single();
+                serializerToUse = enabledSerializers.Single();
 
             yield return serializerToUse;
         }

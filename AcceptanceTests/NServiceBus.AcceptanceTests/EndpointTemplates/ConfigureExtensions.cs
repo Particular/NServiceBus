@@ -70,12 +70,17 @@
             }
 
 
-            if (type == typeof(JsonMessageSerializer))
-                return config.JsonSerializer();
-
+            if (type == typeof (JsonMessageSerializer))
+            {
+                Configure.Serialization.Json();
+                return config;
+            }
 
             if (type == typeof(BsonMessageSerializer))
-                return config.BsonSerializer();
+            {
+                Configure.Serialization.Bson();
+                return config;
+            }
 
             if (type == typeof(MessageSerializer))
                 return config.BinarySerializer();

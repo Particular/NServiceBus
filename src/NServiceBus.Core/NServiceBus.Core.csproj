@@ -116,6 +116,9 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
+    <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
+    <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\Serializers.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
@@ -131,7 +134,7 @@
     <Compile Include="Persistence\InMemory\InMemoryPersistence.cs" />
     <Compile Include="Persistence\InMemory\SagaPersister\ConfigureInMemorySagaPersister.cs" />
     <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
-    <Compile Include="ConfigureJsonSerializer.cs" />
+    <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
     <Compile Include="ConfigureLicenseExtensions.cs" />
     <Compile Include="MasterNode\ConfigureMasterNode.cs" />
     <Compile Include="Settings\TransportSettings.cs" />

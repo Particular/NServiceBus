@@ -28,9 +28,9 @@ namespace NServiceBus.Timeout.Hosting.Azure
 
             Configure.Transactions.Enable();
             Configure.Features.Enable<Features.Sagas>();
+            Configure.Serialization.Json();
 
             return Configure.Instance
-                .JsonSerializer()
                 .UseAzureTimeoutPersister()
                 .UnicastBus()
                     .RunHandlersUnderIncomingPrincipal(false);

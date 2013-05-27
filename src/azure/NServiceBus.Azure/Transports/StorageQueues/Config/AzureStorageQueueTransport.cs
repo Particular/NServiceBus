@@ -28,7 +28,7 @@
 
             if (!config.Configurer.HasComponent<IMessageSerializer>())
             {
-                config.JsonSerializer();
+                NServiceBus.Configure.Serialization.Json();
             }
 
             AzureStoragePersistence.UseAsDefault();

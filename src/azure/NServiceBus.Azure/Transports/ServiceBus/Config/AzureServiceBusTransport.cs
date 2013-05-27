@@ -24,7 +24,7 @@
 
             if (!config.Configurer.HasComponent<IMessageSerializer>())
             {
-                config.JsonSerializer();
+                NServiceBus.Configure.Serialization.Json();
             }
 
             var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
