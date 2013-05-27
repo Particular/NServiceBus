@@ -103,6 +103,24 @@ namespace NServiceBus.Config
         {
             return false;
         }
+
+        /// <summary>
+        /// Calls BaseAdd.
+        /// </summary>
+        /// <param name="channel"></param>
+        public void Add(ChannelConfig channel)
+        {
+            BaseAdd(channel);
+        }
+
+        /// <summary>
+        /// Calls BaseAdd with true as the additional parameter.
+        /// </summary>
+        /// <param name="element"></param>
+        protected override void BaseAdd(ConfigurationElement element)
+        {
+            BaseAdd(element, true);
+        }
     }
 
     public class ChannelConfig : ConfigurationElement
@@ -200,6 +218,24 @@ namespace NServiceBus.Config
         public override bool IsReadOnly()
         {
             return false;
+        }
+
+        /// <summary>
+        /// Calls BaseAdd.
+        /// </summary>
+        /// <param name="mapping"></param>
+        public void Add(SiteConfig site)
+        {
+            BaseAdd(site);
+        }
+
+        /// <summary>
+        /// Calls BaseAdd with true as the additional parameter.
+        /// </summary>
+        /// <param name="element"></param>
+        protected override void BaseAdd(ConfigurationElement element)
+        {
+            BaseAdd(element, true);
         }
     }
 
