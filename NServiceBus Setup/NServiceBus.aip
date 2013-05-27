@@ -12,10 +12,10 @@
     <ROW Property="AI_UNINSTALLER" Value="msiexec.exe"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPPRODUCTICON" Value="nServiceBus_Logo_black_all.exe" Type="8"/>
+    <ROW Property="ARPPRODUCTICON" Value="NServiceBus.exe" Type="8"/>
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
     <ROW Property="AUDIT_Q" Value="audit" Type="4"/>
-    <ROW Property="AppLogoIcon" Value="applogoicon" MultiBuildValue="DefaultBuild:nServiceBus_Logo_black_installer.png" Type="1" MsiKey="AppLogoIcon"/>
+    <ROW Property="AppLogoIcon" Value="applogoicon" MultiBuildValue="DefaultBuild:NServiceBus_black.png" Type="1" MsiKey="AppLogoIcon"/>
     <ROW Property="BINARIES_SH" Value="create" Type="4"/>
     <ROW Property="ERROR_Q" Value="error" Type="4"/>
     <ROW Property="INSTALL_RAVENDB" Value="ImageCheckBox"/>
@@ -51,7 +51,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="AI_CustomARPName" ComponentId="{DCF86832-3D3E-47EF-BF01-F2D52A32BA9D}" Directory_="APPDIR" Attributes="4" KeyPath="DisplayName" Options="1"/>
-    <ROW Component="AI_ExePath" ComponentId="{F4E0616E-E0B2-4A82-9F3F-B373F62D1DA8}" Directory_="APPDIR" Attributes="4" KeyPath="AI_ExePath"/>
+    <ROW Component="AI_ExePath" ComponentId="{F18F3008-8F86-42EB-BA9E-3BE5F9AEBA8C}" Directory_="APPDIR" Attributes="4" KeyPath="AI_ExePath"/>
     <ROW Component="AuditQueue" ComponentId="{C1EF9234-CBFB-4307-927D-DDB465E42141}" Directory_="APPDIR" Attributes="4" KeyPath="AuditQueue"/>
     <ROW Component="AuditQueue_1" ComponentId="{86C73F9C-7F08-4727-81B1-A2CE3967A3CC}" Directory_="APPDIR" Attributes="260" KeyPath="AuditQueue_1"/>
     <ROW Component="Binaries" ComponentId="{872CADF4-04C8-4823-80CE-B940DD37BBBB}" Directory_="Binaries_Dir" Attributes="0"/>
@@ -69,7 +69,7 @@
     <ROW Component="Samples" ComponentId="{BD1F1C56-8071-4829-93AA-4F48847A4501}" Directory_="Samples_Dir" Attributes="0"/>
     <ROW Component="Samples_SH" ComponentId="{4AF719F6-CF5D-48F7-986A-76FA298629F3}" Directory_="APPDIR" Attributes="4" Condition="SAMPLES_SH OR INSTALL_ALL_SHORTCUTS" KeyPath="Samples_SH"/>
     <ROW Component="ServiceBus" ComponentId="{BC64C14D-73A1-434D-A45D-C778F8AE166B}" Directory_="APPDIR" Attributes="260" KeyPath="ServiceBus_1"/>
-    <ROW Component="Studio.exe" ComponentId="{5E73ADCD-FE7C-418D-A214-540F759C6EA5}" Directory_="Tools_Dir" Attributes="0" KeyPath="Studio.exe"/>
+    <ROW Component="Tools" ComponentId="{DEAD5B7B-E627-42B7-9A3A-9882DB56AB06}" Directory_="Tools_Dir" Attributes="0"/>
     <ROW Component="Tools_SH" ComponentId="{08B97540-1114-4BB7-9536-BA0F54E093C6}" Directory_="APPDIR" Attributes="4" Condition="TOOLS_SH OR INSTALL_ALL_SHORTCUTS" KeyPath="Tools_SH"/>
     <ROW Component="TrialStart" ComponentId="{7A967027-5397-4C23-8B1D-43E489AC01C0}" Directory_="APPDIR" Attributes="260" KeyPath="TrialStart"/>
     <ROW Component="UploadEndpointURL" ComponentId="{631A542D-7942-45E7-A065-811151AB9D1E}" Directory_="APPDIR" Attributes="4" KeyPath="UploadEndpointURL"/>
@@ -80,13 +80,13 @@
     <ROW Component="ga.js" ComponentId="{DA8DE890-E8AE-4E43-AD9C-6DA3E044EA3D}" Directory_="NServiceBus4.0BetaReleaseNotes_files_Dir" Attributes="0" KeyPath="ga.js" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="DTC" Feature_Parent="PrepMachine" Title="Install DTC" Description="Install Microsoft Message Queuing (requires DTC)" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath INSTALL_RAVENDB"/>
-    <ROW Feature="MSMQ" Feature_Parent="DTC" Title="Install MSMQ" Description="Install the Microsoft Distributed Transaction Coordinator (required for MSMQ)" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath INSTALL_RAVENDB"/>
-    <ROW Feature="ManagementPack" Feature_Parent="NServiceBus" Title="Management Service" Description="Install Management Service for NServiceBus" Display="6" Level="32767" Attributes="0" Options="32" Components="AI_CustomARPName AI_ExePath INSTALL_RAVENDB Port"/>
-    <ROW Feature="NServiceBus" Title="NServiceBus" Description="NServiceBus main application" Display="3" Level="1" Directory_="APPDIR" Attributes="16" Components="AI_CustomARPName AI_ExePath AuditQueue Binaries BinariesSH ErrorQueue INSTALL_RAVENDB ProductInformation RavenPort SHORTCUTDIR Samples_SH Tools_SH UploadEndpointURL UsageDataCollectionApproved"/>
-    <ROW Feature="PrepMachine" Feature_Parent="NServiceBus" Title="Prepare My Machine" Description="Install Windows components used by some of NServiceBus features" Display="9" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath INSTALL_RAVENDB"/>
-    <ROW Feature="Samples" Feature_Parent="NServiceBus" Title="Samples" Description="Install the NServiceBus samples directory" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath INSTALL_RAVENDB Samples"/>
-    <ROW Feature="Tools" Feature_Parent="NServiceBus" Title="Tools" Description="Install the NServiceBus command-line and utilities directory" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath AuditQueue_1 ErrorQueue_1 INSTALL_RAVENDB LICENSE.md NServiceBus4.0BetaReleaseNotes.htm RavenPort_1 ServiceBus Studio.exe TrialStart UploadEndpointURL_1 UsageDataCollectionApproved_1 X64_REG ga.js"/>
+    <ROW Feature="DTC" Feature_Parent="PrepMachine" Title="Install DTC" Description="Install Microsoft Message Queuing (requires DTC)" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName INSTALL_RAVENDB"/>
+    <ROW Feature="MSMQ" Feature_Parent="DTC" Title="Install MSMQ" Description="Install the Microsoft Distributed Transaction Coordinator (required for MSMQ)" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName INSTALL_RAVENDB"/>
+    <ROW Feature="ManagementPack" Feature_Parent="NServiceBus" Title="Management Service" Description="Install Management Service for NServiceBus" Display="6" Level="32767" Attributes="0" Options="32" Components="AI_CustomARPName INSTALL_RAVENDB Port"/>
+    <ROW Feature="NServiceBus" Title="NServiceBus" Description="NServiceBus main application" Display="3" Level="1" Directory_="APPDIR" Attributes="16" Components="AI_CustomARPName AuditQueue Binaries BinariesSH ErrorQueue INSTALL_RAVENDB ProductInformation RavenPort SHORTCUTDIR Samples_SH Tools_SH UploadEndpointURL UsageDataCollectionApproved"/>
+    <ROW Feature="PrepMachine" Feature_Parent="NServiceBus" Title="Prepare My Machine" Description="Install Windows components used by some of NServiceBus features" Display="9" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName INSTALL_RAVENDB"/>
+    <ROW Feature="Samples" Feature_Parent="NServiceBus" Title="Samples" Description="Install the NServiceBus samples directory" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName INSTALL_RAVENDB Samples"/>
+    <ROW Feature="Tools" Feature_Parent="NServiceBus" Title="Tools" Description="Install the NServiceBus command-line and utilities directory" Display="3" Level="1" Directory_="APPDIR" Attributes="0" Components="AI_CustomARPName AI_ExePath AuditQueue_1 ErrorQueue_1 INSTALL_RAVENDB LICENSE.md NServiceBus4.0BetaReleaseNotes.htm RavenPort_1 ServiceBus Tools TrialStart UploadEndpointURL_1 UsageDataCollectionApproved_1 X64_REG ga.js"/>
     <ATTRIBUTE name="CurrentFeature" value="Tools"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -96,7 +96,6 @@
     <ROW File="NServiceBus4.0BetaReleaseNotes.htm" Component_="NServiceBus4.0BetaReleaseNotes.htm" FileName="NServi~1.htm|NServiceBus 4.0 Beta Release Notes.htm" Attributes="0" SourcePath="Files\OfflineHtml\NServiceBus 4.0 Beta Release Notes.htm" SelfReg="false" NextFile="ga.js"/>
     <ROW File="NServiceBusLogo_black.png" Component_="ga.js" FileName="NServi~1.png|NServiceBusLogo_black.png" Attributes="0" SourcePath="Files\OfflineHtml\NServiceBus 4.0 Beta Release Notes_files\NServiceBusLogo_black.png" SelfReg="false" NextFile="social_media1.gif"/>
     <ROW File="README.md" Component_="LICENSE.md" FileName="README.md" Attributes="0" SourcePath="..\Release\README.md" SelfReg="false" NextFile="acknowledgements.txt"/>
-    <ROW File="Studio.exe" Component_="Studio.exe" FileName="Studio.exe" Attributes="0" SourcePath="Files\Studio.exe" SelfReg="false" NextFile="LICENSE.md"/>
     <ROW File="acknowledgements.txt" Component_="LICENSE.md" FileName="acknow~1.txt|acknowledgements.txt" Attributes="0" SourcePath="..\Release\acknowledgements.txt" SelfReg="false" NextFile="NServiceBus4.0BetaReleaseNotes.htm"/>
     <ROW File="ga.js" Component_="ga.js" FileName="ga.js" Attributes="0" SourcePath="Files\OfflineHtml\NServiceBus 4.0 Beta Release Notes_files\ga.js" SelfReg="false" NextFile="global.css"/>
     <ROW File="global.css" Component_="ga.js" FileName="global.css" Attributes="0" SourcePath="Files\OfflineHtml\NServiceBus 4.0 Beta Release Notes_files\global.css" SelfReg="false" NextFile="jquery1.8.2.min.js"/>
@@ -112,7 +111,7 @@
     <ROW Property="INSTALL_RAVENDB" Registry="INSTALL_RAVENDB" HklmSearch="INSTALL_RAVENDB" HkcuSearch="INSTALL_RAVENDB_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\nServiceBus_Logo_black_all.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="NServiceBus.4.0.0"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\NServiceBus.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="NServiceBus.4.0.0"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -153,13 +152,13 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="ExternalUICleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ExternalUICleaner.dll"/>
+    <ROW Name="NServiceBus_black.png" SourcePath="res\NServiceBus_black.png"/>
     <ROW Name="Particular.CustomActions.CA.dll" SourcePath="res-binary\Particular.CustomActions.CA.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="aicustact.dll_1" SourcePath="res-binary\aicustact.dll"/>
     <ROW Name="checkbox.png" SourcePath="res\checkbox.png"/>
     <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
-    <ROW Name="nServiceBus_Logo_black_installer.png" SourcePath="res\nServiceBus_Logo_black_installer.png"/>
     <ROW Name="viewer.exe" SourcePath="&lt;AI_CUSTACTS&gt;viewer.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCheckBoxComponent">
@@ -167,7 +166,6 @@
     <ROW Property="TOOLS_SH" Value="create"/>
     <ROW Property="SAMPLES_SH" Value="create"/>
     <ROW Property="BINARIES_SH" Value="create"/>
-    <ROW Property="INSTALL_STUDIO" Value="ImageCheckBox"/>
     <ROW Property="INSTALL_RAVENDB" Value="ImageCheckBox"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
@@ -219,7 +217,6 @@
     <ROW Dialog_="ExitDialog" Control="Bitmap" Type="Bitmap" X="0" Y="0" Width="345" Height="400" Attributes="1" Text="[Background]" Order="500" MsiKey="ExitDialog#Bitmap"/>
     <ROW Dialog_="ExitDialog" Control="AdvInst" Type="Text" X="5" Y="388" Width="74" Height="11" Attributes="65539" Text="Advanced Installer" TextStyle="[BrandingStyle]" Order="800" MsiKey="ExitDialog#AdvInst"/>
     <ROW Dialog_="ExitDialog" Control="ProductLogo" Type="Bitmap" X="17" Y="28" Width="257" Height="63" Attributes="1" Text="[AppLogoIcon]" Order="900"/>
-    <ROW Dialog_="ExitDialog" Control="ImageCheckBox_1" Type="ImageCheckBox" X="17" Y="144" Width="310" Height="14" Attributes="3" Property="INSTALL_STUDIO" Text="checkbox.png" Order="1000" ExtType="ImageCheckBox" ExtData="Install Particular Software NServiceBus Studio 4.0.0"/>
     <ROW Dialog_="FatalError" Control="Bitmap" Type="Bitmap" X="0" Y="0" Width="345" Height="400" Attributes="1" Text="[Background]" Order="300" MsiKey="FatalError#Bitmap"/>
     <ROW Dialog_="FatalError" Control="LogCheckBox" Type="ImageCheckBox" X="17" Y="241" Width="15" Height="15" Attributes="2" Property="AI_LOG_CHECKBOX" Text="[checkbox]" Order="400" MsiKey="FatalError#LogCheckBox" ExtType="ImageCheckBox"/>
     <ROW Dialog_="FatalError" Control="LogCheckBoxLabel" Type="Text" X="34" Y="240" Width="278" Height="23" Attributes="65538" Property="AI_LOG_CHECKBOX_TEXT" Text="Show log" TextStyle="[MetroButtonText]" Order="500" TextLocId="Control.Text.FatalError#LogCheckBox" MsiKey="FatalError#LogCheckBoxLabel"/>
@@ -340,7 +337,6 @@
     <ROW Dialog_="InstallDlg" Control_="ImageButton_1" Action="Enable" Condition="AGREE_CHECKBOX AND PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7"/>
     <ROW Dialog_="InstallDlg" Control_="ImageButton_1" Action="Disable" Condition="NOT AGREE_CHECKBOX OR NOT PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7"/>
     <ROW Dialog_="InstallDlg" Control_="ImageButton_1" Action="Show" Condition="(Text_Next &lt;&gt; Text_Install) AND (InstallDlg)"/>
-    <ROW Dialog_="ExitDialog" Control_="ImageCheckBox_1" Action="Hide" Condition="Installed"/>
     <ROW Dialog_="ManagementPackDialog" Control_="Next" Action="Disable" Condition="NOT PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7"/>
     <ROW Dialog_="ManagementPackDialog" Control_="Next" Action="Enable" Condition="PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7"/>
     <ROW Dialog_="ShortcutsDialog" Control_="ImageCheckBox_1" Action="Show" Condition="((&amp;Tools = 3) AND NOT (!Tools = 3))"/>
@@ -422,7 +418,6 @@
     <ROW Dialog_="ShortcutsDialog" Control_="Back" Event="[Text_Next]" Argument="[AI_Text_Next_Orig]" Condition="AI_INSTALL" Ordering="3" Options="2"/>
     <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="ShortcutsDialog" Condition="AI_INSTALL" Ordering="101"/>
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="CustomSelectionDialog" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="ExitDialog" Control_="Finish" Event="DoAction" Argument="Launch_Studio_Installer" Condition="AI_INSTALL AND ( INSTALL_STUDIO )" Ordering="99"/>
     <ROW Dialog_="RavenDBDialog" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="100"/>
     <ROW Dialog_="RavenDBDialog" Control_="Next" Event="NewDialog" Argument="CustomSelectionDialog" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="RavenDBDialog" Control_="Back" Event="NewDialog" Argument="ConnectionDetailsDialog" Condition="AI_INSTALL" Ordering="1"/>
@@ -441,6 +436,7 @@
     <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR"/>
     <ROW Directory_="Binaries_Dir" Component_="Binaries"/>
     <ROW Directory_="Samples_Dir" Component_="Samples"/>
+    <ROW Directory_="Tools_Dir" Component_="Tools"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
@@ -477,7 +473,6 @@
     <ROW Action="InstallRavenDb" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallRavenDb"/>
     <ROW Action="Launch_Offline_HTML" Type="194" Source="viewer.exe" Target="&quot;[#NServiceBus4.0BetaReleaseNotes.htm]&quot;" Options="1"/>
     <ROW Action="Launch_Online_URL" Type="194" Source="viewer.exe" Target="http://www.particular.net/Installation-completed?installer=NServiceBus" Options="1"/>
-    <ROW Action="Launch_Studio_Installer" Type="194" Source="viewer.exe" Target="&quot;[#Studio.exe]&quot;" WithoutSeq="true" Options="1"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]Particular Software\[ProductName]\v[MY_VERSION]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]" MultiBuildTarget="DefaultBuild:[ProgramMenuFolder]Particular Software\[ProductName]\v[MY_VERSION]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
@@ -496,7 +491,7 @@
     <ROW Dialog_="CustomSelectionDialog" Control_="ItemDescription" Event="SelectionDescription" Attribute="Text"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
-    <ROW Name="nServiceBus_Logo_black_all.exe" SourcePath="res\nServiceBus_Logo_black_all.ico" Index="0"/>
+    <ROW Name="NServiceBus.exe" SourcePath="res\NServiceBus.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1502"/>
@@ -514,8 +509,10 @@
     <ROW Action="InstallRavenDb" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( INSTALL_RAVENDB )" Sequence="1602"/>
     <ROW Action="InstallDtc" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;DTC = 3) AND NOT (!DTC = 3)) )" Sequence="1603"/>
     <ROW Action="InstallMsmq" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;MSMQ = 3) AND NOT (!MSMQ = 3)) )" Sequence="1604"/>
+    <ROW Action="AI_AppSearchEx" Sequence="102"/>
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="201"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
-    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="102" Builds="DefaultBuild"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="DefaultBuild"/>
     <ROW Action="AI_DeleteCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (NOT PATCH)" Sequence="199" Builds="DefaultBuild"/>
     <ROW Action="AI_DeleteRCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (NOT PATCH)" Sequence="198" Builds="DefaultBuild"/>
     <ROW Action="AI_ExtractCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (NOT PATCH)" Sequence="197" Builds="DefaultBuild"/>
@@ -526,8 +523,6 @@
     <ROW Action="AI_ExtractFiles" Sequence="3998" Builds="DefaultBuild"/>
     <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
     <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
-    <ROW Action="AI_AppSearchEx" Sequence="101"/>
-    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="201"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
@@ -601,7 +596,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="NServiceBusBinaries" Directory_="SHORTCUTDIR" Name="NServi~3|NServiceBus Binaries" Component_="BinariesSH" Target="[Binaries_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
-    <ROW Shortcut="NServiceBusPowershellPrompt" Directory_="SHORTCUTDIR" Name="NServi~4|NServiceBus Powershell Prompt" Component_="AI_ExePath" Target="[POWERSHELL_EXE]" Arguments="-noexit -command &quot;Import-Module &quot;[Binaries_Dir]NServiceBus.PowerShell.dll&quot; | Out-Null&quot;" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="NServiceBusPowershellPrompt" Directory_="SHORTCUTDIR" Name="NServi~4|NServiceBus Powershell Prompt" Component_="BinariesSH" Target="[POWERSHELL_EXE]" Arguments="-noexit -command &quot;Import-Module &quot;[Binaries_Dir]NServiceBus.PowerShell.dll&quot; | Out-Null&quot;" Hotkey="0" IconIndex="0" ShowCmd="1"/>
     <ROW Shortcut="NServiceBusSamples" Directory_="SHORTCUTDIR" Name="NServi~2|NServiceBus Samples" Component_="Samples_SH" Target="[Samples_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
     <ROW Shortcut="NServiceBusTools" Directory_="SHORTCUTDIR" Name="NServi~1|NServiceBus Tools" Component_="Tools_SH" Target="[Tools_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
   </COMPONENT>
