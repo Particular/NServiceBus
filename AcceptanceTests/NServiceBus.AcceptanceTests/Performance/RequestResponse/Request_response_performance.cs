@@ -6,6 +6,9 @@
     using AcceptanceTesting;
     using Config;
     using EndpointTemplates;
+
+    using NServiceBus.AcceptanceTesting.Support;
+
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -18,7 +21,7 @@
         public void With_dtc_enabled()
         {
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
-                    .WithEndpoint<ClientEndpoint>(b => b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.Send(new MyMessage()))))
+                    .WithEndpoint<ClientEndpoint>(b => SendMessages(b))
                     .WithEndpoint<ServerEndpoint>()
                     .Done(c => c.Complete)
                     .Repeat(r => r.For(Transports.Default))
@@ -27,6 +30,61 @@
                     .Run();
         }
 
+        [Test]
+        public void With_dtc_supressed()
+        {
+            Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
+                    .WithEndpoint<ClientEndpoint>(b =>
+                        {
+                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
+                            SendMessages(b);
+                        })
+                    .WithEndpoint<ServerEndpoint>(b => b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions())))
+                    .Done(c => c.Complete)
+                    .Repeat(r => r.For(Transports.Default))
+                    .Report(DisplayTestResults)
+                    .MaxTestParallelism(1)
+                    .Run();
+        }
+
+        [Test]
+        public void With_no_transactions()
+        {
+            Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
+                    .WithEndpoint<ClientEndpoint>(b =>
+                    {
+                        b.CustomConfig(c => Configure.Transactions.Disable());
+                        SendMessages(b);
+                    })
+                    .WithEndpoint<ServerEndpoint>(b => b.CustomConfig(c => Configure.Transactions.Disable()))
+                    .Done(c => c.Complete)
+                    .Repeat(r => r.For(Transports.Default))
+                    .Report(DisplayTestResults)
+                    .MaxTestParallelism(1)
+                    .Run();
+        }
+
+        [Test]
+        public void With_ambient_tx_suppressed()
+        {
+            Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
+                .WithEndpoint<ClientEndpoint>(b =>
+                {
+                    b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()));
+                    SendMessages(b);
+                })
+                .WithEndpoint<ServerEndpoint>(b => b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope())))
+                .Done(c => c.Complete)
+                .Repeat(r => r.For(Transports.Default))
+                .Report(DisplayTestResults)
+                .MaxTestParallelism(1)
+                .Run();
+        }
+
+        private static EndpointBehaviorBuilder<Context> SendMessages(EndpointBehaviorBuilder<Context> b)
+        {
+            return b.Given((bus, context) => Parallel.For(0, context.NumberOfTestMessages, (s, c) => bus.Send(new MyMessage())));
+        }
 
         public class Context : PerformanceTestContext
         {
