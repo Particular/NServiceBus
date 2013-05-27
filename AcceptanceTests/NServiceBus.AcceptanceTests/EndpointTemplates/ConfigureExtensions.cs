@@ -59,12 +59,15 @@
         public static Configure DefineSerializer(this Configure config, string serializer)
         {
             if (string.IsNullOrEmpty(serializer))
-                return config.XmlSerializer();
+                return config;//xml is the default
 
             var type = Type.GetType(serializer);
 
-            if (type == typeof(XmlMessageSerializer))
-                return config.XmlSerializer();
+            if (type == typeof (XmlMessageSerializer))
+            {
+                Configure.Serialization.Xml();
+                return config;
+            }
 
 
             if (type == typeof(JsonMessageSerializer))
