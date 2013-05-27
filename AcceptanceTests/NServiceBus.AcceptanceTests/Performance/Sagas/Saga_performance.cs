@@ -27,6 +27,21 @@
                     .Run();
         }
 
+        [Test]
+        public void With_dtc_supressed()
+        {
+            Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
+                    .WithEndpoint<SagaEndpoint>(b =>
+                        {
+                            b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
+                            SendTestMessages(b);
+                        })
+                    .Done(c => c.Complete)
+                    .Repeat(r => r.For<AllSagaPersisters>())
+                    .Report(DisplayTestResults)
+                    .MaxTestParallelism(1)
+                    .Run();
+        }
        
         public class Context : PerformanceTestContext
         {
