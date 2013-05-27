@@ -33,7 +33,7 @@
             channelReceiver = channelFactory.GetReceiver(channel.Type);
             channelReceiver.DataReceived += DataReceivedOnChannel;
             receiver.MessageReceived += MessageReceivedOnOldChannel;
-            channelReceiver.Start(channel.Address,numWorkerThreads);
+            channelReceiver.Start(channel.Address, numWorkerThreads);
         }
 
         void MessageReceivedOnOldChannel(object sender, MessageReceivedOnChannelArgs e)
@@ -75,7 +75,7 @@
         CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
         {
             var headers = receivedData.Headers;
-       
+
             string callType = headers[GatewayHeaders.CallTypeHeader];
             if (!Enum.IsDefined(typeof(CallType), callType))
                 throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
@@ -126,7 +126,7 @@
                 timeToBeReceived = TimeSpan.FromHours(1);
 
             var newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
-            using(var databusStream = DataBus.Get(newDatabusKey))
+            using (var databusStream = DataBus.Get(newDatabusKey))
                 CheckHashOfGatewayStream(databusStream, callInfo.Headers[HttpHeaders.ContentMd5Key]);
 
             var specificDataBusHeaderToUpdate = callInfo.Headers[GatewayHeaders.DatabusKey];
@@ -142,12 +142,38 @@
                 throw new ChannelException(412, "MD5 hash received does not match hash calculated on server. Please resubmit.");
         }
 
+
         public void Dispose()
         {
-            channelReceiver.DataReceived -= DataReceivedOnChannel;
-            receiver.MessageReceived -= MessageReceivedOnOldChannel;
-            channelReceiver.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // Dispose managed resources.
+                channelReceiver.DataReceived -= DataReceivedOnChannel;
+                receiver.MessageReceived -= MessageReceivedOnOldChannel;
+                channelReceiver.Dispose();
+            }
+
+            disposed = true;
+        }
+
+        ~SingleCallChannelReceiver()
+        {
+            Dispose(false);
+        }
+
+        bool disposed;
+
 
         IChannelReceiver channelReceiver;
         readonly IChannelFactory channelFactory;
