@@ -16,13 +16,14 @@ namespace Website
 
         private static IBus ConfigureNServiceBus()
         {
+            Configure.Serialization.Json();
+
             var bus = Configure.With()
                   .DefaultBuilder()
                   .ForMvc()
                   .Log4Net(new AzureAppender())
                   .AzureConfigurationSource()
                   .AzureServiceBusMessageQueue()
-                    .JsonSerializer()
                     .QueuePerInstance()
                     .PurgeOnStartup(true)
                   .UseInMemoryTimeoutPersister()

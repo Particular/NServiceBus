@@ -27,11 +27,12 @@ namespace Customer
             Configure.Transactions.Enable();
             Configure.Features.Disable<AutoSubscribe>();
             Configure.Features.Enable<Sagas>();
+            Configure.Serialization.Json();
 
             Configure.With()
                      .Log4Net()
                      .StructureMapBuilder(ObjectFactory.Container)
-                     .AzureMessageQueue().JsonSerializer()
+                     .AzureMessageQueue()
                      .AzureSagaPersister()
                      .UseAzureTimeoutPersister()
                      .UnicastBus()

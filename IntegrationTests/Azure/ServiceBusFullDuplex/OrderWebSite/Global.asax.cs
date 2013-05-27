@@ -16,13 +16,13 @@ namespace OrderWebSite
         private static IBus ConfigureNServiceBus()
         {
             Configure.Features.Disable<AutoSubscribe>();
+            Configure.Serialization.Json();
 
             var bus = Configure.With()
                .DefaultBuilder()
                .AzureDiagnosticsLogger()
                .AzureConfigurationSource()
                .AzureServiceBusMessageQueue()
-               .JsonSerializer()
                .UnicastBus()
                    .CreateBus()
                 .Start();

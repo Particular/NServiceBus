@@ -23,12 +23,12 @@ namespace Customer
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Serialization.Json();
 
             Configure.With()
                .Log4Net()
                .StructureMapBuilder(ObjectFactory.Container)
                .AzureMessageQueue()
-               .JsonSerializer()
                .UseNHibernateSubscriptionPersister()
                .UseNHibernateTimeoutPersister()
                .UnicastBus()

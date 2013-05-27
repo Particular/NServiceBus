@@ -22,6 +22,7 @@ namespace Host
         private static IBus ConfigureNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Serialization.Json();
 
             var bus = Configure.With()
                   .DefaultBuilder()
@@ -29,7 +30,6 @@ namespace Host
                   .AzureDiagnosticsLogger()
                   .AzureConfigurationSource()
                   .AzureMessageQueue()
-                    .JsonSerializer()
                     .QueuePerInstance()
                   .UnicastBus()
                     .LoadMessageHandlers()

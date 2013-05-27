@@ -25,11 +25,12 @@ namespace Cashier
         {
             Configure.Transactions.Enable();
             Configure.Features.Enable<Sagas>();
+            Configure.Serialization.Json();
 
             Configure.With()
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
-                .AzureMessageQueue().JsonSerializer()
+                .AzureMessageQueue()
                 .AzureSubcriptionStorage()
                 .AzureSagaPersister()
                 .UseAzureTimeoutPersister()

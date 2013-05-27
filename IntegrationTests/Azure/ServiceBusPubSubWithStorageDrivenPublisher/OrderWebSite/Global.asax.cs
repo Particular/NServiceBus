@@ -17,7 +17,7 @@ namespace OrderWebSite
 		private static IBus ConfigureNServiceBus()
 		{
             Feature.Enable<MessageDrivenSubscriptions>();
-
+            Configure.Serialization.Json();
 		    Configure.Transactions.Enable();
 
             var bus = Configure.With()
@@ -25,7 +25,6 @@ namespace OrderWebSite
                 .AzureConfigurationSource()
                 .AzureServiceBusMessageQueue()
                     .QueuePerInstance()
-                .JsonSerializer()
                 .DisableTimeoutManager()
                 
                 .UnicastBus()

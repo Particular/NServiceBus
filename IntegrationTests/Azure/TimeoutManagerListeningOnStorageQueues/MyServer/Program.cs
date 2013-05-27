@@ -62,12 +62,12 @@ namespace MyServer
         {
             Configure.Transactions.Enable();
             Configure.Features.Enable<Sagas>();
+            Configure.Serialization.Json();
 
             Bus = Configure.With()
                .DefineEndpointName("MyServer")
                .DefaultBuilder()
                .AzureMessageQueue()
-                    .JsonSerializer()
                 .UseAzureTimeoutPersister()
                .AzureSagaPersister()
                .UnicastBus()

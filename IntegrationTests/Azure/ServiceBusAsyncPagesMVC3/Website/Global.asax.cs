@@ -15,6 +15,7 @@ namespace Website
         private static IBus ConfigureNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Serialization.Json();
 
             var bus = Configure.With()
                   .DefaultBuilder()
@@ -22,7 +23,6 @@ namespace Website
                   .AzureDiagnosticsLogger()
                   .AzureConfigurationSource()
                   .AzureServiceBusMessageQueue()
-                    .JsonSerializer()
                     .QueuePerInstance()
                     .PurgeOnStartup(true)
                   .UseInMemoryTimeoutPersister()

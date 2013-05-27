@@ -17,18 +17,15 @@ namespace OrderWebSite
 		private static IBus ConfigureNServiceBus()
 		{
 		    Configure.Transactions.Enable();
+            Configure.Serialization.Json();
 
             var bus = Configure.With()
                 .DefaultBuilder()
                 .AzureConfigurationSource()
                 .AzureServiceBusMessageQueue()
                     .QueuePerInstance()
-                .JsonSerializer()
-
                 .DisableTimeoutManager()
-            
                 .UnicastBus()
-                
                 .CreateBus()
 				.Start();
 
