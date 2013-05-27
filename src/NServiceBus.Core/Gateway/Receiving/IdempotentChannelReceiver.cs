@@ -13,6 +13,7 @@ namespace NServiceBus.Gateway.Receiving
     using Sending;
     using Utils;
 
+    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public class IdempotentChannelReceiver : IReceiveMessagesFromSites
     {
         public IdempotentChannelReceiver(IChannelFactory channelFactory, IPersistMessages persister)
@@ -44,17 +45,20 @@ namespace NServiceBus.Gateway.Receiving
 
                 using (var scope = DefaultTransactionScope())
                 {
-                    switch (callInfo.Type)
-                    {
-                        case CallType.Submit: HandleSubmit(callInfo); break;
-                        case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
-                        case CallType.Ack: HandleAck(callInfo); break;
-                    }
-
+                    DispatchReceivedCallInfo(callInfo);
                     scope.Complete();
                 }
-
             }
+        }
+
+        internal void DispatchReceivedCallInfo(CallInfo callInfo)
+        {
+            switch (callInfo.Type)
+            {
+                case CallType.Submit: HandleSubmit(callInfo); break;
+                case CallType.DatabusProperty: HandleDatabusProperty(callInfo); break;
+                case CallType.Ack: HandleAck(callInfo); break;
+            }            
         }
 
         static TransactionScope DefaultTransactionScope()
@@ -73,23 +77,23 @@ namespace NServiceBus.Gateway.Receiving
        
             string callType = headers[GatewayHeaders.CallTypeHeader];
             if (!Enum.IsDefined(typeof(CallType), callType))
-                throw new HttpChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
 
             var type = (CallType)Enum.Parse(typeof(CallType), callType);
 
             var clientId = headers[GatewayHeaders.ClientIdHeader];
             if (clientId == null)
-                throw new HttpChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
 
             var md5 = headers[HttpHeaders.ContentMd5Key];
 
             if (md5 == null)
-                throw new HttpChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
+                throw new ChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
 
             var hash = Hasher.Hash(receivedData.Data);
 
             if (receivedData.Data.Length > 0 && hash != md5)
-                throw new HttpChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
+                throw new ChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
 
 
             return new CallInfo

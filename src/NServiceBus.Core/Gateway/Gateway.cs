@@ -3,6 +3,8 @@
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
+    using NServiceBus.Gateway.Deduplication;
+    using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.Gateway.Persistence;
     using NServiceBus.Gateway.Receiving;
@@ -21,6 +23,7 @@
             ConfigureSender();
 
             InfrastructureServices.Enable<IPersistMessages>();
+            InfrastructureServices.Enable<IDeduplicateMessages>();
         }
 
         static void ConfigureChannels()
@@ -42,7 +45,10 @@
 
         static void ConfigureSender()
         {
-            Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
+            if (!Configure.Instance.Configurer.HasComponent<IForwardMessagesToSites>())
+                Configure.Component<SingleCallChannelForwarder>(DependencyLifecycle.InstancePerCall);
+
+            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
 
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
 
@@ -63,11 +69,16 @@
 
         static void ConfigureReceiver()
         {
-            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
-            Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessagesFromSites>())
+            {
+                Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
+                Configure.Component<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            }
+
+            Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
+
             Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
                      .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
-
         }
     }
 }
