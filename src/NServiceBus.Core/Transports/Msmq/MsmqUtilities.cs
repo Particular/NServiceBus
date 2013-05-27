@@ -142,14 +142,12 @@ namespace NServiceBus.Transports.Msmq
 
             var result = new TransportMessage(m.Id, headers)
             {
-                CorrelationId =
-                    (m.CorrelationId == "00000000-0000-0000-0000-000000000000\\0"
-                         ? null
-                         : m.CorrelationId.Replace("\\0", "")), //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
                 ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
             };
+
+            result.CorrelationId = GetCorrelationId(m, headers);
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
                 result.MessageIntent = (MessageIntentEnum)m.AppSpecific;
@@ -159,6 +157,20 @@ namespace NServiceBus.Transports.Msmq
             m.BodyStream.Read(result.Body, 0, result.Body.Length);
 
             return result;
+        }
+
+        static string GetCorrelationId(Message message, Dictionary<string, string> headers)
+        {
+            string correlationId;
+
+            if (headers.TryGetValue(CorrelationIdHeader, out correlationId))
+                return correlationId;
+
+            if (message.CorrelationId == "00000000-0000-0000-0000-000000000000\\0")
+                return null;
+
+            //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
+            return message.CorrelationId.Replace("\\0", "");
         }
 
         static Dictionary<string, string> DeserializeMessageHeaders(Message m)
@@ -203,7 +215,19 @@ namespace NServiceBus.Transports.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
             }
 
-            result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
+            Guid correlationId;
+
+            if (Guid.TryParse(message.CorrelationId, out correlationId))
+            {
+                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+            }
+            else
+            {
+                if (!message.Headers.ContainsKey(CorrelationIdHeader))
+                {
+                    message.Headers[CorrelationIdHeader] = message.CorrelationId;
+                }
+            }
 
             result.Recoverable = message.Recoverable;
 
@@ -225,6 +249,7 @@ namespace NServiceBus.Transports.Msmq
 
         private const string DIRECTPREFIX = "DIRECT=OS:";
         private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
+        private static readonly string CorrelationIdHeader = "NServiceBus.CorrelationId";
         private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
         private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
         private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));

@@ -148,6 +148,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
