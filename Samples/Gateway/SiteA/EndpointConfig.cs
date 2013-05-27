@@ -10,7 +10,6 @@ namespace SiteA
         {
             Configure.With()
                 .DefaultBuilder()
-                .XmlSerializer()
                 .FileShareDataBus(".\\databus");
         }
     }

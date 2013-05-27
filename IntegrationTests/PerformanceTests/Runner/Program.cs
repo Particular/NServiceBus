@@ -41,19 +41,19 @@ namespace Runner
             switch (args[2].ToLower())
             {
                 case "xml":
-                    config.XmlSerializer();
+                    Configure.Serialization.Xml();
                     break;
 
                 case "json":
-                    config.JsonSerializer();
+                    Configure.Serialization.Json();
                     break;
 
                 case "bson":
-                    config.BsonSerializer();
+                    Configure.Serialization.Bson();
                     break;
 
                 case "bin":
-                    config.BinarySerializer();
+                    Configure.Serialization.Binary();
                     break;
 
                 default:

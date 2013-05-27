@@ -52,7 +52,6 @@ namespace OrderService
                 var config = Configure.With()
                     .SpringBuilder()
                     .AzureConfigurationSource()
-                    .XmlSerializer()
                     .UnicastBus()
                     .LoadMessageHandlers()
                     .AzureQueuesTransport()

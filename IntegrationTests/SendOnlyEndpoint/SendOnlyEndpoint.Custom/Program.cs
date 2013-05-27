@@ -9,7 +9,6 @@ namespace SendOnlyEndpoint.Custom
         {
             var bus = Configure.With()
                 .UnityBuilder()
-                .XmlSerializer()
                 .UseTransport<Msmq>()
                 .UnicastBus()
                 .SendOnly();

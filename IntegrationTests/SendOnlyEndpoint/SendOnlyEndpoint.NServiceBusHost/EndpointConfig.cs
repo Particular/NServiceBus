@@ -12,7 +12,6 @@
         {
             var bus = Configure.With()
                 .DefaultBuilder()
-                .XmlSerializer()
                 .UseTransport<Msmq>()
                 .UnicastBus()
                 .SendOnly();

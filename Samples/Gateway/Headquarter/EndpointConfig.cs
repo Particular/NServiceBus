@@ -10,7 +10,6 @@ namespace Headquarter
         {
             Configure.With()
                 .DefaultBuilder()
-                .XmlSerializer()
                 .FileShareDataBus(".\\databus");
         }
     }

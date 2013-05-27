@@ -14,7 +14,6 @@ namespace SiteB
         {
             Configure.With()
                 .DefaultBuilder()
-                .XmlSerializer()
                 .UseTransport<Msmq>()
                 .UnicastBus()
                 .FileShareDataBus(".\\databus")
