@@ -15,7 +15,6 @@ namespace VideoStore.ECommerce
                      .DefaultBuilder()
                      .Log4Net(new DebugAppender {Threshold = Level.Warn})
                      .ModifyMvcAndSignalRToUseOurContainer()
-                     .XmlSerializer()
                      .UseTransport<ActiveMQ>()
                      .PurgeOnStartup(true)
                      .UnicastBus()
