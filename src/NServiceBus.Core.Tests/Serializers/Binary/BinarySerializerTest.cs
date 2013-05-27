@@ -13,12 +13,12 @@
     [TestFixture]
     public class BinarySerializerTest
     {
-        private MessageSerializer serializer;
+        private BinaryMessageSerializer serializer;
 
         [SetUp]
         public void SetUp()
         {
-            serializer = new MessageSerializer();
+            serializer = new BinaryMessageSerializer();
         }
 
         [Test]

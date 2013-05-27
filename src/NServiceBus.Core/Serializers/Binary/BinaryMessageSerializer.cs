@@ -12,9 +12,9 @@ namespace NServiceBus.Serializers.Binary
     /// <summary>
     /// Binary implementation of the message serializer.
     /// </summary>
-    public class MessageSerializer : IMessageSerializer
+    public class BinaryMessageSerializer : IMessageSerializer
     {
-        public MessageSerializer()
+        public BinaryMessageSerializer()
         {
             var surrogateSelector = new SurrogateSelector();
             surrogateSelector.AddSurrogate(typeof(XDocument), new StreamingContext(StreamingContextStates.All), new XContainerSurrogate());

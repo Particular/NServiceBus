@@ -99,7 +99,8 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
-    <Compile Include="ConfigureBinarySerializer.cs" />
+    <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
+    <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder.cs" />
     <Compile Include="ConfigureDistributor.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
+    <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
     <Compile Include="Serializers\Json\Config\BsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerialization.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
@@ -411,7 +413,7 @@
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
-    <Compile Include="Serializers\Binary\MessageSerializer.cs" />
+    <Compile Include="Serializers\Binary\BinaryMessageSerializer.cs" />
     <Compile Include="Serializers\Binary\SimpleMessageMapper.cs" />
     <Compile Include="Serializers\Binary\XContainerSurrogate.cs" />
     <Compile Include="Serializers\Binary\XElementSurrogate.cs" />

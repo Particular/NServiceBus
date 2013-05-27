@@ -82,9 +82,11 @@
                 return config;
             }
 
-            if (type == typeof(MessageSerializer))
-                return config.BinarySerializer();
-
+            if (type == typeof (BinaryMessageSerializer))
+            {
+                Configure.Serialization.Binary();
+                return config;
+            }
 
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }

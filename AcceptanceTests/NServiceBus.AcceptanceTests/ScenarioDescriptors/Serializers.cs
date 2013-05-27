@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
     using System.Collections.Generic;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
     using NServiceBus.Serializers.Binary;
     using NServiceBus.Serializers.Json;
     using NServiceBus.Serializers.XML;
@@ -15,7 +15,7 @@
                     new Dictionary<string, string>
                         {
                             {
-                                "Serializer", typeof (MessageSerializer).AssemblyQualifiedName
+                                "Serializer", typeof (BinaryMessageSerializer).AssemblyQualifiedName
                             }
                         }
             };
