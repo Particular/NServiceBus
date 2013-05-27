@@ -169,8 +169,11 @@ namespace NServiceBus.Gateway.Receiving
             if (disposing)
             {
                 // Dispose managed resources.
-                channelReceiver.DataReceived -= DataReceivedOnChannel;
-                channelReceiver.Dispose();
+                if (channelReceiver != null)
+                {
+                    channelReceiver.DataReceived -= DataReceivedOnChannel;
+                    channelReceiver.Dispose();                    
+                }
             }
 
             disposed = true;
