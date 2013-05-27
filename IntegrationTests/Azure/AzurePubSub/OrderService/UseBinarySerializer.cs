@@ -9,8 +9,7 @@ namespace OrderService
         /// </summary>
         public void Init()
         {
-            Configure.Instance
-                .BinarySerializer();
+            Configure.Serialization.Binary();
         }
     }
 }

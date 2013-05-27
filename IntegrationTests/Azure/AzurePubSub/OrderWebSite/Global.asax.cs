@@ -17,6 +17,7 @@ namespace OrderWebSite
 		private static IBus ConfigureNServiceBus()
 		{
 		    Configure.Transactions.Enable();
+            Configure.Serialization.Binary();
 
             Feature.Disable<Gateway>();
             Feature.Disable<SecondLevelRetries>();
@@ -26,7 +27,6 @@ namespace OrderWebSite
                 .DefaultBuilder()
                 .AzureConfigurationSource()
                 .AzureMessageQueue()
-                    .BinarySerializer()
                     .QueuePerInstance()
                 .UnicastBus()
                 .CreateBus()
