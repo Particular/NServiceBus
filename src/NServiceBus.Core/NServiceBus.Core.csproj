@@ -547,6 +547,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />
+    <None Include="Resources\NServiceBus_Logo-  white.png" />
+    <None Include="Resources\NServiceBus.png" />
+    <None Include="Resources\logo.bmp" />
     <None Include="Resources\logo.png" />
     <None Include="Resources\formicon.ico" />
     <None Include="Resources\error.png" />

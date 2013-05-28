@@ -36,16 +36,16 @@
             this.browseButton = new System.Windows.Forms.Button();
             this.errorMessageLabel = new System.Windows.Forms.Label();
             this.selectedFileExpirationDateLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.timer = new System.Windows.Forms.Timer(this.components);
-            this.requestButton = new System.Windows.Forms.Button();
             this.ignoreButton = new System.Windows.Forms.Button();
             this.errorPanel = new System.Windows.Forms.Panel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.completePanel = new System.Windows.Forms.Panel();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.errorPanel.SuspendLayout();
@@ -58,20 +58,20 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.BackColor = System.Drawing.Color.White;
+            this.panel1.BackColor = System.Drawing.Color.Black;
             this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(484, 90);
+            this.panel1.Size = new System.Drawing.Size(563, 90);
             this.panel1.TabIndex = 0;
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = global::NServiceBus.Properties.Resources.logo;
-            this.pictureBox1.InitialImage = global::NServiceBus.Properties.Resources.logo;
-            this.pictureBox1.Location = new System.Drawing.Point(77, 7);
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
+            this.pictureBox1.Location = new System.Drawing.Point(43, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(330, 77);
+            this.pictureBox1.Size = new System.Drawing.Size(286, 65);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -81,21 +81,21 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(7, 97);
+            this.label1.ForeColor = System.Drawing.Color.Black;
+            this.label1.Location = new System.Drawing.Point(39, 105);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(467, 48);
+            this.label1.Size = new System.Drawing.Size(546, 48);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Unfortunately your license has expired. But, you can get a free license that will" +
-    " allow you to continue working.\r\n";
+            this.label1.Text = "Thank you for using Particular Software NServiceBus.";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // browseButton
             // 
             this.browseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.browseButton.BackColor = System.Drawing.Color.White;
+            this.browseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.browseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.browseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.browseButton.Location = new System.Drawing.Point(192, 258);
+            this.browseButton.Location = new System.Drawing.Point(174, 256);
             this.browseButton.Name = "browseButton";
             this.browseButton.Size = new System.Drawing.Size(101, 31);
             this.browseButton.TabIndex = 2;
@@ -124,20 +124,6 @@
             this.selectedFileExpirationDateLabel.TabIndex = 6;
             this.selectedFileExpirationDateLabel.Text = "Expiration Date: ";
             // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.BackColor = System.Drawing.SystemColors.Info;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(51, 188);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(387, 21);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "This warning will continue to appear until a valid license is provided.";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // label3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -146,7 +132,7 @@
             this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(47, 233);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(391, 24);
+            this.label3.Size = new System.Drawing.Size(470, 24);
             this.label3.TabIndex = 9;
             this.label3.Text = "Once you have received your license, enter it here:";
             // 
@@ -156,31 +142,17 @@
             this.timer.Interval = 2000;
             this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
-            // requestButton
-            // 
-            this.requestButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.requestButton.BackColor = System.Drawing.Color.White;
-            this.requestButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.requestButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.requestButton.Location = new System.Drawing.Point(51, 148);
-            this.requestButton.Name = "requestButton";
-            this.requestButton.Size = new System.Drawing.Size(165, 31);
-            this.requestButton.TabIndex = 0;
-            this.requestButton.Text = "Get a free license";
-            this.requestButton.UseVisualStyleBackColor = false;
-            this.requestButton.Click += new System.EventHandler(this.requestButton_Click);
-            // 
             // ignoreButton
             // 
             this.ignoreButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.ignoreButton.BackColor = System.Drawing.Color.White;
+            this.ignoreButton.BackColor = System.Drawing.Color.Gainsboro;
             this.ignoreButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ignoreButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ignoreButton.Location = new System.Drawing.Point(273, 148);
+            this.ignoreButton.Location = new System.Drawing.Point(43, 256);
             this.ignoreButton.Name = "ignoreButton";
-            this.ignoreButton.Size = new System.Drawing.Size(165, 31);
+            this.ignoreButton.Size = new System.Drawing.Size(111, 31);
             this.ignoreButton.TabIndex = 1;
-            this.ignoreButton.Text = "Ignore";
+            this.ignoreButton.Text = "Purchase";
             this.ignoreButton.UseVisualStyleBackColor = false;
             this.ignoreButton.Click += new System.EventHandler(this.ignoreButton_Click);
             // 
@@ -238,23 +210,48 @@
             this.label4.Text = "License file installed correctly";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.Color.Black;
+            this.label5.Location = new System.Drawing.Point(39, 207);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(546, 26);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "Please purchase a license online or browse for a license file";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.Color.Black;
+            this.label6.Location = new System.Drawing.Point(39, 142);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(546, 32);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "The trial period has ended and a license is needed to continue";
+            // 
             // TrialExpired
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Gray;
-            this.ClientSize = new System.Drawing.Size(484, 296);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(563, 322);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.completePanel);
             this.Controls.Add(this.ignoreButton);
-            this.Controls.Add(this.requestButton);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.browseButton);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.errorPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = global::NServiceBus.Properties.Resources.form_icon;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "TrialExpired";
@@ -279,15 +276,15 @@
         private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.Label errorMessageLabel;
         private System.Windows.Forms.Label selectedFileExpirationDateLabel;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Timer timer;
-        private System.Windows.Forms.Button requestButton;
         private System.Windows.Forms.Button ignoreButton;
         private System.Windows.Forms.Panel errorPanel;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Panel completePanel;
         private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }

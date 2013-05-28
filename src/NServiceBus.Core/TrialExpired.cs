@@ -97,14 +97,19 @@
             timer.Tick -= timer_Tick;
         }
 
-        private void requestButton_Click(object sender, EventArgs e)
-        {
-            Process.Start("http://www.nservicebus.com/LicenseExpired");
-        }
-
         private void ignoreButton_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
+            Process.Start("http://particular.net/licensing");
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
