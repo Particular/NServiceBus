@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
+    using System.Threading;
     using Customization;
 
     [Serializable]
@@ -60,54 +62,49 @@
     {
         public WhenDefinition(Predicate<TContext> condition, Action<IBus> action)
         {
+            id = Guid.NewGuid();
             this.condition = condition;
             busAction = action;
         }
 
         public WhenDefinition(Predicate<TContext> condition, Action<IBus, TContext> actionWithContext)
         {
+            id = Guid.NewGuid();
             this.condition = condition;
             busAndContextAction = actionWithContext;
         }
 
-        public void ExecuteAction(ScenarioContext context, IBus bus)
+        public Guid Id { get { return id; } }
+
+        public bool ExecuteAction(ScenarioContext context, IBus bus)
         {
             var c = context as TContext;
 
-            if (executed)
-            {
-                return;
-            }
-
             if (!condition(c))
             {
-                return;
+                return false;
             }
 
-            lock (lockObj)
+
+            if (busAction != null)
             {
-                if (executed)
-                {
-                    return;
-                }
-
-                if (busAction != null)
-                {
-                    busAction(bus);
-                    executed = true;
-                    return;
-                }
-
-                busAndContextAction(bus, c);
-                executed = true;
+                busAction(bus);
             }
+            else
+            {
+                busAndContextAction(bus, c);
+          
+            }
+
+            Debug.WriteLine("Condition {0} has fired - Thread: {1} AppDomain: {2}", id, Thread.CurrentThread.ManagedThreadId,AppDomain.CurrentDomain.FriendlyName);
+
+            return true;
         }
 
         readonly Predicate<TContext> condition;
         readonly Action<IBus> busAction;
         readonly Action<IBus, TContext> busAndContextAction;
-        readonly object lockObj = new object();
-        bool executed;
+        Guid id;
     }
 
     public interface IGivenDefinition
@@ -118,7 +115,8 @@
 
     public interface IWhenDefinition
     {
-        void ExecuteAction(ScenarioContext context, IBus bus);
+        bool ExecuteAction(ScenarioContext context, IBus bus);
 
+        Guid Id { get; }
     }
 }

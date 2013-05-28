@@ -58,9 +58,17 @@
                         {
                             contextChanged.WaitOne(TimeSpan.FromSeconds(5)); //we spin around each 5 s since the callback mechanism seems to be shaky
 
-                            foreach (var when in behaviour.Whens)
+                            lock (behaviour)
                             {
-                                when.ExecuteAction(scenarioContext, bus);
+
+                                foreach (var when in behaviour.Whens)
+                                {
+                                    if (executedWhens.Contains(when.Id))
+                                        continue;
+
+                                    if(when.ExecuteAction(scenarioContext, bus))
+                                        executedWhens.Add(when.Id);
+                                }
                             }
                         }
                     });
@@ -69,11 +77,12 @@
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to initalize endpoint " + endpointName,ex);
+                Logger.Error("Failed to initalize endpoint " + endpointName, ex);
                 return Result.Failure(ex);
             }
         }
-
+        IList<Guid> executedWhens = new List<Guid>();
+ 
         void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
         {
             contextChanged.Release();
@@ -99,7 +108,7 @@
             catch (Exception ex)
             {
                 Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
-                
+
                 return Result.Failure(ex);
             }
         }
@@ -109,12 +118,12 @@
             try
             {
                 stopped = true;
-                
+
                 scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
-                
+
                 bus.Dispose();
 
-                
+
 
                 return Result.Success();
             }
