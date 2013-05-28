@@ -15,7 +15,7 @@
     <ROW Property="ARPPRODUCTICON" Value="NServiceBus.exe" Type="8"/>
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
     <ROW Property="AUDIT_Q" Value="audit" Type="4"/>
-    <ROW Property="AppLogoIcon" Value="applogoicon" MultiBuildValue="DefaultBuild:NServiceBus_black.png" Type="1" MsiKey="AppLogoIcon"/>
+    <ROW Property="AppLogoIcon" Value="applogoicon" MultiBuildValue="DefaultBuild:NServiceBus_Logowhite.png" Type="1" MsiKey="AppLogoIcon"/>
     <ROW Property="BINARIES_SH" Value="create" Type="4"/>
     <ROW Property="ERROR_Q" Value="error" Type="4"/>
     <ROW Property="INSTALL_RAVENDB" Value="ImageCheckBox"/>
@@ -119,7 +119,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="NServiceBus installer" DescriptionUrl="http://www.nservicebus.com/" SignOptions="7" SignTool="0" Thumbprint="69ebd61ccbd9a73a972a789c19bfacbbea171c67 Subject: NServiceBus Ltd.&#10;Issuer: VeriSign Class 3 Code Signing 2010 CA&#10;Valid from 10/19/2012 to 10/20/2013"/>
+    <ROW TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="NServiceBus installer" DescriptionUrl="http://www.nservicebus.com/" SignOptions="7" SignTool="0" Thumbprint="69ebd61ccbd9a73a972a789c19bfacbbea171c67 Subject: NServiceBus Ltd.&#10;Issuer: VeriSign Class 3 Code Signing 2010 CA&#10;Valid from 10/19/2012 to 10/10/2013"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -152,7 +152,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="ExternalUICleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ExternalUICleaner.dll"/>
-    <ROW Name="NServiceBus_black.png" SourcePath="res\NServiceBus_black.png"/>
+    <ROW Name="NServiceBus_Logowhite.png" SourcePath="res\NServiceBus_Logo-++white.png"/>
     <ROW Name="Particular.CustomActions.CA.dll" SourcePath="res-binary\Particular.CustomActions.CA.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
