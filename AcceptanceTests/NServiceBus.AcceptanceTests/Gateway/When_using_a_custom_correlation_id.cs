@@ -37,7 +37,7 @@
         {
             public Headquarters()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseRavenGatewayDeduplication())
+                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
                     .WithConfig<GatewayConfig>(c =>
                         {
                             c.Sites = new SiteCollection
@@ -80,7 +80,7 @@
         {
             public SiteA()
             {
-                EndpointSetup<DefaultServer>(c => c.RunGateway().UseRavenGatewayDeduplication())
+                EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
                         .WithConfig<GatewayConfig>(c =>
                         {
                             c.Channels = new ChannelCollection
