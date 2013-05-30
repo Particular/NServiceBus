@@ -26,10 +26,10 @@ task Build {
 	# $UpgradeCode = "6bf2f238-54fb-4300-ab68-2416491af0" + $ProductVersion.Replace(".", "")
 
     if($PreRelease -eq "") {
-		$archive = "NServiceBus-$ProductVersion.$PatchVersion" 
+		$archive = "Particular.NServiceBus-$ProductVersion.$PatchVersion" 
         $preReleaseName = ""
 	} else {
-		$archive = "NServiceBus-$ProductVersion.$PatchVersion-$PreRelease$BuildNumber"
+		$archive = "Particular.NServiceBus-$ProductVersion.$PatchVersion-$PreRelease$BuildNumber"
         $preReleaseName = "-$PreRelease$BuildNumber"
 	}
 
