@@ -21,6 +21,7 @@
     <ROW Property="INSTALL_RAVENDB" Value="ImageCheckBox"/>
     <ROW Property="MY_VERSION" Value="4.0"/>
     <ROW Property="Manufacturer" Value="Particular Software Ltd."/>
+    <ROW Property="OPT_PRERELEASE_NAME" Value="OPT_PRERELEASE_NAME"/>
     <ROW Property="PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7" Value="33333"/>
     <ROW Property="ProductCode" Value="1033:{6D0463B9-5EDA-4709-ABCD-9FE27CBEDFDF} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
@@ -111,7 +112,7 @@
     <ROW Property="INSTALL_RAVENDB" Registry="INSTALL_RAVENDB" HklmSearch="INSTALL_RAVENDB" HkcuSearch="INSTALL_RAVENDB_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\NServiceBus.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="NServiceBus.4.0.0"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\NServiceBus.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="Particular.NServiceBus.[|ProductVersion][|OPT_PRERELEASE_NAME]"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -248,7 +249,7 @@
     <ROW Dialog_="InstallDlg" Control="ProductLogo" Type="Bitmap" X="17" Y="28" Width="257" Height="63" Attributes="1" Text="[AppLogoIcon]" Order="800" MsiKey="InstallDlg#ProductLogo"/>
     <ROW Dialog_="InstallDlg" Control="ImageCheckBox_1" Type="ImageCheckBox" X="17" Y="139" Width="311" Height="14" Attributes="3" Property="TB_INFO" Text="checkbox.png" Order="900" ExtType="ImageCheckBox" ExtData=" Automatically send troubleshooting information"/>
     <ROW Dialog_="InstallDlg" Control="ImageButton_1" Type="ImageButton" X="251" Y="359" Width="78" Height="28" Attributes="8388611" Text="[NextCancelButtons]" TextStyle="[MetroButtonText]" Order="1000" ExtType="ImageButton" ExtData="[ButtonText_Install]" ExtDataLocId="-"/>
-    <ROW Dialog_="InstallDlg" Control="Text_4" Type="Text" X="17" Y="327" Width="308" Height="37" Attributes="65539" Property="TEXT_4_PROP" Text="Click Install to instal the product with default options. Click Advanced to change installation options." Order="1100"/>
+    <ROW Dialog_="InstallDlg" Control="Text_4" Type="Text" X="17" Y="317" Width="308" Height="37" Attributes="65539" Property="TEXT_4_PROP" Text="Click Install to instal the product with default options. Click Advanced to change installation options." Order="1100"/>
     <ROW Dialog_="InstallDlg" Control="Text_1" Type="Text" X="17" Y="153" Width="311" Height="48" Attributes="65539" Property="TEXT_1_PROP_1" Text="Troubleshooting information and usage statistics will be sent automatically  and securely  in order to  provide better support and help improve the product ." Order="1200"/>
     <ROW Dialog_="LicenseAgreementDlg" Control="Next" Type="ImageButton" X="125" Y="359" Width="78" Height="28" Attributes="2" Text="[NextCancelButtons]" TextStyle="[MetroButtonText]" Order="200" MsiKey="LicenseAgreementDlg#Next" Options="1" ExtType="ImageButton" ExtData="[ButtonText_Accept]" ExtDataLocId="-"/>
     <ROW Dialog_="LicenseAgreementDlg" Control="AgreeInstall" Type="ImageButton" X="219" Y="359" Width="110" Height="28" Attributes="3" Text="[NextCancelButtons]" TextStyle="[MetroButtonText]" Order="300" MsiKey="LicenseAgreementDlg#AgreeInstall" ExtType="ImageButton" ExtData="&amp;Accept and Install" ExtDataLocId="Metro.Control.Text.LicenseAgreementDlg#AgreeInstall"/>
@@ -596,7 +597,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="NServiceBusBinaries" Directory_="SHORTCUTDIR" Name="NServi~3|NServiceBus Binaries" Component_="BinariesSH" Target="[Binaries_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
-    <ROW Shortcut="NServiceBusPowershellPrompt" Directory_="SHORTCUTDIR" Name="NServi~4|NServiceBus Powershell Prompt" Component_="BinariesSH" Target="[POWERSHELL_EXE]" Arguments="-noexit -command &quot;Import-Module &quot;[Binaries_Dir]NServiceBus.PowerShell.dll&quot; | Out-Null&quot;" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="NServiceBusPowershellPrompt" Directory_="SHORTCUTDIR" Name="NServi~4|NServiceBus Powershell Prompt" Component_="BinariesSH" Target="[POWERSHELL_EXE]" Arguments="-noexit -command &quot;Import-Module &apos;[Binaries_Dir]NServiceBus.PowerShell.dll&apos; | Out-Null&quot;" Hotkey="0" IconIndex="0" ShowCmd="1"/>
     <ROW Shortcut="NServiceBusSamples" Directory_="SHORTCUTDIR" Name="NServi~2|NServiceBus Samples" Component_="Samples_SH" Target="[Samples_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
     <ROW Shortcut="NServiceBusTools" Directory_="SHORTCUTDIR" Name="NServi~1|NServiceBus Tools" Component_="Tools_SH" Target="[Tools_Dir]" Hotkey="0" IconIndex="0" ShowCmd="1"/>
   </COMPONENT>
