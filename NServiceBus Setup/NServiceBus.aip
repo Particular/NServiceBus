@@ -21,6 +21,7 @@
     <ROW Property="INSTALL_RAVENDB" Value="ImageCheckBox"/>
     <ROW Property="MY_VERSION" Value="4.0"/>
     <ROW Property="Manufacturer" Value="Particular Software Ltd."/>
+    <ROW Property="OPT_PRERELEASE_NAME" Value="OPT_PRERELEASE_NAME"/>
     <ROW Property="PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7" Value="33333"/>
     <ROW Property="ProductCode" Value="1033:{6D0463B9-5EDA-4709-ABCD-9FE27CBEDFDF} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
@@ -111,7 +112,7 @@
     <ROW Property="INSTALL_RAVENDB" Registry="INSTALL_RAVENDB" HklmSearch="INSTALL_RAVENDB" HkcuSearch="INSTALL_RAVENDB_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\NServiceBus.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="NServiceBus.4.0.0"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="Output Package" PackageFileName="NServiceBus" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" ExeIconPath="res\NServiceBus.ico" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" MsiCmdLine="/L*V [TempFolder]NServiceBus.LOG" ExtUI="true" UseLargeSchema="true" ExeName="Particular.NServiceBus.[|ProductVersion][|OPT_PRERELEASE_NAME]"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
