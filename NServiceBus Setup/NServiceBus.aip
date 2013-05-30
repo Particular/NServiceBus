@@ -468,6 +468,7 @@
     <ROW Action="Check_Internet_Connection" Type="1" Source="aicustact.dll_1" Target="ActiveInternetConnection"/>
     <ROW Action="CollectTroubleshootInfo" Type="51" Source="TRB_INFO_REG_VALUE" Target="1"/>
     <ROW Action="DetectService" Type="65" Source="aicustact.dll" Target="DetectService" Options="3" AdditionalSeq="AI_DATA_SETTER_1"/>
+    <ROW Action="GetTrialDate" Type="1" Source="Particular.CustomActions.CA.dll" Target="GetTrialStartDate"/>
     <ROW Action="InstallDtc" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallDtc"/>
     <ROW Action="InstallMsmq" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallMsmq"/>
     <ROW Action="InstallPerformanceCounters" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallPerformanceCounters"/>
@@ -505,7 +506,7 @@
     <ROW Action="Check_Internet_Connection" Condition="( NOT Installed )" Sequence="6593"/>
     <ROW Action="Launch_Online_URL" Condition="( NOT Installed ) AND ( AI_INTERNET_CONNECTION=&quot;AI_INET_CON_SUCCESS&quot; )" Sequence="6595"/>
     <ROW Action="Launch_Offline_HTML" Condition="( NOT Installed ) AND ( AI_INTERNET_CONNECTION&lt;&gt;&quot;AI_INET_CON_SUCCESS&quot; )" Sequence="6594"/>
-    <ROW Action="CollectTroubleshootInfo" Condition="( NOT Installed ) AND ( TB_INFO )" Sequence="202"/>
+    <ROW Action="CollectTroubleshootInfo" Condition="( NOT Installed ) AND ( TB_INFO )" Sequence="203"/>
     <ROW Action="InstallPerformanceCounters" Condition="( NOT Installed ) AND ( ABC )" Sequence="1601"/>
     <ROW Action="InstallRavenDb" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( INSTALL_RAVENDB )" Sequence="1602"/>
     <ROW Action="InstallDtc" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;DTC = 3) AND NOT (!DTC = 3)) )" Sequence="1603"/>
@@ -524,6 +525,7 @@
     <ROW Action="AI_ExtractFiles" Sequence="3998" Builds="DefaultBuild"/>
     <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
     <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
+    <ROW Action="GetTrialDate" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) )" Sequence="202"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
@@ -581,7 +583,7 @@
     <ROW Registry="Samples_SH" Root="2" Key="Software\ParticularSoftware\ServiceBus\[ProductName]" Name="Samples_SH" Value="[SAMPLES_SH]" Component_="Samples_SH"/>
     <ROW Registry="ServiceBus_1" Root="2" Key="Software\[X64_REG]\ServiceBus" Name="+" Component_="ServiceBus"/>
     <ROW Registry="Tools_SH" Root="2" Key="Software\ParticularSoftware\ServiceBus\[ProductName]" Name="Tools_SH" Value="[TOOLS_SH]" Component_="Tools_SH"/>
-    <ROW Registry="TrialStart" Root="1" Key="Software\ParticularSoftware\NServicebus" Name="TrialStart" Value="[Date]" Component_="TrialStart"/>
+    <ROW Registry="TrialStart" Root="1" Key="Software\ParticularSoftware\NServicebus" Name="TrialStart" Value="[TRIAL_DATE]" Component_="TrialStart"/>
     <ROW Registry="URLInfoAbout" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="URLInfoAbout" Value="[ARPURLINFOABOUT]" Component_="AI_CustomARPName"/>
     <ROW Registry="URLUpdateInfo" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="URLUpdateInfo" Value="[ARPURLUPDATEINFO]" Component_="AI_CustomARPName"/>
     <ROW Registry="UninstallPath" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="UninstallPath" Value="[AI_UNINSTALLER] /x [ProductCode]" Component_="AI_CustomARPName"/>
