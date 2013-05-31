@@ -65,11 +65,9 @@ namespace NServiceBus.Persistence.Raven.SubscriptionStorage
             using (var session = OpenSession())
             {
                 var subscriptions = GetSubscriptions(messageTypes, session);
-                var clients = subscriptions
-                    .SelectMany(s => s.Clients)
-                    .Distinct();
-
-                return clients;
+                return subscriptions.SelectMany(s => s.Clients)
+                                    .Distinct()
+                                    .ToArray();
             }
         }
 
