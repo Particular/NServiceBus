@@ -137,7 +137,7 @@
                 {
                     Console.Out.WriteLine("A compatible(v2) version of Raven has been found on port {0} and will be used", DefaultPort);
 
-                    SavePortToBeUsedForRavenInRegistry(port);
+                    SavePortToBeUsedForRavenInRegistry(DefaultPort);
                     return;
                 }
             }
@@ -200,6 +200,8 @@
 
             ravenConfig.Save(ravenConfigPath);
             Console.Out.WriteLine("Updated Raven configuration to use port {0}.", availablePort);
+
+            SavePortToBeUsedForRavenInRegistry(availablePort);
             
             Console.WriteLine("Installing RavenDB as a windows service.");
 
@@ -228,8 +230,6 @@
             }
             
             Console.WriteLine("{0} service started, listening on port: {1}",serviceName,availablePort);
-
-            SavePortToBeUsedForRavenInRegistry(availablePort);
         }
 
         private static void SavePortToBeUsedForRavenInRegistry(int availablePort)
