@@ -256,7 +256,6 @@
     <Compile Include="Gateway\Channels\IChannelSender.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaderManager.cs" />
     <Compile Include="Gateway\HeaderManagement\GatewayHeaders.cs" />
-    <Compile Include="Gateway\HeaderManagement\GatewayReturnInfo.cs" />
     <Compile Include="Gateway\HeaderManagement\HeaderMapper.cs" />
     <Compile Include="Gateway\Notifications\IMessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
