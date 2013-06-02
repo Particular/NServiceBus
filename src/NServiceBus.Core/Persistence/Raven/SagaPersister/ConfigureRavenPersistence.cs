@@ -330,7 +330,7 @@ sb.AppendLine("Reason: " + exception);
         const string WrongRavenVersionMessage =
 @"The RavenDB server you have specified is detected to be {0}. NServiceBus requires RavenDB version 2 or higher to operate correctly. Please update your RavenDB server.
 
-Futher instructions can be found at: http://support.nservicebus.com/customer/portal/articles/859351";
+Futher instructions can be found at:http://particular.net/articles/using-ravendb-in-nservicebus-installing";
 
         class NoOpLogManager : ILogManager
         {

@@ -21,7 +21,7 @@ namespace NServiceBus.Transports.Msmq.Config
 
     /// <summary>
     /// Make sure NETBios name is shorter than 15 characters. 
-    /// See <a href="http://nservicebus.com/faq/DTCPIngWARNING.aspx">DTCPing warning</a>
+    /// See <a href="http://particular.net/articles/dtcping-warning-the-cid-values-for-both-test-machines-are-the-same">DTCPing warning</a>
     /// </summary>
     public class CheckMachineNameForComplianceWithDtcLimitation : IWantToRunWhenConfigurationIsComplete 
     {
@@ -46,7 +46,7 @@ namespace NServiceBus.Transports.Msmq.Config
             if (netbiosName.Length <= 15) return;
 
             Logger.Warn(string.Format(
-                "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: http://nservicebus.com/faq/DTCPIngWARNING.aspx", netbiosName));
+                "NetBIOS name [{0}] is longer than 15 characters. Shorten it for DTC to work. See: http://particular.net/articles/dtcping-warning-the-cid-values-for-both-test-machines-are-the-same", netbiosName));
         }
     }
 }

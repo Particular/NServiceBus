@@ -403,7 +403,7 @@ namespace NServiceBus.Unicast
         {
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
             if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://nservicebus.com/OnewaySendonlyendpoints.aspx");
+                throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Send, messages);
         }
 
@@ -415,7 +415,7 @@ namespace NServiceBus.Unicast
         void IBus.Return<T>(T errorCode)
         {
             if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://nservicebus.com/OnewaySendonlyendpoints.aspx");
+                throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
 
             var returnMessage = ControlMessage.Create(Address.Local);
 

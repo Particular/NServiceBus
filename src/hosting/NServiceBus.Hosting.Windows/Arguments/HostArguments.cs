@@ -103,11 +103,11 @@ namespace NServiceBus.Hosting.Windows.Arguments
                     },
                     {
                         "installInfrastructure",
-                        @"This setting is no longer in use. Please see http://nservicebus.com/powershell.aspx for the replacement."
+                        @"This setting is no longer in use. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement."
                         , s =>
                             {
                                 throw new ArgumentException(
-                                    "This parameter is no longer supported. Please see http://nservicebus.com/powershell.aspx for the replacement.");
+                                    "This parameter is no longer supported. Please see http://particular.net/articles/managing-nservicebus-using-powershell for the replacement.");
                             }
                     },
                     {

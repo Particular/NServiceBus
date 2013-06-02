@@ -31,7 +31,7 @@ namespace NServiceBus.Distributor
                 return false;
             }
             Logger.WarnFormat(
-                "License limitation for [{0}] workers per distributor reached. To obtain a license that allows to add more workers, please visit http://nservicebus.com/License.aspx.",
+                "License limitation for [{0}] workers per distributor reached. To obtain a license that allows to add more workers, please visit http://particular.net/licensing",
                 allowedWorkerNodes);
             return true;
         }
