@@ -5,7 +5,7 @@ namespace NServiceBus.Gateway.Routing
     public class Site
     {
         public Channel Channel { get; set; }
-
         public string Key { get; set; }
+        public bool LegacyMode { get; set; }
     }
 }

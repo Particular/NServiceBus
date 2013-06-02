@@ -18,7 +18,8 @@ namespace NServiceBus.Gateway.HeaderManagement
                 //we preserve the httfrom to be backwards compatible with NServiceBus 2.X 
                 HttpFrom = transportMessage.Headers.ContainsKey(Headers.HttpFrom) ? transportMessage.Headers[Headers.HttpFrom] : null,
                 OriginatingSite = transportMessage.Headers.ContainsKey(Headers.OriginatingSite) ? transportMessage.Headers[Headers.OriginatingSite] : null,
-                ReplyToAddress = transportMessage.ReplyToAddress
+                ReplyToAddress = transportMessage.ReplyToAddress,
+                LegacyMode = transportMessage.IsLegacyGatewayMessage()
             };
         }
 
@@ -38,6 +39,9 @@ namespace NServiceBus.Gateway.HeaderManagement
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
                 transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.ToString();
+
+            // send to be backwards compatible with Gateway 3.X
+            transportMessage.Headers[GatewayHeaders.LegacyMode] = returnInfo.LegacyMode.ToString();
         }
 
         public void Init()
@@ -54,6 +58,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             public string HttpFrom { get; set; }
             public string OriginatingSite { get; set; }
             public Address ReplyToAddress { get; set; }
+            public bool LegacyMode { get; set; }
         }
     }
 }
