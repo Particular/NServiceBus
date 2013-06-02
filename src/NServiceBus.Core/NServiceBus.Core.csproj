@@ -102,6 +102,7 @@
     <Compile Include="Installation\ElevateChecker.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
+    <Compile Include="Gateway\GatewayExtensions.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
