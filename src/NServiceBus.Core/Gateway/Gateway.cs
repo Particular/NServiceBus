@@ -46,7 +46,10 @@
         static void ConfigureSender()
         {
             if (!Configure.Instance.Configurer.HasComponent<IForwardMessagesToSites>())
+            {
+                Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
                 Configure.Component<SingleCallChannelForwarder>(DependencyLifecycle.InstancePerCall);
+            }
 
             Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
 

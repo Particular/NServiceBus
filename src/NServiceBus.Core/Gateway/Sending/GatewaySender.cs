@@ -4,6 +4,7 @@ namespace NServiceBus.Gateway.Sending
     using System.Collections.Generic;
     using System.Linq;
     using Features;
+    using HeaderManagement;
     using Notifications;
     using ObjectBuilder;
     using Receiving;
@@ -84,7 +85,8 @@ namespace NServiceBus.Gateway.Sending
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
             //todo - derive this from the message and the channeltype
-            Builder.Build<IForwardMessagesToSites>().Forward(transportMessage, targetSite);
+            var forwarder = HandleLegacy(transportMessage, targetSite) ?? Builder.Build<IForwardMessagesToSites>();
+            forwarder.Forward(transportMessage, targetSite);
 
             Notifier.RaiseMessageForwarded(Address.Local.ToString(), targetSite.Channel.Type, transportMessage);
 
@@ -93,6 +95,17 @@ namespace NServiceBus.Gateway.Sending
                 MessageSender.Send(transportMessage, UnicastBus.ForwardReceivedMessagesTo);
         }
 
+        private IForwardMessagesToSites HandleLegacy(TransportMessage transportMessage, Site targetSite)
+        {
+            // send to be backwards compatible with Gateway 3.X
+            transportMessage.Headers[GatewayHeaders.LegacyMode] = targetSite.LegacyMode.ToString();
+
+            var forwarderType = targetSite.LegacyMode
+                ? typeof(IdempotentChannelForwarder)
+                : typeof(SingleCallChannelForwarder);
+
+            return (IForwardMessagesToSites)Builder.Build(forwarderType);
+        }
 
         private string GetDefaultAddressForThisSite()
         {
