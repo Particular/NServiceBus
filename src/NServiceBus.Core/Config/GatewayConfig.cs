@@ -52,7 +52,8 @@ namespace NServiceBus.Config
                 result.Add(site.Key, new Gateway.Routing.Site
                                         {
                                             Key = site.Key,
-                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address}
+                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address},
+                                            LegacyMode = !string.IsNullOrEmpty(site.Mode) && site.Mode.ToLower() == "legacy"
                                         });
             }
 
@@ -290,6 +291,16 @@ namespace NServiceBus.Config
             {
                 this["ChannelType"] = value;
             }
+        }
+
+        /// <summary>
+        /// The forwarding mode for this site
+        /// </summary>
+        [ConfigurationProperty("Mode", IsRequired = false, DefaultValue = "Default", IsKey = false)]
+        public string Mode
+        {
+            get { return ((string)this["Mode"]); }
+            set { this["Mode"] = value; }
         }
     }
 }
