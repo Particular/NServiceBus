@@ -3,6 +3,7 @@
     using System;
     using System.Data.SqlClient;
 
+    [ObsoleteEx(Message = "Please use UseNHibernateGatewayDeduplication() in the NServiceBus.NHibernate assembly instead.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
     public class SqlDeduplication : IDeduplicateMessages
     {
         public string ConnectionString { get; set; }
