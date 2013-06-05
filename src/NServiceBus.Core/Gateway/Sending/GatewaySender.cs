@@ -100,11 +100,7 @@ namespace NServiceBus.Gateway.Sending
             // send to be backwards compatible with Gateway 3.X
             transportMessage.Headers[GatewayHeaders.LegacyMode] = targetSite.LegacyMode.ToString();
 
-            var forwarderType = targetSite.LegacyMode
-                ? typeof(IdempotentChannelForwarder)
-                : typeof(SingleCallChannelForwarder);
-
-            return (IForwardMessagesToSites)Builder.Build(forwarderType);
+            return targetSite.LegacyMode ? Builder.Build<IdempotentChannelForwarder>() : null;
         }
 
         private string GetDefaultAddressForThisSite()

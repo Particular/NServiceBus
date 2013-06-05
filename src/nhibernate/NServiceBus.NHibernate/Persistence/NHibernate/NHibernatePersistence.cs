@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Persistence.NHibernate
 {
-    using System;
     using Config;
     using Gateway.Deduplication;
     using Gateway.Persistence;
@@ -15,7 +14,7 @@
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.UseNHibernateSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseNHibernateTimeoutPersister());
             InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseNHibernateGatewayPersister());
-            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => { throw new NotImplementedException("IDeduplicateMessages not implemented for NHibernatePersistence"); });
+            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseNHibernateGatewayDeduplication());
             InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.UseNHibernateSubscriptionPersister());
         }
     }
