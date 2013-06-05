@@ -3,6 +3,7 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Config;
     using Features;
     using Notifications;
     using ObjectBuilder;
@@ -12,8 +13,9 @@ namespace NServiceBus.Gateway.Sending
     using Settings;
     using Transports;
     using Unicast;
-   
-    public class GatewaySender : ISatellite
+    using Unicast.Transport;
+
+    public class GatewaySender : IAdvancedSatellite
     {
        
         public UnicastBus UnicastBus { get; set; }
@@ -98,6 +100,16 @@ namespace NServiceBus.Gateway.Sending
         private string GetDefaultAddressForThisSite()
         {
             return ChannelManager.GetDefaultChannel().ToString();
+        }
+
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return transport =>
+            {
+                var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
+                if (configSection.TransactionTimeout > transport.TransactionSettings.TransactionTimeout)
+                    transport.TransactionSettings.TransactionTimeout = configSection.TransactionTimeout;
+            };
         }
     }
 }
