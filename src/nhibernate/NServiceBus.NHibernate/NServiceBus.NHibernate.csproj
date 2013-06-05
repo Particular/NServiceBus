@@ -64,6 +64,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigureNHibernateGatewayDeduplication.cs" />
     <Compile Include="ConfigureNHibernateGatewayPersister.cs" />
     <Compile Include="ConfigureNHibernateSagaPersister.cs" />
     <Compile Include="ConfigureNHibernateSubscriptionStorage.cs" />
@@ -74,6 +75,10 @@
     <Compile Include="Config\NHibernatePropertyCollection.cs" />
     <Compile Include="Config\NHibernateSagaPersisterConfig.cs" />
     <Compile Include="Config\TimeoutPersisterConfig.cs" />
+    <Compile Include="Deduplication\NHibernate\Config\DeduplicationMessage.cs" />
+    <Compile Include="Deduplication\NHibernate\Config\DeduplicationMessageMap.cs" />
+    <Compile Include="Deduplication\NHibernate\GatewayDeduplication.cs" />
+    <Compile Include="Deduplication\NHibernate\Installer\Installer.cs" />
     <Compile Include="GatewayPersister\NHibernate\Config\GatewayMessage.cs" />
     <Compile Include="GatewayPersister\NHibernate\Config\GatewayMessageMap.cs" />
     <Compile Include="GatewayPersister\NHibernate\GatewayPersister.cs" />

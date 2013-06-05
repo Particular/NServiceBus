@@ -17,11 +17,22 @@ namespace SiteB
                 .UseTransport<Msmq>()
                 .UnicastBus()
                 .FileShareDataBus(".\\databus")
-                .RunGateway()//this line configures the gateway.
                 .UseInMemoryTimeoutPersister()
-                .UseInMemoryGatewayPersister() // this tells nservicebus to use memory to store messages for deduplication. If omitted RavenDB will be used by default
-                .UseInMemoryGatewayDeduplication() // this tells nservicebus to use memory to store messages ids for deduplication. If omitted RavenDB will be used by default
-                //.RunGateway(typeof(SqlPersistence)) // Uncomment this to use Gateway SQL persister (please see InitializeGatewayPersisterConnectionString.cs in this sample).
+                .RunGateway() //this line configures the gateway
+
+                    // This tells NServiceBus to use memory to persist & deduplicate messages arriving from NServiceBus v3.X.
+                    // If omitted, RavenDB will be used by default. Required for backwards compatibility
+                    .UseInMemoryGatewayPersister()
+
+                    // This tells NServiceBus to use memory to deduplicate message ids arriving from NServiceBus v4.X.
+                    // If omitted, RavenDB will be used by default
+                    .UseInMemoryGatewayDeduplication()
+
+                // Uncomment lines below to use NHibernate persister & deduplication for gateway messages
+                // (create a new database called gateway in \SQLEXPRESS - see App.config for connection strings and other settings)
+                //    .UseNHibernateGatewayPersister()
+                //    .UseNHibernateGatewayDeduplication()
+
                 .CreateBus()
                 .Start();
 

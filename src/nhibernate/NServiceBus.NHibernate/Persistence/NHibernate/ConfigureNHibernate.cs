@@ -42,6 +42,7 @@ Here is an example of what is required:
     <add name=""NServiceBus/Persistence/NHibernate/Saga"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=sagas;Integrated Security=True"" />
     <add name=""NServiceBus/Persistence/NHibernate/Subscription"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=subscription;Integrated Security=True"" />
     <add name=""NServiceBus/Persistence/NHibernate/Gateway"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=gateway;Integrated Security=True"" />
+    <add name=""NServiceBus/Persistence/NHibernate/Deduplication"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=gateway;Integrated Security=True"" />
     <add name=""NServiceBus/Persistence/NHibernate/Distributor"" connectionString=""Data Source=.\SQLEXPRESS;Initial Catalog=distributor;Integrated Security=True"" />
   </connectionStrings>";
 
@@ -103,6 +104,8 @@ Here is an example of what is required:
                                                                                "NServiceBus/Persistence/NHibernate/Saga");
             GatewayPersisterProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
                                                                                   "NServiceBus/Persistence/NHibernate/Gateway");
+            GatewayDeduplicationProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
+                                                                                  "NServiceBus/Persistence/NHibernate/Deduplication");
             DistributorPersisterProperties = OverrideConnectionStringSettingIfNotNull(configurationProperties,
                                                                                       "NServiceBus/Persistence/NHibernate/Distributor");
         }
@@ -126,6 +129,11 @@ Here is an example of what is required:
         /// Gateway persister NHibernate properties.
         /// </summary>
         public static IDictionary<string, string> GatewayPersisterProperties { get; private set; }
+
+        /// <summary>
+        /// Gateway deduplication NHibernate properties.
+        /// </summary>
+        public static IDictionary<string, string> GatewayDeduplicationProperties { get; private set; }
 
         /// <summary>
         /// Distributor persister NHibernate properties.
@@ -174,7 +182,7 @@ Here is an example of what is required:
 
             string warningMsg =
                 @"No NHibernate properties found in your config file ({0}). 
-We have automatically fall back to use SQLite however this only happens while you are running in Visual Studio.
+We have automatically fallen back to use SQLite. However, this only happens while you are running in Visual Studio.
 To run in this mode you need to reference the SQLite assembly, here is the NuGet package you need to install:
 PM> Install-Package System.Data.SQLite.{1}
 {2}";

@@ -100,6 +100,11 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
+    <Compile Include="Persistence\InMemory\Gateway\InMemoryDeduplication.cs" />
+    <Compile Include="Persistence\InMemory\Gateway\InMemoryPersistence.cs" />
+    <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
+    <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
+    <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
@@ -117,9 +122,6 @@
     <Compile Include="Gateway\Channels\ChannelTypeAttribute.cs" />
     <Compile Include="Gateway\Deduplication\GatewayMessage.cs" />
     <Compile Include="Gateway\Deduplication\IDeduplicateMessages.cs" />
-    <Compile Include="Gateway\Deduplication\InMemoryDeduplication.cs" />
-    <Compile Include="Gateway\Deduplication\Raven\RavenDBDeduplication.cs" />
-    <Compile Include="Gateway\Deduplication\Sql\SqlDeduplication.cs" />
     <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
     <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
@@ -262,10 +264,7 @@
     <Compile Include="Gateway\Notifications\INotifyAboutMessages.cs" />
     <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\MessageReceivedOnChannelArgs.cs" />
-    <Compile Include="Gateway\Persistence\InMemoryPersistence.cs" />
     <Compile Include="Gateway\Persistence\IPersistMessages.cs" />
-    <Compile Include="Gateway\Persistence\Raven\GatewayMessage.cs" />
-    <Compile Include="Gateway\Persistence\Raven\RavenDBPersistence.cs" />
     <Compile Include="Gateway\Persistence\Sql\SqlPersistence.cs" />
     <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
@@ -554,7 +553,6 @@
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Gateway\Deduplication\Sql\Schema.sql" />
     <Content Include="Gateway\Persistence\Sql\Schema.sql" />
     <None Include="Resources\logo.png" />
     <None Include="Resources\formicon.ico" />
