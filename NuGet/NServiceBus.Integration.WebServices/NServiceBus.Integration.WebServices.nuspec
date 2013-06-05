@@ -7,7 +7,7 @@
     <owners>Udi Dahan, Andreas Ohlund, John Simons, Jonathan Matheus et al</owners>
     <licenseUrl>http://particular.net/licensing</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
-    <iconUrl>http://particular.net/Themes/ParticularSoftware/Styles/images/logo.png</iconUrl>
+    <iconUrl>http://particular.blob.core.windows.net/media/Default/images/ProductLogos/icons/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The WebServices Integration for the nservicebus, The most popular open-source service bus for .net</description>
     <releaseNotes>
