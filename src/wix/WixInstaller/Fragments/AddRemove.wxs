@@ -3,10 +3,10 @@
 	<Fragment>
 		<Property Id="ARPCOMMENTS" Value="The most popular open-source service bus for .Net" Secure="no" />
 		<Property Id="ARPPRODUCTICON" Value="icon.ico"  Secure="no"/>
-		<Property Id="ARPREADME" Value="http://nservicebus.com/Downloads.aspx" Secure="no" />
-		<Property Id="ARPURLINFOABOUT" Value="http://www.nservicebus.com/" Secure="no" />
-		<Property Id="ARPURLUPDATEINFO" Value="http://www.nservicebus.com/Downloads.aspx" Secure="no" />
-		<Property Id="ARPHELPLINK" Value="http://www.nservicebus.com/About.aspx" Secure="no" />
+		<Property Id="ARPREADME" Value="http://particular.net/downloads" Secure="no" />
+		<Property Id="ARPURLINFOABOUT" Value="http://particular.net" Secure="no" />
+		<Property Id="ARPURLUPDATEINFO" Value="http://particular.net/downloads" Secure="no" />
+		<Property Id="ARPHELPLINK" Value="http://particular.net/about" Secure="no" />
 		<Property Id="ARPSIZE" Value="3" Secure="no" />
 
 		<!--

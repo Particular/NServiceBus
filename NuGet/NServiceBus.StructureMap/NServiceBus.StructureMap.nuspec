@@ -4,10 +4,10 @@
     <title>NServiceBus StructureMap</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, Shlomi Izikovich et al</owners>
-    <licenseUrl>http://nservicebus.com/license.aspx</licenseUrl>
-    <projectUrl>http://nservicebus.com/</projectUrl>
-    <iconUrl>http://a2.twimg.com/profile_images/1203939022/nServiceBus_Twitter_Logo_reasonably_small.png</iconUrl>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons, Jonathan Matheus et al</owners>
+    <licenseUrl>http://particular.net/licensing</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://particular.blob.core.windows.net/media/Default/images/ProductLogos/icons/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The StructureMap Container for the nservicebus</description>
     <releaseNotes>

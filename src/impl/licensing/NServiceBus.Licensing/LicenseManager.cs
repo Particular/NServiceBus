@@ -411,13 +411,13 @@
                 catch (Exception exception)
                 {
                     throw new ConfigurationErrorsException(
-                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.",
+                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@particular.net. If your upgrade protection has lapsed, you can renew it at http://particular.net/support.",
                         exception);
                 }
             }
 
             throw new ConfigurationErrorsException(
-                "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@nservicebus.com. If your upgrade protection has lapsed, you can renew it at http://www.nservicebus.com/PurchaseSupport.aspx.");
+                "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@particular.net. If your upgrade protection has lapsed, you can renew it at http://particular.net/support.");
         }
 
         private static Version GetNServiceBusVersion()

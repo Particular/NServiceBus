@@ -19,7 +19,7 @@
 
     <CustomAction Id="SetNuget" Property="NUGET" Value="true" />
     <CustomAction Id="SetMSI" Property="MSI" Value="true" />
-    <CustomAction Id="SetURL" Property="WixShellExecTarget" Value="http://www.nservicebus.com/MSI?studio=[MSI]&amp;nuget=[NUGET]" />
+    <CustomAction Id="SetURL" Property="WixShellExecTarget" Value="http://particular.net/Installation-completed?installer=NServiceBus&amp;version=3.3.8&amp;method=msi&amp;studio=[MSI]&amp;nuget=[NUGET]" />
     <CustomAction Id="OpenURL" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" Return="ignore" />
 
     <InstallExecuteSequence>
