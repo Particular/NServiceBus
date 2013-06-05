@@ -20,7 +20,7 @@ namespace NServiceBus.Unicast.Queuing.Msmq.Config.Installers
                 return;
 
             if(!MsmqSetup.StartMsmqIfNecessary(false))
-                throw new Exception("Failed to setup MSMQ since it needs to be reinstalled. A reinstall will remove any local queues. Please go to http://nservicebus.com/RequiredInfrastructure/Windows for instructions on how to remedy the situation");
+                throw new Exception("Failed to setup MSMQ since it needs to be reinstalled. A reinstall will remove any local queues. Please go to http://particular.net/articles/running-nservicebus-on-windows for instructions on how to remedy the situation");
         }
     }
 }

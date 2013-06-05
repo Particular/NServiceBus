@@ -49,6 +49,6 @@ task Build -depends Clean, Init {
 
 task Sign -depends Init {
 	if($SignFile -ne "") {
-		exec { &$script:signTool sign /f "$SignFile" /p "$env:SIGN_CER_PASSWORD" /d "NServiceBus Installer" /du "http://www.nservicebus.com" /q  $packageOutPutDir\*.msi }
+		exec { &$script:signTool sign /f "$SignFile" /p "$env:SIGN_CER_PASSWORD" /d "NServiceBus Installer" /du "http://particular.net" /q  $packageOutPutDir\*.msi }
 	}
 }

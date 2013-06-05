@@ -11,7 +11,7 @@ http://www.opensource.org/licenses/rpl1.5.txt
 
 If you do not wish to release the source of software you build using NServiceBus, you may use NServiceBus source and/or binaries under the NServiceBus Express End User License Agreement as described here:
 
-http://www.nservicebus.com/EULA.aspx
+http://particular.net/LicenseAgreement
 
 
 ============
@@ -19,7 +19,7 @@ http://www.nservicebus.com/EULA.aspx
 ============
 
 The following web page contains information about how to build NServiceBus form source files:
-http://nservicebus.com/BuildingNServiceBusFromSource.aspxIn order to build the source, run the build.ps1 powershell script.
+http://particular.net/SourceCode In order to build the source, run the build.ps1 powershell script.
 
 You'll find the built assemblies in /build/binaries.
 

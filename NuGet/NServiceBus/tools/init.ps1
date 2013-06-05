@@ -56,4 +56,4 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 	exit
 }
 
-$dte.ExecuteCommand("View.URL", "http://www.nservicebus.com/RequiredInfrastructure/Windows/Setup?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)
+$dte.ExecuteCommand("View.URL", "http://particular.net/articles/preparing-your-machine-to-run-nservicebus?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled)

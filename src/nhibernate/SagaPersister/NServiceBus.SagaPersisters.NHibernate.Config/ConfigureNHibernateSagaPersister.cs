@@ -53,7 +53,7 @@ namespace NServiceBus
                 if (e.ExceptionObject.GetType() ==
                     typeof(AccessViolationException))
                     LogManager.GetLogger("System.Data.SQLite").Fatal(
-                        "NServiceBus has detected an error in the operation of SQLite. SQLite is the database used to store sagas from NServiceBus when running under the 'Integration' profile. This error usually occurs only under load. If you wish to use sagas under load, it is recommended to run NServiceBus under the 'Production' profile. This can be done by passing the value 'NServiceBus.Production' on the command line to the NServiceBus.Host.exe process. For more information see http://www.NServiceBus.com/Profiles.aspx .");
+                        "NServiceBus has detected an error in the operation of SQLite. SQLite is the database used to store sagas from NServiceBus when running under the 'Integration' profile. This error usually occurs only under load. If you wish to use sagas under load, it is recommended to run NServiceBus under the 'Production' profile. This can be done by passing the value 'NServiceBus.Production' on the command line to the NServiceBus.Host.exe process. For more information see http://particular.net/articles/profiles-for-nservicebus-host");
             };
             
             return NHibernateSagaPersister(config, nhibernateProperties, true);
