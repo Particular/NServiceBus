@@ -64,7 +64,7 @@ net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
 Error: {1}
 To help diagnose the problem try running the following command from an admin console:
 net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity, error);
-                logger.Warn(message);
+                logger.Info(message);
             }
         }
 
