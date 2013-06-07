@@ -11,7 +11,7 @@
         public void Integration()
         {
             var installer = new PerformanceMonitorUsersInstaller();
-            installer.Install(@"retina\nsbtest");
+            installer.Install(@"location\username");
         }
     }
 }
