@@ -23,14 +23,8 @@
         public static T Read(string name, T defaultValue = default(T))
         {
             try
-            {
-                using (var registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
-                {
-                    if (registryKey != null)
-                    {
-                        return (T)registryKey.GetValue(name, defaultValue);
-                    }
-                }
+            {              
+                return ReadRegistryKeyValue(name, defaultValue);
             }
             catch (Exception ex)
             {
@@ -38,6 +32,30 @@
             }
 
             return defaultValue;
+        }
+
+        protected static T ReadRegistryKeyValue(string keyName, object defaultValue)
+        {
+            object value = null;
+
+            if (Environment.Is64BitOperatingSystem)
+            {
+                value = ReadRegistry(RegistryView.Registry32, keyName, defaultValue) ?? ReadRegistry(RegistryView.Registry64, keyName, defaultValue);
+            }
+            else
+            {
+                value = ReadRegistry(RegistryView.Default, keyName, defaultValue);
+            }
+
+            return (T)value;
+        }
+
+        protected static object ReadRegistry(RegistryView view, string keyName, object defaultValue)
+        {
+            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
+            {
+                return key == null ? null : key.GetValue(keyName, defaultValue);
+            }
         }
     }
 }

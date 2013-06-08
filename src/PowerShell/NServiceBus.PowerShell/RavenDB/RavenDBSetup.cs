@@ -252,14 +252,11 @@
 
             if (Environment.Is64BitOperatingSystem)
             {
-                portValue = ReadRegistry(RegistryView.Registry32);
-
-                if(portValue == null)
-                    portValue = ReadRegistry(RegistryView.Registry64);
+                portValue = ReadRegistry(RegistryView.Registry32) ?? ReadRegistry(RegistryView.Registry64);
             }
             else
             {
-                portValue = ReadRegistry(RegistryView.Registry64);
+                portValue = ReadRegistry(RegistryView.Default);
             }
 
             if (portValue == null)
@@ -283,8 +280,6 @@
                 return key.GetValue("RavenPort");
             }
         }
-
-      
         
         const string DefaultDirectoryName = "NServiceBus.Persistence.v4";
     }
