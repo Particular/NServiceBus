@@ -9,6 +9,32 @@
 
     public class NServiceBusPerformanceTest:NServiceBusAcceptanceTest
     {
+        protected static int NumberOfTestMessages
+        {
+            get
+            {
+                int nr;
+
+                if (!int.TryParse(Environment.GetEnvironmentVariable("NServiceBus.MaxMessagesForPerformanceTests"),out nr))
+                    return 3000;
+
+                return nr;
+            }
+        }
+
+        protected static int MaxConcurrencyLevel
+        {
+            get
+            {
+                int nr;
+
+                if (!int.TryParse(Environment.GetEnvironmentVariable("NServiceBus.MaxConcurrencyLevel"), out nr))
+                    return 15;
+
+                return nr;
+            }
+        }
+
         protected static void DisplayTestResults(RunSummary summary)
         {
 

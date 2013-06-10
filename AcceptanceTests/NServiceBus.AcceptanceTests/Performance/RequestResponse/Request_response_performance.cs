@@ -6,17 +6,12 @@
     using AcceptanceTesting;
     using Config;
     using EndpointTemplates;
-
-    using NServiceBus.AcceptanceTesting.Support;
-
+    using AcceptanceTesting.Support;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class Request_response_performance : NServiceBusPerformanceTest
     {
-        static int NumberOfTestMessages = 1000;
-        static int ConcurrencyLevel = 15;
-
         [Test]
         public void With_dtc_enabled()
         {
@@ -96,7 +91,7 @@
             public ClientEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel)
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = MaxConcurrencyLevel)
                     .AddMapping<MyMessage>(typeof(ServerEndpoint));
             }
 
@@ -131,7 +126,7 @@
             public ServerEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = ConcurrencyLevel);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = MaxConcurrencyLevel);
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

@@ -68,7 +68,7 @@
 
         static void SetupLogging(EndpointConfiguration endpointConfiguration)
         {
-            var logDir = "..\\..\\logfiles\\";
+            var logDir = ".\\logfiles\\";
 
             if (!Directory.Exists(logDir))
                 Directory.CreateDirectory(logDir);

@@ -13,8 +13,6 @@
 
     public class Saga_performance : NServiceBusPerformanceTest
     {
-        static int NumberOfTestMessages = 2000;
-
         [Test]
         public void With_dtc_enabled()
         {
@@ -54,7 +52,7 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = MaxConcurrencyLevel);
             }
 
             public class MySaga : Saga<MySaga.MySagaData>,IAmStartedByMessages<MyMessage>
