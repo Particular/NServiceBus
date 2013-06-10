@@ -25,6 +25,9 @@ namespace ReturnToSourceQueue
 
             if (inputQueue == null)
             {
+                Console.WriteLine("NServiceBus ReturnToSource for MSMQ");
+                Console.WriteLine("by Particular Software Ltd. \n");
+
                 Console.WriteLine("Please enter the error queue you would like to use:");
                 inputQueue = Console.ReadLine();
                 script = false;
