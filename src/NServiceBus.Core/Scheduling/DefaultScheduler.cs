@@ -69,7 +69,12 @@ namespace NServiceBus.Scheduling
 
         private void DeferTask(ScheduledTask task)
         {            
-            bus.Defer(task.Every, new Messages.ScheduledTask { TaskId = task.Id });
+            bus.Defer(task.Every, new Messages.ScheduledTask
+                {
+                    TaskId = task.Id,
+                    Name = task.Name,
+                    Every = task.Every
+                });
         }
     }
 }
