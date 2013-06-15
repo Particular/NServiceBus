@@ -55,7 +55,6 @@ namespace Sender
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
-            Configure.Serialization.Binary();
 
             bus = Configure.With()
                .DefaultBuilder()
