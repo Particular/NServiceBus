@@ -15,6 +15,7 @@
     <RestorePackages>true</RestorePackages>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <FodyPath>..\..\..\packages\Fody.1.13.8.0</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,6 +64,9 @@
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Storage, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\WindowsAzure.Storage.2.0.5.1\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
+    </Reference>
+    <Reference Include="Obsolete">
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.6.2.0\Lib\NET35\Obsolete.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -167,9 +171,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Fody.targets" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="FodyWeavers.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -179,4 +186,5 @@
   </Target>
   -->
   <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+  <Import Project="Fody.targets" />
 </Project>

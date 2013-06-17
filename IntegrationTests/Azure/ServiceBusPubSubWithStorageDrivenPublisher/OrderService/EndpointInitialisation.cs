@@ -6,7 +6,7 @@ namespace OrderService
     {
         public void Init()
         {
-            Configure.Instance.AzureSubcriptionStorage();
+            Configure.Instance.AzureSubscriptionStorage();
 
             Configure.Instance.Configurer.RegisterSingleton<OrderList>(new OrderList());
         }
