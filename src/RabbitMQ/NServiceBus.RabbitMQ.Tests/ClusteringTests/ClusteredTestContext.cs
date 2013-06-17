@@ -13,6 +13,7 @@
     using NLog;
     using NLog.Targets;
     using NUnit.Framework;
+    using Support;
     using Unicast.Transport;
 
     public abstract class ClusteredTestContext
@@ -40,7 +41,7 @@
 
         protected class RabbitNode
         {
-            public static readonly string LocalHostName = Environment.MachineName;
+            public static readonly string LocalHostName = RuntimeEnvironment.MachineName;
             public int MgmtPort;
             public int Number;
             public int Port;
