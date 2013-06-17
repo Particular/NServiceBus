@@ -94,7 +94,10 @@ namespace NServiceBus.Sagas
                                                      Persister.Complete(saga.Entity);
                                                  }
 
-                                                 NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                                                 if (saga.Entity.Id != Guid.Empty)
+                                                 {
+                                                     NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                                                 }
                                              }
 
                                              LogIfSagaIsFinished(saga);
@@ -198,7 +201,7 @@ namespace NServiceBus.Sagas
             MethodInfo method = Features.Sagas.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
-                return method.Invoke(finder, new object[] { message }) as IContainSagaData;
+                return method.Invoke(finder, new [] { message }) as IContainSagaData;
 
             return null;
         }
