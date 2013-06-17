@@ -21,15 +21,21 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
         void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            using (var transaction = new TransactionScope(TransactionScopeOption.Suppress))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
             {
                 foreach (var messageType in messageTypes)
                 {
+                    var type = messageType;
+
                     if (session.QueryOver<Subscription>()
-                        .Where(s => s.TypeName == messageType.TypeName && s.SubscriberEndpoint == address.ToString()).List()
-                                .Any(s => new MessageType(s.TypeName, s.Version) == messageType))
+                               .Where(s => s.TypeName == type.TypeName && s.SubscriberEndpoint == address.ToString())
+                               .List()
+                               .Any(s => new MessageType(s.TypeName, s.Version) == messageType))
+                    {
                         continue;
+                    }
 
                     session.Save(new Subscription
                                         {
@@ -40,14 +46,16 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                                         });
                 }
 
+                tx.Commit();
                 transaction.Complete();
             }
         }
 
         void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
         {
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            using (var transaction = new TransactionScope(TransactionScopeOption.Suppress))
             using (var session = subscriptionStorageSessionProvider.OpenSession())
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))            
             {
                 var subscriptions = session.QueryOver<Subscription>()
                     .Where(
@@ -56,27 +64,41 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                     .List();
 
                 foreach (var subscription in subscriptions.Where(s => messageTypes.Contains(new MessageType(s.TypeName, s.Version))))
+                {
                     session.Delete(subscription);
+                }
 
+                tx.Commit();
                 transaction.Complete();
             }
         }
+
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
-        {  
-            using (new TransactionScope(TransactionScopeOption.Suppress))
+        {
+            using (var transaction = new TransactionScope(TransactionScopeOption.Suppress))
             using (var session = subscriptionStorageSessionProvider.OpenStatelessSession())
-                return session.QueryOver<Subscription>()
-                    .Where(s => s.TypeName.IsIn(messageTypes.Select(mt => mt.TypeName).ToList()))
-                    .List()
-                    .Where(s => messageTypes.Contains(new MessageType(s.TypeName, s.Version)))
-                    .Select(s => Address.Parse(s.SubscriberEndpoint))
-                    .Distinct();
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+            {
+                var results = session.QueryOver<Subscription>()
+                              .Where(s => s.TypeName.IsIn(messageTypes.Select(mt => mt.TypeName).ToList()))
+                              .List()
+                              .Where(s => messageTypes.Contains(new MessageType(s.TypeName, s.Version)))
+                              .Select(s => Address.Parse(s.SubscriberEndpoint))
+                              .Distinct()
+                              .ToList();
+
+                tx.Commit();
+                transaction.Complete();
+
+                return results;
+            }
         }
 
         public void Init()
         {
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted }))
+            using (var transaction = new TransactionScope(TransactionScopeOption.Suppress))
             using (var session = subscriptionStorageSessionProvider.OpenStatelessSession())
+            using (var tx = session.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
             {
                 var v2XSubscriptions = session.QueryOver<Subscription>()
                     .Where(s => s.TypeName == null)
@@ -93,9 +115,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
                     v2XSubscription.TypeName = mt.TypeName;
 
                     session.Update(v2XSubscription);
-
                 }
+
+                tx.Commit();
                 transaction.Complete();
+
                 Logger.InfoFormat("{0} v2X subscriptions upgraded", v2XSubscriptions.Count);
             }
         }
