@@ -461,7 +461,7 @@
     <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
-    <Compile Include="Timeout\Core\TimeoutManagerDeferer.cs" />
+    <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Distributor\DistributorSatellite.cs" />
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />

@@ -116,7 +116,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                         MessageSender = messageSender,
                         SubscriptionStorage = subscriptionStorage
                     },
-                MessageDeferrer = new TimeoutManagerDeferer
+                MessageDeferrer = new TimeoutManagerDeferrer
                     {
                         MessageSender = messageSender,
                         TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")

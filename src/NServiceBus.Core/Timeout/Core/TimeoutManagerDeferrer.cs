@@ -5,7 +5,7 @@
     using Transports;
     using Unicast.Transport;
 
-    public class TimeoutManagerDeferer:IDeferMessages
+    public class TimeoutManagerDeferrer : IDeferMessages
     {
         public ISendMessages MessageSender { get; set; }
         public Address TimeoutManagerAddress { get; set; }
@@ -23,7 +23,9 @@
             }
             catch (Exception ex)
             {
-                Log.Error("There was a problem deferring the message. Make sure that make sure DisableTimeoutManager was not called for your endpoint.", ex);
+                Log.Error(
+                    "There was a problem deferring the message. Make sure that make sure DisableTimeoutManager was not called for your endpoint.",
+                    ex);
                 throw;
             }
         }
@@ -38,6 +40,6 @@
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        readonly static ILog Log = LogManager.GetLogger(typeof(TimeoutManagerDeferer));
+        static readonly ILog Log = LogManager.GetLogger(typeof (TimeoutManagerDeferrer));
     }
 }

@@ -11,7 +11,7 @@
             if (Configure.HasComponent<IDeferMessages>())
                 return;
 
-            Configure.Component<TimeoutManagerDeferer>(DependencyLifecycle.InstancePerCall)
+            Configure.Component<TimeoutManagerDeferrer>(DependencyLifecycle.InstancePerCall)
               .ConfigureProperty(p => p.TimeoutManagerAddress, Configure.Instance.GetTimeoutManagerAddress());
         }
     }
