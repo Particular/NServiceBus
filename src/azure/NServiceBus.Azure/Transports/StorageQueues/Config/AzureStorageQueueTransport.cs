@@ -6,7 +6,6 @@
     using Microsoft.WindowsAzure.ServiceRuntime;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
-    using Serialization;
     using Settings;
     using Transports;
     using Transports.StorageQueues;
@@ -20,16 +19,14 @@
             EnableByDefault<MessageDrivenSubscriptions>();
             EnableByDefault<StorageDrivenPublisher>();
             EnableByDefault<TimeoutManager>();
+            Categories.Serializers.SetDefault<JsonSerialization>();
 
             if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
             {
                 config.AzureConfigurationSource();
             }
 
-            if (!config.Configurer.HasComponent<IMessageSerializer>())
-            {
-                NServiceBus.Configure.Serialization.Json();
-            }
+
 
             AzureStoragePersistence.UseAsDefault();
 
