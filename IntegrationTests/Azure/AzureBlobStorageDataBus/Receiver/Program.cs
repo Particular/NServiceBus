@@ -16,6 +16,7 @@ namespace Receiver
         private static void BootstrapNServiceBus()
         {
             Configure.Transactions.Enable();
+            Configure.Serialization.Binary();
 
             Configure.With()
                .DefaultBuilder()
