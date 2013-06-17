@@ -1,19 +1,16 @@
 ﻿namespace NServiceBus.Setup.Windows.RavenDB
 {
     using System;
-    using System.Collections;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Net.NetworkInformation;
     using System.ServiceProcess;
     using System.Xml;
     using Microsoft.Win32;
     using Persistence.Raven.Installation;
     using PowerShell;
-    using PowerShell.RavenDB;
 
     public class RavenDBSetup
     {
@@ -60,12 +57,16 @@
                 var serverBuildHeader = webResponse.Headers["Raven-Server-Build"];
 
                 if (serverBuildHeader == null)
+                {
                     return false;
+                }
 
-                int serverBuild = 0;
+                int serverBuild;
 
                 if (!int.TryParse(serverBuildHeader, out serverBuild))
+                {
                     return false;
+                }
 
                 return serverBuild >= 2000;//at least raven v2
             }
@@ -154,45 +155,13 @@
             }
 
             Console.WriteLine("Unpacking resources...");
-            string ravenConfigData = null;
 
-            foreach (DictionaryEntry entry in RavenServer.ResourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true))
-            {
-                var fileName = entry.Key.ToString().Replace("_", ".");
+            ExportRavenResources(installPath);
 
-                var data = entry.Value as byte[];
-             
-                switch (fileName)
-                {
-                    case "Raven.Server":
-                        fileName += ".exe";
-                        break;
-
-                    case "Raven.Server.exe":
-                        fileName += ".config";
-                        ravenConfigData = (string)entry.Value;
-                        data = null;
-                        break;
-
-                    default:
-                        fileName += ".dll";
-                        break;
-                }
-
-                var destinationPath = Path.Combine(installPath, fileName);
-
-                if(data == null)
-                    continue;
-
-                Console.WriteLine("Unpacking '{0}' to '{1}'...", entry.Key, destinationPath);
-
-                File.WriteAllBytes(destinationPath, data);
-            }
-            
             var ravenConfigPath = Path.Combine(installPath, "Raven.Server.exe.config");
             var ravenConfig = new XmlDocument();
 
-            ravenConfig.LoadXml(ravenConfigData);
+            ravenConfig.Load(ravenConfigPath);
 
             var key = (XmlElement) ravenConfig.DocumentElement.SelectSingleNode("//add[@key='Raven/Port']");
 
@@ -230,6 +199,26 @@
             }
             
             Console.WriteLine("{0} service started, listening on port: {1}",serviceName,availablePort);
+        }
+
+        public static void ExportRavenResources(string directoryPath)
+        {
+            var assembly = typeof (RavenDBSetup).Assembly;
+            var enumerable = assembly.GetManifestResourceNames().Where(x => x.Contains("RavenResources"));
+            foreach (var resourceName in enumerable)
+            {
+                using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    var fileName = resourceName.Replace(assembly.GetName().Name + ".RavenResources.", "");
+                    var destinationPath = Path.Combine(directoryPath, fileName);
+                    Console.WriteLine("Unpacking '{0}' to '{1}'...", fileName, destinationPath);
+                    using (Stream file = File.OpenWrite(destinationPath))
+                    {
+                        resourceStream.CopyTo(file);
+                        file.Flush();
+                    }
+                }
+            }
         }
 
         private static void SavePortToBeUsedForRavenInRegistry(int availablePort)
