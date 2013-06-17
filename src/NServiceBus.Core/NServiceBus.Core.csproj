@@ -62,13 +62,13 @@
       <HintPath>..\..\packages\Obsolete.Fody.1.6.2.0\Lib\NET35\Obsolete.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Raven.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+    <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2261\lib\net40\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2261\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -99,6 +99,7 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
@@ -460,7 +461,7 @@
     <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
     <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
-    <Compile Include="Timeout\Core\TimeoutManagerDeferer.cs" />
+    <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
     <Compile Include="Distributor\DistributorSatellite.cs" />
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />

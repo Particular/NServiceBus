@@ -38,6 +38,7 @@ namespace NServiceBus.Hosting.Roles
         {
             ConfigUnicastBus unicastBusConfig = null;
 
+            var roleFound = false;
             foreach (var role in availableRoles)
             {
                 var roleType = role.Key;
@@ -61,7 +62,7 @@ namespace NServiceBus.Hosting.Roles
 
                 if (!handlesRole)
                     continue;
-
+                roleFound = true;
 
                 //apply role
                 var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
@@ -79,6 +80,10 @@ namespace NServiceBus.Hosting.Roles
                 Logger.Info("Role " + roleType + " configured");
                 foreach (var markerProfile in GetMarkerRoles(specifier.GetType(), roleType))
                     Logger.Info("Role " + markerProfile + " is marked.");
+            }
+            if (!roleFound)
+            {
+                throw new Exception("Did you forget to specify the endpoint role? Please make sure you specify the endpoint role as either 'AsA_Client','AsA_Host','AsA_Publisher', 'AsA_Server' or some other custom 'IRole'.");
             }
         }
 

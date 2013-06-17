@@ -31,7 +31,7 @@ namespace Cashier
                 .Log4Net()
                 .StructureMapBuilder(ObjectFactory.Container)
                 .AzureMessageQueue()
-                .AzureSubcriptionStorage()
+                .AzureSubscriptionStorage()
                 .AzureSagaPersister()
                 .UseAzureTimeoutPersister()
                 .UnicastBus()

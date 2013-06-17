@@ -111,9 +111,14 @@ namespace NServiceBus.Unicast
         /// Clear Timeouts For the saga
         /// </summary>
         /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDefereMessages.ClearDeferredMessages")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDeferMessages.ClearDeferredMessages")]
         public void ClearTimeoutsFor(Guid sagaId)
         {
+            if (sagaId == Guid.Empty)
+            {
+                throw new ArgumentException("Invalid saga id.", "sagaId");
+            }
+
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
         }
 

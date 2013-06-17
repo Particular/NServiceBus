@@ -13,7 +13,7 @@
         /// <param name="message"></param>
         /// <param name="processAt"></param>
         /// <param name="address">The endpoint of the endpoint who should get the message</param>
-        void Defer(TransportMessage message, DateTime processAt,Address address);
+        void Defer(TransportMessage message, DateTime processAt, Address address);
 
         /// <summary>
         /// Clears all timeouts for the given header

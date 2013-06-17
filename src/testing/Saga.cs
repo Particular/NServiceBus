@@ -140,10 +140,10 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        [ObsoleteEx(Message ="Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public Saga<T> ExpectReply<TMessage>(Func<TMessage, bool> check = null)
         {
-            throw new InvalidOperationException("Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
+            expectedInvocations.Add(new ExpectedReplyInvocation<TMessage> { Check = check });
+            return this;
         }
 
         /// <summary>

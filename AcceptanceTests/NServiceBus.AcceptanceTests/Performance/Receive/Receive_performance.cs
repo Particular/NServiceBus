@@ -12,8 +12,6 @@
 
     public class Receive_performance : NServiceBusPerformanceTest
     {
-        static int NumberOfTestMessages = 10000;
-
         [Test]
         public void With_dtc_enabled()
         {
@@ -90,7 +88,7 @@
             public ReceiveEndpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = 10);
+                    .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = MaxConcurrencyLevel);
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

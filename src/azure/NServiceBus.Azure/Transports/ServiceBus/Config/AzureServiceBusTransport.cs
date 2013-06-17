@@ -8,7 +8,6 @@
     using Microsoft.ServiceBus;
     using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure.ServiceRuntime;
-    using Serialization;
     using Settings;
     using Transports;
     using Unicast.Queuing.Azure.ServiceBus;
@@ -17,14 +16,11 @@
     {
         protected override void InternalConfigure(Configure config)
         {
+            Categories.Serializers.SetDefault<JsonSerialization>();
+            
             if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
             {
                 config.AzureConfigurationSource();
-            }
-
-            if (!config.Configurer.HasComponent<IMessageSerializer>())
-            {
-                NServiceBus.Configure.Serialization.Json();
             }
 
             var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();

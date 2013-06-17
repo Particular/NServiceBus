@@ -9,6 +9,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
     using System.Reflection;
     using EasyNetQ;
     using Settings;
+    using Support;
 
     public class ConnectionConfiguration : IConnectionConfiguration
     {
@@ -61,7 +62,7 @@ namespace NServiceBus.Transports.RabbitMQ.Config
             var applicationNameAndPath = Environment.GetCommandLineArgs()[0];
             var applicationName = Path.GetFileName(applicationNameAndPath);
             var applicationPath = Path.GetDirectoryName(applicationNameAndPath);
-            var hostname = Environment.MachineName;
+            var hostname = RuntimeEnvironment.MachineName;
 
             clientProperties.Add("client_api", "NServiceBus");
             clientProperties.Add("nservicebus_version", version);

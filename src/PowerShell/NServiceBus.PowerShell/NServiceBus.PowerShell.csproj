@@ -63,11 +63,6 @@
     <Compile Include="ProcessUtil.cs" />
     <Compile Include="RavenDB\RavenDBSetup.cs" />
     <Compile Include="RavenDB\RavenHelpers.cs" />
-    <Compile Include="RavenDB\RavenServer.Designer.cs">
-      <DependentUpon>RavenServer.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="SetNServiceBusLocalMachineSettings.cs" />
     <Compile Include="AddMessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="CmdletBase.cs" />
@@ -91,22 +86,9 @@
     <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.cs.t4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\Spatial4n.Core.NTS.dll" />
-    <None Include="Resources\Raven.Server.exe" />
-    <None Include="Resources\Raven.Database.dll" />
-    <None Include="Resources\Raven.Abstractions.dll" />
-    <None Include="Resources\PowerCollections.dll" />
-    <None Include="Resources\NLog.dll" />
-    <None Include="Resources\NetTopologySuite.dll" />
-    <None Include="Resources\Mono.Cecil.dll" />
-    <None Include="Resources\Lucene.Net.dll" />
-    <None Include="Resources\Lucene.Net.Contrib.Spatial.NTS.dll" />
-    <None Include="Resources\Lucene.Net.Contrib.FastVectorHighlighter.dll" />
-    <None Include="Resources\Jint.Raven.dll" />
-    <None Include="Resources\ICSharpCode.NRefactory.dll" />
-    <None Include="Resources\ICSharpCode.NRefactory.CSharp.dll" />
-    <None Include="Resources\GeoAPI.dll" />
-    <None Include="Resources\Esent.Interop.dll" />
+    <EmbeddedResource Include="RavenResources\*.*" >
+      <Visible>false</Visible>
+    </EmbeddedResource>
     <None Include="Examples\Get-Message.ps1" />
     <None Include="Examples\Get-NServiceBusVersion.ps1" />
     <None Include="Examples\Install-PerformanceCounters.ps1" />
@@ -114,26 +96,12 @@
     <None Include="Examples\Install-Msmq.ps1" />
     <None Include="Examples\Install-RavenDB.ps1" />
     <None Include="packages.config" />
-    <None Include="Resources\Raven.Server.exe.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="about_NServiceBus.help.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="RavenDB\RavenServer.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>RavenServer.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
 </Project>

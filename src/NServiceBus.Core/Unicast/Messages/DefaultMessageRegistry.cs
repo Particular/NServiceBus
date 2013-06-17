@@ -53,7 +53,7 @@
                     messageMetadatas.Add(metadata);
                     continue;
                 }
-                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, check your type scanning conventions. MessageId: {2}", messageTypeString,messageType.FullName,message.Id);
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. MessageId: {2}", messageTypeString, messageType.FullName, message.Id);
             }
 
             if (messageMetadatas.Count == 0 && message.MessageIntent != MessageIntentEnum.Publish)
