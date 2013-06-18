@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Transactions;
+    using Logging;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Serialization;
@@ -100,15 +101,22 @@ namespace NServiceBus.Unicast.Queuing.Azure
             }
 
             timeToDelayNextPeek = 0;
+            try
+            {
+                return DeserializeMessage(rawMessage);
 
-            var msg = DeserializeMessage(rawMessage);
-
-            if (!useTransactions || Transaction.Current == null)
-                DeleteMessage(rawMessage);
-            else
-                Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, rawMessage),EnlistmentOptions.None);
-
-            return msg;
+            }
+            catch (Exception ex)
+            {
+                throw new EnvelopeDeserializationFailed(rawMessage,ex);
+            }
+            finally
+            {
+                if (!useTransactions || Transaction.Current == null)
+                    DeleteMessage(rawMessage);
+                else
+                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, rawMessage), EnlistmentOptions.None);                
+            } 
         }
 
         private CloudQueueMessage GetMessage()
@@ -174,5 +182,24 @@ namespace NServiceBus.Unicast.Queuing.Azure
         }
 
         bool useTransactions;
+
+        static ILog Logger = LogManager.GetLogger(typeof (AzureMessageQueueReceiver));
+    }
+
+    public class EnvelopeDeserializationFailed:SerializationException
+    {
+        CloudQueueMessage message;
+
+
+        public EnvelopeDeserializationFailed(CloudQueueMessage message, Exception ex)
+            : base("Failed to deserialize message envelope", ex)
+        {
+            this.message = message;
+        }
+
+        public CloudQueueMessage Message
+        {
+            get { return message; }
+        }
     }
 }

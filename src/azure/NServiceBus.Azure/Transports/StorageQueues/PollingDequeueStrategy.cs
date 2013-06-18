@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Queuing.Azure
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
@@ -112,6 +113,12 @@ namespace NServiceBus.Unicast.Queuing.Azure
                             tryProcessMessage(message);
                         }
                     }
+                }
+                catch (EnvelopeDeserializationFailed ex)
+                {
+                    //if we failed to deserialize the envlope there isn't much we can do so we just swallow the message to avoid a infinite loop
+                    message = new TransportMessage(ex.Message.Id,new Dictionary<string, string>());
+                    exception = ex;
                 }
                 catch (Exception ex)
                 {
