@@ -9,6 +9,7 @@
       <Setting name="DynamicHostControllerConfig.UpdateInterval" value="30000" />
       <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureQueueConfig.QueueName" value="websitequeue" />
+      <Setting name="AzureTimeoutPersisterConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
       <Setting name="TransportConfig.MaxRetries" value="5" />

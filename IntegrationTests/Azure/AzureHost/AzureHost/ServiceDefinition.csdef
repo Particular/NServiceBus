@@ -21,6 +21,7 @@
       <Setting name="DynamicHostControllerConfig.UpdateInterval" />
       <Setting name="AzureQueueConfig.ConnectionString" />
       <Setting name="AzureQueueConfig.QueueName" />
+      <Setting name="AzureTimeoutPersisterConfig.ConnectionString" />
       <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" />
       <Setting name="TransportConfig.MaxRetries" />
