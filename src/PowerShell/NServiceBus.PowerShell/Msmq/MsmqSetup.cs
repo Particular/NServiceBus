@@ -64,6 +64,10 @@
         private static bool InstallMsmqIfNecessary(bool allowReinstall)
         {
             Console.WriteLine("Checking if MSMQ is installed.");
+
+            var os = GetOperatingSystem();
+            Func<Process> process = null;
+
             if (IsMsmqInstalled())
             {
                 Console.WriteLine("MSMQ is installed.");
@@ -78,66 +82,86 @@
                 Console.WriteLine("Installation isn't good.");
 
                 if (!allowReinstall)
+                {
                     return false;
-                
+                }
+
                 Console.WriteLine("Going to re-install MSMQ. A reboot may be required.");
 
-                PerformFunctionDependingOnOS(
-                    () => Process.Start(OcSetup, VistaOcSetupParams + Uninstall),
-                    () => Process.Start(OcSetup, Server2008OcSetupParams + Uninstall),
-                    InstallMsmqOnXpOrServer2003
-                );
+                switch (os)
+                {
+                    case OperatingSystemEnum.XpOrServer2003:
+                        process = InstallMsmqOnXpOrServer2003;
+                        break;
 
-                Console.WriteLine("Installation of MSMQ successful.");
+                    case OperatingSystemEnum.Vista:
+                        process = () => Process.Start(OcSetup, OcSetupVistaUninstallCommand);
+                        break;
+                        
+                    case OperatingSystemEnum.Windows7:
+                    case OperatingSystemEnum.Windows8:
+                    case OperatingSystemEnum.Server2008:
+                        process = () => Process.Start(OcSetup, OcSetupUninstallCommand);
+                        break;
 
-                return true;
+                    case OperatingSystemEnum.Server2012:
+                        process = () => Process.Start(Powershell, PowershellUninstallCommand);
+                        break;
+
+                    default:
+                        Console.WriteLine("OS not supported.");
+                        break;
+                }
+
+                Console.WriteLine("Uninstalling MSMQ.");
+                RunSetup(process);
+            }
+            else
+            {
+                Console.WriteLine("MSMQ is not installed. Going to install.");
             }
 
-            Console.WriteLine("MSMQ is not installed. Going to install.");
+            switch (os)
+            {
+                case OperatingSystemEnum.XpOrServer2003:
+                    process = InstallMsmqOnXpOrServer2003;
+                    break;
 
-            PerformFunctionDependingOnOS(
-                () => Process.Start(OcSetup, VistaOcSetupParams),
-                () => Process.Start(OcSetup, Server2008OcSetupParams),
-                InstallMsmqOnXpOrServer2003
-                );
+                case OperatingSystemEnum.Vista:
+                    process = () => Process.Start(OcSetup, OcSetupVistaInstallCommand);
+                    break;
+
+                case OperatingSystemEnum.Windows7:
+                case OperatingSystemEnum.Windows8:
+                case OperatingSystemEnum.Server2008:
+                    process = () => Process.Start(OcSetup, OcSetupInstallCommand);
+                    break;
+
+                case OperatingSystemEnum.Server2012:
+                    process = () => Process.Start(Powershell, PowershellInstallCommand);
+                    break;
+
+                default:
+                    Console.WriteLine("OS not supported.");
+                    break;
+            }
+
+            RunSetup(process);
 
             Console.WriteLine("Installation of MSMQ successful.");
 
             return true;
         }
 
-        private static void PerformFunctionDependingOnOS(Func<Process> vistaFunc, Func<Process> server2008Func, Func<Process> xpAndServer2003Func)
+        private static void RunSetup(Func<Process> action)
         {
-            var os = GetOperatingSystem();
-
-            Process process = null;
-            switch (os)
+            using (var process = action())
             {
-                case OperatingSystemEnum.Vista:
+                if (process == null) return;
 
-                    process = vistaFunc();
-                    break;
-
-                case OperatingSystemEnum.Server2008:
-
-                    process = server2008Func();
-                    break;
-
-                case OperatingSystemEnum.XpOrServer2003:
-
-                    process = xpAndServer2003Func();
-                    break;
-
-                default:
-
-                    Console.WriteLine("OS not supported.");
-                    break;
+                Console.WriteLine("Waiting for process to complete.");
+                process.WaitForExit();
             }
-
-            if (process == null) return;
-
-            Console.WriteLine("Waiting for process to complete.");
-            process.WaitForExit();
         }
 
         private static Process InstallMsmqOnXpOrServer2003()
@@ -173,21 +197,44 @@
             return Process.Start("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
         }
 
+        // Based on http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833(v=vs.85).aspx
         private static OperatingSystemEnum GetOperatingSystem()
         {
-            var osvi = new OSVersionInfoEx();
-            osvi.OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfoEx));
+            var osvi = new OSVersionInfoEx {OSVersionInfoSize = (UInt32) Marshal.SizeOf(typeof (OSVersionInfoEx))};
 
             GetVersionEx(osvi);
-
+            
             switch (Environment.OSVersion.Version.Major)
             {
                 case 6:
+                    switch (Environment.OSVersion.Version.Minor)
+                    {
+                        case 0:
 
-                    if (osvi.ProductType == VER_NT_WORKSTATION)
-                        return OperatingSystemEnum.Vista;
+                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            {
+                                return OperatingSystemEnum.Vista;
+                            }
 
-                    return OperatingSystemEnum.Server2008;
+                            return OperatingSystemEnum.Server2008;
+
+                        case 1:
+                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            {
+                                return OperatingSystemEnum.Windows7;
+                            }
+
+                            return OperatingSystemEnum.Server2008;
+
+                        case 2:
+                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            {
+                                return OperatingSystemEnum.Windows8;
+                            }
+
+                            return OperatingSystemEnum.Server2012;
+                    }
+                    break;
 
                 case 5:
                     return OperatingSystemEnum.XpOrServer2003;
@@ -264,11 +311,16 @@
         static readonly List<string> UndesirableMsmqComponentsXp = new List<string>(new[] { "msmq_ADIntegrated", "msmq_TriggersService", "msmq_HTTPSupport", "msmq_RoutingSupport", "msmq_MQDSService" });
         static readonly List<string> UndesirableMsmqComponentsV4 = new List<string>(new[] { "msmq_DCOMProxy", "msmq_MQDSServiceInstalled", "msmq_MulticastInstalled", "msmq_RoutingInstalled", "msmq_TriggersInstalled" });
 
-        enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008 }
+        enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008, Windows7, Windows8, Server2012 }
 
         const string OcSetup = "OCSETUP";
-        const string Uninstall = " /uninstall";
-        const string Server2008OcSetupParams = "MSMQ-Server /passive";
-        const string VistaOcSetupParams = "MSMQ-Container;" + Server2008OcSetupParams;
+        const string Powershell = "PowerShell";
+        const string OcSetupInstallCommand = "MSMQ-Server /passive";
+        const string OcSetupUninstallCommand = "MSMQ-Server /passive /uninstall";
+        const string OcSetupVistaInstallCommand = "MSMQ-Container;MSMQ-Server /passive";
+        const string OcSetupVistaUninstallCommand = "MSMQ-Container;MSMQ-Server /passive /uninstall";
+        const string PowershellInstallCommand = @"-Command ""& {Install-WindowsFeature –Name MSMQ-Server}""";
+        const string PowershellUninstallCommand = @"-Command ""& {Uninstall-WindowsFeature –Name MSMQ-Server}""";
+
     }
 }
