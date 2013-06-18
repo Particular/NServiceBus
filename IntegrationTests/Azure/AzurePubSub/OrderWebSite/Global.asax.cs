@@ -39,7 +39,7 @@ namespace OrderWebSite
 		    }
 		    catch (QueueNotFoundException)
 		    {
-		        //swallow a q not found since there is a race condtion when starting the sample on a clean box
+		        //swallow a q not found since there is a race condition when starting the sample on a clean box
 		    }
 			
 

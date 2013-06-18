@@ -6,6 +6,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Threading.Tasks;
     using System.Transactions;
     using CircuitBreakers;
+    using Logging;
     using Transport;
     using Transports;
 
@@ -119,6 +120,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     //if we failed to deserialize the envlope there isn't much we can do so we just swallow the message to avoid a infinite loop
                     message = new TransportMessage(ex.Message.Id,new Dictionary<string, string>());
                     exception = ex;
+
+                    Logger.Error("Failed to deserialize the envelope of the incoming message. Message will be discarded. MessageId: " + ex.Message.Id,exception);
                 }
                 catch (Exception ex)
                 {
@@ -138,5 +141,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         TransactionSettings settings;
         TransactionOptions transactionOptions;
         Action<TransportMessage, Exception> endProcessMessage;
+        static ILog Logger = LogManager.GetLogger(typeof (PollingDequeueStrategy));
     }
 }
