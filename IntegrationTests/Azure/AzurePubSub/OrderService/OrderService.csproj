@@ -28,6 +28,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -108,9 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefineRouting.cs" />
-    <Compile Include="DisableSattelites.cs" />
-    <Compile Include="UseBinarySerializer.cs" />
-    <Compile Include="InitialiseOrders.cs" />
+    <Compile Include="InitializeOrders.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="MessageHandlers\OrderMessageHandler.cs" />
     <Compile Include="MessageHandlers\LoadOrdersMessageHandlers.cs" />
@@ -153,6 +153,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

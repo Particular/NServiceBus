@@ -2,7 +2,7 @@
 
 namespace OrderService
 {
-    public class InitialiseOrders : IWantCustomInitialization
+    public class InitializeOrders : INeedInitialization
     {
         public void Init()
         {

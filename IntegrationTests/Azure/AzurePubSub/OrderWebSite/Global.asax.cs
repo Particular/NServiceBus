@@ -7,6 +7,8 @@ using NServiceBus.Features;
 
 namespace OrderWebSite
 {
+    using NServiceBus.Unicast.Queuing;
+
     public class Global : HttpApplication
     {
 		public static IBus Bus;
@@ -17,7 +19,6 @@ namespace OrderWebSite
 		private static IBus ConfigureNServiceBus()
 		{
 		    Configure.Transactions.Enable();
-            Configure.Serialization.Binary();
 
             Feature.Disable<Gateway>();
             Feature.Disable<SecondLevelRetries>();
@@ -32,7 +33,15 @@ namespace OrderWebSite
                 .CreateBus()
 				.Start();
 
-			bus.Send(new LoadOrdersMessage());
+		    try
+		    {
+                bus.Send(new LoadOrdersMessage());
+		    }
+		    catch (QueueNotFoundException)
+		    {
+		        //swallow a q not found since there is a race condtion when starting the sample on a clean box
+		    }
+			
 
 			return bus;
 		}
