@@ -7,6 +7,7 @@
     [Cmdlet(VerbsLifecycle.Install, "NServiceBusMSMQ", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.High)]
     public class InstallMsmq : CmdletBase
     {
+        [Parameter(Mandatory = false, HelpMessage = "Force reinstall of MSMQ")]
         public SwitchParameter Force { get; set; }
 
         protected override void ProcessRecord()
@@ -18,7 +19,7 @@
                 if (!msmqIsGood && !Force)
                 {
                     WriteWarning(
-                        "Msmq needs to reinstalled, Please rerun the command with -Force set. NOTE: This will remove all local queues!");
+                        "Msmq needs to be reinstalled. Please re-run the command with -Force set. NOTE: This will remove all local queues!");
                 }
             }
         }
