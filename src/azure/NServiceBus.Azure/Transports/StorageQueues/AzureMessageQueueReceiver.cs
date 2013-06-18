@@ -155,7 +155,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 object[] deserializedObjects;
                 try
                 {
-                    deserializedObjects = MessageSerializer.Deserialize(stream);
+                    deserializedObjects = MessageSerializer.Deserialize(stream, new List<Type> { typeof(MessageWrapper) });
                 }
                 catch (Exception)
                 {
