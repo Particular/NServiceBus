@@ -14,5 +14,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("release")]
 [assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
 [assembly: ComVisible(false)]		
-[assembly: CLSCompliantAttribute(true)]
+[assembly: CLSCompliantAttribute(false)]
 
