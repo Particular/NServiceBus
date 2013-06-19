@@ -17,10 +17,13 @@
         protected override void InternalConfigure(Configure config)
         {
             Categories.Serializers.SetDefault<JsonSerialization>();
-            
-            if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
+
+            if (IsRoleEnvironmentAvailable())
             {
-                config.AzureConfigurationSource();
+                EnableByDefault<QueueAutoCreation>();
+
+                if (!IsHostedIn.ChildHostProcess())
+                    config.AzureConfigurationSource();
             }
 
             var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
@@ -44,13 +47,13 @@
             // make sure the transaction stays open a little longer than the long poll.
             NServiceBus.Configure.Transactions.Advanced(settings => settings.DefaultTimeout(TimeSpan.FromSeconds(serverWaitTime * 1.1)).IsolationLevel(IsolationLevel.Serializable));
 
-            
+
             Enable<AzureServiceBusTransport>();
             EnableByDefault<TimeoutManager>();
             AzureServiceBusPersistence.UseAsDefault();
         }
 
-     
+
 
         static bool IsRoleEnvironmentAvailable()
         {
@@ -68,7 +71,7 @@
         {
             var configSection = NServiceBus.Configure.GetConfigSection<AzureServiceBusQueueConfig>();
 
-            ServiceBusEnvironment.SystemConnectivity.Mode =  configSection == null ?  ConnectivityMode.Tcp : (ConnectivityMode)Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
+            ServiceBusEnvironment.SystemConnectivity.Mode = configSection == null ? ConnectivityMode.Tcp : (ConnectivityMode)Enum.Parse(typeof(ConnectivityMode), configSection.ConnectivityMode);
 
             var connectionString = SettingsHolder.Get<string>("NServiceBus.Transport.ConnectionString");
 
@@ -98,19 +101,19 @@
             }
             Address.OverrideDefaultMachine(serviceUri.ToString());
 
-            
+
             NServiceBus.Configure.Instance.Configurer.RegisterSingleton<NamespaceManager>(namespaceClient);
             NServiceBus.Configure.Instance.Configurer.RegisterSingleton<MessagingFactory>(factory);
             NServiceBus.Configure.Component<AzureServiceBusQueueCreator>(DependencyLifecycle.InstancePerCall);
 
             var config = NServiceBus.Configure.Instance;
-          
+
             config.Configurer.ConfigureComponent<AzureServiceBusDequeueStrategy>(DependencyLifecycle.InstancePerCall);
 
             if (configSection == null)
             {
                 //hack: just to get the defaults, we should refactor this to support specifying the values on the NServiceBus/Transport connection string as well
-                configSection = new AzureServiceBusQueueConfig(); 
+                configSection = new AzureServiceBusQueueConfig();
             }
 
             if (!config.Configurer.HasComponent<ISendMessages>())

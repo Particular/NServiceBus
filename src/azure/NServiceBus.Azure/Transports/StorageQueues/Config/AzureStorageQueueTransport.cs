@@ -21,10 +21,12 @@
             EnableByDefault<TimeoutManager>();
             Categories.Serializers.SetDefault<JsonSerialization>();
 
-            if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
+            if (IsRoleEnvironmentAvailable())
             {
-                config.AzureConfigurationSource();
                 EnableByDefault<QueueAutoCreation>();
+
+                if (!IsHostedIn.ChildHostProcess())
+                    config.AzureConfigurationSource();
             }
 
 
