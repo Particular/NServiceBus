@@ -73,21 +73,7 @@ function Add-StartProgramIfNeeded {
 }
 
 function Add-ConfigSettingIfRequired {
-
-	$configFile = $project.ProjectItems | where { $_.Name -eq "App.config" }
-	
-	if($configFile) {
-		return
-	}
-	
-	#Figure out if this machine has error queue configured in registry
-	$nserviceBusKeyPath =  "HKLM:SOFTWARE\ParticularSoftware\ServiceBus" 
-	$regKey = Get-ItemProperty -path $nserviceBusKeyPath -ErrorAction silentlycontinue
-	$errorQueueAddress  = $regKey.psobject.properties | ?{ $_.Name -eq "ErrorQueue" }
-	if($errorQueueAddress.value -eq $null -or $errorQueueAddress.value -eq ""){
-		Add-NServiceBusMessageForwardingInCaseOfFaultConfig $project.Name
-	}
-	
+	Add-NServiceBusMessageForwardingInCaseOfFaultConfig $project.Name
 	Add-NServiceBusUnicastBusConfig $project.Name
 }
 
