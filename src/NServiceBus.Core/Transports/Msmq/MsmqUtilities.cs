@@ -178,10 +178,15 @@ namespace NServiceBus.Transports.Msmq
             var result = new Dictionary<string, string>();
 
             if (m.Extension.Length == 0)
+            {
                 return result;
+            }
 
+            //This is to make us compatible with v3 messages that are affected by this bug:
+            //http://stackoverflow.com/questions/3779690/xml-serialization-appending-the-0-backslash-0-or-null-character
+            var extension = System.Text.Encoding.UTF8.GetString(m.Extension).TrimEnd('\0');
             object o;
-            using (var stream = new MemoryStream(m.Extension))
+            using (var stream = new StringReader(extension))
             {
                 using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
                 {
@@ -199,7 +204,7 @@ namespace NServiceBus.Transports.Msmq
 
             return result;
         }
-
+        
         /// <summary>
         /// Converts a TransportMessage to an Msmq message.
         /// Doesn't set the ResponseQueue of the result.
