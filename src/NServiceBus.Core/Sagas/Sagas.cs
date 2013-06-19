@@ -368,25 +368,40 @@
             }
         }
 
-        static IEnumerable<Type> GetMessageTypesHandledBySaga(Type sagaType)
+        internal static IEnumerable<Type> GetMessageTypesHandledBySaga(Type sagaType)
         {
             return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IHandleMessages<>));
         }
 
-        static IEnumerable<Type> GetMessageTypesThatRequireStartingTheSaga(Type sagaType)
+        internal static IEnumerable<Type> GetMessageTypesThatRequireStartingTheSaga(Type sagaType)
         {
             return GetMessagesCorrespondingToFilterOnSaga(sagaType, typeof(IAmStartedByMessages<>));
         }
 
-        static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
+        internal static IEnumerable<Type> GetMessagesCorrespondingToFilterOnSaga(Type sagaType, Type filter)
         {
-            foreach (Type interfaceType in sagaType.GetInterfaces())
+            foreach (var interfaceType in sagaType.GetInterfaces())
             {
-                Type[] types = interfaceType.GetGenericArguments();
-                foreach (Type arg in types)
-                    if (MessageConventionExtensions.IsMessageType(arg))
-                        if (filter.MakeGenericType(arg) == interfaceType)
-                            yield return arg;
+                var types = interfaceType.GetGenericArguments();
+                foreach (var argument in types)
+                {
+                    var genericType = filter.MakeGenericType(argument);
+                    var isOfFilterType = genericType == interfaceType;
+                    if (!isOfFilterType)
+                    {
+                        continue;
+                    }
+                    if (MessageConventionExtensions.IsMessageType(argument))
+                    {
+                        yield return argument;
+                    }
+                    else
+                    {
+                        var message = string.Format("The saga '{0}' implements '{1}' but the message type '{2}' is not classified as a message. You should either use 'Unobtrusive Mode Messages' or the message should implement either 'IMessage', 'IEvent' or 'ICommand'.", sagaType.FullName, genericType.Name, argument.FullName);
+
+                        throw new Exception(message);
+                    }
+                }
             }
         }
 
