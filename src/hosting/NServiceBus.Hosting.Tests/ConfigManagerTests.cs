@@ -68,7 +68,7 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [Test]
-        public void ShouldNotContainInerfaces()
+        public void ShouldNotContainInterfaces()
         {
             var configManager = new ConfigManager(new List<Assembly> {typeof (ConfigManagerTests).Assembly}, null);
             Assert.AreEqual(0, configManager.toInitialize.Count(x => x.IsInterface));
