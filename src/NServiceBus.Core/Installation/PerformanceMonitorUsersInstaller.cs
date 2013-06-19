@@ -51,7 +51,7 @@ net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
                 var error = process.StandardError.ReadToEnd();
                 if (IsAlreadyAMemberError(error))
                 {
-                    logger.Info(string.Format("Skipped adding user '{0}' to group 'Performance Monitor Users' because the use is already in group.", identity));
+                    logger.Info(string.Format("Skipped adding user '{0}' to group 'Performance Monitor Users' because the user is already in group.", identity));
                     return;
                 }
                 if (IsGroupDoesNotExistError(error))
