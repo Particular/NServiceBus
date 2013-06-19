@@ -57,6 +57,9 @@ LONG DESCRIPTION
   Add-NServiceBusMasterNodeConfig                      Adds the required configuration section to
                                                        the config file.
 
+  Add-NServiceBusNHibernateConfig                      Adds the NHibernate supported config settings 
+                                                       as a comment.
+
   Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
                                                        queues.
 
@@ -102,5 +105,6 @@ SEE ALSO
   Add-NServiceBusSecondLevelRetriesConfig
   Add-NServiceBusLoggingConfig
   Add-NServiceBusMasterNodeConfig
+  Add-NServiceBusNHibernateConfig
   Set-NServiceBusLocalMachineSettings
   Get-NServiceBusLocalMachineSettings

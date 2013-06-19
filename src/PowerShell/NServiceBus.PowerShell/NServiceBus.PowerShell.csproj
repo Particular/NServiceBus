@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddConfigSection.cs" />
+    <Compile Include="AddNHibernateConfig.cs" />
     <Compile Include="AddTransportConfig.cs" />
     <Compile Include="AddUnicastBusConfig.cs" />
     <Compile Include="AddSecondLevelRetriesConfig.cs" />
@@ -86,7 +87,7 @@
     <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.cs.t4">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="RavenResources\*.*" >
+    <EmbeddedResource Include="RavenResources\*.*">
       <Visible>false</Visible>
     </EmbeddedResource>
     <None Include="Examples\Get-Message.ps1" />
