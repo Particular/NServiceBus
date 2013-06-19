@@ -1,7 +1,7 @@
 namespace NServiceBus.SecondLevelRetries.Helpers
 {
     using System;
-    using NServiceBus.Transports.Msmq;
+    using Transports.Msmq;
 
     public static class TransportMessageHelpers
     {
@@ -11,7 +11,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
 
             if (string.IsNullOrEmpty(failedQ))
             {
-                failedQ = MessageHelpers.GetFailedQueueFromLabel(MsmqUtilities.Convert(message));
+                failedQ =Faults.Forwarder. MessageHelpers.GetFailedQueueFromLabel(MsmqUtilities.Convert(message));
             }
 
             if (string.IsNullOrEmpty(failedQ))
