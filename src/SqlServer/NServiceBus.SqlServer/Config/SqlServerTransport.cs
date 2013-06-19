@@ -44,8 +44,6 @@ namespace NServiceBus.Features
             NServiceBus.Configure.Component<SqlServerPollingDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                   .ConfigureProperty(p => p.ConnectionString, connectionString)
                   .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
-
-            EndpointInputQueueCreator.Enabled = true;
         }
 
         static void CustomizeAddress()

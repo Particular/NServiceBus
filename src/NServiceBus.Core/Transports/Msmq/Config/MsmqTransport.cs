@@ -50,8 +50,6 @@
 
             //for backwards compatibility
             SettingsHolder.SetDefault("SerializationSettings.WrapSingleMessages", true);
-
-            EndpointInputQueueCreator.Enabled = true;
         }
 
         protected override string ExampleConnectionStringForErrorMessage

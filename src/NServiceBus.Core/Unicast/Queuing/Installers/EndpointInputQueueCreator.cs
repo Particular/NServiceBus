@@ -2,8 +2,6 @@ namespace NServiceBus.Unicast.Queuing.Installers
 {
     public class EndpointInputQueueCreator : IWantQueueCreated
     {
-        public static bool Enabled { get; set; }
-
         /// <summary>
         /// Endpoint input name
         /// </summary>
@@ -17,7 +15,7 @@ namespace NServiceBus.Unicast.Queuing.Installers
         /// </summary>
         public bool IsDisabled
         {
-            get { return !Enabled; }
+            get { return false; }
         }
     }
 }

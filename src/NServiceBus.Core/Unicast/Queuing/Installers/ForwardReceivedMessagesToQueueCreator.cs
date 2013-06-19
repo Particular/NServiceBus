@@ -14,10 +14,6 @@ namespace NServiceBus.Unicast.Queuing.Installers
         public ForwardReceivedMessagesToQueueCreator()
         {
             disable = true;
-            if (!EndpointInputQueueCreator.Enabled)
-            {
-                return;
-            }
 
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
 

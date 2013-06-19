@@ -57,8 +57,6 @@
             NServiceBus.Configure.Component<ActiveMqPurger>(DependencyLifecycle.SingleInstance);
             NServiceBus.Configure.Component<TransactionScopeFactory>(DependencyLifecycle.SingleInstance);
 
-            EndpointInputQueueCreator.Enabled = true;
-
             NServiceBus.Configure.Component<MessageProcessor>(DependencyLifecycle.InstancePerCall)
               .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
 

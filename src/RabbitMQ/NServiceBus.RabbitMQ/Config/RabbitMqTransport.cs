@@ -42,8 +42,6 @@
 
             InfrastructureServices.Enable<IRoutingTopology>();
             InfrastructureServices.Enable<IManageRabbitMqConnections>();
-
-            EndpointInputQueueCreator.Enabled = true;
         }
 
 
