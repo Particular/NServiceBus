@@ -58,27 +58,20 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                 {
                     if (!senders.TryGetValue(destination, out sender))
                     {
-                        try
-                        {
-                            sender = Factory.CreateQueueClient(destination);
-                            senders[destination] = sender;
-                        }
-                        catch (MessagingEntityNotFoundException)
-                        {
-                            throw new QueueNotFoundException { Queue = Address.Parse(destination) };
-                        }
+                        sender = Factory.CreateQueueClient(destination);
+                        senders[destination] = sender;
                     }
                 }
             }
 
             if (Transaction.Current == null)
-                Send(message, sender);
+                Send(message, sender,address);
             else
-                Transaction.Current.EnlistVolatile(new SendResourceManager(() => Send(message, sender)), EnlistmentOptions.None);
+                Transaction.Current.EnlistVolatile(new SendResourceManager(() => Send(message, sender, address)), EnlistmentOptions.None);
 
         }
 
-        private void Send(TransportMessage message, QueueClient sender)
+        void Send(TransportMessage message, QueueClient sender, Address address)
         {
             var numRetries = 0;
             var sent = false;
@@ -91,7 +84,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
                     {
                         brokeredMessage.CorrelationId = message.CorrelationId;
                         if (message.TimeToBeReceived < TimeSpan.MaxValue) brokeredMessage.TimeToLive = message.TimeToBeReceived;
-                        
+
                         foreach (var header in message.Headers)
                         {
                             brokeredMessage.Properties[header.Key] = header.Value;
@@ -99,14 +92,18 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                         brokeredMessage.Properties[Headers.MessageIntent] = message.MessageIntent.ToString();
                         brokeredMessage.MessageId = message.Id;
-                        if ( message.ReplyToAddress != null )
+                        if (message.ReplyToAddress != null)
                         {
                             brokeredMessage.ReplyTo = message.ReplyToAddress.ToString();
                         }
-                        
+
                         sender.Send(brokeredMessage);
                         sent = true;
                     }
+                }
+                catch (MessagingEntityNotFoundException)
+                {
+                    throw new QueueNotFoundException { Queue = address };
                 }
                 // todo: outbox
                 catch (MessagingEntityDisabledException)
@@ -117,7 +114,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                     Thread.Sleep(TimeSpan.FromSeconds(numRetries * DefaultBackoffTimeInSeconds));
                 }
-                    // back off when we're being throttled
+                // back off when we're being throttled
                 catch (ServerBusyException)
                 {
                     numRetries++;
