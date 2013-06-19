@@ -1,7 +1,6 @@
 namespace NServiceBus.Hosting.Tests
 {
     using System;
-    using System.Diagnostics;
     using Windows;
     using NUnit.Framework;
 
@@ -12,25 +11,12 @@ namespace NServiceBus.Hosting.Tests
         [Test]
         public void PreservedStackTraceShouldInclude()
         {
-            var normalException = Assert.Throws<Exception>(MethodThatReThrowsInnerException);
-            Debug.WriteLine("normalException: " + normalException.StackTrace);
             var preservedException = Assert.Throws<Exception>(MethodThatReThrowsInnerExceptionWithPreserve);
-            Debug.WriteLine("preservedException: " + preservedException.StackTrace);
+            //Debug.WriteLine("preservedException: " + preservedException.StackTrace);
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows2"));
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows1"));
         }
 
-        void MethodThatReThrowsInnerException()
-        {
-            try
-            {
-                MethodThatThrowsWithInnerException();
-            }
-            catch (Exception exception)
-            {
-                throw exception.InnerException;
-            }
-        }
         void MethodThatReThrowsInnerExceptionWithPreserve()
         {
             try

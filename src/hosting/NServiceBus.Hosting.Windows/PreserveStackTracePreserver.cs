@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace NServiceBus.Hosting.Windows
 {
-    public static class PreserveStackTracePreserver
+    static class PreserveStackTracePreserver
     {
         public static void PreserveStackTrace(this Exception e)
         {
