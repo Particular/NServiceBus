@@ -27,7 +27,7 @@
       <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
       <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="AzureSubscriptionStorageConfig.TableName" value="MySubscriptions" />
-      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
       <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
       <Setting name="TransportConfig.MaxRetries" value="5" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Verbose" />
