@@ -36,7 +36,7 @@
 
         protected static T ReadRegistryKeyValue(string keyName, object defaultValue)
         {
-            object value = null;
+            object value;
 
             if (Environment.Is64BitOperatingSystem)
             {
@@ -54,7 +54,7 @@
         {
             using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).OpenSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
-                return key == null ? null : key.GetValue(keyName, defaultValue);
+                return key == null ? defaultValue : key.GetValue(keyName, defaultValue);
             }
         }
     }
