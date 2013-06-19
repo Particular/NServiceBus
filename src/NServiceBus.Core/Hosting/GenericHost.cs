@@ -24,26 +24,16 @@ namespace NServiceBus.Hosting
         /// </summary>
         public void Start()
         {
-            try
-            {
-                PerformConfiguration();
+            PerformConfiguration();
 
-                bus = Configure.Instance.CreateBus();
-                if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
-                {
-                    bus.Start();
-                }
-
-                configManager.Startup();
-                wcfManager.Startup();
-            }
-            catch (Exception ex)
+            bus = Configure.Instance.CreateBus();
+            if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {
-                //we log the error here in order to avoid issues with non serializable exceptions
-                //going across the appdomain back to topshelf
-                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when starting endpoint.", ex);
-                Environment.FailFast("Exception when starting endpoint.", ex);
+                bus.Start();
             }
+
+            configManager.Startup();
+            wcfManager.Startup();
         }
 
         /// <summary>
@@ -51,25 +41,15 @@ namespace NServiceBus.Hosting
         /// </summary>
         public void Stop()
         {
-            try
-            {
-                configManager.Shutdown();
-                wcfManager.Shutdown();
+            configManager.Shutdown();
+            wcfManager.Shutdown();
 
-                if (bus != null)
-                {
-                    bus.Shutdown();
-                    bus.Dispose();
-
-                    bus = null;
-                }
-            }
-            catch (Exception ex)
+            if (bus != null)
             {
-                //we log the error here in order to avoid issues with non serializable exceptions
-                //going across the appdomain back to topshelf
-                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when stopping endpoint.", ex);
-                Environment.FailFast("Exception when stopping endpoint.", ex);
+                bus.Shutdown();
+                bus.Dispose();
+
+                bus = null;
             }
         }
 
