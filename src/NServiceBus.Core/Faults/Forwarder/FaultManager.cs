@@ -2,6 +2,7 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using Logging;
+    using SecondLevelRetries.Helpers;
     using Transports;
     using Unicast.Queuing;
 
@@ -53,7 +54,7 @@ namespace NServiceBus.Faults.Forwarder
                 }
                 else
                 {
-                    var retryAttempt = SecondLevelRetries.Helpers.TransportMessageHelpers.GetNumberOfRetries(message) + 1;
+                    var retryAttempt = TransportMessageHelpers.GetNumberOfRetries(message) + 1;
 
                     Logger.WarnFormat("Message has failed FLR and will be handed over to SLR for retry attempt: {0}, MessageID={1}.", retryAttempt, message.Id);
                 }
@@ -86,8 +87,8 @@ namespace NServiceBus.Faults.Forwarder
             }
 
             // if the reply to address == ErrorQueue and RealErrorQueue is not null, the
-            // SecondLevelRetries sat is running and the error happend within that sat.            
-            return TransportMessageHelpers.GetReplyToAddress(message) == RetriesErrorQueue;
+            // SecondLevelRetries sat is running and the error happened within that sat.            
+            return TransportMessageHelpers.GetAddressOfFaultingEndpoint(message) == RetriesErrorQueue;
         }
 
         void SetExceptionHeaders(TransportMessage message, Exception e)

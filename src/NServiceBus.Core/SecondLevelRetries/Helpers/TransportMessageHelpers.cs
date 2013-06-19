@@ -1,17 +1,19 @@
 namespace NServiceBus.SecondLevelRetries.Helpers
 {
     using System;
+    using Faults;
+    using Faults.Forwarder;
     using Transports.Msmq;
 
     public static class TransportMessageHelpers
     {
         public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
         {
-            var failedQ = GetHeader(message, Faults.FaultsHeaderKeys.FailedQ);
+            var failedQ = GetHeader(message, FaultsHeaderKeys.FailedQ);
 
             if (string.IsNullOrEmpty(failedQ))
             {
-                failedQ =Faults.Forwarder. MessageHelpers.GetFailedQueueFromLabel(MsmqUtilities.Convert(message));
+                failedQ = MessageHelpers.GetFailedQueueFromLabel(MsmqUtilities.Convert(message));
             }
 
             if (string.IsNullOrEmpty(failedQ))
