@@ -131,6 +131,7 @@
     <Compile Include="Timeout\TimeoutLogic\TimeoutPersister.cs" />
     <Compile Include="Transports\ServiceBus\AzureServiceBusQueueCreator.cs" />
     <Compile Include="Transports\StorageQueues\AzureMessageQueueCreator.cs" />
+    <Compile Include="Config\QueueAutoCreation.cs" />
     <Compile Include="Transports\StorageQueues\PollingDequeueStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transports\StorageQueues\AzureMessageQueueReceiver.cs" />

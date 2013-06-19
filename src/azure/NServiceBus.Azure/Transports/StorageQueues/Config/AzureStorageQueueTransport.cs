@@ -24,6 +24,7 @@
             if (IsRoleEnvironmentAvailable() && !IsHostedIn.ChildHostProcess())
             {
                 config.AzureConfigurationSource();
+                EnableByDefault<QueueAutoCreation>();
             }
 
 
