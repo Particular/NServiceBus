@@ -13,7 +13,6 @@
 
     public class DefaultServer : IEndpointSetupTemplate
     {
-
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
         {
             var settings = runDescriptor.Settings;
@@ -23,7 +22,6 @@
             var types = GetTypesToUse(endpointConfiguration);
 
             var transportToUse = settings.GetOrNull("Transport");
-
             
             Configure.Features.Enable<Features.Sagas>();
             SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
@@ -55,15 +53,25 @@
             var assemblies = AssemblyScanner.GetScannableAssemblies();
 
             var types = assemblies.Assemblies
-                                 .SelectMany(a => a.GetTypes())
-                                 .Where(
-                                     t =>
-                                     t.Assembly != Assembly.GetExecutingAssembly() || //exlude all test types by default
-                                     t.DeclaringType == endpointConfiguration.BuilderType.DeclaringType || //but include types on the test level
-                                     t.DeclaringType == endpointConfiguration.BuilderType).ToList(); //and the specific types for this endpoint
-            
+                                    //exclude all test types by default
+                                  .Where(a => a != Assembly.GetExecutingAssembly())
+                                  .SelectMany(a => a.GetTypes());
+
+
+            types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType));
+
             return types.Where(t=>!endpointConfiguration.TypesToExclude.Contains(t)).ToList();
 
+        }
+
+        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType)
+        {
+            yield return rootType;
+
+            foreach (var nestedType in rootType.GetNestedTypes().SelectMany(GetNestedTypeRecursive))
+            {
+                yield return nestedType;
+            }
         }
 
         static void SetupLogging(EndpointConfiguration endpointConfiguration)
