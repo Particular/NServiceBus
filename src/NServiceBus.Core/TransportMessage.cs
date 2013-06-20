@@ -48,7 +48,7 @@ namespace NServiceBus
             if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
             {
                 Headers[NServiceBus.Headers.MessageId] = existingId;
-            } 
+            }
         }
 
         /// <summary>
@@ -95,7 +95,22 @@ namespace NServiceBus
         /// Gets/sets the unique identifier of another message bundle
         /// this message bundle is associated with.
         /// </summary>
-        public string CorrelationId { get; set; }
+        public string CorrelationId
+        {
+            get { 
+                
+                string correlationId;
+
+                if (Headers.TryGetValue(NServiceBus.Headers.CorrelationId, out correlationId))
+                    return correlationId;
+
+                return null;
+            }
+            set
+            {
+                Headers[NServiceBus.Headers.CorrelationId] = value;
+            }
+        }
 
         /// <summary>
         /// Gets/sets the reply-to address of the message bundle - replaces 'ReturnAddress'.
