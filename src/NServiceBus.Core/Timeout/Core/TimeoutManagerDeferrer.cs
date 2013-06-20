@@ -35,7 +35,7 @@
             var controlMessage = ControlMessage.Create(Address.Local);
 
             controlMessage.Headers[headerKey] = headerValue;
-            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = true.ToString();
+            controlMessage.Headers[TimeoutManagerHeaders.ClearTimeouts] = Boolean.TrueString;
 
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }

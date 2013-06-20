@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using BackwardCompatibility;
     using Contexts;
@@ -188,31 +189,203 @@
         public void Should_set_the_newv4_flag()
         {
             var timeoutMessage = Helpers.Helpers.Serialize(new SomeTimeout());
+            var mutator = new SetIsSagaMessageHeaderForV3XMessages
+                {
+                    Bus = new MyBus{CurrentMessageContext = new MessageContext(timeoutMessage)},
+                };
 
+            var headers = new Dictionary<string, string>();
 
-            var mutator = new SetIsSagaMessageHeaderForV3XMessages();
             ExtensionMethods.GetHeaderAction = (o, s) =>
-                {
-                    if(s == TimeoutManagerHeaders.Expire)
-                        return DateTime.UtcNow.ToString();
-                    return "";
-                };
+            {
+                string v;
+                headers.TryGetValue(s, out v);
+                return v;
+            };
 
+            ExtensionMethods.SetHeaderAction = (o, s, v) =>
+            {
+                headers[s] = v;
+            };
 
-            var flagWasSet = false;
-            ExtensionMethods.SetHeaderAction = (o, s, arg3) =>
-                {
-                    if (s == Headers.IsSagaTimeoutMessage)
-                        flagWasSet = true;
+            Headers.SetMessageHeader(timeoutMessage, Headers.NServiceBusVersion, "3.3.8");
+            Headers.SetMessageHeader(timeoutMessage, Headers.SagaId, "ded93a22-1e4b-466a-818f-a1e300cfb9d6");
+            Headers.SetMessageHeader(timeoutMessage, TimeoutManagerHeaders.Expire, "2013-06-20 03:41:00:188412 Z");
 
-                };
             mutator.MutateIncoming(timeoutMessage);
 
-            Assert.True(flagWasSet,"The message should be marked a saga timeoutmessage");
+            Assert.True(timeoutMessage.Headers.ContainsKey(Headers.IsSagaTimeoutMessage));
+            Assert.AreEqual(Boolean.TrueString, timeoutMessage.Headers[Headers.IsSagaTimeoutMessage]);
+        }
+
+        class MyBus: IBus
+        {
+            public T CreateInstance<T>()
+            {
+                throw new NotImplementedException();
+            }
+
+            public T CreateInstance<T>(Action<T> action)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object CreateInstance(Type messageType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Publish<T>(params T[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Publish<T>(Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Subscribe(Type messageType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Subscribe<T>()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Subscribe(Type messageType, Predicate<object> condition)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Subscribe<T>(Predicate<T> condition)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Unsubscribe(Type messageType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Unsubscribe<T>()
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback SendLocal(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback SendLocal<T>(Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send<T>(Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(string destination, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send<T>(string destination, Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send<T>(Address address, Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(string destination, string correlationId, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, string correlationId, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Defer(TimeSpan delay, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Defer(DateTime processAt, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Reply(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Reply<T>(Action<T> messageConstructor)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Return<T>(T errorEnum)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void HandleCurrentMessageLater()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void ForwardCurrentMessageTo(string destination)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void DoNotContinueDispatchingCurrentMessageToHandlers()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IDictionary<string, string> OutgoingHeaders { get; private set; }
+            public IMessageContext CurrentMessageContext { get; set; }
+            public IInMemoryOperations InMemory { get; private set; }
         }
 
         class SomeTimeout{}
-
     }
 
 
