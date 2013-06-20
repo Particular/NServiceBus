@@ -127,7 +127,7 @@
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
     <Compile Include="Settings\SerializationSettings.cs" />
-    <Compile Include="Unicast\BackwardCompatibility\AssignIdForCorrelationToCorrelationIdOfOutgoingTransportMessages.cs" />
+    <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
