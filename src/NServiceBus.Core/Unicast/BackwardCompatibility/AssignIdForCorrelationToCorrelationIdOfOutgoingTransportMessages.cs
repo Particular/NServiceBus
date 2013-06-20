@@ -6,7 +6,10 @@
     {
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers["CorrId"] = transportMessage.CorrelationId;
+            if (transportMessage.Headers.ContainsKey("CorrId") == false)
+            {
+                transportMessage.Headers["CorrId"] = transportMessage.CorrelationId;
+            }
         }
 
         public void Init()
