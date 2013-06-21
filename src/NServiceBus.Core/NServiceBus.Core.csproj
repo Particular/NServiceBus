@@ -401,7 +401,7 @@
     <Compile Include="Sagas\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
-    <Compile Include="Satellites\SatelitesQueuesCreator.cs" />
+    <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
     <Compile Include="Satellites\SatelliteLauncher.cs" />
     <Compile Include="Schedule.cs" />
     <Compile Include="Scheduling\Configuration\ConfigureScheduledTaskAsSystemMessages.cs" />

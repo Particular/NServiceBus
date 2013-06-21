@@ -9,7 +9,7 @@ namespace NServiceBus.Satellites
     /// <summary>
     /// Responsible to create a queue, using the registered ICreateQueues for each satellite
     /// </summary>
-    public class SatelitesQueuesCreator : INeedToInstallSomething<Windows>
+    public class SatellitesQueuesCreator : INeedToInstallSomething<Windows>
     {
         public ICreateQueues QueueCreator { get; set; }
         
