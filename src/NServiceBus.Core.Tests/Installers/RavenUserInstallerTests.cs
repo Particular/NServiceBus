@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
     using System;
-    using Installation;
+    using NServiceBus.Persistence.Raven;
     using NUnit.Framework;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
@@ -10,31 +10,32 @@
     public class RavenUserInstallerTests
     {
         [Test]
-        [Explicit]
-        //this will edit your current installed RavenDB
+        [Explicit("this will edit your current installed RavenDB")]
         public void Integration()
         {
             using (var documentStore = new DocumentStore
                                        {
-                                           Url = "http://localhost:8080"
+                                           Url = "http://localhost:8080",
+                                           DefaultDatabase = "Test"
                                        })
             {
                 documentStore.Initialize();
-                var identity = Environment.MachineName + @"\nsbtest";
-                RavenUserInstaller.AddUserToDatabase(identity, documentStore, "Test");
+
+                var identity = Environment.MachineName + @"\Test";
+                RavenUserInstaller.AddUserToDatabase(identity, documentStore);
             }
         }
 
         [Test]
-        public void EndureUserIsAddedToWindowsSettings()
+        public void EnsureUserIsAddedToWindowsSettings()
         {
             using (var documentStore = new EmbeddableDocumentStore
                                        {
-                                           RunInMemory = true
+                                           RunInMemory = true,
                                        })
             {
                 documentStore.Initialize();
-                RavenUserInstaller.AddUserToDatabase(@"domain\user", documentStore, "FakeDatabase");
+                RavenUserInstaller.AddUserToDatabase(@"domain\user", documentStore);
                 var systemCommands = documentStore
                     .DatabaseCommands
                     .ForSystemDatabase();
@@ -50,7 +51,7 @@
         {
           ""Admin"": true,
           ""ReadOnly"": false,
-          ""TenantId"": ""FakeDatabase""
+          ""TenantId"": ""<system>""
         }
       ]
     }

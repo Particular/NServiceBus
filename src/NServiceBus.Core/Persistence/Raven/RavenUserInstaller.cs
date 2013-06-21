@@ -1,33 +1,43 @@
-namespace NServiceBus.Installation
+namespace NServiceBus.Persistence.Raven
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Environments;
-    using Persistence.Raven;
-    using Raven.Abstractions.Extensions;
-    using Raven.Client;
-    using Raven.Json.Linq;
-    using Logging;
+    using Installation;
+    using NServiceBus.Installation.Environments;
+    using NServiceBus.Logging;
+    using global::Raven.Abstractions.Extensions;
+    using global::Raven.Client.Document;
+    using global::Raven.Json.Linq;
 
     /// <summary>
     /// Add the identity to the Raven users group 
     /// </summary>
     public class RavenUserInstaller : INeedToInstallSomething<Windows>
     {
-
-        static ILog logger = LogManager.GetLogger(typeof(RavenUserInstaller));
+        static readonly ILog logger = LogManager.GetLogger(typeof(RavenUserInstaller));
 
         public StoreAccessor StoreAccessor { get; set; }
 
+        internal static bool RunInstaller { get; set; }
+
         public void Install(string identity)
         {
-            var store = StoreAccessor.Store;
-            var dbName = Configure.EndpointName;
-            logger.InfoFormat(string.Format("Adding user '{0}' to raven. Instance:'{1}', Database:'{2}'.", identity, store.Url, dbName));
+            if (!RunInstaller)
+            {
+                return;
+            }
+
+            var store = StoreAccessor.Store as DocumentStore;
+
+            if (store == null)
+            {
+                return;
+            }
+
             try
             {
-                AddUserToDatabase(identity, store, dbName);
+                AddUserToDatabase(identity, store);
             }
             catch (Exception exception)
             {
@@ -35,8 +45,12 @@ namespace NServiceBus.Installation
             }
         }
 
-        internal static void AddUserToDatabase(string identity, IDocumentStore documentStore, string databaseName)
+        internal static void AddUserToDatabase(string identity, DocumentStore documentStore)
         {
+            var database = documentStore.DefaultDatabase ?? "<system>";
+
+            logger.InfoFormat(string.Format("Adding user '{0}' to raven. Instance:'{1}', Database:'{2}'.", identity, documentStore.Url, database));
+
             var systemCommands = documentStore
                 .DatabaseCommands
                 .ForSystemDatabase();
@@ -53,7 +67,7 @@ namespace NServiceBus.Installation
                     .DataAsJson
                     .JsonDeserialization<WindowsAuthDocument>();
             }
-            AddOrUpdateAuthUser(windowsAuthDocument, identity, databaseName);
+            AddOrUpdateAuthUser(windowsAuthDocument, identity, database);
 
             var ravenJObject = RavenJObject.FromObject(windowsAuthDocument);
 
