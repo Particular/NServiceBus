@@ -56,12 +56,11 @@
       ]
     }
   ]
-}";
-                var actual = existing.DataAsJson.ToString();
+}".Replace("\r", String.Empty);
+
+                var actual = existing.DataAsJson.ToString().Replace("\r", String.Empty);
                 Assert.AreEqual(expected, actual);
             }
-
         }
     }
-
 }
