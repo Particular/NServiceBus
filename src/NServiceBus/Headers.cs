@@ -63,10 +63,14 @@
 
         /// <summary>
         /// Header containing a stable message id for a message.
-        /// This header is considered an applicative header.
         /// </summary>
         public const string MessageId = "NServiceBus.MessageId";
 
+        /// <summary>
+        /// Header containing a correlation id for a message.
+        /// </summary>
+        public const string CorrelationId = "NServiceBus.CorrelationId";
+        
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>

@@ -9,6 +9,7 @@ namespace NServiceBus.Transports.Msmq
     using System.Net.NetworkInformation;
     using System.Xml;
     using System.Xml.Serialization;
+    using Logging;
 
     ///<summary>
     /// MSMQ-related utility functions
@@ -163,13 +164,14 @@ namespace NServiceBus.Transports.Msmq
         {
             string correlationId;
 
-            if (headers.TryGetValue(CorrelationIdHeader, out correlationId))
+            if (headers.TryGetValue(Headers.CorrelationId, out correlationId))
                 return correlationId;
 
             if (message.CorrelationId == "00000000-0000-0000-0000-000000000000\\0")
                 return null;
 
             //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
+            //The replace can be removed in v5 since only v3 messages will need this
             return message.CorrelationId.Replace("\\0", "");
         }
 
@@ -204,7 +206,7 @@ namespace NServiceBus.Transports.Msmq
 
             return result;
         }
-        
+
         /// <summary>
         /// Converts a TransportMessage to an Msmq message.
         /// Doesn't set the ResponseQueue of the result.
@@ -220,19 +222,8 @@ namespace NServiceBus.Transports.Msmq
                 result.BodyStream = new MemoryStream(message.Body);
             }
 
-            Guid correlationId;
 
-            if (Guid.TryParse(message.CorrelationId, out correlationId))
-            {
-                result.CorrelationId = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
-            }
-            else
-            {
-                if (!message.Headers.ContainsKey(CorrelationIdHeader))
-                {
-                    message.Headers[CorrelationIdHeader] = message.CorrelationId;
-                }
-            }
+            AssignMsmqNativeCorrelationId(message, result);
 
             result.Recoverable = message.Recoverable;
 
@@ -252,12 +243,51 @@ namespace NServiceBus.Transports.Msmq
             return result;
         }
 
-        private const string DIRECTPREFIX = "DIRECT=OS:";
-        private static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
-        private static readonly string CorrelationIdHeader = "NServiceBus.CorrelationId";
-        private readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
-        private static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-        private static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        static void AssignMsmqNativeCorrelationId(TransportMessage message, Message result)
+        {
+
+            if (string.IsNullOrEmpty(message.CorrelationId))
+            {
+                return;
+            }
+
+            Guid correlationId;
+
+            if (Guid.TryParse(message.CorrelationId, out correlationId))
+            {
+                //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+                result.CorrelationId = message.CorrelationId + "\\0";
+                return;
+            }
+
+            try
+            {
+                if (message.CorrelationId.Contains("\\"))
+                {
+                    var parts = message.CorrelationId.Split('\\');
+
+                    int number;
+
+                    if (parts.Count() == 2 && Guid.TryParse(parts.First(), out correlationId) &&
+                        int.TryParse(parts[1], out number))
+                    {
+                        result.CorrelationId = message.CorrelationId;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to assign a native correlation id for message: " + message.Id, ex);
+            }
+        }
+
+        const string DIRECTPREFIX = "DIRECT=OS:";
+        static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
+        readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
+        static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
+        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         internal const string PRIVATE = "\\private$\\";
+        static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
     }
 }

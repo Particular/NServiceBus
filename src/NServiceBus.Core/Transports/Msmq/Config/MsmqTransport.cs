@@ -6,12 +6,12 @@
     using Transports;
     using Transports.Msmq;
     using Transports.Msmq.Config;
-    using Unicast.Queuing.Installers;
 
     public class MsmqTransport:ConfigureTransport<Msmq>
     {
         public override void Initialize()
         {
+            NServiceBus.Configure.Component<CorrelationIdMutatorForBackwardsCompatibilityWithV3>(DependencyLifecycle.InstancePerCall);
             NServiceBus.Configure.Component<MsmqUnitOfWork>(DependencyLifecycle.SingleInstance);
             NServiceBus.Configure.Component<MsmqDequeueStrategy>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(p => p.PurgeOnStartup, ConfigurePurging.PurgeRequested);
