@@ -61,14 +61,13 @@
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType));
 
             return types.Where(t=>!endpointConfiguration.TypesToExclude.Contains(t)).ToList();
-
         }
 
         static IEnumerable<Type> GetNestedTypeRecursive(Type rootType)
         {
             yield return rootType;
 
-            foreach (var nestedType in rootType.GetNestedTypes().SelectMany(GetNestedTypeRecursive))
+            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(GetNestedTypeRecursive))
             {
                 yield return nestedType;
             }
