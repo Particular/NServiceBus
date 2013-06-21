@@ -81,19 +81,9 @@ namespace NServiceBus.Satellites
 
         void HandleMessageReceived(object sender, TransportMessageReceivedEventArgs e, ISatellite satellite)
         {
-            try
+            if (!satellite.Handle(e.Message))
             {
-                if (!satellite.Handle(e.Message))
-                {
-                    ((ITransport) sender).AbortHandlingCurrentMessage();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(
-                    string.Format("{0} satellite could not handle message.", satellite.GetType().AssemblyQualifiedName),
-                    ex);
-                throw;
+                ((ITransport) sender).AbortHandlingCurrentMessage();
             }
         }
 
