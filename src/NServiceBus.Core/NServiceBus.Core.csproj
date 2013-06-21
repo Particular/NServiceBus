@@ -99,6 +99,7 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
@@ -148,7 +149,7 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenPersistence.cs" />
+    <Compile Include="Persistence\Raven\ConfigureRavenPersistence.cs" />
     <Compile Include="Persistence\Raven\SagaPersister\ConfigureRavenSagaPersister.cs" />
     <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
@@ -290,7 +291,7 @@
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
     <Compile Include="Hosting\IHost.cs" />
-    <Compile Include="Hosting\InternalsVisibleTo.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="Hosting\Profiles\IHandleProfile.cs" />
     <Compile Include="Hosting\Profiles\IProfile.cs" />
     <Compile Include="Hosting\Profiles\ProfileActivator.cs" />

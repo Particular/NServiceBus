@@ -17,7 +17,6 @@ namespace NServiceBus
     using Saga;
     using Settings;
     using Timeout.Core;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using ILogManager = Raven.Abstractions.Logging.ILogManager;
 
@@ -196,6 +195,8 @@ namespace NServiceBus
 
             Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
 
+            RavenUserInstaller.RunInstaller = true;
+
             return config;
         }
 
@@ -258,7 +259,7 @@ namespace NServiceBus
         static void VerifyConnectionToRavenDBServer(IDocumentStore store)
         {
             RavenBuildInfo ravenBuildInfo = null;
-            bool connectionSuccessfull = false;
+            bool connectionSuccessful = false;
             Exception exception = null;
             try
             {
@@ -283,14 +284,14 @@ namespace NServiceBus
                         ravenBuildInfo = JsonConvert.DeserializeObject<RavenBuildInfo>(reader.ReadToEnd());
                     }
 
-                    connectionSuccessfull = true;
+                    connectionSuccessful = true;
                 }
             }
             catch (Exception ex)
             {
                 exception = ex;
             }
-               if (!connectionSuccessfull)
+               if (!connectionSuccessful)
             {
                 ShowUncontactableRavenWarning(store,exception);
                 return;
@@ -330,7 +331,7 @@ sb.AppendLine("Reason: " + exception);
         const string WrongRavenVersionMessage =
 @"The RavenDB server you have specified is detected to be {0}. NServiceBus requires RavenDB version 2 or higher to operate correctly. Please update your RavenDB server.
 
-Futher instructions can be found at:http://particular.net/articles/using-ravendb-in-nservicebus-installing";
+Further instructions can be found at:http://particular.net/articles/using-ravendb-in-nservicebus-installing";
 
         class NoOpLogManager : ILogManager
         {
