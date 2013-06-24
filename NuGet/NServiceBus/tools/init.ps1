@@ -50,6 +50,9 @@ try {
 } Catch [System.Security.SecurityException] { }
 try {
 	$ravenDBInstalled = Test-NServiceBusRavenDBInstallation
+	if(!$ravenDBInstalled) {
+		$ravenDBInstalled = Test-NServiceBusRavenDBInstallation -Port 8081
+	}
 } Catch [System.Security.SecurityException] { }
 
 if(!$perfCountersInstalled){
@@ -62,7 +65,7 @@ if(!$dtcInstalled){
 	Write-Warning "DTC is not installed or started."
 }
 if(!$ravenDBInstalled){
-	Write-Warning "RavenDB is not installed."
+	Write-Warning "RavenDB is not installed. We checked port 8080 and 8081."
 }
 
 if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBInstalled){
