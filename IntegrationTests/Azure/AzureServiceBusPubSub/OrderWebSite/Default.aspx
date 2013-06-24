@@ -13,7 +13,7 @@
         <asp:Button ID="btnSubmit" runat="server" OnClick="btnSubmit_Click" Text="Submit Order"  />
     </div>
     <div>
-        Entering a value above 100 will require manager approval (extends the delay 10 seconds) <br />
+        Entering a value above 100 will require manager approval<br />
         Refresh the page after submitting orders (would of course use Ajax for this in production :) )
     </div>
         <a href="Default.aspx">Click here to refresh orderlist</a>
