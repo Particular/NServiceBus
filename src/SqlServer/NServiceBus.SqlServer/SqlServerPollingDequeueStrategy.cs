@@ -212,6 +212,7 @@
                     if (tryProcessMessage(message))
                     {
                         scope.Complete();
+                        scope.Dispose(); // We explicitly calling Dispose so that we force any exception to not bubble, eg Concurrency/Deadlock exception.
                     }
                 }
                 catch (Exception ex)
@@ -221,7 +222,6 @@
 
                 return result;
             }
-
         }
 
         ReceiveResult TryReceiveWithNativeTransaction()
