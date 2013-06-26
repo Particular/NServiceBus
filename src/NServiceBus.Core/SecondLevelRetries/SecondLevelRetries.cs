@@ -1,3 +1,19 @@
+namespace NServiceBus.Management.Retries
+{
+    using System;
+    using Settings;
+
+    public class SecondLevelRetries
+    {
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.SecondLevelRetries(s => s.CustomRetryPolicy())")]
+        public static Func<TransportMessage, TimeSpan> RetryPolicy
+        {
+            get { return SettingsHolder.Get("SecondLevelRetries.RetryPolicy") as Func<TransportMessage, TimeSpan>; }
+            set { SettingsHolder.Set("SecondLevelRetries.RetryPolicy", value); }
+        }
+    }
+}
+
 namespace NServiceBus.Features
 {
     using System;
@@ -5,6 +21,8 @@ namespace NServiceBus.Features
     using Faults.Forwarder;
     using NServiceBus.SecondLevelRetries;
     using Settings;
+
+    
 
     public class SecondLevelRetries : Feature
     {

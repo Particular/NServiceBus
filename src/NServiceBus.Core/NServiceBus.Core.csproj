@@ -543,7 +543,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="SecondLevelRetries\Retries\" />
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>

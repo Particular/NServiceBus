@@ -1,10 +1,9 @@
-﻿using System;
-using NUnit.Framework;
-
-namespace NServiceBus.Management.Retries.Tests
+﻿namespace NServiceBus.Management.Retries.Tests
 {
-    using SecondLevelRetries;
-    using SecondLevelRetries.Helpers;
+    using System;
+    using NServiceBus.SecondLevelRetries;
+    using NServiceBus.SecondLevelRetries.Helpers;
+    using NUnit.Framework;
 
     [TestFixture]
     public class DefaultRetryPolicyTests

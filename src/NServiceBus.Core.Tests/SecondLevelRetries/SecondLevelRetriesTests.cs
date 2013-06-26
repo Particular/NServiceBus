@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
-
-namespace NServiceBus.Management.Retries.Tests
+﻿namespace NServiceBus.Management.Retries.Tests
 {
+    using System;
     using Faults.Forwarder;
-    using SecondLevelRetries;
-    using SecondLevelRetries.Helpers;
+    using NServiceBus.SecondLevelRetries;
+    using NServiceBus.SecondLevelRetries.Helpers;
+    using NUnit.Framework;
     using Transports;
 
     [TestFixture]
