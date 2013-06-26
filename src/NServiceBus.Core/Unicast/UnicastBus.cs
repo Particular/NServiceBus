@@ -1156,6 +1156,9 @@ namespace NServiceBus.Unicast
             if (msg.CorrelationId == null)
                 return false;
 
+            if (msg.CorrelationId == msg.Id) //to make sure that we don't fire callbacks when doing send locals
+                return false;
+
             BusAsyncResult busAsyncResult;
 
             lock (messageIdToAsyncResultLookup)

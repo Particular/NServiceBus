@@ -10,10 +10,10 @@ namespace Messages
     /// values is to host the service and inspect the auto-generated
     /// WSDL by appending ?wsdl to the URL of the service.
     /// </summary>
-    [ServiceContract]
+    [ServiceContract(Namespace = "http://nservicebus.com")]
     public interface ICancelOrderService
     {
-        [OperationContract(Action = "http://tempuri.org/IWcfServiceOf_CancelOrder_ErrorCodes/Process", ReplyAction = "http://tempuri.org/IWcfServiceOf_CancelOrder_ErrorCodes/ProcessResponse")]
+        [OperationContract(Action = "http://nservicebus.com/IWcfServiceOf_CancelOrder_ErrorCodes/Process", ReplyAction = "http://nservicebus.com/IWcfServiceOf_CancelOrder_ErrorCodes/ProcessResponse")]
         ErrorCodes Process(CancelOrder request);
     }
 }
