@@ -477,8 +477,8 @@
     <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
-    <Compile Include="Unicast\Messages\DefaultMessageRegistry.cs" />
-    <Compile Include="Unicast\Messages\IMessageRegistry.cs" />
+    <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
+    <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Unicast\MessagingBestPractices.cs" />
     <Compile Include="Unicast\Monitoring\CriticalTimeCalculator.cs" />
     <Compile Include="Unicast\Monitoring\EstimatedTimeToSLABreachCalculator.cs" />

@@ -1,14 +1,12 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Security.Principal;
     using System.Text;
@@ -23,9 +21,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Queuing;
     using Routing;
-    using Saga;
     using Serialization;
-    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
@@ -134,7 +130,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The registry of all known messages for this endpoint
         /// </summary>
-        public IMessageRegistry MessageRegistry { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
 
         /// <summary>
@@ -1053,7 +1049,7 @@ namespace NServiceBus.Unicast
             try
             {
 
-                var messageMetadata = MessageRegistry.GetMessageTypes(m);
+                var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
 
                 using (var stream = new MemoryStream(m.Body))
@@ -1371,7 +1367,7 @@ namespace NServiceBus.Unicast
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
 
-            var messageDefinitions = rawMessages.Select(m => MessageRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
+            var messageDefinitions = rawMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
 
             result.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
             result.Recoverable = messageDefinitions.Any(md => md.Recoverable);
