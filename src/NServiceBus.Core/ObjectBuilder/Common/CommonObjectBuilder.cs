@@ -186,6 +186,11 @@ namespace NServiceBus.ObjectBuilder.Common
             return Container.BuildAll(typeToBuild);
         }
 
+        void IBuilder.Release(object instance)
+        {
+            Container.Release(instance);
+        }
+
         IEnumerable<T> IBuilder.BuildAll<T>()
         {
             foreach (T element in Container.BuildAll(typeof(T)))

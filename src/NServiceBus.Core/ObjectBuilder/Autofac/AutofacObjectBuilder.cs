@@ -164,6 +164,10 @@ namespace NServiceBus.ObjectBuilder.Autofac
             return container.IsRegistered(componentType);
         }
 
+        public void Release(object instance)
+        {
+        }
+
         ///<summary>
         /// Set a property value on an instance using reflection
         ///</summary>

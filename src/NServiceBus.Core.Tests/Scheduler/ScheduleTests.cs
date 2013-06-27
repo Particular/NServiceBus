@@ -1,11 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using NUnit.Framework;
-
-namespace NServiceBus.Scheduling.Tests
+﻿namespace NServiceBus.Scheduling.Tests
 {
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using NUnit.Framework;
     using System.Threading.Tasks;
+    using Core.Tests;
+    using Core.Tests.Fakes;
 
     [TestFixture]
     public class ScheduleTests

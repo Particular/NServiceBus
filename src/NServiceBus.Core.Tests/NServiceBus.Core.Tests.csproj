@@ -104,6 +104,7 @@
     <Compile Include="Encryption\Issue_949.cs" />
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
+    <Compile Include="Fakes\FakeBus.cs" />
     <Compile Include="Fakes\FakeTransport.cs" />
     <Compile Include="Features\FeatureCategories.cs" />
     <Compile Include="FuncBuilder.cs" />
@@ -163,6 +164,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
+    <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
+    <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
+    <Compile Include="Scheduler\ScheduleTests.cs" />
     <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
     <Compile Include="SecondLevelRetries\SecondLevelRetriesTests.cs" />
     <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
@@ -209,7 +213,6 @@
     <Compile Include="Unicast\DeferedMessages.cs" />
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Unicast\Helpers\FakeTransport.cs" />
-    <Compile Include="Unicast\Helpers\FuncBuilder.cs" />
     <Compile Include="Unicast\Helpers\Helpers.cs" />
     <Compile Include="Unicast\Helpers\MessageHeaderManager.cs" />
     <Compile Include="Unicast\MessageModules.cs" />

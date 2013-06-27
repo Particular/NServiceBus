@@ -99,6 +99,7 @@
   <ItemGroup>
     <Compile Include="BuilderFixture.cs" />
     <Compile Include="When_disposing_the_builder.cs" />
+    <Compile Include="When_releasing_components.cs" />
     <Compile Include="When_using_nested_containers.cs" />
     <Compile Include="When_building_components.cs" />
     <Compile Include="When_querying_for_registered_components.cs" />

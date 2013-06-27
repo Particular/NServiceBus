@@ -8,6 +8,7 @@
     public class FuncBuilder : IBuilder
     {
         readonly IList<Tuple<Type, Func<object>>> funcs = new List<Tuple<Type, Func<object>>>();
+
         public void Dispose()
         {
 
@@ -70,6 +71,11 @@
             return funcs.Where(f => f.Item1 == typeToBuild)
                 .Select(f => f.Item2())
                 .ToList();
+        }
+
+        public void Release(object instance)
+        {
+            
         }
 
         public void BuildAndDispatch(Type typeToBuild, Action<object> action)

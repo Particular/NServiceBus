@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
+    using Core.Tests;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
@@ -16,7 +17,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Routing;
     using Serializers.XML;
     using Settings;
-    using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Timeout;
