@@ -50,12 +50,12 @@ namespace NServiceBus.Hosting.Profiles
         /// Returns an object to configure logging based on the specification and profiles passed in.
         /// </summary>
         /// <returns></returns>
-        public IConfigureLogging GetLoggingConfigurer()
+        public IEnumerable<IConfigureLogging> GetLoggingConfigurer()
         {
             return GetImplementor<IConfigureLogging>(typeof(IConfigureLoggingForProfile<>));
         }
 
-        private T GetImplementor<T>(Type openGenericType) where T : class
+        internal IEnumerable<T> GetImplementor<T>(Type openGenericType) where T : class
         {
             var options = new List<Type>();
             foreach (var a in assembliesToScan)
@@ -64,23 +64,27 @@ namespace NServiceBus.Hosting.Profiles
                         options.Add(t);
 
             return FindConfigurer<T>(options, list =>
-                                              activeProfiles.Select(ap => FindConfigurerForProfile(openGenericType, ap, list)).Where(t => t != null)
+                                              activeProfiles.Select(ap => FindConfigurerForProfile(openGenericType, ap, list.ToList())).Where(t => t != null)
                 );
         }
 
-        private T FindConfigurer<T>(IEnumerable<Type> options, Func<IEnumerable<Type>, IEnumerable<Type>> filter) where T : class
+        private IEnumerable<T> FindConfigurer<T>(List<Type> options, Func<IEnumerable<Type>, IEnumerable<Type>> filter) where T : class
         {
             var myOptions = new List<Type>(filter(options));
 
             if (myOptions.Count == 0)
-                throw new ConfigurationErrorsException("Could not find a class which implements " + typeof(T).Name + ". If you've specified your own profile, try implementing " + typeof(T).Name + "ForProfile<T> for your profile.");
-            if (myOptions.Count > 1)
-                throw new ConfigurationErrorsException("Can not have more than one class configured which implements " + typeof(T).Name + ". Implementors found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
+            {
+                var message = string.Format("Could not find a class which implements '{0}'. If you've specified your own profile, try implementing '{0}ForProfile<T>' for your profile.", typeof(T).Name);
+                throw new ConfigurationErrorsException(message);
+            }
 
-            return Activator.CreateInstance(myOptions[0]) as T;
+            foreach (var option in myOptions)
+            {
+                yield return (T)Activator.CreateInstance(option);
+            }
         }
 
-        private Type FindConfigurerForProfile(Type openGenericType, Type profile, IEnumerable<Type> options)
+        private Type FindConfigurerForProfile(Type openGenericType, Type profile, List<Type> options)
         {
             if (profile == typeof(object) || profile == null) return null;
 
