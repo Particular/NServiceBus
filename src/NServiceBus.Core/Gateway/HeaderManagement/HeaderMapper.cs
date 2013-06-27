@@ -3,6 +3,7 @@ namespace NServiceBus.Gateway.HeaderManagement
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Transports.Msmq;
 
     public class HeaderMapper
     {
@@ -38,7 +39,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             {
                 if (header.Contains(NServiceBus + Headers.HeaderName))
                 {
-                    result.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", ""),from[header]);
+                    result.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", String.Empty),from[header]);
                 }
             }
 
@@ -48,17 +49,42 @@ namespace NServiceBus.Gateway.HeaderManagement
         public static void Map(TransportMessage from, IDictionary<string,string> to)
         {
             to[NServiceBus + Id] = from.Id;
-            to[NServiceBus + CorrelationId] = from.CorrelationId;
+            to[NServiceBus + CorrelationId] = GetCorrelationForBackwardsCompatibility(from);
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
-
             to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
-         
+
+            SetBackwardsCompatibilityHeaders(from, to);
+
             if (from.Headers.ContainsKey(ReplyToAddress))
                 to[Headers.RouteTo] = from.Headers[ReplyToAddress];
 
             from.Headers.ToList()
                 .ForEach(header =>to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        static void SetBackwardsCompatibilityHeaders(TransportMessage from, IDictionary<string, string> to)
+        {
+            to[NServiceBus + IdForCorrelation] = from.Headers[CorrIdHeader];
+        }
+
+        [ObsoleteEx(Message = "No need for this in v5", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
+        {
+            var correlationIdToStore = message.CorrelationId;
+
+            if (Configure.HasComponent<MsmqMessageSender>())
+            {
+                Guid correlationId;
+
+                if (Guid.TryParse(message.CorrelationId, out correlationId))
+                {
+                    correlationIdToStore = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+                }
+            }
+
+            return correlationIdToStore;
         }
 
         public const string NServiceBus = "NServiceBus.";
@@ -68,5 +94,8 @@ namespace NServiceBus.Gateway.HeaderManagement
         const string Recoverable = "Recoverable";
         const string ReplyToAddress = "ReplyToAddress";
         const string TimeToBeReceived = "TimeToBeReceived";
+
+        const string CorrIdHeader = "CorrId";
+        const string IdForCorrelation = "IdForCorrelation";
     }
 }
