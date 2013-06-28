@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     /// <summary>
-    /// Represent the various lifecycles available for coponents configured in the container
+    /// Represent the various lifecycles available for components configured in the container.
     /// </summary>
     public enum DependencyLifecycle
     {
