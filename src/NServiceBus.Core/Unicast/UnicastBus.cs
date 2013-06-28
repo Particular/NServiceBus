@@ -1332,6 +1332,8 @@ namespace NServiceBus.Unicast
             if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
                 return;
 
+            m.RevertToOriginalBodyIfNeeded();
+
             var toSend = new TransportMessage(m.Id,m.Headers)
                              {
                                  Body = m.Body,
