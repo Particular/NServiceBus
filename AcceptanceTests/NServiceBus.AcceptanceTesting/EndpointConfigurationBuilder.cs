@@ -12,6 +12,13 @@
             configuration.EndpointMappings = new Dictionary<Type, Type>();
         }
 
+
+        public EndpointConfigurationBuilder AuditTo<T>()
+        {
+            configuration.AuditEndpoint = typeof(T);
+
+            return this;
+        }
         public EndpointConfigurationBuilder AuditTo(Address addressOfAuditQueue)
         {
             configuration.AddressOfAuditQueue = addressOfAuditQueue;
