@@ -2,19 +2,19 @@ namespace VideoStore.ECommerce
 {
     using System.Web.Mvc;
     using System.Web.Routing;
-    using Injection;
     using NServiceBus;
     using log4net.Appender;
     using log4net.Core;
 
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static IBus bus;
+
         protected void Application_Start()
         {
-            Configure.With()
+            bus = Configure.With()
                      .DefaultBuilder()
                      .Log4Net(new DebugAppender {Threshold = Level.Warn})
-                     .ModifyMvcAndSignalRToUseOurContainer()
                      .UseTransport<Msmq>()
                      .PurgeOnStartup(true)
                      .UnicastBus()
@@ -27,6 +27,11 @@ namespace VideoStore.ECommerce
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+        }
+
+        public static IBus Bus
+        {
+            get { return bus; }
         }
     }
 }

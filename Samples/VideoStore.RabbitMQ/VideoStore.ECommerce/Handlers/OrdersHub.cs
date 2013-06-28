@@ -8,13 +8,7 @@
 
     public class OrdersHub : Hub
     {
-        private readonly IBus bus;
         private static int orderNumber;
-
-        public OrdersHub(IBus bus)
-        {
-            this.bus = bus;
-        }
 
         public void CancelOrder(int orderNumber)
         {
@@ -24,9 +18,9 @@
                 OrderNumber = orderNumber
             };
 
-            bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
+            MvcApplication.Bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
 
-            bus.Send(command);
+            MvcApplication.Bus.Send(command);
         }
 
         public void PlaceOrder(string[] videoIds)
@@ -45,9 +39,9 @@
                 EncryptedExpirationDate = "10/13" // This property will be encrypted.
             };
 
-            bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
+            MvcApplication.Bus.SetMessageHeader(command, "Debug", ((bool)Clients.Caller.debug).ToString());
 
-            bus.Send(command);
+            MvcApplication.Bus.Send(command);
         }
     }
 }

@@ -172,14 +172,6 @@
     </Compile>
     <Compile Include="Handlers\OrderIsReadyHandler.cs">
     </Compile>
-    <Compile Include="Injection\ConfigureDependencyInjection.cs">
-    </Compile>
-    <Compile Include="Injection\NServiceBusMvcControllerActivator.cs">
-    </Compile>
-    <Compile Include="Injection\NServiceBusDependencyResolverAdapter.cs">
-    </Compile>
-    <Compile Include="Injection\NServiceBusSignalRDependencyResolverAdapter.cs">
-</Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
     </Compile>
   </ItemGroup>
