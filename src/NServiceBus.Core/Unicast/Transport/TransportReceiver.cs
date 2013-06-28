@@ -297,7 +297,9 @@ namespace NServiceBus.Unicast.Transport
             if (string.IsNullOrWhiteSpace(message.Id))
             {
                 Logger.Error("Message without message id detected");
+
                 FailureManager.SerializationFailedForMessage(message, new SerializationException("Message without message id received."));
+                
                 return;
             }
 
@@ -307,8 +309,6 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
                 {
-                  
-
                     OnFinishedMessageProcessing();
 
                     return;
@@ -339,6 +339,9 @@ namespace NServiceBus.Unicast.Transport
                     if (serializationException != null)
                     {
                         Logger.Error("Failed to serialize message with ID: " + message.Id, serializationException);
+
+                        message.RevertToOriginalBodyIfNeeded();
+
                         FailureManager.SerializationFailedForMessage(message, serializationException);
                     }
                     else

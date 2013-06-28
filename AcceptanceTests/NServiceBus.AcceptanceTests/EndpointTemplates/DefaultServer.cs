@@ -58,16 +58,19 @@
                                   .SelectMany(a => a.GetTypes());
 
 
-            types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType));
+            types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
 
             return types.Where(t=>!endpointConfiguration.TypesToExclude.Contains(t)).ToList();
         }
 
-        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType)
+        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType,Type builderType)
         {
             yield return rootType;
 
-            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(GetNestedTypeRecursive))
+            if (typeof(IEndpointConfigurationFactory).IsAssignableFrom(rootType) && rootType != builderType)
+                yield break;
+
+            foreach (var nestedType in rootType.GetNestedTypes(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).SelectMany(t => GetNestedTypeRecursive(t, builderType)))
             {
                 yield return nestedType;
             }

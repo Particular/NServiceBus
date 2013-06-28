@@ -68,6 +68,8 @@
                     e = e.InnerException;
                 }
 
+                message.RevertToOriginalBodyIfNeeded();
+
                 failureManager.ProcessingAlwaysFailsForMessage(message, e);
 
                 return true;
