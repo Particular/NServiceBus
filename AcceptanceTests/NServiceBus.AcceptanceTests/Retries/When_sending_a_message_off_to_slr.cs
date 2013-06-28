@@ -84,7 +84,7 @@
                     if (Context.SimulateSerializationException)
                         decryptedBody[1]++;
 
-                    transportMessage.UpdateBody(decryptedBody);
+                    transportMessage.Body = decryptedBody;
                 }
 
 

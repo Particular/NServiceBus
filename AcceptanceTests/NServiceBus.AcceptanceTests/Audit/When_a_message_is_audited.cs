@@ -59,7 +59,7 @@
                     //decrypt
                     decryptedBody[0]++;
 
-                    transportMessage.UpdateBody(decryptedBody);
+                    transportMessage.Body = decryptedBody;
                 }
 
 
