@@ -122,7 +122,7 @@
             }
             catch (WebException ex)
             {
-                // occurs when table has not yet been created, but already looking for absence of instance
+                // can occur when table has not yet been created, but already looking for absence of instance
                 if (ex.Status == WebExceptionStatus.ProtocolError && ex.Response != null)
                 {
                     var response = (HttpWebResponse) ex.Response;
@@ -134,7 +134,12 @@
 
                 throw;
             }
-            
+            catch (StorageException)
+            {
+                // can occur when table has not yet been created, but already looking for absence of instance
+                return default(T);
+            }
+
         }
 
         /// <summary>

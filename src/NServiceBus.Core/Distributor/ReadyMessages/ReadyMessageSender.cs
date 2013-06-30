@@ -30,7 +30,7 @@ namespace NServiceBus.Distributor.ReadyMessages
             Bus.Transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
         }
 
-        void TransportOnFinishedMessageProcessing(object sender, EventArgs eventArgs)
+        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
         {
             //if there was a failure this "send" will be rolled back
             SendReadyMessage();

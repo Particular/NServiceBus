@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Event which indicates that message processing has completed.
         /// </summary>
-        public event EventHandler FinishedMessageProcessing;
+        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
 
         /// <summary>
         /// Event which indicates that message processing failed for some reason.
@@ -287,7 +287,7 @@ namespace NServiceBus.Unicast.Transport
                 firstLevelRetries.IncrementFailuresForMessage(message, ex);
             }
 
-            OnFailedMessageProcessing(ex);
+            OnFailedMessageProcessing(message, ex);
             
             Logger.Info("Failed to process message", ex);
         }
@@ -309,8 +309,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
                 {
-                    OnFinishedMessageProcessing();
-
+                    OnFinishedMessageProcessing(message);
                     return;
                 }
             }
@@ -322,7 +321,7 @@ namespace NServiceBus.Unicast.Transport
             var exceptionFromMessageHandling = OnTransportMessageReceived(message);
 
             //and here
-            var exceptionFromMessageModules = OnFinishedMessageProcessing();
+            var exceptionFromMessageModules = OnFinishedMessageProcessing(message);
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
@@ -402,12 +401,12 @@ namespace NServiceBus.Unicast.Transport
             return null;
         }
 
-        private Exception OnFinishedMessageProcessing()
+        private Exception OnFinishedMessageProcessing(TransportMessage msg)
         {
             try
             {
                 if (FinishedMessageProcessing != null)
-                    FinishedMessageProcessing(this, null);
+                    FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
             }
             catch (Exception e)
             {
@@ -433,12 +432,12 @@ namespace NServiceBus.Unicast.Transport
             return null;
         }
 
-        private void OnFailedMessageProcessing(Exception originalException)
+        private void OnFailedMessageProcessing(TransportMessage message, Exception originalException)
         {
             try
             {
                 if (FailedMessageProcessing != null)
-                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(originalException));
+                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(message, originalException));
             }
             catch (Exception e)
             {

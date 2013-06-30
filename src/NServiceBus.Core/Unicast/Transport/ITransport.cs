@@ -81,7 +81,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Raised after message processing was completed, even in case of an exception in message processing.
 		/// </summary>
-		event EventHandler FinishedMessageProcessing;
+        event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
 
 		/// <summary>
 		/// Raised if an exception was encountered at any point in the processing - including

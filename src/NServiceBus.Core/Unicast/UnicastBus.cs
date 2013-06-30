@@ -1275,7 +1275,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void TransportFinishedMessageProcessing(object sender, EventArgs e)
+        void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
             modules.ForEach(module =>
             {

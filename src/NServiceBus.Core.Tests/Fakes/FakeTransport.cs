@@ -70,7 +70,7 @@
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
-        public event EventHandler FinishedMessageProcessing;
+        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
     }
 }
