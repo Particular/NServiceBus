@@ -235,7 +235,7 @@ namespace NServiceBus.Unicast.Config
 
             foreach (Type t in types.Where(IsMessageHandler))
             {
-                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
                 handlers.Add(t);
             }
