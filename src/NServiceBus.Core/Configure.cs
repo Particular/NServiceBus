@@ -768,8 +768,12 @@ namespace NServiceBus
 
                   // Azure host process, which is typically referenced for ease of deployment but should not be scanned
                   "NServiceBus.Hosting.Azure.HostProcess.exe",
+
                   // And other windows azure stuff
-                  "Microsoft.WindowsAzure."
+                  "Microsoft.WindowsAzure.",
+
+                  // SQLite unmanaged DLLs that cause BadImageFormatException's
+                  "sqlite3.dll", "SQLite.Interop.dll"
               };
 
         // TODO: rename to additionalTypeExclusions 
