@@ -191,7 +191,7 @@ namespace NServiceBus
         {
             config.Configurer.ConfigureComponent(factory, DependencyLifecycle.SingleInstance);
             config.Configurer.ConfigureComponent<RavenSessionFactory>(DependencyLifecycle.SingleInstance);
-            config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerCall);
+            config.Configurer.ConfigureComponent<RavenUnitOfWork>(DependencyLifecycle.InstancePerUnitOfWork);
 
             Raven.Abstractions.Logging.LogManager.CurrentLogManager = new NoOpLogManager();
 
