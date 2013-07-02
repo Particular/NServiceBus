@@ -22,7 +22,7 @@
                     )
                     .Should(c =>
                         {
-                            Assert.AreEqual(CorrelationId,c.CorrelationIdReceived,"Correlation ids should match");
+                            Assert.AreEqual(CorrelationId, c.CorrelationIdReceived,"Correlation ids should match");
                         })
                     .Run();
         }

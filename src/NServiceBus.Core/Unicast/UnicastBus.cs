@@ -612,8 +612,7 @@ namespace NServiceBus.Unicast
 
             if (messages.Length > 1)
             {
-                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a bug that will be fixed in v4!
-
+                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a limitation for now!
                 var numberOfMessagesWithDataBusProperties = 0;
                 foreach (var message in messages)
                 {
