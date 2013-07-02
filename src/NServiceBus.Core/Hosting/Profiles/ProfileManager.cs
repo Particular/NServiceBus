@@ -1,22 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Logging;
-using NServiceBus.Utils.Reflection;
-
 namespace NServiceBus.Hosting.Profiles
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Linq;
+    using System.Reflection;
+    using Helpers;
+    using Logging;
+    using Utils.Reflection;
+
     /// <summary>
     /// Scans and loads profile handlers from the given assemblies
     /// </summary>
     public class ProfileManager
     {
-        private readonly IEnumerable<Assembly> assembliesToScan;
-        internal readonly List<Type> activeProfiles;
-        private readonly IConfigureThisEndpoint specifier;
+        IEnumerable<Assembly> assembliesToScan;
+        internal List<Type> activeProfiles;
+        IConfigureThisEndpoint specifier;
 
         /// <summary>
         /// Initializes the manager with the assemblies to scan and the endpoint configuration to use
@@ -30,69 +30,87 @@ namespace NServiceBus.Hosting.Profiles
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
 
-            var profiles = assembliesToScan
+            var profilesFromArguments = assembliesToScan
                 .AllTypesAssignableTo<IProfile>()
                 .Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower()))
                 .ToList();
 
-            if (profiles.Count == 0)
-                profiles = defaultProfiles;
-
-            var implements = new List<Type>(profiles);
-            foreach (var interfaces in profiles.Select(p => p.GetInterfaces()))
+            if (profilesFromArguments.Count == 0)
             {
-                implements.AddRange(interfaces.Where(t => (typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile)) && !profiles.Contains(t)));
+                activeProfiles = new List<Type>(defaultProfiles);
             }
-            activeProfiles = implements;
+            else
+            {
+                var allProfiles = new List<Type>(profilesFromArguments);
+                allProfiles.AddRange(profilesFromArguments.SelectMany(_ => _.GetInterfaces().Where(IsProfile)));
+                activeProfiles = allProfiles.Distinct().ToList();
+            }
         }
+
+        static bool IsProfile(Type t)
+        {
+            return typeof(IProfile).IsAssignableFrom(t) && t != typeof(IProfile);
+        }
+
 
         /// <summary>
         /// Returns an object to configure logging based on the specification and profiles passed in.
         /// </summary>
         /// <returns></returns>
-        public IConfigureLogging GetLoggingConfigurer()
+        public IEnumerable<IConfigureLogging> GetLoggingConfigurer()
         {
             return GetImplementor<IConfigureLogging>(typeof(IConfigureLoggingForProfile<>));
         }
 
-        private T GetImplementor<T>(Type openGenericType) where T : class
+        internal IEnumerable<T> GetImplementor<T>(Type openGenericType) where T : class
         {
             var options = new List<Type>();
             foreach (var a in assembliesToScan)
-                foreach (var t in a.GetTypes())
-                    if (typeof(T).IsAssignableFrom(t) && !t.IsInterface)
-                        options.Add(t);
-
-            return FindConfigurer<T>(options, list =>
-                                              activeProfiles.Select(ap => FindConfigurerForProfile(openGenericType, ap, list)).Where(t => t != null)
-                );
-        }
-
-        private T FindConfigurer<T>(IEnumerable<Type> options, Func<IEnumerable<Type>, IEnumerable<Type>> filter) where T : class
-        {
-            var myOptions = new List<Type>(filter(options));
-
-            if (myOptions.Count == 0)
-                throw new ConfigurationErrorsException("Could not find a class which implements " + typeof(T).Name + ". If you've specified your own profile, try implementing " + typeof(T).Name + "ForProfile<T> for your profile.");
-            if (myOptions.Count > 1)
-                throw new ConfigurationErrorsException("Can not have more than one class configured which implements " + typeof(T).Name + ". Implementors found: " + string.Join(" ", options.Select(t => t.Name).ToArray()));
-
-            return Activator.CreateInstance(myOptions[0]) as T;
-        }
-
-        private Type FindConfigurerForProfile(Type openGenericType, Type profile, IEnumerable<Type> options)
-        {
-            if (profile == typeof(object) || profile == null) return null;
-
-            foreach (var o in options)
             {
-                var p = o.GetGenericallyContainedType(openGenericType, typeof(IProfile));
-                if (p == profile)
-                    return o;
+                foreach (var type in a.GetTypes())
+                {
+                    if (typeof(T).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                    {
+                        options.Add(type);
+                    }
+                }
             }
 
-            //couldn't find exact match - try again recursively going up the type hierarchy
-            return FindConfigurerForProfile(openGenericType, profile.BaseType, options);
+            var configs = activeProfiles
+                .SelectMany(_ => FindConfigurerForProfile(openGenericType, _, options))
+                .ToList();
+
+            if (configs.Count == 0)
+            {
+                var message = string.Format("Could not find a class which implements '{0}'. If you've specified your own profile, try implementing '{0}ForProfile<T>' for your profile.", typeof(T).Name);
+                throw new ConfigurationErrorsException(message);
+            }
+
+            return configs.Select(_ => (T)Activator.CreateInstance(_));
+        }
+
+
+        IEnumerable<Type> FindConfigurerForProfile(Type openGenericType, Type profile, List<Type> options)
+        {
+            if (profile == typeof (object) || profile == null)
+            {
+                yield break;
+            }
+
+            foreach (var option in options)
+            {
+                var p = option.GetGenericallyContainedType(openGenericType, typeof(IProfile));
+                if (p == profile)
+                {
+                    yield return option;
+                }
+            }
+
+            foreach (var option in FindConfigurerForProfile(openGenericType, profile.BaseType, options))
+            {
+                yield return option;
+            }
+             
         }
 
         /// <summary>
@@ -102,36 +120,47 @@ namespace NServiceBus.Hosting.Profiles
         public void ActivateProfileHandlers()
         {
             foreach (var p in activeProfiles)
+            {
                 Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
+            }
 
             var activeHandlers = new List<Type>();
 
             foreach (var assembly in assembliesToScan)
+            {
                 foreach (var type in assembly.GetTypes())
                 {
-                    var p = type.GetGenericallyContainedType(typeof(IHandleProfile<>), typeof(IProfile));
+                    var p = type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile));
                     if (p != null)
+                    {
                         activeHandlers.AddRange(from ap in activeProfiles where (type.IsClass && !type.IsAbstract && p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
+                    }
                 }
+            }
 
             var profileHandlers = new List<IHandleProfile>();
             foreach (var h in activeHandlers)
             {
                 var profileHandler = Activator.CreateInstance(h) as IHandleProfile;
-                if (profileHandler is IWantTheListOfActiveProfiles)
-                    ((IWantTheListOfActiveProfiles)profileHandler).ActiveProfiles = activeProfiles;
+                var handler = profileHandler as IWantTheListOfActiveProfiles;
+                if (handler != null)
+                {
+                    handler.ActiveProfiles = activeProfiles;
+                }
 
                 profileHandlers.Add(profileHandler);
                 Logger.Debug("Activating profile handler: " + h.AssemblyQualifiedName);
             }
 
-            profileHandlers.Where(ph => ph is IWantTheEndpointConfig).ToList().ForEach(
+            profileHandlers.Where(ph => ph is IWantTheEndpointConfig)
+                .ToList()
+                .ForEach(
                 ph => (ph as IWantTheEndpointConfig).Config = specifier);
 
             profileHandlers.ForEach(hp => hp.ProfileActivated());
         }
 
 
-        private static ILog Logger = LogManager.GetLogger(typeof(ProfileManager));
+        static ILog Logger = LogManager.GetLogger(typeof(ProfileManager));
     }
 }
