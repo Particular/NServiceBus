@@ -1,6 +1,4 @@
-﻿using Remotion.Linq.Parsing.Structure.IntermediateModel;
-
-namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using EndpointTemplates;
@@ -10,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using ScenarioDescriptors;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277 to test the fix
-    // making sure that the saga co-rrelation still works.
+    // making sure that the saga correlation still works.
     public class When_an_endpoint_replies_to_a_saga : NServiceBusAcceptanceTest
     {
         [Test]

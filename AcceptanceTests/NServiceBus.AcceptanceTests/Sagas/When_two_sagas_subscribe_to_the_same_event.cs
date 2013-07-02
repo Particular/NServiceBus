@@ -11,7 +11,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
     public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
     {
-
         [Test]
         public void Should_invoke_all_handlers_on_all_sagas()
         {
