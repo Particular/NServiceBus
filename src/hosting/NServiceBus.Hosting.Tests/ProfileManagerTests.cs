@@ -344,6 +344,111 @@ namespace NServiceBus.Hosting.Tests
                 Assert.IsTrue(Handler2.activated);
             }
         }
+
+        [TestFixture]
+        [Explicit]
+        public class When_multiple_profile_exist
+        {
+            static List<IHandleProfile> activationOrderList = new List<IHandleProfile>();
+
+            public interface Profile1 : IProfile
+            {
+            }
+
+            public interface Profile2 : IProfile
+            {
+            }
+
+            public class Handler1 : IHandleProfile<Profile1>
+            {
+                public void ProfileActivated()
+                {
+                    activationOrderList.Add(this);
+                }
+            }
+
+            public class Handler2 : IHandleProfile<Profile2>
+            {
+                public void ProfileActivated()
+                {
+                    activationOrderList.Add(this);
+                }
+            }
+
+            [Test]
+            public void Should_be_correctly_ordered_in_active_profiles()
+            {
+                var profilesA = new[]
+                               {
+                                   typeof (Profile1).FullName,
+                                   typeof (Profile2).FullName,
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                Assert.AreEqual(typeof(Profile1), profileManagerA.activeProfiles[0]);
+                Assert.AreEqual(typeof(Profile2), profileManagerA.activeProfiles[1]);
+
+                var profilesB = new[]
+                               {
+                                   typeof (Profile2).FullName,
+                                   typeof (Profile1).FullName,
+                               };
+                var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
+                Assert.AreEqual(typeof(Profile2), profileManagerB.activeProfiles[0]);
+                Assert.AreEqual(typeof(Profile1), profileManagerB.activeProfiles[1]);
+            }
+            
+            [Test]
+            public void Should_get_implementations_in_order()
+            {
+                var profilesA = new[]
+                               {
+                                   typeof (Profile1).FullName,
+                                   typeof (Profile2).FullName,
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                var implementationsA = profileManagerA.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
+                                                     .ToList();
+                Assert.IsInstanceOf<Handler1>(implementationsA[0]);
+                Assert.IsInstanceOf<Handler2>(implementationsA[1]);
+
+                var profilesB = new[]
+                               {
+                                   typeof (Profile2).FullName,
+                                   typeof (Profile1).FullName,
+                               };
+                var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
+                var implementationsB = profileManagerB.GetImplementor<IHandleProfile>(typeof(IHandleProfile<>))
+                                                     .ToList();
+                Assert.IsInstanceOf<Handler2>(implementationsB[0]);
+                Assert.IsInstanceOf<Handler1>(implementationsB[1]);
+            }
+            [Test]
+            public void Should_activate_in_order()
+            {
+                var profilesA = new[]
+                               {
+                                   typeof (Profile1).FullName,
+                                   typeof (Profile2).FullName,
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                profileManagerA.ActivateProfileHandlers();
+                Assert.IsInstanceOf<Handler1>(activationOrderList[0]);
+                Assert.IsInstanceOf<Handler2>(activationOrderList[1]);
+
+                activationOrderList.Clear();
+                
+                var profilesB = new[]
+                               {
+                                   typeof (Profile2).FullName,
+                                   typeof (Profile1).FullName,
+                               };
+                var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
+                profileManagerB.ActivateProfileHandlers();
+                Assert.IsInstanceOf<Handler2>(activationOrderList[0]);
+                Assert.IsInstanceOf<Handler1>(activationOrderList[1]);
+            }
+
+        }
         [TestFixture]
         public class When_abstract_base_handler
         {
