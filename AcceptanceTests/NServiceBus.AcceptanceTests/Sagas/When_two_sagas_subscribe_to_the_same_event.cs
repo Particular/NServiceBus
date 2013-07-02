@@ -64,6 +64,18 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     .AddMapping<GroupPendingEvent>(typeof(EndpointThatHandlesAMessageAndPublishesEvent));
             }
 
+            public class MySaga1Data : ContainSagaData
+            {
+                [Unique]
+                public Guid DataId { get; set; }
+            }
+
+            public class MySaga2Data : ContainSagaData
+            {
+                [Unique]
+                public Guid DataId { get; set; }
+            }
+
             public class Saga1 : Saga<MySaga1Data>, IAmStartedByMessages<GroupPendingEvent>, IHandleMessages<CompleteSaga1Now>
             {
                 public Context Context { get; set; }
@@ -113,26 +125,8 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     ConfigureMapping<StartSaga2>(s => s.DataId, m => m.DataId);
                     ConfigureMapping<GroupPendingEvent>(s => s.DataId, m => m.DataId);
                 }
-            }
 
-            public class MySaga1Data : IContainSagaData
-            {
-                public Guid Id { get; set; }
-                public string Originator { get; set; }
-                public string OriginalMessageId { get; set; }
-
-                [Unique]
-                public Guid DataId { get; set; }
-            }
-
-            public class MySaga2Data : IContainSagaData
-            {
-                public Guid Id { get; set; }
-                public string Originator { get; set; }
-                public string OriginalMessageId { get; set; }
-
-                [Unique]
-                public Guid DataId { get; set; }
+             
             }
 
         }
