@@ -2,17 +2,14 @@
 namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
 
-    // repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
-    class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
+    // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
+    public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
     {
 
         [Test]
@@ -25,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                         {
-                            Assert.True(c.DidSaga1EventHandlerGetInvoked & c.DidSaga2EventHandlerGetInvoked);
+                            Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked);
                         })
                     .Run();
         }
@@ -50,7 +47,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public void Handle(OpenGroupCommand message)
                 {
                     Console.WriteLine("Received OpenGroupCommand for DataId:{0} ... and publishing GroupPendingEvent", message.DataId);
-                    Bus.Publish(new GroupPendingEvent() { DataId = message.DataId });
+                    Bus.Publish(new GroupPendingEvent { DataId = message.DataId });
                 }
             }
         }
@@ -64,21 +61,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     .AddMapping<GroupPendingEvent>(typeof(EndpointThatHandlesAMessageAndPublishesEvent));
             }
 
-            public class MySaga1Data : ContainSagaData
-            {
-                [Unique]
-                public Guid DataId { get; set; }
-            }
-
-            public class MySaga2Data : ContainSagaData
-            {
-                [Unique]
-                public Guid DataId { get; set; }
-            }
-
-            public class Saga1 : Saga<MySaga1Data>, IAmStartedByMessages<GroupPendingEvent>, IHandleMessages<CompleteSaga1Now>
+            public class Saga1 : Saga<Saga1.MySaga1Data>, IAmStartedByMessages<GroupPendingEvent>, IHandleMessages<CompleteSaga1Now>
             {
                 public Context Context { get; set; }
+
                 public void Handle(GroupPendingEvent message)
                 {
                     Data.DataId = message.DataId;
@@ -96,12 +82,18 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public override void ConfigureHowToFindSaga()
                 {
-                    ConfigureMapping<GroupPendingEvent>(s => s.DataId, m => m.DataId);
-                    ConfigureMapping<CompleteSaga1Now>(s => s.DataId, m => m.DataId);
+                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                    ConfigureMapping<CompleteSaga1Now>(m => m.DataId).ToSaga(s => s.DataId);
+                }
+
+                public class MySaga1Data : ContainSagaData
+                {
+                    [Unique]
+                    public Guid DataId { get; set; }
                 }
             }
 
-            public class Saga2 : Saga<MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
+            public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga2>, IHandleMessages<GroupPendingEvent>
             {
                 public Context Context { get; set; }
          
@@ -122,16 +114,18 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public override void ConfigureHowToFindSaga()
                 {
-                    ConfigureMapping<StartSaga2>(s => s.DataId, m => m.DataId);
-                    ConfigureMapping<GroupPendingEvent>(s => s.DataId, m => m.DataId);
+                    ConfigureMapping<StartSaga2>(m => m.DataId).ToSaga(s => s.DataId);
+                    ConfigureMapping<GroupPendingEvent>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-             
+                public class MySaga2Data : ContainSagaData
+                {
+                    [Unique]
+                    public Guid DataId { get; set; }
+                }
             }
-
         }
 
-        // Message schema
         [Serializable]
         public class GroupPendingEvent : IEvent
         {
