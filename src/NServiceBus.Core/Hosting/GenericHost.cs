@@ -69,8 +69,11 @@ namespace NServiceBus.Hosting
                 (specifier as IWantCustomLogging).Init();
             else
             {
-                var loggingConfigurer = profileManager.GetLoggingConfigurer();
-                loggingConfigurer.Configure(specifier);
+                var loggingConfigurers = profileManager.GetLoggingConfigurer();
+                foreach (var loggingConfigurer in loggingConfigurers)
+                {
+                    loggingConfigurer.Configure(specifier);
+                }
             }
 
             if (specifier is IWantCustomInitialization)
