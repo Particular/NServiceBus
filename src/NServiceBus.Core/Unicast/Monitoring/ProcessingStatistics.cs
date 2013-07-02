@@ -53,7 +53,7 @@ namespace NServiceBus.Unicast.Monitoring
 
         public void Init()
         {
-            Configure.Instance.Configurer.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<ProcessingStatistics>(DependencyLifecycle.InstancePerUnitOfWork);
         }
     }
 }

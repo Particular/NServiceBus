@@ -7,7 +7,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
     using System.Runtime.Serialization;
     using System.Threading;
     using System.Transactions;
-    using Logging;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Queue;
     using Serialization;
@@ -182,8 +181,6 @@ namespace NServiceBus.Unicast.Queuing.Azure
         }
 
         bool useTransactions;
-
-        static ILog Logger = LogManager.GetLogger(typeof (AzureMessageQueueReceiver));
     }
 
     public class EnvelopeDeserializationFailed:SerializationException

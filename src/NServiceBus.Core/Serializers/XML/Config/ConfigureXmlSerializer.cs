@@ -42,7 +42,7 @@ namespace NServiceBus
         /// </code>
         /// </param>
         /// <returns></returns>
-        [ObsoleteEx(Replacement = "Configure.Serializers.Xml()", RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Configure.Serialization.Xml()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure XmlSerializer(this Configure config, string nameSpace = null, bool sanitizeInput = false)
         {
             Configure.Serialization.Xml(s =>

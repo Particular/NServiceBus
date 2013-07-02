@@ -11,7 +11,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        [ObsoleteEx(Replacement = "Configure.Serializers.Binary()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(Replacement = "Configure.Serialization.Binary()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure BinarySerializer(this Configure config)
         {
             Configure.Serialization.Binary();

@@ -180,6 +180,11 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return container.Kernel.HasComponent(componentType);
         }
 
+        void IContainer.Release(object instance)
+        {
+            container.Release(instance);
+        }
+
         private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)

@@ -4,7 +4,6 @@ namespace NServiceBus.Sagas
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Finders;
     using NServiceBus.IdGeneration;
     using NServiceBus.Logging;
     using NServiceBus.ObjectBuilder;
@@ -109,6 +108,7 @@ namespace NServiceBus.Sagas
                                          }
 
                                      };
+
                 sagaTypesHandled.Add(sagaType);
                 entitiesHandled.Add(sagaEntity);
             }
@@ -157,43 +157,12 @@ namespace NServiceBus.Sagas
 
         IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)
         {
-            var sagaId = Headers.GetMessageHeader(message, Headers.SagaId);
-            var sagaEntityType = GetSagaEntityType(message);
+            var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
 
-            if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
-            {
-                var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+            if (logger.IsDebugEnabled)
+                logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
 
-                if (logger.IsDebugEnabled)
-                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
-
-                return finders;
-            }
-
-            logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
-
-            return new List<IFinder> { builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
-        }
-
-        static Type GetSagaEntityType(object message)
-        {
-            //we keep this for backwards compatibility with versions < 3.0.4
-            var sagaEntityType = Headers.GetMessageHeader(message, Headers.SagaEntityType);
-
-            if (!string.IsNullOrEmpty(sagaEntityType))
-                return Type.GetType(sagaEntityType);
-
-            var sagaTypeName = Headers.GetMessageHeader(message, Headers.SagaType);
-
-            if (string.IsNullOrEmpty(sagaTypeName))
-                return null;
-
-            var sagaType = Type.GetType(sagaTypeName, false);
-
-            if (sagaType == null)
-                return null;
-
-            return Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+            return finders;
         }
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)

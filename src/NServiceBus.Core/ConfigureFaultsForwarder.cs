@@ -66,7 +66,7 @@ namespace NServiceBus
 			if (ErrorQueue == Address.Undefined)
 			{
 				throw new ConfigurationErrorsException("Faults forwarding requires an error queue to be specified. Please add a 'MessageForwardingInCaseOfFaultConfig' section to your app.config" +
-                "\n or configure a global one using the powershell command: SetNServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
+                "\n or configure a global one using the powershell command: Set-NServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
 			}
 
 			return config;

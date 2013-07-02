@@ -1,7 +1,6 @@
 using System;
 using NServiceBus.ObjectBuilder.Common;
 using NServiceBus.ObjectBuilder.Spring;
-using NServiceBus.ObjectBuilder.Unity;
 using NUnit.Framework;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.CastleWindsor;

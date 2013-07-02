@@ -46,14 +46,14 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureMessageRegistry(List<Type> knownMessages)
         {
-            var messageRegistry = new DefaultMessageRegistry
+            var messageRegistry = new MessageMetadataRegistry
                 {
                     DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
                 };
 
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
-            
-            Configurer.RegisterSingleton<IMessageRegistry>(messageRegistry);
+
+            Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
             
             if(!Logger.IsInfoEnabled)
                 return;
@@ -235,7 +235,7 @@ namespace NServiceBus.Unicast.Config
 
             foreach (Type t in types.Where(IsMessageHandler))
             {
-                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
+                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
                 handlers.Add(t);
             }

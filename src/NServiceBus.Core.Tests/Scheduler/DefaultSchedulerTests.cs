@@ -1,14 +1,14 @@
-﻿using System;
-using System.Threading;
-using NUnit.Framework;
-
-namespace NServiceBus.Scheduling.Tests
+﻿namespace NServiceBus.Scheduling.Tests
 {
+    using System.Threading;
+    using NUnit.Framework;
+    using Core.Tests.Fakes;
+
     [TestFixture]
     public class DefaultSchedulerTests
     {
         private FakeBus _bus = new FakeBus();
-        private IScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
+        private readonly IScheduledTaskStorage _taskStorage = new InMemoryScheduledTaskStorage();
         private IScheduler _scheduler;
 
         [SetUp]

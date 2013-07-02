@@ -2,6 +2,7 @@ namespace NServiceBus.Installation
 {
     using System;
     using System.Diagnostics;
+    using System.Security.Principal;
     using Environments;
     using Logging;
     /// <summary>
@@ -16,6 +17,12 @@ namespace NServiceBus.Installation
             //did not use DirectoryEntry to avoid a ref to the DirectoryServices.dll
             try
             {
+                if (!IsRunningWithElevatedPrivileges())
+                {
+                    logger.InfoFormat(@"Did not attempt to add user '{0}' to group 'Performance Monitor Users' since process is not running with elevate privileges. Processing will continue. To manually perform this action run the following command from an admin console:
+net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
+                    return;
+                }
                 StartProcess(identity);
             }
             catch (Exception win32Exception)
@@ -25,6 +32,19 @@ namespace NServiceBus.Installation
 To help diagnose the problem try running the following command from an admin console:
 net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
                 logger.Warn(message, win32Exception);
+            }
+        }
+
+        bool IsRunningWithElevatedPrivileges()
+        {
+            using (var windowsIdentity = WindowsIdentity.GetCurrent())
+            {
+                if (windowsIdentity == null)
+                {
+                    return false;
+                }
+                var windowsPrincipal = new WindowsPrincipal(windowsIdentity);
+                return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
             }
         }
 

@@ -5,7 +5,7 @@
     using System.Linq;
     using Logging;
 
-    public class DefaultMessageRegistry : IMessageRegistry
+    public class MessageMetadataRegistry
     {
         public MessageMetadata GetMessageDefinition(Type messageType)
         {

@@ -5,7 +5,6 @@ using Spring.Objects.Factory.Support;
 using Spring.Objects.Factory.Config;
 using System.Collections;
 using NServiceBus.ObjectBuilder.Common;
-using Spring.Context;
 
 namespace NServiceBus.ObjectBuilder.Spring
 {
@@ -126,7 +125,7 @@ namespace NServiceBus.ObjectBuilder.Spring
 
             var funcFactory = new ArbitraryFuncDelegatingFactoryObject<T>(componentFactory, dependencyLifecycle == DependencyLifecycle.SingleInstance);
             
-            ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(componentType.FullName, funcFactory);
+            context.ObjectFactory.RegisterSingleton(componentType.FullName, funcFactory);
         }
 
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
@@ -151,7 +150,7 @@ namespace NServiceBus.ObjectBuilder.Spring
             if(initialized)
                 throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
 
-            ((IConfigurableApplicationContext)context).ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
+            context.ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
         bool IContainer.HasComponent(Type componentType)
@@ -159,10 +158,10 @@ namespace NServiceBus.ObjectBuilder.Spring
             if (componentProperties.ContainsKey(componentType))
                 return true;
 
-            if (((IConfigurableApplicationContext) context).ObjectFactory.ContainsObjectDefinition(componentType.FullName))
+            if (context.ObjectFactory.ContainsObjectDefinition(componentType.FullName))
                 return true;
 
-            if (((IConfigurableApplicationContext)context).ObjectFactory.ContainsSingleton(componentType.FullName))
+            if (context.ObjectFactory.ContainsSingleton(componentType.FullName))
                 return true;
 
             foreach(var component in componentProperties.Keys)
@@ -170,6 +169,11 @@ namespace NServiceBus.ObjectBuilder.Spring
                     return true;
 
             return false;
+        }
+
+        void IContainer.Release(object instance)
+        {
+            
         }
 
         private void Init()

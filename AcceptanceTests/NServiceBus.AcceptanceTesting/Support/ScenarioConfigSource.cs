@@ -31,13 +31,25 @@
                         ErrorQueue = "error"
                     } as T;
             
-            if (type == typeof(UnicastBusConfig))
-                return new UnicastBusConfig
-                    {
-                        ForwardReceivedMessagesTo = configuration.AddressOfAuditQueue != null ? configuration.AddressOfAuditQueue.ToString() : null,
-                        MessageEndpointMappings = GenerateMappings()
-                    }as T;
+            if (type == typeof (UnicastBusConfig))
+            {
+                var auditAddress = configuration.AddressOfAuditQueue != null
+                                       ? configuration.AddressOfAuditQueue.ToString()
+                                       : null;
 
+                if (configuration.AuditEndpoint != null)
+                {
+                    auditAddress = routingTable[configuration.AuditEndpoint];
+                }
+                
+                return new UnicastBusConfig
+                {
+                    ForwardReceivedMessagesTo = auditAddress,
+                    MessageEndpointMappings = GenerateMappings()
+                } as T;
+
+            }
+                
 
 
             if (type == typeof(Logging))

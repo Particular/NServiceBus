@@ -167,7 +167,7 @@
         [Test]
         public void It_should_be_non_persistent_by_default()
         {
-            messageRegistry.DefaultToNonPersistentMessages = true;
+            MessageMetadataRegistry.DefaultToNonPersistentMessages = true;
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 

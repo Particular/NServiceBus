@@ -94,7 +94,7 @@ namespace NServiceBus
         /// <typeparam name="T">The type to instantiate.</typeparam>
         /// <param name="list">The list to which to add the new element.</param>
         /// <param name="initializer">An <see cref="Action"/> for setting properties of the created instance of <typeparamref name="T"/>.</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "list.Add(Bus.CreateInstance(initializer))")]
         public static void Add<T>(this IList<T> list, Action<T> initializer)
         {
             if (MessageCreator == null)
@@ -123,7 +123,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.HttpFrom)")]
         public static string GetHttpFromHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.HttpFrom);
@@ -135,7 +135,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.HttpTo)")]
         public static string GetHttpToHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.HttpTo);
@@ -146,7 +146,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.DestinationSites)")]
         public static string GetDestinationSitesHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.DestinationSites);
@@ -157,7 +157,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.OriginatingSite)")]
         public static string GetOriginatingSiteHeader(this object msg)
         {
             return GetMessageHeader(null, msg, Headers.OriginatingSite);
@@ -181,7 +181,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.DestinationSites, value)")]
         public static void SetDestinationSitesHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.DestinationSites, value);
@@ -194,7 +194,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.OriginatingSite, value)")]
         public static void SetOriginatingSiteHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.OriginatingSite, value);
@@ -206,7 +206,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.HttpFrom, value)")]
         public static void SetHttpFromHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.HttpFrom, value);
@@ -218,7 +218,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="value"></param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.HttpTo, value)")]
         public static void SetHttpToHeader(this object msg, string value)
         {
             SetMessageHeader(null, msg, Headers.HttpTo, value);
@@ -229,7 +229,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="key"></param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, key, Bus.CurrentMessageContext.Headers[key])")]
         public static void CopyHeaderFromRequest(this object msg, string key)
         {
             if (msg == CurrentMessageBeingHandled)

@@ -1,16 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
-    using System.Collections.Generic;
-
-    public interface IMessageRegistry
-    {
-        MessageMetadata GetMessageDefinition(Type messageType);
-
-        IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message);
-
-        IEnumerable<MessageMetadata> GetAllMessages();
-    }
 
     public class MessageMetadata
     {

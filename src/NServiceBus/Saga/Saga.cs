@@ -53,7 +53,7 @@ namespace NServiceBus.Saga
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="sagaEntityProperty"></param>
         /// <param name="messageProperty"></param>
-        [ObsoleteEx(Message = "Use the more explicit ConfigureMapping<T>.ToSaga<TSaga>(...) instead", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        [ObsoleteEx(Message = "Use the more explicit ConfigureMapping<T>.ToSaga<TSaga>(...) instead. For example 'ConfigureMapping<MyMessage>(message => message.MyProp).ToSaga(sagaData => sagaData.MyProp);'.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
         {
             if (!configuring)

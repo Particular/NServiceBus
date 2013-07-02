@@ -182,6 +182,11 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
 
+        void Common.IContainer.Release(object instance)
+        {
+
+        }
+
         private static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)

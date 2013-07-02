@@ -18,7 +18,7 @@ namespace NServiceBus
     public class TransportMessage
     {
         /// <summary>
-        /// Initalizes the transport message with a CombGuid as identifier
+        /// Initializes the transport message with a CombGuid as identifier
         /// </summary>
         public TransportMessage()
         {
@@ -33,6 +33,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new TransportMessage with the given id and headers
         /// </summary>
+        /// <param name="existingId"></param>
         /// <param name="existingHeaders"></param>
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
         {
@@ -170,6 +171,38 @@ namespace NServiceBus
         /// <summary>
         /// Gets/sets a byte array to the body content of the message
         /// </summary>
-        public byte[] Body { get; set; }
+        public byte[] Body
+        {
+            get { return body; }
+            set { UpdateBody(value); }
+        }
+
+        /// <summary>
+        /// Use this method to update the body if this message
+        /// </summary>
+        /// <param name="updatedBody"></param>
+        void UpdateBody(byte[] updatedBody)
+        {
+            //preserve the original body if needed
+            if (body != null && originalBody == null)
+            {
+                originalBody = new byte[body.Length];
+                Buffer.BlockCopy(body, 0, originalBody, 0, body.Length);
+            }
+
+            body = updatedBody;
+        }
+
+        /// <summary>
+        /// Makes sure that the body is reset to the exact state as it was when the message was created
+        /// </summary>
+        internal void RevertToOriginalBodyIfNeeded()
+        {
+            if (originalBody != null)
+                body = originalBody;
+        }
+
+        byte[] body;
+        byte[] originalBody;
     }
 }

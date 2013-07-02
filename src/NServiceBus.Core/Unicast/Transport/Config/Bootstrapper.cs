@@ -50,10 +50,12 @@ namespace NServiceBus.Unicast.Transport.Config
             }
 
             if (Configure.GetConfigSection<MsmqTransportConfig>() != null)
-                throw new ConfigurationErrorsException("MsmqTransportConfig has been obsoleted, please use the <TransportConfig> section instead");
+            {
+                throw new ConfigurationErrorsException("'MsmqTransportConfig' section is obsolete. Please update your configuration to use the new 'TransportConfig' section instead. You can use the PowerShell cmdlet 'Add-NServiceBusTransportConfig' in the Package Manager Console to quickly add it for you.");
+            }
         }
 
-        int maximumThroughput = 0;
+        int maximumThroughput;
         int maximumNumberOfRetries = 5;
         int numberOfWorkerThreadsInAppConfig = 1;
     }

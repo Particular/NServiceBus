@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus.Scheduling.Tests
+﻿namespace NServiceBus.Core.Tests.Fakes
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading;
 
     public class FakeBus : IBus 

@@ -1,14 +1,12 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Security.Principal;
     using System.Text;
@@ -23,9 +21,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Queuing;
     using Routing;
-    using Saga;
     using Serialization;
-    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
@@ -134,7 +130,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The registry of all known messages for this endpoint
         /// </summary>
-        public IMessageRegistry MessageRegistry { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
 
         /// <summary>
@@ -616,8 +612,7 @@ namespace NServiceBus.Unicast
 
             if (messages.Length > 1)
             {
-                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a bug that will be fixed in v4!
-
+                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a limitation for now!
                 var numberOfMessagesWithDataBusProperties = 0;
                 foreach (var message in messages)
                 {
@@ -1053,7 +1048,7 @@ namespace NServiceBus.Unicast
             try
             {
 
-                var messageMetadata = MessageRegistry.GetMessageTypes(m);
+                var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
 
                 using (var stream = new MemoryStream(m.Body))
@@ -1154,6 +1149,9 @@ namespace NServiceBus.Unicast
         bool HandleCorrelatedMessage(TransportMessage msg, object[] messages)
         {
             if (msg.CorrelationId == null)
+                return false;
+
+            if (msg.CorrelationId == msg.Id) //to make sure that we don't fire callbacks when doing send locals
                 return false;
 
             BusAsyncResult busAsyncResult;
@@ -1333,6 +1331,8 @@ namespace NServiceBus.Unicast
             if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
                 return;
 
+            m.RevertToOriginalBodyIfNeeded();
+
             var toSend = new TransportMessage(m.Id,m.Headers)
                              {
                                  Body = m.Body,
@@ -1368,7 +1368,7 @@ namespace NServiceBus.Unicast
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
 
-            var messageDefinitions = rawMessages.Select(m => MessageRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
+            var messageDefinitions = rawMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
 
             result.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
             result.Recoverable = messageDefinitions.Any(md => md.Recoverable);

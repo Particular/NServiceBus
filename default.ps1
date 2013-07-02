@@ -92,16 +92,6 @@ task Init {
 task GenerateAssemblyInfo -description "Generates assembly info for all the projects with version" {
 
 	Write-Output "Build Number: $BuildNumber"
-	
-	$asmVersion =  $ProductVersion + ".0.0"
-
-	if($PreRelease -eq "") {
-		$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
-		$infoVersion = $ProductVersion + "." + $PatchVersion
-	} else {
-		$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-		$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
-	}
 
 	$filesThatNeedUpdate = ls -path $srcDir -include NServiceBusVersion.cs -recurse
 	$filesThatNeedUpdate | % {
@@ -113,13 +103,13 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
     
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-    
+	$v1Projects = @("NServiceBus.Transports.ActiveMQ.csproj", "NServiceBus.Transports.RabbitMQ.csproj", "NServiceBus.Transports.SQLServer.csproj", "NServiceBus.Notifications.csproj")
+	
 	foreach($projectFile in $projectFiles) {
 
 		$projectDir = [System.IO.Path]::GetDirectoryName($projectFile)
 		$projectName = [System.IO.Path]::GetFileName($projectDir)
 		$asmInfo = [System.IO.Path]::Combine($projectDir, [System.IO.Path]::Combine("Properties", "AssemblyInfo.cs"))
-		
 		$assemblyTitle = gc $asmInfo | select-string -pattern "AssemblyTitle"
 		
 		if($assemblyTitle -ne $null){
@@ -135,6 +125,31 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 			$assemblyTitle = ""	
 		}
 		
+		$projectFileName = [System.IO.Path]::GetFileName($projectFile)
+		Write-Output "Project Name: $projectFileName"
+		
+		if([System.Array]::IndexOf($v1Projects, $projectFileName) -eq -1){
+			$asmVersion =  $ProductVersion + ".0.0"
+
+			if($PreRelease -eq "") {
+				$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
+				$infoVersion = $ProductVersion + "." + $PatchVersion
+			} else {
+				$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
+				$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
+			}
+		} else {
+			$asmVersion =  "1.0.0.0"
+
+			if($PreRelease -eq "") {
+				$fileVersion = "1.0.0.0" 
+				$infoVersion = "1.0.0"
+			} else {
+				$fileVersion = "1.0.0." + $BuildNumber 
+				$infoVersion = "1.0.0." + "-" + $PreRelease + $BuildNumber 	
+			}
+		}
+				
 		$assemblyDescription = gc $asmInfo | select-string -pattern "AssemblyDescription" 
 		if($assemblyDescription -ne $null){
 			$assemblyDescription = $assemblyDescription.ToString()

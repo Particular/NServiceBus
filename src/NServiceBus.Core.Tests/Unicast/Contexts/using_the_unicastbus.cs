@@ -4,6 +4,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
+    using Core.Tests;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
@@ -16,7 +17,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Routing;
     using Serializers.XML;
     using Settings;
-    using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Timeout;
@@ -41,7 +41,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FuncBuilder FuncBuilder;
         protected Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
-        protected DefaultMessageRegistry messageRegistry;
+        protected MessageMetadataRegistry MessageMetadataRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
         SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
         protected StaticMessageRouter router;
@@ -65,7 +65,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
-            messageRegistry = new DefaultMessageRegistry
+            MessageMetadataRegistry = new MessageMetadataRegistry
                 {
                     DefaultToNonPersistentMessages = false
                 };
@@ -122,7 +122,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                         TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
                     },
                 SubscriptionManager = subscriptionManager,
-                MessageRegistry = messageRegistry,
+                MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 HandlerRegistry = handlerRegistry,
                 MessageRouter = router
@@ -184,7 +184,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
             router.RegisterRoute(typeof(T), address);
-            messageRegistry.RegisterMessageType(typeof(T));
+            MessageMetadataRegistry.RegisterMessageType(typeof(T));
 
         }
 

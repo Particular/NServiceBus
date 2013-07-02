@@ -9,7 +9,6 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class AutoCorrelateSagaOnReplyMutator : IMutateTransportMessages, INeedInitialization
     {
-
         /// <summary>
         /// Stores the original saga id and type of the incoming message
         /// </summary>
@@ -39,7 +38,7 @@ namespace NServiceBus.Sagas
 
             transportMessage.Headers[Headers.SagaId] = originatingSagaId;
 
-            //we do this check for bacwards compat since older versions on NSB can set the saga id but not the type
+            //we do this check for backwards compatibility since older versions on NSB can set the saga id but not the type
             if(!string.IsNullOrEmpty(originatingSagaType))
                 transportMessage.Headers[Headers.SagaType] = originatingSagaType;
         }

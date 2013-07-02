@@ -228,6 +228,11 @@ namespace NServiceBus.ObjectBuilder.Ninject
             return this.kernel.CanResolve(req);
         }
 
+        public void Release(object instance)
+        {
+            kernel.Release(instance);
+        }
+
         /// <summary>
         /// Gets all service types of a given component.
         /// </summary>
