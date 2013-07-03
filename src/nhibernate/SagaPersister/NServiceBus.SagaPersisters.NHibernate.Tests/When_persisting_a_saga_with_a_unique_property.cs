@@ -9,7 +9,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     public class When_persisting_a_saga_with_a_unique_property : InMemoryFixture
     {
         [Test]
-        public void The_database_should_enforce_the_uniqness()
+        public void The_database_should_enforce_the_uniqueness()
         {
             UnitOfWork.Begin();
             SagaPersister.Save(new SagaWithUniqueProperty
