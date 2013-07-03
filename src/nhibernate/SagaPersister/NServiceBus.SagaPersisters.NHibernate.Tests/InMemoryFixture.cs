@@ -47,7 +47,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var types = typeof(TestSaga).Assembly.GetTypes().ToList();
             types.Add(typeof(ContainSagaData));
 
-            Configure.With()
+            Configure.With(types)
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
                 .UseNHibernateSagaPersister();
