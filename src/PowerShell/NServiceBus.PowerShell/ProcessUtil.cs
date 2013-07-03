@@ -10,7 +10,7 @@
     /// </summary>
     public static class ProcessUtil
     {
-        public static bool IsRunningWithElevatedPriviliges()
+        public static bool IsRunningWithElevatedPrivileges()
         {
             return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
         }

@@ -4,7 +4,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Config.Internal;
     using NUnit.Framework;
     using Saga;
-    using global::NHibernate;
     using global::NHibernate.Cfg;
     using global::NHibernate.Impl;
 
@@ -34,7 +33,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.NotNull(persister, "The persister should be single table");
         }
     }
-
 
     public class SagaWithAbstractBaseClass : MyOwnAbstractBase
     {

@@ -90,7 +90,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="When_automapping_sagas_with_abstact_base_class.cs" />
+    <Compile Include="When_automapping_sagas_with_abstract_base_class.cs" />
     <Compile Include="FakeConfigurationSource.cs" />
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="MySaga.cs" />
