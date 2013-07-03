@@ -3,11 +3,8 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
-    using System.Xml;
-    using System.Xml.Serialization;
     using Attributes;
     using Saga;
     using global::NHibernate.Cfg.MappingSchema;
@@ -83,7 +80,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                 {
                     map.Table(type.DeclaringType.Name + "_" + type.Name);
                 }
-
             }
         }
 
@@ -95,6 +91,21 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                 map.Table(tableAttribute.TableName);
                 if (!String.IsNullOrEmpty(tableAttribute.Schema))
                     map.Schema(tableAttribute.Schema);
+
+                return;
+            }
+
+            //if the type is nested use the name of the parent
+            if (type.DeclaringType != null)
+            {
+                if (typeof(IContainSagaData).IsAssignableFrom(type))
+                {
+                    map.Table(type.DeclaringType.Name);
+                }
+                else
+                {
+                    map.Table(type.DeclaringType.Name + "_" + type.Name);
+                }
             }
         }
 

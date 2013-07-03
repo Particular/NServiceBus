@@ -7,7 +7,6 @@ namespace NServiceBus.Unicast.Transport
     using Logging;
     using System.Runtime.Serialization;
     using Monitoring;
-    using SecondLevelRetries;
     using Transports;
 
     /// <summary>
