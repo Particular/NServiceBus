@@ -1,15 +1,11 @@
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using System;
-    using System.IO;
     using System.Linq;
-    using System.Xml;
-    using System.Xml.Serialization;
-    using AutoPersistence;
     using Config.Internal;
     using NUnit.Framework;
+    using Saga;
     using global::NHibernate.Cfg;
-    using global::NHibernate.Cfg.MappingSchema;
     using global::NHibernate.Engine;
     using global::NHibernate.Id;
     using global::NHibernate.Impl;
@@ -25,8 +21,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public void SetUp()
         {
             var assemblyContainingSagas = typeof (TestSaga).Assembly;
+            var types = assemblyContainingSagas.GetTypes().ToList();
+            types.Add(typeof(ContainSagaData));
 
-            var builder = new SessionFactoryBuilder(assemblyContainingSagas.GetTypes());
+            var builder = new SessionFactoryBuilder(types);
             var properties = SQLiteConfiguration.InMemory();
 
             sessionFactory = builder.Build(new Configuration().AddProperties(properties)) as SessionFactoryImpl;
