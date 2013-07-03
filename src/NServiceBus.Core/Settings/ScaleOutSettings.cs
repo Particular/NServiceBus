@@ -9,7 +9,7 @@ namespace NServiceBus.Settings
         /// Instructs the broker based transports to use a single queue for the endpoint regardless of which machine its running on. 
         /// This is suitable for backend processing endpoints and is the default for the As_aServer role.
         /// Clients that needs to make use of callbacks needs to make sure that this setting is off since they need to have a unique 
-        /// inout queue per machine in order to not miss any of the callbacks.
+        /// input queue per machine in order to not miss any of the callbacks.
         /// </summary>
         /// <returns></returns>
         public ScaleOutSettings UseSingleBrokerQueue()
