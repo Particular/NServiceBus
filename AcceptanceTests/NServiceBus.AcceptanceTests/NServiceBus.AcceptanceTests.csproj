@@ -177,6 +177,7 @@
     <Compile Include="Sagas\When_receiving_a_message_that_should_complete_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
     <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
+    <Compile Include="Sagas\When_using_containsagadata.cs" />
     <Compile Include="ScenarioDescriptors\AllSagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\AllSubscriptionStorages.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
