@@ -285,8 +285,6 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
 
             var fullTypes = GetFullTypes(messages as object[]);
-
-
             var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
             MapTransportMessageFor(messages as object[], eventMessage);

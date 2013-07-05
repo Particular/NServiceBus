@@ -19,28 +19,41 @@ namespace NServiceBus.Sagas
             originatingSagaType = null;
 
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaId))
+            {
                 originatingSagaId = transportMessage.Headers[Headers.OriginatingSagaId];
+            }
 
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaType))
+            {
                 originatingSagaType = transportMessage.Headers[Headers.OriginatingSagaType];
+            }
 
         }
         
         /// <summary>
-        /// Promotes the id and type of the originating saga if the is a reply
+        /// Promotes the id and type of the originating saga if it is a reply
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if(string.IsNullOrEmpty(originatingSagaId))
+            if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
                 return;
+            }
+
+            if (string.IsNullOrEmpty(originatingSagaId))
+            {
+                return;
+            }
 
             transportMessage.Headers[Headers.SagaId] = originatingSagaId;
 
             //we do this check for backwards compatibility since older versions on NSB can set the saga id but not the type
-            if(!string.IsNullOrEmpty(originatingSagaType))
+            if (!string.IsNullOrEmpty(originatingSagaType))
+            {
                 transportMessage.Headers[Headers.SagaType] = originatingSagaType;
+            }
         }
 
         public void Init()
