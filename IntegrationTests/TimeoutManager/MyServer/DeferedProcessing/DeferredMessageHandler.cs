@@ -22,7 +22,7 @@ namespace MyServer.DeferedProcessing
 
         static void LogMessage(string message)
         {
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), message));
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), message);
         }
     }
 }
