@@ -38,7 +38,6 @@ namespace NServiceBus.Transports.Msmq
         {
             this.tryProcessMessage = tryProcessMessage;
             this.endProcessMessage = endProcessMessage;
-            endpointAddress = address;
             transactionSettings = settings;
 
             if (address == null)
@@ -53,7 +52,11 @@ namespace NServiceBus.Transports.Msmq
                                   address, RuntimeEnvironment.MachineName));
             }
 
-            transactionOptions = new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout };
+            transactionOptions = new TransactionOptions
+                                 {
+                                     IsolationLevel = transactionSettings.IsolationLevel,
+                                     Timeout = transactionSettings.TransactionTimeout
+                                 };
 
             queue = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
 
@@ -79,7 +82,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            semaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
+            throttlingSemaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
             queue.PeekCompleted += OnPeekCompleted;
 
@@ -95,11 +98,11 @@ namespace NServiceBus.Transports.Msmq
 
             stopResetEvent.WaitOne();
 
-            semaphore.Dispose();
+            throttlingSemaphore.Dispose();
             queue.Dispose();
         }
 
-        private bool QueueIsTransactional()
+        bool QueueIsTransactional()
         {
             try
             {
@@ -114,13 +117,13 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        private void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
+        void OnPeekCompleted(object sender, PeekCompletedEventArgs peekCompletedEventArgs)
         {
             stopResetEvent.Reset();
 
             CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
 
-            semaphore.Wait();
+            throttlingSemaphore.Wait();
 
             Task.Factory
                 .StartNew(Action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
@@ -141,7 +144,7 @@ namespace NServiceBus.Transports.Msmq
             stopResetEvent.Set();
         }
 
-        private void Action()
+        void Action()
         {
             Exception exception = null;
             TransportMessage transportMessage = null;
@@ -224,7 +227,7 @@ namespace NServiceBus.Transports.Msmq
             {
                 endProcessMessage(transportMessage, exception);
 
-                semaphore.Release();
+                throttlingSemaphore.Release();
             }
         }
 
@@ -236,11 +239,11 @@ namespace NServiceBus.Transports.Msmq
             }
             catch (MessageQueueException mqe)
             {
-                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+                var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+                    var windowsIdentity = WindowsIdentity.GetCurrent();
 
                     errorException =
                         string.Format(
@@ -294,11 +297,11 @@ namespace NServiceBus.Transports.Msmq
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                 }
 
-                string errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+                var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
 
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
                 {
-                    WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+                    var windowsIdentity = WindowsIdentity.GetCurrent();
 
                     errorException =
                         string.Format(
@@ -327,16 +330,15 @@ namespace NServiceBus.Transports.Msmq
             circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", ex));
         }
 
-        readonly CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
+        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Func<TransportMessage, bool> tryProcessMessage;
-        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
-        readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
-        readonly TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
-        readonly AutoResetEvent peekResetEvent = new AutoResetEvent(false);
+        static ILog Logger = LogManager.GetLogger(typeof(MsmqDequeueStrategy));
+        ManualResetEvent stopResetEvent = new ManualResetEvent(true);
+        TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
+        AutoResetEvent peekResetEvent = new AutoResetEvent(false);
         MessageQueue queue;
-        SemaphoreSlim semaphore;
+        SemaphoreSlim throttlingSemaphore;
         TransactionSettings transactionSettings;
-        Address endpointAddress;
         TransactionOptions transactionOptions;
         Action<TransportMessage, Exception> endProcessMessage;
     }
