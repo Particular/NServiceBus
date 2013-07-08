@@ -239,22 +239,7 @@ namespace NServiceBus.Transports.Msmq
             }
             catch (MessageQueueException mqe)
             {
-                var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
-
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
-                {
-                    var windowsIdentity = WindowsIdentity.GetCurrent();
-
-                    errorException =
-                        string.Format(
-                            "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
-                            queue.FormatName,
-                            windowsIdentity != null
-                                ? windowsIdentity.Name
-                                : "Unknown User");
-                }
-
-                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
+                RaiseCriticalException(mqe);
             }
         }
 
@@ -295,24 +280,10 @@ namespace NServiceBus.Transports.Msmq
                 if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                 {
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                    return null;
                 }
 
-                var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
-
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
-                {
-                    var windowsIdentity = WindowsIdentity.GetCurrent();
-
-                    errorException =
-                        string.Format(
-                            "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
-                            queue.FormatName,
-                            windowsIdentity != null
-                                ? windowsIdentity.Name
-                                : "Unknown User");
-                }
-
-                OnCriticalExceptionEncountered(new InvalidOperationException(errorException, mqe));
+                RaiseCriticalException(mqe);
             }
             catch (Exception ex)
             {
@@ -325,9 +296,24 @@ namespace NServiceBus.Transports.Msmq
             return message;
         }
 
-        void OnCriticalExceptionEncountered(Exception ex)
+        void RaiseCriticalException(MessageQueueException mqe)
         {
-            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", ex));
+            var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+
+            if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+            {
+                var windowsIdentity = WindowsIdentity.GetCurrent();
+
+                errorException =
+                    string.Format(
+                        "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
+                        queue.FormatName,
+                        windowsIdentity != null
+                            ? windowsIdentity.Name
+                            : "Unknown User");
+            }
+
+            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", new InvalidOperationException(errorException, mqe)));
         }
 
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
