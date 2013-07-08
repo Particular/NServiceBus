@@ -82,6 +82,7 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
         public void Start(int maximumConcurrencyLevel)
         {
+            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
             throttlingSemaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
             queue.PeekCompleted += OnPeekCompleted;
@@ -97,9 +98,22 @@ namespace NServiceBus.Transports.Msmq
             queue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
+            DrainStopSemaphore();
+            queue.Dispose();
+        }
+
+        void DrainStopSemaphore()
+        {
+            Logger.Debug("Drain stopping 'Throttling Semaphore'.");
+            for (var index = 0; index < maximumConcurrencyLevel; index++)
+            {
+                Logger.Debug(string.Format("Claiming Semaphore thread {0}/{1}.", index + 1, maximumConcurrencyLevel));
+                throttlingSemaphore.Wait();
+            }
+            Logger.Debug("Releasing all claimed Semaphore threads.");
+            throttlingSemaphore.Release(maximumConcurrencyLevel);
 
             throttlingSemaphore.Dispose();
-            queue.Dispose();
         }
 
         bool QueueIsTransactional()
@@ -327,5 +341,6 @@ namespace NServiceBus.Transports.Msmq
         TransactionSettings transactionSettings;
         TransactionOptions transactionOptions;
         Action<TransportMessage, Exception> endProcessMessage;
+        int maximumConcurrencyLevel;
     }
 }
