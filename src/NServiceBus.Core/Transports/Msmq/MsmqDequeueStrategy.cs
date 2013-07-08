@@ -302,18 +302,18 @@ namespace NServiceBus.Transports.Msmq
 
             if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
             {
-                var windowsIdentity = WindowsIdentity.GetCurrent();
-
-                errorException =
-                    string.Format(
-                        "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
-                        queue.FormatName,
-                        windowsIdentity != null
-                            ? windowsIdentity.Name
-                            : "Unknown User");
+                errorException = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",queue.FormatName,GetUserName());
             }
 
             circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", new InvalidOperationException(errorException, mqe)));
+        }
+
+        static string GetUserName()
+        {
+            var windowsIdentity = WindowsIdentity.GetCurrent();
+            return windowsIdentity != null
+                ? windowsIdentity.Name
+                : "Unknown User";
         }
 
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
