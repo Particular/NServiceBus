@@ -229,6 +229,7 @@
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Unicast\Impersonation.cs" />
+    <Compile Include="Utils\Reflection\ReflectTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
