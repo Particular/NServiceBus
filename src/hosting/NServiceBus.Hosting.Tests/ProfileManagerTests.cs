@@ -346,7 +346,6 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
-        [Explicit]
         public class When_multiple_profile_exist
         {
             static List<Type> activations = new List<Type>();
