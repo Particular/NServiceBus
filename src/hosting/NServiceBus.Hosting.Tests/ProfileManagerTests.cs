@@ -349,7 +349,7 @@ namespace NServiceBus.Hosting.Tests
         [Explicit]
         public class When_multiple_profile_exist
         {
-            static List<IHandleProfile> activationOrderList = new List<IHandleProfile>();
+            static List<Type> activations = new List<Type>();
 
             public interface Profile1 : IProfile
             {
@@ -363,7 +363,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activationOrderList.Add(this);
+                    activations.Add(this.GetType());
                 }
             }
 
@@ -371,7 +371,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activationOrderList.Add(this);
+                    activations.Add(this.GetType());
                 }
             }
 
@@ -432,10 +432,9 @@ namespace NServiceBus.Hosting.Tests
                                };
                 var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
                 profileManagerA.ActivateProfileHandlers();
-                Assert.IsInstanceOf<Handler1>(activationOrderList[0]);
-                Assert.IsInstanceOf<Handler2>(activationOrderList[1]);
+                CollectionAssert.AreEqual(new[] { typeof(Handler1), typeof(Handler2) }, activations);
 
-                activationOrderList.Clear();
+                activations.Clear();
                 
                 var profilesB = new[]
                                {
@@ -444,10 +443,102 @@ namespace NServiceBus.Hosting.Tests
                                };
                 var profileManagerB = new ProfileManager(allAssemblies, null, profilesB, null);
                 profileManagerB.ActivateProfileHandlers();
-                Assert.IsInstanceOf<Handler2>(activationOrderList[0]);
-                Assert.IsInstanceOf<Handler1>(activationOrderList[1]);
+                CollectionAssert.AreEqual(new[] { typeof(Handler2), typeof(Handler1) }, activations);
+
             }
 
+        }
+        [TestFixture]
+        public class When_handler_handles_multiple_profiles
+        {
+            static List<IHandleProfile> activations = new List<IHandleProfile>();
+
+            public interface Profile1 : IProfile
+            {
+            }
+
+            public interface Profile2 : IProfile
+            {
+            }
+
+            public class Handler : IHandleProfile<Profile1>, IHandleProfile<Profile2>
+            {
+                public void ProfileActivated()
+                {
+                    activations.Add(this);
+                }
+            }
+
+            [Test]
+            public void Should_activate_once_only()
+            {
+                var profilesA = new[]
+                               {
+                                   typeof (Profile1).FullName,
+                                   typeof (Profile2).FullName,
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                profileManagerA.ActivateProfileHandlers();
+                Assert.IsInstanceOf<Handler>(activations[0]);
+                Assert.AreEqual(1, activations.Count);
+            }
+        }
+        [TestFixture]
+        public class When_handling_profiles_with_inheritance
+        {
+            static List<Type> activations = new List<Type>();
+
+            public interface BaseProfile : IProfile
+            {
+            }
+
+            public interface SpecializedProfile : BaseProfile
+            {
+            }
+
+            public class BaseHandler : IHandleProfile<BaseProfile>
+            {
+                public void ProfileActivated()
+                {
+                    activations.Add(this.GetType());
+                }
+            }
+
+            public class SpecializedHandler : IHandleProfile<SpecializedProfile>
+            {
+                public void ProfileActivated()
+                {
+                    activations.Add(this.GetType());
+                }
+            }
+
+            [Test]
+            public void Defining_specialized_profile_should_activate_both_handlers()
+            {
+                activations.Clear();
+
+                var profilesA = new[]
+                               {
+                                   typeof (SpecializedProfile).FullName
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                profileManagerA.ActivateProfileHandlers();
+                CollectionAssert.AreEquivalent(new[] { typeof(BaseHandler), typeof(SpecializedHandler) }, activations);
+            }
+
+            [Test]
+            public void Defining_base_profile_should_only_activate_base_handler()
+            {
+                activations.Clear();
+
+                var profilesA = new[]
+                               {
+                                   typeof (BaseProfile).FullName
+                               };
+                var profileManagerA = new ProfileManager(allAssemblies, null, profilesA, null);
+                profileManagerA.ActivateProfileHandlers();
+                CollectionAssert.AreEquivalent(new[]{typeof(BaseHandler)}, activations);
+            }
         }
         [TestFixture]
         public class When_abstract_base_handler
