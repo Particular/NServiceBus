@@ -18,6 +18,20 @@ namespace NServiceBus.Sagas
             originatingSagaId = null;
             originatingSagaType = null;
 
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
+                if (transportMessage.Headers.ContainsKey(Headers.SagaId))
+                {
+                    transportMessage.Headers.Remove(Headers.SagaId);
+                }
+
+                if (transportMessage.Headers.ContainsKey(Headers.SagaType))
+                {
+                    transportMessage.Headers.Remove(Headers.SagaType);
+                }
+            }
+
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaId))
             {
                 originatingSagaId = transportMessage.Headers[Headers.OriginatingSagaId];
