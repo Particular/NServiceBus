@@ -99,6 +99,9 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
+    <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
+    <Compile Include="Installation\ElevateChecker.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
