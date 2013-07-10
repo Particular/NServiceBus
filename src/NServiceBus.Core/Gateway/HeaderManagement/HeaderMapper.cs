@@ -54,7 +54,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
             to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
 
-            SetBackwardsCompatibilityHeaders(from, to);
+            SetBackwardsCompatibilityHeaders(to);
 
             if (from.Headers.ContainsKey(ReplyToAddress))
                 to[Headers.RouteTo] = from.Headers[ReplyToAddress];
@@ -64,9 +64,12 @@ namespace NServiceBus.Gateway.HeaderManagement
         }
 
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
-        static void SetBackwardsCompatibilityHeaders(TransportMessage from, IDictionary<string, string> to)
+        static void SetBackwardsCompatibilityHeaders(IDictionary<string, string> to)
         {
-            to[NServiceBus + IdForCorrelation] = from.Headers[CorrIdHeader];
+            if (Configure.HasComponent<MsmqMessageSender>())
+            {
+                to[NServiceBus + IdForCorrelation] = to[NServiceBus + CorrelationId];
+            }
         }
 
         [ObsoleteEx(Message = "No need for this in v5", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
