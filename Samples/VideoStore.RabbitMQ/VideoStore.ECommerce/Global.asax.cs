@@ -12,6 +12,8 @@ namespace VideoStore.ECommerce
 
         protected void Application_Start()
         {
+            Configure.ScaleOut(s => s.UseSingleBrokerQueue());
+
             bus = Configure.With()
                      .DefaultBuilder()
                      .Log4Net(new DebugAppender {Threshold = Level.Warn})

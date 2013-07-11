@@ -4,11 +4,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using System.Collections.Specialized;
     using System.Configuration;
     using System.IO;
+    using System.Linq;
     using System.Security.Principal;
     using Config.Installer;
     using Config.Internal;
     using NUnit.Framework;
     using Persistence.NHibernate;
+    using Saga;
     using UnitOfWork;
     using UnitOfWork.NHibernate;
     using global::NHibernate;
@@ -40,9 +42,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
             ConfigureNHibernate.Init();
 
-
             Configure.Features.Enable<Features.Sagas>();
-            Configure.With(typeof(TestSaga).Assembly.GetTypes())
+
+            var types = typeof(TestSaga).Assembly.GetTypes().ToList();
+            types.Add(typeof(ContainSagaData));
+
+            Configure.With(types)
                 .DefineEndpointName("Foo")
                 .DefaultBuilder()
                 .UseNHibernateSagaPersister();

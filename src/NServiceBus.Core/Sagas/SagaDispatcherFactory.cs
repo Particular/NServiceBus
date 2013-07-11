@@ -109,6 +109,7 @@ namespace NServiceBus.Sagas
                                          }
 
                                      };
+
                 sagaTypesHandled.Add(sagaType);
                 entitiesHandled.Add(sagaEntity);
             }

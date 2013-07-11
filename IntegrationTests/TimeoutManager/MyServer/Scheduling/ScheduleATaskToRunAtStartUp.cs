@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using NServiceBus;
-using NServiceBus.Unicast;
 
 namespace MyServer.Scheduling
 {

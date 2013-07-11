@@ -9,7 +9,6 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class AutoCorrelateSagaOnReplyMutator : IMutateTransportMessages, INeedInitialization
     {
-
         /// <summary>
         /// Stores the original saga id and type of the incoming message
         /// </summary>
@@ -19,29 +18,56 @@ namespace NServiceBus.Sagas
             originatingSagaId = null;
             originatingSagaType = null;
 
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
+                if (transportMessage.Headers.ContainsKey(Headers.SagaId))
+                {
+                    transportMessage.Headers.Remove(Headers.SagaId);
+                }
+
+                if (transportMessage.Headers.ContainsKey(Headers.SagaType))
+                {
+                    transportMessage.Headers.Remove(Headers.SagaType);
+                }
+            }
+
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaId))
+            {
                 originatingSagaId = transportMessage.Headers[Headers.OriginatingSagaId];
+            }
 
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaType))
+            {
                 originatingSagaType = transportMessage.Headers[Headers.OriginatingSagaType];
+            }
 
         }
         
         /// <summary>
-        /// Promotes the id and type of the originating saga if the is a reply
+        /// Promotes the id and type of the originating saga if it is a reply
         /// </summary>
         /// <param name="messages"></param>
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if(string.IsNullOrEmpty(originatingSagaId))
+            if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
                 return;
+            }
+
+            if (string.IsNullOrEmpty(originatingSagaId))
+            {
+                return;
+            }
 
             transportMessage.Headers[Headers.SagaId] = originatingSagaId;
 
-            //we do this check for bacwards compat since older versions on NSB can set the saga id but not the type
-            if(!string.IsNullOrEmpty(originatingSagaType))
+            //we do this check for backwards compatibility since older versions on NSB can set the saga id but not the type
+            if (!string.IsNullOrEmpty(originatingSagaType))
+            {
                 transportMessage.Headers[Headers.SagaType] = originatingSagaType;
+            }
         }
 
         public void Init()

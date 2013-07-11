@@ -279,7 +279,6 @@
     <Compile Include="Gateway\Sending\IdempotentChannelForwarder.cs" />
     <Compile Include="Gateway\Sending\IForwardMessagesToSites.cs" />
     <Compile Include="Gateway\Utils\Hasher.cs" />
-    <Compile Include="Gateway\Utils\StreamExtensions.cs" />
     <Compile Include="Hosting\Configuration\ConfigurationManager.cs" />
     <Compile Include="Hosting\Configuration\EndpointNameAttribute.cs" />
     <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />

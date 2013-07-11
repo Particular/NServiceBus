@@ -61,7 +61,7 @@ namespace MyServer
 
         void DeferMessage()
         {
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sending a message to be processed at a later time"));
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Sending a message to be processed at a later time");
             Bus.SendLocal(new DeferredMessage
                               {
                                   ProcessAt = DateTime.Now.AddSeconds(10)
@@ -79,7 +79,7 @@ namespace MyServer
             
                 
             Bus.SendLocal(message);
-            Console.WriteLine(string.Format("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent")); 
+            Console.WriteLine("{0} - {1}", DateTime.Now.ToLongTimeString(), "Saga start message sent"); 
         }
        
         void ScheduleTask()

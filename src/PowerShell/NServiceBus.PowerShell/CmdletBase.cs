@@ -9,9 +9,10 @@
     {
         protected override void BeginProcessing()
         {
-            if (!ProcessUtil.IsRunningWithElevatedPriviliges())
+            if (!ProcessUtil.IsRunningWithElevatedPrivileges())
             {
-                ThrowTerminatingError(new ErrorRecord(new SecurityException("You need to run this command with administrative rights."), "NotAuthorized", ErrorCategory.SecurityError, null));
+                var exception = new SecurityException("NServiceBus was unable to perform some infrastructure operations. You need to run this command with elevated privileges. If you are running this command from Visual Studio please close Visual Studio and re-open with elevated privileges. For more information see: http://particular.net/articles/preparing-your-machine-to-run-nservicebus");
+                ThrowTerminatingError(new ErrorRecord(exception, "NotAuthorized", ErrorCategory.SecurityError, null));
             }
         }
     }

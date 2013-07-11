@@ -15,8 +15,8 @@
         Refresh the page after submitting orders (would of course use Ajax for this in production :) )
     </div>
     <div>
-        <a href="Default.aspx">Click here to refresh orderlist</a>
-    <div>
+        <a href="Default.aspx">Click here to refresh orders list</a>
+    </div>
     <div>
         <asp:Repeater ID="OrderList" runat="server">
             <HeaderTemplate>

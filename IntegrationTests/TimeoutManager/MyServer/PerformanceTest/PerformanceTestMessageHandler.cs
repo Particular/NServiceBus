@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using NServiceBus;
 
     public class PerformanceTestMessageHandler : IHandleMessages<PerformanceTestMessage>
@@ -19,12 +18,12 @@
         {
             receivedMessages.Add(Bus.CurrentMessageContext.Id);
 
-            Console.WriteLine(string.Format("Message {0}({1})", receivedMessages.Count, NumExpectedMessages));
+            Console.WriteLine("Message {0}({1})", receivedMessages.Count, NumExpectedMessages);
 
             if (NumExpectedMessages == receivedMessages.Count)
             {
                 TimeEnded = DateTime.UtcNow;
-                Console.WriteLine(string.Format("Test finished, total time: {0}", TimeEnded - TimeStarted));
+                Console.WriteLine("Test finished, total time: {0}", TimeEnded - TimeStarted);
             }
 
             if (receivedMessages.Count > NumExpectedMessages && NumExpectedMessages > 0)

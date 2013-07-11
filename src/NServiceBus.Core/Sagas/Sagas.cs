@@ -153,26 +153,10 @@
                 return sagaType;
 
             foreach (Type msgTypeHandleBySaga in messageTypes)
-                if (msgTypeHandleBySaga.IsAssignableFrom(message.GetType()))
+                if (msgTypeHandleBySaga.IsInstanceOfType(message))
                     return sagaType;
 
             return null;
-        }
-
-        /// <summary>
-        /// Finds the types of sagas that can handle the given concrete message type.
-        /// </summary>
-        /// <param name="messageType">A concrete type for a message object</param>
-        /// <returns>The list of saga types.</returns>
-        public static List<Type> GetSagaTypesForMessageType(Type messageType)
-        {
-            var sagas = new List<Type>();
-
-            foreach (Type msgTypeHandled in MessageTypeToSagaTypesLookup.Keys)
-                if (msgTypeHandled.IsAssignableFrom(messageType))
-                    sagas.AddRange(MessageTypeToSagaTypesLookup[msgTypeHandled]);
-
-            return sagas;
         }
 
         /// <summary>
@@ -202,23 +186,6 @@
         }
 
         /// <summary>
-        /// Indicates if a saga has been configured to handle the given message type.
-        /// </summary>
-        /// <param name="messageType"></param>
-        /// <returns></returns>
-        public static bool IsMessageTypeHandledBySaga(Type messageType)
-        {
-            if (MessageTypeToSagaTypesLookup.Keys.Contains(messageType))
-                return true;
-
-            foreach (Type msgHandledBySaga in MessageTypeToSagaTypesLookup.Keys)
-                if (msgHandledBySaga.IsAssignableFrom(messageType))
-                    return true;
-
-            return false;
-        }
-
-        /// <summary>
         /// Gets a reference to the generic "FindBy" method of the given finder
         /// for the given message type using a hashtable lookup rather than reflection.
         /// </summary>
@@ -238,7 +205,7 @@
 
                 if (result == null)
                     foreach (Type messageType in methods.Keys)
-                        if (messageType.IsAssignableFrom(message.GetType()))
+                        if (messageType.IsInstanceOfType(message))
                             result = methods[messageType];
             }
 
@@ -254,7 +221,7 @@
         {
             foreach (Type finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
             {
-                IDictionary<Type, MethodInfo> messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
+                var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
                 if (messageToMethodInfo.ContainsKey(m.GetType()))
                 {
                     yield return finderType;
@@ -262,7 +229,7 @@
                 }
 
                 foreach (Type messageType in messageToMethodInfo.Keys)
-                    if (messageType.IsAssignableFrom(m.GetType()))
+                    if (messageType.IsInstanceOfType(m))
                         yield return finderType;
             }
         }

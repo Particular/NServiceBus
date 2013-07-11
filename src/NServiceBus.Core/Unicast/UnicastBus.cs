@@ -285,8 +285,6 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
 
             var fullTypes = GetFullTypes(messages as object[]);
-
-
             var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
 
             MapTransportMessageFor(messages as object[], eventMessage);
@@ -612,8 +610,7 @@ namespace NServiceBus.Unicast
 
             if (messages.Length > 1)
             {
-                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a bug that will be fixed in v4!
-
+                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a limitation for now!
                 var numberOfMessagesWithDataBusProperties = 0;
                 foreach (var message in messages)
                 {
@@ -1010,7 +1007,7 @@ namespace NServiceBus.Unicast
 
                 if (!callbackInvoked && !handlers.Any())
                 {
-                    var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
+                    var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
 
                     if (Debugger.IsAttached)
                         throw new InvalidOperationException(warning);
