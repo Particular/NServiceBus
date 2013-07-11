@@ -1,54 +1,148 @@
 ﻿namespace LicenseInstaller
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using System.Windows.Forms;
     using Microsoft.Win32;
+    using NDesk.Options;
 
     class Program
     {
+        static string licensePath;
+        static bool useHKCU;
+
         [STAThread]
         static int Main(string[] args)
         {
-            string licensePath = null;
-
-            if (args.Length > 0)
+            if (!TryParseOptions(args))
             {
-                licensePath = args[0];
+                return 0;
             }
 
-            using (var openDialog = new OpenFileDialog())
+            if (!File.Exists(licensePath))
             {
-                openDialog.Filter = "License files (*.xml)|*.xml|All files (*.*)|*.*";
-                openDialog.Title = "Select License file";
-
-                if (openDialog.ShowDialog() == DialogResult.OK)
-                {
-                    licensePath = openDialog.FileName;
-                }
-            }
-
-            if (String.IsNullOrWhiteSpace(licensePath))
-            {
-                Console.Out.WriteLine("License file not installed.");
+                Console.Out.WriteLine("License file '{0}' could not be installed.", licensePath);
                 return 1;
             }
 
             string selectedLicenseText = ReadAllTextWithoutLocking(licensePath);
 
-            using (var registryKey = Registry.CurrentUser.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
+            if (Environment.Is64BitOperatingSystem)
             {
-                if (registryKey == null)
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry32))
                 {
                     return 1;
                 }
-                registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
-            }
 
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Registry64))
+                {
+                    return 1;
+                }
+            }
+            else
+            {
+                if (!TryToWriteToRegistry(selectedLicenseText, RegistryView.Default))
+                {
+                    return 1;
+                }
+            }
+            
             Console.Out.WriteLine("License file installed.");
 
             return 0;
+        }
+
+        static bool TryToWriteToRegistry(string selectedLicenseText, RegistryView view)
+        {
+            var rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view);
+
+            if (useHKCU)
+            {
+                rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
+            }
+
+            using (
+                var registryKey =
+                    rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
+            {
+                if (registryKey == null)
+                {
+                    Console.Out.WriteLine("License file not installed.");
+                    {
+                        return false;
+                    }
+                }
+                registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
+            }
+            return true;
+        }
+
+        static bool TryParseOptions(IEnumerable<string> args)
+        {
+            OptionSet optionSet = null;
+            Func<bool> action = () => true;
+
+            optionSet = new OptionSet
+                {
+                    {
+                        "current-user|c",
+                        @"Installs license in HKEY_CURRENT_USER\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus"
+                        , s => action = () =>
+                            {
+                                useHKCU = true;
+                                return true;
+                            }
+                    },
+                    {
+                        "help|h|?", "Help about the command line options", key => action = () =>
+                            {
+                                PrintUsage(optionSet);
+                                return false;
+                            }
+                    },
+                };
+
+            try
+            {
+                var unparsedArgs = optionSet.Parse(args);
+
+                if (unparsedArgs.Count > 0)
+                {
+                    licensePath = unparsedArgs[0];
+                }
+                else
+                {
+                    PrintUsage(optionSet);
+                    return false;
+                }
+                
+                return action();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                PrintUsage(optionSet);
+            }
+
+            return false;
+        }
+
+        static void PrintUsage(OptionSet optionSet)
+        {
+            Console.WriteLine(
+                @"
+NServiceBus license installer
+--------------------------------------------------------
+Copyright 2010 - {0} - NServiceBus. All rights reserved
+--------------------------------------------------------
+
+Usage: LicenseInstaller [options] license_path
+Options:", DateTime.Now.Year);
+
+            optionSet.WriteOptionDescriptions(Console.Out);
+
+            Console.Out.WriteLine();
         }
 
         static string ReadAllTextWithoutLocking(string path)
@@ -62,9 +156,9 @@
 
         static Version GetNServiceBusVersion()
         {
-            var assembyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-            return new Version(assembyVersion.Major, assembyVersion.Minor);
+            return new Version(assemblyVersion.Major, assemblyVersion.Minor);
         }
     }
 }

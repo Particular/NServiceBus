@@ -1,9 +1,10 @@
 ﻿using NServiceBus.ObjectBuilder.Spring;
-using NServiceBus.ObjectBuilder.Common.Config;
 using Spring.Context.Support;
 
 namespace NServiceBus
 {
+    using ObjectBuilder.Common.Config;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure for configuring the Spring container.
     /// </summary>

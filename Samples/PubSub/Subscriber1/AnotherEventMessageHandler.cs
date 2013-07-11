@@ -1,10 +1,11 @@
+using System;
+using MyMessages;
+using MyMessages.Other;
+using NServiceBus;
+using NServiceBus.Logging;
+
 namespace Subscriber1
 {
-    using System;
-    using MyMessages.Other;
-    using NServiceBus;
-    using log4net;
-
     public class AnotherEventMessageHandler : IHandleMessages<AnotherEventMessage>
     {
         public void Handle(AnotherEventMessage message)

@@ -11,7 +11,7 @@
       <Component Id="ApplicationShortcuts" Guid="{BBBB0CE8-74B4-4813-AF73-A1544231EEE0}">
         <Condition>INSTALLSTARTMENUSHORTCUTS</Condition>
         <Shortcut Id="NSBShortcut" Name="Welcome to $(var.PRODUCTNAME)" Icon="icon.ico" Description="Start page for $(var.PRODUCTNAME)" Target="[APPLICATIONFOLDER]Welcome.html" />
-        <Shortcut Id="PowerShellShortcut" Name="$(var.PRODUCTNAME) Powershell Prompt" Description="$(var.PRODUCTNAME) Powershell Prompt" Target="[POWERSHELLEXE]" Arguments='-noexit -command "Import-Module [APPLICATIONFOLDER]Binaries\NServiceBus.Core.dll | Out-Null"' />
+        <Shortcut Id="PowerShellShortcut" Name="$(var.PRODUCTNAME) Powershell Prompt" Description="$(var.PRODUCTNAME) Powershell Prompt" Target="[POWERSHELLEXE]" Arguments='-noexit -command "Import-Module [APPLICATIONFOLDER]Binaries\NServiceBus.PowerShell.dll | Out-Null"' />
         <RemoveFolder Id="ApplicationProgramsFolderNServiceBus" On="uninstall"/>
         <RegistryValue Root="HKCU" Key="Software\NServiceBus\$(var.VERSION)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>

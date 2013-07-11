@@ -2,7 +2,6 @@
 {
     using System;
     using System.IO;
-    using System.Security.Principal;
     using System.Text;
     using Microsoft.Deployment.WindowsInstaller;
     using Setup.Windows.Dtc;
@@ -20,16 +19,16 @@
             try
             {
                 CaptureOut(() =>
+                {
+                    if (MsmqSetup.StartMsmqIfNecessary(true))
                     {
-                        if (MsmqSetup.StartMsmqIfNecessary(true))
-                        {
-                            session.Log("MSMQ installed and configured.");
-                        }
-                        else
-                        {
-                            session.Log("MSMQ already properly configured.");
-                        }
-                    }, session);
+                        session.Log("MSMQ installed and configured.");
+                    }
+                    else
+                    {
+                        session.Log("MSMQ already properly configured.");
+                    }
+                }, session);
 
                 return ActionResult.Success;
             }
@@ -47,16 +46,10 @@
             try
             {
                 CaptureOut(() =>
-                    {
-                        if (DtcSetup.StartDtcIfNecessary(true))
-                        {
-                            session.Log("DTC installed and configured.");
-                        }
-                        else
-                        {
-                            session.Log("DTC already properly configured.");
-                        }
-                    }, session);
+                {
+                    DtcSetup.StartDtcIfNecessary();
+                    session.Log("DTC installed and configured.");
+                }, session);
 
                 return ActionResult.Success;
             }
@@ -74,17 +67,10 @@
             try
             {
                 CaptureOut(() =>
-                    {
-                        var ravenDbSetup = new RavenDBSetup();
-                        if (ravenDbSetup.Install(WindowsIdentity.GetCurrent(), allowInstall: true))
-                        {
-                            session.Log("RavenDB installed and configured.");
-                        }
-                        else
-                        {
-                            session.Log("RavenDB could not be installed.");
-                        }
-                    }, session);
+                {
+                    RavenDBSetup.Install();
+                    session.Log("RavenDB installed and configured.");
+                }, session);
 
                 return ActionResult.Success;
             }
@@ -102,16 +88,10 @@
             try
             {
                 CaptureOut(() =>
-                    {
-                        if (PerformanceCounterSetup.SetupCounters(true))
-                        {
-                            session.Log("NSB performance counters installed.");
-                        }
-                        else
-                        {
-                            session.Log("NSB performance counters already installed.");
-                        }
-                    }, session);
+                {
+                    PerformanceCounterSetup.SetupCounters();
+                    session.Log("NSB performance counters installed.");
+                }, session);
 
                 return ActionResult.Success;
             }

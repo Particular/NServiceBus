@@ -12,10 +12,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         /// True if installers should be invoked
         /// </summary>
         public static bool RunInstallers { get; set; }
-        /// <summary>
-        /// True if infrastructure installers should be invoked
-        /// </summary>
-        public static bool RunInfrastructureInstallers { get; set; }
+
         /// <summary>
         /// Runs the installers if necessary.
         /// </summary>
@@ -24,12 +21,9 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             if (Debugger.IsAttached)
                 RunInstallers = true;
 
-            if ((!RunInstallers) && (!RunInfrastructureInstallers)) 
+            if (!RunInstallers) 
                 return;
             
-            if(RunInfrastructureInstallers)
-                Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = RunInfrastructureInstallers;
-
             if (RunInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
 

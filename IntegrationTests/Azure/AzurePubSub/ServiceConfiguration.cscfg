@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2013-03.2.0">
+  <Role name="OrderWebSite">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureQueueConfig.QueueName" value="orderwebsiteinputqueue" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Verbose" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="1F151AF2599E15379EB747F80661BC2DEEFAD742" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+  <Role name="OrderService">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureQueueConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureQueueConfig.QueueName" value="orderserviceinputqueue" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="AzureSubscriptionStorageConfig.TableName" value="MySubscriptions" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="error" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Verbose" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="1F151AF2599E15379EB747F80661BC2DEEFAD742" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>

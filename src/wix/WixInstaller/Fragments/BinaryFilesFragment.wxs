@@ -1,199 +1,247 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Fragment>
+    <Fragment>
         <DirectoryRef Id="APPLICATIONFOLDER">
-          <Directory Id="dir6C038A0D9A9CF2FCB393FA6550B48596" Name="Binaries">
-            <Component Id="cmpE5C01B5677C30D575CC15B4B558A57E0" Guid="{30EB0CE8-74B4-4813-AF73-A1544231E9E0}">
-                <File Id="filD17F9AFAC4DF3D7A44817DFBA8510C1A" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\log4net.dll" />
-            </Component>
-            <Component Id="cmpD8002AA88011FE1B921AB056B8A3AFE1" Guid="{12148F8E-483B-4140-B11A-72A57FFC4087}">
-                <File Id="filC2331E3926D326174D80820D9C1226B9" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Azure.dll" />
-            </Component>
-            <Component Id="cmpE14F3AF76DF324F925FA4739FDD3F326" Guid="{75C4B5F1-EA4D-472C-949D-2545EAFF7848}">
-                <File Id="fil0A995E162B49C8992FF52785E7A17C6B" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Azure.pdb" />
-            </Component>
-            <Component Id="cmpFA89C07237030F2CB8F04C792E33858D" Guid="{FC19236F-BD27-48D0-8788-52E87E82E54E}">
-                <File Id="filE91A363BB721057BC4EBDBFF2F1A489E" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Azure.xml" />
-            </Component>
-            <Component Id="cmp99F967A58332E054CB5378C3DFD9D914" Guid="{F8A2AB3B-F153-48C6-B28A-3B987C69513C}">
-                <File Id="filBC996EC0AF0C50E8E8711D261867C14C" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Core.dll" />
-            </Component>
-            <Component Id="cmp94C4FAEDE764741C5B726A601EAB2CC1" Guid="{CDD45683-1E7C-40A9-A121-878E85449200}">
-                <File Id="fil81848AAEB9A4E1906268F73B2667C56D" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Core.pdb" />
-            </Component>
-            <Component Id="cmp8127665FA5BBCCAA5298E432C4F4030F" Guid="{F869596E-DD8B-4102-AFDF-B53DCF10D05D}">
-                <File Id="fil25B87D0B8A35D5195B11344808B67BF4" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Core.xml" />
-            </Component>
-            <Component Id="cmp9908F882EFA8BA6CAF189BC11F9AA53F" Guid="{27E487CF-A054-463D-A11C-41E5CC067A2B}">
-                <File Id="fil99B20A992DD93C819F70280417B4CFD6" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.dll" />
-            </Component>
-            <Component Id="cmp877BBEBEA07DEA8109A1B1689892A65F" Guid="{85526C1D-19E8-4F43-9964-3282F48B8F49}">
-                <File Id="fil99CE23EC8774294DF6D9CAD937DD73F8" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host.exe" />
-            </Component>
-            <Component Id="cmp73A9A937FB9D9C73EB632E79B8FDE475" Guid="{6CB438C1-8E06-46BD-BF2A-0A4EA5859F72}">
-                <File Id="fil874D12E2C3BE2353F3F22F1EDF728632" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host.pdb" />
-            </Component>
-            <Component Id="cmp2049D3EC06565850397E2B8F7219BE6A" Guid="{D99EB36B-7649-43BF-A523-4CA866A00742}">
-                <File Id="fil234FA1031FF7DD54DBCB8A26C451D8FE" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host.xml" />
-            </Component>
-            <Component Id="cmp2D8BAD9AEB1567373192BAF62A85E6C1" Guid="{0AD6D103-7676-4815-8DDE-0EA744FFB4CB}">
-                <File Id="fil60DED6166B8E686DB16342E228FAC0C4" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host32.exe" />
-            </Component>
-            <Component Id="cmp720093C823B7C0ACE637AE7C662A07A6" Guid="{375D0E84-26AB-488A-A636-C66335517EB5}">
-                <File Id="fil0559B840112068A1EF89BA3283DF3492" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host32.pdb" />
-            </Component>
-            <Component Id="cmp3DBC0F6BF872BDACD6A002C13E799237" Guid="{3D4D3306-E095-43F6-BC8C-EBE4F1F2A062}">
-                <File Id="filCD4F02C1179D9B5ED8DDC332F1DEDE51" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Host32.xml" />
-            </Component>
-            <Component Id="cmp5566A26C0B5135F2B605102A37E9D62A" Guid="{F6971501-09DB-4FD7-A119-C7B25FFD700D}">
-                <File Id="fil71742C809CA820F745DFD8CCBA9C1AF4" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.dll" />
-            </Component>
-            <Component Id="cmp4E280108677CD6FE4CF72C28E023B523" Guid="{44EC03F1-6F97-40AD-84F6-0EF077F358C5}">
-                <File Id="fil2D421017C3C071661DBA3BF251D5C7E8" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.HostProcess.exe" />
-            </Component>
-            <Component Id="cmp5B3250E6510BF95F4D75EC1B0FE7F39C" Guid="{0CC1BCC0-5D3A-4ACD-BF17-BFA5C94A0A72}">
-                <File Id="fil9F8CA9DB85992DB5C8B7839F114D677F" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.HostProcess.pdb" />
-            </Component>
-            <Component Id="cmp26B5888316741D249316682D944404D9" Guid="{C5174A57-14AD-4051-A1FE-E2D029B74A73}">
-                <File Id="filAE27668820BB941D9B5E00E55FAD7900" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.HostProcess.xml" />
-            </Component>
-            <Component Id="cmpE90C6ECCC53324BF02EBD81AF13FAA6B" Guid="{E4707525-03BD-48DE-9E9E-4B14ED5D802B}">
-                <File Id="fil2553F5D2D513AD5EB46708A131AD6A74" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.pdb" />
-            </Component>
-            <Component Id="cmp65AF1519267C40F8C4103B156C0AA115" Guid="{B94F579C-026A-44A8-BDF4-02F802913EC1}">
-                <File Id="fil2B9EBC55289E8966A0A8538636A443A2" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Hosting.Azure.xml" />
-            </Component>
-            <Component Id="cmp55B0BB7F8E3F2C4ADC1CC6204BEA2F36" Guid="{9BC5FEE9-6CD6-4F7A-8774-EDDCFB03C4B1}">
-                <File Id="filA6ABCCAC6DFB0C130E71CE5EE47D5FB4" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Integration.WebServices.dll" />
-            </Component>
-            <Component Id="cmp7B43670271BEB1F221B2197E213130B3" Guid="{2B7CC92C-F1E9-44C3-B130-52357D5A41CF}">
-                <File Id="filF952C68685473E89A6F76BBFDCDEAA34" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Integration.WebServices.pdb" />
-            </Component>
-            <Component Id="cmp7BD16FA366705BD7ED2068FACE1DFD2B" Guid="{557FF532-9DD5-4614-A01F-BF4759EB05F9}">
-                <File Id="fil63A7D0B903F338F4794ADF6EA2072043" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.NHibernate.dll" />
-            </Component>
-            <Component Id="cmp05325FCCF5400D4C8021D54FB083C36B" Guid="{2519087B-08BB-4BAD-A603-3D7D41CFFCC9}">
-                <File Id="fil920D397792335083DE98A508B556AE73" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.NHibernate.pdb" />
-            </Component>
-            <Component Id="cmpA0A08776DCD1ADCADFB8058372D7D2C5" Guid="{67BDE219-A9DD-4949-A3A7-7FCB2CF57F28}">
-                <File Id="filD4E152D064B8E810706665C285469B4F" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.NHibernate.xml" />
-            </Component>
-            <Component Id="cmpCE0A834773C3A7A7DFACC4B65F2E08CE" Guid="{C1617DDE-A833-4348-9F44-A2543D9A947A}">
-                <File Id="fil566CBAE0559F880353303C0C156D0E09" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.pdb" />
-            </Component>
-            <Component Id="cmp28D11D73435C325F67E5B05F2F8D012C" Guid="{3BF7761C-4AC7-4F48-98F3-A1E624340926}">
-                <File Id="filF5B08632C4834AA34DEDC53C98A01FF2" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Testing.dll" />
-            </Component>
-            <Component Id="cmp0CCC878BDD3341A5853106135A722B95" Guid="{F6272211-FE99-4925-BA2B-3B684FA49AFB}">
-                <File Id="fil57656377EAF17308E8A71C29A4E4617A" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Testing.pdb" />
-            </Component>
-            <Component Id="cmpB870A2CE084D4DBFE6FFB0E3CBD4EF78" Guid="{67E22FA6-D4FB-44B7-A0EC-A640A0D86F17}">
-                <File Id="fil3A8CA9721DC5AB5976156BD76F105913" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Timeout.Hosting.Azure.dll" />
-            </Component>
-            <Component Id="cmpD73A1B74411BFFC7E1CBAA5C3C796D96" Guid="{B11A5D66-EEF4-4724-AD27-834F7039696B}">
-                <File Id="fil17C7C9886DA62331F9FABFF3581D41C2" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.Timeout.Hosting.Azure.pdb" />
-            </Component>
-            <Component Id="cmpCEC4ABE583511CD8132D71CCDF66EFC7" Guid="{3B232DB6-C9E5-445E-B24A-C152DB526A01}">
-                <File Id="fil1102C5C462FF673840452ED07F7C7FF1" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\NServiceBus.xml" />
-            </Component>
-            <Directory Id="dir7B7CC1226997DBC98E1F9BB41CCF2E4C" Name="containers">
-                <Directory Id="dir710D0057C8673EED4C158D649C2A0FA3" Name="autofac">
-                    <Component Id="cmp99A0877E0660ACA5AE6E75E689CA25D1" Guid="{39517F57-A87B-4EB5-B58E-4EFF2ECF1772}">
-                        <File Id="fil1A434E8C3A73FF1209F626B615A9AD46" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.dll" />
-                    </Component>
-                    <Component Id="cmp880F21B3A34DF7EAF4274D4A7637F473" Guid="{BC29BD99-0D9D-4906-8EB8-E162DF18D416}">
-                        <File Id="filB083007586F1FC0921CF40F5723D90C6" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.xml" />
-                    </Component>
-                </Directory>
-                <Directory Id="dir4CAD315447B7ED8064AD9916998BCE0D" Name="castle">
-                    <Component Id="cmp313E0081A562C288F09B769D0AFCEA1C" Guid="{CF3DA08F-F539-43BC-955A-71A612DF3310}">
-                        <File Id="fil6AFD9CCBB549555A1D6B6985BECF9DFA" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll" />
-                    </Component>
-                    <Component Id="cmp16A2AD8025DE1296F50C4AB540E60005" Guid="{85107EB0-A2CC-4B90-BF8C-6D1886FC09B2}">
-                        <File Id="fil5525821FC4DBCFE7F638E3C48A95868F" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.XML" />
-                    </Component>
-                </Directory>
-                <Directory Id="dir059333D1D7C2DD29569D7F607791940E" Name="ninject">
-                    <Component Id="cmpE7E4997B88064252E08073A5FB8DBA9F" Guid="{00AE0083-F6A9-418F-B812-EB891FF68EB3}">
-                        <File Id="fil25025F436B4FAECEC99F27FA820761DA" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\ninject\NServiceBus.ObjectBuilder.Ninject.dll" />
-                    </Component>
-                    <Component Id="cmp79D4C03BDBF9CC2017E9456FC8748A65" Guid="{90BCFA97-4C18-4387-AAC0-4AF00B3B48B7}">
-                        <File Id="fil1BE1994503D6ED5B9FD1D189EDDD455B" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\ninject\NServiceBus.ObjectBuilder.Ninject.XML" />
-                    </Component>
-                </Directory>
-                <Directory Id="dir52E6A8E7F3816ED82C33EC00CA43E23A" Name="spring">
-                    <Component Id="cmp170F3762B8B0EA90523D6ABC98939854" Guid="{B6419C8A-A586-4752-8EBD-A361BAA4DD30}">
-                        <File Id="filAB6A4C3D03CD9CF46ADBCF61B09A6030" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\spring\NServiceBus.ObjectBuilder.Spring.dll" />
-                    </Component>
-                    <Component Id="cmpDB93A8D720880AF74429A2AFB8B706E3" Guid="{B12990FC-67CB-4F7D-8DB4-523F22FFB8FA}">
-                        <File Id="fil7B5D81469696BB4902398BA3B4AAF6A3" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\spring\NServiceBus.ObjectBuilder.Spring.XML" />
-                    </Component>
-                </Directory>
-                <Directory Id="dirAE35AD3E4830E9F9AD80B96C4E120A97" Name="structuremap">
-                    <Component Id="cmp562F674CDC1717305018197B6B8BEEA8" Guid="{84E43358-28B7-49A6-AF68-6E94A86A1E14}">
-                        <File Id="filCBC1D85E6AD1AD722BA52438CD841D51" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll" />
-                    </Component>
-                    <Component Id="cmp483964B85CB2180649642168DA95AA7A" Guid="{F157F8A1-9100-409D-9A1F-EDD195BE9CD1}">
-                        <File Id="fil457D268945BB1ECF78D4D3728E672144" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.XML" />
-                    </Component>
-                </Directory>
-                <Directory Id="dir7E71CD54E784A50DD1AB4295C2B172DA" Name="unity">
-                    <Component Id="cmpE16849B0410F0605B51139CB2BB4AE69" Guid="{C944D39A-5B10-43E0-B47E-EE080CD5C8DB}">
-                        <File Id="filFCDA2C000F3F26A3DF1AA0C83651A635" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.dll" />
-                    </Component>
-                    <Component Id="cmpCE29C148C694D6C726D389AD64D47DC0" Guid="{D068B619-246F-417D-9069-73C5293EC8D2}">
-                        <File Id="fil66C02CC17623173CFA1636677078AC44" KeyPath="yes" Source="$(var.SOURCEPATH)\net40\Binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.XML" />
-                    </Component>
+            <Directory Id="dirD0156A2896BAE0C8DC8204DD22D4753E" Name="Binaries">
+                <Component Id="cmpAB3F9285F3AC14479F6DF70A508202E5" Guid="*">
+                    <File Id="fil8FBCE0CA6B1766CFCAB7141B713A1D06" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\log4net.dll" />
+                </Component>
+                <Component Id="cmp5CCBCA466BE46288E6C9697B51C81695" Guid="*">
+                    <File Id="filE9469D4AAE730977E284D8542BC23749" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\log4net.xml" />
+                </Component>
+                <Component Id="cmpF41B0982919033B69B08194CAF6C85B8" Guid="*">
+                    <File Id="fil06366CC8430E68296174AE9FB4C9523E" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Azure.dll" />
+                </Component>
+                <Component Id="cmpB66AE20FC4A4E2E8BD0790A4439534FC" Guid="*">
+                    <File Id="fil5D80583FED813A60E0CBE1A2485A5B92" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Azure.pdb" />
+                </Component>
+                <Component Id="cmp7877C200BEBA31489066F20E31AEBA81" Guid="*">
+                    <File Id="filB5294D555F1434C98E496BAA8604187B" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Azure.XML" />
+                </Component>
+                <Component Id="cmp70C98917D7141B38FF55F9547A7928E6" Guid="*">
+                    <File Id="filE7AE05E298F0ED715A568E353EF908D3" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Core.dll" />
+                </Component>
+                <Component Id="cmp8E58D02CED2CF7909158FBE5114F6639" Guid="*">
+                    <File Id="fil03808ABEF475ACB2A4EA309002210B8B" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Core.pdb" />
+                </Component>
+                <Component Id="cmp428881BCCAAF1F529B3C5AE891930B91" Guid="*">
+                    <File Id="fil1D28BB0379232043A00DF87981010F5F" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Core.xml" />
+                </Component>
+                <Component Id="cmp63EF180AC871F87B23237ED738A4A9FB" Guid="*">
+                    <File Id="fil5CC4E5FD55B869C251C8E6A20D519181" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.dll" />
+                </Component>
+                <Component Id="cmp1E72C15F32C52F28301795730EB81F17" Guid="*">
+                    <File Id="fil5E910F6DE120834866BC6119AD1A0B33" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host.exe" />
+                </Component>
+                <Component Id="cmp50AA45E33A5EFC238E9ABDA2A6EACA8A" Guid="*">
+                    <File Id="fil8C0212338153428F8112B7C3D061542A" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host.pdb" />
+                </Component>
+                <Component Id="cmp1801BB8AE51A4AF2B36AD40AD1F682F2" Guid="*">
+                    <File Id="fil17E800004A07F787E7249BEF001F8784" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host.xml" />
+                </Component>
+                <Component Id="cmp157AFC68605DC53F0B69C0CC914D46FD" Guid="*">
+                    <File Id="filD8E5056F149A8D4BEA36A8E813734598" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host32.exe" />
+                </Component>
+                <Component Id="cmp677B125153F1EB4AFD65A1E1D0D288F7" Guid="*">
+                    <File Id="filF99812A84323A7D722595227DD0CA89E" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host32.pdb" />
+                </Component>
+                <Component Id="cmp09A34D8E4AB9296EEA0CC26AEF40E0B4" Guid="*">
+                    <File Id="fil88CD7FA1EAA464213CB2574DD706D57E" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Host32.xml" />
+                </Component>
+                <Component Id="cmp8AF2FEB449A0A274E90EC3D62B1D22AE" Guid="*">
+                    <File Id="fil9E624960D2A40BCB3D0A18578356CDFC" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.dll" />
+                </Component>
+                <Component Id="cmp78F3B594CB0BD4FA5760D0A054F04733" Guid="*">
+                    <File Id="fil8E7C6860AA0AEB9C2008F84091920B14" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.HostProcess.exe" />
+                </Component>
+                <Component Id="cmp5A17A91799EFDAC0EC12DBA7A46297C3" Guid="*">
+                    <File Id="filCD1A3C5F217163059B7D987CADDDEC27" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.HostProcess.pdb" />
+                </Component>
+                <Component Id="cmp418355D5ADA785CA17FE3A0D4867598E" Guid="*">
+                    <File Id="fil59DDC531B5A7767625ED9EFCB3B57D39" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.HostProcess.xml" />
+                </Component>
+                <Component Id="cmp4BACAEBEE99F82E7E41AA2DA4B29CBA4" Guid="*">
+                    <File Id="filDF2387EE9FE90D4D2D375F2763C12AEE" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.pdb" />
+                </Component>
+                <Component Id="cmpC839C48EFB6C8DE9DA65CD9CD32E244A" Guid="*">
+                    <File Id="filFBAE5A4902F35E816F7E8B3A2528AAB7" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Hosting.Azure.XML" />
+                </Component>
+                <Component Id="cmp4476CEBDA0673323C1DAC8FE57045819" Guid="*">
+                    <File Id="filE06F7939BFFF66CA976033A2499C7A78" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.NHibernate.dll" />
+                </Component>
+                <Component Id="cmp9FD1C7908C203A05E0CEEE1C63818280" Guid="*">
+                    <File Id="fil037378BA310C1BC0A0A2B9606891E127" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.NHibernate.pdb" />
+                </Component>
+                <Component Id="cmpEB08C898D742FD6BAE51DF39DB38144A" Guid="*">
+                    <File Id="fil85A546A717BE5F22FB3F664AA77212B5" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.NHibernate.XML" />
+                </Component>
+                <Component Id="cmpCF4E902007D27851A9F451348EBD7CEA" Guid="*">
+                    <File Id="fil0A136795CFCE71E41D0D5CCF97568109" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.pdb" />
+                </Component>
+                <Component Id="cmpA5E3C5B84F1DD31A1824760850F3916A" Guid="*">
+                    <File Id="filDE7B703AB0144775ED0A0B41D213BA14" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.PowerShell.dll" />
+                </Component>
+                <Component Id="cmpC55F86728D5DB74764CFE484D7397636" Guid="*">
+                    <File Id="filAA1E74C1279D6C2D00CE2F725F5BEBFA" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.PowerShell.pdb" />
+                </Component>
+                <Component Id="cmpBFB60C42594B136FB164D10B11CC8B26" Guid="*">
+                    <File Id="fil75775D41078CEA1047DC8C3688D10C4B" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Setup.Windows.dll" />
+                </Component>
+                <Component Id="cmp0675444CD5D9F5980FAF142481D519FD" Guid="*">
+                    <File Id="fil5E1B5D4DE5E046BA959ABBD2E8321C7A" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Setup.Windows.pdb" />
+                </Component>
+                <Component Id="cmp44CD2EDF363F5FEA0D818329DA809B40" Guid="*">
+                    <File Id="fil680996A6FE11987DE12D330047628C82" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Testing.dll" />
+                </Component>
+                <Component Id="cmp37E98BB9DAF00E57178D954AA4637A5E" Guid="*">
+                    <File Id="filFC2F142893605ACFC8286EE466A6866D" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Testing.pdb" />
+                </Component>
+                <Component Id="cmp1A1EDF8790F8BF099DD5B370174E51C4" Guid="*">
+                    <File Id="filC88D9351FAB5DD10B8C4ED5CE61E5623" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Testing.XML" />
+                </Component>
+                <Component Id="cmpFD95AEBD47C2CF4684F66F21479342E8" Guid="*">
+                    <File Id="filEACAEE3F1E425E90B03E7F733B311F0B" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Timeout.Hosting.Azure.dll" />
+                </Component>
+                <Component Id="cmp013BB082FF4F46EB4A06424D8C43893B" Guid="*">
+                    <File Id="filE4987442FCA8F1B468B72C1CA09217D0" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Timeout.Hosting.Azure.dll.config" />
+                </Component>
+                <Component Id="cmp42B4973770B8AF64F2CFCACCFF01D962" Guid="*">
+                    <File Id="filDEFE7D9133E8EC1E75C920068E4DC637" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Timeout.Hosting.Azure.pdb" />
+                </Component>
+                <Component Id="cmp9802C94E6EF4513BDB0013D500FFA5A2" Guid="*">
+                    <File Id="fil1C983FBD57A7BEC24621D3507C77862A" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.Timeout.Hosting.Azure.XML" />
+                </Component>
+                <Component Id="cmp66E842B1CA55A962DBA830360F12910E" Guid="*">
+                    <File Id="fil3A9EFE546058CA778AE840450431D93D" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\NServiceBus.XML" />
+                </Component>
+                <Directory Id="dirE4880291F6DB0D36C93C6B53247E6946" Name="containers">
+                    <Directory Id="dirE7DB7ED51F397C5ED3767AFDA69C0A55" Name="autofac">
+                        <Component Id="cmp930D5E95DFA529F0B8EE07C617713B9B" Guid="*">
+                            <File Id="filBB0857A7CC600DBF9988B3A364D6AC31" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\autofac\NServiceBus.ObjectBuilder.Autofac.dll" />
+                        </Component>
+                        <Component Id="cmpD0D26A54CBFD88D0D74B5BE0D4D4ADAD" Guid="*">
+                            <File Id="filB353F2C94D42D45107CB647D264B5105" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\autofac\NServiceBus.ObjectBuilder.Autofac.pdb" />
+                        </Component>
+                        <Component Id="cmpCC76928860AA9D4F74C11A4381EFD66C" Guid="*">
+                            <File Id="filE74A40562E7C145E53A58957E1BB0BE4" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\autofac\NServiceBus.ObjectBuilder.Autofac.XML" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="dirD108AFFFF28B626871CC212770D06CE7" Name="castle">
+                        <Component Id="cmpD3FB3354EFF88F26B74BDA8EA8D1AB10" Guid="*">
+                            <File Id="fil2896E82192F03906DCCEDEAB369F7FB2" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.dll" />
+                        </Component>
+                        <Component Id="cmp7646D5AEE66A7D8C53330305BEA03790" Guid="*">
+                            <File Id="filB470905277E619DDFEAD8BE7A98E95FC" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.pdb" />
+                        </Component>
+                        <Component Id="cmp642D7F7C8D5B9FC1B1FB2C5BBAA8C341" Guid="*">
+                            <File Id="filD45B2A9DD2E220B88683658F348643B3" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.XML" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="dirC1EF3D00D82201BAF78870573B7F95C8" Name="ninject">
+                        <Component Id="cmpA05550E0A797FBAF25A9C35EEC8603FB" Guid="*">
+                            <File Id="filC31EF8E9C640CDC3C79178A032DD322E" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\ninject\NServiceBus.ObjectBuilder.Ninject.dll" />
+                        </Component>
+                        <Component Id="cmp060F6E91691609B92BB4A5814CEDF8F0" Guid="*">
+                            <File Id="fil729E7669CB0878A5672E339ACC58DB1D" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\ninject\NServiceBus.ObjectBuilder.Ninject.pdb" />
+                        </Component>
+                        <Component Id="cmpF13967160BD7DBA877AF37EE089FA6F6" Guid="*">
+                            <File Id="fil480690A499E1D8E6F22BCAB7BDEF9F00" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\ninject\NServiceBus.ObjectBuilder.Ninject.XML" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="dir6F942AA30C3EFD1041EF166AA1E0F942" Name="spring">
+                        <Component Id="cmp53C76CE870A26267299BD30306BA9526" Guid="*">
+                            <File Id="filCD6B1F2EF02B933BA9B4699CCF07EAAC" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\spring\NServiceBus.ObjectBuilder.Spring.dll" />
+                        </Component>
+                        <Component Id="cmpD7D15A907F9769AEF9AB8FF654232D1F" Guid="*">
+                            <File Id="fil65C9EE9E757DA08226D637B6C9CAE085" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\spring\NServiceBus.ObjectBuilder.Spring.pdb" />
+                        </Component>
+                        <Component Id="cmp9F07496449DD6D209E18EB6685D18249" Guid="*">
+                            <File Id="fil225BA6F4A518892BCE7298420F6298D0" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\spring\NServiceBus.ObjectBuilder.Spring.XML" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="dirCD2194C192CF7F5B117F6DF0DBC5D35D" Name="structuremap">
+                        <Component Id="cmp31FF66677344EFD6103308CA5549B53F" Guid="*">
+                            <File Id="fil3E44856ED8398214F971F9A90FCE57E0" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.dll" />
+                        </Component>
+                        <Component Id="cmpB2415A0B25AB56B4C0572EC22B283AB4" Guid="*">
+                            <File Id="fil12673ACFCB558084EDAEA210B3FB5295" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.pdb" />
+                        </Component>
+                        <Component Id="cmp9523CFB2CF68D5BAB37E7A2D6BA4D47F" Guid="*">
+                            <File Id="fil19F22B488FB2369FBB648E77E2E6032C" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.XML" />
+                        </Component>
+                    </Directory>
+                    <Directory Id="dirFF7CE2F9C81BB3A2353096B5C62F1FEB" Name="unity">
+                        <Component Id="cmp7A693E36F136C4EC85B242B1BB64100A" Guid="*">
+                            <File Id="filCE5BED849C346F45CCC3815DD69D35A4" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\unity\NServiceBus.ObjectBuilder.Unity.dll" />
+                        </Component>
+                        <Component Id="cmp008CCD88E22824D4CD62418AD6DFDBC2" Guid="*">
+                            <File Id="filCBD7AE1E41A3052FE22918095ACB9C24" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\unity\NServiceBus.ObjectBuilder.Unity.pdb" />
+                        </Component>
+                        <Component Id="cmp3F483E9CA9E6C3E1C57E77D65A940CC8" Guid="*">
+                            <File Id="filD1B96E2DC84ABE5DF1C550B5F42A8625" KeyPath="yes" Source="$(var.SOURCEPATH.BINARIES)\containers\unity\NServiceBus.ObjectBuilder.Unity.XML" />
+                        </Component>
+                    </Directory>
                 </Directory>
             </Directory>
-          </Directory>
         </DirectoryRef>
     </Fragment>
     <Fragment>
         <ComponentGroup Id="BinaryFiles">
-            <ComponentRef Id="cmpE5C01B5677C30D575CC15B4B558A57E0" />
-            <ComponentRef Id="cmpD8002AA88011FE1B921AB056B8A3AFE1" />
-            <ComponentRef Id="cmpE14F3AF76DF324F925FA4739FDD3F326" />
-            <ComponentRef Id="cmpFA89C07237030F2CB8F04C792E33858D" />
-            <ComponentRef Id="cmp99F967A58332E054CB5378C3DFD9D914" />
-            <ComponentRef Id="cmp94C4FAEDE764741C5B726A601EAB2CC1" />
-            <ComponentRef Id="cmp8127665FA5BBCCAA5298E432C4F4030F" />
-            <ComponentRef Id="cmp9908F882EFA8BA6CAF189BC11F9AA53F" />
-            <ComponentRef Id="cmp877BBEBEA07DEA8109A1B1689892A65F" />
-            <ComponentRef Id="cmp73A9A937FB9D9C73EB632E79B8FDE475" />
-            <ComponentRef Id="cmp2049D3EC06565850397E2B8F7219BE6A" />
-            <ComponentRef Id="cmp2D8BAD9AEB1567373192BAF62A85E6C1" />
-            <ComponentRef Id="cmp720093C823B7C0ACE637AE7C662A07A6" />
-            <ComponentRef Id="cmp3DBC0F6BF872BDACD6A002C13E799237" />
-            <ComponentRef Id="cmp5566A26C0B5135F2B605102A37E9D62A" />
-            <ComponentRef Id="cmp4E280108677CD6FE4CF72C28E023B523" />
-            <ComponentRef Id="cmp5B3250E6510BF95F4D75EC1B0FE7F39C" />
-            <ComponentRef Id="cmp26B5888316741D249316682D944404D9" />
-            <ComponentRef Id="cmpE90C6ECCC53324BF02EBD81AF13FAA6B" />
-            <ComponentRef Id="cmp65AF1519267C40F8C4103B156C0AA115" />
-            <ComponentRef Id="cmp55B0BB7F8E3F2C4ADC1CC6204BEA2F36" />
-            <ComponentRef Id="cmp7B43670271BEB1F221B2197E213130B3" />
-            <ComponentRef Id="cmp7BD16FA366705BD7ED2068FACE1DFD2B" />
-            <ComponentRef Id="cmp05325FCCF5400D4C8021D54FB083C36B" />
-            <ComponentRef Id="cmpA0A08776DCD1ADCADFB8058372D7D2C5" />
-            <ComponentRef Id="cmpCE0A834773C3A7A7DFACC4B65F2E08CE" />
-            <ComponentRef Id="cmp28D11D73435C325F67E5B05F2F8D012C" />
-            <ComponentRef Id="cmp0CCC878BDD3341A5853106135A722B95" />
-            <ComponentRef Id="cmpB870A2CE084D4DBFE6FFB0E3CBD4EF78" />
-            <ComponentRef Id="cmpD73A1B74411BFFC7E1CBAA5C3C796D96" />
-            <ComponentRef Id="cmpCEC4ABE583511CD8132D71CCDF66EFC7" />
-            <ComponentRef Id="cmp99A0877E0660ACA5AE6E75E689CA25D1" />
-            <ComponentRef Id="cmp880F21B3A34DF7EAF4274D4A7637F473" />
-            <ComponentRef Id="cmp313E0081A562C288F09B769D0AFCEA1C" />
-            <ComponentRef Id="cmp16A2AD8025DE1296F50C4AB540E60005" />
-            <ComponentRef Id="cmpE7E4997B88064252E08073A5FB8DBA9F" />
-            <ComponentRef Id="cmp79D4C03BDBF9CC2017E9456FC8748A65" />
-            <ComponentRef Id="cmp170F3762B8B0EA90523D6ABC98939854" />
-            <ComponentRef Id="cmpDB93A8D720880AF74429A2AFB8B706E3" />
-            <ComponentRef Id="cmp562F674CDC1717305018197B6B8BEEA8" />
-            <ComponentRef Id="cmp483964B85CB2180649642168DA95AA7A" />
-            <ComponentRef Id="cmpE16849B0410F0605B51139CB2BB4AE69" />
-            <ComponentRef Id="cmpCE29C148C694D6C726D389AD64D47DC0" />
+            <ComponentRef Id="cmpAB3F9285F3AC14479F6DF70A508202E5" />
+            <ComponentRef Id="cmp5CCBCA466BE46288E6C9697B51C81695" />
+            <ComponentRef Id="cmpF41B0982919033B69B08194CAF6C85B8" />
+            <ComponentRef Id="cmpB66AE20FC4A4E2E8BD0790A4439534FC" />
+            <ComponentRef Id="cmp7877C200BEBA31489066F20E31AEBA81" />
+            <ComponentRef Id="cmp70C98917D7141B38FF55F9547A7928E6" />
+            <ComponentRef Id="cmp8E58D02CED2CF7909158FBE5114F6639" />
+            <ComponentRef Id="cmp428881BCCAAF1F529B3C5AE891930B91" />
+            <ComponentRef Id="cmp63EF180AC871F87B23237ED738A4A9FB" />
+            <ComponentRef Id="cmp1E72C15F32C52F28301795730EB81F17" />
+            <ComponentRef Id="cmp50AA45E33A5EFC238E9ABDA2A6EACA8A" />
+            <ComponentRef Id="cmp1801BB8AE51A4AF2B36AD40AD1F682F2" />
+            <ComponentRef Id="cmp157AFC68605DC53F0B69C0CC914D46FD" />
+            <ComponentRef Id="cmp677B125153F1EB4AFD65A1E1D0D288F7" />
+            <ComponentRef Id="cmp09A34D8E4AB9296EEA0CC26AEF40E0B4" />
+            <ComponentRef Id="cmp8AF2FEB449A0A274E90EC3D62B1D22AE" />
+            <ComponentRef Id="cmp78F3B594CB0BD4FA5760D0A054F04733" />
+            <ComponentRef Id="cmp5A17A91799EFDAC0EC12DBA7A46297C3" />
+            <ComponentRef Id="cmp418355D5ADA785CA17FE3A0D4867598E" />
+            <ComponentRef Id="cmp4BACAEBEE99F82E7E41AA2DA4B29CBA4" />
+            <ComponentRef Id="cmpC839C48EFB6C8DE9DA65CD9CD32E244A" />
+            <ComponentRef Id="cmp4476CEBDA0673323C1DAC8FE57045819" />
+            <ComponentRef Id="cmp9FD1C7908C203A05E0CEEE1C63818280" />
+            <ComponentRef Id="cmpEB08C898D742FD6BAE51DF39DB38144A" />
+            <ComponentRef Id="cmpCF4E902007D27851A9F451348EBD7CEA" />
+            <ComponentRef Id="cmpA5E3C5B84F1DD31A1824760850F3916A" />
+            <ComponentRef Id="cmpC55F86728D5DB74764CFE484D7397636" />
+            <ComponentRef Id="cmpBFB60C42594B136FB164D10B11CC8B26" />
+            <ComponentRef Id="cmp0675444CD5D9F5980FAF142481D519FD" />
+            <ComponentRef Id="cmp44CD2EDF363F5FEA0D818329DA809B40" />
+            <ComponentRef Id="cmp37E98BB9DAF00E57178D954AA4637A5E" />
+            <ComponentRef Id="cmp1A1EDF8790F8BF099DD5B370174E51C4" />
+            <ComponentRef Id="cmpFD95AEBD47C2CF4684F66F21479342E8" />
+            <ComponentRef Id="cmp013BB082FF4F46EB4A06424D8C43893B" />
+            <ComponentRef Id="cmp42B4973770B8AF64F2CFCACCFF01D962" />
+            <ComponentRef Id="cmp9802C94E6EF4513BDB0013D500FFA5A2" />
+            <ComponentRef Id="cmp66E842B1CA55A962DBA830360F12910E" />
+            <ComponentRef Id="cmp930D5E95DFA529F0B8EE07C617713B9B" />
+            <ComponentRef Id="cmpD0D26A54CBFD88D0D74B5BE0D4D4ADAD" />
+            <ComponentRef Id="cmpCC76928860AA9D4F74C11A4381EFD66C" />
+            <ComponentRef Id="cmpD3FB3354EFF88F26B74BDA8EA8D1AB10" />
+            <ComponentRef Id="cmp7646D5AEE66A7D8C53330305BEA03790" />
+            <ComponentRef Id="cmp642D7F7C8D5B9FC1B1FB2C5BBAA8C341" />
+            <ComponentRef Id="cmpA05550E0A797FBAF25A9C35EEC8603FB" />
+            <ComponentRef Id="cmp060F6E91691609B92BB4A5814CEDF8F0" />
+            <ComponentRef Id="cmpF13967160BD7DBA877AF37EE089FA6F6" />
+            <ComponentRef Id="cmp53C76CE870A26267299BD30306BA9526" />
+            <ComponentRef Id="cmpD7D15A907F9769AEF9AB8FF654232D1F" />
+            <ComponentRef Id="cmp9F07496449DD6D209E18EB6685D18249" />
+            <ComponentRef Id="cmp31FF66677344EFD6103308CA5549B53F" />
+            <ComponentRef Id="cmpB2415A0B25AB56B4C0572EC22B283AB4" />
+            <ComponentRef Id="cmp9523CFB2CF68D5BAB37E7A2D6BA4D47F" />
+            <ComponentRef Id="cmp7A693E36F136C4EC85B242B1BB64100A" />
+            <ComponentRef Id="cmp008CCD88E22824D4CD62418AD6DFDBC2" />
+            <ComponentRef Id="cmp3F483E9CA9E6C3E1C57E77D65A940CC8" />
         </ComponentGroup>
     </Fragment>
 </Wix>

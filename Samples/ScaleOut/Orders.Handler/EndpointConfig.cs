@@ -1,5 +1,4 @@
 ﻿using NServiceBus;
-using NServiceBus.Config;
 
 namespace Orders.Handler
 {

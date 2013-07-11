@@ -1,10 +1,10 @@
 ﻿
 function Delete-Directory($directoryName){
-	Remove-Item -Force -Recurse $directoryName -ErrorAction SilentlyContinue
+	Remove-Item -Force -Recurse $directoryName -ErrorAction SilentlyContinue | Out-Null
 }
  
 function Create-Directory($directoryName){
-	New-Item $directoryName -ItemType Directory | Out-Null
+	New-Item $directoryName -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
 }
 
 function Get-RegistryValues($key) {
@@ -64,23 +64,16 @@ function IsWow64{
     }
 }
  
- $ilMergeExec = ".\tools\IlMerge\ilmerge.exe"
-function Ilmerge($key, $directory, $name, $assemblies, $attributeAssembly, $extension, $ilmergeTargetframework, $logFileName, $excludeFilePath){    
+$ilMergeExec = ".\tools\IlMerge\ilmerge.exe"
+function Ilmerge($key, $directory, $name, $assemblies, $target, $ilmergeTargetframework, $excludeFilePath){    
 	echo "Merging $name....."	
 	
-    new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue
+    new-item -path $directory -name "temp_merge" -type directory -ErrorAction SilentlyContinue | Out-Null
 	
-	if($attributeAssembly -ne ""){
-    	&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath /attr:$attributeAssembly $ilmergeTargetframework $assemblies /xmldocs
-	}
-	else{
-		&$ilMergeExec /keyfile:$key /out:"$directory\temp_merge\$name.$extension" /log:$logFileName /internalize:$excludeFilePath $ilmergeTargetframework $assemblies /xmldocs
-	}
-    Get-ChildItem "$directory\temp_merge\**" -Include *.$extension, *.pdb, *.xml | Copy-Item -Destination $directory
-    Remove-Item "$directory\temp_merge" -Recurse -ErrorAction SilentlyContinue
-	$mergeLogContent = Get-Content "$logFileName"
-	echo "------------------------------$name Merge Log-----------------------"
-	echo $mergeLogContent
+	exec { &$ilMergeExec /keyfile:"$key" /out:"$directory\temp_merge\$name" /t:$target /log $ilmergeTargetframework /xmldocs /internalize:"$excludeFilePath" $assemblies }
+	
+    Get-ChildItem "$directory\temp_merge\**" -Include $name, *.pdb, *.xml | Copy-Item -Destination $directory
+    Remove-Item "$directory\temp_merge" -Recurse
 }
  
 function Generate-Assembly-Info{
@@ -141,5 +134,5 @@ using System.Runtime.CompilerServices;
 		[System.IO.Directory]::CreateDirectory($dir)
 	}
 	Write-Host "Generating assembly info file: $file"
-	Write-Output $asmInfo > $file
+	$asmInfo | Out-File -Encoding UTF8 $file
 }

@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
+namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 {
     using System;
     using System.Collections.Generic;
     using NUnit.Framework;
+    using Support;
     using Timeout.Core;
 
     [TestFixture]
@@ -15,7 +16,7 @@
 
             var timeout = new TimeoutData
                 {
-                    Time = DateTime.UtcNow.AddHours(-1), CorrelationId = "boo", Destination = new Address("timeouts", Environment.MachineName), SagaId = Guid.NewGuid(), State = new byte[] {1, 1, 133, 200}, Headers = headers, OwningTimeoutManager = Configure.EndpointName,
+                    Time = DateTime.UtcNow.AddHours(-1), CorrelationId = "boo", Destination = new Address("timeouts", RuntimeEnvironment.MachineName), SagaId = Guid.NewGuid(), State = new byte[] {1, 1, 133, 200}, Headers = headers, OwningTimeoutManager = Configure.EndpointName,
                 };
             persister.Add(timeout);
 

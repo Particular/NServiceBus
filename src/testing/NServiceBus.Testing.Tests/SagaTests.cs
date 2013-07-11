@@ -37,6 +37,14 @@ namespace NServiceBus.Testing.Tests
         }
 
         [Test]
+        public void SagaThatDoesAReply()
+        {
+            Test.Saga<SagaThatDoesAReply>()
+                .ExpectReply<MyReply>(reply => reply != null)
+                .When(s => s.Handle(new MyRequest()));
+        }
+
+        [Test]
         public void DiscountTest()
         {
             decimal total = 600;
@@ -121,6 +129,38 @@ namespace NServiceBus.Testing.Tests
                 .ExpectTimeoutToBeSetIn<SubmitOrder>((state, span) => span == TimeSpan.FromDays(7))
                 .When(s => s.Handle(new SubmitOrder {Total = 200}));
         }
+        [Test]
+        public void TestNullReferenceException()
+        {
+            Test.Initialize();
+            var saga = new MySaga();
+            Assert.DoesNotThrow(() => Test.Saga(saga));
+        }
+    }
+
+
+    public class SagaThatDoesAReply : Saga.Saga<SagaThatDoesAReply.SagaThatDoesAReplyData>,
+        IHandleMessages<MyRequest>
+    {
+
+        public class SagaThatDoesAReplyData : ContainSagaData
+        {
+             
+        }
+
+        public void Handle(MyRequest myRequest)
+        {
+            Bus.Reply(new MyReply());
+        }
+    }
+
+    public class MyRequest
+    {
+    }
+
+
+    public class MyReply
+    {
     }
 
     public class MySaga : Saga.Saga<MySagaData>,
@@ -235,7 +275,7 @@ namespace NServiceBus.Testing.Tests
         public decimal Total { get; set; }
     }
 
-    public class DiscountPolicyData : ISagaEntity
+    public class DiscountPolicyData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

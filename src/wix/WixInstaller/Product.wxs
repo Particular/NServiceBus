@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension" xmlns:util="http://schemas.microsoft.com/wix/WixVSExtension">
-  <Product Id="*" Name="$(var.PRODUCTNAME) $(var.VERSION)" Language="1033" Version="$(var.VERSION)" Manufacturer="$(var.MANUFACTURER)" Codepage="1252" UpgradeCode="6bf2f238-54fb-4300-ab68-2416491af29f">
+  <Product Id="*" Name="$(var.PRODUCTNAME) $(var.VERSION)" Language="1033" Version="$(var.VERSION)" Manufacturer="$(var.MANUFACTURER)" Codepage="1252" UpgradeCode="$(var.UPGRADECODE)">
     <Package Description="$(var.PRODUCTNAME) - The most popular open-source service bus for .Net"
              InstallerVersion="200"
              Languages="1033"

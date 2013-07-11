@@ -5,11 +5,11 @@ using MyMessages;
 
 namespace MyClient
 {
-    public class ClientEndpoint : IWantToRunAtStartup
+    public class ClientEndpoint : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'Enter' to send a message.To exit, Ctrl + C");
 

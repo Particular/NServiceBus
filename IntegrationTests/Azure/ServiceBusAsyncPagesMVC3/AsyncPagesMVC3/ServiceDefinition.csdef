@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="AsyncPagesMVC3" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2013-03.2.0">
+  <WebRole name="Website" vmsize="Small">
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+    </Endpoints>
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+  </WebRole>
+  <WorkerRole name="Worker" vmsize="Small">
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" />
+      <Setting name="AzureProfileConfig.Profiles" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" />
+      <Setting name="TransportConfig.MaxRetries" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>

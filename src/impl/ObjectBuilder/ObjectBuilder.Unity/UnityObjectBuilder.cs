@@ -47,15 +47,28 @@ namespace NServiceBus.ObjectBuilder.Unity
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
+        }
+
+        ~UnityObjectBuilder()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -116,9 +129,21 @@ namespace NServiceBus.ObjectBuilder.Unity
            if (HasComponent(componentType))
                return;
 
-            container.RegisterType<T>(GetLifetimeManager(dependencyLifecycle),
-                                      new InjectionFactory(unityContainer => componentFactory()));
-            DefaultInstances.Add(componentType);
+           var interfaces = GetAllServiceTypesFor(componentType);
+
+           foreach (Type t in interfaces)
+           {
+               if (DefaultInstances.Contains(t))
+               {
+                   container.RegisterType(t, Guid.NewGuid().ToString(), GetLifetimeManager(dependencyLifecycle), 
+                       new InjectionFactory(unityContainer => componentFactory()));
+               }
+               else
+               {
+                   container.RegisterType(t, GetLifetimeManager(dependencyLifecycle), new InjectionFactory(unityContainer => componentFactory()));
+                   DefaultInstances.Add(t);
+               }
+           }
         }
 
         public void ConfigureProperty(Type concreteComponent, string property, object value)
@@ -135,6 +160,12 @@ namespace NServiceBus.ObjectBuilder.Unity
         public bool HasComponent(Type componentType)
         {
             return container.IsRegistered(componentType);
+        }
+
+        public void Release(object instance)
+        {
+            //Not sure if I need to call this or not!
+            container.Teardown(instance);
         }
 
         private static IEnumerable<Type> GetAllServiceTypesFor(Type t)

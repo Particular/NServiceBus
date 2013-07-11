@@ -1,69 +1,50 @@
-//#define USESQL
-
-using NHibernate.Cfg;
-using NHibernate.Dialect;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using NUnit.Framework;
-#if USESQL
-using System.Data.SqlClient;
-using NHibernate.Driver;
-#else
-using System.IO;
-#endif
-
 namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 {
-    using Timeout.Core;
+    using System;
+    using System.Collections.Specialized;
+    using System.Configuration;
+    using System.IO;
+    using System.Linq;
+    using System.Security.Principal;
+    using NServiceBus.Config.ConfigurationSource;
+    using NUnit.Framework;
+    using Persistence.NHibernate;
     using global::NHibernate;
 
     public abstract class InMemoryDBFixture
     {
-        protected IPersistTimeouts persister;
+        protected TimeoutStorage persister;
         protected ISessionFactory sessionFactory;
 
+        private readonly string connectionString = String.Format(@"Data Source={0};Version=3;New=True;", Path.GetTempFileName());
+        private const string dialect = "NHibernate.Dialect.SQLiteDialect";
+
         [SetUp]
-        public void SetupContext()
+        public void Setup()
         {
-#if USESQL
-            var sqlBuilder = new SqlConnectionStringBuilder();
-            sqlBuilder.DataSource = @".\SQLEXPRESS";
-            sqlBuilder.InitialCatalog = "nservicebus";
-            sqlBuilder.IntegratedSecurity = true;
-            
-            var cfg = new Configuration()
+            Configure.ConfigurationSource = new DefaultConfigurationSource();
 
-              .DataBaseIntegration(x =>
-              {
-                  x.Driver<Sql2008ClientDriver>();
-                  x.Dialect<MsSql2008Dialect>();
-                  x.ConnectionString = sqlBuilder.ConnectionString;
-              });
-#else
-            var cfg = new Configuration()
-                .DataBaseIntegration(x =>
-                                         {
-                                             x.Dialect<SQLiteDialect>();
-                                             x.ConnectionString = string.Format(@"Data Source={0};Version=3;New=True;",
-                                                                                Path.GetTempFileName());
-                                         });
-#endif
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
+                                                               {
+                                                                   {"NServiceBus/Persistence/NHibernate/dialect", dialect}
+                                                               };
 
-            var mapper = new ModelMapper();
-            mapper.AddMappings(typeof (TimeoutEntity).Assembly.GetExportedTypes());
-            var mapping = mapper.CompileMappingForAllExplicitlyAddedEntities();
+            NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
+                                                                     {
+                                                                         new ConnectionStringSettings("NServiceBus/Persistence/NHibernate/Timeout", connectionString)
+                                                                     };
 
-            cfg.AddMapping(mapping);
+            ConfigureNHibernate.Init();
 
-            sessionFactory = cfg.BuildSessionFactory();
-            persister = new TimeoutStorage
-                            {
-                                SessionFactory = sessionFactory
-                            };
+            Configure.With(Enumerable.Empty<Type>())
+                .DefineEndpointName("Foo")
+                .DefaultBuilder()
+                .UseNHibernateTimeoutPersister();
 
-            Configure.Instance.DefineEndpointName("MyEndpoint");
+            persister = Configure.Instance.Builder.Build<TimeoutStorage>();
+            sessionFactory = persister.SessionFactory;
 
-            new SchemaUpdate(cfg).Execute(false, true);
+            new Installer.Installer().Install(WindowsIdentity.GetCurrent().Name);
         }
     }
 }

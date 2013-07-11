@@ -2,26 +2,35 @@
 {
     using System;
     using System.Management.Automation;
+    using Setup.Windows.RavenDB;
 
-    [Cmdlet(VerbsLifecycle.Install, "RavenDB", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsLifecycle.Install, "NServiceBusRavenDB", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     public class InstallRavenDB : CmdletBase
     {
-        [Parameter(HelpMessage = "Port number to be used, Default: 8080")]
+        [Parameter(HelpMessage = "Port number to be used, default is 8080", ValueFromPipelineByPropertyName = true)]
         public int Port { get; set; }
 
-        [Parameter(HelpMessage = "Path to install RavenDB into, default is %ProgramFiles%\\NServiceBus.Persistence")]
+        [Parameter(HelpMessage = "Path to install RavenDB into, default is %ProgramFiles%\\NServiceBus.Persistence.v4", ValueFromPipelineByPropertyName = true)]
         public string Path { get; set; }
 
-        protected override void Process()
+        protected override void ProcessRecord()
         {
-            if (Port == 0)
+            if (ShouldProcess(Environment.MachineName))
             {
-                Port = 8080;
+                RavenDBSetup.Install(Port, Path);
             }
+        }
+    }
 
-            var setup = new Setup.Windows.RavenDB.RavenDBSetup();
+    [Cmdlet(VerbsDiagnostic.Test, "NServiceBusRavenDBInstallation")]
+    public class ValidateRavenDB : CmdletBase
+    {
+        [Parameter(HelpMessage = "Port number to be used, default is 8080", ValueFromPipelineByPropertyName = true)]
+        public int Port { get; set; }
 
-            var isGood = setup.Install(null, Port, Path, ShouldProcess(Environment.MachineName));
+        protected override void ProcessRecord()
+        {
+            var isGood = RavenDBSetup.Check(Port);
 
             WriteObject(isGood);
         }

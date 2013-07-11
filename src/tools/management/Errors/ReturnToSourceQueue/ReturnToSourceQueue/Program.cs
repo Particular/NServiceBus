@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using NServiceBus;
@@ -26,6 +25,9 @@ namespace ReturnToSourceQueue
 
             if (inputQueue == null)
             {
+                Console.WriteLine("NServiceBus ReturnToSource for MSMQ");
+                Console.WriteLine("by Particular Software Ltd. \n");
+
                 Console.WriteLine("Please enter the error queue you would like to use:");
                 inputQueue = Console.ReadLine();
                 script = false;
@@ -35,14 +37,14 @@ namespace ReturnToSourceQueue
 
             if(!IsLocalIpAddress(errorQueueAddress.Machine))
             {
-                Console.WriteLine(string.Format("Input queue [{0}] resides on a remote machine: [{1}].", errorQueueAddress.Queue, errorQueueAddress.Machine));
+                Console.WriteLine("Input queue [{0}] resides on a remote machine: [{1}].", errorQueueAddress.Queue, errorQueueAddress.Machine);
                 Console.WriteLine("Due to networking load, it is advised to refrain from using ReturnToSourceQueue on a remote error queue, unless the error queue resides on a clustered machine.");
                 if (!script)
                 {
                     Console.WriteLine(
                         "Press 'y' if the error queue resides on a Clustered Machine, otherwise press any key to exit.");
                     if (Console.ReadKey().Key.ToString().ToLower() != "y")
-                        Process.GetCurrentProcess().Kill();
+                        return;
                 }
                 Console.WriteLine(string.Empty);
                 errorManager.ClusteredQueue = true;
@@ -55,8 +57,8 @@ namespace ReturnToSourceQueue
             }
 
             errorManager.InputQueue = errorQueueAddress;
-            Console.WriteLine(string.Format("Attempting to return message to source queue. Queue: [{0}], message id: [{1}]. Please stand by.",
-                errorQueueAddress.ToString(), messageId));
+            Console.WriteLine("Attempting to return message to source queue. Queue: [{0}], message id: [{1}]. Please stand by.",
+                errorQueueAddress, messageId);
 
             try
             {

@@ -1,14 +1,15 @@
 ﻿using NServiceBus;
-using NServiceBus.Config;
 
 namespace MyServerNoSLR
 {
+    using NServiceBus.Features;
+
     public class DisableSLR : INeedInitialization
     {
         public void Init()
         {
             // Using code we disable the second level retries.            
-            Configure.Instance.DisableSecondLevelRetries();
+            Configure.Features.Disable<SecondLevelRetries>();
         }
     }
 }

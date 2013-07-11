@@ -12,7 +12,6 @@ using NServiceBus.ObjectBuilder.Ninject.Internal;
 
 namespace NServiceBus.ObjectBuilder.Ninject
 {
-    using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Planning.Bindings;
 
     /// <summary>
@@ -31,7 +30,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         private readonly IObjectBuilderPropertyHeuristic propertyHeuristic;
 
         /// <summary>
-        /// Maps the supported <see cref="DependencyLifecycle"/> to the <see cref="StandardScopeCallbacks"/> of ninject.
+        /// Maps the supported <see cref="NServiceBus.DependencyLifecycle"/> to the <see cref="StandardScopeCallbacks"/> of ninject.
         /// </summary>
         private readonly IDictionary<DependencyLifecycle, Func<IContext, object>> dependencyLifecycleToScopeMapping =
             new Dictionary<DependencyLifecycle, Func<IContext, object>>
@@ -71,7 +70,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             this.AddCustomPropertyInjectionHeuristic();
 
-            this.kernel.Bind<NinjectChildContainer>().ToSelf().Named("Container").DefinesNamedScope("Container");
+            this.kernel.Bind<NinjectChildContainer>().ToSelf().DefinesNinjectObjectBuilderScope();
         }
 
         /// <summary>
@@ -229,14 +228,9 @@ namespace NServiceBus.ObjectBuilder.Ninject
             return this.kernel.CanResolve(req);
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
+        public void Release(object instance)
         {
-            this.Dispose(true);
-
-            GC.SuppressFinalize(this);
+            kernel.Release(instance);
         }
 
         /// <summary>
@@ -262,23 +256,39 @@ namespace NServiceBus.ObjectBuilder.Ninject
         }
 
         /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         private void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (disposed)
             {
-                if (disposing)
-                {
-                    if (!this.kernel.IsDisposed)
-                    {
-                        this.kernel.Dispose();
-                    }
-                }
-
-                this.disposed = true;
+                return;
             }
+
+            if (disposing)
+            {
+                if (!kernel.IsDisposed)
+                {
+                    kernel.Dispose();
+                }
+            }
+
+            disposed = true;
+        }
+
+        ~NinjectObjectBuilder()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -332,8 +342,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {
@@ -348,8 +358,8 @@ namespace NServiceBus.ObjectBuilder.Ninject
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNoAnchestorNamed("Container").InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenAnyAnchestorNamed("Container").InNamedScope("Container").BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {

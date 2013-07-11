@@ -1,9 +1,11 @@
-﻿using System;
-using NServiceBus.Saga;
-using NUnit.Framework;
-
-namespace NServiceBus.SagaPersisters.InMemory.Tests
+﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using System;
+    using NUnit.Framework;
+    using Persistence.InMemory.SagaPersister;
+    using Saga;
+
+    [TestFixture]
     public class When_persisting_different_sagas_with_unique_properties
     {
         [Test]

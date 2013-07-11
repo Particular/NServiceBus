@@ -90,7 +90,7 @@
     {
     }
 
-    internal class TimeoutSagaData : ISagaEntity
+    internal class TimeoutSagaData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

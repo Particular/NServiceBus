@@ -1,0 +1,426 @@
+﻿
+/* unvisited link */
+a:link { text-decoration:none; }     
+
+/* visited link */ 
+a:visited { text-decoration:none; }  
+
+/* mouse over link */
+a:hover { text-decoration:underline;}  
+
+/* selected link */ 
+/*
+a:active { text-decoration:none; }  
+*/
+.NSBVerticalMenuImage img{
+	border: 1px solid #ccc;
+}
+
+.NSBVerticalMenuImage:hover img{
+	border: 1px solid navy;
+}
+
+
+.NSBPage {
+	background: #F0F0F0;
+}
+
+.NSBMainContainer {
+	background: inherit;
+	/* background:black; */
+}
+
+.NSBAlignMiddle{
+	width: 1000px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+/* ---- header ---- */
+
+.NSBHeaderBlock{
+	background:black;
+	height:80px;
+}
+
+.NSBHeaderContainer{
+	clear:both;
+	height:80px;
+}
+
+.NSBHeaderTopContent{
+	position:relative;
+	float:right;
+	height:40px;
+	width:720px;
+}
+
+.NSBHeaderBottomContent{
+	position:relative;
+	float:right;
+	height:40px;
+	width:720px;
+}
+
+.NSBLogoContainer{
+	float:left;
+	width:264px;
+	height:64px;
+	background-repeat:no-repeat;
+	margin-bottom:0px;
+	margin-left:0px;
+	margin-top:10px;
+}
+
+.NSBSmallMenu{
+	margin-top:12px;
+	margin-left:100px;
+	margin-right:50px;
+	float:right;
+	color:#D8D8D8;
+	font-size:12px;
+}
+
+#NSBSmallMenu a{
+	color: #D8D8D8;
+}
+
+.NSBSearchBlock{
+	position:relative;
+	float:right;
+	width:200px;
+	height:40px;
+}
+
+.NSBSearchForm {	
+	position:relative;
+	width:200px;
+	height:26px;
+	float:right;
+	background-image:url('http://images.nservicebus.com/NSBSearchBox.png');
+	background-repeat:no-repeat;
+	margin-top:7px;
+	margin-bottom:7px;
+}
+
+.NSBSearchLine {
+	position:relative;
+	margin-top:3px;
+	margin-bottom:3px;
+	height:16px;
+	width:200px;
+}
+
+.NSBCheckmark {
+    vertical-align: top;
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.NSBRedX {
+    vertical-align: top;
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+
+.NSBSearchQuery{
+	position:relative;
+	float:left;
+	border:0;
+	width:148px;
+	height:16px;
+	font-size:10px;
+	margin-right:12px;
+	margin-left:8px;
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+.NSBSearchExecute {
+	float:right;
+	position:relative;
+	margin-top:2px;
+	margin-right: 10px;
+	text-indent:-9999px;
+}
+
+.NSBMainMenu{
+	margin-top:10px;
+	margin-right:10px;
+	margin-bottom:0px;
+	float:right;
+	color:white;
+	font-size:14px;
+}
+
+#NSBMainMenu a{
+	color:white;
+}
+
+/* ---- content ---- */
+.NSBContent {
+	/* clear:both; */
+/*	position:relative;
+
+	margin-bottom:0px; */
+	margin-top:0px;
+	min-height:350px;
+/*	background:#F0F4F4;	*/
+}
+
+.NSBContentContainer{
+	margin-top:0px;
+/* 	margin-bottom:0px; */
+	min-height:350px; 
+	text-align:left;
+}
+/* ---- footer ---- */
+.NSBFooter{
+	clear:both;
+	position:relative;
+	padding-top:5px;
+}
+
+.NSBFooterBlock{
+	margin-top:40px;
+	background:#B9B9B9;	
+	height:50px;
+}
+
+.NSBFooterContainer{
+	height:40px;
+	padding-top:14px;
+}
+
+.NSBFooterMenu{
+	margin-bottom:0px;
+	float:right;
+	color:black;
+	font-size:14px;
+}
+
+#NSBFooterMenu a{
+	color:black;
+}
+
+.NSBCopyrightNotice{
+	float:left;
+}
+
+#mainContent {
+	width:1000px;
+	height:350px;
+	overflow:hidden;
+	position:relative;
+	display:none;
+
+}
+
+.NSBTeamMemeberBlock{}
+
+.NSBTeamMemeberEven{
+	float:left;
+}
+
+.NSBTeamMemeberOdd{
+	float:right;
+}
+
+.NSBTeamMemeberContainer{
+
+	background: #808080; /*#FFF;*/
+	padding-top:5px;
+	padding-bottom:5px;
+	padding-left:10px;
+	padding-right:10px;
+	width:400px;
+	height:350px;
+}
+
+.NSBVerticalRow{
+	clear:both;
+	/* padding-top:0px; */
+}
+
+.NSBTeamMemberName {
+	margin-top:20px;
+	font-size:24px;
+	font-weight:bold;
+	color:orange;	
+}
+
+.NSBTeamMemberTitle {
+	font-size:20px;
+	font-weight:bold;
+	color:orange;	
+}
+
+.NSBTeamMemberHeader{
+	height:90px;
+}
+
+.NSBTeamMemberImage{
+	position:relative;
+	width:90px;
+	height:90px;
+	float:right;
+	margin-top:0px;
+	margin-right:0px;
+}
+
+.NSBContactUsBlock {
+	clear:both;	
+	margin: 10px 40px 10px 40px;
+}
+
+.NSBVerticalMenuItem{
+	float:left;
+	width:230px;
+}
+
+.NSBVerticalMenuTitle{
+	font-weight:bold;	
+	color:navy;
+}
+
+/* Contact Us */
+
+.NSBContactUsMailingAddress{
+	clear:both;
+}
+
+
+/* About Us */
+
+.NSBAboutUsRow {
+	padding-top:10px;
+}
+
+/* Developer Friendly SOA */
+
+.NSBDevFriendlySOABottomContent{
+	clear:both;	
+	padding-top:30px;
+}
+
+#integration-content{
+	display: none;
+}
+
+#cloud-content{
+	display: none;
+}
+
+#scalability-content{
+	display: none;
+}
+
+#productivity-content{
+	display: none;
+}
+
+/* Customer */
+
+.NSBCustomerContent{
+	position:relative;
+	margin: 30px 60px 30px 60px;
+}
+
+.NSBCustomerContentRow{
+	background-color:white;
+    padding-top:10px;
+	padding-bottom:10px;
+}
+
+.NSBVerticalMenuItemCustomers{
+	width:150px;
+	margin:5px 5px 5px 5px;
+}
+
+.NSBCustomersBlock{
+	position:relative;
+	margin-top:-10px;
+	margin-left:10px;
+	margin-right:10px;
+	padding: 10px 10px 10px 10px;
+}
+
+.NSBCustomersRow{
+	background-color:#E2E2E2; 
+	height:165px;
+}
+/* tabs */
+
+#tabs_wrapper {	
+	width: 1000px;
+}
+
+#tabs_container {    
+	border-bottom: 1px solid #ccc;
+}
+
+#tabs {
+    list-style: none;
+    padding: 0px 24px 4px 0px;    
+    margin: 0px 0px 0px 0px;    
+    font: 1.2em arial;
+}
+
+#tabs li {
+    display: inline;
+}
+
+#tabs li a {
+    border: 1px solid #ccc;
+    padding: 4px 24px;
+    text-decoration: none;    
+    background-color: #eeeeee;    
+    border-bottom: none;    
+    outline: none;    
+}
+
+#tabs li a:hover {    
+	background-color: #dddddd;    
+	padding: 4px 24px;
+}
+
+#tabs li.active a {
+    border-bottom: 1px solid #fff;    
+    background-color: #fff;    
+    padding: 4px 24px 5px 24px;    
+    border-bottom: none;
+}
+
+#tabs li.active a:hover {
+    background-color: #eeeeee;    
+    padding: 4px 24px 5px 24px;    
+    border-bottom: none;
+}  
+
+#tabs li a.icon_accept {    
+	background-image: url(accept.png);    
+	background-position: 5px;    
+	background-repeat: no-repeat;    
+	padding-left: 24px;
+	padding-right: 24px;
+}
+
+#tabs li a.icon_accept:hover {
+    padding-left: 24px;
+   	padding-right: 24px;
+}   
+
+#tabs_content_container {
+    border: 1px solid #ccc;    
+    border-top: none;    
+    padding: 10px;    
+    width: 1000px;
+}
+
+.tab_content {
+    display: none;
+}
+
+

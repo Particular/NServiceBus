@@ -4,18 +4,18 @@
     <title>NServiceBus NHibernate</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, John Simons, Jonathan Matheus et al</owners>
-    <licenseUrl>http://particular.net/licensing</licenseUrl>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
-    <iconUrl>http://particular.blob.core.windows.net/media/Default/images/ProductLogos/icons/NServiceBus_32.png</iconUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The NHibernate for the NServicebus</description>
     <releaseNotes>
     </releaseNotes>
-    <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NHibernate" version="3.3.1.4000" />
+      <dependency id="NHibernate" version="[3.3.1.4000,4)" />
       <dependency id="NServiceBus" version="4.0.0-alpha0" />
     </dependencies>
   </metadata>

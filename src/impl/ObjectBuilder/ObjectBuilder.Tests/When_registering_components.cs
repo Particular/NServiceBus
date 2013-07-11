@@ -1,14 +1,13 @@
-using System.Linq;
-using NServiceBus;
-using NUnit.Framework;
-
 namespace ObjectBuilder.Tests
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
+    using NServiceBus;
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Spring;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_registering_components : BuilderFixture
@@ -126,7 +125,6 @@ namespace ObjectBuilder.Tests
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
                 Assert.NotNull(component.InterfaceDependency, "Interfaces should be property injected");
                 Assert.NotNull(component.concreteDependencyWithSetOnly, "Set only properties should be supported");
-                
             });
         }
 
@@ -176,6 +174,21 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        public void All_implemented_interfaces_should_be_registered_for_func()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
+
+                Assert.True(builder.HasComponent(typeof(ISomeInterface)));
+                Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
+                Assert.True(builder.HasComponent(typeof(IYetAnotherInterface)));
+                Assert.AreEqual(1, builder.BuildAll(typeof(IYetAnotherInterface)).Count());
+            },
+            typeof(SpringObjectBuilder));
+        }
+
+        [Test]
         public void Multiple_implementations_should_be_supported()
         {
             ForAllBuilders(builder =>
@@ -186,12 +199,32 @@ namespace ObjectBuilder.Tests
                 Assert.NotNull(builder.Build(typeof(SomeClass)));
                 Assert.AreEqual(2, builder.BuildAll(typeof(ISomeInterface)).Count());
 
-                var childBuilder = builder.BuildChildContainer();
-                Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
-                Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
-
+                using (var childBuilder = builder.BuildChildContainer())
+                {
+                    Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
+                    Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
+                }
             }
             ,typeof(WindsorObjectBuilder));
+        }
+
+        [Test]
+        public void Given_lookupType_should_be_used_as_service_in_the_registration_when_RegisterSingleton()
+        {
+            ForAllBuilders(builder =>
+                {
+                    var expected = new InheritedFromSomeClass();
+                    builder.RegisterSingleton(typeof (SomeClass), expected);
+
+                    Assert.NotNull(builder.Build(typeof (SomeClass)));
+                    Assert.AreEqual(expected, builder.Build(typeof (SomeClass)));
+
+                    using (var childBuilder = builder.BuildChildContainer())
+                    {
+                        Assert.NotNull(childBuilder.Build(typeof (SomeClass)));
+                        Assert.AreEqual(expected, childBuilder.Build(typeof (SomeClass)));
+                    }
+                });
         }
 
         [Test]
@@ -248,7 +281,7 @@ namespace ObjectBuilder.Tests
     {
     }
 
-    public class ComponentWithSystemInterface : IGrouping<string, string>,IDisposable
+    public class ComponentWithSystemInterface : IGrouping<string, string>, IDisposable
     {
         public IEnumerator<string> GetEnumerator()
         {
@@ -303,6 +336,10 @@ namespace ObjectBuilder.Tests
     }
 
     public class SomeClass : ISomeInterface
+    {
+    }
+
+    public class InheritedFromSomeClass : SomeClass
     {
     }
 

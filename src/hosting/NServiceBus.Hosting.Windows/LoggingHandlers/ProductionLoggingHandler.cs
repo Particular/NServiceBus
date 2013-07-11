@@ -1,10 +1,12 @@
-﻿using log4net.Appender;
+﻿using NServiceBus.Hosting.Windows.LoggingHandlers.Internal;
+using NServiceBus.Logging.Loggers.Log4NetAdapter;
+using NServiceBus.Logging.Loggers.NLogAdapter;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
     using System;
     using System.Runtime.InteropServices;
-    using log4net.Core;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Handles logging configuration for the production profile
@@ -13,30 +15,32 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<RollingFileAppender>(null,
-                a =>
+            var logToConsole = GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero;
+
+            if (Log4NetConfigurator.Log4NetExists)
+            {
+                SetLoggingLibrary.Log4Net(null, Log4NetAppenderFactory.CreateRollingFileAppender(null, "logfile"));
+
+                if (logToConsole)
+                    SetLoggingLibrary.Log4Net(null, Log4NetAppenderFactory.CreateColoredConsoleAppender("Info"));
+            }
+            else if (NLogConfigurator.NLogExists)
+            {
+                const string layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:${newline}${exception:format=tostring}}";
+
+                var targets = new List<object> {NLogTargetFactory.CreateRollingFileTarget("logfile", layout)};
+
+                if (logToConsole)
                 {
-                    a.CountDirection = 1;
-                    a.DatePattern = "yyyy-MM-dd";
-                    a.RollingStyle = RollingFileAppender.RollingMode.Composite;
-                    a.MaxFileSize = 1024 * 1024;
-                    a.MaxSizeRollBackups = 10;
-                    a.LockingModel = new FileAppender.MinimalLock();
-                    a.StaticLogFileName = true;
-                    a.File = "logfile";
-                    a.AppendToFile = true;
-                });
+                    targets.Add(NLogTargetFactory.CreateColoredConsoleTarget(layout));
+                }
 
-            if (GetStdHandle(STD_OUTPUT_HANDLE) == IntPtr.Zero)
-                return;
-
-            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null,
-              a =>
-              {
-                  LiteLoggingHandler.PrepareColors(a);
-                  a.Threshold = Level.Info;
-              }
-          );
+                SetLoggingLibrary.NLog(null, targets.ToArray());
+            }
+            else
+            {
+                ConfigureInternalLog4Net.Production(logToConsole);
+            }
         }
 
         [DllImport("kernel32.dll", SetLastError = true)]

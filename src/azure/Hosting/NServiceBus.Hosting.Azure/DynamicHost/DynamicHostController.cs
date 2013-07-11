@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using NServiceBus.Config;
 using NServiceBus.Hosting.Configuration;
 using NServiceBus.Hosting.Profiles;
-using NServiceBus.ObjectBuilder;
 
 namespace NServiceBus.Hosting
 {
@@ -21,14 +21,16 @@ namespace NServiceBus.Hosting
         private DynamicHostMonitor monitor;
         private List<EndpointToHost> runningServices;
 
-        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles,IEnumerable<Type> defaultProfiles)
+        public DynamicHostController(IConfigureThisEndpoint specifier, string[] requestedProfiles, List<Type> defaultProfiles, string endpointName)
         {
             this.specifier = specifier;
+            Configure.GetEndpointNameAction = (Func<string>)(() => endpointName);
 
-            var assembliesToScan = new[] {GetType().Assembly};
+            var assembliesToScan = new List<Assembly> {GetType().Assembly};
 
             profileManager = new ProfileManager(assembliesToScan, specifier, requestedProfiles, defaultProfiles);
             configManager = new ConfigManager(assembliesToScan, specifier);
+
         }
 
         public void Start()
@@ -65,6 +67,7 @@ namespace NServiceBus.Hosting
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.ConnectionString, configSection.ConnectionString);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointLoader>(t => t.Container, configSection.Container);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointProvisioner>(t => t.LocalResource, configSection.LocalResource);
+            Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointProvisioner>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointRunner>(t => t.RecycleRoleOnError, configSection.RecycleRoleOnError);
             Configure.Instance.Configurer.ConfigureProperty<DynamicEndpointRunner>(t => t.TimeToWaitUntilProcessIsKilled, configSection.TimeToWaitUntilProcessIsKilled);
             Configure.Instance.Configurer.ConfigureProperty<DynamicHostMonitor>(t => t.Interval, configSection.UpdateInterval);
@@ -105,7 +108,7 @@ namespace NServiceBus.Hosting
                 runner.Stop(runningServices);
         }
 
-        public void Install<TEnvironment>() where TEnvironment : IEnvironment
+        public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             //todo -yves
         }

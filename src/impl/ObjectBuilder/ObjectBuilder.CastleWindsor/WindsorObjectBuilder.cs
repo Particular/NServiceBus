@@ -5,7 +5,6 @@ using Castle.Core.Resource;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
-using log4net;
 using NServiceBus.ObjectBuilder.Common;
 using Castle.Windsor;
 using Castle.MicroKernel;
@@ -14,8 +13,13 @@ using Castle.MicroKernel.Registration;
 
 namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
+    using System.Threading;
+    using Castle.MicroKernel.ComponentActivator;
+    using Castle.MicroKernel.Context;
+    using Logging;
+
     /// <summary>
-    /// Castle Windsor implementaton of IContainer.
+    /// Castle Windsor implementation of IContainer.
     /// </summary>
     public class WindsorObjectBuilder : IContainer
     {
@@ -27,7 +31,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         private bool disposed;
 
         /// <summary>
-        /// Instantites the class with a new WindsorContainer.
+        /// Instantiates the class with a new WindsorContainer.
         /// </summary>
         public WindsorObjectBuilder()
             : this(new WindsorContainer())
@@ -51,14 +55,20 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// </summary>
         public void Dispose()
         {
-            if (disposableScope != null)
+            if (!disposed && scope.IsValueCreated && scope.Value != null)
             {
-                disposableScope.Dispose();
-                disposableScope = null;
+                scope.Value.Dispose();
+                scope.Value = null;
                 return;
             }
 
             Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~WindsorObjectBuilder()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -67,12 +77,18 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+                scope.Dispose();
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -82,7 +98,7 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <returns></returns>
         public IContainer BuildChildContainer()
         {
-            disposableScope = container.Kernel.BeginScope();
+            scope.Value = container.Kernel.BeginScope();
             return this;
         }
 
@@ -144,7 +160,9 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
             }
 
-            container.Register(Component.For(lookupType).Named(lookupType.AssemblyQualifiedName).Instance(instance));
+            var services = GetAllServiceTypesFor( instance.GetType() ).Union( new[] { lookupType } );
+
+            container.Register(Component.For(services).Activator<ExternalInstanceActivatorWithDecommissionConcern>().Instance(instance).LifestyleSingleton());
         }
 
         object IContainer.Build(Type typeToBuild)
@@ -157,10 +175,14 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
             return container.ResolveAll(typeToBuild).Cast<object>();
         }
 
-
         bool IContainer.HasComponent(Type componentType)
         {
             return container.Kernel.HasComponent(componentType);
+        }
+
+        void IContainer.Release(object instance)
+        {
+            container.Release(instance);
         }
 
         private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
@@ -185,12 +207,39 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 .Where(x => x.FullName != null && !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
         }
-        
 
-        [ThreadStatic]
-        private static IDisposable disposableScope;
+        readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
+       
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
+    }
 
-        private static ILog Logger = LogManager.GetLogger("NServiceBus.ObjectBuilder");
+    class ExternalInstanceActivatorWithDecommissionConcern : AbstractComponentActivator, IDependencyAwareActivator
+    {
+        public ExternalInstanceActivatorWithDecommissionConcern(ComponentModel model, IKernelInternal kernel, ComponentInstanceDelegate onCreation, ComponentInstanceDelegate onDestruction)
+            : base(model, kernel, onCreation, onDestruction)
+        {
+        }
+
+        public bool CanProvideRequiredDependencies(ComponentModel component)
+        {
+            //we already have an instance so we don't need to provide any dependencies at all
+            return true;
+        }
+
+        public bool IsManagedExternally(ComponentModel component)
+        {
+            return false;
+        }
+
+        protected override object InternalCreate(CreationContext context)
+        {
+            return Model.ExtendedProperties["instance"];
+        }
+
+        protected override void InternalDestroy(object instance)
+        {
+            ApplyDecommissionConcerns(instance);
+        }
     }
 
     internal class NoOpInterpreter : AbstractInterpreter

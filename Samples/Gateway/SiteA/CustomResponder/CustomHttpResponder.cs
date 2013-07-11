@@ -3,11 +3,10 @@
     using System.Linq;
     using System.Net;
     using NServiceBus;
-    using NServiceBus.Config;
     using NServiceBus.Gateway.Channels.Http;
     using NServiceBus.ObjectBuilder;
 
-    public class CustomHttpResponder:IHttpResponder
+    public class CustomHttpResponder : IHttpResponder
     {
         IBuilder builder;
 
@@ -41,7 +40,7 @@
         }
     }
 
-    class ResponderInstaller:INeedInitialization
+    class ResponderInstaller : INeedInitialization
     {
         public void Init()
         {

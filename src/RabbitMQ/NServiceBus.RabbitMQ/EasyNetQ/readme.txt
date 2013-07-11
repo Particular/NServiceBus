@@ -1,0 +1,2 @@
+As the NServiceBus team want to keep external dependencies to a minimum (see http://tech.groups.yahoo.com/group/nservicebus/message/18588), EasyNetQ
+code has been copied into this project rather than pulled in via nuget.

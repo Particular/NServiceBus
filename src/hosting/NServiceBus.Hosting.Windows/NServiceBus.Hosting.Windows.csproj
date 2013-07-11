@@ -9,50 +9,65 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.Hosting.Windows</RootNamespace>
-    <AssemblyName>NServiceBus.Hosting.Windows</AssemblyName>
+    <AssemblyName>NServiceBus.Host</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <FodyPath>..\..\..\packages\Fody.1.13.8.0</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\binaries\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\NServiceBus.Hosting.Windows.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.Host.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\binaries\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NServiceBus.Hosting.Windows.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.Host.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.Host.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\..\binaries\NServiceBus.Host.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Magnum, Version=0.1.0.300, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\Topshelf\Magnum.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Obsolete, Version=1.6.2.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\ServiceLocation\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\output\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\build\output\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\packages\Obsolete.Fody.1.6.2.0\Lib\NET35\Obsolete.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -63,15 +78,29 @@
     <Reference Include="System.ServiceModel">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Topshelf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Topshelf\Topshelf.dll</HintPath>
     </Reference>
+    <None Include="Fody.targets" />
+    <None Include="FodyWeavers.xml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EndpointType.cs" />
+    <Compile Include="EndpointTypeDeterminer.cs" />
+    <Compile Include="INameThisEndpoint.cs" />
     <Compile Include="Installers\WindowsInstaller.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
+    <Compile Include="LoggingHandlers\Internal\ConfigureInternalLog4Net.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
+    <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="PreserveStackTracePreserver.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
     <Compile Include="Profiles\MultiSite.cs" />
@@ -93,7 +122,10 @@
     <Compile Include="Profiles\Handlers\PerformanceCountersProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\ProductionProfileHandler.cs" />
     <Compile Include="Roles\Handlers\ClientRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\PublisherRoleHandler.cs" />
     <Compile Include="Roles\Handlers\ServerRoleHandler.cs" />
+    <Compile Include="Roles\Handlers\TransportRoleHandler.cs" />
+    <Compile Include="Roles\UsingTransport.cs" />
     <Compile Include="WindowsHost.cs" />
     <Compile Include="Profiles\Integration.cs" />
     <Compile Include="Profiles\Lite.cs" />
@@ -109,20 +141,22 @@
     <EmbeddedResource Include="Content\Help.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Hosting\NServiceBus.Hosting.csproj">
-      <Project>{B5F333D1-D6B1-49FB-82F6-74641E5D11E3}</Project>
-      <Name>NServiceBus.Hosting</Name>
+    <ProjectReference Include="..\..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <PropertyGroup>
     <notused>xcopy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\build\host\"</notused>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+  <Import Project="Fody.targets" />
 </Project>

@@ -4,44 +4,35 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Transactions;
-using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using Microsoft.WindowsAzure.Storage.Queue;
+
     [TestFixture]
+    [Category("Azure")]
     public class When_receiving_messages : AzureQueueFixture
     {
-        [Test]
-        public void Has_messages_should_indicate_if_messages_exists_int_the_queue()
-        {
-            Assert.False(queue.HasMessage());
-
-
-            AddTestMessage();
-
-            Assert.True(queue.HasMessage());
-
-        }
+       
 
         [Test]
         public void Should_throw_if_non_nservicebus_messages_are_received()
         {
             nativeQueue.AddMessage(new CloudQueueMessage("whatever"));
 
-            Assert.Throws<SerializationException>(() => queue.Receive());
+            Assert.Throws<SerializationException>(() => receiver.Receive());
         }
 
         [Test]
         public void Should_default_to_non_transactionable_if_no_ambient_transaction_exists()
         {
             AddTestMessage();
-            queue.MessageInvisibleTime = 1;
+            receiver.MessageInvisibleTime = 1;
 
-            Assert.NotNull(queue.Receive());
+            Assert.NotNull(receiver.Receive());
             Thread.Sleep(1000);
-            Assert.Null(queue.Receive());
+            Assert.Null(receiver.Receive());
         }
 
         [Test]
@@ -49,17 +40,17 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             AddTestMessage();
 
-            queue.MessageInvisibleTime = 1;
+            receiver.MessageInvisibleTime = 1;
             using (var scope = new TransactionScope())
             {
-                Assert.NotNull(queue.Receive());
+                Assert.NotNull(receiver.Receive());
           
                 scope.Complete();
             }
 
             Thread.Sleep(1000);
 
-            Assert.Null(queue.Receive());
+            Assert.Null(receiver.Receive());
         }
 
         [Test]
@@ -67,16 +58,16 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             AddTestMessage();
 
-            queue.MessageInvisibleTime = 2;
+            receiver.MessageInvisibleTime = 2;
             using (new TransactionScope())
             {
-                Assert.NotNull(queue.Receive());
+                Assert.NotNull(receiver.Receive());
 
                 //rollback
             }
             Thread.Sleep(1000);
-            
-            Assert.NotNull(queue.Receive());
+
+            Assert.NotNull(receiver.Receive());
         }
 
         [Test]
@@ -84,13 +75,13 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             AddTestMessage();
 
-            queue.MessageInvisibleTime = 1;
+            receiver.MessageInvisibleTime = 1;
 
-            queue.Receive();
+            receiver.Receive();
 
             Thread.Sleep(1000);
 
-            Assert.Null(queue.Receive());
+            Assert.Null(receiver.Receive());
         }
 
         [Test]
@@ -98,7 +89,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         {
             AddTestMessage();
 
-            var message = queue.Receive();
+            var message = receiver.Receive();
 
             Assert.Null(message.Body);
         }
@@ -121,12 +112,11 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                                        //Id = "11111",
                                        Recoverable = true,
                                        ReplyToAddress= Address.Parse("response"),
-                                       TimeSent = DateTime.Now,
                                        TimeToBeReceived = TimeSpan.FromHours(1)
                                    };
                 AddTestMessage(original);
 
-                var result = queue.Receive();
+                var result = receiver.Receive();
 
                 var resultMessage = formatter.Deserialize(new MemoryStream(result.Body)) as TestMessage;
                 Assert.AreEqual(resultMessage.TestProperty,"Test");
@@ -137,7 +127,6 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
                 Assert.NotNull(result.Id);
                 Assert.AreEqual(result.Recoverable,original.Recoverable);
                 Assert.AreEqual(result.ReplyToAddress,original.ReplyToAddress);
-                Assert.AreEqual(result.TimeSent,original.TimeSent);
                 Assert.AreEqual(result.TimeToBeReceived,original.TimeToBeReceived);
 
             }

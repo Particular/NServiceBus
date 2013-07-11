@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
-    public class TestSaga : ISagaEntity
+    using Saga;
+
+    public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

@@ -1,9 +1,10 @@
-﻿using NServiceBus.ObjectBuilder.Common.Config;
-using NServiceBus.ObjectBuilder.StructureMap;
+﻿using NServiceBus.ObjectBuilder.StructureMap;
 using StructureMap;
 
 namespace NServiceBus
 {
+    using ObjectBuilder.Common.Config;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>

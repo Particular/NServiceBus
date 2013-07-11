@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NServiceBus.Saga;
-using NUnit.Framework;
-
-namespace NServiceBus.SagaPersisters.InMemory.Tests
+﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using System;
+    using NUnit.Framework;
+    using Persistence.InMemory.SagaPersister;
+    using Saga;
+
+    [TestFixture]
     class When_completing_a_saga_with_unique_property_with_InMemory_persister
     {
         [Test]

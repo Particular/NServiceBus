@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using NServiceBus.Saga;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
-
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
-    public class TestSaga : ISagaEntity
+    using System;
+    using System.Collections.Generic;
+    using AutoPersistence.Attributes;
+    using Saga;
+
+    public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -68,7 +68,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         public virtual TestSaga ParentSaga { get; set; }
     }
 
-    public class TestSagaWithHbmlXmlOverride : ISagaEntity
+    public class TestSagaWithHbmlXmlOverride : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -80,7 +80,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     }
 
     [TableName("MyTestTable", Schema = "MyTestSchema" )]
-    public class TestSagaWithTableNameAttribute : ISagaEntity
+    public class TestSagaWithTableNameAttribute : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -97,4 +97,23 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     [TableName("MyDerivedTestTable")]
     public class AlsoDerivedFromTestSagaWithTableNameAttribute : TestSagaWithTableNameAttribute
     { }
+
+    public class SagaWithVersionedPropertyAttribute : IContainSagaData
+    {
+      public virtual Guid Id { get; set; }
+      public virtual string Originator { get; set; }
+      public virtual string OriginalMessageId { get; set; }
+
+      [RowVersion]
+      public virtual int Version { get; set; }
+    }
+
+    public class SagaWithoutVersionedPropertyAttribute : IContainSagaData
+    {
+      public virtual Guid Id { get; set; }
+      public virtual string Originator { get; set; }
+      public virtual string OriginalMessageId { get; set; }
+
+      public virtual int Version { get; set; }
+    }
 }

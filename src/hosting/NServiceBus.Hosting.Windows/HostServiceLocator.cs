@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Practices.ServiceLocation;
 using NServiceBus.Hosting.Windows.Arguments;
-using Topshelf.Internal;
 
 namespace NServiceBus.Hosting.Windows
 {
@@ -27,18 +25,13 @@ namespace NServiceBus.Hosting.Windows
         {
             var endpoint = Type.GetType(key,true);
 
-            Parser.Args commandLineArguments = Parser.ParseArgs(Args);
-            var arguments = new HostArguments(commandLineArguments);
+            var arguments = new HostArguments(Args);
 
             string endpointName = string.Empty;
             if (arguments.EndpointName != null)
-                endpointName = arguments.EndpointName.Value;
+                endpointName = arguments.EndpointName;
 
-            string[] scannedAssemblies = null;
-            if (arguments.ScannedAssemblies != null)
-                scannedAssemblies = arguments.ScannedAssemblies.Value.Split(';').ToArray();
-
-            return new WindowsHost(endpoint, Args, endpointName, false, false, scannedAssemblies);
+            return new WindowsHost(endpoint, Args, endpointName, false, arguments.ScannedAssemblies.ToArray());
         }
 
         /// <summary>

@@ -1,27 +1,18 @@
 ﻿namespace NServiceBus.PowerShell
 {
-    using System;
-    using System.ComponentModel;
     using System.Management.Automation;
-    using System.Runtime.InteropServices;
     using System.Security;
-    using System.Security.Principal;
     using Setup.Windows;
 
 
     public abstract class CmdletBase : PSCmdlet
     {
-        protected abstract void Process();
-
-        protected override void ProcessRecord()
+        protected override void BeginProcessing()
         {
-            if (ProcessUtil.IsRunningWithElevatedPriviliges())
+            if (!ProcessUtil.IsRunningWithElevatedPrivileges())
             {
-                Process();
-            }
-            else
-            {
-                throw new SecurityException("You need to run this command with administrative rights.");
+                var exception = new SecurityException("NServiceBus was unable to perform some infrastructure operations. You need to run this command with elevated privileges. If you are running this command from Visual Studio please close Visual Studio and re-open with elevated privileges. For more information see: http://particular.net/articles/preparing-your-machine-to-run-nservicebus");
+                ThrowTerminatingError(new ErrorRecord(exception, "NotAuthorized", ErrorCategory.SecurityError, null));
             }
         }
     }

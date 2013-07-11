@@ -4,27 +4,30 @@
     using System.Management.Automation;
     using Setup.Windows.PerformanceCounters;
 
-    [Cmdlet(VerbsLifecycle.Install, "PerformanceCounters", SupportsShouldProcess = true)]
+    [Cmdlet(VerbsLifecycle.Install, "NServiceBusPerformanceCounters", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     public class InstallPerformanceCounters : CmdletBase
     {
-        protected override void Process()
+        protected override void ProcessRecord()
         {
-            bool coutersIsGood;
-            if (!ShouldProcess(Environment.MachineName))
+            if (ShouldProcess(Environment.MachineName))
             {
-                coutersIsGood = PerformanceCounterSetup.SetupCounters();
-
-                Host.UI.WriteLine(coutersIsGood
-                                          ? "Performance Counters is setup and ready for use with NServiceBus"
-                                          : "Performance Counters is not properly configured");
-
-                WriteObject(coutersIsGood);
-                return;
+                PerformanceCounterSetup.SetupCounters();
             }
-            
-            coutersIsGood = PerformanceCounterSetup.SetupCounters(true);
+        }
+    }
 
-            WriteObject(coutersIsGood);
+    [Cmdlet(VerbsDiagnostic.Test, "NServiceBusPerformanceCountersInstallation")]
+    public class ValidatePerformanceCounters : CmdletBase
+    {
+        protected override void ProcessRecord()
+        {
+            var countersAreGood = PerformanceCounterSetup.CheckCounters();
+
+            WriteVerbose(countersAreGood
+                             ? "NServiceBus Performance Counters are setup and ready for use with NServiceBus."
+                             : "NServiceBus Performance Counters are not properly configured.");
+
+            WriteObject(countersAreGood);
         }
     }
 }

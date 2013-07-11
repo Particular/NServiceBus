@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using NHibernate.Cfg;
 using NHibernate.Cfg.MappingSchema;
 using NHibernate.Dialect;
@@ -9,6 +8,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
+    using MessageDrivenSubscriptions;
+
     public class InMemoryDBFixture
     {
         protected ISubscriptionStorage storage;
@@ -30,7 +31,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
           cfg.AddMapping(faultMappings);
 
-          new SchemaExport(cfg).Create(true, true);
+          new SchemaExport(cfg).Create(false, true);
 
            subscriptionStorageSessionProvider = new SubscriptionStorageSessionProvider(cfg.BuildSessionFactory());
 

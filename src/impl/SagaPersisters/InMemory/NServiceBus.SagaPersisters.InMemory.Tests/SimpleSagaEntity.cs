@@ -1,9 +1,10 @@
 using System;
-using NServiceBus.Saga;
 
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
-    public class SimpleSageEntity : ISagaEntity
+    using Saga;
+
+    public class SimpleSageEntity : IContainSagaData
     {
         public virtual Guid Id { get; set; }
         public virtual string Originator { get; set; }
@@ -13,7 +14,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public virtual DateTime OrderExpirationDate { get; set; }
         public virtual decimal OrderCost { get; set; }
     }
-    public class AnotherSimpleSageEntity : ISagaEntity
+    public class AnotherSimpleSageEntity : IContainSagaData
     {
         public virtual Guid Id { get; set; }
         public virtual string Originator { get; set; }

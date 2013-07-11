@@ -1,10 +1,11 @@
 ﻿using Microsoft.Practices.Unity;
-using NServiceBus.ObjectBuilder.Common.Config;
 using NServiceBus.ObjectBuilder.Unity;
 
 namespace NServiceBus
 {
-   /// <summary>
+    using ObjectBuilder.Common.Config;
+
+    /// <summary>
    /// Contains extension methods for configuring object builder infrastructure through Unity container.
    /// </summary>
    public static class ConfigureUnityBuilder

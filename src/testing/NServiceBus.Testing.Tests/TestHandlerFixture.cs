@@ -279,6 +279,20 @@ namespace NServiceBus.Testing.Tests
                 .OnMessage<Incoming>();
         }
 
+        [Test]
+        public void Should_be_able_to_pass_an_already_constructed_message_into_handler_without_specifying_id()
+        {
+            const string expected = "dummy";
+
+            var handler = new TestMessageWithPropertiesHandler();
+            var message = new TestMessageWithProperties { Dummy = expected };
+            Test.Handler(handler)
+              .OnMessage(message);
+            Assert.AreEqual(expected, handler.ReceivedDummyValue);
+            Assert.DoesNotThrow(() => Guid.Parse(handler.AssignedMessageId), "Message ID should be a valid GUID.");
+        }
+
+
         private class TestMessageImpl : TestMessage
         {
         }
@@ -321,16 +335,14 @@ namespace NServiceBus.Testing.Tests
 
         public class PublishingManyHandler : IHandleMessages<Incoming>
         {
-            public IBus Bus { get; set; }
-
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Ougoing>(m =>
+                var one = this.Bus().CreateInstance<Ougoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = Bus.CreateInstance<Ougoing>(m =>
+                var two = this.Bus().CreateInstance<Ougoing>(m =>
                 {
                     m.Number = 2;
                 });
@@ -454,7 +466,7 @@ namespace NServiceBus.Testing.Tests
 
             public bool IsHandled { get; set; }
 
-            void IMessageHandler<TestMessage>.Handle(TestMessage message)
+            void IHandleMessages<TestMessage>.Handle(TestMessage message)
             {
                 IsHandled = true;
             }
@@ -485,5 +497,23 @@ namespace NServiceBus.Testing.Tests
     public class MessageWithDataBusProperty : IMessage
     {
         public DataBusProperty<byte[]> ALargeByteArray { get; set; }
+    }
+
+    public class TestMessageWithPropertiesHandler : IHandleMessages<TestMessageWithProperties>
+    {
+        public IBus Bus { get; set; }
+        public string ReceivedDummyValue;
+        public string AssignedMessageId;
+
+        public void Handle(TestMessageWithProperties message)
+        {
+            ReceivedDummyValue = message.Dummy;
+            AssignedMessageId = Bus.CurrentMessageContext.Id;
+        }
+    }
+
+    public class TestMessageWithProperties : IMessage
+    {
+        public string Dummy { get; set; }
     }
 }

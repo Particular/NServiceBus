@@ -7,6 +7,10 @@ using NServiceBus.Config.ConfigurationSource;
 
 namespace NServiceBus.Testing
 {
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using DataBus.InMemory;
+
     /// <summary>
     /// Entry class used for unit testing
     /// </summary>
@@ -30,6 +34,17 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Initializes the testing infrastructure specifying which assemblies to scan.
         /// </summary>
+        public static void Initialize(IEnumerable<Assembly> assemblies)
+        {
+            if (assemblies == null)
+                throw new ArgumentNullException("assemblies");
+            
+            Initialize(assemblies.ToArray());
+        }
+        
+        /// <summary>
+        /// Initializes the testing infrastructure specifying which assemblies to scan.
+        /// </summary>
         public static void Initialize(params Assembly[] assemblies)
         {
             Configure.With(assemblies);
@@ -47,21 +62,57 @@ namespace NServiceBus.Testing
 
         private static void InitializeInternal()
         {
+            if (initialized)
+                return;
+
+            Configure.Serialization.Xml();
+
             Configure.Instance
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
-                .XmlSerializer()
-                .InMemoryFaultManagement();
+                .InMemoryFaultManagement()
+                .UnicastBus();
 
+            Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
+
+            Configure.Instance.Initialize();
+
+            
             var mapper = Configure.Instance.Builder.Build<IMessageMapper>();
             if (mapper == null)
                 throw new InvalidOperationException("Please call 'Initialize' before calling this method.");
 
-            mapper.Initialize(Configure.TypesToScan.Where(t => t.IsMessageType()));
+            //mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
             
             messageCreator = mapper;
             ExtensionMethods.MessageCreator = messageCreator;
+            ExtensionMethods.GetHeaderAction = (msg, key) =>
+                {
+                    ConcurrentDictionary<string, string> kv;
+                    if (messageHeaders.TryGetValue(msg, out kv))
+                    {
+                        string val;
+                        if (kv.TryGetValue(key, out val))
+                        {
+                            return val;
+                        }
+                    }
+
+                    return null;
+                };
+            ExtensionMethods.SetHeaderAction = (msg, key, val) =>
+                    messageHeaders.AddOrUpdate(msg, 
+                        o => new ConcurrentDictionary<string, string>(new[]{new KeyValuePair<string, string>(key, val)}), 
+                        (o, dic) =>
+                            {
+                                dic.AddOrUpdate(key, val, (s, s1) => val);
+                                return dic;
+                            });
+                
+            ExtensionMethods.GetStaticOutgoingHeadersAction = () => staticOutgoingHeaders;
+
+            initialized = true;
         }
 
         /// <summary>
@@ -84,7 +135,7 @@ namespace NServiceBus.Testing
             var saga = (T)Activator.CreateInstance(typeof(T));
 
             var prop = typeof(T).GetProperty("Data");
-            var sagaData = Activator.CreateInstance(prop.PropertyType) as ISagaEntity;
+            var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
 
             saga.Entity = sagaData;
 
@@ -160,14 +211,14 @@ namespace NServiceBus.Testing
             bool isHandler = (from i in handler.GetType().GetInterfaces()
                               let args = i.GetGenericArguments()
                               where args.Length == 1
-                              where args[0].IsMessageType()
-                              where typeof (IMessageHandler<>).MakeGenericType(args[0]).IsAssignableFrom(i)
+                              where MessageConventionExtensions.IsMessageType(args[0])
+                              where typeof(IHandleMessages<>).MakeGenericType(args[0]).IsAssignableFrom(i)
                               select i).Any();
 
             if (!isHandler)
-                throw new ArgumentException("The handler object created does not implement IMessageHandler<T>.", "handlerCreationCallback");
+                throw new ArgumentException("The handler object created does not implement IHandleMessages<T>.", "handlerCreationCallback");
 
-            var messageTypes = Configure.TypesToScan.Where(t => t.IsMessageType()).ToList();
+            var messageTypes = Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType).ToList();
 
             return new Handler<T>(handler, bus, messageCreator, messageTypes);
         }
@@ -194,16 +245,15 @@ namespace NServiceBus.Testing
             return messageCreator.CreateInstance(action);
         }
 
-        /// <summary>
-        /// Returns the message creator.
-        /// </summary>
         static IMessageCreator messageCreator;
-
-        static TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
+        static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
+        static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
+        static readonly IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+        static bool initialized;
     }
 
     /// <summary>
-    /// Configration source suitable for testing
+    /// Configuration source suitable for testing
     /// </summary>
     public class TestConfigurationSource:IConfigurationSource
     {

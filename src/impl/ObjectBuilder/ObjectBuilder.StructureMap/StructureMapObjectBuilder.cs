@@ -34,15 +34,27 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || disposed)
+            if (disposed)
+            {
                 return;
+            }
+
+            if (disposing)
+            {
+                container.Dispose();
+            }
 
             disposed = true;
-            container.Dispose();
-            GC.SuppressFinalize(this);
+        }
+
+        ~StructureMapObjectBuilder()
+        {
+            Dispose(false);
         }
 
         /// <summary>
@@ -168,6 +180,11 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         bool Common.IContainer.HasComponent(Type componentType)
         {
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
+        }
+
+        void Common.IContainer.Release(object instance)
+        {
+
         }
 
         private static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)

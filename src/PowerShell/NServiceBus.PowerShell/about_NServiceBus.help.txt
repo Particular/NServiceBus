@@ -1,0 +1,110 @@
+TOPIC
+  about_NServiceBus
+
+SHORT DESCRIPTION
+  Provides information about NServiceBus commands.
+
+LONG DESCRIPTION
+  This topic describes the NServiceBus commands. NServiceBus is a developer friendly 
+  .NET ESB framework.
+  
+  The following NServiceBus cmdlets are included:
+  
+  Cmdlet                                               Description
+  -------------------------------------------------------------------------------------------------
+  Install-NServiceBusLicense                           Install a NServiceBus license file.
+  												       
+  Get-NServiceBusMSMQMessage                           Displays all messages in a queue.
+  												       
+  Get-NServiceBusVersion                               Displays the NServiceBus installed version.
+  												       
+  Install-NServiceBusDTC                               Install DTC on the machine.
+   												       
+  Install-NServiceBusRavenDB                           Install RavenDB on the machine.
+   												       
+  Install-NServiceBusPerformanceCounters               Install NServiceBus performance counters
+                                                       on the machine.
+   												       
+  Install-NServiceBusMSMQ                              Install MSMQ on the machine.
+  												       
+  Test-NServiceBusDTCInstallation                      Validates if DTC is installed and running
+                                                       on the machine.
+   												       
+  Test-NServiceBusRavenDBInstallation                  Ensures RavenDB is on the machine.
+   												       
+  Test-NServiceBusPerformanceCountersInstallation      Validates that NServiceBus performance 
+                                                       counters are correctly installed on 
+                                                       the machine.
+   												       
+  Test-NServiceBusMSMQInstallation                     Validates MSMQ is correctly installed on 
+                                                       the machine.
+
+  Add-NServiceBusMessageForwardingInCaseOfFaultConfig  Adds the required configuration section to
+                                                       the config file.  
+													   
+  Add-NServiceBusUnicastBusConfig                      Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusTransportConfig                       Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusSecondLevelRetriesConfig              Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusLoggingConfig                         Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusMasterNodeConfig                      Adds the required configuration section to
+                                                       the config file.
+
+  Add-NServiceBusNHibernateConfig                      Adds the NHibernate supported config settings 
+                                                       as a comment.
+
+  Set-NServiceBusLocalMachineSettings                  Allows to specify the default Error and Audit
+                                                       queues.
+
+  Get-NServiceBusLocalMachineSettings                  Shows the default Error and Audit queues.
+  
+Sample Commands
+  
+  To checks the status of the NServiceBus performance counters on this box:
+  	
+  C:\PS> $countersAreInstalled = Test-NServiceBusPerformanceCountersInstallation
+  C:\PS> "PerformanceCounters are correctly installed: " + $countersAreInstalled
+  	
+  To install RavenDB onto a specific path and listening on a different port:
+   
+  C:\PS> Install-NServiceBusRavenDB -Port 8888 -Installpath "C:\MyPath\Nservicebus.Persistence"
+
+  To configure all endpoints Error and Audit queues on this machine:
+   
+  C:\PS> Set-NServiceBusLocalMachineSettings -ErrorQueue "error@centralserver" -AuditQueue "audit@centralserver"
+  
+  A slight more complex NServiceBus retrieve message commands might resemble 
+  the following command:
+  
+  C:\PS> Get-NServiceBusMSMQMessage -QueueName result | select -ExpandProperty Headers | Where-Object{$_.Key -eq "NServiceBus.RelatedToTimeoutId" }
+  
+  The above command lists all messages that have a header with key "NServiceBus.RelatedToTimeoutId"
+  
+SEE ALSO
+  Install-NServiceBusLicense
+  Get-NServiceBusMSMQMessage
+  Get-NServiceBusVersion
+  Install-NServiceBusDTC
+  Install-NServiceBusRavenDB
+  Install-NServiceBusPerformanceCounters
+  Install-NServiceBusMSMQ
+  Test-NServiceBusDTCInstallation
+  Test-NServiceBusRavenDBInstallation
+  Test-NServiceBusPerformanceCountersInstallation
+  Test-NServiceBusMSMQInstallation
+  Add-NServiceBusMessageForwardingInCaseOfFaultConfig
+  Add-NServiceBusUnicastBusConfig
+  Add-NServiceBusTransportConfig
+  Add-NServiceBusSecondLevelRetriesConfig
+  Add-NServiceBusLoggingConfig
+  Add-NServiceBusMasterNodeConfig
+  Add-NServiceBusNHibernateConfig
+  Set-NServiceBusLocalMachineSettings
+  Get-NServiceBusLocalMachineSettings

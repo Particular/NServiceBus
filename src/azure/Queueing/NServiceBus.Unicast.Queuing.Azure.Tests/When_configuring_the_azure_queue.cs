@@ -1,17 +1,27 @@
-using Microsoft.WindowsAzure.StorageClient;
 using NServiceBus.Config.ConfigurationSource;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using Microsoft.WindowsAzure.Storage.Queue;
+
     [TestFixture]
+    [Category("Azure")]
     public class When_configuring_the_azure_queue
     {
+        private Configure configure;
+
+        [SetUp]
+        public void Setup()
+        {
+            configure = Configure.With()
+                .DefineEndpointName("Test")
+                .DefaultBuilder();
+        }
         [Test]
         public void The_storage_should_default_to_dev_settings_if_no_config_section_is_found()
         {
-            Configure.With()
-                .DefaultBuilder()
+            configure
                 .CustomConfigurationSource(new NullSource())
                 .AzureMessageQueue();
 
@@ -23,8 +33,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         [Test]
         public void Storage_setting_should_be_read_from_configuration_source()
         {
-            Configure.With()
-                .DefaultBuilder()
+            configure
                 .AzureMessageQueue();
 
             var storage = Configure.Instance.Builder.Build<CloudQueueClient>();
@@ -33,13 +42,12 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         }
 
         [Test]
-        public void The_azurequeue_should_be_singleton()
+        public void The_azurequeue_should_not_be_singleton()
         {
-            Configure.With()
-             .DefaultBuilder()
+            configure
              .AzureMessageQueue();
 
-            Assert.AreEqual(Configure.Instance.Builder.Build<AzureMessageQueue>(),Configure.Instance.Builder.Build<AzureMessageQueue>());
+            Assert.AreNotEqual(Configure.Instance.Builder.Build<AzureMessageQueueReceiver>(), Configure.Instance.Builder.Build<AzureMessageQueueReceiver>());
         }
     }
 

@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
-using log4net;
 using MyMessages;
 using NServiceBus;
+using NServiceBus.Logging;
 
 namespace MyServer
 {
@@ -30,7 +30,7 @@ namespace MyServer
                 m.String = message.String;
             });
 
-            response.CopyHeaderFromRequest("Test");
+            Bus.SetMessageHeader(response, "Test", Bus.GetMessageHeader(message, "Test"));
             response.SetHeader("1", "1");
             response.SetHeader("2", "2");
 

@@ -1,0 +1,23 @@
+﻿namespace NServiceBus.Core.Tests.Fakes
+{
+    using System;
+    using NServiceBus.Faults;
+
+    public class FakeFailureManager : IManageMessageFailures
+    {
+        public void SerializationFailedForMessage(TransportMessage message, Exception e)
+        {
+            
+        }
+
+        public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
+        {
+            
+        }
+
+        public void Init(Address address)
+        {
+            
+        }
+    }
+}

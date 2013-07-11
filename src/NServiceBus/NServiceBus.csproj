@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{73867D40-8CBB-48E9-BFFA-12BBDD48A341}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus</RootNamespace>
+    <AssemblyName>NServiceBus</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <FodyPath>..\..\packages\Fody.1.13.8.0</FodyPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\binaries\NServiceBus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\..\binaries\NServiceBus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Reference Include="Obsolete, Version=1.6.2.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Obsolete.Fody.1.6.2.0\Lib\NET35\Obsolete.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <None Include="Fody.targets" />
+    <None Include="FodyWeavers.xml">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Address.cs" />
+    <Compile Include="AddressMode.cs" />
+    <Compile Include="CompletionResult.cs" />
+    <Compile Include="ContentTypes.cs" />
+    <Compile Include="DataBusProperty.cs" />
+    <Compile Include="Support\RuntimeEnvironment.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="IdGeneration\CombGuid.cs" />
+    <Compile Include="Headers.cs" />
+    <Compile Include="IAuthorizeSubscriptions.cs" />
+    <Compile Include="IBus.cs" />
+    <Compile Include="ICallback.cs" />
+    <Compile Include="ICommand.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IInMemoryOperations.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IMessageContext.cs" />
+    <Compile Include="IMessageCreator.cs" />
+    <Compile Include="IMessageHandler.cs" />
+    <Compile Include="IMessageModule.cs" />
+    <Compile Include="INeedInitialization.cs" />
+    <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
+    <Compile Include="IStartableBus.cs" />
+    <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
+    <Compile Include="MessageConventionException.cs" />
+    <Compile Include="MessageConventionExtensions.cs" />
+    <Compile Include="MessageIntentEnum.cs" />
+    <Compile Include="MessageMutator\IMessageMutator.cs" />
+    <Compile Include="NServiceBusVersion.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Saga\ContainSagaData.cs" />
+    <Compile Include="Saga\HasCompleted.cs" />
+    <Compile Include="Saga\IConfigurable.cs" />
+    <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
+    <Compile Include="Saga\IContainSagaData.cs" />
+    <Compile Include="Saga\IFindSagas.cs" />
+    <Compile Include="Saga\IHandleReplyingToNullOriginator.cs" />
+    <Compile Include="Saga\IHandleSagaNotFound.cs" />
+    <Compile Include="Saga\IHandleTimeouts.cs" />
+    <Compile Include="Saga\ISaga.cs" />
+    <Compile Include="Saga\ISagaEntity.cs" />
+    <Compile Include="Saga\ISagaMessage.cs" />
+    <Compile Include="Saga\ISagaPersister.cs" />
+    <Compile Include="Saga\ISagaStartedBy.cs" />
+    <Compile Include="Saga\ITimeoutable.cs" />
+    <Compile Include="Saga\ITimeoutState.cs" />
+    <Compile Include="Saga\Saga.cs" />
+    <Compile Include="Saga\ToSagaExpression.cs" />
+    <Compile Include="Saga\UniqueAttribute.cs" />
+    <Compile Include="Serialization\IMessageSerializer.cs" />
+    <Compile Include="WireEncryptedString.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\build\"</notused>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+  <Import Project="Fody.targets" />
+</Project>

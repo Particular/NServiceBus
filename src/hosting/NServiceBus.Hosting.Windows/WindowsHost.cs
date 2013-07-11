@@ -10,9 +10,8 @@ namespace NServiceBus.Hosting.Windows
     /// </summary>
     public class WindowsHost : MarshalByRefObject
     {
-        readonly GenericHost genericHost;
+        readonly IHost genericHost;
         readonly bool runOtherInstallers;
-        readonly bool runInfrastructureInstallers;
 
         /// <summary>
         /// Accepts the type which will specify the users custom configuration.
@@ -22,29 +21,30 @@ namespace NServiceBus.Hosting.Windows
         /// <param name="args"></param>
         /// <param name="endpointName"></param>
         /// <param name="runOtherInstallers"></param>
-        /// <param name="runInfrastructureInstallers"></param>
         /// <param name="scannableAssembliesFullName">Name of scan-able assemblies</param>
-        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, bool runInfrastructureInstallers, IEnumerable<string> scannableAssembliesFullName)
+        public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
         {
             var specifier = (IConfigureThisEndpoint)Activator.CreateInstance(endpointType);
 
-            genericHost = new GenericHost(specifier, args, new[] { typeof(Production) }, endpointName, scannableAssembliesFullName);
+            genericHost = new GenericHost(specifier, args, new List<Type> { typeof(Production) }, endpointName, scannableAssembliesFullName);
 
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 
             if (runOtherInstallers || Debugger.IsAttached)
                 this.runOtherInstallers = true;
-
-            this.runInfrastructureInstallers = runInfrastructureInstallers;
         }
 
         /// <summary>
         /// Windows hosting behavior when critical error occurs is suicide.
         /// </summary>
-        private void OnCriticalError()
+        private void OnCriticalError(string errorMessage, Exception exception)
         {
-            Thread.Sleep(10000); // so that user can see on their screen the problem
-            Process.GetCurrentProcess().Kill();
+            if (Environment.UserInteractive)
+            {
+                Thread.Sleep(10000); // so that user can see on their screen the problem
+            }
+            
+            Environment.FailFast(String.Format("The following critical error was encountered by NServiceBus:\n{0}\nNServiceBus is shutting down.", errorMessage), exception);
         }
 
         /// <summary>
@@ -63,19 +63,16 @@ namespace NServiceBus.Hosting.Windows
             genericHost.Stop();
         }
 
-
         /// <summary>
         /// Performs installations
         /// </summary>
-        public void Install()
+        /// <param name="username">Username passed in to host.</param>
+        public void Install(string username)
         {
             if (runOtherInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
-            if (runInfrastructureInstallers)
-                Installer<Installation.Environments.Windows>.RunInfrastructureInstallers = true;
 
-            genericHost.Install<Installation.Environments.Windows>();
+            genericHost.Install<Installation.Environments.Windows>(username);
         }
-
     }
 }

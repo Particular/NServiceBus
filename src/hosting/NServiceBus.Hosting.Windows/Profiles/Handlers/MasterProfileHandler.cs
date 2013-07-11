@@ -15,8 +15,7 @@
 
             Configure.Instance.AsMasterNode()
                 .RunDistributor()
-                .RunGateway()
-                .RunTimeoutManager();
+                .RunGateway();
         }
         
         public IEnumerable<Type> ActiveProfiles { get; set; }

@@ -1,4 +1,5 @@
 build
+build32
 binaries
 obj
 bin
@@ -24,4 +25,7 @@ PrecompiledWeb
 core-only
 Release
 Artifacts
+LogFiles
 csx
+*.ncrunchproject
+_NCrunch_NServiceBus/*

@@ -1,11 +1,11 @@
-﻿Import-Module ..\bin\debug\nservicebus.powershell.dll
+﻿Import-Module ..\..\..\..\binaries\nservicebus.powershell.dll
 
-Get-Help Install-PerformanceCounters
+Get-Help Install-NServiceBusPerformanceCounters
 
 #Checks the status of the NServiceBus PerformanceCounters on this box
-$countersIsGood = Install-PerformanceCounters -WhatIf
-"PerformanceCounters is good: " + $countersIsGood
+#$countersIsGood = Install-NServiceBusPerformanceCounters -WhatIf
+#"PerformanceCounters is good: " + $countersIsGood
 
 #Setup the NServiceBus perfcounters
-$countersIsGood = Install-PerformanceCounters
+$countersIsGood = Install-NServiceBusPerformanceCounters
 "PerformanceCounters is good: " + $countersIsGood

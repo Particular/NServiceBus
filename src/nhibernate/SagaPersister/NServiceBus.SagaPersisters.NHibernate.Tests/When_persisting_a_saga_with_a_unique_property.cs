@@ -1,7 +1,6 @@
 ﻿using System;
 using NHibernate.Exceptions;
 using NServiceBus.Saga;
-using NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes;
 using NUnit.Framework;
 
 namespace NServiceBus.SagaPersisters.NHibernate.Tests
@@ -10,7 +9,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     public class When_persisting_a_saga_with_a_unique_property : InMemoryFixture
     {
         [Test]
-        public void The_database_should_enforce_the_uniqness()
+        public void The_database_should_enforce_the_uniqueness()
         {
             UnitOfWork.Begin();
             SagaPersister.Save(new SagaWithUniqueProperty
@@ -29,7 +28,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
     }
 
-    public class SagaWithUniqueProperty : ISagaEntity
+    public class SagaWithUniqueProperty : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 

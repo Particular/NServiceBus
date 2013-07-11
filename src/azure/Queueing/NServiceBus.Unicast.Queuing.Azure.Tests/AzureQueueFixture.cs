@@ -1,13 +1,17 @@
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace NServiceBus.Unicast.Queuing.Azure.Tests
 {
+    using System;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Queue;
+    using Serializers.Json;
+
     public abstract class AzureQueueFixture
     {
-        protected AzureMessageQueue queue;
+        protected AzureMessageQueueSender sender;
+        protected AzureMessageQueueReceiver receiver;
         protected CloudQueueClient client;
         protected CloudQueue nativeQueue;
 
@@ -26,20 +30,28 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
         public void Setup()
         {
             client = CloudStorageAccount.DevelopmentStorageAccount.CreateCloudQueueClient();
-       
+            client.ServerTimeout = TimeSpan.FromSeconds(10);
             nativeQueue = client.GetQueueReference(QueueName);
 
-            nativeQueue.CreateIfNotExist();
+            nativeQueue.CreateIfNotExists();
             nativeQueue.Clear();
 
 
-            queue = new AzureMessageQueue
+            sender = new AzureMessageQueueSender
                         {
-                            PurgeOnStartup = PurgeOnStartup,
-                            Client = client
+                            Client = client,
+                            MessageSerializer = new JsonMessageSerializer(new MessageMapper())
                         };
 
-            queue.Init(QueueName,true);
+            sender.Init(QueueName, true);
+
+            receiver = new AzureMessageQueueReceiver
+            {
+                Client = client,
+                MessageSerializer = new JsonMessageSerializer(new MessageMapper()),
+            };
+
+            receiver.Init(QueueName, true);
         }
 
         protected void AddTestMessage()
@@ -49,8 +61,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.Tests
 
         protected void AddTestMessage(TransportMessage messageToAdd)
         {
-            queue.Send(messageToAdd, QueueName);
+            sender.Send(messageToAdd, QueueName);
         }
-
     }
 }

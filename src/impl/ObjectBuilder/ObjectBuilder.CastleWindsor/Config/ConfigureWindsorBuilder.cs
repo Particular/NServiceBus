@@ -1,9 +1,10 @@
 ﻿using NServiceBus.ObjectBuilder.CastleWindsor;
-using NServiceBus.ObjectBuilder.Common.Config;
 using Castle.Windsor;
 
 namespace NServiceBus
 {
+    using ObjectBuilder.Common.Config;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>

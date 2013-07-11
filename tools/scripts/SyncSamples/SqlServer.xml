@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ItemGroup>
+  <Reference Include="NServiceBus.Transports.SqlServer">
+    <HintPath>..\..\..\binaries\NServiceBus.Transports.SqlServer.dll</HintPath>
+  </Reference>
+</ItemGroup>

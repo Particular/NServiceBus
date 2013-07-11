@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ItemGroup>
+  <Reference Include="RabbitMQ.Client">
+    <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+  </Reference>
+  <Reference Include="NServiceBus.Transports.RabbitMQ">
+    <HintPath>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
+  </Reference>
+</ItemGroup>

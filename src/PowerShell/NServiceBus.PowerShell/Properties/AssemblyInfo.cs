@@ -1,11 +1,18 @@
-using System;
+﻿using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus.PowerShell")]
-[assembly: AssemblyVersion("3.0.0.0")]
-[assembly: AssemblyFileVersion("3.0.2.0")]
-[assembly: AssemblyCopyright("Copyright (C) NServiceBus 2007-2011")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyVersion("4.0.0.0")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
 [assembly: AssemblyProduct("NServiceBus")]
 [assembly: AssemblyCompany("NServiceBus")]
-[assembly: AssemblyInformationalVersion("3.0.2-build0")]
-[assembly: CLSCompliantAttribute(true)]
+[assembly: AssemblyConfiguration("release")]
+[assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
+[assembly: ComVisible(false)]		
+[assembly: CLSCompliantAttribute(false)]
+

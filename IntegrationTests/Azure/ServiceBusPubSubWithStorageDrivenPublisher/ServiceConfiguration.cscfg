@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2013-03.2.0">
+  <Role name="OrderWebSite">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[namespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
+      <!-- Http if behind proxy -->
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Warn" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="ygoeleve" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCECREF3J1LcuZRDqHbGx+5T0wDQYJKoZIhvcNAQEBBQAEggEAIPCZkFeyCHJYdLpCjPxT6ocYT5TbDv2/QtfBHAG70VkWUtWyKV5Ne9R8zVdUezsB9CwD/c2adYlR4obskbZQbJzldIiy4+UWE0MzKdGRKNFTz9vQ65/wZeAoFF0q3Et6iq+zJdYqyfECreoELAjEleDkOy12bnHfdPSvO3LkS4yq8yX9dTFiTU7DDghEdrUzhqn1ix4v0teS3/scoFgu7qVLblgNtp3g0df9cTsJv40QnG7iEbXvQlSosSUL3/nWhgLI6tXaHXzSr4ATHEavMA0Iy8fRxF58B3gJeoNJQD/P0sELTAhr+x93t6UHvlGGD9MFqbLPf/UbB49Ju7PEtjAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECM/bMm+cmIbggBCZFWoQMLuEmlcIy9Fb8xRF" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2013-01-06T23:59:59.0000000+01:00" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="7C06EF2B60302277B5DB6AFE35ECFCABB628EF8E" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+  <Role name="OrderService">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[namespace].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectivityMode" value="Tcp" />
+      <!--Http if behind proxy-->
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
+      <Setting name="AzureSubscriptionStorageConfig.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Warn" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="ygoeleve" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCECREF3J1LcuZRDqHbGx+5T0wDQYJKoZIhvcNAQEBBQAEggEAIPCZkFeyCHJYdLpCjPxT6ocYT5TbDv2/QtfBHAG70VkWUtWyKV5Ne9R8zVdUezsB9CwD/c2adYlR4obskbZQbJzldIiy4+UWE0MzKdGRKNFTz9vQ65/wZeAoFF0q3Et6iq+zJdYqyfECreoELAjEleDkOy12bnHfdPSvO3LkS4yq8yX9dTFiTU7DDghEdrUzhqn1ix4v0teS3/scoFgu7qVLblgNtp3g0df9cTsJv40QnG7iEbXvQlSosSUL3/nWhgLI6tXaHXzSr4ATHEavMA0Iy8fRxF58B3gJeoNJQD/P0sELTAhr+x93t6UHvlGGD9MFqbLPf/UbB49Ju7PEtjAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECM/bMm+cmIbggBCZFWoQMLuEmlcIy9Fb8xRF" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2013-01-06T23:59:59.0000000+01:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="7C06EF2B60302277B5DB6AFE35ECFCABB628EF8E" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>

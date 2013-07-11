@@ -1,5 +1,6 @@
-﻿using log4net.Appender;
-using log4net.Core;
+﻿using NServiceBus.Hosting.Windows.LoggingHandlers.Internal;
+using NServiceBus.Logging.Loggers.Log4NetAdapter;
+using NServiceBus.Logging.Loggers.NLogAdapter;
 
 namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
@@ -10,46 +11,12 @@ namespace NServiceBus.Hosting.Windows.LoggingHandlers
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
-            SetLoggingLibrary.Log4Net<ColoredConsoleAppender>(null, 
-                a =>
-                {
-                    PrepareColors(a);
-                    a.Threshold = Level.Info;
-                }
-            );
-        }
-
-        
-        ///<summary>
-        /// Sets default colors for a ColredConsoleAppender
-        ///</summary>
-        ///<param name="a"></param>
-        public static void PrepareColors(ColoredConsoleAppender a)
-        {
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Debug,
-                        ForeColor = ColoredConsoleAppender.Colors.White
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Info,
-                        ForeColor = ColoredConsoleAppender.Colors.Green
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Warn,
-                        ForeColor = ColoredConsoleAppender.Colors.Yellow | ColoredConsoleAppender.Colors.HighIntensity
-                    });
-            a.AddMapping(
-                new ColoredConsoleAppender.LevelColors
-                    {
-                        Level = Level.Error,
-                        ForeColor = ColoredConsoleAppender.Colors.Red | ColoredConsoleAppender.Colors.HighIntensity
-                    });
+            if (Log4NetConfigurator.Log4NetExists)
+                SetLoggingLibrary.Log4Net(null, Log4NetAppenderFactory.CreateColoredConsoleAppender("Info"));
+            else if (NLogConfigurator.NLogExists)
+                SetLoggingLibrary.NLog(null, NLogTargetFactory.CreateColoredConsoleTarget());
+            else
+                ConfigureInternalLog4Net.Lite();
         }
     }
 }

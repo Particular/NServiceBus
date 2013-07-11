@@ -1,13 +1,17 @@
 ﻿using NServiceBus.Hosting.Profiles;
-using NServiceBus.Integration.Azure;
+using NServiceBus.Azure;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting.Azure.Profiles.Handlers
 {
+    using Logging.Loggers;
+
     internal class ProductionProfileHandler : IHandleProfile<Production>
     {
         void IHandleProfile.ProfileActivated()
         {
-           Configure.Instance.Log4Net<AzureAppender>(a =>{a.InitializeDiagnostics = !IsHostedIn.ChildHostProcess();});
+            if (!(LogManager.LoggerFactory is NullLoggerFactory))
+                Configure.Instance.AzureDiagnosticsLogger(true, !IsHostedIn.ChildHostProcess());
         }
     }
 }

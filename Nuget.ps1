@@ -1,7 +1,7 @@
 properties {
 	$ProductVersion = "4.0"
 	$PatchVersion = "0"
-	$BuildNumber = if($env:BUILD_NUMBER -ne $null) { $env:BUILD_NUMBER } else { "0" }
+	$BuildNumber = "0"
 	$PreRelease = "alpha"
 	$NugetKey = ""
 	$UploadPackage = $false
@@ -25,23 +25,41 @@ task Clean {
 }
 
 task Pack {
+
+	$v1Projects = @("NServiceBus.ActiveMQ.nuspec", "NServiceBus.RabbitMQ.nuspec", "NServiceBus.SqlServer.nuspec", "NServiceBus.Notifications.nuspec")
+	
+	$nsbVersion = $ProductVersion + "." + $PatchVersion
+			
+	if($PreRelease -ne '') {
+		$nsbVersion = "{0}.{1}-{2}{3}" -f $ProductVersion, $PatchVersion, $PreRelease, ($BuildNumber).PadLeft(4, '0')
+	}
+				
 	(dir -Path $nugetTempPath -Recurse -Filter '*.nuspec') | foreach { 
 			   
 			Write-Host Creating NuGet spec file for $_.Name
 			
 			[xml] $nuspec = Get-Content $_.FullName
 			
-			$nugetVersion = $ProductVersion + "." + $PatchVersion
+			if([System.Array]::IndexOf($v1Projects, $_.Name) -eq -1){
+				$nugetVersion = $ProductVersion + "." + $PatchVersion
 			
-			if($PreRelease -ne '') {
-				$nuspec.package.metadata.title += ' (' + $PreRelease + ')'
-				$nugetVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 
+				if($PreRelease -ne '') {
+					$nuspec.package.metadata.title += ' (' + $PreRelease + ')'
+					$nugetVersion = "{0}.{1}-{2}{3}" -f $ProductVersion, $PatchVersion, $PreRelease, ($BuildNumber).PadLeft(4, '0')
+				}
+			} else {
+				$nugetVersion = "1.0.0"
+			
+				if($PreRelease -ne '') {
+					$nuspec.package.metadata.title += ' (' + $PreRelease + ')'
+					$nugetVersion = "1.0.0-{0}{1}" -f $PreRelease, ($BuildNumber).PadLeft(4, '0')
+				}
 			}
 	
 			$nuspec.package.metadata.version = $nugetVersion
 			
 			$nuspec | Select-Xml '//dependency[starts-with(@id, "NServiceBus")]' |% {
-				$_.Node.version = "[$nugetVersion]"
+				$_.Node.version = "[$nsbVersion]"
 			}
 			$nuspec | Select-Xml '//file[starts-with(@src, "\")]' |% {
 				$_.Node.src = $baseDir + $_.Node.src

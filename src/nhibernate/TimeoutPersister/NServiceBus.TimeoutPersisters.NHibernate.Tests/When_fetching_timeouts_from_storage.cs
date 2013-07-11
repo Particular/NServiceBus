@@ -4,6 +4,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using Support;
     using Timeout.Core;
 
     [TestFixture]
@@ -20,7 +21,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                   {
                                       Time = DateTime.UtcNow.AddHours(-1),
                                       CorrelationId = "boo",
-                                      Destination = new Address("timeouts", Environment.MachineName),
+                                      Destination = new Address("timeouts", RuntimeEnvironment.MachineName),
                                       SagaId = Guid.NewGuid(),
                                       State = new byte[] { 0, 0, 133 },
                                       Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" }},
@@ -40,7 +41,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             {
                 Time = nextTime,
                 CorrelationId = "boo",
-                Destination = new Address("timeouts", Environment.MachineName),
+                Destination = new Address("timeouts", RuntimeEnvironment.MachineName),
                 SagaId = Guid.NewGuid(),
                 State = new byte[] { 0, 0, 133 },
                 Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } },

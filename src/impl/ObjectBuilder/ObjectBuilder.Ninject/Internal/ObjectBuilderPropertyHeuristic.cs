@@ -11,12 +11,14 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     /// </summary>
     internal class ObjectBuilderPropertyHeuristic : IObjectBuilderPropertyHeuristic
     {
+        private bool disposed;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectBuilderPropertyHeuristic"/> class.
         /// </summary>
         public ObjectBuilderPropertyHeuristic()
         {
-            this.RegisteredTypes = new List<Type>();
+            RegisteredTypes = new List<Type>();
         }
 
         /// <summary>
@@ -36,16 +38,6 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
         }
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            this.Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         /// Determines whether a given type should be injected.
         /// </summary>
         /// <param name="member">The member info to check.</param>
@@ -60,21 +52,41 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
                 return false;
             }
 
-            var shouldInject = this.RegisteredTypes.Where(x => propertyInfo.DeclaringType.IsAssignableFrom(x)).Any()
-                   && this.RegisteredTypes.Where(x => propertyInfo.PropertyType.IsAssignableFrom(x)).Any() 
+            var shouldInject = RegisteredTypes.Any(x => propertyInfo.DeclaringType.IsAssignableFrom(x))
+                   && RegisteredTypes.Any(x => propertyInfo.PropertyType.IsAssignableFrom(x)) 
                    && propertyInfo.CanWrite;
 
             return shouldInject;
         }
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release
-        /// only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        private void Dispose(bool disposing)
         {
-            this.RegisteredTypes.Clear();
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                RegisteredTypes.Clear();
+            }
+
+            disposed = true;
+        }
+
+        ~ObjectBuilderPropertyHeuristic()
+        {
+            Dispose(false);
         }
     }
 }

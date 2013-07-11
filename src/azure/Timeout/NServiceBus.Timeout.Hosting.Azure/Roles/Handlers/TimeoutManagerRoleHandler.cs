@@ -2,18 +2,17 @@
 using NServiceBus.Config;
 using NServiceBus.Hosting.Azure;
 using NServiceBus.Hosting.Roles;
-using NServiceBus.Sagas.Impl;
 using NServiceBus.Unicast.Config;
 
 
 namespace NServiceBus.Timeout.Hosting.Azure
 {
-    using Core;
+    using NServiceBus.Azure;
 
     /// <summary>
     /// Handles configuration related to the timeout manager role
     /// </summary>
-    public class TimeoutManagerRoleHandler : IConfigureRole<AsA_TimeoutManager>, IWantTheEndpointConfig
+    public class TimeoutManagerRoleHandler : IConfigureRole<AsA_TimeoutManager>
     {
         /// <summary>
         /// Configures the UnicastBus with typical settings for a timeout manager on azure
@@ -22,24 +21,19 @@ namespace NServiceBus.Timeout.Hosting.Azure
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            var instance = Configure.Instance;
-
             if (RoleEnvironment.IsAvailable && !IsHostedIn.ChildHostProcess())
             {
-                instance.AzureConfigurationSource();
+                Configure.Instance.AzureConfigurationSource();
             }
 
-            return instance
-                .JsonSerializer()
-                .RunTimeoutManager()
-                    .UseAzureTimeoutPersister()
-                .IsTransactional(true)
-                .Sagas()
+            Configure.Transactions.Enable();
+            Configure.Features.Enable<Features.Sagas>();
+            Configure.Serialization.Json();
+
+            return Configure.Instance
+                .UseAzureTimeoutPersister()
                 .UnicastBus()
-                    .ImpersonateSender(false);
+                    .RunHandlersUnderIncomingPrincipal(false);
         }
-
-
-        public IConfigureThisEndpoint Config { get; set; }
     }
 }

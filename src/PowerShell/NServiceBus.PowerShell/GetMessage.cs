@@ -6,12 +6,13 @@
     using System.Linq;
     using System.Management.Automation;
     using System.Messaging;
+    using System.Xml;
     using System.Xml.Serialization;
 
-    [Cmdlet("Get", "Message")]
+    [Cmdlet(VerbsCommon.Get, "NServiceBusMSMQMessage")]
     public class GetMessage : PSCmdlet
     {
-        [Parameter(HelpMessage = "The name of the privage queue to search")]
+        [Parameter(HelpMessage = "The name of the private queue to search", ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string QueueName { get; set; }
 
         protected override void ProcessRecord()
@@ -33,7 +34,7 @@
                 });   
 
 
-            WriteObject(output,true);
+            WriteObject(output, true);
         }
 
         IEnumerable<HeaderInfo> ParseHeaders(Message message)
@@ -43,8 +44,12 @@
             
             if(message.Extension.Length > 0)
             {
-                var stream = new MemoryStream(message.Extension);
-                result = headerSerializer.Deserialize(stream) as IEnumerable<HeaderInfo>;
+                using (var stream = new MemoryStream(message.Extension))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
+
+                {
+                    result = headerSerializer.Deserialize(reader) as IEnumerable<HeaderInfo>;
+                }
             }
 
             return result;

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Testing.Tests
+namespace NServiceBus.Testing.Tests
 {
     using System;
     using System.Reflection;
@@ -42,7 +42,7 @@
     }
 
     public class SagaTestEvent : IEvent {}
-    public class Data : ISagaEntity
+    public class Data : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

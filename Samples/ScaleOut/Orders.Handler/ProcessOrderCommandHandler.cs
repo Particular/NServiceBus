@@ -1,24 +1,24 @@
-﻿using log4net;
-using NServiceBus;
+﻿using NServiceBus;
 using Orders.Messages;
 
 namespace Orders.Handler
 {
+    using System;
+
     public class ProcessOrderCommandHandler : IHandleMessages<PlaceOrder>
     {
         public IBus Bus { get; set; }
         public void Handle(PlaceOrder placeOrder)
         {
-            Logger.Info("Received ProcessOrder command, order Id: " + placeOrder.OrderId);
+            Console.Out.WriteLine("Received ProcessOrder command, order Id: " + placeOrder.OrderId);
             Bus.Return(PlaceOrderStatus.Ok);
-            Logger.InfoFormat("Sent Ok status for orderId [{0}].", placeOrder.OrderId);
+            Console.Out.WriteLine("Sent Ok status for orderId [{0}].", placeOrder.OrderId);
 
             // Process Order...
-            Logger.Info("Processing received order....");
+            Console.Out.WriteLine("Processing received order....");
             
             Bus.Publish<OrderPlaced>(m => m.OrderId = placeOrder.OrderId);
-            Logger.InfoFormat("Sent Order placed event for orderId [{0}].", placeOrder.OrderId);
+            Console.Out.WriteLine("Sent Order placed event for orderId [{0}].", placeOrder.OrderId);
         }
-        private static readonly ILog Logger = LogManager.GetLogger("ProcessOrderCommandHandler");
     }
 }

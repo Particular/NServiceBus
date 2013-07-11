@@ -63,7 +63,7 @@ namespace NServiceBus.Testing
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        [Obsolete]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public Handler<T> AssertOutgoingHeader(string key, string value)
         {
             return this;
@@ -80,7 +80,7 @@ namespace NServiceBus.Testing
             expectedInvocations.Add(new ExpectedSendInvocation<TMessage> { Check = check });
             return this;
         }
-        
+
         /// <summary>
         /// Check that the handler does not send a message of the given type complying with the given predicate.
         /// </summary>
@@ -90,6 +90,18 @@ namespace NServiceBus.Testing
         public Handler<T> ExpectNotSend<TMessage>(Func<TMessage, bool> check)
         {
             expectedInvocations.Add(new ExpectedNotSendInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler does not reply with a given message
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotReply<TMessage>(Func<TMessage, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotReplyInvocation<TMessage> { Check = check });
             return this;
         }
 
@@ -165,19 +177,19 @@ namespace NServiceBus.Testing
             return this;
         }
 
-		/// <summary>
+        /// <summary>
         /// Check that the handler does not publish any messages of the given type complying with the given predicate.
-		/// </summary>
-		/// <typeparam name="TMessage"></typeparam>
-		/// <param name="check"></param>
-		/// <returns></returns>
-		public Handler<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check)
-		{
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotPublish<TMessage>(Func<TMessage, bool> check)
+        {
             expectedInvocations.Add(new ExpectedNotPublishInvocation<TMessage> { Check = check });
-			return this;
-		}
-		
-		/// <summary>
+            return this;
+        }
+
+        /// <summary>
         /// Check that the handler tells the bus to stop processing the current message.
         /// </summary>
         /// <returns></returns>
@@ -230,6 +242,15 @@ namespace NServiceBus.Testing
             OnMessage(msg, messageId);
         }
 
+        /// <summary>Activates the test that has been set up passing in a specific message to be used.</summary>
+        /// <param name="initializedMessage">A message to be used with message handler.</param>
+        /// <remarks>This is different from "<![CDATA[public void OnMessage<TMessage>(Action<TMessage> initializedMessage)]]>" in a way that it uses the message, and not calls to an action.</remarks>
+        /// <example><![CDATA[var message = new TestMessage {//...}; Test.Handler<EmptyHandler>().OnMessage<TestMessage>(message);]]></example>
+        public void OnMessage<TMessage>(TMessage initializedMessage)
+        {
+            OnMessage(initializedMessage, Guid.NewGuid().ToString("N"));
+        }
+
         /// <summary>
         /// Activates the test that has been set up passing in given message,
         /// setting the incoming headers and the message Id.
@@ -247,8 +268,15 @@ namespace NServiceBus.Testing
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 
-            MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
-            method.Invoke(handler, new object[] {message});
+            try
+            {
+                MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
+                method.Invoke(handler, new object[] {message});
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
 
             bus.ValidateAndReset(expectedInvocations);
             expectedInvocations.Clear();
@@ -258,15 +286,16 @@ namespace NServiceBus.Testing
             assertions.Clear();
             ExtensionMethods.CurrentMessageBeingHandled = null;
         }
-        
-		private static MethodInfo GetMessageHandler(Type targetType, Type messageType) {
-			var method = targetType.GetMethod("Handle", new[] { messageType });
-			if (method != null) return method;
 
-			var handlerType = typeof(IMessageHandler<>).MakeGenericType(messageType);
-			return targetType.GetInterfaceMap(handlerType)
-			                .TargetMethods
-			                .FirstOrDefault();
-		}
+        private static MethodInfo GetMessageHandler(Type targetType, Type messageType)
+        {
+            var method = targetType.GetMethod("Handle", new[] { messageType });
+            if (method != null) return method;
+
+            var handlerType = typeof(IHandleMessages<>).MakeGenericType(messageType);
+            return targetType.GetInterfaceMap(handlerType)
+                            .TargetMethods
+                            .FirstOrDefault();
+        }
     }
 }

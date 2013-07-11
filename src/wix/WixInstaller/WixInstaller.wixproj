@@ -17,13 +17,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Debug;SOURCEPATH=..\..\..\..\..\Release;VERSION=3.3.0;PRODUCTNAME=NServiceBus;MANUFACTURER=NServiceBus Ltd;VSIXPATH=C:\Projects</DefineConstants>
+    <DefineConstants>Debug;SOURCEPATH.TOOLS=..\..\..\..\..\Release\Tools;SOURCEPATH.SAMPLES=..\..\..\..\..\Release\Samples;SOURCEPATH.BINARIES=..\..\..\..\..\Release\binaries;SOURCEPATH=..\..\..\..\..\Release;VERSION=3.3.0;PRODUCTNAME=NServiceBus;UPGRADECODE=6bf2f238-54fb-4300-ab68-2416491af29f;MANUFACTURER=NServiceBus Ltd;VSIXPATH=C:\Projects</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DefineConstants>Release;SOURCEPATH=..\..\..\..\..\Release;VERSION=$(ProductVersion);PRODUCTNAME=NServiceBus;MANUFACTURER=NServiceBus Ltd;VSIXPATH=$(VsixPath)</DefineConstants>
-    <OutputName>NServiceBus.v$(ProductVersion)</OutputName>
+    <DefineConstants>SOURCEPATH.TOOLS=..\..\..\..\..\Release\Tools;SOURCEPATH.SAMPLES=..\..\..\..\..\Release\Samples;SOURCEPATH.BINARIES=..\..\..\..\..\Release\binaries;SOURCEPATH=..\..\..\..\..\Release;UPGRADECODE=$(UpgradeCode);VERSION=$(ProductVersion);PRODUCTNAME=NServiceBus;MANUFACTURER=NServiceBus Ltd;VSIXPATH=$(VsixPath)</DefineConstants>
     <SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>

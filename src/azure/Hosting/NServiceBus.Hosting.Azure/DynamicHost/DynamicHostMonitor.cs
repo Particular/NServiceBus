@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Common.Logging;
-using Microsoft.WindowsAzure.StorageClient;
+using NServiceBus.Logging;
 
 namespace NServiceBus.Hosting
 {
+    using Microsoft.WindowsAzure.Storage;
+
     internal class DynamicHostMonitor
     {
         private Thread monitorThread;
@@ -110,7 +111,7 @@ namespace NServiceBus.Hosting
                 if (removedEndpoints.Count > 0)
                     OnRemovedEndpoints(new EndpointsEventArgs {Endpoints = removedEndpoints});
             }
-            catch(StorageServerException ex) //prevent azure storage hickups from hurting us
+            catch(StorageException ex) //prevent azure storage hickups from hurting us
             {
                 logger.Warn(ex.Message);
             }

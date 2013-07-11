@@ -31,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\binaries\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
@@ -75,13 +72,15 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-    <StartArguments>NServiceBus.Production NServiceBus.Worker</StartArguments>
+    <StartArguments>NServiceBus.Integration NServiceBus.Worker</StartArguments>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
-    <StartArguments>NServiceBus.Production NServiceBus.Worker</StartArguments>
+    <StartArguments>NServiceBus.Integration NServiceBus.Worker</StartArguments>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 </Project>

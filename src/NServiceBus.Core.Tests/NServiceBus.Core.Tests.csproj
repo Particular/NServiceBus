@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2C8F181B-9BAF-4858-968B-1C16F5DDCFA7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NServiceBus.Core.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Core.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Embedded, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Embedded.2.0.2375\lib\net40\Raven.Client.Embedded.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Database, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\RavenDB.Database.2.0.2375\lib\net40\Raven.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.XML" />
+    <Reference Include="TestAssembly">
+      <HintPath>Lib\TestAssembly.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AutomaticSubscriptions\AutoSubscriptionContext.cs" />
+    <Compile Include="AutomaticSubscriptions\When_autosubscribing_a_saga_that_handles_a_superclass_event.cs" />
+    <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
+    <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe_turned_on.cs" />
+    <Compile Include="Config\TestConfigurationSection.cs" />
+    <Compile Include="Config\When_finding_assemblies_to_scan_with_expressions.cs" />
+    <Compile Include="Config\When_loading_types.cs" />
+    <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
+    <Compile Include="Config\When_scanning_assemblies.cs" />
+    <Compile Include="Config\When_users_override_the_configuration_source.cs" />
+    <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
+    <Compile Include="DataBus\InMemoryDataBus.cs" />
+    <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
+    <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
+    <Compile Include="DataBus\MessageWithoutDataBusProperty.cs" />
+    <Compile Include="DataBus\on_the_bus.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
+    <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
+    <Compile Include="DataBus\When_nservicebus_is_initalizing.cs" />
+    <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
+    <Compile Include="Encryption\FakeEncryptionService.cs" />
+    <Compile Include="Encryption\Issue_701.cs" />
+    <Compile Include="Encryption\Issue_949.cs" />
+    <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
+    <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
+    <Compile Include="Fakes\FakeBus.cs" />
+    <Compile Include="Fakes\FakeTransport.cs" />
+    <Compile Include="Features\FeatureCategories.cs" />
+    <Compile Include="FuncBuilder.cs" />
+    <Compile Include="Gateway\Config\When_routing_using_the_configuration_source.cs" />
+    <Compile Include="Gateway\FakeMessageSender.cs" />
+    <Compile Include="Gateway\FakeTransport.cs" />
+    <Compile Include="Gateway\HeaderManagement\When_receiving_a_message_from_another_site.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\in_the_raven_storage.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_already_acked_message.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\When_acking_an_existing_message.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
+    <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
+    <Compile Include="Gateway\InMemoryDataBus.cs" />
+    <Compile Include="Gateway\RegularMessage.cs" />
+    <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
+    <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
+    <Compile Include="Gateway\via_the_gateway.cs" />
+    <Compile Include="Gateway\When_a_message_is_sent.cs" />
+    <Compile Include="Gateway\When_a_message_with_a_databus_property_is_sent.cs" />
+    <Compile Include="Installers\RavenUserInstallerTests.cs" />
+    <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
+    <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\Raven_saga_persistence_concern.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithoutUniqueProperties.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithUniqueProperty.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithUniquePropertyAndALongNamespace.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\Saga_with_unique_property_set_to_null.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\TestSaga.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_completing_a_saga_with_the_raven_persister.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_an_Enum_property.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_a_concrete_class_property.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_a_date_time_property.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_inherited_property.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_entity_with_related_entities.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_storing_a_saga_with_a_long_namespace.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_does_not_have_a_unique_attribute.cs" />
+    <Compile Include="Persistence\RavenDB\SagaPersister\When_updating_a_saga_property_that_has_a_unique_attribute.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\TestData.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_listing_subscribers_for_message_types.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_an_unsubscription_message.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_a_subscription_message.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\When_receiving_duplicate_subscription_messages.cs" />
+    <Compile Include="Persistence\RavenDB\SubscriptionStorage\WithRavenSubscriptionStorage.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_lambda_and_database.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_that_does_not_exist.cs" />
+    <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
+    <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
+    <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Satellite\SatelliteLauncherContext.cs" />
+    <Compile Include="Satellite\SatelliteLauncherTests.cs" />
+    <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
+    <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
+    <Compile Include="Scheduler\ScheduleTests.cs" />
+    <Compile Include="SecondLevelRetries\DefaultRetryPolicyTests.cs" />
+    <Compile Include="SecondLevelRetries\SecondLevelRetriesTests.cs" />
+    <Compile Include="Serializers\Binary\BinarySerializerTest.cs" />
+    <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
+    <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
+    <Compile Include="Serializers\Json\JsonMessageSerializerTestBase.cs" />
+    <Compile Include="Serializers\XML\Command1.cs" />
+    <Compile Include="Serializers\XML\Command2.cs" />
+    <Compile Include="Serializers\XML\ConcurrencySerializerTests.cs" />
+    <Compile Include="Serializers\XML\DictionaryTests.cs" />
+    <Compile Include="Serializers\XML\IM1.cs" />
+    <Compile Include="Serializers\XML\IM2.cs" />
+    <Compile Include="Serializers\XML\Issue_934.cs" />
+    <Compile Include="Serializers\XML\ListTests.cs" />
+    <Compile Include="Serializers\XML\M1.cs" />
+    <Compile Include="Serializers\XML\M2.cs" />
+    <Compile Include="Serializers\XML\MultipleInterfaces.cs" />
+    <Compile Include="Serializers\XML\Pull_819.cs" />
+    <Compile Include="Serializers\XML\Risk.cs" />
+    <Compile Include="Serializers\XML\SerializerFactory.cs" />
+    <Compile Include="Serializers\XML\SerializerTests.cs" />
+    <Compile Include="Serializers\XML\SerializingArrayTests.cs" />
+    <Compile Include="Serializers\XML\SerializingEnumerableTests.cs" />
+    <Compile Include="Serializers\XML\SomeEnum.cs" />
+    <Compile Include="Timeout\FakeMessageSender.cs" />
+    <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
+    <Compile Include="Timeout\When_pooling_timeouts.cs" />
+    <Compile Include="Timeout\When_receiving_timeouts.cs" />
+    <Compile Include="Timeout\When_removing_timeouts_from_the_storage.cs" />
+    <Compile Include="Fakes\FakeFailureManager.cs" />
+    <Compile Include="Fakes\FakeReceiver.cs" />
+    <Compile Include="Transport\for_the_transactional_transport.cs" />
+    <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
+    <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
+    <Compile Include="AutomaticSubscriptions\AutoSubscriptions.cs" />
+    <Compile Include="Unicast\ConfigurationSettings.cs" />
+    <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
+    <Compile Include="Unicast\Contexts\CommandMessage.cs" />
+    <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
+    <Compile Include="Unicast\Contexts\EventMessage.cs" />
+    <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
+    <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
+    <Compile Include="Unicast\HandlerInvocationCache.cs" />
+    <Compile Include="Unicast\DeferedMessages.cs" />
+    <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
+    <Compile Include="Unicast\Helpers\FakeTransport.cs" />
+    <Compile Include="Unicast\Helpers\Helpers.cs" />
+    <Compile Include="Unicast\Helpers\MessageHeaderManager.cs" />
+    <Compile Include="Unicast\MessageModules.cs" />
+    <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
+    <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
+    <Compile Include="Unicast\Messages\DefaultMessageRegistryTests.cs" />
+    <Compile Include="Unicast\Messages\MessageA.cs" />
+    <Compile Include="Unicast\Messages\MessageB.cs" />
+    <Compile Include="Unicast\Publishing.cs" />
+    <Compile Include="Unicast\Receiving.cs" />
+    <Compile Include="Unicast\Sending.cs" />
+    <Compile Include="Unicast\SendOnlyMode.cs" />
+    <Compile Include="Unicast\Subscriptions.cs" />
+    <Compile Include="Unicast\Timing.cs" />
+    <Compile Include="Unicast\UnitOfWork.cs" />
+    <Compile Include="Unicast\Impersonation.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Queuing\SqlServer\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+</Project>

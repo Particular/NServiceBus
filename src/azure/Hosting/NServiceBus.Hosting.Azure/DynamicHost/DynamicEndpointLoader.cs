@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Common.Logging;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.StorageClient;
 
 namespace NServiceBus.Hosting
 {
+    using Microsoft.WindowsAzure.Storage;
+    using Microsoft.WindowsAzure.Storage.Blob;
+
     internal class DynamicEndpointLoader
     {
         private CloudBlobClient client;
@@ -24,7 +25,7 @@ namespace NServiceBus.Hosting
             }
 
             var blobContainer = client.GetContainerReference(Container);
-            blobContainer.CreateIfNotExist();
+            blobContainer.CreateIfNotExists();
 
             return from b in blobContainer.ListBlobs()
                     where b.Uri.AbsolutePath.EndsWith(".zip")

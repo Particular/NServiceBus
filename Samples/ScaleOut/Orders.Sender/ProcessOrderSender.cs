@@ -4,11 +4,11 @@ using Orders.Messages;
 
 namespace Orders.Sender
 {
-    class ProcessOrderSender : IWantToRunAtStartup
+    class ProcessOrderSender : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
 
-        public void Run()
+        public void Start()
         {
             Console.WriteLine("Press 'Enter' to send a message. To exit, Ctrl + C");
             var counter = 0;

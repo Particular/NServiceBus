@@ -1,0 +1,217 @@
+namespace NServiceBus.Sagas
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using NServiceBus.IdGeneration;
+    using NServiceBus.Logging;
+    using NServiceBus.ObjectBuilder;
+    using NServiceBus.Saga;
+    using NServiceBus.Transports;
+    using NServiceBus.Unicast;
+
+    /// <summary>
+    /// Dispatch factory that can dispatch messages to sagas
+    /// </summary>
+    public class SagaDispatcherFactory : IMessageDispatcherFactory
+    {
+        /// <summary>
+        /// Get Dispatcher
+        /// </summary>
+        /// <param name="messageHandlerType">Type of the message Handler</param>
+        /// <param name="builder">Builder</param>
+        /// <param name="message">Message</param>
+        /// <returns>Saga Dispatcher</returns>
+        public IEnumerable<Action> GetDispatcher(Type messageHandlerType, IBuilder builder, object message)
+        {
+            var entitiesHandled = new List<IContainSagaData>();
+            var sagaTypesHandled = new List<Type>();
+
+            foreach (var finder in GetFindersFor(message, builder))
+            {
+                bool sagaEntityIsPersistent = true;
+                IContainSagaData sagaEntity = UseFinderToFindSaga(finder, message);
+                Type sagaType;
+
+                if (sagaEntity == null)
+                {
+                    sagaType = Features.Sagas.GetSagaTypeToStartIfMessageNotFoundByFinder(message, finder);
+                    if (sagaType == null)
+                        continue;
+
+                    if (sagaTypesHandled.Contains(sagaType))
+                        continue; // don't create the same saga type twice for the same message
+
+                    sagaEntity = CreateNewSagaEntity(sagaType);
+
+                    sagaEntityIsPersistent = false;
+                }
+                else
+                {
+                    if (entitiesHandled.Contains(sagaEntity))
+                        continue; // don't call the same saga twice
+
+                    sagaType = Features.Sagas.GetSagaTypeForSagaEntityType(sagaEntity.GetType());
+                }
+
+                if (messageHandlerType.IsAssignableFrom(sagaType))
+                    yield return () =>
+                                     {
+                                         var saga = (ISaga)builder.Build(sagaType);
+
+                                         saga.Entity = sagaEntity;
+
+                                         try
+                                         {
+                                             SagaContext.Current = saga;
+
+                                             if (IsTimeoutMessage(message))
+                                             {
+												 HandlerInvocationCache.InvokeTimeout(saga, message);
+                                             }
+                                             else
+                                             {
+												 HandlerInvocationCache.InvokeHandle(saga, message);
+                                             }
+
+                                             if (!saga.Completed)
+                                             {
+                                                 if (!sagaEntityIsPersistent)
+                                                 {
+                                                     Persister.Save(saga.Entity);
+                                                 }
+                                                 else
+                                                 {
+                                                     Persister.Update(saga.Entity);
+                                                 }
+                                             }
+                                             else
+                                             {
+                                                 if (sagaEntityIsPersistent)
+                                                 {
+                                                     Persister.Complete(saga.Entity);
+                                                 }
+
+                                                 if (saga.Entity.Id != Guid.Empty)
+                                                 {
+                                                     NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                                                 }
+                                             }
+
+                                             LogIfSagaIsFinished(saga);
+
+                                         }
+                                         finally
+                                         {
+                                             SagaContext.Current = null;
+                                         }
+
+                                     };
+
+                sagaTypesHandled.Add(sagaType);
+                entitiesHandled.Add(sagaEntity);
+            }
+
+            if (entitiesHandled.Count == 0)
+                yield return () =>
+                                 {
+                                     logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", message.GetType().FullName, Bus.CurrentMessageContext.Id);
+                                     foreach (var handler in builder.BuildAll<IHandleSagaNotFound>())
+                                     {
+                                         logger.DebugFormat("Invoking SagaNotFoundHandler: {0}",
+                                                            handler.GetType().FullName);
+                                         handler.Handle(message);
+                                     }
+
+                                 };
+        }
+
+        IContainSagaData CreateNewSagaEntity(Type sagaType)
+        {
+            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+
+            if (sagaEntityType == null)
+                throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
+
+            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
+
+            sagaEntity.Id = CombGuid.Generate();
+
+            if (Bus.CurrentMessageContext.ReplyToAddress != null)
+                sagaEntity.Originator = Bus.CurrentMessageContext.ReplyToAddress.ToString();
+            sagaEntity.OriginalMessageId = Bus.CurrentMessageContext.Id;
+
+            return sagaEntity;
+        }
+
+        /// <summary>
+        /// Dispatcher factory filters on handler type
+        /// </summary>
+        /// <param name="handler">handler</param>
+        /// <returns>returns true if can be dispatched</returns>
+        public bool CanDispatch(Type handler)
+        {
+            return typeof(ISaga).IsAssignableFrom(handler);
+        }
+
+        IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)
+        {
+            var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+
+            if (logger.IsDebugEnabled)
+                logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
+
+            return finders;
+        }
+
+        static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
+        {
+            MethodInfo method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+
+            if (method != null)
+                return method.Invoke(finder, new [] { message }) as IContainSagaData;
+
+            return null;
+        }
+
+        void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
+        {
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
+        }
+
+        void LogIfSagaIsFinished(ISaga saga)
+        {
+            if (saga.Completed)
+                logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
+        }
+
+        /// <summary>
+        /// True if this is a timeout message
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        static bool IsTimeoutMessage(object message)
+        {
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
+        }
+
+        /// <summary>
+        /// Get or Set Saga Persister
+        /// </summary>
+        public ISagaPersister Persister { get; set; }
+
+        /// <summary>
+        /// The unicast bus
+        /// </summary>
+        public IUnicastBus Bus { get; set; }
+
+        /// <summary>
+        /// A way to request the transport to defer the processing of a message
+        /// </summary>
+        public IDeferMessages MessageDeferrer { get; set; }
+
+        readonly ILog logger = LogManager.GetLogger(typeof(SagaDispatcherFactory));
+
+    }
+}

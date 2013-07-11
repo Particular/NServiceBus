@@ -3,7 +3,7 @@ using NServiceBus.Unicast.Config;
 
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
-    using Unicast.Queuing;
+    using Features;
 
     /// <summary>
     /// Handles configuration related to the server role
@@ -17,16 +17,14 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            if (!Configure.Instance.Configurer.HasComponent<ISendMessages>())
-                Configure.Instance.MsmqTransport();
+            Configure.ScaleOut(s=>s.UseSingleBrokerQueue());
+
+            Feature.EnableByDefault<Sagas>();
 
             return Configure.Instance
-                .Sagas()
-                .IsTransactional(true)
                 .PurgeOnStartup(false)
-                .RunTimeoutManager()
                 .UnicastBus()
-                .ImpersonateSender(true);
+                .RunHandlersUnderIncomingPrincipal(true);
         }
     }
 }

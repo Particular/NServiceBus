@@ -4,15 +4,15 @@
     <title>NServiceBus</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, John Simons, Jonathan Matheus et al</owners>
-    <licenseUrl>http://particular.net/licensing</licenseUrl>
+    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
-    <iconUrl>http://particular.blob.core.windows.net/media/Default/images/ProductLogos/icons/NServiceBus_32.png</iconUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The most popular open-source service bus for .net</description>
     <releaseNotes>
     </releaseNotes>
-    <copyright>Copyright (C) NServiceBus 2010-2012</copyright>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="net40" />
@@ -20,13 +20,11 @@
     </frameworkAssemblies>
     <dependencies>
       <dependency id="NServiceBus.Interfaces" version="4.0.0-alpha0" />
-      <dependency id="log4net" version="[1.2.10]" />
     </dependencies>
   </metadata>
   <files>
     <file src="\binaries\NServiceBus.Core.???" target="lib\net40" />
-    <file src="\build\NServiceBus.Core\NServiceBus.PowerShell.dll" target="tools" />
-    <file src="\build\NServiceBus.Core\NServiceBus.Setup.Windows.dll" target="tools" />
-    <file src="\build\NServiceBus.Core\NServiceBus.Forms.dll" target="tools" />
+    <file src="\binaries\NServiceBus.PowerShell.dll" target="tools" />
+    <file src="\binaries\about_NServiceBus.help.txt" target="tools" />
   </files>
 </package>

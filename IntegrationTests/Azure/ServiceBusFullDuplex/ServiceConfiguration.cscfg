@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="AppFabricService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" schemaVersion="2013-03.2.0">
+  <Role name="OrderWebSite">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderwebsiteinputqueue" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="OrderService">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://[account].servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=[key]" />
+      <Setting name="AzureServiceBusQueueConfig.QueueName" value="orderserviceinputqueue" />
+      <Setting name="AzureProfileConfig.Profiles" value="NServiceBus.Development" />
+      <Setting name="MessageForwardingInCaseOfFaultConfig.ErrorQueue" value="errorqueue" />
+      <Setting name="TransportConfig.MaximumConcurrencyLevel" value="1" />
+      <Setting name="TransportConfig.MaxRetries" value="5" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.Level" value="Error" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

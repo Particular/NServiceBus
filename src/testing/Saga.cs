@@ -19,11 +19,15 @@ namespace NServiceBus.Testing
         {
             this.saga = saga;
             this.bus = bus;
-
+            if (saga.Entity == null)
+            {
+                var prop = typeof(T).GetProperty("Data");
+                var sagaData = Activator.CreateInstance(prop.PropertyType) as IContainSagaData;
+                saga.Entity = sagaData;
+            }
             saga.Entity.OriginalMessageId = Guid.NewGuid().ToString();
             saga.Entity.Originator = "client";
         }
-
         /// <summary>
         /// Provides a way to set external dependencies on the saga under test.
         /// </summary>
@@ -136,10 +140,10 @@ namespace NServiceBus.Testing
         /// <typeparam name="TMessage"></typeparam>
         /// <param name="check"></param>
         /// <returns></returns>
-        [Obsolete("Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.")]
         public Saga<T> ExpectReply<TMessage>(Func<TMessage, bool> check = null)
         {
-            throw new InvalidOperationException("Sagas should never call Reply, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
+            expectedInvocations.Add(new ExpectedReplyInvocation<TMessage> { Check = check });
+            return this;
         }
 
         /// <summary>
@@ -195,7 +199,7 @@ namespace NServiceBus.Testing
         /// </summary>
         /// <param name="check"></param>
         /// <returns></returns>
-        [Obsolete("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.")]
+        [ObsoleteEx(Message = "Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public Saga<T> ExpectReturn(Func<int, bool> check = null)
         {
             throw new InvalidOperationException("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");

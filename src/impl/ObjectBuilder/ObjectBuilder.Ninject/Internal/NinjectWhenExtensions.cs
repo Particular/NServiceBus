@@ -4,14 +4,14 @@
     using global::Ninject.Activation;
     using global::Ninject.Syntax;
 
-    public static class NinjectWhenExtensions
+    internal static class NinjectWhenExtensions
     {
-        public static IBindingInNamedWithOrOnSyntax<T> WhenNoAnchestorNamed<T>(this IBindingWhenSyntax<T> syntax, string name)
+        public static IBindingInNamedWithOrOnSyntax<T> WhenNoAncestorNamed<T>(this IBindingWhenSyntax<T> syntax, string name)
         {
-            return syntax.When(r => !IsAnyAnchestorNamed(r, name));
+            return syntax.When(r => !IsAnyAncestorNamed(r, name));
         }
 
-        private static bool IsAnyAnchestorNamed(IRequest request, string name)
+        private static bool IsAnyAncestorNamed(IRequest request, string name)
         {
             var parentContext = request.ParentContext;
             if (parentContext == null)
@@ -21,7 +21,7 @@
 
             return
                 string.Equals(parentContext.Binding.Metadata.Name, name, StringComparison.Ordinal) ||
-                IsAnyAnchestorNamed(parentContext.Request, name);
+                IsAnyAncestorNamed(parentContext.Request, name);
         }
     }
 }

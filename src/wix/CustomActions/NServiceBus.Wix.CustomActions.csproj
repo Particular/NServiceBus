@@ -38,11 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NServiceBus.Setup.Windows">
-      <HintPath>..\..\..\build\nservicebus.core\NServiceBus.Setup.Windows.dll</HintPath>
+    <Reference Include="NServiceBus.PowerShell">
+      <HintPath>..\..\..\binaries\NServiceBus.PowerShell.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />

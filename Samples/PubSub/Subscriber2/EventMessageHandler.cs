@@ -1,6 +1,6 @@
 using System;
-using log4net;
 using NServiceBus;
+using NServiceBus.Logging;
 
 namespace Subscriber2
 {

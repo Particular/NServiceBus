@@ -30,7 +30,6 @@ namespace NServiceBus.Hosting.Azure
         {
             this.doNotReturnFromRun = doNotReturnFromRun;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomainAssemblyResolve;
         }
         
         public override bool OnStart()
@@ -46,16 +45,16 @@ namespace NServiceBus.Hosting.Azure
             var requestedProfiles = requestedProfileSetting.Split(' ');
             requestedProfiles = AddProfilesFromConfiguration(requestedProfiles);
 
+            //var endpointName = "Put somethingt smart here Yves"; // wonder if I live up to the expectations :)
+            var endpointName = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Role.Name : GetType().Name;
+
             if (specifier is AsA_Host)
             {
-                host = new DynamicHostController(specifier, requestedProfiles, new[] { typeof(Development) });
+                host = new DynamicHostController(specifier, requestedProfiles, new List<Type> { typeof(Development) }, endpointName);
             }
             else
             {
-
-                //var endpointName = "Put somethingt smart here Yves"; // wonder if I live up to the expectations :)
-                var endpointName = RoleEnvironment.IsAvailable ? RoleEnvironment.CurrentRoleInstance.Role.Name : GetType().Name;
-                host = new GenericHost(specifier, requestedProfiles, new[] { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
+                host = new GenericHost(specifier, requestedProfiles, new List<Type> { typeof(Development), typeof(OnAzureTableStorage) }, endpointName);
             }
 
             return true;
@@ -64,12 +63,6 @@ namespace NServiceBus.Hosting.Azure
         private static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Trace.WriteLine("Unhandled exception occured: " + e.ExceptionObject.ToString());
-        }
-
-        static System.Reflection.Assembly CurrentDomainAssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            Trace.WriteLine("Couldn't load assembly: " + args.Name);
-            return null;
         }
 
         public override void Run()
