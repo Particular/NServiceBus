@@ -13,7 +13,7 @@
         public void Integration()
         {
             //Needs to be run as elevated
-            GatewayHttpListenerInstaller.StartProcess(WindowsIdentity.GetCurrent().Name, 4567);
+            GatewayHttpListenerInstaller.StartNetshProcess(WindowsIdentity.GetCurrent().Name, 4567);
 
             //To list existing acls
             //netsh http show urlacl

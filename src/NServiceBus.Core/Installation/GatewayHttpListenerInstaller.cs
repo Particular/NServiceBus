@@ -33,10 +33,22 @@ netsh http add urlacl url=http://+:PORT/ user=""{0}""", identity);
 
             foreach (var receiveChannel in ChannelManager.GetReceiveChannels())
             {
-                var port = new Uri(receiveChannel.Address).Port;
+                var uri = new Uri(receiveChannel.Address);
+                if (!uri.Scheme.Equals("http", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    continue;
+                }
+                var port = uri.Port;
                 try
                 {
-                    StartProcess(identity, port);
+                    if (Environment.OSVersion.Version.Major > 5)
+                    {
+                        StartNetshProcess(identity, port);
+                    }
+                    else
+                    {
+                        StartHttpcfgProcess(identity, port);
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -50,7 +62,36 @@ netsh http add urlacl url=http://+:{0}/ user=""{1}""", port, identity);
         }
 
 
-        static internal void StartProcess(string identity, int port)
+        static internal void StartHttpcfgProcess(string identity, int port)
+        {
+            var startInfo = new ProcessStartInfo
+                            {
+                                CreateNoWindow = true,
+                                Verb = "runas",
+                                UseShellExecute = false,
+                                RedirectStandardError = true,
+                                Arguments = string.Format(@"set urlacl /u http://+:{0}/ /a D:(A;;GX;;;""{1}"")", port, identity),
+                                FileName = "httpcfg"
+                            };
+            using (var process = Process.Start(startInfo))
+            {
+                process.WaitForExit(5000);
+
+                if (process.ExitCode == 0)
+                {
+                    logger.Info(string.Format("Granted user '{0}' HttpListener permissions for port {1}.", identity,port));
+                    return;
+                }
+                var error = process.StandardError.ReadToEnd();
+                var message = string.Format(
+@"Failed to grant to grant user '{0}' HttpListener permissions. Processing will continue. 
+Error: {1}
+To help diagnose the problem try running the following command from an admin console:
+netsh http add urlacl url=http://+:{1}/ user=""{2}""", error, port, identity);
+                logger.Warn(message);
+            }
+        }
+        static internal void StartNetshProcess(string identity, int port)
         {
             var startInfo = new ProcessStartInfo
                             {
