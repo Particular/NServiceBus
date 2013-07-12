@@ -63,7 +63,7 @@ namespace NServiceBus.Gateway.HeaderManagement
                 .ForEach(header =>to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         static void SetBackwardsCompatibilityHeaders(IDictionary<string, string> to)
         {
             if (Configure.HasComponent<MsmqMessageSender>())
@@ -72,7 +72,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             }
         }
 
-        [ObsoleteEx(Message = "No need for this in v5", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
         {
             var correlationIdToStore = message.CorrelationId;
