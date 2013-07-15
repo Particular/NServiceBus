@@ -13,7 +13,7 @@
         public void Integration()
         {
             //Needs to be run as elevated
-            GatewayHttpListenerInstaller.StartNetshProcess(WindowsIdentity.GetCurrent().Name, 4567);
+            GatewayHttpListenerInstaller.StartNetshProcess(WindowsIdentity.GetCurrent().Name, 25899);
 
             //To list existing acls
             //netsh http show urlacl
@@ -23,7 +23,7 @@
         [Explicit]
         public void Delete()
         {
-            var args = string.Format(@"http delete urlacl url=http://+:{0}/ ", 4567);
+            var args = string.Format(@"http delete urlacl url=http://+:{0}/ ", 25899);
 
             var process = Process.Start(new ProcessStartInfo
                                         {
