@@ -84,7 +84,7 @@ namespace NServiceBus.Hosting.Profiles
             if (configs.Count == 0)
             {
                 var message = string.Format("Could not find a class which implements '{0}'. If you've specified your own profile, try implementing '{0}ForProfile<T>' for your profile.", typeof(T).Name);
-                throw new ConfigurationErrorsException(message);
+                throw new Exception(message);
             }
 
             return configs.Select(_ => (T)Activator.CreateInstance(_));
