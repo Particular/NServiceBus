@@ -2,6 +2,7 @@ namespace NServiceBus.Installation
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using Environments;
     using Features;
     using Gateway.Receiving;
@@ -72,7 +73,8 @@ netsh http add urlacl url=http://+:{0}/ user=""{1}""", port, identity);
                                 UseShellExecute = false,
                                 RedirectStandardError = true,
                                 Arguments = string.Format(@"http add urlacl url=http://+:{0}/ user=""{1}""", port, identity),
-                                FileName = "netsh"
+                                FileName = "netsh",
+                                WorkingDirectory = Path.GetTempPath()
                             };
             using (var process = Process.Start(startInfo))
             {

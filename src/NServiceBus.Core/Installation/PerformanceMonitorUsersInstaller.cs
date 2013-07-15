@@ -2,6 +2,7 @@ namespace NServiceBus.Installation
 {
     using System;
     using System.Diagnostics;
+    using System.IO;
     using Environments;
     using Logging;
 
@@ -45,7 +46,8 @@ net localgroup ""Performance Monitor Users"" ""{0}"" /add", identity);
                                 UseShellExecute = false,
                                 RedirectStandardError = true,
                                 Arguments = string.Format("localgroup \"Performance Monitor Users\" \"{0}\" /add", identity),
-                                FileName = "net"
+                                FileName = "net",
+                                WorkingDirectory = Path.GetTempPath()
                             };
             using (var process = Process.Start(startInfo))
             {
