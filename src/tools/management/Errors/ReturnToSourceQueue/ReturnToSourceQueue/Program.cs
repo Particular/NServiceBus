@@ -33,6 +33,8 @@ namespace ReturnToSourceQueue
                 if (string.IsNullOrWhiteSpace(inputQueue))
                 {
                     Console.WriteLine("No error queue specified");
+                    Console.WriteLine("\nPress 'Enter' to exit.");
+                    Console.ReadLine();
                     return;
                 }
                 script = false;
