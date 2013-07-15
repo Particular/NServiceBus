@@ -547,6 +547,10 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
+            if (messages == null || messages.Length == 0)
+            {
+                throw new InvalidOperationException("Cannot Defer an empty set of messages.");
+            }
             if (processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
                 return ((IBus)this).SendLocal(messages);
