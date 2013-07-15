@@ -34,7 +34,7 @@ netsh http add urlacl url=http://+:PORT/ user=""{0}""", identity);
             foreach (var receiveChannel in ChannelManager.GetReceiveChannels())
             {
                 var uri = new Uri(receiveChannel.Address);
-                if (!uri.Scheme.Equals("http", StringComparison.InvariantCultureIgnoreCase))
+                if (!uri.Scheme.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
                 {
                     continue;
                 }
