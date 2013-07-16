@@ -29,16 +29,20 @@ namespace NServiceBus.Testing.Tests
 
     public class SagaTest : Saga.Saga<Data>, IAmStartedByMessages<SagaTestEvent>
     {
+#pragma warning disable 0672
         public override void Timeout(object state)
         {
             if ((int)state == 1)
                 MarkAsComplete();
         }
+#pragma warning restore 0672
 
+#pragma warning disable 0618
         public void Handle(SagaTestEvent message)
         {
             RequestUtcTimeout(TimeSpan.FromDays(30), 1);
         }
+#pragma warning restore 0618
     }
 
     public class SagaTestEvent : IEvent {}

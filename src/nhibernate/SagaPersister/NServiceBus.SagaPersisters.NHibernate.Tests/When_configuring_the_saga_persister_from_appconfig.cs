@@ -48,6 +48,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.IsNotNull(uow);
         }
 
+#pragma warning disable 0618
         [Test]
         public void Handles_Multiple_registrations_of_UnitOfWork()
         {
@@ -58,5 +59,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             Assert.IsNotNull(uow);
             Assert.That(uow, Has.Count.EqualTo(1));
         }
+#pragma warning restore 0618
     }
 }
