@@ -69,6 +69,7 @@ namespace NServiceBus.Unicast.Config
             Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
+#pragma warning disable 0618
         void RegisterMessageModules()
         {
             TypesToScan
@@ -76,6 +77,7 @@ namespace NServiceBus.Unicast.Config
                 .ToList()
                 .ForEach(type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
+#pragma warning restore 0618
 
         void ConfigureSubscriptionAuthorization()
         {

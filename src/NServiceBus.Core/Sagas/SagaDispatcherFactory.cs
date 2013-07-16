@@ -178,8 +178,10 @@ namespace NServiceBus.Sagas
 
         static Type GetSagaEntityType(object message)
         {
+#pragma warning disable 0618
             //we keep this for backwards compatibility with versions < 3.0.4
             var sagaEntityType = Headers.GetMessageHeader(message, Headers.SagaEntityType);
+#pragma warning restore 0618
 
             if (!string.IsNullOrEmpty(sagaEntityType))
                 return Type.GetType(sagaEntityType);

@@ -1305,7 +1305,9 @@ namespace NServiceBus.Unicast
 
             AddProcessingInformationHeaders(_messageBeingHandled);
 
+#pragma warning disable 0618
             modules = Builder.BuildAll<IMessageModule>().ToList();
+#pragma warning restore 0618
 
             modules.ForEach(module =>
             {
@@ -1498,11 +1500,13 @@ namespace NServiceBus.Unicast
         Address inputAddress;
 
 
+#pragma warning disable 0618
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message
         /// </summary>
         [ThreadStatic]
         static List<IMessageModule> modules;
+#pragma warning restore 0618
 
         /// <summary>
         /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
