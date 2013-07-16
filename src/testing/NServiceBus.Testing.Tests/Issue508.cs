@@ -58,7 +58,7 @@
     {
         public void Handle(TheMessage message)
         {
-            RequestUtcTimeout<TheTimeout>(message.TimeoutAt);
+            RequestTimeout<TheTimeout>(message.TimeoutAt);
         }
 
         public void Timeout(TheTimeout state)

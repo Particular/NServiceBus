@@ -172,7 +172,7 @@ namespace NServiceBus.Testing.Tests
             ReplyToOriginator<ResponseToOriginator>(m => { });
             Bus.Publish<Event>();
             Bus.Send<Command>(null);
-            RequestUtcTimeout(TimeSpan.FromDays(7), message);
+            RequestTimeout(TimeSpan.FromDays(7), message);
         }
 
         public void Timeout(StartsSaga state)
@@ -221,7 +221,7 @@ namespace NServiceBus.Testing.Tests
             else
                 ProcessOrder(message);
 
-            RequestUtcTimeout(TimeSpan.FromDays(7), message);
+            RequestTimeout(TimeSpan.FromDays(7), message);
         }
 
         private void ProcessExternalOrder(SubmitOrder message)

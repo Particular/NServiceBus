@@ -54,11 +54,11 @@
 
         public void Handle(StartMessage message)
         {
-            RequestUtcTimeout(TimeSpan.FromDays(1), new MyTimeout
+            RequestTimeout(TimeSpan.FromDays(1), new MyTimeout
                                                         {
                                                             SomeProperty = "Test"
                                                         });
-            RequestUtcTimeout<MyOtherTimeout>(TimeSpan.FromDays(1));
+            RequestTimeout<MyOtherTimeout>(TimeSpan.FromDays(1));
         }
 
         public void Timeout(MyTimeout state)
