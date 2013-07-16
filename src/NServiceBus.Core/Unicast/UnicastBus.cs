@@ -1535,9 +1535,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         [ThreadStatic]
         static bool _handleCurrentMessageLaterWasCalled;
-        IEnumerable<Type> messageHandlerTypes;
         protected ITransport transport;
-        bool autoSubscribe = true;
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
