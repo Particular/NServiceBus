@@ -497,9 +497,6 @@ namespace NServiceBus
         /// <summary>
         /// Configures the given type with the given lifecycle
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="lifecycle"></param>
-        /// <returns></returns>
         public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
         {
             if (Instance == null)
