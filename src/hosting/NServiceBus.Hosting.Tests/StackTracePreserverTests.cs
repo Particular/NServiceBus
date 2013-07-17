@@ -6,7 +6,7 @@ namespace NServiceBus.Hosting.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class PreserveStackTracePreserverTests
+    public class StackTracePreserverTests
     {
 
         [Test]
@@ -18,7 +18,15 @@ namespace NServiceBus.Hosting.Tests
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows2"), actual);
             Assert.IsTrue(preservedException.StackTrace.Contains("MethodThatThrows1"), actual);
         }
+        [Test]
+        public void ShouldNotThrowWhenHandlingNonSerializableExceptions()
+        {
+            new NonSerializableException().PreserveStackTrace();
+        }
 
+        public class NonSerializableException : Exception
+        {
+        }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         void MethodThatReThrowsInnerExceptionWithPreserve()
