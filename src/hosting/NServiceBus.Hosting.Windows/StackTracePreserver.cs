@@ -19,7 +19,7 @@
             }
             catch (Exception)
             {
-                //this is a best effort. if we fail to patch the stach trace just let it go
+                //this is a best effort. if we fail to patch the stack trace just let it go
             }
         }
     }
