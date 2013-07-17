@@ -6,6 +6,7 @@ namespace Rhino.Licensing
     ///<summary>
     /// Thrown when license is found but is past it's expiration date
     ///</summary>
+    [Serializable]
     public class LicenseExpiredException : RhinoLicensingException
     {
         /// <summary>
@@ -37,7 +38,7 @@ namespace Rhino.Licensing
         /// </summary>
         /// <param name="info">serialization information</param>
         /// <param name="context">streaming context</param>
-        public LicenseExpiredException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected LicenseExpiredException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }
