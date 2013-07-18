@@ -75,7 +75,7 @@ namespace NServiceBus.Serializers.XML
                 foreach (Type g in t.GetGenericArguments())
                     InitType(g);
 
-                //Handle dictionaries - initalize relevant KeyValuePair<T,K> types.
+                //Handle dictionaries - initialize relevant KeyValuePair<T,K> types.
                 foreach (Type interfaceType in t.GetInterfaces())
                 {
                     Type[] arr = interfaceType.GetGenericArguments();
