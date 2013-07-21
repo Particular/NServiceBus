@@ -24,7 +24,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
         private CloudQueue queue;
         private int timeToDelayNextPeek;
-        private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
+        private readonly Queue<CloudQueueMessage> buffer = new Queue<CloudQueueMessage>();
+        private readonly object bufferLocker = new object();
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
@@ -119,20 +120,44 @@ namespace NServiceBus.Unicast.Queuing.Azure
         }
 
         private CloudQueueMessage GetMessage()
-        {
-            if (messages.Count == 0)
+        {           
+            if (IsBufferEmpty())
             {
                 var callback = new AsyncCallback(ar =>{
                     var receivedMessages = queue.EndGetMessages(ar);
-                    foreach (var receivedMessage in receivedMessages)
-                    {
-                        messages.Enqueue(receivedMessage);
-                    }
+                    AddToBuffer(receivedMessages);
                 });
-               queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), null, null, callback, null);
+                queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), null, null, callback, null);
             }
 
-            return messages.Count != 0 ? messages.Dequeue() : null;
+            return GetFromBuffer();           
+        }
+
+        private bool IsBufferEmpty()
+        {
+            lock (bufferLocker)
+            {
+                return buffer.Count == 0;
+            }
+        }
+
+        private void AddToBuffer(IEnumerable<CloudQueueMessage> cloudQueueMessages)
+        {
+            lock (bufferLocker)
+            {
+                foreach (var msg in cloudQueueMessages)
+                {
+                    buffer.Enqueue(msg);
+                }
+            }   
+        }
+
+        private CloudQueueMessage GetFromBuffer()
+        {
+            lock (bufferLocker)
+            {
+                return buffer.Count != 0 ? buffer.Dequeue() : null;
+            }
         }
 
         private void DeleteMessage(CloudQueueMessage message)
