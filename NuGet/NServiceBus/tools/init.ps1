@@ -75,7 +75,7 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
 New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
 
-$url = "http://particular.net/articles/preparing-your-machine-to-run-nservicebus?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled
+$url = "http://particular.net/articles/preparing-your-machine-to-run-nservicebus?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled + "&installer=NServiceBus&method=nuget" + "&version=" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor + "." + $nservicebusVersion.Build
 $url = $url.ToLowerInvariant(); 
 
 $dte.ExecuteCommand("View.URL", $url)

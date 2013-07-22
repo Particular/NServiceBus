@@ -14,7 +14,7 @@
             var assemblyVersion = AssemblyName.GetAssemblyName(appName).Version;
 
             //build a semver compliant version
-            var version = new Version(assemblyVersion.Major, assemblyVersion.Minor,assemblyVersion.Build);
+            var version = new Version(assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build);
 
 
             WriteObject(version);
