@@ -16,27 +16,27 @@
         public void Should_start_the_saga_and_request_a_timeout()
         {
             Scenario.Define<Context>()
-              .WithEndpoint<SagaThatPublishesAnEvent>(b =>
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
-                        {
-                            if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent") && !context.IsEventSubscriptionReceived)
-                            {
-                                context.IsEventSubscriptionReceived = true;
-                                bus.SendLocal(new StartSaga() { DataId = Guid.NewGuid() });
-                            }
-                        })))
-                        .WithEndpoint<SagaThatIsStartedByTheEvent>(b => b.Given((bus, context) =>
-                        {
-                            bus.Subscribe<SomethingHappenedEvent>();
-                        }))
+                    .WithEndpoint<SagaThatPublishesAnEvent>(b =>
+                                                            b.Given(
+                                                                (bus, context) =>
+                                                                Subscriptions.OnEndpointSubscribed(s =>
+                                                                    {
+                                                                        if (s.SubscriberReturnAddress.Queue.Contains("SagaThatIsStartedByTheEvent"))
+                                                                        {
+                                                                            context.IsEventSubscriptionReceived = true;
+                                                                        }
+                                                                    }))
+                                                             .When(c => c.IsEventSubscriptionReceived,
+                                                                   bus =>
+                                                                   bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()}))
+                )
+                    .WithEndpoint<SagaThatIsStartedByTheEvent>(
+                        b => b.Given((bus, context) => bus.Subscribe<SomethingHappenedEvent>()))
 
-            .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
-            .Repeat(r => r.For(Transports.Default))
-            .Should(c =>
-            {
-                Assert.True(c.DidSaga1Complete && c.DidSaga2Complete);
-            })
-            .Run();
+                    .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
+                    .Repeat(r => r.For(Transports.Default))
+                    .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
+                    .Run();
         }
 
         public class Context : ScenarioContext
