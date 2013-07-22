@@ -1,13 +1,11 @@
-﻿using NServiceBus.AcceptanceTests.PubSub;
-using NServiceBus.Features;
-using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
-
-namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
+    using PubSub;
     using Saga;
     using ScenarioDescriptors;
 
@@ -70,7 +68,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     RequestTimeout<Timeout1>(TimeSpan.FromSeconds(5));
                 }
 
-                public void Timeout(Saga1.Timeout1 state)
+                public void Timeout(Timeout1 state)
                 {
                     MarkAsComplete();
                     Context.DidSaga1Complete = true;
@@ -109,7 +107,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     RequestTimeout<Saga2Timeout>(TimeSpan.FromSeconds(5));
                 }
 
-                public void Timeout(Saga2.Saga2Timeout state)
+                public void Timeout(Saga2Timeout state)
                 {
                     MarkAsComplete();
                     Context.DidSaga2Complete = true;
