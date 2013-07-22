@@ -4,7 +4,7 @@
     <title>NServiceBus Hosting Azure HostProcess</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, John Simons</owners>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
@@ -15,7 +15,7 @@
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NServiceBus.Hosting.Azure" version="4.0.0-alpha0" />
+      <dependency id="NServiceBus.Hosting.Azure" version="[%VERSION%]" />
       <dependency id="CommonServiceLocator" version="1.0" />
     </dependencies>
   </metadata>

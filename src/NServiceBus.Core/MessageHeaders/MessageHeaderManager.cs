@@ -12,13 +12,21 @@ namespace NServiceBus.MessageHeaders
     {
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            foreach(var key in staticOutgoingHeaders.Keys)
+            foreach (var key in staticOutgoingHeaders.Keys)
+            {
                 transportMessage.Headers.Add(key, staticOutgoingHeaders[key]);
+            }
 
             if ((messages != null) && (messages.Length > 0) && (messageHeaders != null))
+            {
                 if (messageHeaders.ContainsKey(messages[0]))
-                    foreach(var key in messageHeaders[messages[0]].Keys)
-                        transportMessage.Headers.Add(key, messageHeaders[messages[0]][key]);
+                {
+                    foreach (var key in messageHeaders[messages[0]].Keys)
+                    {
+                        transportMessage.Headers[key] = messageHeaders[messages[0]][key];
+                    }
+                }
+            }
         }
 
         /// <summary>

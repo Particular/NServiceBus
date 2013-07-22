@@ -48,18 +48,18 @@ task Pack {
 					$nugetVersion = "{0}.{1}-{2}{3}" -f $ProductVersion, $PatchVersion, $PreRelease, ($BuildNumber).PadLeft(4, '0')
 				}
 			} else {
-				$nugetVersion = "1.0.0"
+				$nugetVersion = "1.0." + $PatchVersion
 			
 				if($PreRelease -ne '') {
 					$nuspec.package.metadata.title += ' (' + $PreRelease + ')'
-					$nugetVersion = "1.0.0-{0}{1}" -f $PreRelease, ($BuildNumber).PadLeft(4, '0')
+					$nugetVersion = "1.0.{0}-{1}{2}" -f $PatchVersion, $PreRelease, ($BuildNumber).PadLeft(4, '0')
 				}
 			}
 	
 			$nuspec.package.metadata.version = $nugetVersion
 			
 			$nuspec | Select-Xml '//dependency[starts-with(@id, "NServiceBus")]' |% {
-				$_.Node.version = "[$nsbVersion]"
+				$_.Node.version = $_.Node.version -replace "%VERSION%", $nsbVersion
 			}
 			$nuspec | Select-Xml '//file[starts-with(@src, "\")]' |% {
 				$_.Node.src = $baseDir + $_.Node.src
