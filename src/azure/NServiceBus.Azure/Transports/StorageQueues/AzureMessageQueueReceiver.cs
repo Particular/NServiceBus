@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Queuing.Azure
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -22,20 +23,21 @@ namespace NServiceBus.Unicast.Queuing.Azure
         public const string DefaultConnectionString = "UseDevelopmentStorage=true";
         public const bool DefaultQueuePerInstance = false;
 
-        private CloudQueue queue;
-        private int timeToDelayNextPeek;
-        private readonly Queue<CloudQueueMessage> messages = new Queue<CloudQueueMessage>();
+        CloudQueue azureQueue;
+        int timeToDelayNextPeek;
+        bool useTransactions;
+        ConcurrentQueue<CloudQueueMessage> batchQueue = new ConcurrentQueue<CloudQueueMessage>();
 
         /// <summary>
         /// Sets the amount of time, in milliseconds, to add to the time to wait before checking for a new message
         /// </summary>
-        public int PeekInterval{ get; set; }
+        public int PeekInterval { get; set; }
 
         /// <summary>
         /// Sets the maximum amount of time, in milliseconds, that the queue will wait before checking for a new message
         /// </summary>
         public int MaximumWaitTimeWhenIdle { get; set; }
-   
+
         /// <summary>
         /// Sets whether or not the transport should purge the input
         /// queue when it is started.
@@ -78,11 +80,13 @@ namespace NServiceBus.Unicast.Queuing.Azure
 
             var queueName = AzureMessageQueueUtils.GetQueueName(address);
 
-            queue = Client.GetQueueReference(queueName);
-            queue.CreateIfNotExists();
+            azureQueue = Client.GetQueueReference(queueName);
+            azureQueue.CreateIfNotExists();
 
-			if (PurgeOnStartup)
-				queue.Clear();
+            if (PurgeOnStartup)
+            {
+                azureQueue.Clear();
+            }
         }
 
         public TransportMessage Receive()
@@ -92,7 +96,10 @@ namespace NServiceBus.Unicast.Queuing.Azure
             if (rawMessage == null)
             {
 
-                if (timeToDelayNextPeek < MaximumWaitTimeWhenIdle) timeToDelayNextPeek += PeekInterval;
+                if (timeToDelayNextPeek < MaximumWaitTimeWhenIdle)
+                {
+                    timeToDelayNextPeek += PeekInterval;
+                }
 
                 Thread.Sleep(timeToDelayNextPeek);
 
@@ -103,51 +110,59 @@ namespace NServiceBus.Unicast.Queuing.Azure
             try
             {
                 return DeserializeMessage(rawMessage);
-
             }
             catch (Exception ex)
             {
-                throw new EnvelopeDeserializationFailed(rawMessage,ex);
+                throw new EnvelopeDeserializationFailed(rawMessage, ex);
             }
             finally
             {
                 if (!useTransactions || Transaction.Current == null)
+                {
                     DeleteMessage(rawMessage);
+                }
                 else
-                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(queue, rawMessage), EnlistmentOptions.None);                
-            } 
-        }
-
-        private CloudQueueMessage GetMessage()
-        {
-            if (messages.Count == 0)
-            {
-                var callback = new AsyncCallback(ar =>{
-                    var receivedMessages = queue.EndGetMessages(ar);
-                    foreach (var receivedMessage in receivedMessages)
-                    {
-                        messages.Enqueue(receivedMessage);
-                    }
-                });
-               queue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), null, null, callback, null);
+                {
+                    Transaction.Current.EnlistVolatile(new ReceiveResourceManager(azureQueue, rawMessage), EnlistmentOptions.None);
+                }
             }
-
-            return messages.Count != 0 ? messages.Dequeue() : null;
         }
 
-        private void DeleteMessage(CloudQueueMessage message)
+        CloudQueueMessage GetMessage()
+        {
+            CloudQueueMessage cloudQueueMessage;
+            if (batchQueue.TryDequeue(out cloudQueueMessage))
+            {
+                return cloudQueueMessage;
+            }
+            var callback = new AsyncCallback(ar =>
+            {
+                var receivedMessages = azureQueue.EndGetMessages(ar);
+                foreach (var receivedMessage in receivedMessages)
+                {
+                    batchQueue.Enqueue(receivedMessage);
+                }
+            });
+            azureQueue.BeginGetMessages(BatchSize, TimeSpan.FromMilliseconds(MessageInvisibleTime * BatchSize), null, null, callback, null);
+            return null;
+        }
+
+        void DeleteMessage(CloudQueueMessage message)
         {
             try
             {
-                queue.DeleteMessage(message);
+                azureQueue.DeleteMessage(message);
             }
             catch (StorageException ex)
             {
-                if (ex.RequestInformation.HttpStatusCode != 404) throw;
+                if (ex.RequestInformation.HttpStatusCode != 404)
+                {
+                    throw;
+                }
             }
         }
 
-        private TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
+        TransportMessage DeserializeMessage(CloudQueueMessage rawMessage)
         {
             using (var stream = new MemoryStream(rawMessage.AsBytes))
             {
@@ -160,13 +175,15 @@ namespace NServiceBus.Unicast.Queuing.Azure
                 {
                     throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
                 }
-                
-                var m = deserializedObjects.FirstOrDefault() as MessageWrapper;
-                
-                if (m == null)
-                    throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
 
-                var message = new TransportMessage(m.Id,m.Headers)
+                var m = deserializedObjects.FirstOrDefault() as MessageWrapper;
+
+                if (m == null)
+                {
+                    throw new SerializationException("Failed to deserialize message with id: " + rawMessage.Id);
+                }
+
+                return new TransportMessage(m.Id, m.Headers)
                 {
                     Body = m.Body,
                     CorrelationId = m.CorrelationId,
@@ -175,28 +192,8 @@ namespace NServiceBus.Unicast.Queuing.Azure
                     TimeToBeReceived = m.TimeToBeReceived,
                     MessageIntent = m.MessageIntent
                 };
-
-                return message;
             }
         }
 
-        bool useTransactions;
-    }
-
-    public class EnvelopeDeserializationFailed:SerializationException
-    {
-        CloudQueueMessage message;
-
-
-        public EnvelopeDeserializationFailed(CloudQueueMessage message, Exception ex)
-            : base("Failed to deserialize message envelope", ex)
-        {
-            this.message = message;
-        }
-
-        public CloudQueueMessage Message
-        {
-            get { return message; }
-        }
     }
 }
