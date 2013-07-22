@@ -15,7 +15,7 @@
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NServiceBus" version="4.0.0-alpha0" />
+      <dependency id="NServiceBus" version="[%VERSION%,5)" />
       <dependency id="Apache.NMS" version="[1.5.1,2)" />
     </dependencies>
   </metadata>

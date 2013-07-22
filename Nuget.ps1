@@ -59,7 +59,7 @@ task Pack {
 			$nuspec.package.metadata.version = $nugetVersion
 			
 			$nuspec | Select-Xml '//dependency[starts-with(@id, "NServiceBus")]' |% {
-				$_.Node.version = "[$nsbVersion]"
+				$_.Node.version = $_.Node.version -replace "%VERSION%", $nsbVersion
 			}
 			$nuspec | Select-Xml '//file[starts-with(@src, "\")]' |% {
 				$_.Node.src = $baseDir + $_.Node.src
