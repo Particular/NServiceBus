@@ -125,6 +125,7 @@
     <Compile Include="Gateway\via_the_gateway.cs" />
     <Compile Include="Gateway\When_a_message_is_sent.cs" />
     <Compile Include="Gateway\When_a_message_with_a_databus_property_is_sent.cs" />
+    <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
     <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
