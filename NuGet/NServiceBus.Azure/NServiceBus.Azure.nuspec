@@ -16,9 +16,9 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
 	  <dependency id="NServiceBus" version="[%VERSION%]" />
-	  <dependency id="Microsoft.WindowsAzure.ConfigurationManager" version="2.0.0.0" />	  
-	  <dependency id="WindowsAzure.ServiceBus" version="2.0.1.0" />
-      <dependency id="WindowsAzure.Storage" version="2.0.5.1" />
+	  <dependency id="Microsoft.WindowsAzure.ConfigurationManager" version="2.0.1.0" />	  
+	  <dependency id="WindowsAzure.ServiceBus" version="2.1.0.0" />
+      <dependency id="WindowsAzure.Storage" version="2.0.6.0" />
     </dependencies>
   </metadata>
   <files>
