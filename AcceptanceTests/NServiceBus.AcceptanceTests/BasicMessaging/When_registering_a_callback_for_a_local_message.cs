@@ -5,9 +5,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
- 
 
-    [TestFixture]
     public class When_registering_a_callback_for_a_local_message : NServiceBusAcceptanceTest
     {
         [Test]

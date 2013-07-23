@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_sending_a_message_to_another_endpoint : NServiceBusAcceptanceTest
     {
         [Test]

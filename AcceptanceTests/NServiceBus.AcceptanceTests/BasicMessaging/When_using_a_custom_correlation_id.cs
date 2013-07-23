@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_using_a_custom_correlation_id : NServiceBusAcceptanceTest
     {
         static string CorrelationId = "my_custom_correlation_id";

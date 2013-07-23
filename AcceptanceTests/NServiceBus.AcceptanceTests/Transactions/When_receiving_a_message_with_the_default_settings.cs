@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_receiving_a_message_with_the_default_settings:NServiceBusAcceptanceTest
+    public class When_receiving_a_message_with_the_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_wrap_the_handler_pipeline_with_a_transactionscope()

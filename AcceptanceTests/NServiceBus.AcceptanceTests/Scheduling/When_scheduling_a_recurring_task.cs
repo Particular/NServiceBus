@@ -4,7 +4,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest

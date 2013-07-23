@@ -10,7 +10,6 @@
 
     public class When_bus_start_and_stops_with_a_pending_message : NServiceBusAcceptanceTest
     {
-
         [Test]
         public void Should_not_throw()
         {

@@ -7,7 +7,6 @@
     using ScenarioDescriptors;
     using Support;
 
-    [TestFixture]
     public class When_using_callbacks_in_a_scaleout_scenario : NServiceBusAcceptanceTest
     {
         [Test]

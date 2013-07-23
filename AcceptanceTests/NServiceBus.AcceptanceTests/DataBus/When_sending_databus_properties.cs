@@ -6,10 +6,10 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_sending_databus_properties:NServiceBusAcceptanceTest
     {
         static byte[] PayloadToSend = new byte[1024 * 1024 * 10];
+
         [Test]
         public void Should_receive_the_message_the_largeproperty_correctly()
         {
