@@ -10,7 +10,7 @@
     using ScenarioDescriptors;
 
     //Repro for #1323
-    public class When_a_saga_is_started_by_an_event_published_by_another_saga
+    public class When_a_saga_is_started_by_an_event_published_by_another_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_start_the_saga_and_request_a_timeout()
@@ -125,7 +125,6 @@
             }
         }
 
-
         [Serializable]
         public class StartSaga : ICommand
         {
@@ -137,6 +136,5 @@
         {
             public Guid DataId { get; set; }
         }
-
     }
 }

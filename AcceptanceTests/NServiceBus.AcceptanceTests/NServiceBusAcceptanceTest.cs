@@ -6,6 +6,7 @@ namespace NServiceBus.AcceptanceTests
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
     /// </summary>
+    [TestFixture]    
     public class NServiceBusAcceptanceTest
     {
         [SetUp]

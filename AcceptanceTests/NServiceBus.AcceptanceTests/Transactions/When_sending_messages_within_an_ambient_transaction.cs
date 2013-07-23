@@ -1,14 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Transactions
 {
     using System;
-    using System.Threading;
     using System.Transactions;
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_sending_messages_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
