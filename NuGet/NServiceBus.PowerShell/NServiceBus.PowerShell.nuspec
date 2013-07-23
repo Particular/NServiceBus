@@ -10,10 +10,8 @@
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>PowerShell Cmdlets for NServiceBus</description>
-    <releaseNotes>
-    </releaseNotes>
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
-    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe powershell</tags>
   </metadata>
   <files>
     <file src="\binaries\NServiceBus.PowerShell.dll" target="lib\net40\" />
