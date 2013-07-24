@@ -747,6 +747,7 @@ namespace NServiceBus
               {
 
                   "system.", 
+                  "mscorlib.", 
                   
                   // NSB Build-Dependencies
                   "nunit.", "pnunit.", "rhino.mocks.","XsdGenerator.",
