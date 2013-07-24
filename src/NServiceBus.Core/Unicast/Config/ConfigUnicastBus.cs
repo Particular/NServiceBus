@@ -100,15 +100,7 @@ namespace NServiceBus.Unicast.Config
             {
                 forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
             }
-            else
-            {
-                var forwardQueue = RegistryReader<string>.Read("AuditQueue");
-                if (!string.IsNullOrWhiteSpace(forwardQueue))
-                {
-                    forwardAddress = Address.Parse(forwardQueue);
-                }
-            }
-
+            
             if (forwardAddress != null)
             {
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
