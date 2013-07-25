@@ -6,13 +6,13 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_defering_a_message : NServiceBusAcceptanceTest
+    public class When_defering_a_message_to_an_address : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context())
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, context) => bus.Defer(TimeSpan.FromMilliseconds(100), new MyMessage())))
+                    .WithEndpoint<EndPoint>(b => b.Given((bus, context) => bus.Defer(TimeSpan.FromMilliseconds(100),Address.Local, new MyMessage())))
                     .Done(c => c.WasCalled)
                     .Repeat(r => r.For(Transports.Msmq))
                     .Should(c =>

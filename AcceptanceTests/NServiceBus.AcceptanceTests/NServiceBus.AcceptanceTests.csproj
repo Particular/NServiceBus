@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audit\When_a_message_is_audited.cs" />
+    <Compile Include="BasicMessaging\When_defering_a_message_to_an_address.cs" />
     <Compile Include="BasicMessaging\When_defering_a_message.cs" />
     <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />

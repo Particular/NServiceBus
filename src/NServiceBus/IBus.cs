@@ -203,6 +203,16 @@ namespace NServiceBus
         ICallback Defer(DateTime processAt, params object[] messages);
 
         /// <summary>
+        /// Defers the processing of the messages for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        ICallback Defer(TimeSpan delay,Address address, params object[] messages);
+
+        /// <summary>
+        /// Defers the processing of the messages until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
+        /// </summary>
+        ICallback Defer(DateTime processAt, Address address, params object[] messages);
+
+        /// <summary>
         /// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="messages">The messages to send.</param>

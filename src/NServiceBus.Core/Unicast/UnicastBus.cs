@@ -536,7 +536,17 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            return Defer(DateTime.UtcNow + delay, messages);
+            return Defer(DateTime.UtcNow + delay, Address.Local, messages);
+        }
+        /// <summary>
+        /// Defer
+        /// </summary>
+        /// <param name="delay">Delay</param>
+        /// <param name="messages">Messages</param>
+        /// <returns></returns>
+        public ICallback Defer(TimeSpan delay, Address address, params object[] messages)
+        {
+            return Defer(DateTime.UtcNow + delay, address, messages);
         }
 
         /// <summary>
@@ -544,14 +554,22 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="processAt">processAt</param>
         /// <param name="messages">messages</param>
-        /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
+        {
+            return Defer(processAt, Address.Local, messages);
+        }
+        /// <summary>
+        /// Defer
+        /// </summary>
+        /// <param name="processAt">processAt</param>
+        /// <param name="messages">messages</param>
+        public ICallback Defer(DateTime processAt, Address address, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
             {
                 throw new InvalidOperationException("Cannot Defer an empty set of messages.");
             }
-            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
+            if (address == Address.Local && processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
                 return ((IBus)this).SendLocal(messages);
             }
@@ -562,7 +580,7 @@ namespace NServiceBus.Unicast
 
             toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
 
-            MessageDeferrer.Defer(toSend, processAt, Address.Local);
+            MessageDeferrer.Defer(toSend, processAt, address);
 
             return SetupCallback(toSend.Id);
         }
