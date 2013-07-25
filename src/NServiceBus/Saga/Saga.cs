@@ -148,9 +148,20 @@ namespace NServiceBus.Saga
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
 
+            VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
 
             Bus.Defer(at, timeoutMessage);
+        }
+
+        void VerifySagaCanHandleTimeout<TTimeoutmessageType>(TTimeoutmessageType timeoutMessage)
+        {
+            var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutmessageType>;
+            if (!canHandleTimeoutMessage)
+            {
+                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutmessageType).Name);
+                throw new Exception(message);
+            }
         }
 
         /// <summary>
@@ -179,6 +190,7 @@ namespace NServiceBus.Saga
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
         protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
         {
+            VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
 
             Bus.Defer(within, timeoutMessage);
