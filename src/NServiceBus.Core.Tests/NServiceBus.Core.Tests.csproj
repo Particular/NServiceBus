@@ -177,6 +177,7 @@
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTestBase.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Nested_Class.cs" />
     <Compile Include="Serializers\XML\Command1.cs" />
     <Compile Include="Serializers\XML\Command2.cs" />
     <Compile Include="Serializers\XML\ConcurrencySerializerTests.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="Serializers\XML\SerializingArrayTests.cs" />
     <Compile Include="Serializers\XML\SerializingEnumerableTests.cs" />
     <Compile Include="Serializers\XML\SomeEnum.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
