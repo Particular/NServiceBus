@@ -21,7 +21,7 @@
                 var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(M1), typeof(M2));
                 serializer.Serialize(new object[] {m1, m2_1, m2_2, m2_3}, stream);
                 stream.Position = 0;
-             //   var readToEnd = new StreamReader(stream).ReadToEnd();
+                //var readToEnd = new StreamReader(stream).ReadToEnd();
 
                 var messageDeserialized = serializer.Deserialize(stream);
                 Assert.IsInstanceOf<M1>(messageDeserialized[0]);
