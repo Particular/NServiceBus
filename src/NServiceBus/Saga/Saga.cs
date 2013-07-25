@@ -38,7 +38,7 @@ namespace NServiceBus.Saga
 
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
-        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{TMessage,object}})"/> for each property of each message you want
+        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{T,object}},System.Linq.Expressions.Expression{System.Func{TMessage,object}})"/> for each property of each message you want
         /// to use for lookup.
         /// </summary>
         public virtual void ConfigureHowToFindSaga()
@@ -94,7 +94,7 @@ namespace NServiceBus.Saga
             get
             {
                 if (bus == null)
-                    throw new InvalidOperationException("No IBus instance availble, please configure one and also verify that you're not defining your own Bus property in your saga since that hides the one in the base class");
+                    throw new InvalidOperationException("No IBus instance available, please configure one and also verify that you're not defining your own Bus property in your saga since that hides the one in the base class");
 
                 return bus;
             }
@@ -121,10 +121,10 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
-        /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutmessageType"/>.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(DateTime at)
+        /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at)
         {
-            RequestUtcTimeout(at, Bus.CreateInstance<TTimeoutmessageType>());
+            RequestUtcTimeout(at, Bus.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send call <paramref name="action"/>.</param>
         /// <param name="action">Callback to execute after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(DateTime at, Action<TTimeoutmessageType> action)
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action)
         {
             RequestUtcTimeout(at, Bus.CreateInstance(action));
         }
@@ -143,7 +143,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(DateTime at, TTimeoutmessageType timeoutMessage)
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
         {
             if (at.Kind == DateTimeKind.Unspecified)
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
@@ -154,12 +154,12 @@ namespace NServiceBus.Saga
             Bus.Defer(at, timeoutMessage);
         }
 
-        void VerifySagaCanHandleTimeout<TTimeoutmessageType>(TTimeoutmessageType timeoutMessage)
+        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
         {
-            var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutmessageType>;
+            var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
             {
-                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutmessageType).Name);
+                var message = string.Format("The type '{0}' cannot request timeouts for '{1}' because it does not implement 'IHandleTimeouts<{2}>'", GetType().Name, timeoutMessage, typeof(TTimeoutMessageType).Name);
                 throw new Exception(message);
             }
         }
@@ -168,9 +168,9 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within)
         {
-            RequestUtcTimeout(within, Bus.CreateInstance<TTimeoutmessageType>());
+            RequestUtcTimeout(within, Bus.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, Action<TTimeoutmessageType> messageConstructor)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor)
         {
             RequestUtcTimeout(within, Bus.CreateInstance(messageConstructor));
         }
@@ -188,7 +188,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
@@ -200,11 +200,11 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
-        /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutmessageType"/>.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(DateTime at)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at)
+        /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(DateTime at)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(DateTime at)
         {
-            RequestTimeout(at, Bus.CreateInstance<TTimeoutmessageType>());
+            RequestTimeout(at, Bus.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -212,8 +212,8 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send the message produced by <paramref name="messageConstructor"/>.</param>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent when <paramref name="at"/> is reached.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(DateTime at, Action<TTimeoutmessageType> messageConstructor)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at, Action<TTimeoutmessageType> messageConstructor)
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> messageConstructor)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> messageConstructor)
         {
             RequestTimeout(at, Bus.CreateInstance(messageConstructor));
         }
@@ -224,8 +224,8 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(DateTime at, TTimeoutmessageType timeoutMessage)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(DateTime at, TTimeoutmessageType timeoutMessage)
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
         {
             RequestTimeout(at, timeoutMessage);
         }
@@ -234,10 +234,10 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(TimeSpan within)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within)
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(TimeSpan within)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(TimeSpan within)
         {
-            RequestTimeout(within, Bus.CreateInstance<TTimeoutmessageType>());
+            RequestTimeout(within, Bus.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -245,8 +245,8 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(TimeSpan within, Action<TTimeoutmessageType> action)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within, Action<TTimeoutmessageType> messageConstructor)
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> action)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor)
         {
             RequestTimeout(within, Bus.CreateInstance(messageConstructor));
         }
@@ -256,8 +256,8 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay <paramref name="timeoutMessage"/> by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected void RequestUtcTimeout<TTimeoutmessageType>(TimeSpan within, TTimeoutmessageType timeoutMessage)
+        [ObsoleteEx(Replacement = "RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
+        protected void RequestUtcTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
         {
             RequestTimeout(within, timeoutMessage);
         }
