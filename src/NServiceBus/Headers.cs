@@ -87,9 +87,9 @@
         public const string NServiceBusVersion = "NServiceBus.Version";
 
         /// <summary>
-        /// Header telling the OriginatingEndPoint Version (beginning NServiceBus V4.1).
+        /// Header telling the Originating Endpoint Version (beginning NServiceBus V4.1).
         /// </summary>
-        public const string OriginatingEndPointVersion = "NServiceBus.OriginatingEndPointVersion";
+        public const string OriginatingEndpointVersion = "NServiceBus.OriginatingEndpointVersion";
 
         /// <summary>
         /// Used in a header when doing a callback (bus.return)
