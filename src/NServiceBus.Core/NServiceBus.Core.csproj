@@ -466,7 +466,7 @@
     <Compile Include="Distributor\DistributorSatellite.cs" />
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
-    <Compile Include="Unicast\Monitoring\EndpointVersionMutator2.cs" />
+    <Compile Include="Unicast\Monitoring\EndpointVersionMutator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableMessageDrivenPublisherIfStorageIsFound.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
