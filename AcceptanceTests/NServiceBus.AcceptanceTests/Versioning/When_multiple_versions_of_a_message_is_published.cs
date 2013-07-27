@@ -7,7 +7,6 @@
     using PubSub;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {
         [Test]

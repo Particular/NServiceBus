@@ -22,7 +22,7 @@
 
         void LogMessage(string message)
         {
-            Console.WriteLine(string.Format("{0} - {1} - SagaId:{2}", DateTime.Now.ToLongTimeString(),message,Data.Id));
+            Console.WriteLine("{0} - {1} - SagaId:{2}", DateTime.Now.ToLongTimeString(), message, Data.Id);
         }
 
         public void Timeout(MyTimeOutState state)

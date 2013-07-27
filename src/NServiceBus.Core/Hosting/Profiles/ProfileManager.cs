@@ -30,9 +30,10 @@ namespace NServiceBus.Hosting.Profiles
             this.assembliesToScan = assembliesToScan;
             this.specifier = specifier;
 
-            var profilesFromArguments = assembliesToScan
-                .AllTypesAssignableTo<IProfile>()
-                .Where(t => args.Any(a => t.FullName.ToLower() == a.ToLower()))
+            var existingProfiles = assembliesToScan.AllTypesAssignableTo<IProfile>();
+            var profilesFromArguments = args
+                .Select(arg => existingProfiles.SingleOrDefault(profileType => profileType.FullName.ToLower() == arg.ToLower()))
+                .Where(t => t != null)
                 .ToList();
 
             if (profilesFromArguments.Count == 0)
@@ -83,7 +84,7 @@ namespace NServiceBus.Hosting.Profiles
             if (configs.Count == 0)
             {
                 var message = string.Format("Could not find a class which implements '{0}'. If you've specified your own profile, try implementing '{0}ForProfile<T>' for your profile.", typeof(T).Name);
-                throw new ConfigurationErrorsException(message);
+                throw new Exception(message);
             }
 
             return configs.Select(_ => (T)Activator.CreateInstance(_));
@@ -119,45 +120,57 @@ namespace NServiceBus.Hosting.Profiles
         /// <returns></returns>
         public void ActivateProfileHandlers()
         {
-            foreach (var p in activeProfiles)
-            {
-                Logger.Info("Going to activate profile: " + p.AssemblyQualifiedName);
-            }
+            var instantiableHandlers = assembliesToScan
+                .SelectMany(a => a.GetTypes())
+                .Where(t => typeof(IHandleProfile).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract)
+                .ToList();
 
-            var activeHandlers = new List<Type>();
+            var handlersByProfile = activeProfiles
+                .Select(p => new
+                             {
+                                 Profile = p,
+                                 HandlerTypes = instantiableHandlers
+                                     .Where(handlerType =>
+                                            {
+                                                var handledProfile = handlerType.GetGenericallyContainedType(typeof(IHandleProfile<>), typeof(IProfile));
+                                                return handledProfile != null && handledProfile.IsAssignableFrom(p);
+                                            })
+                                     .ToList()
+                             })
+                .ToList();
 
-            foreach (var assembly in assembliesToScan)
+            var executedHandlers = new List<Type>();
+
+            foreach (var profileWithHandlerTypes in handlersByProfile)
             {
-                foreach (var type in assembly.GetTypes())
+                Logger.Info("Activating profile: " + profileWithHandlerTypes.Profile.AssemblyQualifiedName);
+
+                foreach (var handlerType in profileWithHandlerTypes.HandlerTypes)
                 {
-                    var p = type.GetGenericallyContainedType(typeof (IHandleProfile<>), typeof (IProfile));
-                    if (p != null)
+                    if (executedHandlers.Contains(handlerType))
                     {
-                        activeHandlers.AddRange(from ap in activeProfiles where (type.IsClass && !type.IsAbstract && p.IsAssignableFrom(ap) && !activeHandlers.Contains(type)) select type);
+                        Logger.Debug("Profile handler was already activated by a preceeding profile: " + handlerType.AssemblyQualifiedName);
+                        continue;
                     }
+                    var profileHandler = (IHandleProfile)Activator.CreateInstance(handlerType);
+                    var wantsActiveProfiles = profileHandler as IWantTheListOfActiveProfiles;
+                    if (wantsActiveProfiles != null)
+                    {
+                        wantsActiveProfiles.ActiveProfiles = activeProfiles;
+                    }
+
+                    var wantsTheConfig = profileHandler as IWantTheEndpointConfig;
+                    if (wantsTheConfig != null)
+                    {
+                        wantsTheConfig.Config = specifier;
+                    }
+
+                    Logger.Debug("Activating profile handler: " + handlerType.AssemblyQualifiedName);
+                    profileHandler.ProfileActivated();
+
+                    executedHandlers.Add(handlerType);
                 }
             }
-
-            var profileHandlers = new List<IHandleProfile>();
-            foreach (var h in activeHandlers)
-            {
-                var profileHandler = Activator.CreateInstance(h) as IHandleProfile;
-                var handler = profileHandler as IWantTheListOfActiveProfiles;
-                if (handler != null)
-                {
-                    handler.ActiveProfiles = activeProfiles;
-                }
-
-                profileHandlers.Add(profileHandler);
-                Logger.Debug("Activating profile handler: " + h.AssemblyQualifiedName);
-            }
-
-            profileHandlers.Where(ph => ph is IWantTheEndpointConfig)
-                .ToList()
-                .ForEach(
-                ph => (ph as IWantTheEndpointConfig).Config = specifier);
-
-            profileHandlers.ForEach(hp => hp.ProfileActivated());
         }
 
 

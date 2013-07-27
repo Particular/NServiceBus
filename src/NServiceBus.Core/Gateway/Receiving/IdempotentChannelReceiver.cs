@@ -8,6 +8,7 @@ namespace NServiceBus.Gateway.Receiving
     using DataBus;
     using HeaderManagement;
     using Logging;
+    using NServiceBus.Support;
     using Notifications;
     using Persistence;
     using Sending;
@@ -104,7 +105,7 @@ namespace NServiceBus.Gateway.Receiving
 
         void HandleSubmit(CallInfo callInfo)
         {
-            persister.InsertMessage(callInfo.ClientId, DateTime.UtcNow, callInfo.Data, callInfo.Headers);
+            persister.InsertMessage(callInfo.ClientId, SystemClock.TechnicalTime, callInfo.Data, callInfo.Headers);
 
             if(callInfo.AutoAck)
                 HandleAck(callInfo);

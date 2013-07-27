@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB
 {
     using System.Globalization;
+    using NServiceBus.Utils;
     using NUnit.Framework;
-    using Utils;
 
     [TestFixture]
     public class When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings : WithRavenDbServer

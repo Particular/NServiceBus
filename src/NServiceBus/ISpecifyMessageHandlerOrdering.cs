@@ -47,14 +47,26 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specifies an ordering of multiple types using the syntax:
-        /// First{H1}.Then{H2}().AndThen{H3}()... etc
+        /// Specifies an ordering of multiple types using the syntax: <code>First{H1}.Then{H2}().AndThen{H3}()</code> etc
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="ordering"></param>
         public void Specify<T>(First<T> ordering)
         {
             Types = ordering.Types;
+        }
+
+        /// <summary>
+        /// Specifies an ordering of multiple types directly, where ordering may be decided dynamically at runtime.
+        /// </summary>
+        /// <param name="priorityHandlers"></param>
+        public void Specify(params Type[] priorityHandlers)
+        {
+            if (priorityHandlers == null)
+            {
+                throw new ArgumentNullException("priorityHandlers");
+            }
+            Types = priorityHandlers;
         }
     }
 
@@ -102,6 +114,6 @@ namespace NServiceBus
             return this;
         }
 
-        private readonly IList<Type> types = new List<Type>();
+        List<Type> types = new List<Type>();
     }
 }

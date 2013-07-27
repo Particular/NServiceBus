@@ -11,7 +11,8 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture, Category("Integration")]
+    [TestFixture]
+    [Explicit]
     public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
     {
         private IDocumentStore store;

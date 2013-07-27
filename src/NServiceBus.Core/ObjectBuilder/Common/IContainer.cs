@@ -65,7 +65,7 @@ namespace NServiceBus.ObjectBuilder.Common
         /// Indicates if a component of the given type has been configured.
         /// </summary>
         /// <param name="componentType">Component type to check.</param>
-        /// <returns><c>true</c> if the <param name="componentType"/> is registered in the container or <c>false</c> otherwise.</returns>
+        /// <returns><c>true</c> if the <paramref name="componentType"/> is registered in the container or <c>false</c> otherwise.</returns>
         bool HasComponent(Type componentType);
 
         /// <summary>

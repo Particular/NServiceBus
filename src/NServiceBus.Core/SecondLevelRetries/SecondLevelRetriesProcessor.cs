@@ -4,6 +4,7 @@ namespace NServiceBus.SecondLevelRetries
     using Helpers;
     using Faults.Forwarder;
     using Logging;
+    using NServiceBus.Support;
     using Satellites;
     using Transports;
     using TransportMessageHelpers = Helpers.TransportMessageHelpers;
@@ -62,7 +63,7 @@ namespace NServiceBus.SecondLevelRetries
 
         void Defer(TimeSpan defer, TransportMessage message)
         {
-            var retryMessageAt = DateTime.UtcNow + defer;
+            var retryMessageAt = SystemClock.TechnicalTime + defer;
 
             TransportMessageHelpers.SetHeader(message, Headers.Retries, (TransportMessageHelpers.GetNumberOfRetries(message) + 1).ToString());
 
@@ -70,7 +71,7 @@ namespace NServiceBus.SecondLevelRetries
 
             if (!TransportMessageHelpers.HeaderExists(message, SecondLevelRetriesHeaders.RetriesTimestamp))
             {
-                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
+                TransportMessageHelpers.SetHeader(message, SecondLevelRetriesHeaders.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(SystemClock.TechnicalTime));
             }
 
             Logger.DebugFormat("Defer message and send it to {0}", addressOfFaultingEndpoint);

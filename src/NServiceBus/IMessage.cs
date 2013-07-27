@@ -20,6 +20,7 @@ namespace NServiceBus
 	/// a failure of a machine along the route a copy of the message will be recovered and
 	/// delivery will continue when the machine is brought back online.</remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    [ObsoleteEx(TreatAsErrorFromVersion = "4.0")]
     public class RecoverableAttribute : Attribute
     {
     }

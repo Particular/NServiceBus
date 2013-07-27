@@ -6,6 +6,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using CircuitBreakers;
     using Core;
     using Logging;
+    using NServiceBus.Support;
     using Transports;
     using Unicast.Transport;
 
@@ -56,19 +57,19 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var cancellationToken = (CancellationToken)obj;
 
-            var startSlice = DateTime.UtcNow.AddYears(-10);
+            var startSlice = SystemClock.TechnicalTime.AddYears(-10);
 
             resetEvent.Reset();
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (nextRetrieval > DateTime.UtcNow)
+                if (nextRetrieval > SystemClock.TechnicalTime)
                 {
                     Thread.Sleep(SecondsToSleepBetweenPolls*1000);
                     continue;
                 }
 
-                Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+                Logger.DebugFormat("Polling for timeouts at {0}.", SystemClock.TechnicalTime);
 
                 DateTime nextExpiredTimeout;
                 var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
@@ -101,7 +102,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 // we cap the next retrieval to max 1 minute this will make sure that we trip the circuitbreaker if we
                 // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
                 // will be picked up after at most 1 minute
-                var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
+                var maxNextRetrieval = SystemClock.TechnicalTime + TimeSpan.FromMinutes(1);
 
                 if (nextRetrieval > maxNextRetrieval)
                 {
@@ -142,7 +143,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         readonly ManualResetEvent resetEvent = new ManualResetEvent(true);
         CancellationTokenSource tokenSource;
         volatile bool timeoutPushed;
-        DateTime nextRetrieval = DateTime.UtcNow;
+        DateTime nextRetrieval = SystemClock.TechnicalTime;
         
         readonly ICircuitBreaker circuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2), 
                             ex => Configure.Instance.RaiseCriticalError("Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));

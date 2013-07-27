@@ -59,6 +59,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
             CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
 
+#pragma warning disable 0618
         [Test]
         public void UseNHibernateTimeoutPersisterWithSQLiteAndAutomaticSchemaGeneration_Automatically_Configure_SqlLite()
         {
@@ -77,6 +78,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 
             CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.TimeoutPersisterProperties);
         }
+#pragma warning restore 0618
 
         [Test]
         public void UseNHibernateTimeoutPersister_Reads_From_TimeoutPersisterConfig()

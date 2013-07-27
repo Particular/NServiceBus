@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Monitoring
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
+    using NServiceBus.Support;
 
     public class EstimatedTimeToSLABreachCalculator : IDisposable
     {
@@ -153,7 +154,7 @@ namespace NServiceBus.Unicast.Monitoring
 
                 if (last != null)
                 {
-                    DateTime oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks*3);
+                    DateTime oldestDataToKeep = SystemClock.TechnicalTime - new TimeSpan(last.ProcessingTime.Ticks*3);
 
                     dataPoints.RemoveAll(d => d.OccuredAt < oldestDataToKeep);
                 }

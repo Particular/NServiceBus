@@ -5,6 +5,7 @@
     using System.Data.SqlClient;
     using System.Threading;
     using NServiceBus.Serializers.Json;
+    using NServiceBus.Support;
     using Unicast.Queuing;
 
     /// <summary>
@@ -134,7 +135,7 @@
             else
             {
                 command.Parameters.Add("Expires", SqlDbType.DateTime).Value =
-                    DateTime.UtcNow.Add(message.TimeToBeReceived);
+                    SystemClock.TechnicalTime.Add(message.TimeToBeReceived);
             }
             command.Parameters.Add("Headers", SqlDbType.VarChar).Value =
                 Serializer.SerializeObject(message.Headers);

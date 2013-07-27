@@ -3,6 +3,7 @@ namespace NServiceBus.DataBus.FileShare
     using System;
     using System.IO;
     using Logging;
+    using NServiceBus.Support;
 
     /// <summary>
     /// File share implementation of <see cref="IDataBus"/>.
@@ -87,7 +88,7 @@ namespace NServiceBus.DataBus.FileShare
 			var keepMessageUntil = DateTime.MaxValue;
 
 			if (timeToBeReceived < TimeSpan.MaxValue)
-				keepMessageUntil = DateTime.Now + timeToBeReceived;
+				keepMessageUntil = SystemClock.TechnicalTime + timeToBeReceived;
 
 			return Path.Combine(keepMessageUntil.ToString("yyyy-MM-dd_HH"), Guid.NewGuid().ToString());
 		}

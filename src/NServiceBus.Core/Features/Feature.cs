@@ -61,7 +61,7 @@
             Enable(typeof (T));
         }
 
-        // <summary>
+        /// <summary>
         /// Enables the give feature
         /// </summary>
         public static void Enable(Type featureType)
@@ -69,7 +69,7 @@
             SettingsHolder.Set(featureType.FullName, true);
         }
 
-        // <summary>
+        /// <summary>
         /// Enables the give feature unless explicitly disabled
         /// </summary>
         public static void EnableByDefault<T>() where T : Feature
@@ -77,7 +77,7 @@
             EnableByDefault(typeof (T));
         }
 
-        // <summary>
+        /// <summary>
         /// Enables the give feature unless explicitly disabled
         /// </summary>
         public static void EnableByDefault(Type featureType)
@@ -104,7 +104,7 @@
             SettingsHolder.Set(featureType.FullName, false);
         }
 
-        // <summary>
+        /// <summary>
         /// Disabled the give feature unless explicitly enabled
         /// </summary>
         public static void DisableByDefault(Type featureType)

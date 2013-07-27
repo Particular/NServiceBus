@@ -5,6 +5,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System.Linq;
     using System.Net;
     using System.Text;
+    using NServiceBus.Support;
     using Timeout.Core;
     using Logging;
     using Raven;
@@ -24,7 +25,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
         {
             try
             {
-                var now = DateTime.UtcNow;
+                var now = SystemClock.TechnicalTime;
                 var skip = 0;
                 var results = new List<Tuple<string, DateTime>>();
                 var numberOfRequestsExecutedSoFar = 0;
@@ -84,7 +85,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                     }
                     else
                     {
-                        nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                        nextTimeToRunQuery = SystemClock.TechnicalTime.AddMinutes(10);
                     }
 
                     return results;
@@ -115,7 +116,7 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
                 if (timeoutData == null)
                     return false;
 
-                timeoutData.Time = DateTime.UtcNow.AddYears(-1);
+                timeoutData.Time = SystemClock.TechnicalTime.AddYears(-1);
                 session.SaveChanges();
 
                 session.Delete(timeoutData);

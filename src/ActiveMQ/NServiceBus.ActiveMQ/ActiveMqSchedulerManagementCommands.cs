@@ -3,6 +3,7 @@
     using System;
     using System.Transactions;
     using Apache.NMS;
+    using NServiceBus.Support;
     using SessionFactories;
 
     public class ActiveMqSchedulerManagementCommands : IActiveMqSchedulerManagementCommands
@@ -42,7 +43,7 @@
             var consumer = this.consumerSession.CreateConsumer(
                 temporaryDestination,
                 selector);
-            return new ActiveMqSchedulerManagementJob(consumer, temporaryDestination, DateTime.Now + this.DeleteTaskMaxIdleTime);        
+            return new ActiveMqSchedulerManagementJob(consumer, temporaryDestination, SystemClock.TechnicalTime + this.DeleteTaskMaxIdleTime);        
         }
 
         public void DisposeJob(ActiveMqSchedulerManagementJob job)
@@ -58,7 +59,7 @@
             {
                 this.RemoveDeferredMessages(message.Properties[ScheduledMessage.AMQ_SCHEDULED_ID]);
 
-                job.ExprirationDate = DateTime.Now + this.DeleteTaskMaxIdleTime;
+                job.ExprirationDate = SystemClock.TechnicalTime + this.DeleteTaskMaxIdleTime;
                 message = job.Consumer.ReceiveNoWait();
             }
         }

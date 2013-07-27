@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace NServiceBus.Testing
 {
+    using NServiceBus.Support;
+
     class TimeoutManager
     {
         public void Push(object spanOrTime, object value)
@@ -11,7 +13,7 @@ namespace NServiceBus.Testing
             if (spanOrTime is DateTime)
                 at = (DateTime) spanOrTime;
             if (spanOrTime is TimeSpan)
-                at = DateTime.UtcNow + (TimeSpan) spanOrTime;
+                at = SystemClock.TechnicalTime + (TimeSpan) spanOrTime;
 
             if (!storage.ContainsKey(at))
                 storage.Add(at, new List<object>());

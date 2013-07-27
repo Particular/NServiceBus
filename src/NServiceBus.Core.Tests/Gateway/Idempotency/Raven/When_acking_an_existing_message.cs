@@ -51,7 +51,8 @@
             Assert.True(GetStoredMessage(message.ClientId).Acknowledged);
         }
 
-        [Test, Category("Integration")]
+        [Test]
+        [Explicit]
         public void Raven_dtc_bug()
         {
             new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)

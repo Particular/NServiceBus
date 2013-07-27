@@ -1,6 +1,7 @@
 namespace NServiceBus.Unicast.Monitoring
 {
     using System;
+    using NServiceBus.Support;
     using UnitOfWork;
 
     /// <summary>
@@ -26,12 +27,12 @@ namespace NServiceBus.Unicast.Monitoring
 
         public void Begin()
         {
-            Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted] = DateTimeExtensions.ToWireFormattedString(SystemClock.TechnicalTime);
         }
 
         public void End(Exception ex = null)
         {
-            var now = DateTime.UtcNow;
+            var now = SystemClock.TechnicalTime;
 
             Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
 
