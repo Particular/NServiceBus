@@ -536,7 +536,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            return Defer(DateTime.UtcNow + delay, messages);
+            return Defer(SystemClock.BusinessTime + delay, messages);
         }
 
         /// <summary>
@@ -551,7 +551,8 @@ namespace NServiceBus.Unicast
             {
                 throw new InvalidOperationException("Cannot Defer an empty set of messages.");
             }
-            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
+            var technicalProcessAt = SystemClock.ConvertBusinessTimeToTechnicalTime(processAt);
+            if (technicalProcessAt <= SystemClock.TechnicalTime)
             {
                 return ((IBus)this).SendLocal(messages);
             }
@@ -562,7 +563,7 @@ namespace NServiceBus.Unicast
 
             toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
 
-            MessageDeferrer.Defer(toSend, processAt, Address.Local);
+            MessageDeferrer.Defer(toSend, technicalProcessAt, Address.Local);
 
             return SetupCallback(toSend.Id);
         }

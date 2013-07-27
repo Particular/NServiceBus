@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Monitoring
     using System;
     using System.Diagnostics;
     using System.Threading;
+    using NServiceBus.Support;
 
     /// <summary>
     ///     Performance counter for the critical time
@@ -66,7 +67,7 @@ namespace NServiceBus.Unicast.Monitoring
 
         void ClearPerfCounter(object state)
         {
-            var delta = DateTime.UtcNow - timeOfLastCounter;
+            var delta = SystemClock.TechnicalTime - timeOfLastCounter;
 
             if (delta > maxDelta)
             {

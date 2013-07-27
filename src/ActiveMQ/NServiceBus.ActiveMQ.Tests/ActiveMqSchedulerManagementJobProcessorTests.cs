@@ -76,7 +76,7 @@
             const string Selector = "Selector";
             var message = new TransportMessage();
             var destination = new Mock<IDestination>().Object;
-            var job = new ActiveMqSchedulerManagementJob(null, destination, DateTime.Now + TimeSpan.FromMinutes(-1));
+            var job = new ActiveMqSchedulerManagementJob(null, destination, DateTime.UtcNow + TimeSpan.FromMinutes(-1));
             message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = Selector;
 
             this.activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector)).Returns(job);

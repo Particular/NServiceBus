@@ -2,6 +2,7 @@
 {
     using System;
     using System.Globalization;
+    using NServiceBus.Support;
     using NServiceBus.Unicast.Queuing;
     using NServiceBus.Unicast.Transport;
 
@@ -12,7 +13,7 @@
         public void Defer(TransportMessage message, DateTime processAt, Address address)
         {
             message.Headers[ScheduledMessage.AMQ_SCHEDULED_DELAY] = 
-                ((int)processAt.Subtract(DateTime.UtcNow).TotalMilliseconds).ToString(CultureInfo.InvariantCulture);
+                ((int)processAt.Subtract(SystemClock.TechnicalTime).TotalMilliseconds).ToString(CultureInfo.InvariantCulture);
 
             this.MessageSender.Send(message, address);
         }

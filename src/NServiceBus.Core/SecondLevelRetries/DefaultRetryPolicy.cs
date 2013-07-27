@@ -2,6 +2,7 @@ namespace NServiceBus.SecondLevelRetries
 {
     using System;
     using Helpers;
+    using NServiceBus.Support;
 
     public static class DefaultRetryPolicy
     {
@@ -36,7 +37,7 @@ namespace NServiceBus.SecondLevelRetries
             {
                 var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
 
-                if (DateTime.UtcNow > handledAt.AddDays(1))
+                if (SystemClock.TechnicalTime > handledAt.AddDays(1))
                 {
                     return true;
                 }

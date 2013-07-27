@@ -3,6 +3,7 @@ namespace NServiceBus.Persistence.InMemory.TimeoutPersister
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NServiceBus.Support;
     using Timeout.Core;
 
     public class InMemoryTimeoutPersistence : IPersistTimeouts
@@ -15,17 +16,17 @@ namespace NServiceBus.Persistence.InMemory.TimeoutPersister
             lock (lockObject)
             {
                 var results = storage
-                    .Where(data => data.Time > startSlice && data.Time <= DateTime.UtcNow)
+                    .Where(data => data.Time > startSlice && data.Time <= SystemClock.TechnicalTime)
                     .OrderBy(data => data.Time)
                     .Select(t => new Tuple<string, DateTime>(t.Id, t.Time))
                     .ToList();
 
                 var nextTimeout = storage
-                    .Where(data => data.Time > DateTime.UtcNow)
+                    .Where(data => data.Time > SystemClock.TechnicalTime)
                     .OrderBy(data => data.Time)
                     .FirstOrDefault();
 
-                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : DateTime.UtcNow.AddMinutes(1);
+                nextTimeToRunQuery = nextTimeout != null ? nextTimeout.Time : SystemClock.TechnicalTime.AddMinutes(1);
 
                 return results;
             }

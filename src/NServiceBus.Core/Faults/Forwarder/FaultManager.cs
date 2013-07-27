@@ -2,6 +2,7 @@ namespace NServiceBus.Faults.Forwarder
 {
     using System;
     using Logging;
+    using NServiceBus.Support;
     using SecondLevelRetries.Helpers;
     using Transports;
     using Unicast.Queuing;
@@ -107,7 +108,7 @@ namespace NServiceBus.Faults.Forwarder
             var failedQ = localAddress ?? Address.Local;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(SystemClock.TechnicalTime);
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
+    using NServiceBus.Support;
     using Transports;
 
     /// <summary>
@@ -29,7 +30,7 @@ namespace NServiceBus.Timeout.Core
         /// <param name="timeout"><see cref="TimeoutData"/> to be added.</param>
         public void PushTimeout(TimeoutData timeout)
         {
-            if (timeout.Time.AddSeconds(-1) <= DateTime.UtcNow)
+            if (timeout.Time.AddSeconds(-1) <= SystemClock.TechnicalTime)
             {
                 MessageSender.Send(timeout.ToTransportMessage(), timeout.Destination);
                 return;
