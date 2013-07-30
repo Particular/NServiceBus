@@ -25,7 +25,7 @@ namespace NServiceBus.Azure
             List<Tuple<string, DateTime>> results = new List<Tuple<string, DateTime>>();
             try
             {
-                var now = DateTime.UtcNow;
+                var now = SystemClock.TechnicalTime;
                 var context = new ServiceContext(account.CreateCloudTableClient());
                 TimeoutManagerDataEntity lastSuccessfullReadEntity;
                 var lastSuccessfullRead = TryGetLastSuccessfullRead(context, out lastSuccessfullReadEntity)
@@ -80,7 +80,7 @@ namespace NServiceBus.Azure
             }
             catch (DataServiceQueryException)
             {
-                nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(1);
+                nextTimeToRunQuery = SystemClock.TechnicalTime.AddMinutes(1);
                 results = new List<Tuple<String, DateTime>>();
             }
             return results;
@@ -431,7 +431,7 @@ namespace NServiceBus.Azure
             {
                 if (read == null)
                 {
-                    read = new TimeoutManagerDataEntity(GetUniqueEndpointName(), string.Empty){LastSuccessfullRead = DateTime.UtcNow};
+                    read = new TimeoutManagerDataEntity(GetUniqueEndpointName(), string.Empty){LastSuccessfullRead = SystemClock.TechnicalTime};
 
                     context.AddObject(ServiceContext.TimeoutManagerDataTableName, read);
                 }

@@ -12,6 +12,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
     using Microsoft.WindowsAzure.Storage.Blob.Protocol;
+    using NServiceBus.Support;
 
     public class BlobStorageDataBus : IDataBus
     {
@@ -44,7 +45,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
         {
             var key = Guid.NewGuid().ToString();
             var blob = container.GetBlockBlobReference(Path.Combine(BasePath, key));
-            blob.Metadata["ValidUntil"] = (DateTime.Now + timeToBeReceived).ToString();
+            blob.Metadata["ValidUntil"] = (SystemClock.TechnicalTime + timeToBeReceived).ToString();
             UploadBlobInParallel(blob, stream);
             return key;
         }
@@ -78,7 +79,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
                     blockBlob.FetchAttributes();
                     DateTime validUntil;
                     DateTime.TryParse(blockBlob.Metadata["ValidUntil"], out validUntil);
-                    if (validUntil == default(DateTime) || validUntil < DateTime.Now)
+                    if (validUntil == default(DateTime) || validUntil < SystemClock.TechnicalTime)
                         blockBlob.DeleteIfExists();
                 }
             }

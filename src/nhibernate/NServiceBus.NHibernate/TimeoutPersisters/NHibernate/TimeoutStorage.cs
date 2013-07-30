@@ -5,6 +5,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
+    using NServiceBus.Support;
     using Serializers.Json;
     using Timeout.Core;
     using global::NHibernate;
@@ -27,7 +28,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
         /// <returns>Returns the next range of timeouts that are due.</returns>
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            DateTime now = DateTime.UtcNow;
+            DateTime now = SystemClock.TechnicalTime;
             
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))
@@ -55,7 +56,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
                 }
                 else
                 {
-                    nextTimeToRunQuery = DateTime.UtcNow.AddMinutes(10);
+                    nextTimeToRunQuery = SystemClock.TechnicalTime.AddMinutes(10);
                 }
 
                 tx.Commit();

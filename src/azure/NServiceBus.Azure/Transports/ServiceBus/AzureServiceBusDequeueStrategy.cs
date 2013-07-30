@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using CircuitBreakers;
+    using NServiceBus.Support;
     using Transport;
     using Transports;
 
@@ -166,9 +167,9 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
         static bool RenewLockIfNeeded(BrokeredMessage brokeredMessage)
         {
-            if (brokeredMessage.LockedUntilUtc <= DateTime.UtcNow) return false;
+            if (brokeredMessage.LockedUntilUtc <= SystemClock.TechnicalTime) return false;
 
-            if (brokeredMessage.LockedUntilUtc <= DateTime.UtcNow.AddSeconds(10))
+            if (brokeredMessage.LockedUntilUtc <= SystemClock.TechnicalTime.AddSeconds(10))
             {
                 try
                 {
@@ -217,7 +218,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
         {
             while (pendingMessages.Count > 2 * maximumConcurrencyLevel){Thread.Sleep(10);}
 
-            if (brokeredMessage.LockedUntilUtc <= DateTime.UtcNow){return;}
+            if (brokeredMessage.LockedUntilUtc <= SystemClock.TechnicalTime){return;}
 
             pendingMessages.Enqueue(brokeredMessage);
         }

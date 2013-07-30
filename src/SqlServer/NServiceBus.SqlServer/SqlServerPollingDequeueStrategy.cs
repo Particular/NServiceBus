@@ -9,6 +9,7 @@
     using System.Transactions;
     using CircuitBreakers;
     using Logging;
+    using NServiceBus.Support;
     using Serializers.Json;
     using Utils;
     using Unicast.Transport;
@@ -318,7 +319,7 @@
                     }
 
                     //Has message expired?
-                    if (expireDateTime.HasValue && expireDateTime.Value < DateTime.UtcNow)
+                    if (expireDateTime.HasValue && expireDateTime.Value < SystemClock.UtcNow)
                     {
                         Logger.InfoFormat("Message with ID={0} has expired. Removing it from queue.", id);
                         return null;
@@ -340,7 +341,7 @@
 
                     if (expireDateTime.HasValue)
                     {
-                        message.TimeToBeReceived = TimeSpan.FromTicks(expireDateTime.Value.Ticks - DateTime.UtcNow.Ticks);
+                        message.TimeToBeReceived = TimeSpan.FromTicks(expireDateTime.Value.Ticks - SystemClock.UtcNow.Ticks);
                     }
 
                     return message;

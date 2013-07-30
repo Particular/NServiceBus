@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast.Monitoring
 {
     using System;
     using MessageMutator;
+    using NServiceBus.Support;
 
     /// <summary>
     /// Set the TimeSent header
@@ -15,7 +16,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            transportMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            transportMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(SystemClock.TechnicalTime);
         }
 
         public void Init()

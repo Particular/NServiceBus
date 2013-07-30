@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using NServiceBus.Support;
 
     public class ActiveMqSchedulerManagementJobProcessor
     {
@@ -55,7 +56,7 @@
 
         private void RemoveExpiredJobs()
         {
-            this.DeleteJobs(this.jobs.Keys.Where(j => DateTime.Now > j.ExprirationDate));
+            this.DeleteJobs(this.jobs.Keys.Where(j => SystemClock.TechnicalTime > j.ExprirationDate));
         }
 
         private void DeleteJobs(IEnumerable<ActiveMqSchedulerManagementJob> jobs)

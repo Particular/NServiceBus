@@ -3,6 +3,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using System;
     using Faults;
     using Logging;
+    using NServiceBus.Support;
     using Transports;
     using Unicast.Queuing;
 
@@ -88,7 +89,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             var failedQ = localAddress ?? Address.Local;
 
             message.Headers[FaultsHeaderKeys.FailedQ] = failedQ.ToString();
-            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+            message.Headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(SystemClock.TechnicalTime);
         }
     }
 }

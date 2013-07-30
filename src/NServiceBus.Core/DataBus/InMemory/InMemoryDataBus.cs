@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using NServiceBus.Support;
 
     /// <summary>
     /// In memory implementation of <see cref="IDataBus"/>.
@@ -38,7 +39,7 @@
                 storage.Add(key, new Entry
                 {
                     Data = data,
-                    ExpireAt = DateTime.Now + timeToBeReceived
+                    ExpireAt = SystemClock.TechnicalTime + timeToBeReceived
                 });
             return key;
         }
