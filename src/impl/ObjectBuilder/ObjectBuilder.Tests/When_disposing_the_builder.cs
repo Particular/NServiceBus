@@ -36,8 +36,9 @@ namespace ObjectBuilder.Tests
         {
             ForAllBuilders(builder =>
                 {
-                    builder.RegisterSingleton(builder.GetType(),builder);
-                    builder.Dispose();
+                        Debug.WriteLine("Trying " + builder.GetType().Name);
+                        builder.RegisterSingleton(builder.GetType(), builder);
+                        builder.Dispose();
                 });
         }
 
