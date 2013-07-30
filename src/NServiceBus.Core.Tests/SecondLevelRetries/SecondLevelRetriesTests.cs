@@ -157,6 +157,11 @@
             DeferredMessage = message;
         }
 
+        public void Defer(TransportMessage message, TimeSpan delay, Address address)
+        {
+            Defer(message, DateTime.UtcNow + delay, address);
+        }
+
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             

@@ -432,16 +432,8 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            //if we're a worker, send to the distributor data bus
-            if (Configure.Instance.WorkerRunsOnThisEndpoint())
-            {
-                MessageSender.Send(_messageBeingHandled, MasterNodeAddress);
-            }
-            else
-            {
-                MessageSender.Send(_messageBeingHandled, Address.Local);
-            }
-
+            MessageSender.Send(_messageBeingHandled, GetAddressForLocalMessageProcessing());
+            
             _handleCurrentMessageLaterWasCalled = true;
         }
 
@@ -457,13 +449,7 @@ namespace NServiceBus.Unicast
 
         ICallback IBus.SendLocal(params object[] messages)
         {
-            //if we're a worker, send to the distributor data bus
-            if (Configure.Instance.WorkerRunsOnThisEndpoint())
-            {
-                return ((IBus)this).Send(MasterNodeAddress, messages);
-            }
-
-            return ((IBus)this).Send(Address.Local, messages);
+            return ((IBus)this).Send(GetAddressForLocalMessageProcessing(), messages);
         }
 
         ICallback IBus.Send<T>(Action<T> messageConstructor)
@@ -536,7 +522,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            return Defer(DateTime.UtcNow + delay, Address.Local, messages);
+            return Defer(delay, GetAddressForLocalMessageProcessing(), messages);
         }
         /// <summary>
         /// Defer
@@ -546,7 +532,7 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(TimeSpan delay, Address address, params object[] messages)
         {
-            return Defer(DateTime.UtcNow + delay, address, messages);
+            return Defer(address, messages, (message, adr) => MessageDeferrer.Defer(message, delay, adr));
         }
 
         /// <summary>
@@ -556,7 +542,7 @@ namespace NServiceBus.Unicast
         /// <param name="messages">messages</param>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            return Defer(processAt, Address.Local, messages);
+            return Defer(processAt, GetAddressForLocalMessageProcessing(), messages);
         }
         /// <summary>
         /// Defer
@@ -565,13 +551,14 @@ namespace NServiceBus.Unicast
         /// <param name="messages">messages</param>
         public ICallback Defer(DateTime processAt, Address address, params object[] messages)
         {
+            return Defer(address, messages, (message, adr) => MessageDeferrer.Defer(message, processAt, adr));
+        }
+
+        private ICallback Defer(Address address, object[] messages, Action<TransportMessage, Address> deferAction)
+        {
             if (messages == null || messages.Length == 0)
             {
                 throw new InvalidOperationException("Cannot Defer an empty set of messages.");
-            }
-            if (address == Address.Local && processAt.ToUniversalTime() <= DateTime.UtcNow)
-            {
-                return ((IBus)this).SendLocal(messages);
             }
 
             var toSend = new TransportMessage();
@@ -580,9 +567,15 @@ namespace NServiceBus.Unicast
 
             toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
 
-            MessageDeferrer.Defer(toSend, processAt, address);
+            deferAction(toSend, address);
 
             return SetupCallback(toSend.Id);
+        }
+
+        private Address GetAddressForLocalMessageProcessing()
+        {
+            //if we're a worker, use the distributor / master node
+            return Configure.Instance.WorkerRunsOnThisEndpoint() ? MasterNodeAddress : Address.Local;
         }
 
         private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)

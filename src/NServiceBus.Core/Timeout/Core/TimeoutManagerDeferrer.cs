@@ -13,6 +13,12 @@
 
         public void Defer(TransportMessage message, DateTime processAt, Address address)
         {
+            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
+            {
+                MessageSender.Send(message, address);
+                return;
+            }
+
             message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
 
             message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.ToString();
@@ -28,6 +34,11 @@
                     ex);
                 throw;
             }
+        }
+
+        public void Defer(TransportMessage message, TimeSpan delay, Address address)
+        {
+            Defer(message, DateTime.UtcNow + delay, address);
         }
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
