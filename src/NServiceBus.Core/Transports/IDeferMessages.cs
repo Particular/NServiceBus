@@ -16,6 +16,14 @@
         void Defer(TransportMessage message, DateTime processAt, Address address);
 
         /// <summary>
+        /// Defers the given message which processing will be delayed as specified
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="delay"></param>
+        /// <param name="address">The endpoint of the endpoint who should get the message</param>
+        void Defer(TransportMessage message, TimeSpan delay, Address address);
+
+        /// <summary>
         /// Clears all timeouts for the given header
         /// </summary>
         /// <param name="headerKey"></param>

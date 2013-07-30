@@ -17,6 +17,11 @@
             this.MessageSender.Send(message, address);
         }
 
+        public void Defer(TransportMessage message, TimeSpan delay, Address address)
+        {
+            Defer(message, DateTime.UtcNow + delay, address);
+        }
+
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             var selector = string.Format("{0} = '{1}'", ActiveMqMessageMapper.ConvertMessageHeaderKeyToActiveMQ(headerKey), headerValue);
