@@ -1,6 +1,8 @@
 namespace ObjectBuilder.Tests
 {
     using System;
+    using System.Diagnostics;
+    using System.Reflection;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Common;
@@ -27,6 +29,15 @@ namespace ObjectBuilder.Tests
 
                     Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
                     Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
+                });
+        }
+        [Test]
+        public void When_circular_ref_exists_between_container_and_builder_should_not_infinite_loop()
+        {
+            ForAllBuilders(builder =>
+                {
+                    builder.RegisterSingleton(builder.GetType(),builder);
+                    builder.Dispose();
                 });
         }
 
