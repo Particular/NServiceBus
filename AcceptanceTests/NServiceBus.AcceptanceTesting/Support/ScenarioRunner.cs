@@ -303,10 +303,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
-
-
-
-
                 var runner = PrepareRunner(endpointName, behaviorDescriptor);
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
@@ -317,9 +313,10 @@ namespace NServiceBus.AcceptanceTesting.Support
                 var totalLifeTime = runDescriptor.TestExecutionTimeout.Add(TimeSpan.FromMinutes(2));
                 serverLease.Renew(totalLifeTime);
 
-
                 if (result.Failed)
+                {
                     throw new ScenarioException(string.Format("Endpoint {0} failed to initialize - {1}", runner.Instance.Name(), result.ExceptionMessage));
+                }
 
                 runners.Add(runner);
             }

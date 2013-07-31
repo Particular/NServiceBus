@@ -57,13 +57,12 @@ namespace NServiceBus.ObjectBuilder.Unity
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
-
             }
 
-            disposed = true;
         }
 
         ~UnityObjectBuilder()

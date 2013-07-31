@@ -7,10 +7,9 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_sending_a_message_to_another_site : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test, Ignore("It doesn't have any assertions!")]
         public void Should_be_able_to_reply_to_the_message()
         {
             Scenario.Define<Context>()

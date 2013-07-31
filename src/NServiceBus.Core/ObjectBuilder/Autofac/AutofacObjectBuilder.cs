@@ -53,12 +53,12 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
             }
 
-            disposed = true;
         }
 
         ~AutofacObjectBuilder()

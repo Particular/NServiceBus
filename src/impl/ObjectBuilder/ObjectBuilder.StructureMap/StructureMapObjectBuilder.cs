@@ -44,12 +44,12 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
             }
 
-            disposed = true;
         }
 
         ~StructureMapObjectBuilder()

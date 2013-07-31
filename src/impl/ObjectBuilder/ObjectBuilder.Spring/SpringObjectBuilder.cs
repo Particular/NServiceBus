@@ -55,13 +55,13 @@ namespace NServiceBus.ObjectBuilder.Spring
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 // Dispose managed resources.
                 context.Dispose();
             }
 
-            disposed = true;
         }
 
         ~SpringObjectBuilder()
