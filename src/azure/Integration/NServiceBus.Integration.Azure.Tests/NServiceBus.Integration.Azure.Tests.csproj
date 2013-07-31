@@ -12,6 +12,8 @@
     <AssemblyName>NServiceBus.Integration.Azure.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
@@ -72,6 +74,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProcessKillerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SectionNotPresentInConfig.cs" />
     <Compile Include="TestConfigSection.cs" />
@@ -90,18 +93,15 @@
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Hosting\NServiceBus.Hosting.Azure\NServiceBus.Hosting.Azure.csproj">
+      <Project>{6591ED91-F9A1-4CC3-813E-A33E07439D49}</Project>
+      <Name>NServiceBus.Hosting.Azure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\NServiceBus.Azure\NServiceBus.Azure.csproj">
       <Project>{12F1D9F1-0A2C-4442-8D18-67DD096C6300}</Project>
       <Name>NServiceBus.Azure</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
   <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
 </Project>
