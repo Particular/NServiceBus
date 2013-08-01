@@ -12,14 +12,13 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Web;
     using HeaderManagement;
     using Logging;
-    using Utils;
 
     public class HttpChannelReceiver : IChannelReceiver
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        private MTATaskScheduler scheduler;
-        private bool disposed;
+        MTATaskScheduler scheduler;
+        bool disposed;
         CancellationTokenSource tokenSource;
 
         public void Start(string address, int numWorkerThreads)
@@ -46,34 +45,19 @@ namespace NServiceBus.Gateway.Channels.Http
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
-            {
-                tokenSource.Cancel();
+            tokenSource.Cancel();
 
-                listener.Stop();
-                
-                scheduler.Dispose();
-            }
+            listener.Stop();
 
+            scheduler.Dispose();
             disposed = true;
         }
 
-        ~HttpChannelReceiver()
-        {
-            Dispose(false);
-        }
-   
         public void Handle(HttpListenerContext ctx)
         {
             try
@@ -116,7 +100,7 @@ namespace NServiceBus.Gateway.Channels.Http
                 
             var streamToReturn = new MemoryStream();
 
-            ctx.Request.InputStream.CopyTo_net35(streamToReturn, MaximumBytesToRead);
+            ctx.Request.InputStream.CopyTo(streamToReturn, MaximumBytesToRead);
             streamToReturn.Position = 0;
             return streamToReturn;
         }
@@ -134,10 +118,14 @@ namespace NServiceBus.Gateway.Channels.Http
             var headers = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
 
             foreach (string header in ctx.Request.Headers.Keys)
+            {
                 headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(ctx.Request.Headers[header]));
-            
+            }
+
             foreach (string header in ctx.Request.QueryString.Keys)
+            {
                 headers[HttpUtility.UrlDecode(header)] = HttpUtility.UrlDecode(ctx.Request.QueryString[header]);
+            }
 
             return headers;
         }

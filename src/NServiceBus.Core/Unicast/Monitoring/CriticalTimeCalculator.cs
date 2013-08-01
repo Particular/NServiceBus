@@ -10,15 +10,22 @@ namespace NServiceBus.Unicast.Monitoring
     public class CriticalTimeCalculator : IDisposable
     {
         PerformanceCounter counter;
-        bool disposed;
         TimeSpan maxDelta = TimeSpan.FromSeconds(2);
         DateTime timeOfLastCounter;
         Timer timer;
+        bool disposed;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            disposed = true;
+            if (counter != null)
+            {
+                counter.Dispose();
+            }
+            if (timer != null)
+            {
+                timer.Dispose();
+            }
         }
 
         /// <summary>
@@ -29,6 +36,11 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="processingEnded"></param>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
             counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);
 
             timeOfLastCounter = processingEnded;
@@ -36,43 +48,25 @@ namespace NServiceBus.Unicast.Monitoring
             maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                if (counter != null)
-                {
-                    counter.Dispose();
-                }
-            }
-            disposed = true;
-        }
-
-        ~CriticalTimeCalculator()
-        {
-            Dispose(false);
-        }
 
         /// <summary>
         ///     Verified that the counter exists
         /// </summary>
         public void Initialize(PerformanceCounter cnt)
         {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
             counter = cnt;
-
-
             timer = new Timer(ClearPerfCounter, null, 0, 2000);
         }
 
 
         void ClearPerfCounter(object state)
         {
-            TimeSpan delta = DateTime.UtcNow - timeOfLastCounter;
+            var delta = DateTime.UtcNow - timeOfLastCounter;
 
             if (delta > maxDelta)
             {

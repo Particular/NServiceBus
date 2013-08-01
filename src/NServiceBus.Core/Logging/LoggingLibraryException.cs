@@ -1,19 +1,15 @@
 namespace NServiceBus.Logging
 {
     using System;
+    using System.Runtime.Serialization;
 
-    /// <summary>
-    /// 
-    /// </summary>
+    [Serializable]
     public class LoggingLibraryException : Exception
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="message"></param>
         public LoggingLibraryException(string message)
             : base(message)
         {
         }
+        protected LoggingLibraryException(SerializationInfo info, StreamingContext context) { }
     }
 }

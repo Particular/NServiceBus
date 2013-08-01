@@ -14,13 +14,4 @@ namespace NServiceBus.Gateway.Channels.Http
             ctx.Response.Close(System.Text.Encoding.UTF8.GetBytes(response),true);
         }
     }
-
-    public class SetDefaultResponder : IWantToRunBeforeConfigurationIsFinalized
-    {
-        public void Run()
-        {
-            if (!Configure.Instance.Configurer.HasComponent<IHttpResponder>())
-                Configure.Instance.Configurer.ConfigureComponent<DefaultResponder>(DependencyLifecycle.InstancePerCall);
-        }
-    }
 }

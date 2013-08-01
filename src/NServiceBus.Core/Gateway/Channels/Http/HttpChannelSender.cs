@@ -6,8 +6,7 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Net;
     using System.Web;
     using Logging;
-    using Utils;
-
+    
     [ChannelType("http")]
     [ChannelType("https")]
     public class HttpChannelSender : IChannelSender
@@ -23,15 +22,19 @@ namespace NServiceBus.Gateway.Channels.Http
             request.UseDefaultCredentials = true;
 
             request.ContentLength = data.Length;
-        
-            using(var stream = request.GetRequestStream())
-                data.CopyTo_net35(stream);
+
+            using (var stream = request.GetRequestStream())
+            {
+                data.CopyTo(stream);
+            }
 
             int statusCode;
 
             //todo make the receiver send the md5 back so that we can double check that the transmission went ok
-            using (var response = request.GetResponse() as HttpWebResponse)
+            using (var response = (HttpWebResponse) request.GetResponse())
+            {
                 statusCode = (int)response.StatusCode;
+            }
 
             Logger.Debug("Got HTTP response with status code " + statusCode);
 
@@ -47,8 +50,10 @@ namespace NServiceBus.Gateway.Channels.Http
         {
             var webHeaders = new WebHeaderCollection();
 
-            foreach (string header in headers.Keys)
+            foreach (var header in headers.Keys)
+            {
                 webHeaders.Add(HttpUtility.UrlEncode(header), HttpUtility.UrlEncode(headers[header]));
+            }
 
             return webHeaders;
         }

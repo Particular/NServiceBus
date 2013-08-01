@@ -1,11 +1,6 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 
 [assembly: AssemblyTitle("NServiceBus.Unicast.Queuing.Azure.Tests")]
-[assembly: AssemblyDescription("")]
 [assembly: AssemblyVersion("4.0.0.0")]
 [assembly: AssemblyFileVersion("4.0.0.0")]
 [assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
@@ -13,6 +8,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("NServiceBus")]
 [assembly: AssemblyConfiguration("release")]
 [assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
-[assembly: ComVisible(false)]		
-[assembly: CLSCompliantAttribute(true)]
 

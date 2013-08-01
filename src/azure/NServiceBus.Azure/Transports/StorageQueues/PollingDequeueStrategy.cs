@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Queuing.Azure
     public class PollingDequeueStrategy : IDequeueMessages
     {  
         /// <summary>
-        /// See <see cref="IReceiveMessages"/>.
+        /// See <see cref="AzureMessageQueueReceiver"/>.
         /// </summary>
         public AzureMessageQueueReceiver MessageReceiver { get; set; }
 

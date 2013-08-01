@@ -55,7 +55,7 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
-        public void Reguesting_an_unregistered_component_should_throw()
+        public void Requesting_an_unregistered_component_should_throw()
         {
 
             ForAllBuilders((builder) =>

@@ -57,6 +57,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
             CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
 
+#pragma warning disable 0618
         [Test]
         public void DBSubscriptionStorageWithSQLiteAndAutomaticSchemaGeneration_Automatically_Configure_SqlLite()
         {
@@ -75,6 +76,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
             CollectionAssert.IsSubsetOf(expected, ConfigureNHibernate.SubscriptionStorageProperties);
         }
+#pragma warning restore 0618
 
         [Test]
         public void UseNHibernateSubscriptionPersister_Reads_From_DBSubscriptionStorageConfig()

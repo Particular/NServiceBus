@@ -3,19 +3,18 @@ namespace NServiceBus.Sagas
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
-    using NServiceBus.Saga;
-    using NServiceBus.Utils.Reflection;
+    using Saga;
+    using Utils.Reflection;
 
     /// <summary>
-    /// Class used to bridge the dependency between Saga{T} in NServiceBus.dll and
-    /// the Configure class found in this project in NServiceBus.Core.dll.
+    /// Class used to bridge the dependency between <see cref="Saga{T}"/> and <see cref="Configure"/>.
     /// </summary>
     public class ConfigureHowToFindSagaWithMessageDispatcher : IConfigureHowToFindSagaWithMessage
     {
         void IConfigureHowToFindSagaWithMessage.ConfigureMapping<TSagaEntity, TMessage>(Expression<Func<TSagaEntity, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
         {
             var sagaProp = Reflect<TSagaEntity>.GetProperty(sagaEntityProperty, true);
-            var messageProp = Reflect<TMessage>.GetProperty(messageProperty, false);
+            var messageProp = Reflect<TMessage>.GetProperty(messageProperty, true);
 
             ThrowIfNotPropertyLambdaExpression(sagaEntityProperty, sagaProp);
             ThrowIfNotPropertyLambdaExpression(messageProperty, messageProp);
@@ -23,7 +22,7 @@ namespace NServiceBus.Sagas
             Features.Sagas.ConfigureHowToFindSagaWithMessage(typeof(TSagaEntity), sagaProp, typeof(TMessage), messageProp);
         }
 
-        private static void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
+        void ThrowIfNotPropertyLambdaExpression<TSagaEntity>(Expression<Func<TSagaEntity, object>> expression, PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
             {
