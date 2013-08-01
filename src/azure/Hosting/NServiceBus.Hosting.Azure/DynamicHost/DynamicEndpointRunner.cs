@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using NServiceBus.Logging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -91,12 +90,10 @@ namespace NServiceBus.Hosting
             {
                 return;
             }
-            var waitUntilProcessIsKilled = new ManualResetEvent(false);
-            process.Exited += (o, args) => waitUntilProcessIsKilled.Set();
 
             process.Kill();
-            waitUntilProcessIsKilled.WaitOne(timeToWaitUntilProcessIsKilled);
-            if (!process.HasExited)
+            //As per MSDN "The Kill method executes asynchronously. After calling the Kill method, call the WaitForExit method to wait for the process to exit" 
+            if (!process.WaitForExit(timeToWaitUntilProcessIsKilled))
             {
                 throw new UnableToKillProcessException(string.Format("Unable to kill process {0}", process.ProcessName));
             }
