@@ -82,13 +82,13 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
                 scope.Dispose();
             }
 
-            disposed = true;
         }
 
         /// <summary>

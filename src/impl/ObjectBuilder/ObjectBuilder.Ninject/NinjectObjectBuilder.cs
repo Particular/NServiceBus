@@ -275,6 +275,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 if (!kernel.IsDisposed)
@@ -283,7 +284,6 @@ namespace NServiceBus.ObjectBuilder.Ninject
                 }
             }
 
-            disposed = true;
         }
 
         ~NinjectObjectBuilder()
