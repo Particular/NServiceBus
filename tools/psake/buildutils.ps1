@@ -124,8 +124,6 @@ using System.Runtime.CompilerServices;
 "	
 	}
 	
-	
-
 	$dir = [System.IO.Path]::GetDirectoryName($file)
 	
 	if ([System.IO.Directory]::Exists($dir) -eq $false)
