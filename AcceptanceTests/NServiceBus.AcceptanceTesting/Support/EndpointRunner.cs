@@ -2,44 +2,47 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Runtime.Remoting.Lifetime;
     using System.Threading;
     using System.Threading.Tasks;
     using Installation.Environments;
     using Logging;
+    using NServiceBus.Support;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
     {
-        IStartableBus bus;
-        Configure config;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointRunner));
+        private readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
+        private readonly IList<Guid> executedWhens = new List<Guid>();
+        private EndpointBehaviour behaviour;
+        private IStartableBus bus;
+        private Configure config;
+        private EndpointConfiguration configuration;
+        private Task executeWhens;
+        private ScenarioContext scenarioContext;
+        private bool stopped;
 
-        EndpointConfiguration configuration;
-        ScenarioContext scenarioContext;
-        EndpointBehaviour behaviour;
-        Semaphore contextChanged = new Semaphore(0, int.MaxValue);
-        bool stopped = false;
-
-        public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour, IDictionary<Type, string> routingTable, string endpointName)
+        public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour,
+            IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
                 behaviour = endpointBehaviour;
                 scenarioContext = run.ScenarioContext;
-                configuration = ((IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
+                configuration =
+                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehaviour.EndpointBuilderType))
+                        .Get();
                 configuration.EndpointName = endpointName;
 
                 if (!string.IsNullOrEmpty(configuration.CustomMachineName))
                 {
-                    NServiceBus.Support.RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
+                    RuntimeEnvironment.MachineNameAction = () => configuration.CustomMachineName;
                 }
 
                 //apply custom config settings
                 endpointBehaviour.CustomConfig.ForEach(customAction => customAction(config));
                 config = configuration.GetConfiguration(run, routingTable);
-
-
 
                 if (scenarioContext != null)
                 {
@@ -47,31 +50,37 @@
                     scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
                 }
 
-
                 bus = config.CreateBus();
 
                 Configure.Instance.ForInstallationOn<Windows>().Install();
 
-                Task.Factory.StartNew(() =>
+                executeWhens = Task.Factory.StartNew(() =>
+                {
+                    while (!stopped)
                     {
-                        while (!stopped)
+                        if (!contextChanged.Wait(TimeSpan.FromSeconds(5)))
+                            //we spin around each 5s since the callback mechanism seems to be shaky
                         {
-                            contextChanged.WaitOne(TimeSpan.FromSeconds(5)); //we spin around each 5 s since the callback mechanism seems to be shaky
+                            continue;
+                        }
 
-                            lock (behaviour)
+                        lock (behaviour)
+                        {
+                            foreach (IWhenDefinition when in behaviour.Whens)
                             {
-
-                                foreach (var when in behaviour.Whens)
+                                if (executedWhens.Contains(when.Id))
                                 {
-                                    if (executedWhens.Contains(when.Id))
-                                        continue;
+                                    continue;
+                                }
 
-                                    if(when.ExecuteAction(scenarioContext, bus))
-                                        executedWhens.Add(when.Id);
+                                if (when.ExecuteAction(scenarioContext, bus))
+                                {
+                                    executedWhens.Add(when.Id);
                                 }
                             }
                         }
-                    });
+                    }
+                });
 
                 return Result.Success();
             }
@@ -81,21 +90,19 @@
                 return Result.Failure(ex);
             }
         }
-        IList<Guid> executedWhens = new List<Guid>();
- 
-        void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
+
+        private void scenarioContext_ContextPropertyChanged(object sender, EventArgs e)
         {
             contextChanged.Release();
         }
-
 
         public Result Start()
         {
             try
             {
-                foreach (var given in behaviour.Givens)
+                foreach (IGivenDefinition given in behaviour.Givens)
                 {
-                    var action = given.GetAction(scenarioContext);
+                    Action<IBus> action = given.GetAction(scenarioContext);
 
                     action(bus);
                 }
@@ -121,9 +128,10 @@
 
                 scenarioContext.ContextPropertyChanged -= scenarioContext_ContextPropertyChanged;
 
+                executeWhens.Wait();
+                contextChanged.Dispose();
+
                 bus.Dispose();
-
-
 
                 return Result.Success();
             }
@@ -137,7 +145,7 @@
 
         public override object InitializeLifetimeService()
         {
-            ILease lease = (ILease)base.InitializeLifetimeService();
+            var lease = (ILease) base.InitializeLifetimeService();
             if (lease.CurrentState == LeaseState.Initial)
             {
                 lease.InitialLeaseTime = TimeSpan.FromMinutes(2);
@@ -151,7 +159,6 @@
         {
             return AppDomain.CurrentDomain.FriendlyName;
         }
-        static readonly ILog Logger = LogManager.GetLogger(typeof(EndpointRunner));
 
         [Serializable]
         public class Result : MarshalByRefObject
@@ -161,8 +168,9 @@
             public bool Failed
             {
                 get { return ExceptionMessage != null; }
-
             }
+
+            public Type ExceptionType { get; set; }
 
             public static Result Success()
             {
@@ -172,15 +180,11 @@
             public static Result Failure(Exception ex)
             {
                 return new Result
-                    {
-                        ExceptionMessage = ex.ToString(),
-                        ExceptionType = ex.GetType()
-                    };
+                {
+                    ExceptionMessage = ex.ToString(),
+                    ExceptionType = ex.GetType()
+                };
             }
-
-            public Type ExceptionType { get; set; }
         }
     }
-
-
 }
