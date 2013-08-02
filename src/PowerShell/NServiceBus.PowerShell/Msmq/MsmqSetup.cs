@@ -6,6 +6,7 @@
     using System.IO;
     using System.Runtime.InteropServices;
     using System.ServiceProcess;
+    using System.Text;
     using Microsoft.Win32;
 
     /// <summary>
@@ -66,7 +67,6 @@
             Console.WriteLine("Checking if MSMQ is installed.");
 
             var os = GetOperatingSystem();
-            Func<Process> process = null;
 
             if (IsMsmqInstalled())
             {
@@ -90,22 +90,18 @@
 
                 switch (os)
                 {
-                    case OperatingSystemEnum.XpOrServer2003:
-                        process = InstallMsmqOnXpOrServer2003;
-                        break;
-
                     case OperatingSystemEnum.Vista:
-                        process = () => Process.Start(OcSetup, OcSetupVistaUninstallCommand);
+                        RunExe(OcSetup, OcSetupVistaUninstallCommand);
                         break;
                         
                     case OperatingSystemEnum.Windows7:
                     case OperatingSystemEnum.Windows8:
                     case OperatingSystemEnum.Server2008:
-                        process = () => Process.Start(OcSetup, OcSetupUninstallCommand);
+                        RunExe(OcSetup, OcSetupUninstallCommand);
                         break;
 
                     case OperatingSystemEnum.Server2012:
-                        process = () => Process.Start(Powershell, PowershellUninstallCommand);
+                        RunExe(Powershell, PowershellUninstallCommand);
                         break;
 
                     default:
@@ -114,7 +110,6 @@
                 }
 
                 Console.WriteLine("Uninstalling MSMQ.");
-                RunSetup(process);
             }
             else
             {
@@ -124,21 +119,21 @@
             switch (os)
             {
                 case OperatingSystemEnum.XpOrServer2003:
-                    process = InstallMsmqOnXpOrServer2003;
+                    InstallMsmqOnXpOrServer2003();
                     break;
 
                 case OperatingSystemEnum.Vista:
-                    process = () => Process.Start(OcSetup, OcSetupVistaInstallCommand);
+                    RunExe(OcSetup, OcSetupVistaInstallCommand);
                     break;
 
                 case OperatingSystemEnum.Windows7:
                 case OperatingSystemEnum.Windows8:
                 case OperatingSystemEnum.Server2008:
-                    process = () => Process.Start(OcSetup, OcSetupInstallCommand);
+                    RunExe(OcSetup, OcSetupInstallCommand);
                     break;
 
                 case OperatingSystemEnum.Server2012:
-                    process = () => Process.Start(Powershell, PowershellInstallCommand);
+                    RunExe(Powershell, PowershellInstallCommand);
                     break;
 
                 default:
@@ -146,29 +141,62 @@
                     break;
             }
 
-            RunSetup(process);
-
             Console.WriteLine("Installation of MSMQ successful.");
 
             return true;
         }
 
-        private static void RunSetup(Func<Process> action)
+        public static void RunExe(string filename, string args)
         {
-            using (var process = action())
+            var startInfo = new ProcessStartInfo(filename, args)
             {
-                if (process == null) return;
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                WorkingDirectory = Path.GetTempPath()
+            };
 
-                Console.WriteLine("Waiting for process to complete.");
+            Console.Out.WriteLine("Executing {0} {1}", startInfo.FileName, startInfo.Arguments);
+
+            using (var process = new Process())
+            {
+                var output = new StringBuilder();
+                var error = new StringBuilder();
+
+                process.StartInfo = startInfo;
+
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        output.AppendLine(e.Data);
+                    }
+                };
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        error.AppendLine(e.Data);
+                    }
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
                 process.WaitForExit();
+
+                Console.Out.WriteLine(output.ToString());
+                Console.Out.WriteLine(error.ToString());
             }
         }
 
-        private static Process InstallMsmqOnXpOrServer2003()
+        private static void InstallMsmqOnXpOrServer2003()
         {
             var p = Path.GetTempFileName();
 
-            Console.WriteLine("Creating installation instruction file.");
+            Console.WriteLine("Creating installation instructions file.");
 
             using (var sw = File.CreateText(p))
             {
@@ -191,10 +219,10 @@
                 sw.Flush();
             }
 
-            Console.WriteLine("Installation instruction file created.");
+            Console.WriteLine("Installation instructions file created.");
             Console.WriteLine("Invoking MSMQ installation.");
 
-            return Process.Start("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
+            RunExe("sysocmgr", "/i:sysoc.inf /x /q /w /u:%temp%\\" + Path.GetFileName(p));
         }
 
         // Based on http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833(v=vs.85).aspx
@@ -321,6 +349,5 @@
         const string OcSetupVistaUninstallCommand = "MSMQ-Container;MSMQ-Server /passive /uninstall";
         const string PowershellInstallCommand = @"-Command ""& {Install-WindowsFeature –Name MSMQ-Server}""";
         const string PowershellUninstallCommand = @"-Command ""& {Uninstall-WindowsFeature –Name MSMQ-Server}""";
-
     }
 }
