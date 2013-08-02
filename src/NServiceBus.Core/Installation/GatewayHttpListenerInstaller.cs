@@ -13,7 +13,7 @@ namespace NServiceBus.Installation
     /// </summary>
     public class GatewayHttpListenerInstaller : INeedToInstallSomething<Windows>
     {
-        static ILog logger = LogManager.GetLogger(typeof(GatewayHttpListenerInstaller));
+        static readonly ILog logger = LogManager.GetLogger(typeof(GatewayHttpListenerInstaller));
         public IManageReceiveChannels ChannelManager { get; set; }
 
         public void Install(string identity)
@@ -27,16 +27,16 @@ namespace NServiceBus.Installation
             {
                 logger.InfoFormat(
 @"Did not attempt to grant user '{0}' HttpListener permissions since you are running an old OS. Processing will continue. 
-To manually perform this action run the following command for each port from an admin console:
-httpcfg set urlacl /u http://+:PORT/ /a D:(A;;GX;;;""{0}"")", identity);
+To manually perform this action run the following command for each url from an admin console:
+httpcfg set urlacl /u {{http://URL:PORT/[PATH/] | https://URL:PORT/[PATH/]}} /a D:(A;;GX;;;""{0}"")", identity);
                 return;
             }
             if (!ElevateChecker.IsCurrentUserElevated())
             {
                 logger.InfoFormat(
 @"Did not attempt to grant user '{0}' HttpListener permissions since process is not running with elevate privileges. Processing will continue. 
-To manually perform this action run the following command for each port from an admin console:
-netsh http add urlacl url=http://+:PORT/ user=""{0}""", identity);
+To manually perform this action run the following command for each url from an admin console:
+netsh http add urlacl url={{http://URL:PORT/[PATH/] | https://URL:PORT/[PATH/]}} user=""{0}""", identity);
                 return;
             }
 
@@ -47,54 +47,52 @@ netsh http add urlacl url=http://+:PORT/ user=""{0}""", identity);
                 {
                     continue;
                 }
-                var port = uri.Port;
                 try
                 {
-                      StartNetshProcess(identity, port);
+                    StartNetshProcess(identity, uri);
                 }
                 catch (Exception exception)
                 {
                     var message = string.Format(
 @"Failed to grant to grant user '{0}' HttpListener permissions due to an Exception. Processing will continue.  
 To help diagnose the problem try running the following command from an admin console:
-netsh http add urlacl url=http://+:{0}/ user=""{1}""", port, identity);
+netsh http add urlacl url={1} user=""{0}""", uri, identity);
                     logger.Warn(message, exception);
                 }
             }
         }
 
-
-        static internal void StartNetshProcess(string identity, int port)
+        static internal void StartNetshProcess(string identity, Uri uri)
         {
             var startInfo = new ProcessStartInfo
-                            {
-                                CreateNoWindow = true,
-                                Verb = "runas",
-                                UseShellExecute = false,
-                                RedirectStandardError = true,
-                                Arguments = string.Format(@"http add urlacl url=http://+:{0}/ user=""{1}""", port, identity),
-                                FileName = "netsh",
-                                WorkingDirectory = Path.GetTempPath()
-                            };
+            {
+                CreateNoWindow = true,
+                Verb = "runas",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                Arguments = string.Format(@"http add urlacl url={0} user=""{1}""", uri, identity),
+                FileName = "netsh",
+                WorkingDirectory = Path.GetTempPath()
+            };
             using (var process = Process.Start(startInfo))
             {
                 process.WaitForExit(5000);
 
                 if (process.ExitCode == 0)
                 {
-                    logger.Info(string.Format("Granted user '{0}' HttpListener permissions for port {1}.", identity,port));
+                    logger.InfoFormat("Granted user '{0}' HttpListener permissions for {1}.", identity, uri);
                     return;
                 }
-                var error = process.StandardError.ReadToEnd();
+                var error = process.StandardOutput.ReadToEnd().Trim();
                 var message = string.Format(
 @"Failed to grant to grant user '{0}' HttpListener permissions. Processing will continue. 
-Error: {1}
-To help diagnose the problem try running the following command from an admin console:
-netsh http add urlacl url=http://+:{1}/ user=""{2}""", error, port, identity);
+Try running the following command from an admin console:
+netsh http add urlacl url={2} user=""{0}""
+
+The error message from running the above command is: 
+{1}", identity, error, uri);
                 logger.Warn(message);
             }
         }
-
     }
-
 }

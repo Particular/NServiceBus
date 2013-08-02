@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Installers
 {
+    using System;
     using System.Diagnostics;
     using System.Security.Principal;
     using Installation;
@@ -13,7 +14,7 @@
         public void Integration()
         {
             //Needs to be run as elevated
-            GatewayHttpListenerInstaller.StartNetshProcess(WindowsIdentity.GetCurrent().Name, 25899);
+            GatewayHttpListenerInstaller.StartNetshProcess(WindowsIdentity.GetCurrent().Name, new Uri("http://localhost:25899/"));
 
             //To list existing acls
             //netsh http show urlacl
