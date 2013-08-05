@@ -9,7 +9,7 @@ namespace NServiceBus.Gateway.Routing.Sites
 
         public ConfigurationBasedSiteRouter()
         {
-            var section = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
+            var section = Configure.GetConfigSection<GatewayConfig>();
             if(section != null)
                 sites = section.SitesAsDictionary();                 
         }

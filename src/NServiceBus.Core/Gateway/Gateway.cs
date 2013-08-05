@@ -44,7 +44,7 @@
         {
             Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
 
-            var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
+            var configSection = Configure.GetConfigSection<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
                 Configure.Component<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
