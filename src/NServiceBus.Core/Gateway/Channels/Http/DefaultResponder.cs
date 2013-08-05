@@ -11,7 +11,7 @@ namespace NServiceBus.Gateway.Channels.Http
             var response = string.Format("<html><body>EndpointName:{0} - Status: Ok</body></html>", Configure.EndpointName);
 
             ctx.Response.ContentType = "text/html";
-            ctx.Response.Close(System.Text.Encoding.UTF8.GetBytes(response),true);
+            ctx.Response.Close(System.Text.Encoding.UTF8.GetBytes(response), true);
         }
     }
 }

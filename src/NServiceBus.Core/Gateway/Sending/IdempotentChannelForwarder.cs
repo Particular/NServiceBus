@@ -34,7 +34,7 @@ namespace NServiceBus.Gateway.Sending
                 Transmit(channelSender, targetSite, CallType.Submit, headers, messagePayload);
             }
 
-            TransmittDataBusProperties(channelSender, targetSite, headers);
+            TransmitDataBusProperties(channelSender, targetSite, headers);
 
             using (var stream = new MemoryStream(0))
             {
@@ -54,7 +54,7 @@ namespace NServiceBus.Gateway.Sending
             channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
-        private void TransmittDataBusProperties(IChannelSender channelSender, Site targetSite,
+        private void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite,
                                                 IDictionary<string, string> headers)
         {
             var headersToSend = new Dictionary<string, string>(headers);

@@ -31,7 +31,7 @@ namespace NServiceBus.Gateway.Receiving
             channelReceiver = channelFactory.GetReceiver(channel.Type);
 
             channelReceiver.DataReceived += DataReceivedOnChannel;
-            channelReceiver.Start(channel.Address,numWorkerThreads);
+            channelReceiver.Start(channel.Address, numWorkerThreads);
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)

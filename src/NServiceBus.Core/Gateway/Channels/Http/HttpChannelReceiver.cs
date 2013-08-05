@@ -102,6 +102,7 @@ namespace NServiceBus.Gateway.Channels.Http
 
             ctx.Request.InputStream.CopyTo(streamToReturn, MaximumBytesToRead);
             streamToReturn.Position = 0;
+
             return streamToReturn;
         }
 
@@ -162,8 +163,7 @@ namespace NServiceBus.Gateway.Channels.Http
             ctx.Response.StatusCode = 200;
             ctx.Response.StatusDescription = "OK";
 
-          
-            WriteData(ctx,"OK");
+            WriteData(ctx, "OK");
         }
 
         static void WriteData(HttpListenerContext ctx,string status)

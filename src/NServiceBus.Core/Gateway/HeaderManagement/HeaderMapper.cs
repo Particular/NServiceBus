@@ -11,7 +11,14 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             if (!from.ContainsKey(GatewayHeaders.IsGatewayMessage))
             {
-                return new TransportMessage();
+                var message = new TransportMessage();
+
+                foreach (var header in from)
+                {
+                    message.Headers[header.Key] = header.Value;
+                }
+
+                return message;
             }
 
             var headers = ExtractHeaders(from);

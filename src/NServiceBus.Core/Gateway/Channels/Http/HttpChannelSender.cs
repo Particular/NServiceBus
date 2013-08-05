@@ -11,16 +11,13 @@ namespace NServiceBus.Gateway.Channels.Http
     [ChannelType("https")]
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl, IDictionary<string,string> headers,Stream data)
+        public void Send(string remoteUrl, IDictionary<string,string> headers, Stream data)
         {
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
-
-
             request.ContentType = "application/x-www-form-urlencoded";
             request.Headers = Encode(headers);
             request.UseDefaultCredentials = true;
-
             request.ContentLength = data.Length;
 
             using (var stream = request.GetRequestStream())
@@ -28,18 +25,17 @@ namespace NServiceBus.Gateway.Channels.Http
                 data.CopyTo(stream);
             }
 
-            int statusCode;
+            HttpStatusCode statusCode;
 
             //todo make the receiver send the md5 back so that we can double check that the transmission went ok
             using (var response = (HttpWebResponse) request.GetResponse())
             {
-                statusCode = (int)response.StatusCode;
+                statusCode = response.StatusCode;
             }
 
             Logger.Debug("Got HTTP response with status code " + statusCode);
 
-
-            if (statusCode != 200)
+            if (statusCode != HttpStatusCode.OK)
             {
                 Logger.Warn("Message not transferred successfully. Trying again...");
                 throw new Exception("Retrying");
