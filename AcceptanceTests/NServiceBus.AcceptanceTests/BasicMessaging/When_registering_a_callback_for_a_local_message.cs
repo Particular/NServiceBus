@@ -17,9 +17,9 @@
                     .Done(c => c.HandlerGotTheRequest.HasValue)
                     .Repeat(r =>r.For(Transports.Default))
                     .Should(c =>
-                        {
-                            Assert.Greater(c.CallbackFired,c.HandlerGotTheRequest,"The callback should fire when the response comes in");
-                        })
+                    {
+                        Assert.Greater(c.CallbackFired, c.HandlerGotTheRequest, "The callback should fire when the response comes in");
+                    })
                     .Run();
         }
 

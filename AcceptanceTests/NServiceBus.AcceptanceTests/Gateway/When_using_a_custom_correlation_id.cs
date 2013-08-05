@@ -9,7 +9,7 @@
 
     public class When_sending_a_message_to_another_site : NServiceBusAcceptanceTest
     {
-        [Test, Ignore("It doesn't have any assertions!")]
+        [Test]
         public void Should_be_able_to_reply_to_the_message()
         {
             Scenario.Define<Context>()
@@ -20,16 +20,14 @@
                     )
                     .Should(c =>
                         {
-                            //Assert.AreEqual(CorrelationId,c.CorrelationIdReceived,"Correlation ids should match");
+                            Assert.IsTrue(c.GotResponseBack);
                         })
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-
             public bool GotResponseBack { get; set; }
-
         }
 
         public class Headquarters : EndpointConfigurationBuilder
@@ -66,8 +64,6 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
                 public void Handle(MyResponse response)
                 {
                     Context.GotResponseBack = true;
@@ -90,16 +86,11 @@
                                             ChannelType = "http"
                                         }
                                 };
-
-
                         });
-
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Context Context { get; set; }
-
                 public IBus Bus { get; set; }
 
                 public void Handle(MyRequest request)
@@ -108,7 +99,6 @@
                 }
             }
         }
-
 
         [Serializable]
         public class MyRequest : IMessage
