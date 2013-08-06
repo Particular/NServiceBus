@@ -6,63 +6,70 @@ namespace NServiceBus.Gateway.Persistence.Sql
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
 
-    [ObsoleteEx(Message = "Please use UseNHibernateGatewayPersister() in the NServiceBus.NHibernate assembly instead.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-    public class SqlPersistence:IPersistMessages
+    [ObsoleteEx(Message = "Please use UseNHibernateGatewayPersister() in the NServiceBus.NHibernate assembly instead.",
+        RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
+    public class SqlPersistence : IPersistMessages
     {
         public string ConnectionString { get; set; }
 
-        public bool InsertMessage(string clientId, DateTime timeReceived, Stream message, IDictionary<string, string> headers)
+        public bool InsertMessage(string clientId, DateTime timeReceived, Stream message,
+            IDictionary<string, string> headers)
         {
             int results;
 
             var stream = new MemoryStream();
             serializer.Serialize(stream, headers);
-            
+
             using (stream)
-            using (var cn = new SqlConnection(ConnectionString))
             {
-                cn.Open();
-                using (var tx = cn.BeginTransaction())
+                using (var cn = new SqlConnection(ConnectionString))
                 {
+                    cn.Open();
+                    using (var tx = cn.BeginTransaction())
+                    {
+                        var cmd = cn.CreateCommand();
+                        cmd.CommandText =
+                            "IF NOT EXISTS (SELECT Status FROM Messages WHERE (ClientId = @ClientId)) INSERT INTO Messages  (DateTime, ClientId, Status, Message, Headers) VALUES (@DateTime, @ClientId, 0, @Message, @Headers)";
 
-                    var cmd = cn.CreateCommand();
-                    cmd.CommandText =
-                        "IF NOT EXISTS (SELECT Status FROM Messages WHERE (ClientId = @ClientId)) INSERT INTO Messages  (DateTime, ClientId, Status, Message, Headers) VALUES (@DateTime, @ClientId, 0, @Message, @Headers)";
+                        var datetimeIdParam = cmd.CreateParameter();
+                        datetimeIdParam.ParameterName = "@DateTime";
+                        datetimeIdParam.Value = timeReceived;
+                        cmd.Parameters.Add(datetimeIdParam);
 
-                    var datetimeIdParam = cmd.CreateParameter();
-                    datetimeIdParam.ParameterName = "@DateTime";
-                    datetimeIdParam.Value = timeReceived;
-                    cmd.Parameters.Add(datetimeIdParam);
+                        var clientIdParam = cmd.CreateParameter();
+                        clientIdParam.ParameterName = "@ClientId";
+                        clientIdParam.Value = clientId;
+                        cmd.Parameters.Add(clientIdParam);
 
-                    var clientIdParam = cmd.CreateParameter();
-                    clientIdParam.ParameterName = "@ClientId";
-                    clientIdParam.Value = clientId;
-                    cmd.Parameters.Add(clientIdParam);
+                        var messageParam = cmd.CreateParameter();
+                        messageParam.ParameterName = "@Message";
+                        var ms = message as MemoryStream;
+                        if (ms == null)
+                        {
+                            messageParam.Value = message;
+                        }
+                        else
+                        {
+                            messageParam.Value = ms.ToArray();
+                        }
+                        cmd.Parameters.Add(messageParam);
 
-                    var messageParam = cmd.CreateParameter();
-                    messageParam.ParameterName = "@Message";
-                    var ms = message as MemoryStream;
-                    if (ms == null)
-                        messageParam.Value = message;
-                    else
-                        messageParam.Value = ms.ToArray();
-                    cmd.Parameters.Add(messageParam);
+                        var headersParam = cmd.CreateParameter();
+                        headersParam.ParameterName = "@Headers";
+                        headersParam.Value = stream.ToArray();
+                        cmd.Parameters.Add(headersParam);
 
-                    var headersParam = cmd.CreateParameter();
-                    headersParam.ParameterName = "@Headers";
-                    headersParam.Value = stream.ToArray();
-                    cmd.Parameters.Add(headersParam);
+                        results = cmd.ExecuteNonQuery();
 
-                    results = cmd.ExecuteNonQuery();
-
-                    tx.Commit();
+                        tx.Commit();
+                    }
                 }
             }
 
             return results > 0;
         }
 
-        public bool AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers)
+        public bool AckMessage(string clientId, out byte[] message, out IDictionary<string, string> headers)
         {
             message = null;
             headers = null;
@@ -89,17 +96,19 @@ namespace NServiceBus.Gateway.Persistence.Sql
                     var ackOk = false;
 
                     using (var reader = cmd.ExecuteReader())
-                    if (reader.Read())
                     {
-                        message = (byte[]) reader.GetValue(0);
+                        if (reader.Read())
+                        {
+                            message = (byte[]) reader.GetValue(0);
 
-                        var serHeaders = (byte[]) reader.GetValue(1);
-                        var stream = new MemoryStream(serHeaders);
-                        var o = serializer.Deserialize(stream);
-                        stream.Close();
-                        headers = o as IDictionary<string,string>;
+                            var serHeaders = (byte[]) reader.GetValue(1);
+                            var stream = new MemoryStream(serHeaders);
+                            var o = serializer.Deserialize(stream);
+                            stream.Close();
+                            headers = o as IDictionary<string, string>;
 
-                        ackOk = true;
+                            ackOk = true;
+                        }
                     }
 
                     tx.Commit();
@@ -141,6 +150,6 @@ namespace NServiceBus.Gateway.Persistence.Sql
             }
         }
 
-        private BinaryFormatter serializer = new BinaryFormatter();
+        readonly BinaryFormatter serializer = new BinaryFormatter();
     }
 }

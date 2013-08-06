@@ -10,11 +10,11 @@ namespace NServiceBus.Gateway.Routing.Sites
             if (messageToDispatch.Headers.ContainsKey(Headers.OriginatingSite))
             {
                 yield return new Site
-                    {
-                        Channel = Channel.Parse(messageToDispatch.Headers[Headers.OriginatingSite]),
-                        Key = "Default reply channel",
-                        LegacyMode = messageToDispatch.IsLegacyGatewayMessage()
-                    };
+                {
+                    Channel = Channel.Parse(messageToDispatch.Headers[Headers.OriginatingSite]),
+                    Key = "Default reply channel",
+                    LegacyMode = messageToDispatch.IsLegacyGatewayMessage()
+                };
             }
         }
     }

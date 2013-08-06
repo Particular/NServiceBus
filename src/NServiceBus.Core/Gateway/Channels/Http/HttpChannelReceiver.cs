@@ -18,18 +18,15 @@ namespace NServiceBus.Gateway.Channels.Http
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        MTATaskScheduler scheduler;
-        bool disposed;
-        CancellationTokenSource tokenSource;
-
         public void Start(string address, int numWorkerThreads)
         {
             tokenSource = new CancellationTokenSource();
             listener = new HttpListener();
-        
+
             listener.Prefixes.Add(address);
 
-            scheduler = new MTATaskScheduler(numWorkerThreads, String.Format("NServiceBus Gateway Channel Receiver Thread for [{0}]", address));
+            scheduler = new MTATaskScheduler(numWorkerThreads,
+                String.Format("NServiceBus Gateway Channel Receiver Thread for [{0}]", address));
 
             try
             {
@@ -37,7 +34,9 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin privileges", address), ex);
+                throw new Exception(
+                    string.Format("Failed to start listener for {0} make sure that you have admin privileges", address),
+                    ex);
             }
 
             var token = tokenSource.Token;
@@ -63,7 +62,7 @@ namespace NServiceBus.Gateway.Channels.Http
         {
             try
             {
-                if(!IsGatewayRequest(ctx.Request))
+                if (!IsGatewayRequest(ctx.Request))
                 {
                     //there will always be a responder
                     Configure.Instance.Builder.Build<IHttpResponder>().Handle(ctx);
@@ -71,10 +70,10 @@ namespace NServiceBus.Gateway.Channels.Http
                 }
 
                 DataReceived(this, new DataReceivedOnChannelArgs
-                                       {
-                                           Headers = GetHeaders(ctx),
-                                           Data = GetMessageStream(ctx)
-                                       });
+                {
+                    Headers = GetHeaders(ctx),
+                    Data = GetMessageStream(ctx)
+                });
                 ReportSuccess(ctx);
 
                 Logger.Debug("Http request processing complete.");
@@ -92,13 +91,13 @@ namespace NServiceBus.Gateway.Channels.Http
 
         static MemoryStream GetMessageStream(HttpListenerContext ctx)
         {
-            if(ctx.Request.QueryString.AllKeys.Contains("Message"))
+            if (ctx.Request.QueryString.AllKeys.Contains("Message"))
             {
                 var message = HttpUtility.UrlDecode(ctx.Request.QueryString["Message"]);
 
                 return new MemoryStream(Encoding.UTF8.GetBytes(message));
             }
-                
+
             var streamToReturn = new MemoryStream();
 
             ctx.Request.InputStream.CopyTo(streamToReturn, MaximumBytesToRead);
@@ -115,9 +114,9 @@ namespace NServiceBus.Gateway.Channels.Http
         }
 
 
-        static IDictionary<string,string> GetHeaders(HttpListenerContext ctx)
+        static IDictionary<string, string> GetHeaders(HttpListenerContext ctx)
         {
-            var headers = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
+            var headers = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
             foreach (string header in ctx.Request.Headers.Keys)
             {
@@ -135,7 +134,7 @@ namespace NServiceBus.Gateway.Channels.Http
 
         void HttpServer(object o)
         {
-            var cancellationToken = (CancellationToken)o;
+            var cancellationToken = (CancellationToken) o;
 
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -167,7 +166,7 @@ namespace NServiceBus.Gateway.Channels.Http
             WriteData(ctx, "OK");
         }
 
-        static void WriteData(HttpListenerContext ctx,string status)
+        static void WriteData(HttpListenerContext ctx, string status)
         {
             var str = status;
 
@@ -183,12 +182,13 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             ctx.Response.Close(Encoding.ASCII.GetBytes(str), false);
         }
-        
+
         static void CloseResponseAndWarn(HttpListenerContext ctx, string warning, int statusCode)
         {
             try
             {
-                Logger.WarnFormat("Cannot process HTTP request from {0}. Reason: {1}.", ctx.Request.RemoteEndPoint, warning);
+                Logger.WarnFormat("Cannot process HTTP request from {0}. Reason: {1}.", ctx.Request.RemoteEndPoint,
+                    warning);
                 ctx.Response.StatusCode = statusCode;
                 ctx.Response.StatusDescription = warning;
 
@@ -200,10 +200,12 @@ namespace NServiceBus.Gateway.Channels.Http
             }
         }
 
-        HttpListener listener;
-        
         const int MaximumBytesToRead = 100000;
-        
+
         static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelReceiver));
+        bool disposed;
+        HttpListener listener;
+        MTATaskScheduler scheduler;
+        CancellationTokenSource tokenSource;
     }
 }

@@ -32,13 +32,17 @@
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof (IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+                    Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+            {
                 channelFactory.RegisterReceiver(type);
+            }
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof (IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+                    Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+            {
                 channelFactory.RegisterSender(type);
+            }
 
             Configure.Instance.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
         }
@@ -56,9 +60,13 @@
             var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
+            {
                 Configure.Component<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
+            }
             else
+            {
                 Configure.Component<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
+            }
 
             ConfigureSiteRouters();
         }
@@ -81,7 +89,7 @@
             Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
             Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                     .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
+                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
         }
     }
 }

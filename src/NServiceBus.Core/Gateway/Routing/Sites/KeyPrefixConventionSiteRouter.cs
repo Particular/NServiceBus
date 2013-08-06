@@ -16,13 +16,14 @@ namespace NServiceBus.Gateway.Routing.Sites
                 {
                     var parts = siteKey.Split(':');
 
-                    if(parts.Length >= 2)
+                    if (parts.Length >= 2)
+                    {
                         yield return new Site
-                                         {
-                                             Channel = new Channel { Address = siteKey, Type = parts[0] },
-                                             Key = siteKey
-                                         };
-
+                        {
+                            Channel = new Channel {Address = siteKey, Type = parts[0]},
+                            Key = siteKey
+                        };
+                    }
                 }
             }
         }

@@ -1,7 +1,6 @@
 namespace NServiceBus.Gateway.Receiving
 {
     using System.Collections.Generic;
-    using Channels;
     using Features;
     using Logging;
     using Notifications;
@@ -13,9 +12,6 @@ namespace NServiceBus.Gateway.Receiving
 
     public class GatewayReceiver : ISatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(GatewayReceiver));
-        private readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
-
         public GatewayReceiver()
         {
             activeReceivers = new List<IReceiveMessagesFromSites>();
@@ -25,12 +21,12 @@ namespace NServiceBus.Gateway.Receiving
         public IManageReceiveChannels ChannelManager { get; set; }
         public IRouteMessagesToEndpoints EndpointRouter { get; set; }
         public IBuilder builder { get; set; }
-       
+
         public void Stop()
         {
             Logger.InfoFormat("Receiver is shutting down");
 
-            foreach (IReceiveMessagesFromSites channelReceiver in activeReceivers)
+            foreach (var channelReceiver in activeReceivers)
             {
                 Logger.InfoFormat("Stopping channel - {0}", channelReceiver.GetType());
 
@@ -63,7 +59,7 @@ namespace NServiceBus.Gateway.Receiving
         {
             replyToAddress = SettingsHolder.Get<Address>("Gateway.InputAddress");
 
-            foreach (ReceiveChannel receiveChannel in ChannelManager.GetReceiveChannels())
+            foreach (var receiveChannel in ChannelManager.GetReceiveChannels())
             {
                 var receiver = builder.Build<IReceiveMessagesFromSites>();
 
@@ -75,20 +71,22 @@ namespace NServiceBus.Gateway.Receiving
             }
         }
 
-        private void MessageReceivedOnChannel(object sender, MessageReceivedOnChannelArgs e)
+        void MessageReceivedOnChannel(object sender, MessageReceivedOnChannelArgs e)
         {
-            TransportMessage messageToSend = e.Message;
+            var messageToSend = e.Message;
 
             messageToSend.ReplyToAddress = replyToAddress;
 
-            Address destination = EndpointRouter.GetDestinationFor(messageToSend);
+            var destination = EndpointRouter.GetDestinationFor(messageToSend);
 
             Logger.Info("Sending message to " + destination);
 
             MessageSender.Send(messageToSend, destination);
         }
 
-        Address replyToAddress;
+        static readonly ILog Logger = LogManager.GetLogger(typeof(GatewayReceiver));
+        readonly ICollection<IReceiveMessagesFromSites> activeReceivers;
 
+        Address replyToAddress;
     }
 }

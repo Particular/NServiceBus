@@ -1,25 +1,25 @@
 ﻿namespace NServiceBus.Gateway.Sending
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
     using Channels;
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
     using log4net;
     using Routing;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using Utils;
 
     public class SingleCallChannelForwarder : IForwardMessagesToSites
     {
-        private readonly IChannelFactory channelFactory;
-
         public SingleCallChannelForwarder(IChannelFactory channelFactory)
         {
             this.channelFactory = channelFactory;
         }
+
+        public IDataBus DataBus { get; set; }
 
         public void Forward(TransportMessage message, Site targetSite)
         {
@@ -34,11 +34,13 @@
             TransmittDataBusProperties(channelSender, targetSite, headers);
 
             using (var messagePayload = new MemoryStream(message.Body))
+            {
                 Transmit(channelSender, targetSite, CallType.SingleCallSubmit, headers, messagePayload);
+            }
         }
 
-        private void Transmit(IChannelSender channelSender, Site targetSite, CallType callType,
-                              IDictionary<string, string> headers, Stream data)
+        void Transmit(IChannelSender channelSender, Site targetSite, CallType callType,
+            IDictionary<string, string> headers, Stream data)
         {
             headers[GatewayHeaders.IsGatewayMessage] = Boolean.TrueString;
             headers[HeaderMapper.NServiceBus + HeaderMapper.CallType] = Enum.GetName(typeof(CallType), callType);
@@ -49,27 +51,32 @@
             channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
-        private void TransmittDataBusProperties(IChannelSender channelSender, Site targetSite,
-                                                IDictionary<string, string> headers)
+        void TransmittDataBusProperties(IChannelSender channelSender, Site targetSite,
+            IDictionary<string, string> headers)
         {
             var headersToSend = new Dictionary<string, string>(headers);
 
-            foreach (var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
+            foreach (
+                var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
             {
                 if (DataBus == null)
-                    throw new InvalidOperationException("Can't send a message with a databus property without a databus configured");
+                {
+                    throw new InvalidOperationException(
+                        "Can't send a message with a databus property without a databus configured");
+                }
 
                 headersToSend[GatewayHeaders.DatabusKey] = headerKey;
 
                 var databusKeyForThisProperty = headers[headerKey];
 
                 using (var stream = DataBus.Get(databusKeyForThisProperty))
+                {
                     Transmit(channelSender, targetSite, CallType.SingleCallDatabusProperty, headersToSend, stream);
+                }
             }
         }
 
-        public IDataBus DataBus { get; set; }
-
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Gateway");
+        readonly IChannelFactory channelFactory;
     }
 }
