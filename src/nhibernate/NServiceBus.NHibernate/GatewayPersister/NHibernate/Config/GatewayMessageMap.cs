@@ -16,7 +16,7 @@ namespace NServiceBus.GatewayPersister.NHibernate.Config
         {
             Table("GatewayMessages");
             Id(x => x.Id, m => m.Generator(Generators.Assigned));
-            Property(p => p.OriginalMessage);
+            Property(p => p.OriginalMessage, pm => pm.Type(NHibernateUtil.BinaryBlob));
             Property(p => p.Acknowledged);
             Property(p => p.TimeReceived);
             Property(p => p.Headers, pm => pm.Type(NHibernateUtil.StringClob));
