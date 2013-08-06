@@ -11,7 +11,7 @@ namespace OrderService
             {
                 MessageEndpointMappings = new MessageEndpointMappingCollection
                 {
-                    new MessageEndpointMapping { Messages="MyMessages", Endpoint="orderserviceinputqueue" }
+                    new MessageEndpointMapping { Messages="MyMessages", Endpoint="orderservice" }
                 }
             };
         }
