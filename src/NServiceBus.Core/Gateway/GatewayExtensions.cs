@@ -5,7 +5,7 @@
     /// <summary>
     ///     extensions internal to the gateway
     /// </summary>
-    public static class GatewayExtensions
+    internal static class GatewayExtensions
     {
         /// <summary>
         ///     legacy mode support
