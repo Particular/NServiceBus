@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace SiteB
+﻿namespace SiteB
 {
+    using System;
     using Headquarter.Messages;
     using NServiceBus.Gateway.Persistence;
     using NServiceBus;

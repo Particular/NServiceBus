@@ -11,7 +11,6 @@ namespace SiteA.CustomResponder.Inspectors
             this.bus = bus;
         }
 
-
         public string GetStatusAsHtml()
         {
             if (bus.ForwardReceivedMessagesTo == null)
