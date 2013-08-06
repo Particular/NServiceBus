@@ -1,9 +1,8 @@
-﻿using NServiceBus;
-
-namespace Headquarter
+﻿namespace Headquarter
 {
     using System;
     using Messages;
+    using NServiceBus;
 
     public class HeadquarterService : IWantToRunWhenBusStartsAndStops
     {

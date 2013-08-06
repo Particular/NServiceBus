@@ -6,12 +6,12 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Net;
     using System.Web;
     using Logging;
-    
+
     [ChannelType("http")]
     [ChannelType("https")]
     public class HttpChannelSender : IChannelSender
     {
-        public void Send(string remoteUrl, IDictionary<string,string> headers, Stream data)
+        public void Send(string remoteUrl, IDictionary<string, string> headers, Stream data)
         {
             var request = WebRequest.Create(remoteUrl);
             request.Method = "POST";
@@ -42,7 +42,7 @@ namespace NServiceBus.Gateway.Channels.Http
             }
         }
 
-        static WebHeaderCollection Encode(IDictionary<string,string> headers)
+        static WebHeaderCollection Encode(IDictionary<string, string> headers)
         {
             var webHeaders = new WebHeaderCollection();
 
@@ -54,7 +54,7 @@ namespace NServiceBus.Gateway.Channels.Http
             return webHeaders;
         }
 
-       
+
         static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelSender));
     }
 }

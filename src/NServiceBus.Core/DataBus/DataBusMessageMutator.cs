@@ -7,11 +7,11 @@ namespace NServiceBus.DataBus
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
+    using Gateway.HeaderManagement;
     using MessageMutator;
 
     public class DataBusMessageMutator : IMessageMutator
     {
-        const string DATABUS_PREFIX = "NServiceBus.DataBus.";
         readonly IDataBus dataBus;
         readonly IDataBusSerializer serializer;
 
@@ -62,7 +62,7 @@ namespace NServiceBus.DataBus
                         }
 
                         //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                        Headers.SetMessageHeader(message, DATABUS_PREFIX + headerKey, headerValue);
+                        Headers.SetMessageHeader(message, HeaderMapper.DATABUS_PREFIX + headerKey, headerValue);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace NServiceBus.DataBus
                         headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
                     }
 
-                    var dataBusKey = Headers.GetMessageHeader(message, DATABUS_PREFIX + headerKey);
+                    var dataBusKey = Headers.GetMessageHeader(message, HeaderMapper.DATABUS_PREFIX + headerKey);
 
                     if (string.IsNullOrEmpty(dataBusKey))
                         continue;

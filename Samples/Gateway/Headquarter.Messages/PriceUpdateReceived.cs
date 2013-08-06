@@ -2,7 +2,7 @@
 {
     using NServiceBus;
 
-    public class PriceUpdateReceived:IMessage
+    public class PriceUpdateReceived : IMessage
     {
         public string BranchOffice { get; set; }
     }

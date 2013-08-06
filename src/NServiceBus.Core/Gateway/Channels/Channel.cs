@@ -2,7 +2,7 @@ namespace NServiceBus.Gateway.Channels
 {
     using System;
 
-    public class ReceiveChannel:Channel
+    public class ReceiveChannel : Channel
     {
         public int NumberOfWorkerThreads { get; set; }
         public bool Default { get; set; }
@@ -15,18 +15,31 @@ namespace NServiceBus.Gateway.Channels
 
     public class Channel : IEquatable<Channel>
     {
-        public string Type{ get; set; }
+        public string Type { get; set; }
         public string Address { get; set; }
+
+        public bool Equals(Channel other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Equals(other.Type, Type) && Equals(other.Address, Address);
+        }
 
         public static Channel Parse(string s)
         {
             var parts = s.Split(',');
 
             return new Channel
-                       {
-                           Type = parts[0],
-                           Address = parts[1]
-                       };
+            {
+                Type = parts[0],
+                Address = parts[1]
+            };
         }
 
         public override string ToString()
@@ -34,18 +47,20 @@ namespace NServiceBus.Gateway.Channels
             return string.Format("{0},{1}", Type, Address);
         }
 
-        public bool Equals(Channel other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(other.Type, Type) && Equals(other.Address, Address);
-        }
-
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != typeof (Channel)) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != typeof(Channel))
+            {
+                return false;
+            }
             return Equals((Channel) obj);
         }
 

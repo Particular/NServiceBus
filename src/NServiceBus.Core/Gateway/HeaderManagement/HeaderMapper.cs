@@ -48,7 +48,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             var result = new Dictionary<string, string>();
 
-            foreach (string header in from.Keys)
+            foreach (var header in from.Keys)
             {
                 if (header.Contains(NServiceBus + Headers.HeaderName))
                 {
@@ -90,7 +90,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         [ObsoleteEx(RemoveInVersion = "5.0")]
         static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
         {
-            string correlationIdToStore = message.CorrelationId;
+            var correlationIdToStore = message.CorrelationId;
 
             if (Configure.HasComponent<MsmqMessageSender>())
             {
@@ -99,7 +99,7 @@ namespace NServiceBus.Gateway.HeaderManagement
                 if (Guid.TryParse(message.CorrelationId, out correlationId))
                 {
                     correlationIdToStore = message.CorrelationId + "\\0";
-                        //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+                    //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
                 }
             }
 
@@ -109,6 +109,8 @@ namespace NServiceBus.Gateway.HeaderManagement
         public const string NServiceBus = "NServiceBus.";
         public const string Id = "Id";
         public const string CallType = "CallType";
+        public const string DATABUS_PREFIX = "NServiceBus.DataBus.";
+
         const string CorrelationId = "CorrelationId";
         const string Recoverable = "Recoverable";
         const string ReplyToAddress = "ReplyToAddress";

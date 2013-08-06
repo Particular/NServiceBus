@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using Channels;
     using Channels.Http;
+    using Deduplication;
+    using Gateway.HeaderManagement;
     using Gateway.Routing;
     using Gateway.Routing.Endpoints;
     using Gateway.Routing.Sites;
@@ -15,10 +17,11 @@
     using Rhino.Mocks;
     using Sending;
     using Transports;
-    using Unicast.Queuing;
+    using Unicast;
 
     public class via_the_gateway
     {
+        protected Address EndpointAddressForSiteA = Address.Parse("SiteAEndpoint@masternode_in_site_a");
         protected Address GatewayAddressForSiteA = Address.Parse("SiteAEndpoint.gateway@masternode_in_site_a");
         protected const string HttpAddressForSiteA = "http://localhost:8090/Gateway/";
 
@@ -30,6 +33,11 @@
         protected InMemoryDataBus databusForSiteB;
 
         protected Channel defaultChannelForSiteA = new Channel {Address = HttpAddressForSiteA, Type = "http"};
+
+        protected Func<IForwardMessagesToSites> Forwarder { get; set; }
+
+        protected IForwardMessagesToSites singleCallForwarder;
+        protected IForwardMessagesToSites idempotentForwarder;
 
         [TearDown]
         public void TearDown()
@@ -50,9 +58,12 @@
             var channelFactory = new ChannelFactory();
 
             channelFactory.RegisterReceiver(typeof(HttpChannelReceiver));
-
             channelFactory.RegisterSender(typeof(HttpChannelSender));
 
+            singleCallForwarder = new SingleCallChannelForwarder(channelFactory) {DataBus = databusForSiteA};
+            idempotentForwarder = new IdempotentChannelForwarder(channelFactory) {DataBus = databusForSiteA};
+
+            Forwarder = () => singleCallForwarder;
 
             var channelManager = MockRepository.GenerateStub<IManageReceiveChannels>();
             channelManager.Stub(x => x.GetReceiveChannels()).Return(new[] {new ReceiveChannel()
@@ -63,12 +74,11 @@
                                                                               }});
             channelManager.Stub(x => x.GetDefaultChannel()).Return(defaultChannelForSiteA);
 
-            builder.Stub(x => x.Build<IdempotentChannelForwarder>()).Return(new IdempotentChannelForwarder(channelFactory)
-                                                                             {
-                                                                                 DataBus = databusForSiteA
-                                                                             });
+            builder.Stub(x => x.Build<IForwardMessagesToSites>()).WhenCalled(mi => mi.ReturnValue = Forwarder()).Return(null);
 
-            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(new IdempotentChannelReceiver(channelFactory, new InMemoryPersistence())
+            builder.Stub(x => x.Build<IReceiveMessagesFromSites>()).Return(
+                new SingleCallChannelReceiver(channelFactory, new InMemoryDeduplication(), new DataBusHeaderManager(), 
+                    new IdempotentChannelReceiver(channelFactory, new InMemoryPersistence()))
             {
                 DataBus = databusForSiteB
             });
@@ -76,25 +86,37 @@
             builder.Stub(x => x.BuildAll<IRouteMessagesToSites>()).Return(new[] { new KeyPrefixConventionSiteRouter() });
 
             messageSender = new FakeMessageSender();
-            receiverInSiteB = new GatewayReceiver();
-            receiverInSiteB.ChannelManager = channelManager;
-            receiverInSiteB.EndpointRouter = new DefaultEndpointRouter
+            receiverInSiteB = new GatewayReceiver
                 {
-                    MainInputAddress = EndpointAddressForSiteB
+                    ChannelManager = channelManager,
+                    EndpointRouter = new DefaultEndpointRouter
+                        {
+                            MainInputAddress = EndpointAddressForSiteB
+                        },
+                    MessageSender = messageSender,
+                    builder = builder
                 };
-            receiverInSiteB.MessageSender = messageSender;
-            receiverInSiteB.builder = builder;
-            //receiverInSiteB.InputAddress = GatewayAddressForSiteA;
 
-            dispatcherInSiteA = new GatewaySender();
-            dispatcherInSiteA.ChannelManager = channelManager;
-            dispatcherInSiteA.Builder = builder;
-            dispatcherInSiteA.MessageSender = MockRepository.GenerateStub<ISendMessages>();
-            dispatcherInSiteA.Notifier = MockRepository.GenerateStub<IMessageNotifier>();
-           // dispatcherInSiteA.InputAddress = GatewayAddressForSiteA;
+            dispatcherInSiteA = new GatewaySender
+                {
+                    UnicastBus = new UnicastBus {ForwardReceivedMessagesTo = GatewayAddressForSiteA},
+                    ChannelManager = channelManager,
+                    Builder = builder,
+                    MessageSender = MockRepository.GenerateStub<ISendMessages>(),
+                    Notifier = MockRepository.GenerateStub<IMessageNotifier>()
+                };
 
+            fakeTransport.TransportMessageReceived += (o, e) => dispatcherInSiteA.Handle(e.Message);
+
+            Configure.GetEndpointNameAction = () => EndpointAddressForSiteA.ToString();
+            new DefaultInputAddress().Run();
             dispatcherInSiteA.Start();
+
+            Configure.GetEndpointNameAction = () => EndpointAddressForSiteB.ToString();
+            new DefaultInputAddress().Run();
             receiverInSiteB.Start();
+
+            Address.InitializeLocalAddress(EndpointAddressForSiteA.ToString());
         }
 
         protected void SendMessage(string destinationSites)

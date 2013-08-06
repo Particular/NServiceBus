@@ -4,13 +4,14 @@
     using NServiceBus;
     using NServiceBus.Gateway.Notifications;
 
-    public class MessageForwarded:IWantToRunWhenBusStartsAndStops
+    public class MessageForwarded : IWantToRunWhenBusStartsAndStops
     {
         public IMessageNotifier MessageNotifier { get; set; }
- 
-        void MessageNotifier_MessageForwarded(object sender, MessageReceivedOnChannelArgs e)
+
+        private void MessageNotifier_MessageForwarded(object sender, MessageReceivedOnChannelArgs e)
         {
-            Console.WriteLine(string.Format("Message with id {0} arrived on {1} and was forwarded onto a {2} channel",e.Message.Id,e.FromChannel,e.ToChannel));
+            Console.WriteLine("Message with id {0} arrived on {1} and was forwarded onto a {2} channel", e.Message.Id,
+                e.FromChannel, e.ToChannel);
         }
 
 
