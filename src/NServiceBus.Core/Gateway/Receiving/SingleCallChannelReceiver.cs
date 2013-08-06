@@ -100,7 +100,7 @@
         {
             using (var stream = new MemoryStream())
             {
-                callInfo.Data.CopyTo_net35(stream);
+                callInfo.Data.CopyTo(stream);
                 stream.Position = 0;
 
                 CheckHashOfGatewayStream(stream, callInfo.Headers[HttpHeaders.ContentMd5Key]);
