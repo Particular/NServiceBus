@@ -6,7 +6,7 @@
     /// <summary>
     /// Config section for the auditing feature
     /// </summary>
-    public class MessageAuditingConfig : ConfigurationSection
+    public class AuditConfig : ConfigurationSection
     {
         /// <summary>
         /// Gets/sets the address to which messages received will be forwarded.

@@ -3,6 +3,7 @@
     using System;
     using System.Configuration;
     using System.Diagnostics;
+    using System.Messaging;
     using System.Text;
     using Config;
     using log4net;
@@ -23,21 +24,37 @@
             var timeToBeReceivedOnForwardedMessages = new TimeSpan();
             
             // Get the auditing configuration - This could be specified either in the new MessageAuditingConfig or still in UnicastBusConfig
-            var messageAuditingConfig = Configure.GetConfigSection<MessageAuditingConfig>();
+            var messageAuditingConfig = Configure.GetConfigSection<AuditConfig>();
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
-            
+
             // Check the message auditing config section first for the auditing configuration
             if (messageAuditingConfig != null && !string.IsNullOrWhiteSpace(messageAuditingConfig.ForwardReceivedMessagesTo))
             {
                 forwardAddress = Address.Parse(messageAuditingConfig.ForwardReceivedMessagesTo);
                 timeToBeReceivedOnForwardedMessages = messageAuditingConfig.TimeToBeReceivedOnForwardedMessages;
             }
-            else if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+            
+            // Check to see if the audit values are also being defined in the UnicastBusConfig section. If so raise a warning.
+            if (unicastConfig != null)
             {
-                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                timeToBeReceivedOnForwardedMessages = unicastConfig.TimeToBeReceivedOnForwardedMessages;
-            }    
-            else // Check the registry
+                if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+                {
+                    // Log a warning
+                    Logger.Warn("Please use AuditConfig instead of UnicastBusConfig to specify audit related configuration such as ForwardReceivedMessagesTo. To quickly add the AuditConfig section, in Package Manager Console type: add-NServiceBusAuditConfig. The audit related configuration will be removed from UnicastBusConfig in v5.0");
+
+                    if (forwardAddress == null)
+                    {
+                        Logger.Warn("Using the audit configuration values defined in the UnicastBusConfig for now");
+                        forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                        timeToBeReceivedOnForwardedMessages = unicastConfig.TimeToBeReceivedOnForwardedMessages;
+                    }
+                    else
+                        Logger.Warn("Since AuditConfig section was found, using the values defined in the AuditConfig instead of the values defined in UnicastBusConfig section.");
+                }
+            }
+
+            // If the audit queue has not been specified either config sections, check the registry
+            if (forwardAddress == null)
             {
                 var forwardQueue = RegistryReader<string>.Read("AuditQueue");
                 if (!string.IsNullOrWhiteSpace(forwardQueue))
@@ -53,14 +70,16 @@
                 }
             }
 
-            // If the forwardAddress is null, then it hasn't been specified either in the config or registry
+            // If the forwardAddress is still null, then it hasn't been specified either in the config or registry
             // and the user hasn't turned off the auditing feature -- throw exception in that case.
             if (forwardAddress == null || forwardAddress == Address.Undefined)
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("The audit queue has not been configured either in the registry or the app.config file. ");
-                sb.AppendLine("To configure it in app.config, add the UnicastBusConfig section and set the ForwardReceivedMessagesTo attribute as shown below:");
-                sb.AppendLine("<UnicastBusConfig ForwardReceivedMessagesTo=\"audit\"/>");
+                sb.AppendLine("Either disable auditing feature or configure auditing");
+                sb.AppendLine("To disable auditing, add initialization:  Configure.Features.Disable<Audit>()");
+                sb.AppendLine("To configure it in app.config, add the AuditConfig section and set the ForwardReceivedMessagesTo attribute as shown below:");
+                sb.AppendLine("<AuditConfig ForwardReceivedMessagesTo=\"audit\"/>");
                 sb.AppendLine("To configure it in registry, run the Set-NServiceBusLocalMachineSettings Powershell cmdlet");
                 sb.AppendLine();
                 throw new ConfigurationErrorsException(sb.ToString());
