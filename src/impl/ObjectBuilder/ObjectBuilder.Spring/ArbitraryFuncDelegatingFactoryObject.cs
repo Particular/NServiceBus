@@ -5,8 +5,8 @@ namespace NServiceBus.ObjectBuilder.Spring
 
     class ArbitraryFuncDelegatingFactoryObject<T> : IFactoryObject
     {
-        private readonly bool isSingleton;
-        private readonly Func<T> builderDelegate;
+        bool isSingleton;
+        Func<T> builderDelegate;
 
 
         public ArbitraryFuncDelegatingFactoryObject(Func<T> builderDelegate, bool isSingleton)
@@ -17,19 +17,13 @@ namespace NServiceBus.ObjectBuilder.Spring
 
 
         /// <summary>
-        /// Return an instance (possibly shared or independent) of the object
-        ///             managed by this factory.
+        /// Return an instance (possibly shared or independent) of the object managed by this factory.
         /// </summary>
         /// <remarks>
-        /// <note type="caution">If this method is being called in the context of an enclosing IoC container and
-        ///             returns <see langword="null"/>, the IoC container will consider this factory
-        ///             object as not being fully initialized and throw a corresponding (and most
-        ///             probably fatal) exception.
-        ///             </note>
+        /// <note type="caution">If this method is being called in the context of an enclosing IoC container and returns <see langword="null"/>, the IoC container will consider this factory object as not being fully initialized and throw a corresponding (and most probably fatal) exception.</note>
         /// </remarks>
         /// <returns>
-        /// An instance (possibly shared or independent) of the object managed by
-        ///             this factory.
+        /// An instance (possibly shared or independent) of the object managed by this factory.
         /// </returns>
         public object GetObject()
         {
@@ -37,9 +31,7 @@ namespace NServiceBus.ObjectBuilder.Spring
         }
 
         /// <summary>
-        /// Return the <see cref="T:System.Type"/> of object that this
-        ///             <see cref="T:Spring.Objects.Factory.IFactoryObject"/> creates, or
-        ///             <see langword="null"/> if not known in advance.
+        /// Return the <see cref="Type"/> of object that this <see cref="IFactoryObject"/> creates, or <see langword="null"/> if not known in advance.
         /// </summary>
         public Type ObjectType
         {

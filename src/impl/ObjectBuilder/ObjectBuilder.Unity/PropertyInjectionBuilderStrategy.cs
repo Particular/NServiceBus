@@ -2,7 +2,6 @@ namespace NServiceBus.ObjectBuilder.Unity
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
     using Microsoft.Practices.ObjectBuilder2;
     using Microsoft.Practices.Unity;

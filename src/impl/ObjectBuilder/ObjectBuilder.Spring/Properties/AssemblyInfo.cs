@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus Object Builder Spring Implementation")]
 [assembly: AssemblyDescription("Implementation of object building functionality on top of the Spring Framework.")]

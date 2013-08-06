@@ -115,67 +115,20 @@ namespace ObjectBuilder.Tests
         }
         class SingletonComponent : ISingletonComponent, IDisposable
         {
-            private bool disposed;
-
             public static bool DisposeCalled;
 
             public void Dispose()
             {
                 DisposeCalled = true;
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                disposed = true;
-            }
-
-            ~SingletonComponent()
-            {
-                Dispose(false);
             }
         }
 
         class ComponentThatDependsOfSingleton : IDisposable
         {
-            private bool disposed;
-
             public void Dispose()
             {
-                Dispose(true);
-                GC.SuppressFinalize(this);
             }
 
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                disposed = true;
-            }
-
-            ~ComponentThatDependsOfSingleton()
-            {
-                Dispose(false);
-            }
         }
     }
 
@@ -187,101 +140,33 @@ namespace ObjectBuilder.Tests
 
     public class InstancePerUoWComponent : IDisposable
     {
-        private bool disposed;
 
         public static bool DisposeCalled;
 
         public void Dispose()
         {
             DisposeCalled = true;
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-            }
-
-            disposed = true;
-        }
-
-        ~InstancePerUoWComponent()
-        {
-            Dispose(false);
-        }
     }
 
     public class SingletonComponent : ISingletonComponent, IDisposable
     {
-        private bool disposed;
-
         public static bool DisposeCalled;
 
         public void Dispose()
         {
             DisposeCalled = true;
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-            }
-
-            disposed = true;
-        }
-
-        ~SingletonComponent()
-        {
-            Dispose(false);
-        }
     }
 
     public class AnotherSingletonComponent : ISingletonComponent, IDisposable
     {
-        private bool disposed;
-
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-            }
-
-            disposed = true;
-        }
-
-        ~AnotherSingletonComponent()
-        {
-            Dispose(false);
-        }
     }
 
     public interface ISingletonComponent

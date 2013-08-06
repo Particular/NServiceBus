@@ -1,6 +1,4 @@
-﻿
-
-namespace NServiceBus.ObjectBuilder.Spring
+﻿namespace NServiceBus.ObjectBuilder.Spring
 {
     using System;
     using System.Collections.Generic;

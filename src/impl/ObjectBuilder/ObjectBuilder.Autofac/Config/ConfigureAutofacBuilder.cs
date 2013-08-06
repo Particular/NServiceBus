@@ -5,7 +5,7 @@ namespace NServiceBus
     using ObjectBuilder.Common.Config;
 
     /// <summary>
-    /// Contains extension methods to NServiceBus.Configure.
+    /// Contains extension methods to <see cref="Configure"/>.
     /// </summary>
     public static class ConfigureAutofacBuilder
     {

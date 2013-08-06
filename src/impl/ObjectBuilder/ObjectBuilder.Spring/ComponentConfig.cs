@@ -9,19 +9,15 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         public void Configure(ObjectDefinitionBuilder builder)
         {
-            foreach (string key in this.properties.Keys)
+            foreach (var key in properties.Keys)
                 builder.AddPropertyValue(key, properties[key]);
         }
 
-        #region IComponentConfig Members
-
         public IComponentConfig ConfigureProperty(string name, object value)
         {
-            this.properties[name] = value;
+            properties[name] = value;
 
             return this;
         }
-
-        #endregion
     }
 }

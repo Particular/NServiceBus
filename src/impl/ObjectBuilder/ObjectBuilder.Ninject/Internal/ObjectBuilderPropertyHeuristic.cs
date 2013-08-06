@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Ninject;
 
 namespace NServiceBus.ObjectBuilder.Ninject.Internal
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using global::Ninject;
+
     /// <summary>
     /// Implements an more aggressive injection heuristic.
     /// </summary>
     internal class ObjectBuilderPropertyHeuristic : IObjectBuilderPropertyHeuristic
     {
-        private bool disposed;
+        bool disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectBuilderPropertyHeuristic"/> class.
@@ -31,18 +32,13 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
         /// Gets or sets the settings.
         /// </summary>
         /// <value>The settings.</value>
-        public INinjectSettings Settings
-        {
-            get;
-            set;
-        }
+        public INinjectSettings Settings{get;set;}
 
         /// <summary>
         /// Determines whether a given type should be injected.
         /// </summary>
         /// <param name="member">The member info to check.</param>
-        /// <returns><see langword="true"/> if a given type needs to be injected; otherwise <see langword="false"/>.
-        /// </returns>
+        /// <returns><see langword="true"/> if a given type needs to be injected; otherwise <see langword="false"/>.</returns>
         public bool ShouldInject(MemberInfo member)
         {
             var propertyInfo = member as PropertyInfo;

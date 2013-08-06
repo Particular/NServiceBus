@@ -13,21 +13,21 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Singleton_components_should_yield_the_same_instance()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.AreEqual(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(SingletonComponent))));
         }
 
         [Test]
         public void Singlecall_components_should_yield_unique_instances()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.AreNotEqual(builder.Build(typeof(SinglecallComponent)), builder.Build(typeof(SinglecallComponent))));
         }
 
         [Test]
         public void UoW_components_should_resolve_from_main_container()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent)))
                , typeof(WindsorObjectBuilder));
         }
@@ -35,7 +35,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Lambda_uow_components_should_resolve_from_main_container()
         {            
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.NotNull(builder.Build(typeof(LambdaComponentUoW))),               
                typeof(WindsorObjectBuilder));
         }
@@ -43,14 +43,14 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Lambda_singlecall_components_should_yield_unique_instances()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.AreNotEqual(builder.Build(typeof(SingleCallLambdaComponent)), builder.Build(typeof(SingleCallLambdaComponent))));
         }
 
         [Test]
         public void Lambda_singleton_components_should_yield_the_same_instance()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                Assert.AreEqual(builder.Build(typeof(SingletonLambdaComponent)), builder.Build(typeof(SingletonLambdaComponent))));
         }
 
@@ -58,7 +58,7 @@ namespace ObjectBuilder.Tests
         public void Requesting_an_unregistered_component_should_throw()
         {
 
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                 Assert.That(() => builder.Build(typeof(UnregisteredComponent)),
                 Throws.Exception));
         }
@@ -84,20 +84,20 @@ namespace ObjectBuilder.Tests
             ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(ComponentWithBothConstructorAndSetterInjection), DependencyLifecycle.InstancePerCall);
-                builder.Configure(typeof(ConstructorDep), DependencyLifecycle.InstancePerCall);
-                builder.Configure(typeof(SetterDep), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(ConstructorDependency), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SetterDependency), DependencyLifecycle.InstancePerCall);
 
-                var component = builder.Build(typeof(ComponentWithBothConstructorAndSetterInjection)) as ComponentWithBothConstructorAndSetterInjection;
+                var component = (ComponentWithBothConstructorAndSetterInjection)builder.Build(typeof(ComponentWithBothConstructorAndSetterInjection));
 
-                Assert.NotNull(component.ConstructorDep);
-                Assert.NotNull(component.SetterDep);
+                Assert.NotNull(component.ConstructorDependency);
+                Assert.NotNull(component.SetterDependency);
             }, typeof(SpringObjectBuilder));
         }
 
  
         protected override Action<IContainer> InitializeBuilder()
         {
-            return (config) =>
+            return config =>
                        {
                            config.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
                            config.Configure(typeof(SinglecallComponent), DependencyLifecycle.InstancePerCall);
@@ -137,26 +137,21 @@ namespace ObjectBuilder.Tests
 
     public class ComponentWithBothConstructorAndSetterInjection
     {
-        readonly ConstructorDep constructorDep;
-
-        public ComponentWithBothConstructorAndSetterInjection(ConstructorDep constructorDep)
+        public ComponentWithBothConstructorAndSetterInjection(ConstructorDependency constructorDependency)
         {
-            this.constructorDep = constructorDep;
+            ConstructorDependency = constructorDependency;
         }
 
-        public ConstructorDep ConstructorDep
-        {
-            get { return constructorDep; }
-        }
+        public ConstructorDependency ConstructorDependency { get; private set; }
 
-        public SetterDep SetterDep { get; set; }
+        public SetterDependency SetterDependency { get; set; }
     }
 
-    public class ConstructorDep
+    public class ConstructorDependency
     {
     }
 
-    public class SetterDep
+    public class SetterDependency
     {
     }
 }
