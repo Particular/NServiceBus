@@ -1,23 +1,19 @@
-using NServiceBus.Logging;
-
 namespace NServiceBus.DataBus.Azure.BlobStorage
 {
+    using Logging;
     using System;
-    using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Threading;
     using Microsoft.WindowsAzure.Storage;
     using Microsoft.WindowsAzure.Storage.Blob;
-    using Microsoft.WindowsAzure.Storage.Blob.Protocol;
 
-    public class BlobStorageDataBus : IDataBus
+    public class BlobStorageDataBus : IDataBus, IDisposable
     {
-        private readonly ILog logger = LogManager.GetLogger(typeof(IDataBus));
-        private readonly CloudBlobContainer container;
-        private readonly Timer timer;
+        ILog logger = LogManager.GetLogger(typeof(IDataBus));
+        CloudBlobContainer container;
+        Timer timer;
         
         public int MaxRetries { get; set; }
         public int NumberOfIOThreads { get; set; }
@@ -37,8 +33,6 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             DownloadBlobInParallel(blob, stream);
             return stream;
         }
-
-        
 
         public string Put(Stream stream, TimeSpan timeToBeReceived)
         {
@@ -66,7 +60,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             logger.Info("Blob storage data bus stopped");
         }
 
-        private void DeleteExpiredBlobs()
+        void DeleteExpiredBlobs()
         {
             try
             {
@@ -88,7 +82,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             }
         }
 
-        private void UploadBlobInParallel(CloudBlockBlob blob, Stream stream)
+        void UploadBlobInParallel(CloudBlockBlob blob, Stream stream)
         {
             try
             {
@@ -101,7 +95,7 @@ namespace NServiceBus.DataBus.Azure.BlobStorage
             }
         }
 
-        private void DownloadBlobInParallel(CloudBlockBlob blob, Stream stream)
+        void DownloadBlobInParallel(CloudBlockBlob blob, Stream stream)
         {
             try
             {
