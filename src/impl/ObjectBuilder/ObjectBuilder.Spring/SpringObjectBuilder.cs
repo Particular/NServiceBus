@@ -15,7 +15,7 @@ namespace NServiceBus.ObjectBuilder.Spring
     /// </summary>
     public class SpringObjectBuilder : IContainer
     {
-        private static GenericApplicationContext context;
+        GenericApplicationContext context;
 
         /// <summary>
         /// Instantiates the builder using a new <see cref="GenericApplicationContext"/>.
