@@ -88,17 +88,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\SagaData.cs" />
     <Compile Include="Saga\StartSagaMessage.cs" />
+    <Compile Include="StatisticsUoW.cs" />
     <Compile Include="TestMessage.cs" />
     <Compile Include="TestMessageHandler.cs" />
     <Compile Include="TestObject.cs" />
     <Compile Include="TestRavenUnitOfWork.cs" />
     <Compile Include="Saga\TestSaga.cs" />
-    <Compile Include="Timings.cs" />
+    <Compile Include="Statistics.cs" />
     <Compile Include="TransportConfigOverride.cs" />
     <Compile Include="TwoPhaseCommitEnlistment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestSuites\Sagas-Concurrency.ps1" />
     <None Include="TestSuites\SqlServer.ps1" />
     <None Include="TestSuites\Transports-Sagas.ps1" />
     <None Include="TestSuites\Transports-SuppressDTC-Sagas.ps1" />

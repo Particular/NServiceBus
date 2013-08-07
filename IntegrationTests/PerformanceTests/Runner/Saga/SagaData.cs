@@ -14,5 +14,7 @@
 
         [Unique]
         public virtual int Number { get; set; }
+
+        public virtual int NumCalls { get; set; }
     }
 }

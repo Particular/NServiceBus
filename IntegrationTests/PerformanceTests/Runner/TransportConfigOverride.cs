@@ -11,7 +11,7 @@
             return new TransportConfig
                 {
                     MaximumConcurrencyLevel = MaximumConcurrencyLevel,
-                    MaxRetries = 5,
+                    MaxRetries = 10,
                     MaximumMessageThroughputPerSecond = 0
                 };
         }
