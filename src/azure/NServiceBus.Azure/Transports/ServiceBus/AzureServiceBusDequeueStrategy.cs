@@ -124,7 +124,7 @@ namespace NServiceBus.Unicast.Queuing.Azure.ServiceBus
 
                 if (!RenewLockIfNeeded(brokeredMessage)) continue;
 
-                var transportMessage = new BrokeredMessageConverter().ToTransportMessage(brokeredMessage);
+                var transportMessage = BrokeredMessageConverter.ToTransportMessage(brokeredMessage);
 
                 try
                 {
