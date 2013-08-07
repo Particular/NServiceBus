@@ -55,6 +55,10 @@ namespace NServiceBus.Serializers.XML
         /// <param name="t"></param>
         public void InitType(Type t)
         {
+            if (t.IsNested)
+            {
+                throw new Exception("Nested types are not supported by the XmlMessageSerializer.");
+            }
             logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
 
             if (t.IsSimpleType())
