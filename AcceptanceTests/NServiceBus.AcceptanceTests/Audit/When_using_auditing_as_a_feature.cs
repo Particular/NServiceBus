@@ -1,6 +1,6 @@
 ﻿
-using System.Linq;
-using System.Messaging;
+
+using NServiceBus.AcceptanceTests.ScenarioDescriptors;
 
 namespace NServiceBus.AcceptanceTests.Audit
 {
@@ -8,38 +8,23 @@ namespace NServiceBus.AcceptanceTests.Audit
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using Features;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-    using NServiceBus.Transports.Msmq;
 
-    public class When_using_auditing_as_a_feature_For_Msmq_Transport : NServiceBusAcceptanceTest
+    public class When_using_auditing_as_a_feature : NServiceBusAcceptanceTest
     {
         private const string AuditQueue = "SomeAuditQueue";
         
-        [SetUp]
-        public void Setup()
-        {
-            base.SetUp();
-            
-            // Check if the audit queue exists and if so, purge the messages
-            if (MessageQueue.Exists(string.Format("{0}\\private$\\{1}", Environment.MachineName, AuditQueue)))
-            //if (MessageQueue.Exists(string.Format(".\\{0}", AuditQueue))) -- doesn't work
-            {
-                var auditMsmq = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(AuditQueue)));
-                auditMsmq.Purge();
-            }
-        }
-
         [Test]
         public void Message_should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {
             var context = new Context();
             Scenario.Define(context)
             .WithEndpoint<EndpointWithAuditOff>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete)
+            .Repeat(r => r.For<AllTransports>())
             .Run();
 
-            Assert.IsFalse(context.IsMessageInAuditQueue);
+            Assert.IsFalse(context.IsMessageHandledByTheAuditEndpoint);
         }
 
         [Test]
@@ -48,24 +33,18 @@ namespace NServiceBus.AcceptanceTests.Audit
             var context = new Context();
             Scenario.Define(context)
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+            .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete)
+            .Repeat(r => r.For<AllTransports>())
             .Run();
 
-            Assert.IsTrue(context.IsMessageInAuditQueue);
+            Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
         }
 
         public class Context : ScenarioContext
         {
             public bool IsMessageHandlingComplete { get; set; }
-
-            public bool IsMessageInAuditQueue
-            {
-                get
-                {
-                    var auditMsmq = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(AuditQueue)));
-                    return auditMsmq.GetAllMessages().Any();
-                }
-            }
+            public bool IsMessageHandledByTheAuditEndpoint { get; set; }
         }
 
         public class EndpointWithAuditOff : EndpointConfigurationBuilder
@@ -73,8 +52,8 @@ namespace NServiceBus.AcceptanceTests.Audit
            
             public EndpointWithAuditOff()
             {
-                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<Audit>())
-                    .AuditTo(Address.Parse(AuditQueue));
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<Features.Audit>())
+                    .AuditTo<EndpointThatHandlesAuditMessages>();
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -94,7 +73,7 @@ namespace NServiceBus.AcceptanceTests.Audit
             public EndpointWithAuditOn()
             {
                 EndpointSetup<DefaultServer>()
-                    .AuditTo(Address.Parse(AuditQueue));
+                    .AuditTo<EndpointThatHandlesAuditMessages>();
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -104,6 +83,25 @@ namespace NServiceBus.AcceptanceTests.Audit
                 public void Handle(MessageToBeAudited message)
                 {
                     MyContext.IsMessageHandlingComplete = true;
+                }
+            }
+        }
+
+        public class EndpointThatHandlesAuditMessages : EndpointConfigurationBuilder
+        {
+
+            public EndpointThatHandlesAuditMessages()
+            {
+                EndpointSetup<DefaultServer>();
+            }
+
+            class AuditMessageHandler : IHandleMessages<MessageToBeAudited>
+            {
+                public Context MyContext { get; set; }
+
+                public void Handle(MessageToBeAudited message)
+                {
+                    MyContext.IsMessageHandledByTheAuditEndpoint = true;
                 }
             }
         }

@@ -22,8 +22,15 @@
             var types = GetTypesToUse(endpointConfiguration);
 
             var transportToUse = settings.GetOrNull("Transport");
+
             
             Configure.Features.Enable<Features.Sagas>();
+
+            // Disable the audit feature if the audit config is not specified by the acceptance test endpoints
+            if ((endpointConfiguration.AddressOfAuditQueue == Address.Undefined || endpointConfiguration.AddressOfAuditQueue == null) && endpointConfiguration.AuditEndpoint == null) 
+                Configure.Features.Disable<Features.Audit>();
+
+            
             SettingsHolder.SetDefault("ScaleOut.UseSingleBrokerQueue", true);
 
             var config = Configure.With(types)
