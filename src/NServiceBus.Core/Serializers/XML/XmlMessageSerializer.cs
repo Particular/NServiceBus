@@ -24,6 +24,7 @@ namespace NServiceBus.Serializers.XML
         readonly IMessageMapper mapper;
         IList<Type> messageTypes;
 
+        string nameSpace = "http://tempuri.net";
         /// <summary>
         /// The namespace to place in outgoing XML.
         /// </summary>
@@ -57,7 +58,9 @@ namespace NServiceBus.Serializers.XML
             logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
 
             if (t.IsSimpleType())
+            {
                 return;
+            }
 
             if (typeof(XContainer).IsAssignableFrom(t))
             {
@@ -69,19 +72,27 @@ namespace NServiceBus.Serializers.XML
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
                 if (t.IsArray)
+                {
                     typesToCreateForArrays[t] = typeof(List<>).MakeGenericType(t.GetElementType());
+                }
 
 
-                foreach (Type g in t.GetGenericArguments())
+                foreach (var g in t.GetGenericArguments())
+                {
                     InitType(g);
+                }
 
                 //Handle dictionaries - initialize relevant KeyValuePair<T,K> types.
-                foreach (Type interfaceType in t.GetInterfaces())
+                foreach (var interfaceType in t.GetInterfaces())
                 {
-                    Type[] arr = interfaceType.GetGenericArguments();
+                    var arr = interfaceType.GetGenericArguments();
                     if (arr.Length == 1)
+                    {
                         if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
+                        {
                             InitType(arr[0]);
+                        }
+                    }
                 }
 
                 if (t.IsGenericType && t.IsInterface) //handle IEnumerable<Something>
@@ -90,12 +101,14 @@ namespace NServiceBus.Serializers.XML
                     var e = typeof(IEnumerable<>).MakeGenericType(g);
 
                     if (e.IsAssignableFrom(t))
+                    {
                         typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
+                    }
                 }
 
                 if (t.IsGenericType && t.GetGenericArguments().Length == 1)
                 {
-                    Type setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
+                    var setType = typeof(ISet<>).MakeGenericType(t.GetGenericArguments());
 
                     if (setType.IsAssignableFrom(t)) //handle ISet<Something>
                     {
@@ -103,7 +116,9 @@ namespace NServiceBus.Serializers.XML
                         var e = typeof(IEnumerable<>).MakeGenericType(g);
 
                         if (e.IsAssignableFrom(t))
+                        {
                             typesToCreateForEnumerables[t] = typeof(List<>).MakeGenericType(g);
+                        }
                     }
                 }
 
@@ -125,7 +140,9 @@ namespace NServiceBus.Serializers.XML
                     InitType(args[0]);
 
                     if (!args[0].GetGenericArguments().Any())
+                    {
                         return;
+                    }
                 }
             }
 
@@ -148,7 +165,9 @@ namespace NServiceBus.Serializers.XML
                 propertyInfoToLateBoundProperty[p] = DelegateFactory.Create(p);
 
                 if (!isKeyValuePair)
+                {
                     propertyInfoToLateBoundPropertySet[p] = DelegateFactory.CreateSet(p);
+                }
 
                 InitType(p.PropertyType);
             }
@@ -160,7 +179,9 @@ namespace NServiceBus.Serializers.XML
                 fieldInfoToLateBoundField[f] = DelegateFactory.Create(f);
 
                 if (!isKeyValuePair)
+                {
                     fieldInfoToLateBoundFieldSet[f] = DelegateFactory.CreateSet(f);
+                }
 
                 InitType(f.FieldType);
             }
@@ -189,33 +210,47 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 if (typeof(IList) == prop.PropertyType)
+                {
                     throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
+                }
 
                 var args = prop.PropertyType.GetGenericArguments();
 
                 if (args.Length == 1)
                 {
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
+                    {
                         throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                    }
                     if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
+                    {
                         throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                    }
                 }
 
                 if (args.Length == 2)
                 {
                     if (typeof(IDictionary<,>).MakeGenericType(args) == prop.PropertyType)
+                    {
                         throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
+                    }
 
                     if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
+                    {
                         throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
+                    }
                 }
 
                 result.Add(prop);
             }
 
             if (t.IsInterface)
-                foreach (Type interfaceType in t.GetInterfaces())
+            {
+                foreach (var interfaceType in t.GetInterfaces())
+                {
                     result.AddRange(GetAllPropertiesForType(interfaceType, false));
+                }
+            }
 
             return result.Distinct();
         }
@@ -224,8 +259,6 @@ namespace NServiceBus.Serializers.XML
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
-
-        #region Deserialize
 
         /// <summary>
         /// Deserializes from the given stream a set of messages.
@@ -244,14 +277,16 @@ namespace NServiceBus.Serializers.XML
 
             var doc = new XmlDocument { PreserveWhitespace = true };
 
-            XmlReader reader = SanitizeInput
+            var reader = SanitizeInput
                                   ? XmlReader.Create(new XmlSanitizingStream(stream), new XmlReaderSettings { CheckCharacters = false })
                                   : XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false });
 
             doc.Load(reader);
 
             if (doc.DocumentElement == null)
+            {
                 return result.ToArray();
+            }
 
             foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
             {
@@ -261,17 +296,21 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (attr.Name.Contains("xmlns:"))
                     {
-                        int colonIndex = attr.Name.LastIndexOf(":");
-                        string prefix = attr.Name.Substring(colonIndex + 1);
+                        var colonIndex = attr.Name.LastIndexOf(":");
+                        var prefix = attr.Name.Substring(colonIndex + 1);
 
                         if (prefix.Contains(BASETYPE))
                         {
-                            Type baseType = mapper.GetMappedTypeFor(attr.Value);
+                            var baseType = mapper.GetMappedTypeFor(attr.Value);
                             if (baseType != null)
+                            {
                                 messageBaseTypes.Add(baseType);
+                            }
                         }
                         else
+                        {
                             prefixesToNamespaces[prefix] = attr.Value;
+                        }
                     }
                 }
             }
@@ -281,18 +320,22 @@ namespace NServiceBus.Serializers.XML
                 Type nodeType = null;
 
                 if (messageTypesToDeserialize != null)
+                {
                     nodeType = messageTypesToDeserialize.FirstOrDefault();
+                }
 
-                object m = Process(doc.DocumentElement, null, nodeType);
+                var m = Process(doc.DocumentElement, null, nodeType);
 
                 if (m == null)
+                {
                     throw new SerializationException("Could not deserialize message.");
+                }
 
                 result.Add(m);
             }
             else
             {
-                int position = 0;
+                var position = 0;
                 foreach (XmlNode node in doc.DocumentElement.ChildNodes)
                 {
                     if (node.NodeType == XmlNodeType.Whitespace)
@@ -302,7 +345,9 @@ namespace NServiceBus.Serializers.XML
                     Type nodeType = null;
 
                     if (messageTypesToDeserialize != null && position < messageTypesToDeserialize.Count)
+                    {
                         nodeType = messageTypesToDeserialize.ElementAt(position);
+                    }
 
 
                     var m = Process(node, null, nodeType);
@@ -318,34 +363,40 @@ namespace NServiceBus.Serializers.XML
             return result.ToArray();
         }
 
-        private object Process(XmlNode node, object parent, Type nodeType = null)
+        object Process(XmlNode node, object parent, Type nodeType = null)
         {
             if (nodeType == null)
+            {
                 nodeType = InferNodeType(node, parent);
+            }
 
             return GetObjectOfTypeFromNode(nodeType, node);
         }
 
         Type InferNodeType(XmlNode node, object parent)
         {
-            string name = node.Name;
-            string typeName = name;
+            var name = node.Name;
+            var typeName = name;
 
             if (!string.IsNullOrEmpty(defaultNameSpace))
+            {
                 typeName = defaultNameSpace + "." + typeName;
+            }
 
             if (name.Contains(":"))
             {
-                int colonIndex = node.Name.IndexOf(":");
+                var colonIndex = node.Name.IndexOf(":");
                 name = name.Substring(colonIndex + 1);
-                string prefix = node.Name.Substring(0, colonIndex);
-                string ns = prefixesToNamespaces[prefix];
+                var prefix = node.Name.Substring(0, colonIndex);
+                var ns = prefixesToNamespaces[prefix];
 
                 typeName = ns.Substring(ns.LastIndexOf("/") + 1) + "." + name;
             }
 
             if (name.Contains("NServiceBus."))
+            {
                 typeName = name;
+            }
 
 
             if (parent != null)
@@ -365,13 +416,17 @@ namespace NServiceBus.Serializers.XML
 	                var args = parent.GetType().GetGenericArguments();
 
                     if (args.Length == 1)
+                    {
                         return args[0];
+                    }
                 }
 
                 var prop = parent.GetType().GetProperty(name);
 
                 if (prop != null)
+                {
                     return prop.PropertyType;
+                }
             }
 
             var mappedType = mapper.GetMappedTypeFor(typeName);
@@ -381,7 +436,8 @@ namespace NServiceBus.Serializers.XML
 
 
             logger.Debug("Could not load " + typeName + ". Trying base types...");
-            foreach (Type baseType in messageBaseTypes)
+            foreach (var baseType in messageBaseTypes)
+            {
                 try
                 {
                     logger.Debug("Trying to deserialize message to " + baseType.FullName);
@@ -390,27 +446,35 @@ namespace NServiceBus.Serializers.XML
                 // ReSharper disable EmptyGeneralCatchClause
                 catch
                 {
-                } // intentionally swallow exception
-            // ReSharper restore EmptyGeneralCatchClause
+                    // intentionally swallow exception
+                } 
+                // ReSharper restore EmptyGeneralCatchClause
+            }
 
             throw new TypeLoadException("Could not determine type for node: '" + node.Name + "'.");
         }
 
-        private object GetObjectOfTypeFromNode(Type t, XmlNode node)
+        object GetObjectOfTypeFromNode(Type t, XmlNode node)
         {
             if (t.IsSimpleType() || t == typeof(Uri))
+            {
                 return GetPropertyValue(t, node);
+            }
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
+            {
                 return GetPropertyValue(t, node);
+            }
 
-            object result = mapper.CreateInstance(t);
+            var result = mapper.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
             {
                 Type type = null;
                 if (n.Name.Contains(":"))
+                {
                     type = Type.GetType("System." + n.Name.Substring(0, n.Name.IndexOf(":")), false, true);
+                }
 
                 var prop = GetProperty(t, n.Name);
                 if (prop != null)
@@ -426,7 +490,7 @@ namespace NServiceBus.Serializers.XML
                 var field = GetField(t, n.Name);
                 if (field != null)
                 {
-                    object val = GetPropertyValue(type ?? field.FieldType, n);
+                    var val = GetPropertyValue(type ?? field.FieldType, n);
                     if (val != null)
                     {
                         fieldInfoToLateBoundFieldSet[field].Invoke(result, val);
@@ -437,7 +501,7 @@ namespace NServiceBus.Serializers.XML
             return result;
         }
 
-        private static PropertyInfo GetProperty(Type t, string name)
+        static PropertyInfo GetProperty(Type t, string name)
         {
             IEnumerable<PropertyInfo> props;
             typeToProperties.TryGetValue(t, out props);
@@ -445,40 +509,51 @@ namespace NServiceBus.Serializers.XML
             if (props == null)
                 return null;
 
-            string n = GetNameAfterColon(name);
+            var n = GetNameAfterColon(name);
 
-            foreach (PropertyInfo prop in props)
+            foreach (var prop in props)
+            {
                 if (prop.Name == n)
+                {
                     return prop;
+                }}
 
             return null;
         }
 
-        private static string GetNameAfterColon(string name)
+        static string GetNameAfterColon(string name)
         {
             var n = name;
             if (name.Contains(":"))
+            {
                 n = name.Substring(name.IndexOf(":") + 1, name.Length - name.IndexOf(":") - 1);
+            }
 
             return n;
         }
 
-        private FieldInfo GetField(Type t, string name)
+        FieldInfo GetField(Type t, string name)
         {
             IEnumerable<FieldInfo> fields;
             typeToFields.TryGetValue(t, out fields);
 
             if (fields == null)
+            {
                 return null;
+            }
 
-            foreach (FieldInfo f in fields)
+            foreach (var f in fields)
+            {
                 if (f.Name == name)
+                {
                     return f;
+                }
+            }
 
             return null;
         }
 
-        private object GetPropertyValue(Type type, XmlNode n)
+        object GetPropertyValue(Type type, XmlNode n)
         {
             if ((n.ChildNodes.Count == 1) && (n.ChildNodes[0] is XmlCharacterData))
             {
@@ -488,7 +563,9 @@ namespace NServiceBus.Serializers.XML
                 if (args.Length == 1 && args[0].IsValueType)
                 {
                     if (args[0].GetGenericArguments().Any())
+                    {
                         return GetPropertyValue(args[0], n);
+                    }
 
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
@@ -501,72 +578,116 @@ namespace NServiceBus.Serializers.XML
                 }
 
                 if (type == typeof(string))
+                {
                     return text;
+                }
 
                 if (type == typeof(Boolean))
+                {
                     return XmlConvert.ToBoolean(text);
+                }
 
                 if (type == typeof(Byte))
+                {
                     return XmlConvert.ToByte(text);
+                }
 
                 if (type == typeof(Char))
+                {
                     return XmlConvert.ToChar(text);
+                }
 
                 if (type == typeof(DateTime))
+                {
                     return XmlConvert.ToDateTime(text, XmlDateTimeSerializationMode.RoundtripKind);
+                }
 
                 if (type == typeof(DateTimeOffset))
+                {
                     return XmlConvert.ToDateTimeOffset(text);
+                }
 
                 if (type == typeof(decimal))
+                {
                     return XmlConvert.ToDecimal(text);
+                }
 
                 if (type == typeof(double))
+                {
                     return XmlConvert.ToDouble(text);
+                }
 
                 if (type == typeof(Guid))
+                {
                     return XmlConvert.ToGuid(text);
+                }
 
                 if (type == typeof(Int16))
+                {
                     return XmlConvert.ToInt16(text);
+                }
 
                 if (type == typeof(Int32))
+                {
                     return XmlConvert.ToInt32(text);
+                }
 
                 if (type == typeof(Int64))
+                {
                     return XmlConvert.ToInt64(text);
+                }
 
                 if (type == typeof(sbyte))
+                {
                     return XmlConvert.ToSByte(text);
+                }
 
                 if (type == typeof(Single))
+                {
                     return XmlConvert.ToSingle(text);
+                }
 
                 if (type == typeof(TimeSpan))
+                {
                     return XmlConvert.ToTimeSpan(text);
+                }
 
                 if (type == typeof(UInt16))
+                {
                     return XmlConvert.ToUInt16(text);
+                }
 
                 if (type == typeof(UInt32))
+                {
                     return XmlConvert.ToUInt32(text);
+                }
 
                 if (type == typeof(UInt64))
+                {
                     return XmlConvert.ToUInt64(text);
+                }
 
                 if (type.IsEnum)
+                {
                     return Enum.Parse(type, text);
+                }
 
                 if (type == typeof(byte[]))
+                {
                     return Convert.FromBase64String(text);
+                }
 
                 if (type == typeof(Uri))
+                {
                     return new Uri(text);
+                }
 
                 if (!typeof(IEnumerable).IsAssignableFrom(type))
                 {
                     if (n.ChildNodes[0] is XmlWhitespace)
+                    {
                         return Activator.CreateInstance(type);
+                    }
 
                     throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
                 }
@@ -596,12 +717,14 @@ namespace NServiceBus.Serializers.XML
                 {
                     var args = interfaceType.GetGenericArguments();
                     if (args.Length == 2)
+                    {
                         if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
                         {
                             keyType = args[0];
                             valueType = args[1];
                             break;
                         }
+                    }
                 }
 
                 foreach (XmlNode xn in n.ChildNodes) // go over KeyValuePairs
@@ -612,12 +735,19 @@ namespace NServiceBus.Serializers.XML
                     foreach (XmlNode node in xn.ChildNodes)
                     {
                         if (node.Name == "Key")
+                        {
                             key = GetObjectOfTypeFromNode(keyType, node);
+                        }
                         if (node.Name == "Value")
+                        {
                             value = GetObjectOfTypeFromNode(valueType, node);
+                        }
                     }
 
-                    if (result != null && key != null) result[key] = value;
+                    if (result != null && key != null)
+                    {
+                        result[key] = value;
+                    }
                 }
 
                 return result;
@@ -625,21 +755,25 @@ namespace NServiceBus.Serializers.XML
 
             if (typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(string))
             {
-                bool isArray = type.IsArray;
+                var isArray = type.IsArray;
 
-                bool isISet = false;
+                var isISet = false;
                 if (type.IsGenericType && type.GetGenericArguments().Length == 1)
                 {
-                    Type setType = typeof(ISet<>).MakeGenericType(type.GetGenericArguments());
+                    var setType = typeof(ISet<>).MakeGenericType(type.GetGenericArguments());
                     isISet = setType.IsAssignableFrom(type);
                 }
 
-                Type typeToCreate = type;
+                var typeToCreate = type;
                 if (isArray)
+                {
                     typeToCreate = typesToCreateForArrays[type];
+                }
 
                 if (typesToCreateForEnumerables.ContainsKey(type)) //handle IEnumerable<Something>
+                {
                     typeToCreate = typesToCreateForEnumerables[type];
+                }
 
                 if (typeof(IList).IsAssignableFrom(typeToCreate))
                 {
@@ -649,17 +783,23 @@ namespace NServiceBus.Serializers.XML
                         foreach (XmlNode xn in n.ChildNodes)
                         {
                             if (xn.NodeType == XmlNodeType.Whitespace)
+                            {
                                 continue;
+                            }
 
-                            object m = Process(xn, list);
+                            var m = Process(xn, list);
                             list.Add(m);
                         }
 
                         if (isArray)
+                        {
                             return typeToCreate.GetMethod("ToArray").Invoke(list, null);
+                        }
 
                         if (isISet)
+                        {
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
+                        }
                     }
 
                     return list;
@@ -667,24 +807,20 @@ namespace NServiceBus.Serializers.XML
             }
 
             if (n.ChildNodes.Count == 0)
+            {
                 if (type == typeof(string))
+                {
                     return string.Empty;
-                else
-                    return null;
-
+                }
+                return null;
+            }
 
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        #endregion
-
-        #region Serialize
-
         /// <summary>
         /// Serializes the given messages to the given stream.
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="stream"></param>
         public void Serialize(object[] messages, Stream stream)
         {
             var namespaces = InitializeNamespaces(messages);
@@ -701,11 +837,11 @@ namespace NServiceBus.Serializers.XML
             }
             else
             {
-                List<string> baseTypes = GetBaseTypes(messages);
+                var baseTypes = GetBaseTypes(messages);
 
                 WrapMessages(builder, namespaces, baseTypes, messageBuilder);
             }
-            byte[] buffer = Encoding.UTF8.GetBytes(builder.ToString());
+            var buffer = Encoding.UTF8.GetBytes(builder.ToString());
             stream.Write(buffer, 0, buffer.Length);
         }
 
@@ -739,27 +875,35 @@ namespace NServiceBus.Serializers.XML
             namespacesToAdd = new List<Type>();
 
             var namespaces = GetNamespaces(messages);
-            for (int i = 0; i < namespaces.Count; i++)
+            for (var i = 0; i < namespaces.Count; i++)
             {
-                string prefix = "q" + i;
+                var prefix = "q" + i;
                 if (i == 0)
+                {
                     prefix = "";
+                }
 
                 if (namespaces[i] != null)
+                {
                     namespacesToPrefix[namespaces[i]] = prefix;
+                }
             }
             return namespaces;
         }
 
-        private void Write(StringBuilder builder, Type t, object obj)
+        void Write(StringBuilder builder, Type t, object obj)
         {
             if (obj == null)
+            {
                 return;
+            }
 
             if (!typeToProperties.ContainsKey(t))
+            {
                 throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
+            }
 
-            foreach (PropertyInfo prop in typeToProperties[t])
+            foreach (var prop in typeToProperties[t])
             {
                 if (IsIndexedProperty(prop))
                 {
@@ -768,8 +912,10 @@ namespace NServiceBus.Serializers.XML
                 WriteEntry(prop.Name, prop.PropertyType, propertyInfoToLateBoundProperty[prop].Invoke(obj), builder);
             }
 
-            foreach (FieldInfo field in typeToFields[t])
+            foreach (var field in typeToFields[t])
+            {
                 WriteEntry(field.Name, field.FieldType, fieldInfoToLateBoundField[field].Invoke(obj), builder);
+            }
         }
 
         static bool IsIndexedProperty(PropertyInfo propertyInfo)
@@ -782,9 +928,9 @@ namespace NServiceBus.Serializers.XML
             return false;
         }
 
-        private void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
+        void WriteObject(string name, Type type, object value, StringBuilder builder, bool useNS = false)
         {
-            string element = name;
+            var element = name;
             string prefix;
             namespacesToPrefix.TryGetValue(type.Namespace, out prefix);
 
@@ -803,7 +949,9 @@ namespace NServiceBus.Serializers.XML
             }
 
             if (!string.IsNullOrEmpty(prefix))
+            {
                 element = prefix + ":" + name;
+            }
 
             if (useNS)
             {
@@ -821,7 +969,7 @@ namespace NServiceBus.Serializers.XML
             builder.AppendFormat("</{0}>\n", element);
         }
 
-        private void CreateStartElementWithNamespaces(List<string> namespaces, List<string> baseTypes, StringBuilder builder, string element)
+        void CreateStartElementWithNamespaces(List<string> namespaces, List<string> baseTypes, StringBuilder builder, string element)
         {
             string prefix;
 
@@ -829,24 +977,30 @@ namespace NServiceBus.Serializers.XML
                 "<{0} xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"",
                 element);
 
-            for (int i = 0; i < namespaces.Count; i++)
+            for (var i = 0; i < namespaces.Count; i++)
             {
                 prefix = "q" + i;
                 if (i == 0)
+                {
                     prefix = "";
+                }
 
                 builder.AppendFormat(" xmlns{0}=\"{1}/{2}\"", (prefix != "" ? ":" + prefix : prefix), nameSpace,
                                      namespaces[i]);
             }
 
             foreach (var t in namespacesToAdd)
+            {
                 builder.AppendFormat(" xmlns:{0}=\"{1}\"", t.Name.ToLower(), t.Name);
+            }
 
-            for (int i = 0; i < baseTypes.Count; i++)
+            for (var i = 0; i < baseTypes.Count; i++)
             {
                 prefix = BASETYPE;
                 if (i != 0)
+                {
                     prefix += i;
+                }
 
                 builder.AppendFormat(" xmlns:{0}=\"{1}\"", prefix, baseTypes[i]);
             }
@@ -854,12 +1008,14 @@ namespace NServiceBus.Serializers.XML
             builder.Append(">\n");
         }
 
-        private void WriteEntry(string name, Type type, object value, StringBuilder builder)
+        void WriteEntry(string name, Type type, object value, StringBuilder builder)
         {
             if (value == null)
             {
                 if (typeof(IEnumerable).IsAssignableFrom(type))
+                {
                     return;
+                }
 
                 var args = type.GetGenericArguments();
                 if (args.Length == 1 && args[0].IsValueType)
@@ -902,34 +1058,45 @@ namespace NServiceBus.Serializers.XML
 
                 if (type == typeof(byte[]))
                 {
-                    var str = Convert.ToBase64String((byte[])value);
-                    builder.Append(str);
+                    var base64String = Convert.ToBase64String((byte[])value);
+                    builder.Append(base64String);
                 }
                 else
                 {
-                    Type baseType = typeof(object);
+                    var baseType = typeof(object);
 
-                    Type[] interfaces = type.GetInterfaces();
-                    if (type.IsInterface) interfaces = interfaces.Union(new[] { type }).ToArray();
+                    var interfaces = type.GetInterfaces();
+                    if (type.IsInterface)
+                    {
+                        interfaces = interfaces.Union(new[] { type }).ToArray();
+                    }
 
                     //Get generic type from list: T for List<T>, KeyValuePair<T,K> for IDictionary<T,K>
-                    foreach (Type interfaceType in interfaces)
+                    foreach (var interfaceType in interfaces)
                     {
-                        Type[] arr = interfaceType.GetGenericArguments();
+                        var arr = interfaceType.GetGenericArguments();
                         if (arr.Length == 1)
+                        {
                             if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
                             {
                                 baseType = arr[0];
                                 break;
                             }
+                        }
                     }
 
 
-                    foreach (object obj in ((IEnumerable)value))
+                    foreach (var obj in ((IEnumerable)value))
+                    {
                         if (obj != null && obj.GetType().IsSimpleType())
+                        {
                             WriteEntry(obj.GetType().Name, obj.GetType(), obj, builder);
+                        }
                         else
+                        {
                             WriteObject(baseType.SerializationFriendlyName(), baseType, obj, builder);
+                        }
+                    }
 
                 }
 
@@ -940,49 +1107,85 @@ namespace NServiceBus.Serializers.XML
             WriteObject(name, type, value, builder);
         }
 
-        private static string FormatAsString(object value)
+        static string FormatAsString(object value)
         {
             if (value is bool)
+            {
                 return XmlConvert.ToString((bool)value);
+            }
             if (value is byte)
+            {
                 return XmlConvert.ToString((byte)value);
+            }
             if (value is char)
+            {
                 return Escape((char)value);
+            }
             if (value is double)
+            {
                 return XmlConvert.ToString((double)value);
+            }
             if (value is ulong)
+            {
                 return XmlConvert.ToString((ulong)value);
+            }
             if (value is uint)
+            {
                 return XmlConvert.ToString((uint)value);
+            }
             if (value is ushort)
+            {
                 return XmlConvert.ToString((ushort)value);
+            }
             if (value is long)
+            {
                 return XmlConvert.ToString((long)value);
+            }
             if (value is int)
+            {
                 return XmlConvert.ToString((int)value);
+            }
             if (value is short)
+            {
                 return XmlConvert.ToString((short)value);
+            }
             if (value is sbyte)
+            {
                 return XmlConvert.ToString((sbyte)value);
+            }
             if (value is decimal)
+            {
                 return XmlConvert.ToString((decimal)value);
+            }
             if (value is float)
+            {
                 return XmlConvert.ToString((float)value);
+            }
             if (value is Guid)
+            {
                 return XmlConvert.ToString((Guid)value);
+            }
             if (value is DateTime)
+            {
                 return XmlConvert.ToString((DateTime)value, XmlDateTimeSerializationMode.RoundtripKind);
+            }
             if (value is DateTimeOffset)
+            {
                 return XmlConvert.ToString((DateTimeOffset)value);
+            }
             if (value is TimeSpan)
+            {
                 return XmlConvert.ToString((TimeSpan)value);
+            }
             if (value is string)
+            {
                 return Escape(value as string);
+            }
 
             return value.ToString();
         }
 
-        private static string Escape(char c)
+        static string Escape(char c)
         {
             if (c == 0x9 || c == 0xA || c == 0xD
                     || (0x20 <= c && c <= 0xD7FF)
@@ -1023,19 +1226,19 @@ namespace NServiceBus.Serializers.XML
             return c.ToString();
         }
 
-        private static string Escape(string str)
+        static string Escape(string stringToEscape)
         {
-            if (string.IsNullOrEmpty(str))
+            if (string.IsNullOrEmpty(stringToEscape))
             {
-                return str;
+                return stringToEscape;
             }
 
             StringBuilder builder = null; // initialize if we need it
 
-            int startIndex = 0;
-            for (var i = 0; i < str.Length; ++i)
+            var startIndex = 0;
+            for (var i = 0; i < stringToEscape.Length; ++i)
             {
-                char c = str[i];
+                var c = stringToEscape[i];
                 if (c == 0x9 || c == 0xA || c == 0xD
                     || (0x20 <= c && c <= 0xD7FF)
                     || (0xE000 <= c && c <= 0xFFFD)
@@ -1065,11 +1268,11 @@ namespace NServiceBus.Serializers.XML
                     {
                         if (builder == null)
                         {
-                            builder = new StringBuilder(str.Length + ss.Length);
+                            builder = new StringBuilder(stringToEscape.Length + ss.Length);
                         }
                         if (startIndex < i)
                         {
-                            builder.Append(str, startIndex, i - startIndex);
+                            builder.Append(stringToEscape, startIndex, i - startIndex);
                         }
                         startIndex = i + 1;
                         builder.Append(ss);
@@ -1081,24 +1284,24 @@ namespace NServiceBus.Serializers.XML
                     // invalid characters
                     if (builder == null)
                     {
-                        builder = new StringBuilder(str.Length + 8);
+                        builder = new StringBuilder(stringToEscape.Length + 8);
                     }
                     if (startIndex < i)
                     {
-                        builder.Append(str, startIndex, i - startIndex);
+                        builder.Append(stringToEscape, startIndex, i - startIndex);
                     }
                     startIndex = i + 1;
                     builder.AppendFormat("&#x{0:X};", (int) c);
                 }
             }
 
-            if (startIndex < str.Length)
+            if (startIndex < stringToEscape.Length)
             {
                 if (builder == null)
                 {
-                    return str;
+                    return stringToEscape;
                 }
-                builder.Append(str, startIndex, str.Length - startIndex);
+                builder.Append(stringToEscape, startIndex, stringToEscape.Length - startIndex);
             }
 
             if (builder != null)
@@ -1107,7 +1310,7 @@ namespace NServiceBus.Serializers.XML
             }
 
             //Should not get here but just in case!
-            return str;
+            return stringToEscape;
         }
 
         List<string> GetNamespaces(object[] messages)
@@ -1116,9 +1319,11 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var m in messages)
             {
-                string ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
+                var ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
                 if (!result.Contains(ns))
+                {
                     result.Add(ns);
+                }
             }
 
             return result;
@@ -1130,69 +1335,75 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var m in messages)
             {
-                Type t = mapper.GetMappedTypeFor(m.GetType());
+                var t = mapper.GetMappedTypeFor(m.GetType());
 
-                Type baseType = t.BaseType;
+                var baseType = t.BaseType;
                 while (baseType != typeof(object) && baseType != null)
                 {
                     if (MessageConventionExtensions.IsMessageType(baseType))
+                    {
                         if (!result.Contains(baseType.FullName))
+                        {
                             result.Add(baseType.FullName);
+                        }
+                    }
 
                     baseType = baseType.BaseType;
                 }
 
-                foreach (Type i in t.GetInterfaces())
+                foreach (var i in t.GetInterfaces())
+                {
                     if (MessageConventionExtensions.IsMessageType(i))
+                    {
                         if (!result.Contains(i.FullName))
+                        {
                             result.Add(i.FullName);
+                        }
+                    }
+                }
             }
 
             return result;
         }
+        
+        const string BASETYPE = "baseType";
 
-        #endregion
+        static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
+        static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
+        static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
+        static readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
+        static readonly List<Type> typesBeingInitialized = new List<Type>();
 
-        #region members
-
-        private const string BASETYPE = "baseType";
-
-        private static readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
-        private static readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
-        private static readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
-        private static readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
-        private static readonly List<Type> typesBeingInitialized = new List<Type>();
-
-        private static readonly Dictionary<PropertyInfo, LateBoundProperty> propertyInfoToLateBoundProperty = new Dictionary<PropertyInfo, LateBoundProperty>();
-        private static readonly Dictionary<FieldInfo, LateBoundField> fieldInfoToLateBoundField = new Dictionary<FieldInfo, LateBoundField>();
-        private static readonly Dictionary<PropertyInfo, LateBoundPropertySet> propertyInfoToLateBoundPropertySet = new Dictionary<PropertyInfo, LateBoundPropertySet>();
-        private static readonly Dictionary<FieldInfo, LateBoundFieldSet> fieldInfoToLateBoundFieldSet = new Dictionary<FieldInfo, LateBoundFieldSet>();
+        static readonly Dictionary<PropertyInfo, LateBoundProperty> propertyInfoToLateBoundProperty = new Dictionary<PropertyInfo, LateBoundProperty>();
+        static readonly Dictionary<FieldInfo, LateBoundField> fieldInfoToLateBoundField = new Dictionary<FieldInfo, LateBoundField>();
+        static readonly Dictionary<PropertyInfo, LateBoundPropertySet> propertyInfoToLateBoundPropertySet = new Dictionary<PropertyInfo, LateBoundPropertySet>();
+        static readonly Dictionary<FieldInfo, LateBoundFieldSet> fieldInfoToLateBoundFieldSet = new Dictionary<FieldInfo, LateBoundFieldSet>();
 
         [ThreadStatic]
-        private static string defaultNameSpace;
+        static string defaultNameSpace;
 
         /// <summary>
         /// Used for serialization
         /// </summary>
         [ThreadStatic]
-        private static IDictionary<string, string> namespacesToPrefix;
+        static IDictionary<string, string> namespacesToPrefix;
 
         /// <summary>
         /// Used for deserialization
         /// </summary>
         [ThreadStatic]
-        private static IDictionary<string, string> prefixesToNamespaces;
+        static IDictionary<string, string> prefixesToNamespaces;
 
         [ThreadStatic]
-        private static List<Type> messageBaseTypes;
+        static List<Type> messageBaseTypes;
 
         [ThreadStatic]
-        private static List<Type> namespacesToAdd;
+        static List<Type> namespacesToAdd;
 
-        private static readonly ILog logger = LogManager.GetLogger(typeof(XmlMessageSerializer));
+        static readonly ILog logger = LogManager.GetLogger(typeof(XmlMessageSerializer));
 
         /// <summary>
-        /// Initializes an instace of a NServiceBus.Serializers.XML.XmlMessageSerializer
+        /// Initializes an instance of a <see cref="XmlMessageSerializer"/>.
         /// </summary>
         /// <param name="mapper">Message Mapper</param>
         public XmlMessageSerializer(IMessageMapper mapper)
@@ -1200,24 +1411,25 @@ namespace NServiceBus.Serializers.XML
             this.mapper = mapper;
         }
 
-        #endregion
 
         /// <summary>
         /// Initialized the serializer with the given message types
         /// </summary>
-        /// <param name="types"></param>
         public void Initialize(IEnumerable<Type> types)
         {
             messageTypes = types.ToList();
 
             if (!messageTypes.Contains(typeof(EncryptedValue)))
+            {
                 messageTypes.Add(typeof(EncryptedValue));
+            }
 
-            foreach (Type t in messageTypes)
+            foreach (var t in messageTypes)
+            {
                 InitType(t);
+            }
 
         }
 
-        string nameSpace = "http://tempuri.net";
     }
 }
