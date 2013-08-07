@@ -9,7 +9,8 @@ namespace NServiceBus.Gateway.Receiving
     {
         public ConfigurationBasedChannelManager()
         {
-            channels = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>().GetChannels();
+            channels = Configure.GetConfigSection<GatewayConfig>().GetChannels();
+
         }
 
         public IEnumerable<ReceiveChannel> GetReceiveChannels()
