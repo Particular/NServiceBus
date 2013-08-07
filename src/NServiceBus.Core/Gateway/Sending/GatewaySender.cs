@@ -127,7 +127,7 @@ namespace NServiceBus.Gateway.Sending
                 .SingleOrDefault(item => item.Key == site.ReplyChannel);
 
             return channel == null
-                ? ChannelManager.GetDefaultChannel().ReplyChannel.ToString()
+                ? ChannelManager.GetDefaultChannel().ToString()
                 : channel.ReplyChannel.ToString();
         }
     }

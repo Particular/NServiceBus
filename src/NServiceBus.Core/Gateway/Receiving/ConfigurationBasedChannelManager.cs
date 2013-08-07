@@ -18,7 +18,7 @@ namespace NServiceBus.Gateway.Receiving
             return channels;
         }
 
-        public ReceiveChannel GetDefaultChannel()
+        public Channel GetDefaultChannel()
         {
             var defaultChannel = channels.SingleOrDefault(c => c.Default);
 
@@ -26,7 +26,7 @@ namespace NServiceBus.Gateway.Receiving
             {
                 defaultChannel = channels.First();
             }
-            return defaultChannel;
+            return defaultChannel.ReplyChannel;
         }
 
         readonly IEnumerable<ReceiveChannel> channels;

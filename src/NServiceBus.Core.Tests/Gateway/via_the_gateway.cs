@@ -32,7 +32,7 @@
         protected InMemoryDataBus databusForSiteA;
         protected InMemoryDataBus databusForSiteB;
 
-        protected ReceiveChannel defaultChannelForSiteA = new ReceiveChannel {Address = HttpAddressForSiteA, Type = "http"};
+        protected Channel defaultChannelForSiteA = new Channel {Address = HttpAddressForSiteA, Type = "http"};
 
         protected Func<IForwardMessagesToSites> Forwarder { get; set; }
 
