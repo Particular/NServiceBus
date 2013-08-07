@@ -71,6 +71,7 @@ namespace NServiceBus.Config
                 result.Add(site.Key, new Gateway.Routing.Site
                                         {
                                             Key = site.Key,
+                                            ReplyChannel = site.ReplyChannel,
                                             Channel = new Channel{Type=site.ChannelType,Address = site.Address},
                                             LegacyMode = !string.IsNullOrEmpty(site.Mode) && site.Mode.ToLower() == "legacy"
                                         });
@@ -87,6 +88,8 @@ namespace NServiceBus.Config
             {
                 result.Add(new ReceiveChannel
                                {
+                                   Key = channel.Key,
+                                   ReplyAddress = string.IsNullOrEmpty(channel.ReplyAddress) ? channel.Address : channel.ReplyAddress,
                                    Address = channel.Address,
                                    Type = channel.ChannelType,
                                    NumberOfWorkerThreads = channel.NumberOfWorkerThreads,
@@ -116,7 +119,7 @@ namespace NServiceBus.Config
         /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((ChannelConfig)element).Address;
+            return ((ChannelConfig)element).Key;
         }
 
         public override bool IsReadOnly()
@@ -145,6 +148,23 @@ namespace NServiceBus.Config
 
     public class ChannelConfig : ConfigurationElement
     {
+        /// <summary>
+        /// The key
+        /// </summary>
+        [ConfigurationProperty("Key", IsRequired = false, IsKey = true)]
+        public string Key
+        {
+            get
+            {
+                var key = (string) this["Key"];
+                return string.IsNullOrEmpty(key) ? Address : key;
+            }
+            set
+            {
+                this["Key"] = value;
+            }
+        }
+
         /// <summary>
         /// True if this channel is the default channel
         /// </summary>
@@ -207,6 +227,22 @@ namespace NServiceBus.Config
             set
             {
                 this["ChannelType"] = value;
+            }
+        }
+
+        /// <summary>
+        /// The address that will be used for replies on this channel
+        /// </summary>
+        [ConfigurationProperty("ReplyAddress", IsRequired = false, IsKey = false)]
+        public string ReplyAddress
+        {
+            get
+            {
+                return (string)this["ReplyAddress"];
+            }
+            set
+            {
+                this["ReplyAddress"] = value;
             }
         }
     }
@@ -320,6 +356,17 @@ namespace NServiceBus.Config
         {
             get { return ((string)this["Mode"]); }
             set { this["Mode"] = value; }
+        }
+
+        /// <summary>
+        /// The Key or Address of the reply channel.
+        /// If empty, the default channel will be used for replies.
+        /// </summary>
+        [ConfigurationProperty("ReplyChannel", IsRequired = false, IsKey = false)]
+        public string ReplyChannel
+        {
+            get { return (string)this["ReplyChannel"]; }
+            set { this["ReplyChannel"] = value; }
         }
     }
 }

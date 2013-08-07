@@ -97,7 +97,7 @@ namespace NServiceBus.Gateway.Sending
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
-            transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
+            transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite(targetSite);
 
             //todo - derive this from the message and the channeltype
             var forwarder = HandleLegacy(transportMessage, targetSite) ??
@@ -121,9 +121,14 @@ namespace NServiceBus.Gateway.Sending
             return targetSite.LegacyMode ? Builder.Build<IdempotentChannelForwarder>() : null;
         }
 
-        string GetDefaultAddressForThisSite()
+        string GetDefaultAddressForThisSite(Site site)
         {
-            return ChannelManager.GetDefaultChannel().ToString();
+            var channel = ChannelManager.GetReceiveChannels()
+                .SingleOrDefault(item => item.Key == site.ReplyChannel);
+
+            return channel == null
+                ? ChannelManager.GetDefaultChannel().ReplyChannel.ToString()
+                : channel.ReplyChannel.ToString();
         }
     }
 }

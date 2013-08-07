@@ -18,9 +18,9 @@ namespace NServiceBus.Gateway.Receiving
             return channels;
         }
 
-        public Channel GetDefaultChannel()
+        public ReceiveChannel GetDefaultChannel()
         {
-            var defaultChannel = channels.Where(c => c.Default).SingleOrDefault();
+            var defaultChannel = channels.SingleOrDefault(c => c.Default);
 
             if (defaultChannel == null)
             {

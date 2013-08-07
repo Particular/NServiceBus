@@ -6,6 +6,6 @@ namespace NServiceBus.Gateway.Receiving
     public interface IManageReceiveChannels
     {
         IEnumerable<ReceiveChannel> GetReceiveChannels();
-        Channel GetDefaultChannel();
+        ReceiveChannel GetDefaultChannel();
     }
 }
