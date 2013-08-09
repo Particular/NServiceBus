@@ -15,6 +15,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="messages">A list of messages. The first message's type
         /// is used for looking up subscribers.</param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         void Publish<T>(params T[] messages);
 
         /// <summary>
@@ -72,6 +73,7 @@ namespace NServiceBus
         /// Sends the list of messages back to the current bus.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback SendLocal(params object[] messages);
 
         /// <summary>
@@ -89,6 +91,7 @@ namespace NServiceBus
         /// All the messages will be sent to the destination configured for the
         /// first message in the list.
         /// </remarks>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Send(params object[] messages);
 
         /// <summary>
@@ -108,6 +111,7 @@ namespace NServiceBus
         /// The address of the destination to which the messages will be sent.
         /// </param>
         /// <param name="messages">The list of messages to send.</param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Send(string destination, params object[] messages);
 
         /// <summary>
@@ -117,6 +121,7 @@ namespace NServiceBus
         /// The address to which the messages will be sent.
         /// </param>
         /// <param name="messages">The list of messages to send.</param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Send(Address address, params object[] messages);
 
         /// <summary>
@@ -144,6 +149,7 @@ namespace NServiceBus
         /// <param name="destination"></param>
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Send(string destination, string correlationId, params object[] messages);
 
         /// <summary>
@@ -153,6 +159,7 @@ namespace NServiceBus
         /// <param name="address"></param>
         /// <param name="correlationId"></param>
         /// <param name="messages"></param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Send(Address address, string correlationId, params object[] messages);
 
         /// <summary>
@@ -184,6 +191,7 @@ namespace NServiceBus
         /// <param name="siteKeys"></param>
         /// <param name="messages"></param>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages);
 
         /// <summary>
@@ -192,6 +200,7 @@ namespace NServiceBus
         /// <param name="delay"></param>
         /// <param name="messages"></param>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Defer(TimeSpan delay, params object[] messages);
 
         /// <summary>
@@ -200,12 +209,14 @@ namespace NServiceBus
         /// <param name="processAt"></param>
         /// <param name="messages"></param>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5")]
         ICallback Defer(DateTime processAt, params object[] messages);
 
         /// <summary>
         /// Sends all messages to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
         /// <param name="messages">The messages to send.</param>
+        [ObsoleteEx(RemoveInVersion = "5")]
         void Reply(params object[] messages);
 
         /// <summary>
