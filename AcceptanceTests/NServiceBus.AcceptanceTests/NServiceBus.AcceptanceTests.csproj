@@ -170,6 +170,8 @@
     <Compile Include="Retries\When_messages_fails_flr.cs" />
     <Compile Include="Retries\When_message_fails_with_retries_set_to_0.cs" />
     <Compile Include="Retries\When_doing_flr_with_default_settings.cs" />
+    <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
+    <Compile Include="Sagas\When_sending_from_a_saga_handle.cs" />
     <Compile Include="Sagas\When_an_endpoint_replies_to_a_saga.cs" />
     <Compile Include="Sagas\When_a_saga_is_started_by_an_event_published_by_another_saga.cs" />
     <Compile Include="Sagas\When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance.cs" />
