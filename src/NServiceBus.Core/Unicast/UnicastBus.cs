@@ -270,9 +270,24 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>(T message)
+        {
+            Publish(new []{message});
+        }
+
+        /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>()
+        {
+            Publish(new object[]{});
+        }
+
+        /// <summary>
         /// Publishes the messages to all subscribers of the first message's type.
         /// </summary>
-        /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
 
@@ -406,6 +421,11 @@ namespace NServiceBus.Unicast
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Send, messages);
         }
 
+        public void Reply(object message)
+        {
+            Reply(new[]{message});
+        }
+
         public void Reply<T>(Action<T> messageConstructor)
         {
             Reply(CreateInstance(messageConstructor));
@@ -455,6 +475,11 @@ namespace NServiceBus.Unicast
             return SendLocal(CreateInstance(messageConstructor));
         }
 
+        public ICallback SendLocal(object message)
+        {
+            return SendLocal(new[] {message});
+        }
+
         public ICallback SendLocal(params object[] messages)
         {
             //if we're a worker, send to the distributor data bus
@@ -469,6 +494,11 @@ namespace NServiceBus.Unicast
         public ICallback Send<T>(Action<T> messageConstructor)
         {
             return Send(CreateInstance(messageConstructor));
+        }
+
+        public ICallback Send(object message)
+        {
+            return Send(new[] {message});
         }
 
         public ICallback Send(params object[] messages)
@@ -488,6 +518,11 @@ namespace NServiceBus.Unicast
             return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
+        public ICallback Send(string destination, object message)
+        {
+            return SendMessage(destination, null, MessageIntentEnum.Send, new[]{message});
+        }
+
         public ICallback Send(string destination, params object[] messages)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
@@ -496,6 +531,11 @@ namespace NServiceBus.Unicast
         public ICallback Send(Address address, params object[] messages)
         {
             return SendMessage(address, null, MessageIntentEnum.Send, messages);
+        }
+
+        public ICallback Send(Address address, object message)
+        {
+            return SendMessage(address, null, MessageIntentEnum.Send, new[]{message});
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -508,6 +548,11 @@ namespace NServiceBus.Unicast
             return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            return Send(destination, correlationId, new[] {message});
+        }
+
         public ICallback Send(string destination, string correlationId, params object[] messages)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
@@ -516,6 +561,16 @@ namespace NServiceBus.Unicast
         public ICallback Send(Address address, string correlationId, params object[] messages)
         {
             return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
+        }
+
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+        {
+            return SendToSites(siteKeys, new[] {message});
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
@@ -533,10 +588,19 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="delay">Delay</param>
         /// <param name="messages">Messages</param>
-        /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return Defer(DateTime.UtcNow + delay, messages);
+        }
+
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            return Defer(DateTime.UtcNow + delay, message);
+        }
+
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            return Defer(processAt, new [] { message });
         }
 
         /// <summary>
