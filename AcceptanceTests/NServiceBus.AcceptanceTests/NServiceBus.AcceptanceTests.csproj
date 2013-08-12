@@ -153,6 +153,7 @@
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
     <Compile Include="EndpointTemplates\BusExtensions.cs" />
+    <Compile Include="Gateway\When_sendonly_endpoint_sends_via_gateway.cs" />
     <Compile Include="Gateway\When_using_a_custom_correlation_id.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />

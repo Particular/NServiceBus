@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using Installation.Environments;
     using Logging;
+    using Settings;
 
     [Serializable]
     public class EndpointRunner : MarshalByRefObject
@@ -100,8 +101,10 @@
                     action(bus);
                 }
 
-                bus.Start();
-
+                if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+                {
+                    bus.Start();
+                }
 
                 return Result.Success();
             }
