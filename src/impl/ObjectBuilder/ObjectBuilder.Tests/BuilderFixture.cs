@@ -21,7 +21,7 @@ namespace ObjectBuilder.Tests
         protected virtual Action<IContainer> InitializeBuilder()
         {
             //no-op
-            return (c) => { };
+            return c => { };
         }
 
         IList<IContainer> objectBuilders;

@@ -1,10 +1,12 @@
 namespace NServiceBus.Unicast.Transport
 {
     using System;
+    using System.Runtime.Serialization;
 
     /// <summary>
     /// Exception used to transport exceptions encountered in message handlers.
     /// </summary>
+    [Serializable]
     public class TransportMessageHandlingFailedException : Exception
     {
         /// <summary>
@@ -15,5 +17,11 @@ namespace NServiceBus.Unicast.Transport
             : base("An exception was thrown by the message handler.", originalException)
         {
         }
+
+        protected TransportMessageHandlingFailedException(SerializationInfo info, StreamingContext context)
+        {
+            
+        }
+
     }
 }

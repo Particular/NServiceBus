@@ -16,7 +16,7 @@ namespace ObjectBuilder.Tests
         public void Multiple_registrations_of_the_same_component_should_be_allowed()
         {
 
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
@@ -28,7 +28,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Should_support_lambdas_that_uses_other_components_registered_later()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
                 builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
@@ -41,7 +41,7 @@ namespace ObjectBuilder.Tests
         public void A_registration_should_be_allowed_to_be_updated()
         {
          
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.RegisterSingleton(typeof(ISingletonComponent), new SingletonComponent());
                 builder.RegisterSingleton(typeof(ISingletonComponent), new AnotherSingletonComponent());
@@ -53,7 +53,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Register_singleton_should_be_supported()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 var singleton = new SingletonComponent();
                 builder.RegisterSingleton(typeof(ISingletonComponent), singleton);
@@ -66,20 +66,18 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Registering_the_same_singleton_for_different_interfaces_should_be_supported()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 var singleton = new SingletonThatImplementsToInterfaces();
                 builder.RegisterSingleton(typeof(ISingleton1), singleton);
                 builder.RegisterSingleton(typeof(ISingleton2), singleton);
 
-                builder.Configure(typeof(ComponentThatDependsOnMultiSingeltons), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
 
-                var dep =
-                    builder.Build(typeof (ComponentThatDependsOnMultiSingeltons)) as
-                    ComponentThatDependsOnMultiSingeltons;
+                var dependency = (ComponentThatDependsOnMultiSingletons)builder.Build(typeof (ComponentThatDependsOnMultiSingletons));
 
-                Assert.NotNull(dep.Singleton1); 
-                Assert.NotNull(dep.Singleton2);
+                Assert.NotNull(dependency.Singleton1); 
+                Assert.NotNull(dependency.Singleton2);
 
                 Assert.AreEqual(builder.Build(typeof(ISingleton1)), singleton);
                 Assert.AreEqual(builder.Build(typeof(ISingleton2)), singleton);
@@ -89,7 +87,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Properties_set_on_duplicate_registrations_should_not_be_discarded()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
                 builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true);
@@ -109,7 +107,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Setter_dependencies_should_be_supported()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
@@ -131,7 +129,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Setter_dependencies_should_override_container_defaults()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
             {
                 builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
@@ -241,7 +239,7 @@ namespace ObjectBuilder.Tests
         }
 
         [Test, Ignore("Not sure that we should enforce this")]
-        public void System_interfaces_should_not_be_autoregistered()
+        public void System_interfaces_should_not_be_auto_registered()
         {
             ForAllBuilders(builder =>
                                {
@@ -255,7 +253,7 @@ namespace ObjectBuilder.Tests
         }
     }
 
-    public class ComponentThatDependsOnMultiSingeltons
+    public class ComponentThatDependsOnMultiSingletons
     {
         public ISingleton1 Singleton1 { get; set; }
         public ISingleton2 Singleton2 { get; set; }

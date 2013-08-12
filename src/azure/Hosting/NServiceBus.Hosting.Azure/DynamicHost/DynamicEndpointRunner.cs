@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using NServiceBus.Logging;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace NServiceBus.Hosting
 {
-    internal class DynamicEndpointRunner
+    using System.Linq;
+
+    class DynamicEndpointRunner
     {
         private readonly ILog logger = LogManager.GetLogger(typeof(DynamicEndpointRunner));
 
@@ -74,21 +75,30 @@ namespace NServiceBus.Hosting
             {
                 if (runningService.ProcessId == 0) continue;
 
-                var process = Process.GetProcessById(runningService.ProcessId);
-                
-                var waitUntilProcessIsKilled = new ManualResetEvent(false);
-                process.Exited += (o, args) => waitUntilProcessIsKilled.Set();
-                   
-                process.Kill();
-                waitUntilProcessIsKilled.WaitOne(TimeToWaitUntilProcessIsKilled);
-                if(!process.HasExited)
-                {
-                    throw new UnableToKillProcessException(string.Format("Unable to kill process {0}",  process.ProcessName));
-                }
+                KillProcess(runningService.ProcessId, TimeToWaitUntilProcessIsKilled);
+
                 runningService.ProcessId = 0;
             }
         }
 
+        internal static void KillProcess(int processId, int timeToWaitUntilProcessIsKilled)
+        {
+            var process = Process
+                .GetProcesses()
+                .FirstOrDefault(x => x.Id == processId);
+            if (process == null)
+            {
+                return;
+            }
+
+            process.Kill();
+            //As per MSDN "The Kill method executes asynchronously. After calling the Kill method, call the WaitForExit method to wait for the process to exit" 
+            if (!process.WaitForExit(timeToWaitUntilProcessIsKilled))
+            {
+                throw new UnableToKillProcessException(string.Format("Unable to kill process {0}", process.ProcessName));
+            }
+        }
         
     }
+
 }

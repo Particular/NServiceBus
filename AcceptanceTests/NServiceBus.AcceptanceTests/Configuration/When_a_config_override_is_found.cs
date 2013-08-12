@@ -11,8 +11,8 @@
 
     public class When_a_config_override_is_found : NServiceBusAcceptanceTest
     {
-
         static Address CustomErrorQ = Address.Parse("MyErrorQ");
+
         [Test]
         public void Should_be_used_instead_of_pulling_the_settings_from_appconfig()
         {

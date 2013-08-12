@@ -20,11 +20,6 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Creates a new instance of the handler tester.
         /// </summary>
-        /// <param name="handler"></param>
-        /// <param name="mocks"></param>
-        /// <param name="bus"></param>
-        /// <param name="messageCreator"></param>
-        /// <param name="types"></param>
         public Handler(T handler, StubBus bus, IMessageCreator messageCreator, IEnumerable<Type> types)
         {
             this.handler = handler;

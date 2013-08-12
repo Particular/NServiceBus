@@ -6,15 +6,13 @@ namespace NServiceBus
     using ObjectBuilder.Common.Config;
 
     /// <summary>
-    /// Contains extension methods to NServiceBus.Configure.
+    /// Contains extension methods to <see cref="Configure"/>.
     /// </summary>
     public static class ConfigureStructureMapBuilder
     {
         /// <summary>
         /// Use StructureMap as your container.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure StructureMapBuilder(this Configure config)
         {
             ConfigureCommon.With(config, new StructureMapObjectBuilder());
@@ -23,11 +21,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Use StructureMap as your container passing in a preconfigured container to be used by nServiceBus.
+        /// Use StructureMap as your container passing in a pre-configured container to be used by nServiceBus.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="container"></param>
-        /// <returns></returns>
         public static Configure StructureMapBuilder(this Configure config, IContainer container)
         {
             ConfigureCommon.With(config, new StructureMapObjectBuilder(container));

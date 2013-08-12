@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Castle.Core.Resource;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor.Configuration.Interpreters;
-using NServiceBus.ObjectBuilder.Common;
-using Castle.Windsor;
-using Castle.MicroKernel;
-using Castle.Core;
-using Castle.MicroKernel.Registration;
-
-namespace NServiceBus.ObjectBuilder.CastleWindsor
+﻿namespace NServiceBus.ObjectBuilder.CastleWindsor
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Castle.Core.Resource;
+    using Castle.MicroKernel.Lifestyle;
+    using Castle.MicroKernel.SubSystems.Configuration;
+    using Castle.Windsor.Configuration.Interpreters;
+    using Common;
+    using Castle.Windsor;
+    using Castle.MicroKernel;
+    using Castle.Core;
+    using Castle.MicroKernel.Registration;
     using System.Threading;
     using Castle.MicroKernel.ComponentActivator;
     using Castle.MicroKernel.Context;
@@ -23,12 +22,9 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
     /// </summary>
     public class WindsorObjectBuilder : IContainer
     {
-        /// <summary>
-        /// The container itself.
-        /// </summary>
-        private IWindsorContainer container { get; set; }
+        IWindsorContainer container { get; set; }
 
-        private bool disposed;
+        bool disposed;
 
         /// <summary>
         /// Instantiates the class with a new WindsorContainer.
@@ -74,7 +70,6 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
         /// <summary>
         /// Implements dispose
         /// </summary>
-        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposed)
@@ -82,20 +77,19 @@ namespace NServiceBus.ObjectBuilder.CastleWindsor
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
                 scope.Dispose();
             }
 
-            disposed = true;
         }
 
         /// <summary>
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
         /// </summary>
-        /// <returns></returns>
         public IContainer BuildChildContainer()
         {
             scope.Value = container.Kernel.BeginScope();

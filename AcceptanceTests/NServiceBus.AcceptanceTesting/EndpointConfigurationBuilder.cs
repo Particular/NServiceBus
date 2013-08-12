@@ -139,5 +139,12 @@
 
             return this;
         }
+
+        public EndpointConfigurationBuilder IncludeType<T>()
+        {
+            configuration.TypesToInclude.Add(typeof(T));
+
+            return this;
+        }
     }
 }

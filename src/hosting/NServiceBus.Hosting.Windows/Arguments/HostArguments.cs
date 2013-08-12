@@ -74,7 +74,13 @@ namespace NServiceBus.Hosting.Windows.Arguments
                     {
                         "dependsOn=",
                         @"Specifies the names of services or groups which must start before this service."
-                        , s => DependsOn.Add(s)
+                        , s =>
+                        {
+                            foreach (var d in s.Split(','))
+                            {
+                                DependsOn.Add(d);
+                            }
+                        }
                     },
                     {
                         "sideBySide",

@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.ObjectBuilder.Ninject
 {
-    using NServiceBus.ObjectBuilder.Ninject.Internal;
-
+    using Internal;
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
 
     public static class NinjectObjectBuilderExtensions
     {
-        private const string ScopeName = "NinjectObjectBuilder";
+        const string ScopeName = "NinjectObjectBuilder";
 
         /// <summary>
         /// Defines a conditional binding which is applied when the requested service is in an unit of work.

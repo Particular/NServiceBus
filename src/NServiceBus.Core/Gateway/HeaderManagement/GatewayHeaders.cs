@@ -10,5 +10,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         public const string CallTypeHeader = HeaderMapper.NServiceBus + HeaderMapper.CallType;
 
         public const string ClientIdHeader = HeaderMapper.NServiceBus + HeaderMapper.Id;
+
+        public const string LegacyMode = "NServiceBus.Gateway.LegacyMode";
     }
 }

@@ -60,7 +60,9 @@
 
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
 
-            return types.Where(t=>!endpointConfiguration.TypesToExclude.Contains(t)).ToList();
+            types = types.Union(endpointConfiguration.TypesToInclude);
+
+            return types.Where(t => !endpointConfiguration.TypesToExclude.Contains(t)).ToList();
         }
 
         static IEnumerable<Type> GetNestedTypeRecursive(Type rootType,Type builderType)

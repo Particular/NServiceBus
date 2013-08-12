@@ -7,7 +7,6 @@
     using Saga;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_receiving_a_message_that_should_start_a_saga : NServiceBusAcceptanceTest
     {
         [Test]

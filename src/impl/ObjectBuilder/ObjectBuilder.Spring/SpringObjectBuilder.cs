@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using Spring.Context.Support;
-using Spring.Objects.Factory.Support;
-using Spring.Objects.Factory.Config;
-using System.Collections;
-using NServiceBus.ObjectBuilder.Common;
-
-namespace NServiceBus.ObjectBuilder.Spring
+﻿namespace NServiceBus.ObjectBuilder.Spring
 {
+    using System;
+    using System.Collections.Generic;
+    using global::Spring.Context.Support;
+    using Common;
     using System.Threading;
+    using global::Spring.Objects.Factory.Config;
+    using global::Spring.Objects.Factory.Support;
 
     /// <summary>
-    /// Implementation of IBuilderInternal using the Spring Framework container
+    /// Implementation of <see cref="IContainer"/> using the Spring Framework container
     /// </summary>
     public class SpringObjectBuilder : IContainer
     {
-        private static GenericApplicationContext context;
+        GenericApplicationContext context;
 
         /// <summary>
-        /// Instantiates the builder using a new GenericApplicationContext.
+        /// Instantiates the builder using a new <see cref="GenericApplicationContext"/>.
         /// </summary>
         public SpringObjectBuilder() : this(new GenericApplicationContext())
         {
@@ -27,7 +25,6 @@ namespace NServiceBus.ObjectBuilder.Spring
         /// <summary>
         /// Instantiates the builder using the given container.
         /// </summary>
-        /// <param name="container"></param>
         public SpringObjectBuilder(GenericApplicationContext container)
         {
             context = container;
@@ -55,13 +52,13 @@ namespace NServiceBus.ObjectBuilder.Spring
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 // Dispose managed resources.
                 context.Dispose();
             }
 
-            disposed = true;
         }
 
         ~SpringObjectBuilder()
@@ -82,12 +79,14 @@ namespace NServiceBus.ObjectBuilder.Spring
         object IContainer.Build(Type typeToBuild)
         {
             Init();
-            IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);
+            var dict = context.GetObjectsOfType(typeToBuild, true, false);
 
             var de = dict.GetEnumerator();
 
             if (de.MoveNext())
+            {
                 return de.Value;
+            }
             
             throw new ArgumentException(string.Format("{0} has not been configured. In order to avoid this exception, check the return value of the 'HasComponent' method for this type.", typeToBuild));
         }
@@ -95,23 +94,31 @@ namespace NServiceBus.ObjectBuilder.Spring
         IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
         {
             Init();
-            IDictionary dict = context.GetObjectsOfType(typeToBuild, true, false);
+            var dict = context.GetObjectsOfType(typeToBuild, true, false);
 
-            IDictionaryEnumerator de = dict.GetEnumerator();
+            var de = dict.GetEnumerator();
             while (de.MoveNext())
+            {
                 yield return de.Entry.Value;
+            }
         }
 
         void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             if (initialized)
+            {
                 throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            }
 
             typeHandleLookup[concreteComponent] = dependencyLifecycle;
 
             lock (componentProperties)
+            {
                 if (!componentProperties.ContainsKey(concreteComponent))
+                {
                     componentProperties[concreteComponent] = new ComponentConfig();
+                }
+            }
         }
 
         void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -131,7 +138,9 @@ namespace NServiceBus.ObjectBuilder.Spring
         void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
         {
             if (initialized)
+            {
                 throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            }
 
             lock (componentProperties)
             {
@@ -139,7 +148,9 @@ namespace NServiceBus.ObjectBuilder.Spring
                 componentProperties.TryGetValue(concreteComponent, out result);
 
                 if (result == null)
+                {
                     throw new InvalidOperationException("Cannot configure property before the component has been configured. Please call 'Configure' first.");
+                }
 
                 result.ConfigureProperty(property, value);
             }
@@ -147,8 +158,10 @@ namespace NServiceBus.ObjectBuilder.Spring
 
         void IContainer.RegisterSingleton(Type lookupType, object instance)
         {
-            if(initialized)
+            if (initialized)
+            {
                 throw new InvalidOperationException("You can't alter the registrations after the container components has been resolved from the container");
+            }
 
             context.ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
@@ -156,36 +169,47 @@ namespace NServiceBus.ObjectBuilder.Spring
         bool IContainer.HasComponent(Type componentType)
         {
             if (componentProperties.ContainsKey(componentType))
+            {
                 return true;
+            }
 
             if (context.ObjectFactory.ContainsObjectDefinition(componentType.FullName))
+            {
                 return true;
+            }
 
             if (context.ObjectFactory.ContainsSingleton(componentType.FullName))
+            {
                 return true;
+            }
 
-            foreach(var component in componentProperties.Keys)
+            foreach (var component in componentProperties.Keys)
+            {
                 if (componentType.IsAssignableFrom(component))
+                {
                     return true;
+                }
+            }
 
             return false;
         }
 
         void IContainer.Release(object instance)
         {
-            
         }
 
-        private void Init()
+        void Init()
         {
             if (initialized)
+            {
                 return;
+            }
 
             lock (componentProperties)
             {
-                foreach (Type t in componentProperties.Keys)
+                foreach (var t in componentProperties.Keys)
                 {
-                    ObjectDefinitionBuilder builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
+                    var builder = ObjectDefinitionBuilder.RootObjectDefinition(factory, t)
                         .SetAutowireMode(AutoWiringMode.AutoDetect)
                         .SetSingleton(typeHandleLookup[t] == DependencyLifecycle.SingleInstance);                    
 
@@ -200,11 +224,11 @@ namespace NServiceBus.ObjectBuilder.Spring
             context.Refresh();
         }
 
-        readonly ThreadLocal<bool> scope = new ThreadLocal<bool>();
-        private readonly Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
-        private readonly Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
-        private bool initialized;
+        ThreadLocal<bool> scope = new ThreadLocal<bool>();
+        Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
+        Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
+        bool initialized;
         bool disposed;
-        private readonly DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
+        DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }

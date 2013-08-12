@@ -1,5 +1,6 @@
 namespace NServiceBus.Config
 {
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using Gateway.Channels;
@@ -9,6 +10,24 @@ namespace NServiceBus.Config
     /// </summary>
     public class GatewayConfig : ConfigurationSection
     {
+        /// <summary>
+        /// Property for getting/setting the period of time when the outgoing gateway transaction times out.
+        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// Defaults to the TransactionTimeout of the main transport.
+        /// </summary>
+        [ConfigurationProperty("TransactionTimeout", IsRequired = false, DefaultValue = "00:00:00")]
+        public TimeSpan TransactionTimeout
+        {
+            get
+            {
+                return (TimeSpan)this["TransactionTimeout"];
+            }
+            set
+            {
+                this["TransactionTimeout"] = value;
+            }
+        }
+
         /// <summary>
         /// Collection of sites
         /// </summary>
@@ -52,7 +71,8 @@ namespace NServiceBus.Config
                 result.Add(site.Key, new Gateway.Routing.Site
                                         {
                                             Key = site.Key,
-                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address}
+                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address},
+                                            LegacyMode = !string.IsNullOrEmpty(site.Mode) && site.Mode.ToLower() == "legacy"
                                         });
             }
 
@@ -290,6 +310,16 @@ namespace NServiceBus.Config
             {
                 this["ChannelType"] = value;
             }
+        }
+
+        /// <summary>
+        /// The forwarding mode for this site
+        /// </summary>
+        [ConfigurationProperty("Mode", IsRequired = false, DefaultValue = "Default", IsKey = false)]
+        public string Mode
+        {
+            get { return ((string)this["Mode"]); }
+            set { this["Mode"] = value; }
         }
     }
 }

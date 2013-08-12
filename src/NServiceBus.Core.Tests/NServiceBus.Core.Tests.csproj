@@ -34,28 +34,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.5.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2380\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Embedded, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Embedded.2.0.2375\lib\net40\Raven.Client.Embedded.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Embedded.2.0.2380\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Client.2.0.2380\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Database, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Database.2.0.2375\lib\net40\Raven.Database.dll</HintPath>
+      <HintPath>..\..\packages\RavenDB.Database.2.0.2380\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
@@ -124,9 +124,12 @@
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
     <Compile Include="Gateway\via_the_gateway.cs" />
     <Compile Include="Gateway\When_a_message_is_sent.cs" />
+    <Compile Include="Gateway\When_a_message_is_sent_from_old_gateway.cs" />
     <Compile Include="Gateway\When_a_message_with_a_databus_property_is_sent.cs" />
+    <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
     <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
+    <Compile Include="ExceptionTests.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
@@ -162,6 +165,8 @@
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
+    <Compile Include="Sagas\When_resolving_started_by_interfaces_for_a_saga.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
@@ -173,6 +178,8 @@
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTestBase.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Mixed_Namespace.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Nested_Class.cs" />
     <Compile Include="Serializers\XML\Command1.cs" />
     <Compile Include="Serializers\XML\Command2.cs" />
     <Compile Include="Serializers\XML\ConcurrencySerializerTests.cs" />
@@ -191,6 +198,7 @@
     <Compile Include="Serializers\XML\SerializingArrayTests.cs" />
     <Compile Include="Serializers\XML\SerializingEnumerableTests.cs" />
     <Compile Include="Serializers\XML\SomeEnum.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />

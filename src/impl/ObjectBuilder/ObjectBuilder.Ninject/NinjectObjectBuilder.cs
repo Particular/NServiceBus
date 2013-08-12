@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Ninject;
-using Ninject.Activation;
-using Ninject.Infrastructure;
-using Ninject.Injection;
-using Ninject.Parameters;
-using Ninject.Selection;
-using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.ObjectBuilder.Ninject.Internal;
-
-namespace NServiceBus.ObjectBuilder.Ninject
+﻿namespace NServiceBus.ObjectBuilder.Ninject
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using global::Ninject;
+    using global::Ninject.Activation;
+    using global::Ninject.Infrastructure;
+    using global::Ninject.Injection;
+    using global::Ninject.Parameters;
+    using global::Ninject.Selection;
+    using Common;
+    using Internal;
     using global::Ninject.Planning.Bindings;
 
     /// <summary>
@@ -22,17 +21,17 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <summary>
         /// The kernel hold by this object builder.
         /// </summary>
-        private readonly IKernel kernel;
+        IKernel kernel;
 
         /// <summary>
         /// The object builders injection propertyHeuristic for properties.
         /// </summary>
-        private readonly IObjectBuilderPropertyHeuristic propertyHeuristic;
+        IObjectBuilderPropertyHeuristic propertyHeuristic;
 
         /// <summary>
         /// Maps the supported <see cref="NServiceBus.DependencyLifecycle"/> to the <see cref="StandardScopeCallbacks"/> of ninject.
         /// </summary>
-        private readonly IDictionary<DependencyLifecycle, Func<IContext, object>> dependencyLifecycleToScopeMapping =
+        IDictionary<DependencyLifecycle, Func<IContext, object>> dependencyLifecycleToScopeMapping =
             new Dictionary<DependencyLifecycle, Func<IContext, object>>
                 {
                     { DependencyLifecycle.SingleInstance, StandardScopeCallbacks.Singleton }, 
@@ -40,7 +39,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
                     { DependencyLifecycle.InstancePerUnitOfWork, StandardScopeCallbacks.Transient }, 
                 };
 
-        private bool disposed;
+        bool disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NinjectObjectBuilder"/> class.
@@ -64,11 +63,11 @@ namespace NServiceBus.ObjectBuilder.Ninject
         {
             this.kernel = kernel;
 
-            this.RegisterNecessaryBindings();
+            RegisterNecessaryBindings();
 
-            this.propertyHeuristic = this.kernel.Get<IObjectBuilderPropertyHeuristic>();
+            propertyHeuristic = this.kernel.Get<IObjectBuilderPropertyHeuristic>();
 
-            this.AddCustomPropertyInjectionHeuristic();
+            AddCustomPropertyInjectionHeuristic();
 
             this.kernel.Bind<NinjectChildContainer>().ToSelf().DefinesNinjectObjectBuilderScope();
         }
@@ -84,14 +83,12 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </returns>
         public object Build(Type typeToBuild)
         {
-            if (!this.HasComponent(typeToBuild))
+            if (!HasComponent(typeToBuild))
             {
                 throw new ArgumentException(typeToBuild + " is not registered in the container");
             }
 
-            var output = this.kernel.Get(typeToBuild);
-
-            return output;
+            return kernel.Get(typeToBuild);
         }
 
         /// <summary>
@@ -101,7 +98,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <returns>A new child container.</returns>
         public IContainer BuildChildContainer()
         {
-            return this.kernel.Get<NinjectChildContainer>();
+            return kernel.Get<NinjectChildContainer>();
         }
 
         /// <summary>
@@ -115,9 +112,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </returns>
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            var output = this.kernel.GetAll(typeToBuild);
-
-            return output;
+            return kernel.GetAll(typeToBuild);
         }
 
         /// <summary>
@@ -127,17 +122,17 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <param name="dependencyLifecycle">The desired lifecycle for this type</param>
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
-            if (this.HasComponent(component))
+            if (HasComponent(component))
             {
                 return;
             }
 
-            var instanceScope = this.GetInstanceScopeFrom(dependencyLifecycle);
+            var instanceScope = GetInstanceScopeFrom(dependencyLifecycle);
 
-            var bindingConfigurations = this.BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
-            this.AddAliasesOfComponentToBindingConfigurations(component, bindingConfigurations);
+            var bindingConfigurations = BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            AddAliasesOfComponentToBindingConfigurations(component, bindingConfigurations);
 
-            this.propertyHeuristic.RegisteredTypes.Add(component);
+            propertyHeuristic.RegisteredTypes.Add(component);
         }
 
         /// <summary>
@@ -150,17 +145,17 @@ namespace NServiceBus.ObjectBuilder.Ninject
         {
             var componentType = typeof (T);
 
-            if (this.HasComponent(componentType))
+            if (HasComponent(componentType))
             {
                 return;
             }
 
-            var instanceScope = this.GetInstanceScopeFrom(dependencyLifecycle);
+            var instanceScope = GetInstanceScopeFrom(dependencyLifecycle);
 
-            var bindingConfigurations = this.BindComponentToMethod(componentFactory, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
-            this.AddAliasesOfComponentToBindingConfigurations(componentType, bindingConfigurations);
+            var bindingConfigurations = BindComponentToMethod(componentFactory, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            AddAliasesOfComponentToBindingConfigurations(componentType, bindingConfigurations);
 
-            this.propertyHeuristic.RegisteredTypes.Add(componentType);
+            propertyHeuristic.RegisteredTypes.Add(componentType);
         }
 
         /// <summary>
@@ -177,7 +172,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </param>
         public void ConfigureProperty(Type component, string property, object value)
         {
-            var bindings = this.kernel.GetBindings(component);
+            var bindings = kernel.GetBindings(component);
 
             if (!bindings.Any())
             {
@@ -201,15 +196,15 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            if (this.propertyHeuristic.RegisteredTypes.Contains(lookupType))
+            if (propertyHeuristic.RegisteredTypes.Contains(lookupType))
             {
-                this.kernel.Rebind(lookupType).ToConstant(instance);
+                kernel.Rebind(lookupType).ToConstant(instance);
                 return;
             }
 
-            this.propertyHeuristic.RegisteredTypes.Add(lookupType);
+            propertyHeuristic.RegisteredTypes.Add(lookupType);
 			
-            this.kernel.Bind(lookupType).ToConstant(instance);
+            kernel.Bind(lookupType).ToConstant(instance);
         }
 
         /// <summary>
@@ -223,9 +218,9 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </returns>
         public bool HasComponent(Type componentType)
         {
-            var req = this.kernel.CreateRequest(componentType, null, new IParameter[0], false, true);
+            var request = kernel.CreateRequest(componentType, null, new IParameter[0], false, true);
 
-            return this.kernel.CanResolve(req);
+            return kernel.CanResolve(request);
         }
 
         public void Release(object instance)
@@ -238,7 +233,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </summary>
         /// <param name="component">The component.</param>
         /// <returns>All service types.</returns>
-        private static IEnumerable<Type> GetAllServiceTypesFor(Type component)
+        static IEnumerable<Type> GetAllServiceTypesFor(Type component)
         {
             if (component == null)
             {
@@ -247,7 +242,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
 
             var result = new List<Type>(component.GetInterfaces()) { component };
 
-            foreach (Type interfaceType in component.GetInterfaces())
+            foreach (var interfaceType in component.GetInterfaces())
             {
                 result.AddRange(GetAllServiceTypesFor(interfaceType));
             }
@@ -268,13 +263,14 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             if (disposed)
             {
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 if (!kernel.IsDisposed)
@@ -283,7 +279,6 @@ namespace NServiceBus.ObjectBuilder.Ninject
                 }
             }
 
-            disposed = true;
         }
 
         ~NinjectObjectBuilder()
@@ -300,11 +295,11 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <returns>
         /// The instance scope
         /// </returns>
-        private Func<IContext, object> GetInstanceScopeFrom(DependencyLifecycle dependencyLifecycle)
+        Func<IContext, object> GetInstanceScopeFrom(DependencyLifecycle dependencyLifecycle)
         {
             Func<IContext, object> scope;
 
-            if (!this.dependencyLifecycleToScopeMapping.TryGetValue(dependencyLifecycle, out scope))
+            if (!dependencyLifecycleToScopeMapping.TryGetValue(dependencyLifecycle, out scope))
             {
                 throw new ArgumentException("The dependency lifecycle is not supported", "dependencyLifecycle");
             }
@@ -317,7 +312,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// </summary>
         /// <param name="component">The component.</param>
         /// <param name="bindingConfigurations">The binding configurations.</param>
-        private void AddAliasesOfComponentToBindingConfigurations(Type component, IEnumerable<IBindingConfiguration> bindingConfigurations)
+        void AddAliasesOfComponentToBindingConfigurations(Type component, IEnumerable<IBindingConfiguration> bindingConfigurations)
         {
             var services = GetAllServiceTypesFor(component).Where(t => t != component);
 
@@ -325,7 +320,7 @@ namespace NServiceBus.ObjectBuilder.Ninject
             {
                 foreach (var bindingConfiguration in bindingConfigurations)
                 {
-                    this.kernel.AddBinding(new Binding(service, bindingConfiguration));
+                    kernel.AddBinding(new Binding(service, bindingConfiguration));
                 }
             }
         }
@@ -337,33 +332,33 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <param name="instanceScope">The instance scope.</param>
         /// <param name="addChildContainerScope">if set to <c>true</c> an additional binding scoped to the child container is added.</param>
         /// <returns>The created binding configurations.</returns>
-        private IEnumerable<IBindingConfiguration> BindComponentToItself(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
+        IEnumerable<IBindingConfiguration> BindComponentToItself(Type component, Func<IContext, object> instanceScope, bool addChildContainerScope)
         {
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind(component).ToSelf().WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind(component).ToSelf().WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {
-                bindingConfigurations.Add(this.kernel.Bind(component).ToSelf().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind(component).ToSelf().InScope(instanceScope).BindingConfiguration);
             }            
 
             return bindingConfigurations;
         }
 
-        private IEnumerable<IBindingConfiguration> BindComponentToMethod<T>(Func<T> component, Func<IContext, object> instanceScope, bool addChildContainerScope)
+        IEnumerable<IBindingConfiguration> BindComponentToMethod<T>(Func<T> component, Func<IContext, object> instanceScope, bool addChildContainerScope)
         {
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
             }
             else
             {
-                bindingConfigurations.Add(this.kernel.Bind<T>().ToMethod(ctx => component.Invoke()).InScope(instanceScope).BindingConfiguration);
+                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).InScope(instanceScope).BindingConfiguration);
             }
 
             return bindingConfigurations;
@@ -372,26 +367,26 @@ namespace NServiceBus.ObjectBuilder.Ninject
         /// <summary>
         /// Adds the custom property injection heuristic.
         /// </summary>
-        private void AddCustomPropertyInjectionHeuristic()
+        void AddCustomPropertyInjectionHeuristic()
         {
-            ISelector selector = this.kernel.Components.Get<ISelector>();
+            var selector = kernel.Components.Get<ISelector>();
 
             selector.InjectionHeuristics.Add(
-                this.kernel.Get<IObjectBuilderPropertyHeuristic>());
+                kernel.Get<IObjectBuilderPropertyHeuristic>());
         }
 
         /// <summary>
         /// Registers the necessary bindings.
         /// </summary>
-        private void RegisterNecessaryBindings()
+        void RegisterNecessaryBindings()
         {
-            this.kernel.Bind<IContainer>().ToConstant(this).InSingletonScope();
+            kernel.Bind<IContainer>().ToConstant(this).InSingletonScope();
 
-            this.kernel.Bind<IObjectBuilderPropertyHeuristic>().To<ObjectBuilderPropertyHeuristic>()
+            kernel.Bind<IObjectBuilderPropertyHeuristic>().To<ObjectBuilderPropertyHeuristic>()
                 .InSingletonScope()
-                .WithPropertyValue("Settings", ctx => ctx.Kernel.Settings);
+                .WithPropertyValue("Settings", context => context.Kernel.Settings);
 
-            this.kernel.Bind<IInjectorFactory>().ToMethod(ctx => ctx.Kernel.Components.Get<IInjectorFactory>());
+            kernel.Bind<IInjectorFactory>().ToMethod(context => context.Kernel.Components.Get<IInjectorFactory>());
         }
     }
 }

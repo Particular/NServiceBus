@@ -11,7 +11,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default in < v4
+        /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4
         /// </summary>
         /// <returns></returns>
         public AutoSubscribeSettings DoNotAutoSubscribeSagas()
@@ -31,7 +31,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns on autosubscriptions for messages not marked as commands. This was the default in < v4
+        /// Turns on autosubscriptions for messages not marked as commands. This was the default before v4
         /// </summary>
         /// <returns></returns>
         public AutoSubscribeSettings AutoSubscribePlainMessages()

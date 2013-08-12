@@ -5,31 +5,32 @@ namespace NServiceBus.Gateway.Persistence
     using System.IO;
 
     /// <summary>
-    /// Provides the basic functionality to persist Gateway messages.
+    ///     Provides the basic functionality to persist Gateway messages.
     /// </summary>
+    [ObsoleteEx(Replacement = "IDeduplicateMessages", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
     public interface IPersistMessages
     {
         /// <summary>
-        /// When implemented in a class, stores a gateway message.
+        ///     When implemented in a class, stores a gateway message.
         /// </summary>
         /// <param name="clientId">Message identifier.</param>
         /// <param name="timeReceived">Message time received.</param>
         /// <param name="message">The Message.</param>
         /// <param name="headers">Ant associated message headers.</param>
         /// <returns><c>true</c> if success, otherwise <c>false</c>.</returns>
-        bool InsertMessage(string clientId, DateTime timeReceived, Stream message, IDictionary<string,string> headers);
+        bool InsertMessage(string clientId, DateTime timeReceived, Stream message, IDictionary<string, string> headers);
 
         /// <summary>
-        /// When implemented in a class, updates the message with a status of acknowledged.
+        ///     When implemented in a class, updates the message with a status of acknowledged.
         /// </summary>
         /// <param name="clientId">Message identifier.</param>
         /// <param name="message">The Message.</param>
         /// <param name="headers">Ant associated message headers.</param>
         /// <returns><c>true</c> if success, otherwise <c>false</c>.</returns>
-        bool AckMessage(string clientId, out byte[] message, out  IDictionary<string, string> headers);
+        bool AckMessage(string clientId, out byte[] message, out IDictionary<string, string> headers);
 
         /// <summary>
-        /// When implemented in a class, updates the message headers.
+        ///     When implemented in a class, updates the message headers.
         /// </summary>
         /// <param name="clientId">Message identifier.</param>
         /// <param name="headerKey">Header key to update.</param>

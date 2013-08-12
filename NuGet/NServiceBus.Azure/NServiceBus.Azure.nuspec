@@ -4,7 +4,7 @@
     <title>NServiceBus Azure</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
-    <owners>Udi Dahan, Andreas Ohlund, Jonathan Matheus, John Simons</owners>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
     <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
     <projectUrl>http://particular.net/</projectUrl>
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
@@ -15,10 +15,10 @@
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-	  <dependency id="NServiceBus" version="4.0.0-alpha0" />
-	  <dependency id="Microsoft.WindowsAzure.ConfigurationManager" version="2.0.0.0" />	  
-	  <dependency id="WindowsAzure.ServiceBus" version="2.0.1.0" />
-      <dependency id="WindowsAzure.Storage" version="2.0.5.1" />
+	  <dependency id="NServiceBus" version="[%VERSION%]" />
+	  <dependency id="Microsoft.WindowsAzure.ConfigurationManager" version="2.0.1.0" />	  
+	  <dependency id="WindowsAzure.ServiceBus" version="2.1.0.0" />
+      <dependency id="WindowsAzure.Storage" version="2.0.6.0" />
     </dependencies>
   </metadata>
   <files>

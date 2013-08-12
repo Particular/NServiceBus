@@ -4,13 +4,13 @@
     using System.Text;
     using System.Transactions;
     using NServiceBus;
-    using NServiceBus.Transports.RabbitMQ;
-    using NServiceBus.Unicast.Queuing;
+    using RabbitMQ;
+    using Unicast.Queuing;
     using NUnit.Framework;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 
-    [TestFixture, Category("Integration")]
+    [TestFixture]
     [Explicit("requires rabbit node")]
     public class When_sending_a_message_over_rabbitmq : RabbitMqContext
     {

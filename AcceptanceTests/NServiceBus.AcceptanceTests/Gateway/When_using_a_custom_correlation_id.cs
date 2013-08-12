@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    [TestFixture]
     public class When_sending_a_message_to_another_site : NServiceBusAcceptanceTest
     {
         [Test]
@@ -21,16 +20,14 @@
                     )
                     .Should(c =>
                         {
-                            //Assert.AreEqual(CorrelationId,c.CorrelationIdReceived,"Correlation ids should match");
+                            Assert.IsTrue(c.GotResponseBack);
                         })
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-
             public bool GotResponseBack { get; set; }
-
         }
 
         public class Headquarters : EndpointConfigurationBuilder
@@ -67,8 +64,6 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
                 public void Handle(MyResponse response)
                 {
                     Context.GotResponseBack = true;
@@ -91,16 +86,11 @@
                                             ChannelType = "http"
                                         }
                                 };
-
-
                         });
-
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Context Context { get; set; }
-
                 public IBus Bus { get; set; }
 
                 public void Handle(MyRequest request)
@@ -109,7 +99,6 @@
                 }
             }
         }
-
 
         [Serializable]
         public class MyRequest : IMessage

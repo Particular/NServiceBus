@@ -4,6 +4,6 @@ namespace NServiceBus.Gateway.Sending
 
     public interface IForwardMessagesToSites
     {
-        void Forward(TransportMessage message,Site targetSite);
+        void Forward(TransportMessage message, Site targetSite);
     }
 }

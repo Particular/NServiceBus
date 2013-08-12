@@ -4,7 +4,7 @@
     using NServiceBus;
     using NUnit.Framework;
 
-    [TestFixture, Category("Integration")]
+    [TestFixture]
     [Explicit("requires rabbit node")]
     public class When_consuming_messages : RabbitMqContext
     {

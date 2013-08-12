@@ -3,6 +3,8 @@
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
+    using NServiceBus.Gateway.Deduplication;
+    using NServiceBus.Gateway.HeaderManagement;
     using NServiceBus.Gateway.Notifications;
     using NServiceBus.Gateway.Persistence;
     using NServiceBus.Gateway.Receiving;
@@ -21,6 +23,7 @@
             ConfigureSender();
 
             InfrastructureServices.Enable<IPersistMessages>();
+            InfrastructureServices.Enable<IDeduplicateMessages>();
         }
 
         static void ConfigureChannels()
@@ -29,27 +32,41 @@
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof (IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+                    Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
+            {
                 channelFactory.RegisterReceiver(type);
+            }
 
             foreach (
                 var type in
-                    Configure.TypesToScan.Where(t => typeof (IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+                    Configure.TypesToScan.Where(t => typeof(IChannelSender).IsAssignableFrom(t) && !t.IsInterface))
+            {
                 channelFactory.RegisterSender(type);
+            }
 
             Configure.Instance.Configurer.RegisterSingleton<IChannelFactory>(channelFactory);
         }
 
         static void ConfigureSender()
         {
-            Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
+            if (!Configure.Instance.Configurer.HasComponent<IForwardMessagesToSites>())
+            {
+                Configure.Component<IdempotentChannelForwarder>(DependencyLifecycle.InstancePerCall);
+                Configure.Component<SingleCallChannelForwarder>(DependencyLifecycle.InstancePerCall);
+            }
 
-            var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
+            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
+
+            var configSection = Configure.GetConfigSection<GatewayConfig>();
 
             if (configSection != null && configSection.GetChannels().Any())
+            {
                 Configure.Component<ConfigurationBasedChannelManager>(DependencyLifecycle.SingleInstance);
+            }
             else
+            {
                 Configure.Component<ConventionBasedChannelManager>(DependencyLifecycle.SingleInstance);
+            }
 
             ConfigureSiteRouters();
         }
@@ -63,11 +80,16 @@
 
         static void ConfigureReceiver()
         {
-            Configure.Component<MessageNotifier>(DependencyLifecycle.SingleInstance);
-            Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
-            Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
-                     .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
+            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessagesFromSites>())
+            {
+                Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
+                Configure.Component<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
+            }
 
+            Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
+
+            Configure.Component<DefaultEndpointRouter>(DependencyLifecycle.SingleInstance)
+                .ConfigureProperty(x => x.MainInputAddress, Address.Parse(Configure.EndpointName));
         }
     }
 }

@@ -1,22 +1,18 @@
-using System;
-using StructureMap;
-using StructureMap.Graph;
-using StructureMap.Pipeline;
-
 namespace NServiceBus.ObjectBuilder.StructureMap
 {
+    using System;
+    using global::StructureMap;
+    using global::StructureMap.Graph;
+    using global::StructureMap.Pipeline;
+
     /// <summary>
-    /// Extensions to the structuremap api
+    /// Extensions to the StructureMap api
     /// </summary>
     public static class StructureMapExtensions
     {
         /// <summary>
         /// Registers the given interface and redirects to the given pluginType when the interface is requested
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="implementedInterface"></param>
-        /// <param name="pluginType"></param>
-        /// <param name="lifecycle"></param>
         public static void RegisterAdditionalInterfaceForPluginType(this ConfigurationExpression configuration, Type implementedInterface, Type pluginType, ILifecycle lifecycle)
         {
             var type = typeof(Registration<,>).MakeGenericType(implementedInterface, pluginType);
@@ -27,10 +23,8 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         }
 
         /// <summary>
-        /// Tells structurmap to do setter injection for the given type
+        /// Tells StructureMap to do setter injection for the given type
         /// </summary>
-        /// <param name="configuration"></param>
-        /// <param name="pluginType"></param>
         public static void EnableSetterInjectionFor(this ConfigurationExpression configuration, Type pluginType)
         {
             PluginCache.AddFilledType(pluginType);
@@ -49,7 +43,7 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             {
                 config.For<TInterface>()
                     .LifecycleIs(lifecycle)
-                    .Use(ctx => ctx.GetInstance<TImplementor>());
+                    .Use(context => context.GetInstance<TImplementor>());
             }
         }
 

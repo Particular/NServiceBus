@@ -547,6 +547,10 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
+            if (messages == null || messages.Length == 0)
+            {
+                throw new InvalidOperationException("Cannot Defer an empty set of messages.");
+            }
             if (processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
                 return ((IBus)this).SendLocal(messages);
@@ -1301,7 +1305,9 @@ namespace NServiceBus.Unicast
 
             AddProcessingInformationHeaders(_messageBeingHandled);
 
+#pragma warning disable 0618
             modules = Builder.BuildAll<IMessageModule>().ToList();
+#pragma warning restore 0618
 
             modules.ForEach(module =>
             {
@@ -1494,11 +1500,13 @@ namespace NServiceBus.Unicast
         Address inputAddress;
 
 
+#pragma warning disable 0618
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message
         /// </summary>
         [ThreadStatic]
         static List<IMessageModule> modules;
+#pragma warning restore 0618
 
         /// <summary>
         /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
@@ -1527,9 +1535,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         [ThreadStatic]
         static bool _handleCurrentMessageLaterWasCalled;
-        IEnumerable<Type> messageHandlerTypes;
         protected ITransport transport;
-        bool autoSubscribe = true;
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];

@@ -31,7 +31,9 @@
                 endCalled = true;
                 Assert.AreEqual(bus.CurrentMessageContext.Id, receivedMessage.Id);
             };
+#pragma warning disable 0618
             FuncBuilder.Register<IMessageModule>(()=>messageModule);
+#pragma warning restore 0618
 
 
             ReceiveMessage(receivedMessage);
@@ -63,7 +65,9 @@
                 Assert.True(beginCalled);
                 endCalled = true;
             };
+#pragma warning disable 0618
             FuncBuilder.Register<IMessageModule>(() => messageModule);
+#pragma warning restore 0618
 
 
             SimulateMessageBeeingAbortedDueToRetryCountExceeded(Helpers.Helpers.EmptyTransportMessage());
@@ -79,6 +83,7 @@
 
     }
 
+#pragma warning disable 0618
     public class StubMessageModule:IMessageModule
     {
         public Action OnBegin = () => { };
@@ -99,4 +104,5 @@
             OnError();
         }
     }
+#pragma warning restore 0618
 }

@@ -177,22 +177,44 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 			$assemblyProduct = "NServiceBus"
 		}
 		
-		$notclsCompliant = @("")
-
-		$clsCompliant = (($projectDir.ToString().StartsWith("$srcDir")) -and ([System.Array]::IndexOf($notclsCompliant, $projectName) -eq -1)).ToString().ToLower()
+		$internalsVisibleTo = gc $asmInfo | select-string -pattern "InternalsVisibleTo" 
+		if($internalsVisibleTo -ne $null){
+			$internalsVisibleTo = $internalsVisibleTo.ToString()
+			if($internalsVisibleTo -ne ""){
+				$internalsVisibleTo = $internalsVisibleTo.Replace('[assembly: InternalsVisibleTo("', '') 
+				$internalsVisibleTo = $internalsVisibleTo.Replace('")]', '') 
+				$internalsVisibleTo = $internalsVisibleTo.Trim()
+			}
+		}
+		else{
+			$internalsVisibleTo = ""
+		}
+		
+		$clsCompliant = gc $asmInfo | select-string -pattern "CLSCompliantAttribute" 
+		if($clsCompliant -ne $null){
+			$clsCompliant = $clsCompliant.ToString()
+			if($clsCompliant -ne ""){
+				$clsCompliant = $clsCompliant.Replace('[assembly: CLSCompliantAttribute(', '') 
+				$clsCompliant = $clsCompliant.Replace(')]', '') 
+				$clsCompliant = $clsCompliant.Trim()
+			}
+		}
+		else{
+			$clsCompliant = "true"
+		}
 		
 		Generate-Assembly-Info $assemblyTitle `
-		$assemblyDescription  `
-		$clsCompliant `
-		"" `
-		"release" `
-		"NServiceBus Ltd." `
-		$assemblyProduct `
-		"Copyright 2010-2013 NServiceBus. All rights reserved" `
-		$asmVersion `
-		$fileVersion `
-		$infoVersion `
-		$asmInfo 
+			$assemblyDescription  `
+			$clsCompliant `
+			$internalsVisibleTo `
+			"release" `
+			"NServiceBus Ltd." `
+			$assemblyProduct `
+			"Copyright 2010-2013 NServiceBus. All rights reserved" `
+			$asmVersion `
+			$fileVersion `
+			$infoVersion `
+			$asmInfo 
  	}
 }
 
@@ -283,7 +305,6 @@ task Merge -depends Build {
 	$assemblies += dir $outDir\log4net.dll
 	$assemblies += dir $outDir\Interop.MSMQ.dll
 	$assemblies += dir $outDir\AutoFac.dll
-	$assemblies += dir $outDir\Autofac.Configuration.dll
 	$assemblies += dir $outDir\Newtonsoft.Json.dll
 
 	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Core.dll" $assemblies "library" $script:ilmergeTargetFramework $ilMergeExclude

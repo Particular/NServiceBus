@@ -13,8 +13,6 @@ namespace NServiceBus
       /// <summary>
       /// Use the Unity builder.
       /// </summary>
-      /// <param name="config"></param>
-      /// <returns></returns>
       public static Configure UnityBuilder(this Configure config)
       {
          ConfigureCommon.With(config, new UnityObjectBuilder());
@@ -22,11 +20,8 @@ namespace NServiceBus
       }
 
       /// <summary>
-      /// Use the Unity builder passing in a preconfigured container to be used by nServiceBus.
+      /// Use the Unity builder passing in a pre-configured container to be used by nServiceBus.
       /// </summary>
-      /// <param name="config"></param>
-      /// <param name="container"></param>
-      /// <returns></returns>
       public static Configure UnityBuilder(this Configure config, IUnityContainer container)
       {
          ConfigureCommon.With(config, new UnityObjectBuilder(container));

@@ -11,7 +11,7 @@ namespace ObjectBuilder.Tests
         [Test]
         public void Transient_component_should_be_disposed_and_destructor_called()
         {
-            ForAllBuilders((builder) =>
+            ForAllBuilders(builder =>
                 {
                     builder.Configure(typeof (TransientClass), DependencyLifecycle.InstancePerCall);
 

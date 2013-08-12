@@ -1,7 +1,9 @@
 namespace NServiceBus.Persistence
 {
     using System;
+    using System.Runtime.Serialization;
 
+    [Serializable]
     public class ConcurrencyException : Exception
     {
         public ConcurrencyException(string message, Exception innerException) : base(message, innerException)
@@ -15,5 +17,6 @@ namespace NServiceBus.Persistence
         public ConcurrencyException()
         {
         }
+        protected ConcurrencyException(SerializationInfo info, StreamingContext context) { }
     }
 }

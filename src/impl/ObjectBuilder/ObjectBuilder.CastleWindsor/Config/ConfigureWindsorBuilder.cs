@@ -1,8 +1,7 @@
-﻿using NServiceBus.ObjectBuilder.CastleWindsor;
-using Castle.Windsor;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using ObjectBuilder.CastleWindsor;
+    using Castle.Windsor;
     using ObjectBuilder.Common.Config;
 
     /// <summary>
@@ -13,8 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Use the Castle Windsor builder.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure CastleWindsorBuilder(this Configure config)
         {
             ConfigureCommon.With(config, new WindsorObjectBuilder());
@@ -23,16 +20,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Use the Castle Windsor builder passing in a preconfigured container to be used by nServiceBus.
+        /// Use the Castle Windsor builder passing in a pre-configured container to be used by nServiceBus.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="container"></param>
-        /// <returns></returns>
         public static Configure CastleWindsorBuilder(this Configure config, IWindsorContainer container)
         {
             ConfigureCommon.With(config, new WindsorObjectBuilder(container));
 
             return config;
-        } 
+        }
     }
 }

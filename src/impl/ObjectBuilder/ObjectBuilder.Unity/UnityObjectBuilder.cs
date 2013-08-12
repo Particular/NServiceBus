@@ -12,13 +12,12 @@ namespace NServiceBus.ObjectBuilder.Unity
         /// <summary>
         /// The container itself.
         /// </summary>
-        private readonly IUnityContainer container;
+        IUnityContainer container;
 
-
-        private bool disposed;
+        bool disposed;
 
         /// <summary>
-        /// Instantites the class with a new UnityContainer.
+        /// Instantiates the class with a new <see cref="UnityContainer"/>.
         /// </summary>
         public UnityObjectBuilder()
             : this(new UnityContainer())
@@ -28,7 +27,6 @@ namespace NServiceBus.ObjectBuilder.Unity
         /// <summary>
         /// Instantiates the class saving the given container.
         /// </summary>
-        /// <param name="container"></param>
         public UnityObjectBuilder(IUnityContainer container)
         {
             this.container = container;
@@ -57,13 +55,12 @@ namespace NServiceBus.ObjectBuilder.Unity
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
-
             }
 
-            disposed = true;
         }
 
         ~UnityObjectBuilder()
@@ -75,7 +72,6 @@ namespace NServiceBus.ObjectBuilder.Unity
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
         /// </summary>
-        /// <returns></returns>
         public IContainer BuildChildContainer()
         {
             return new UnityObjectBuilder(container.CreateChildContainer());
@@ -84,7 +80,9 @@ namespace NServiceBus.ObjectBuilder.Unity
         public object Build(Type typeToBuild)
         {
             if (!DefaultInstances.Contains(typeToBuild))
+            {
                 throw new ArgumentException(typeToBuild + " is not registered in the container");
+            }
 
             return container.Resolve(typeToBuild);
         }
@@ -108,7 +106,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
             var interfaces = GetAllServiceTypesFor(concreteComponent);
       
-            foreach (Type t in interfaces)
+            foreach (var t in interfaces)
             {
                 if (DefaultInstances.Contains(t))
                 {
@@ -131,7 +129,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
            var interfaces = GetAllServiceTypesFor(componentType);
 
-           foreach (Type t in interfaces)
+           foreach (var t in interfaces)
            {
                if (DefaultInstances.Contains(t))
                {

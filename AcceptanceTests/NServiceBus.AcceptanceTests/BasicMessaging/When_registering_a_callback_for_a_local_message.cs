@@ -5,9 +5,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using ScenarioDescriptors;
- 
 
-    [TestFixture]
     public class When_registering_a_callback_for_a_local_message : NServiceBusAcceptanceTest
     {
         [Test]
@@ -19,9 +17,9 @@
                     .Done(c => c.HandlerGotTheRequest.HasValue)
                     .Repeat(r =>r.For(Transports.Default))
                     .Should(c =>
-                        {
-                            Assert.Greater(c.CallbackFired,c.HandlerGotTheRequest,"The callback should fire when the response comes in");
-                        })
+                    {
+                        Assert.Greater(c.CallbackFired, c.HandlerGotTheRequest, "The callback should fire when the response comes in");
+                    })
                     .Run();
         }
 

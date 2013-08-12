@@ -5,7 +5,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     using global::Ninject;
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
-    using NServiceBus.ObjectBuilder.Common;
+    using Common;
 
     public class NinjectChildContainer : DisposeNotifyingObject, IContainer
     {
@@ -18,12 +18,12 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
 
         public object Build(Type typeToBuild)
         {
-            return this.resolutionRoot.Get(typeToBuild);
+            return resolutionRoot.Get(typeToBuild);
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return this.resolutionRoot.GetAll(typeToBuild);
+            return resolutionRoot.GetAll(typeToBuild);
         }
 
         public IContainer BuildChildContainer()

@@ -46,7 +46,7 @@
     </Reference>
     <Reference Include="Castle.Windsor, Version=3.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Castle.Windsor.3.2.0\lib\net40\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\..\packages\Castle.Windsor.3.2.1\lib\net40\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\..\..\packages\Iesi.Collections.3.3.3.4000\lib\Net35\Iesi.Collections.dll</HintPath>
@@ -70,7 +70,7 @@
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="ConfigManagerTests.cs" />
-    <Compile Include="PreserveStackTracePreserverTests.cs" />
+    <Compile Include="StackTracePreserverTests.cs" />
     <Compile Include="EndpointTypeDeterminerTests.cs" />
     <Compile Include="EndpointTypeTests.cs" />
     <Compile Include="ProfileManagerTests.cs" />

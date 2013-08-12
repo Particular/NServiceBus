@@ -10,7 +10,7 @@ namespace OrderWebSite
             return new UnicastBusConfig {
                 MessageEndpointMappings = new MessageEndpointMappingCollection
                 {
-                    new MessageEndpointMapping { Messages="MyMessages", Endpoint="orderserviceXXX" }
+                    new MessageEndpointMapping { Messages="MyMessages", Endpoint="orderservice" }
                 }
             };
         }

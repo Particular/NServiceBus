@@ -1,22 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using StructureMap;
-using StructureMap.Graph;
-using StructureMap.Pipeline;
-using StructureMap.TypeRules;
-using IContainer = StructureMap.IContainer;
-
-namespace NServiceBus.ObjectBuilder.StructureMap
+﻿namespace NServiceBus.ObjectBuilder.StructureMap
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using global::StructureMap;
+    using global::StructureMap.Graph;
+    using global::StructureMap.Pipeline;
+    using global::StructureMap.TypeRules;
+    using IContainer = global::StructureMap.IContainer;
+
     /// <summary>
     /// ObjectBuilder implementation for the StructureMap IoC-Container
     /// </summary>
     public class StructureMapObjectBuilder : Common.IContainer
     {
-        private readonly IContainer container;
-        private readonly IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();
-        private bool disposed;
+        IContainer container;
+        IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();
+        bool disposed;
 
         public StructureMapObjectBuilder()
         {
@@ -44,12 +44,12 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 return;
             }
 
+            disposed = true;
             if (disposing)
             {
                 container.Dispose();
             }
 
-            disposed = true;
         }
 
         ~StructureMapObjectBuilder()
@@ -69,8 +69,10 @@ namespace NServiceBus.ObjectBuilder.StructureMap
 
         object Common.IContainer.Build(Type typeToBuild)
         {
-            if(container.Model.PluginTypes.Any(t=>t.PluginType == typeToBuild))
-               return container.GetInstance(typeToBuild);
+            if (container.Model.PluginTypes.Any(t => t.PluginType == typeToBuild))
+            {
+                return container.GetInstance(typeToBuild);
+            }
     
             throw new ArgumentException(typeToBuild + " is not registered in the container");
         }
@@ -95,12 +97,18 @@ namespace NServiceBus.ObjectBuilder.StructureMap
                 var configuredInstance = instance as ConfiguredInstance;
 
                 if (configuredInstance == null)
+                {
                     throw new InvalidOperationException("Cannot configure property before the component has been configured. Please call 'Configure' first.");
+                }
 
                 if (value.GetType().IsSimple())
+                {
                     configuredInstance.WithProperty(property).EqualTo(value);
+                }
                 else
+                {
                     configuredInstance.Child(property).Is(value);
+                }
             }
         }
 
@@ -108,8 +116,10 @@ namespace NServiceBus.ObjectBuilder.StructureMap
         {
             lock (configuredInstances)
             {
-                if(configuredInstances.ContainsKey(component))
+                if (configuredInstances.ContainsKey(component))
+                {
                     return;
+                }
             }
 
             var lifecycle = GetLifecycleFrom(dependencyLifecycle);
@@ -133,7 +143,9 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             });
 
             lock (configuredInstances)
+            {
                 configuredInstances.Add(component, configuredInstance);
+            }
         }
 
         void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -143,30 +155,34 @@ namespace NServiceBus.ObjectBuilder.StructureMap
             lock (configuredInstances)
             {
                 if (configuredInstances.ContainsKey(pluginType))
+                {
                     return;
+                }
             }
 
             var lifecycle = GetLifecycleFrom(dependencyLifecycle);
             LambdaInstance<T> lambdaInstance = null;
 
             container.Configure(x =>
-            {
-                lambdaInstance = x.For<T>()
-                    .LifecycleIs(lifecycle)
-                    .Use(componentFactory);
-
-                x.EnableSetterInjectionFor(pluginType);
-
-                foreach (var implementedInterface in GetAllInterfacesImplementedBy(pluginType))
                 {
-                    x.RegisterAdditionalInterfaceForPluginType(implementedInterface, pluginType, lifecycle);
-                    x.EnableSetterInjectionFor(implementedInterface);
+                    lambdaInstance = x.For<T>()
+                                      .LifecycleIs(lifecycle)
+                                      .Use(componentFactory);
+
+                    x.EnableSetterInjectionFor(pluginType);
+
+                    foreach (var implementedInterface in GetAllInterfacesImplementedBy(pluginType))
+                    {
+                        x.RegisterAdditionalInterfaceForPluginType(implementedInterface, pluginType, lifecycle);
+                        x.EnableSetterInjectionFor(implementedInterface);
+                    }
                 }
-            }
                 );
 
             lock (configuredInstances)
+            {
                 configuredInstances.Add(pluginType, lambdaInstance);
+            }
         }
 
         void Common.IContainer.RegisterSingleton(Type lookupType, object instance)

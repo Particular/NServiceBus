@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus Container StructureMap Implementation")]
 [assembly: AssemblyDescription("Implementation of container functionality on top of StructureMap.")]

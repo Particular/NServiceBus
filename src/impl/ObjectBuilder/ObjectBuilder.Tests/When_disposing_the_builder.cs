@@ -1,6 +1,7 @@
 namespace ObjectBuilder.Tests
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Common;
@@ -27,6 +28,16 @@ namespace ObjectBuilder.Tests
 
                     Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
                     Assert.True(AnotherSingletonComponent.DisposeCalled, "Dispose should be called on AnotherSingletonComponent");
+                });
+        }
+        [Test]
+        public void When_circular_ref_exists_between_container_and_builder_should_not_infinite_loop()
+        {
+            ForAllBuilders(builder =>
+                {
+                        Debug.WriteLine("Trying " + builder.GetType().Name);
+                        builder.RegisterSingleton(builder.GetType(), builder);
+                        builder.Dispose();
                 });
         }
 
@@ -80,71 +91,21 @@ namespace ObjectBuilder.Tests
 
         public class DisposableComponent : IDisposable
         {
-            private bool disposed;
-
             public static bool DisposeCalled;
 
             public void Dispose()
             {
                 DisposeCalled = true;
-
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                disposed = true;
-            }
-
-            ~DisposableComponent()
-            {
-                Dispose(false);
             }
         }
 
         public class AnotherSingletonComponent : IDisposable
         {
-            private bool disposed;
-
             public static bool DisposeCalled;
 
             public void Dispose()
             {
                 DisposeCalled = true;
-
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                }
-
-                disposed = true;
-            }
-
-            ~AnotherSingletonComponent()
-            {
-                Dispose(false);
             }
         }
     }

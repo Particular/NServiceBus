@@ -30,6 +30,13 @@ namespace ReturnToSourceQueue
 
                 Console.WriteLine("Please enter the error queue you would like to use:");
                 inputQueue = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(inputQueue))
+                {
+                    Console.WriteLine("No error queue specified");
+                    Console.WriteLine("\nPress 'Enter' to exit.");
+                    Console.ReadLine();
+                    return;
+                }
                 script = false;
             }
 
