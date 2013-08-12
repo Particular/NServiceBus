@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.Diagnostics.Management;
 using Microsoft.WindowsAzure.ServiceRuntime;
@@ -10,7 +9,6 @@ using NServiceBus.Logging;
 namespace NServiceBus.Integration.Azure
 {
     using System.Security;
-    using Microsoft.WindowsAzure.Storage;
     
     /// <summary>
     /// 
@@ -60,7 +58,10 @@ namespace NServiceBus.Integration.Azure
                     {
                         return;
                     }
-                    
+                    catch (InvalidOperationException)
+                    {
+                        return;
+                    }
                 }
             }
             else
