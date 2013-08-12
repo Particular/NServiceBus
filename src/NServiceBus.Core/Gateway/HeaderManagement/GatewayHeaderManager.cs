@@ -15,7 +15,7 @@ namespace NServiceBus.Gateway.HeaderManagement
 
             returnInfo = new HttpReturnInfo
             {
-                //we preserve the httfrom to be backwards compatible with NServiceBus 2.X 
+                //we preserve the httpfrom to be backwards compatible with NServiceBus 2.X 
                 HttpFrom = transportMessage.Headers.ContainsKey(Headers.HttpFrom) ? transportMessage.Headers[Headers.HttpFrom] : null,
                 OriginatingSite = transportMessage.Headers.ContainsKey(Headers.OriginatingSite) ? transportMessage.Headers[Headers.OriginatingSite] : null,
                 ReplyToAddress = transportMessage.ReplyToAddress
