@@ -51,10 +51,15 @@ namespace NServiceBus.Sagas
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
+            if (transportMessage.MessageIntent != MessageIntentEnum.Reply)
             {
                 return;
             }
+
+            //for now we rewert back to send since this would be a breaking change. We'll fix this in v4.1
+            //https://github.com/NServiceBus/NServiceBus/issues/1409
+            transportMessage.MessageIntent = MessageIntentEnum.Send;
+            
 
             if (string.IsNullOrEmpty(originatingSagaId))
             {
