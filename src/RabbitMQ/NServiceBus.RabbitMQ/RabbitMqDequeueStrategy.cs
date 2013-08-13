@@ -91,7 +91,7 @@
         private void Action(object obj)
         {
             var cancellationToken = (CancellationToken)obj;
-            var connection = ConnectionManager.GetConnection(ConnectionPurpose.Consume);
+            var connection = ConnectionManager.GetConsumeConnection();
 
             using (var channel = connection.CreateModel())
             {
@@ -175,7 +175,7 @@
 
         void Purge()
         {
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
+            using (var channel = ConnectionManager.GetAdministrationConnection().CreateModel())
             {
                 channel.QueuePurge(workQueue);
             }

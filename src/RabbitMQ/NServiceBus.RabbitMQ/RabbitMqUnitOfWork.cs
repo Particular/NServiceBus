@@ -70,7 +70,7 @@
 
         void ExecuteRabbitMqActions(IList<Action<IModel>> actions)
         {
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Publish).CreateModel())
+            using (var channel = ConnectionManager.GetPublishConnection().CreateModel())
             {
                 if (UsePublisherConfirms)
                 {

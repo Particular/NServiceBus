@@ -4,13 +4,9 @@
 
     public interface IManageRabbitMqConnections
     {
-        IConnection GetConnection(ConnectionPurpose purpose);
+        IConnection GetPublishConnection();
+        IConnection GetConsumeConnection();
+        IConnection GetAdministrationConnection();
     }
 
-    public enum ConnectionPurpose
-    {
-        Publish=1,
-        Consume=2,
-        Administration = 3
-    }
 }
