@@ -56,7 +56,7 @@ namespace NServiceBus.Saga
         }
 
         /// <summary>
-        /// Gets all the properties that are marked with the <see cref="UniqueAttribute"/> for the given <paramref name="Type"/>.
+        /// Gets all the properties that are marked with the <see cref="UniqueAttribute"/> for the given <paramref name="type"/>.
         /// </summary>
         /// <param name="type">The type to evaluate.</param>
         /// <returns>A <see cref="IQueryable"/> of <see cref="PropertyInfo"/>.</returns>
