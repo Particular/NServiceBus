@@ -8,17 +8,18 @@
     using NUnit.Framework;
     using RabbitMQ;
     using Routing;
-    using global::RabbitMQ.Client;
     using TransactionSettings = Unicast.Transport.TransactionSettings;
 
     public class RabbitMqContext
     {
-        protected void MakeSureQueueExists(string queueName)
+        protected void MakeSureQueueAndExchangeExists(string queueName)
         {
             using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
+                MakeSureExchangeExists(queueName);
+                channel.QueueBind(queueName, queueName, string.Empty);
             }
         }
 
@@ -80,7 +81,7 @@
 
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
             
-            MakeSureQueueExists(MYRECEIVEQUEUE);
+            MakeSureQueueAndExchangeExists(MYRECEIVEQUEUE);
 
             DeleteExchange(MYRECEIVEQUEUE);
             MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE),null));

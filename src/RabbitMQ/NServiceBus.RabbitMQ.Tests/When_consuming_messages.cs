@@ -11,7 +11,7 @@
         [SetUp]
         public void SetUp()
         {
-
+            MakeSureQueueAndExchangeExists(MYRECEIVEQUEUE);
         }
 
         [Test]

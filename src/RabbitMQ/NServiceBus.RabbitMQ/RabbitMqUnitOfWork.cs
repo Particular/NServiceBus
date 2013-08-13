@@ -3,8 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Transactions;
     using global::RabbitMQ.Client;
+    using global::RabbitMQ.Client.Exceptions;
+    using Unicast.Queuing;
 
     public class RabbitMqUnitOfWork
     {
@@ -82,8 +85,21 @@
                 {
                     action(channel);
                 }
-
-                channel.WaitForConfirmsOrDie(MaxWaitTimeForConfirms);
+                try
+                {
+                    channel.WaitForConfirmsOrDie(MaxWaitTimeForConfirms);
+                }
+                catch (AlreadyClosedException ex)
+                {
+                    if (ex.ShutdownReason != null && ex.ShutdownReason.ReplyCode == 404)
+                    {
+                        var msg = ex.ShutdownReason.ReplyText;
+                        var matches = Regex.Matches(msg, @"'([^' ]*)'");
+                        var exchangeName = matches.Count > 0 && matches[0].Groups.Count > 1 ? Address.Parse(matches[0].Groups[1].Value) : null;
+                        throw new QueueNotFoundException(exchangeName, "Exchange for the recipient does not exist", ex);
+                    }
+                    throw;
+                }
             }
         }
 
