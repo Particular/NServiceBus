@@ -178,7 +178,7 @@
 
         void SendMessage(TransportMessage message)
         {
-            MakeSureQueueExists(TESTQUEUE);
+            MakeSureQueueAndExchangeExists(TESTQUEUE);
 
             sender.Send(message, Address.Parse(TESTQUEUE));
         }

@@ -68,7 +68,6 @@
         public void Send(IModel channel, Address address, TransportMessage message, IBasicProperties properties)
         {
             var subscriberName = address.Queue;
-            CreateQueueAndExchangeForSubscriber(channel, subscriberName);
             channel.BasicPublish(subscriberName, String.Empty, true, false, properties, message.Body);
         }
 
