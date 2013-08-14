@@ -28,7 +28,7 @@ namespace NServiceBus.Saga
                 throw new InvalidOperationException(message);
             }
 
-            return properties.First();
+            return properties.SingleOrDefault();
         }
 
         /// <summary>

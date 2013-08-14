@@ -66,6 +66,13 @@
             Assert.IsEmpty(uniqueProperties);
         }
 
+        [Test]
+        public void Ensure_null_returned_when_no_attributes_exists()
+        {
+            var uniqueProperty = UniqueAttribute.GetUniqueProperty(typeof(ModelWithNoUniqueProperty));
+            Assert.IsNull(uniqueProperty);
+        }
+
         public class ModelWithMultipleUniqueProperty
         {
             [UniqueAttribute]
