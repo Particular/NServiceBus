@@ -22,16 +22,6 @@ NHibernate binaries are merged into NServiceBus allowed under the LGPL license t
 
 http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
 
-******************************
-
-
-LinFu is licensed under the LGPL v3 license as described here:
-
-http://code.google.com/p/linfu/
-
-LinFu binaries are merged into NServiceBus allowed under the LGPL license terms found here:
-
-http://www.gnu.org/licenses/lgpl-3.0.txt
 
 ******************************
 
