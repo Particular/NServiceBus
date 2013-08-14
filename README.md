@@ -164,3 +164,14 @@ Application specific use requires a paid RavenDB license
 
 RavenDB binaries are linked into the NServiceBus distribution allowed under the license terms described above.
 
+******************************
+
+
+ActiveMQ is licensed under the Apache 2.0 licence  as described here:
+
+http://activemq.apache.org/what-is-the-license.html
+
+The ActiveMQ client is referenced by NServiceBus
+
+
+
