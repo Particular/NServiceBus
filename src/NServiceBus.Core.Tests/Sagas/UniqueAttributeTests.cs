@@ -19,8 +19,7 @@
         }
 
         [Test]
-        [Explicit]
-        public void Ensure_override_property_is_returned_when_attribute_exists()
+        public void EnsureOverridePropertyIsReturnedWhenAttributeExists()
         {
             var uniqueProperties = UniqueAttribute.GetUniqueProperties(typeof(InheritedModelWithOverride))
                 .ToList();

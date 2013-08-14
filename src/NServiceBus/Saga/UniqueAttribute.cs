@@ -64,7 +64,7 @@ namespace NServiceBus.Saga
         public static IEnumerable<PropertyInfo> GetUniqueProperties(Type type)
         {
             return type.GetProperties()
-                .Where(p => p.CanRead && p.GetCustomAttributes(typeof (UniqueAttribute),false).Length > 0);
+                .Where(p => p.CanRead &&  GetCustomAttribute(p, typeof(UniqueAttribute)) != null);
         }
     }
 }
