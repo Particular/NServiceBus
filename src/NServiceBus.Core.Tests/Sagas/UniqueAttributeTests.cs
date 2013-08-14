@@ -10,6 +10,25 @@
     {
 
         [Test]
+        public void Ensure_inherited_property_is_returned_when_attribute_exists()
+        {
+            var uniqueProperties = UniqueAttribute.GetUniqueProperties(typeof(InheritedModel))
+                .ToList();
+            Assert.AreEqual(1,uniqueProperties.Count);
+            Assert.AreEqual("PropertyWithAttribute", uniqueProperties.First().Name);
+        }
+
+        [Test]
+        [Explicit]
+        public void Ensure_override_property_is_returned_when_attribute_exists()
+        {
+            var uniqueProperties = UniqueAttribute.GetUniqueProperties(typeof(InheritedModelWithOverride))
+                .ToList();
+            Assert.AreEqual(1,uniqueProperties.Count);
+            Assert.AreEqual("PropertyWithAttribute", uniqueProperties.First().Name);
+        }
+
+        [Test]
         public void Ensure_property_is_returned_when_attribute_exists()
         {
             var uniqueProperties = UniqueAttribute.GetUniqueProperties(typeof(ModelWithUniqueProperty))
@@ -59,8 +78,15 @@
         public class ModelWithUniqueProperty
         {
             [UniqueAttribute]
-            public string PropertyWithAttribute { get; set; }   
+            public virtual string PropertyWithAttribute { get; set; }   
             public string PropertyWithNoAttribute { get; set; }   
+        }
+        public class InheritedModelWithOverride : ModelWithUniqueProperty
+        {
+            public override string PropertyWithAttribute { get; set; }
+        }
+        public class InheritedModel : ModelWithUniqueProperty
+        {
         }
         public class ModelWithNoUniqueProperty
         {
