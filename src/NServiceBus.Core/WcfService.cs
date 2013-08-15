@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.ServiceModel;
+    using Unicast;
 
     /// <summary>
     /// Generic WCF service for exposing a messaging endpoint.
@@ -27,7 +28,7 @@ namespace NServiceBus
         {
             var result = new ServiceAsyncResult(state);
 
-            return bus.SendLocal(request).Register(r => ProxyCallback(callback, result, r), state);
+            return ((UnicastBus) bus).SendLocal(request).Register(r => ProxyCallback(callback, result, r), state);
         }
 
         TResponse IWcfService<TRequest, TResponse>.EndProcess(IAsyncResult asyncResult)

@@ -240,6 +240,16 @@
                 throw new NotImplementedException();
             }
 
+            public void Publish<T>(T message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Publish<T>()
+            {
+                throw new NotImplementedException();
+            }
+
             public void Publish<T>(Action<T> messageConstructor)
             {
                 throw new NotImplementedException();
@@ -280,12 +290,22 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback SendLocal(object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback SendLocal<T>(Action<T> messageConstructor)
             {
                 throw new NotImplementedException();
             }
 
             public ICallback Send(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(object message)
             {
                 throw new NotImplementedException();
             }
@@ -300,7 +320,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Send(string destination, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Send(Address address, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, object message)
             {
                 throw new NotImplementedException();
             }
@@ -320,7 +350,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Send(string destination, string correlationId, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Send(Address address, string correlationId, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, string correlationId, object message)
             {
                 throw new NotImplementedException();
             }
@@ -340,7 +380,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Defer(TimeSpan delay, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Defer(TimeSpan delay, object message)
             {
                 throw new NotImplementedException();
             }
@@ -350,7 +400,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Defer(DateTime processAt, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public void Reply(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Reply(object message)
             {
                 throw new NotImplementedException();
             }

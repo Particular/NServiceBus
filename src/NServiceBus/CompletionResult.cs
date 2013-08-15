@@ -9,12 +9,12 @@ namespace NServiceBus
     public class CompletionResult
     {
         /// <summary>
-        /// If <see cref="IBus.Return&lt;T&gt;"/> was called, this contains the value passed to it.
+        /// If <see cref="IBus.Return{T}"/> was called, this contains the value passed to it.
         /// </summary>
         public int ErrorCode { get; set; }
 
         /// <summary>
-        /// If <see cref="IBus.Reply"/> was called, this contains the messages passed to it.
+        /// If <see cref="IBus.Reply(object)"/> was called, this contains the messages passed to it.
         /// </summary>
         public object[] Messages { get; set; }
 

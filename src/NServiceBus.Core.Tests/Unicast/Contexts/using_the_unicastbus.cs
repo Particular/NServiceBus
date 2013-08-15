@@ -26,7 +26,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
     public class using_a_configured_unicastbus
     {
-        protected IBus bus;
+        protected UnicastBus bus;
 
         protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
