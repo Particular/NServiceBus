@@ -41,29 +41,16 @@
                 return;
             }
 
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
             disposed = true;
-            if (disposing)
+            if (context != null)
             {
-                // Dispose managed resources.
                 context.Dispose();
             }
-
-        }
-
-        ~SpringObjectBuilder()
-        {
-            Dispose(false);
         }
 
         IContainer IContainer.BuildChildContainer()

@@ -24,35 +24,27 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (sessionFactory != null)
             {
-                // Dispose managed resources.
-                this.sessionFactory.RemoveSessionForCurrentThread();
-                this.transactionScope.Dispose();
-                if (!this.complete)
-                {
-                    throw new Exception();
-                }
+                sessionFactory.RemoveSessionForCurrentThread();
+            }
+            if (transactionScope != null)
+            {
+                transactionScope.Dispose();
+            }
+            if (!complete)
+            {
+                throw new Exception();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
 
-        ~DTCTransactionScope()
-        {
-            this.Dispose(false);
-        }
 
         public void MessageAccepted(IMessage message)
         {

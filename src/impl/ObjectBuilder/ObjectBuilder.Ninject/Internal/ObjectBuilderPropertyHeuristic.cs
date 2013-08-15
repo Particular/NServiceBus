@@ -57,32 +57,17 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        private void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (RegisteredTypes != null)
             {
                 RegisteredTypes.Clear();
             }
 
             disposed = true;
-        }
-
-        ~ObjectBuilderPropertyHeuristic()
-        {
-            Dispose(false);
         }
     }
 }

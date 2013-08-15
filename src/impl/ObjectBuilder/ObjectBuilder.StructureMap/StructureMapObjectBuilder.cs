@@ -33,28 +33,16 @@
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
             disposed = true;
-            if (disposing)
+            if (container != null)
             {
                 container.Dispose();
             }
-
-        }
-
-        ~StructureMapObjectBuilder()
-        {
-            Dispose(false);
         }
 
         /// <summary>

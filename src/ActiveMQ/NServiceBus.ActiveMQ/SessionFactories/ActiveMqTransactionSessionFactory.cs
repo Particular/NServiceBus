@@ -51,29 +51,17 @@
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (pooledSessionFactory != null)
             {
-                // Dispose managed resources.
                 pooledSessionFactory.Dispose();
             }
 
             disposed = true;
-        }
-
-        ~ActiveMqTransactionSessionFactory()
-        {
-            Dispose(false);
         }
     }
 }

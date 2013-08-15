@@ -37,33 +37,20 @@ namespace NServiceBus.Azure
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
+            if (disposed)
             {
-                if (disposing)
-                {
-                    if (renewalThread != null)
-                    {
-                        renewalThread.Abort();
-                        blob.ReleaseLease(new AccessCondition()
-                            {
-                                LeaseId = leaseId
-                            });
-                        renewalThread = null;
-                    }
-                }
-                disposed = true;
+                return;
             }
-        }
-
-        ~AutoRenewLease()
-        {
-            Dispose(false);
+            if (renewalThread != null)
+            {
+                renewalThread.Abort();
+                blob.ReleaseLease(new AccessCondition()
+                                  {
+                                      LeaseId = leaseId
+                                  });
+                renewalThread = null;
+            }
+            disposed = true;
         }
     }
 }

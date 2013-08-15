@@ -9,7 +9,7 @@ namespace ObjectBuilder.Tests
     public class When_releasing_components : BuilderFixture
     {
         [Test]
-        public void Transient_component_should_be_disposed_and_destructor_called()
+        public void Transient_component_should_be_destructed_called()
         {
             ForAllBuilders(builder =>
                 {
@@ -28,39 +28,19 @@ namespace ObjectBuilder.Tests
                     GC.WaitForPendingFinalizers();
 
                     Assert.IsFalse(weak.IsAlive);
+                    Assert.IsTrue(TransientClass.Destructed);
                 }, typeof(AutofacObjectBuilder));
         }
 
-        public class TransientClass : IDisposable
+        public class TransientClass 
         {
-            bool disposed;
+            public static bool Destructed;
 
             public string Name { get; set; }
 
             ~TransientClass()
             {
-                Dispose(false);
-            }
-
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (disposed)
-                {
-                    return;
-                }
-
-                if (disposing)
-                {
-
-                }
-
-                disposed = true;
+                Destructed = true;
             }
         }
     }

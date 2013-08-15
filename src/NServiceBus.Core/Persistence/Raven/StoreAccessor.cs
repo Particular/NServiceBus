@@ -21,29 +21,17 @@
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (store != null)
             {
-                // Dispose managed resources.
                 store.Dispose();
             }
 
             disposed = true;
-        }
-
-        ~StoreAccessor()
-        {
-            Dispose(false);
         }
     }
 }

@@ -43,11 +43,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             this.transactionScopeFactory = transactionScopeFactory;
         }
 
-        ~MessageProcessor()
-        {
-            Dispose(false);
-        }
-
         public virtual void Start(TransactionSettings transactionSettings)
         {
             this.transactionSettings = transactionSettings;
@@ -62,18 +57,12 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (sessionFactory != null)
             {
                 sessionFactory.Release(session);
             }

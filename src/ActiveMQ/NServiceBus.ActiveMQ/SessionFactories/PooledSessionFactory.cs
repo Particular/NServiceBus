@@ -16,11 +16,6 @@
             this.connectionFactory = connectionFactory;
         }
 
-        ~PooledSessionFactory()
-        {
-            this.Dispose(false);
-        }
-
         public virtual ISession GetSession()
         {
             ISession session;
@@ -60,26 +55,17 @@
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            foreach (var connection in connections)
             {
-                foreach (var connection in this.connections)
-                {
-                    connection.Value.Close();
-                }
+                connection.Value.Close();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
     }
 }

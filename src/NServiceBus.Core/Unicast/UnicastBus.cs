@@ -871,37 +871,18 @@ namespace NServiceBus.Unicast
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Tells the transport to dispose.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
-
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
-            {
-                // free managed resources
+            Shutdown();
 
-                Shutdown();
-
-                Configure.Instance.Builder.Dispose();
-            }
+            Configure.Instance.Builder.Dispose();
 
             disposed = true;
         }
 
-        ~UnicastBus()
-        {
-            Dispose(false);
-        }
 
         void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
         {

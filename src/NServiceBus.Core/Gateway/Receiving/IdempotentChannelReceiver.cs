@@ -35,8 +35,18 @@ namespace NServiceBus.Gateway.Receiving
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                return;
+            }
+
+            if (channelReceiver != null)
+            {
+                channelReceiver.DataReceived -= DataReceivedOnChannel;
+                channelReceiver.Dispose();
+            }
+
+            disposed = true;
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
@@ -178,31 +188,6 @@ namespace NServiceBus.Gateway.Receiving
             msg.Body = outMessage;
 
             MessageReceived(this, new MessageReceivedOnChannelArgs {Message = msg});
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-                if (channelReceiver != null)
-                {
-                    channelReceiver.DataReceived -= DataReceivedOnChannel;
-                    channelReceiver.Dispose();
-                }
-            }
-
-            disposed = true;
-        }
-
-        ~IdempotentChannelReceiver()
-        {
-            Dispose(false);
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));

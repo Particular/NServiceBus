@@ -25,11 +25,19 @@
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (disposed)
+            {
+                return;
+            }
+
+            if (currentTransaction != null)
+            {
+                currentTransaction.Dispose();
+            }
+
+            disposed = true;
         }
 
         /// <summary>
@@ -153,27 +161,6 @@
         private static object GetValue(object value)
         {
             return value ?? DBNull.Value;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-                currentTransaction.Dispose();
-            }
-
-            disposed = true;
-        }
-
-        ~SqlServerMessageSender()
-        {
-            Dispose(false);
         }
     }
 }

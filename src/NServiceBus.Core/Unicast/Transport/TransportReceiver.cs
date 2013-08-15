@@ -446,34 +446,21 @@ namespace NServiceBus.Unicast.Transport
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
-            {
-                Stop();
+            Stop();
 
-                if (currentReceivePerformanceDiagnostics != null)
-                {
-                    currentReceivePerformanceDiagnostics.Dispose();
-                }
+            if (currentReceivePerformanceDiagnostics != null)
+            {
+                currentReceivePerformanceDiagnostics.Dispose();
             }
 
             disposed = true;
         }
 
-        ~TransportReceiver()
-        {
-            Dispose(false);
-        }
 
         Address receiveAddress;
         bool isStarted;

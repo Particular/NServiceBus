@@ -17,7 +17,7 @@ namespace System.Threading.Tasks.Schedulers
     {
         private bool disposed;
         /// <summary>Stores the queued tasks to be executed by our pool of STA threads.</summary>
-        private BlockingCollection<Task> _tasks;
+        private BlockingCollection<Task> tasks;
         /// <summary>The MTA threads used by the scheduler.</summary>
         private readonly List<Thread> _threads;
 
@@ -30,7 +30,7 @@ namespace System.Threading.Tasks.Schedulers
             if (numberOfThreads < 1) throw new ArgumentOutOfRangeException("numberOfThreads");
 
             // Initialize the tasks collection
-            _tasks = new BlockingCollection<Task>();
+            tasks = new BlockingCollection<Task>();
 
             // Create the threads to be used by this scheduler
             _threads = Enumerable.Range(0, numberOfThreads).Select(i =>
@@ -39,7 +39,7 @@ namespace System.Threading.Tasks.Schedulers
                            {
                                // Continually get the next task and try to execute it.
                                // This will continue until the scheduler is disposed and no more tasks remain.
-                               foreach (var t in _tasks.GetConsumingEnumerable())
+                               foreach (var t in tasks.GetConsumingEnumerable())
                                {
                                    TryExecuteTask(t);
                                }
@@ -59,7 +59,7 @@ namespace System.Threading.Tasks.Schedulers
         protected override void QueueTask(Task task)
         {
             // Push it into the blocking collection of tasks
-            _tasks.Add(task);
+            tasks.Add(task);
         }
 
         /// <summary>Provides a list of the scheduled tasks for the debugger to consume.</summary>
@@ -67,7 +67,7 @@ namespace System.Threading.Tasks.Schedulers
         protected override IEnumerable<Task> GetScheduledTasks()
         {
             // Serialize the contents of the blocking collection of tasks for the debugger
-            return _tasks.ToArray();
+            return tasks.ToArray();
         }
 
         /// <summary>Determines whether a Task may be inlined.</summary>
@@ -91,43 +91,28 @@ namespace System.Threading.Tasks.Schedulers
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (tasks != null)
             {
-                // Dispose managed resources.
-                if (_tasks != null)
+                // Indicate that no new tasks will be coming in
+                tasks.CompleteAdding();
+
+                // Wait for all threads to finish processing tasks
+                foreach (var thread in _threads)
                 {
-                    // Indicate that no new tasks will be coming in
-                    _tasks.CompleteAdding();
-
-                    // Wait for all threads to finish processing tasks
-                    foreach (var thread in _threads)
-                    {
-                        thread.Join();
-                    }
-
-                    // Cleanup
-                    _tasks.Dispose();
-                    _tasks = null;
+                    thread.Join();
                 }
+
+                // Cleanup
+                tasks.Dispose();
+                tasks = null;
             }
 
             disposed = true;
-        }
-
-        ~MTATaskScheduler()
-        {
-            Dispose(false);
         }
     }
 }

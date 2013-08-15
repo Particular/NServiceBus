@@ -22,39 +22,26 @@ namespace NServiceBus.Unicast.Transport.Monitoring
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (successRateCounter != null)
             {
-                if (successRateCounter != null)
-                {
-                    successRateCounter.Dispose();
-                }
-                if (throughputCounter != null)
-                {
-                    throughputCounter.Dispose();
-                }
-                if (failureRateCounter != null)
-                {
-                    failureRateCounter.Dispose();
-                }
+                successRateCounter.Dispose();
+            }
+            if (throughputCounter != null)
+            {
+                throughputCounter.Dispose();
+            }
+            if (failureRateCounter != null)
+            {
+                failureRateCounter.Dispose();
             }
             disposed = true;
         }
 
-        ~ReceivePerformanceDiagnostics()
-        {
-            Dispose(false);
-        }
 
         public void Initialize()
         {

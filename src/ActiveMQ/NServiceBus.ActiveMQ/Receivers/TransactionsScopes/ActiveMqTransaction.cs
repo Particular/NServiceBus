@@ -34,34 +34,19 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            // Dispose managed resources.
+            if (doRollback)
             {
-                // Dispose managed resources.
-                if (this.doRollback)
-                {
-                    this.session.Rollback();
-                }
-
-                this.sessionFactory.RemoveSessionForCurrentThread();
+                session.Rollback();
             }
 
-            this.disposed = true;
-        }
-
-        ~ActiveMqTransaction()
-        {
-            this.Dispose(false);
+            sessionFactory.RemoveSessionForCurrentThread();
+            disposed = true;
         }
     }
 }

@@ -17,31 +17,18 @@ namespace NServiceBus.Unicast.Monitoring
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (counter != null)
             {
-                if (counter != null)
-                {
-                    counter.Dispose();
-                }
+                counter.Dispose();
             }
             disposed = true;
         }
 
-        ~EstimatedTimeToSLABreachCalculator()
-        {
-            Dispose(false);
-        }
 
         /// <summary>
         ///     Verified that the counter exists

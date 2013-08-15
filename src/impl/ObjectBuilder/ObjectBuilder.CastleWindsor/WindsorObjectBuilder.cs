@@ -58,33 +58,19 @@
                 return;
             }
 
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~WindsorObjectBuilder()
-        {
-            Dispose(false);
-        }
-
-        /// <summary>
-        /// Implements dispose
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
             disposed = true;
-            if (disposing)
+            if (container != null)
             {
                 container.Dispose();
-                scope.Dispose();
             }
-
+            scope.Dispose();
         }
+
 
         /// <summary>
         /// Returns a child instance of the container to facilitate deterministic disposal

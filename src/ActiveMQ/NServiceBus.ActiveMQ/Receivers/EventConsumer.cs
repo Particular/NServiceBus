@@ -19,11 +19,6 @@
             this.messageProcessor = messageProcessor;
         }
 
-        ~EventConsumer()
-        {
-            this.Dispose(false);
-        }
-
         public string ConsumerName
         {
             get
@@ -53,26 +48,17 @@
 
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.disposed)
+            if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            foreach (var messageConsumer in topicConsumers)
             {
-                foreach (var messageConsumer in this.topicConsumers)
-                {
-                    messageConsumer.Value.Dispose();
-                }
+                messageConsumer.Value.Dispose();
             }
 
-            this.disposed = true;
+            disposed = true;
         }
 
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)

@@ -255,36 +255,21 @@
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
             disposed = true;
-            if (disposing)
+            if (kernel != null)
             {
                 if (!kernel.IsDisposed)
                 {
                     kernel.Dispose();
                 }
             }
-
         }
 
-        ~NinjectObjectBuilder()
-        {
-            Dispose(false);
-        }
 
         /// <summary>
         /// Gets the instance scope from call model.

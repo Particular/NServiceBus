@@ -123,11 +123,8 @@ namespace ObjectBuilder.Tests
             }
         }
 
-        class ComponentThatDependsOfSingleton : IDisposable
+        class ComponentThatDependsOfSingleton
         {
-            public void Dispose()
-            {
-            }
 
         }
     }
@@ -150,23 +147,12 @@ namespace ObjectBuilder.Tests
 
     }
 
-    public class SingletonComponent : ISingletonComponent, IDisposable
+    public class SingletonComponent : ISingletonComponent
     {
-        public static bool DisposeCalled;
-
-        public void Dispose()
-        {
-            DisposeCalled = true;
-        }
-
     }
 
-    public class AnotherSingletonComponent : ISingletonComponent, IDisposable
+    public class AnotherSingletonComponent : ISingletonComponent
     {
-        public void Dispose()
-        {
-        }
-
     }
 
     public interface ISingletonComponent

@@ -252,49 +252,34 @@ namespace NServiceBus.Transports.RabbitMQ
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (connection == null)
             {
-                // Dispose managed resources.
-                if (connection == null)
-                {
-                    return;
-                }
-
-                try
-                {
-                    if (connection.IsOpen)
-                    {
-                        Close(5000);
-                    }
-
-                    connection.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error("Failure when disposing RabbitMq connection", ex);
-                }
-
-                connection = null;
+                return;
             }
 
+            try
+            {
+                if (connection.IsOpen)
+                {
+                    Close(5000);
+                }
+
+                connection.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("Failure when disposing RabbitMq connection", ex);
+            }
+
+            connection = null;
             disposed = true;
         }
 
-        ~PersistentConnection()
-        {
-            Dispose(false);
-        }
 
         bool disposed;
         IConnection connection;

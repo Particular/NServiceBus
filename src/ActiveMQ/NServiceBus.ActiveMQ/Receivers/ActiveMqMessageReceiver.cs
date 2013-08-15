@@ -20,16 +20,31 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             this.messageProcessor = messageProcessor;
         }
 
-        ~ActiveMqMessageReceiver()
-        {
-            Dispose(false);
-        }
-
         public void Dispose()
         {
-            Dispose(true);
+            if (this.disposed) return;
 
-            GC.SuppressFinalize(this);
+            try
+            {
+                if (eventConsumer != null)
+                {
+                    eventConsumer.Dispose();
+                }
+                if (defaultConsumer != null)
+                {
+                    defaultConsumer.Dispose();
+                }
+                if (messageProcessor != null)
+                {
+                    messageProcessor.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Failed to dispose the receiver",ex);
+            }
+
+            disposed = true;
         }
 
         public void Start(Address address, TransactionSettings transactionSettings)
@@ -50,27 +65,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             this.messageProcessor.Stop();
             this.eventConsumer.Stop();
             this.defaultConsumer.Listener -= this.messageProcessor.ProcessMessage;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (this.disposed) return;
-
-            try
-            {
-                if (disposing)
-                {
-                    this.eventConsumer.Dispose();
-                    this.defaultConsumer.Dispose();
-                    this.messageProcessor.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn("Failed to dispose the receiver",ex);
-            }
-
-            disposed = true;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(ActiveMqMessageReceiver));

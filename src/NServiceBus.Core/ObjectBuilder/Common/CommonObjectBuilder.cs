@@ -146,29 +146,17 @@ namespace NServiceBus.ObjectBuilder.Common
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (Container != null)
             {
-                // Dispose managed resources.
                 Container.Dispose();
             }
 
             disposed = true;
-        }
-
-        ~CommonObjectBuilder()
-        {
-            Dispose(false);
         }
 
         T IBuilder.Build<T>()
