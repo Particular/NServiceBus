@@ -11,9 +11,7 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             if (!from.ContainsKey(GatewayHeaders.IsGatewayMessage))
             {
-                return new TransportMessage();
-            }
-
+                var message = new TransportMessage();
                 foreach (var header in from)
                 {
                     message.Headers[header.Key] = header.Value;
@@ -40,7 +38,6 @@ namespace NServiceBus.Gateway.HeaderManagement
             if (to.TimeToBeReceived < MinimumTimeToBeReceived)
             {
                 to.TimeToBeReceived = MinimumTimeToBeReceived;
-            }
             }
 
             return to;
@@ -99,7 +96,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             return corrId;
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.1", TreatAsErrorFromVersion = "5.0")]
         static void SetBackwardsCompatibilityHeaders(IDictionary<string, string> to)
         {
             if (Configure.HasComponent<MsmqMessageSender>())
