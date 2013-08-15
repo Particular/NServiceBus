@@ -214,7 +214,7 @@
         }
 
         void EnsureRabbitQueueExists(string queueName) {
-            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel()) {
+            using (var channel = connectionManager.GetAdministrationConnection().CreateModel()) {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
             }

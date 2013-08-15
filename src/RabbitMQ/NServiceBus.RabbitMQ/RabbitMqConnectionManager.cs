@@ -13,7 +13,7 @@
             this.connectionConfiguration = connectionConfiguration;
         }
 
-        public IConnection GetConnection(ConnectionPurpose purpose)
+        public IConnection GetPublishConnection()
         {
             if (disposed)
             {
@@ -23,7 +23,35 @@
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
             lock (connectionFactory)
             {
-                return connection ?? (connection = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay));
+                return connectionPublish ?? (connectionPublish = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay));
+            }
+        }
+
+        public IConnection GetConsumeConnection()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
+            //note: The purpose is there so that we/users can add more advanced connection managers in the future
+            lock (connectionFactory)
+            {
+                return connectionConsume ?? (connectionConsume = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay));
+            }
+        }
+
+        public IConnection GetAdministrationConnection()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException(GetType().FullName);
+            }
+
+            //note: The purpose is there so that we/users can add more advanced connection managers in the future
+            lock (connectionFactory)
+            {
+                return connectionAdministration ?? (connectionAdministration = new PersistentConnection(connectionFactory, connectionConfiguration.RetryDelay));
             }
         }
 
@@ -31,18 +59,25 @@
         {
             disposed = true;
 
-            if (connection == null)
+            if (connectionConsume != null)
             {
-                return;
+                connectionConsume.Dispose();
             }
-
-            // Dispose managed resources.
-            connection.Dispose();
+            if (connectionAdministration != null)
+            {
+                connectionAdministration.Dispose();
+            }
+            if (connectionPublish != null)
+            {
+                connectionPublish.Dispose();
+            }
         }
 
-        readonly IConnectionFactory connectionFactory;
-        readonly IConnectionConfiguration connectionConfiguration;
-        PersistentConnection connection;
+        IConnectionFactory connectionFactory;
+        IConnectionConfiguration connectionConfiguration;
+        PersistentConnection connectionConsume;
+        PersistentConnection connectionAdministration;
+        PersistentConnection connectionPublish;
         bool disposed;
     }
 }

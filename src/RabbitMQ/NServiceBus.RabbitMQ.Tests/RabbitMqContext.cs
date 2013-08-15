@@ -14,7 +14,7 @@
     {
         protected void MakeSureQueueAndExchangeExists(string queueName)
         {
-            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
+            using (var channel = connectionManager.GetAdministrationConnection().CreateModel())
             {
                 channel.QueueDeclare(queueName, true, false, false, null);
                 channel.QueuePurge(queueName);
@@ -28,7 +28,7 @@
             if (exchangeName == "amq.topic")
                 return;
 
-            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
+            var connection = connectionManager.GetAdministrationConnection();
             DeleteExchange(exchangeName);
 
             using (var channel = connection.CreateModel())
@@ -47,7 +47,7 @@
 
         void DeleteExchange(string exchangeName)
         {
-            var connection = connectionManager.GetConnection(ConnectionPurpose.Administration);
+            var connection = connectionManager.GetAdministrationConnection();
             using (var channel = connection.CreateModel())
             {
                 try
