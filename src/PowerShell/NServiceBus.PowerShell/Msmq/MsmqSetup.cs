@@ -40,7 +40,7 @@
             return controller.Status == ServiceControllerStatus.Stopped || controller.Status == ServiceControllerStatus.StopPending;
         }
 
-        private static bool IsMsmqInstalled()
+        internal static bool IsMsmqInstalled()
         {
             var dll = LoadLibraryW("Mqrt.dll");
             return (dll != IntPtr.Zero);

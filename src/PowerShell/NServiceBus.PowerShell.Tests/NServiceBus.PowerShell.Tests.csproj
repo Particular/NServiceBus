@@ -6,6 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{04121C4B-EB4F-4508-8760-5818185F4403}</ProjectGuid>
     <OutputType>Library</OutputType>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.PowerShell.Tests</RootNamespace>
     <AssemblyName>NServiceBus.PowerShell.Tests</AssemblyName>
@@ -42,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MsmqSetupTests.cs" />
     <Compile Include="RavenDBSetupTests.cs" />
   </ItemGroup>
   <ItemGroup>

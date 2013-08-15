@@ -58,6 +58,7 @@
     <Compile Include="AddMasterNodeConfig.cs" />
     <Compile Include="Dtc\DtcSetup.cs" />
     <Compile Include="GetNServiceBusLocalMachineSettings.cs" />
+    <Compile Include="InternalsVisibleTo.cs" />
     <Compile Include="Msmq\MsmqSetup.cs" />
     <Compile Include="PerformanceCounters\PerformanceCounterSetup.cs" />
     <Compile Include="PortUtils.cs" />
