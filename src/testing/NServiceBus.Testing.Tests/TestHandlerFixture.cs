@@ -1,9 +1,8 @@
-using System;
-using NUnit.Framework;
-
 namespace NServiceBus.Testing.Tests
 {
-    using Unicast;
+    using System;
+    using NUnit.Framework;
+
 
     [TestFixture]
     public class TestHandlerFixture
@@ -243,11 +242,11 @@ namespace NServiceBus.Testing.Tests
         public void ShouldSupportSendingManyMessagesAtOnce()
         {
             Test.Handler<SendingManyHandler>()
-                .ExpectSend<Ougoing>(m => m.Number == 1)
+                .ExpectSend<Outgoing>(m => m.Number == 1)
                 .OnMessage<Incoming>();
 
             Test.Handler<SendingManyHandler>()
-                .ExpectSend<Ougoing>(m => m.Number == 2)
+                .ExpectSend<Outgoing>(m => m.Number == 2)
                 .OnMessage<Incoming>();
         }
 
@@ -257,12 +256,12 @@ namespace NServiceBus.Testing.Tests
             var result = 0;
 
             Test.Handler<SendingManyWithDifferentMessagesHandler>()
-                .ExpectSend<Ougoing>(m =>
+                .ExpectSend<Outgoing>(m =>
                 {
                     result += m.Number;
                     return true;
                 })
-                .ExpectSend<Ougoing2>(m =>
+                .ExpectSend<Outgoing2>(m =>
                 {
                     result += m.Number;
                     return true;
@@ -276,8 +275,8 @@ namespace NServiceBus.Testing.Tests
         public void ShouldSupportPublishMoreThanOneMessageAtOnce()
         {
             Test.Handler<PublishingManyHandler>()
-                .ExpectPublish<Ougoing>(m => true)
-                .ExpectPublish<Ougoing>(m => true)
+                .ExpectPublish<Outgoing>(m => true)
+                .ExpectPublish<Outgoing>(m => true)
                 .OnMessage<Incoming>();
         }
 
@@ -321,12 +320,12 @@ namespace NServiceBus.Testing.Tests
             string Data { get; set; }
         }
 
-        public class Ougoing : IMessage
+        public class Outgoing : IMessage
         {
             public int Number { get; set; }
         }
 
-        public class Ougoing2 : IMessage
+        public class Outgoing2 : IMessage
         {
             public int Number { get; set; }
         }
@@ -339,12 +338,12 @@ namespace NServiceBus.Testing.Tests
         {
             public void Handle(Incoming message)
             {
-                var one = this.Bus().CreateInstance<Ougoing>(m =>
+                var one = this.Bus().CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = this.Bus().CreateInstance<Ougoing>(m =>
+                var two = this.Bus().CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
@@ -359,12 +358,12 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Ougoing>(m =>
+                var one = Bus.CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = Bus.CreateInstance<Ougoing2>(m =>
+                var two = Bus.CreateInstance<Outgoing2>(m =>
                 {
                     m.Number = 2;
                 });
@@ -379,12 +378,12 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Ougoing>(m =>
+                var one = Bus.CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = Bus.CreateInstance<Ougoing>(m =>
+                var two = Bus.CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
@@ -449,7 +448,7 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(TestMessage message)
             {
-                this.Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+                Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
             }
         }
 
@@ -459,7 +458,7 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(TestMessage message)
             {
-                this.Bus.HandleCurrentMessageLater();
+                Bus.HandleCurrentMessageLater();
             }
         }
 
