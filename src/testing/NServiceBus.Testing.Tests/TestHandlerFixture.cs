@@ -349,7 +349,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                ((UnicastBus)this.Bus()).Publish(one, two);
+                ((StubBus)this.Bus()).Publish(one, two);
             }
         }
 
@@ -369,7 +369,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                ((UnicastBus)Bus).Send(one, two);
+                ((StubBus)Bus).Send(one, two);
             }
         }
 
@@ -389,7 +389,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                ((UnicastBus)Bus).Send(one, two);
+                ((StubBus)Bus).Send(one, two);
             }
         }
 
