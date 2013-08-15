@@ -13,7 +13,7 @@
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
+            using (var channel = ConnectionManager.GetAdministrationConnection().CreateModel())
             {
                 RoutingTopology.SetupSubscription(channel, eventType, EndpointQueueName);
             }
@@ -21,7 +21,7 @@
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
-            using (var channel = ConnectionManager.GetConnection(ConnectionPurpose.Administration).CreateModel())
+            using (var channel = ConnectionManager.GetAdministrationConnection().CreateModel())
             {
                 RoutingTopology.TeardownSubscription(channel, eventType, EndpointQueueName);
             }

@@ -186,7 +186,7 @@
         BasicDeliverEventArgs Consume(string id)
         {
 
-            using (var channel = connectionManager.GetConnection(ConnectionPurpose.Consume).CreateModel())
+            using (var channel = connectionManager.GetConsumeConnection().CreateModel())
             {
                 var consumer = new QueueingBasicConsumer(channel);
 
