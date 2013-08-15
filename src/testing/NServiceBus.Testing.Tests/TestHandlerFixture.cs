@@ -3,6 +3,8 @@ using NUnit.Framework;
 
 namespace NServiceBus.Testing.Tests
 {
+    using Unicast;
+
     [TestFixture]
     public class TestHandlerFixture
     {
@@ -347,7 +349,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                this.Bus().Publish(one, two);
+                ((UnicastBus)this.Bus()).Publish(one, two);
             }
         }
 
@@ -367,7 +369,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                Bus.Send(one, two);
+                ((UnicastBus)Bus).Send(one, two);
             }
         }
 
@@ -387,7 +389,7 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                Bus.Send(one, two);
+                ((UnicastBus)Bus).Send(one, two);
             }
         }
 

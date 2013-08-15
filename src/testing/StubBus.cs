@@ -30,6 +30,15 @@ namespace NServiceBus.Testing
             messageCreator = creator;
         }
 
+        public void Publish<T>(T message)
+        {
+            Publish<T>(new []{message} );
+        }
+        public void Publish<T>()
+        {
+            Publish<T>(new T[0]);
+        }
+
         public void Publish<T>(params T[] messages)
         {
             if (messages.Length == 0)
@@ -79,6 +88,11 @@ namespace NServiceBus.Testing
             throw new NotSupportedException();
         }
 
+        public ICallback SendLocal(object message)
+        {
+            return SendLocal(new []{message});
+        }
+
         public ICallback SendLocal(params object[] messages)
         {
             return ProcessInvocation(typeof(SendLocalInvocation<>), messages);
@@ -87,6 +101,11 @@ namespace NServiceBus.Testing
         public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
             return SendLocal(messageCreator.CreateInstance(messageConstructor));
+        }
+
+        public ICallback Send(object message)
+        {
+            return Send(new[] {message});
         }
 
         public ICallback Send(params object[] messages)
@@ -99,6 +118,11 @@ namespace NServiceBus.Testing
             return Send(string.Empty, messageCreator.CreateInstance(messageConstructor));
         }
 
+        public ICallback Send(string destination, object message)
+        {
+            return Send(destination, new[] {message});
+        }
+
         public ICallback Send(string destination, params object[] messages)
         {
             if (destination == string.Empty)
@@ -106,6 +130,12 @@ namespace NServiceBus.Testing
             
             return Send(Address.Parse(destination), messages);
         }
+
+        public ICallback Send(Address address, object message)
+        {
+            return Send(address, new[] {message});
+        }
+
 
         public ICallback Send(Address address, params object[] messages)
         {
@@ -122,12 +152,22 @@ namespace NServiceBus.Testing
             return Send(address, messageCreator.CreateInstance(messageConstructor));
         }
 
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            return Send(destination, correlationId, new[] {message});
+        }
+
         public ICallback Send(string destination, string correlationId, params object[] messages)
         {
             if (destination == string.Empty)
                 return Send(Address.Undefined, correlationId, messages);
 
             return Send(Address.Parse(destination), correlationId, messages);
+        }
+
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            return Send(address, correlationId, new[] {message});
         }
 
         public ICallback Send(Address address, string correlationId, params object[] messages)
@@ -154,9 +194,19 @@ namespace NServiceBus.Testing
             return Send(address, correlationId, messageCreator.CreateInstance(messageConstructor));
         }
 
+        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+        {
+            return SendToSites(siteKeys, new[] {message});
+        }
+
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
             return ProcessInvocation(typeof(SendToSitesInvocation<>), siteKeys, messages);
+        }
+
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            return Defer(delay, new[] { message });
         }
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
@@ -164,9 +214,19 @@ namespace NServiceBus.Testing
             return ProcessDefer<TimeSpan>(delay, messages);
         }
 
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            return Defer(processAt, new[] { message });
+        }
+
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
             return ProcessDefer<DateTime>(processAt, messages);
+        }
+
+        public void Reply(object message)
+        {
+            Reply(new []{message} );
         }
 
         public void Reply(params object[] messages)

@@ -270,9 +270,24 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>(T message)
+        {
+            Publish(new []{message});
+        }
+
+        /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>()
+        {
+            Publish(new object[]{});
+        }
+
+        /// <summary>
         /// Publishes the messages to all subscribers of the first message's type.
         /// </summary>
-        /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
 
@@ -398,7 +413,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void IBus.Reply(params object[] messages)
+        public void Reply(params object[] messages)
         {
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
             if (_messageBeingHandled.ReplyToAddress == null)
@@ -406,12 +421,17 @@ namespace NServiceBus.Unicast
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Send, messages);
         }
 
-        void IBus.Reply<T>(Action<T> messageConstructor)
+        public void Reply(object message)
         {
-            ((IBus)this).Reply(CreateInstance(messageConstructor));
+            Reply(new[]{message});
         }
 
-        void IBus.Return<T>(T errorCode)
+        public void Reply<T>(Action<T> messageConstructor)
+        {
+            Reply(CreateInstance(messageConstructor));
+        }
+
+        public void Return<T>(T errorCode)
         {
             if (_messageBeingHandled.ReplyToAddress == null)
                 throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
@@ -425,7 +445,7 @@ namespace NServiceBus.Unicast
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
-        void IBus.HandleCurrentMessageLater()
+        public void HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
             {
@@ -445,80 +465,115 @@ namespace NServiceBus.Unicast
             _handleCurrentMessageLaterWasCalled = true;
         }
 
-        void IBus.ForwardCurrentMessageTo(string destination)
+        public void ForwardCurrentMessageTo(string destination)
         {
             MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
         }
 
-        ICallback IBus.SendLocal<T>(Action<T> messageConstructor)
+        public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
-            return ((IBus)this).SendLocal(CreateInstance(messageConstructor));
+            return SendLocal(CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.SendLocal(params object[] messages)
+        public ICallback SendLocal(object message)
+        {
+            return SendLocal(new[] {message});
+        }
+
+        public ICallback SendLocal(params object[] messages)
         {
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return ((IBus)this).Send(MasterNodeAddress, messages);
+                return Send(MasterNodeAddress, messages);
             }
 
-            return ((IBus)this).Send(Address.Local, messages);
+            return Send(Address.Local, messages);
         }
 
-        ICallback IBus.Send<T>(Action<T> messageConstructor)
+        public ICallback Send<T>(Action<T> messageConstructor)
         {
-            return ((IBus)this).Send(CreateInstance(messageConstructor));
+            return Send(CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(params object[] messages)
+        public ICallback Send(object message)
+        {
+            return Send(new[] {message});
+        }
+
+        public ICallback Send(params object[] messages)
         {
             var destination = GetAddressForMessages(messages);
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send<T>(string destination, Action<T> messageConstructor)
+        public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send<T>(Address address, Action<T> messageConstructor)
+        public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
             return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(string destination, params object[] messages)
+        public ICallback Send(string destination, object message)
+        {
+            return SendMessage(destination, null, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback Send(string destination, params object[] messages)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send(Address address, params object[] messages)
+        public ICallback Send(Address address, params object[] messages)
         {
             return SendMessage(address, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        public ICallback Send(Address address, object message)
+        {
+            return SendMessage(address, null, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(string destination, string correlationId, params object[] messages)
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            return Send(destination, correlationId, new[] {message});
+        }
+
+        public ICallback Send(string destination, string correlationId, params object[] messages)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send(Address address, string correlationId, params object[] messages)
+        public ICallback Send(Address address, string correlationId, params object[] messages)
         {
             return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.SendToSites(IEnumerable<string> siteKeys, params object[] messages)
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+        {
+            return SendToSites(siteKeys, new[] {message});
+        }
+
+        public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
@@ -533,10 +588,19 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="delay">Delay</param>
         /// <param name="messages">Messages</param>
-        /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return Defer(DateTime.UtcNow + delay, messages);
+        }
+
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            return Defer(DateTime.UtcNow + delay, message);
+        }
+
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            return Defer(processAt, new [] { message });
         }
 
         /// <summary>
@@ -553,7 +617,7 @@ namespace NServiceBus.Unicast
             }
             if (processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
-                return ((IBus)this).SendLocal(messages);
+                return SendLocal(messages);
             }
 
             var toSend = new TransportMessage();
@@ -884,13 +948,13 @@ namespace NServiceBus.Unicast
         }
 
 
-        void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             _doNotContinueDispatchingCurrentMessageToHandlers = true;
         }
 
 
-        IDictionary<string, string> IBus.OutgoingHeaders
+        public IDictionary<string, string> OutgoingHeaders
         {
             get
             {
