@@ -29,5 +29,10 @@
         /// Unsubscribe
         /// </summary>
         Unsubscribe = 4,
+
+        /// <summary>
+        /// Indicates that this message is a reply
+        /// </summary>
+        Reply = 5
     }
 }
