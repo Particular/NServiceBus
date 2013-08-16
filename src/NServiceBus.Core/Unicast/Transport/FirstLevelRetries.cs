@@ -28,10 +28,8 @@
                     return false;
                 }
 
-                if (TryInvokeFaultManager(message, e.Item2))
-                {
-                    ClearFailuresForMessage(message);
-                }
+                TryInvokeFaultManager(message, e.Item2);
+                ClearFailuresForMessage(message);
 
                 return true;
             }
@@ -52,7 +50,7 @@
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
-        private bool TryInvokeFaultManager(TransportMessage message, Exception exception)
+        private void TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
@@ -71,16 +69,13 @@
                 message.RevertToOriginalBodyIfNeeded();
 
                 failureManager.ProcessingAlwaysFailsForMessage(message, e);
-
-                return true;
             }
             catch (Exception ex)
             {
-                Configure.Instance.RaiseCriticalError(
-                    String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
-            }
+                Configure.Instance.RaiseCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
 
-            return false;
+                throw;
+            }
         }
     }
 }
