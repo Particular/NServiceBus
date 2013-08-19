@@ -295,7 +295,7 @@ task RunTests -depends Build {
 	
 	$testAssemblies = @()
 	$testAssemblies +=  dir $buildBase\*Tests.dll
-	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror /exclude="Azure,Integration"}
+	exec {&$nunitexec $testAssemblies $script:nunitTargetFramework /stoponerror /exclude="Integration"}
 }
 
 task Merge -depends Build {
@@ -324,19 +324,10 @@ task Merge -depends Build {
 	$assemblies += dir $outDir32\Microsoft.Practices.ServiceLocation.dll
 
 	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Host32.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
-
-	$assemblies = @()
-	$assemblies += dir $outDir\NServiceBus.Hosting.Azure.HostProcess.exe
-	$assemblies += dir $outDir\log4net.dll
-	$assemblies += dir $outDir\Topshelf.dll
-	$assemblies += dir $outDir\Microsoft.Practices.ServiceLocation.dll
-	
-	Ilmerge $ilMergeKey $binariesDir "NServiceBus.Hosting.Azure.HostProcess.exe" $assemblies "exe" $script:ilmergeTargetFramework $ilMergeExclude
 }
 
 task CompileSamples {
-	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
-						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
+	$excludeFromBuild = @("AsyncPagesMVC3.sln")
 	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
@@ -348,8 +339,7 @@ task CompileSamples {
 }
 
 task CompileIntegrationProjects -depends CompileSamples {
-	$excludeFromBuild = @("AsyncPagesMVC3.sln", "AzureFullDuplex.sln", "AzureHost.sln", "AzurePubSub.sln", "AzureThumbnailCreator.sln", 
-						  "ServiceBusFullDuplex.sln", "AzureServiceBusPubSub.sln", "ServiceBusPubSub.sln")
+	$excludeFromBuild = @("AsyncPagesMVC3.sln")
 	$solutions = ls -path $baseDir\IntegrationTests -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
