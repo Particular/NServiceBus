@@ -41,16 +41,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// </summary>
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            if (container != null)
-            {
-                container.Dispose();
-            }
+            //Injected at compile time
         }
 
         /// <summary>
