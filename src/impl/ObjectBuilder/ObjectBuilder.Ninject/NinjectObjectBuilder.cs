@@ -39,8 +39,6 @@
                     { DependencyLifecycle.InstancePerUnitOfWork, StandardScopeCallbacks.Transient }, 
                 };
 
-        bool disposed;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NinjectObjectBuilder"/> class.
         /// </summary>
@@ -261,17 +259,13 @@
             return result.Distinct();
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
-            disposed = true;
+        void DisposeManaged()
+        {
             if (kernel != null)
             {
                 if (!kernel.IsDisposed)

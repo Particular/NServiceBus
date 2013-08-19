@@ -10,9 +10,8 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     /// <summary>
     /// Implements an more aggressive injection heuristic.
     /// </summary>
-    internal class ObjectBuilderPropertyHeuristic : IObjectBuilderPropertyHeuristic
+    class ObjectBuilderPropertyHeuristic : IObjectBuilderPropertyHeuristic
     {
-        bool disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectBuilderPropertyHeuristic"/> class.
@@ -48,26 +47,22 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
                 return false;
             }
 
-            var shouldInject = RegisteredTypes.Any(x => propertyInfo.DeclaringType.IsAssignableFrom(x))
+            return RegisteredTypes.Any(x => propertyInfo.DeclaringType.IsAssignableFrom(x))
                    && RegisteredTypes.Any(x => propertyInfo.PropertyType.IsAssignableFrom(x)) 
                    && propertyInfo.CanWrite;
-
-            return shouldInject;
         }
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        void DisposeManaged()
+        {
             if (RegisteredTypes != null)
             {
                 RegisteredTypes.Clear();
             }
-
-            disposed = true;
         }
     }
 }
