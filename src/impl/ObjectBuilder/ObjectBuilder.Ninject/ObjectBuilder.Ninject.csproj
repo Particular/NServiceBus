@@ -56,7 +56,7 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureNinjectBuilder.cs" />
+    <Compile Include="ConfigureNinjectBuilder.cs" />
     <Compile Include="Internal\IObjectBuilderPropertyHeuristic.cs" />
     <Compile Include="Internal\NinjectChildContainer.cs" />
     <Compile Include="Internal\ObjectBuilderPropertyHeuristic.cs" />

@@ -9,7 +9,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
 
     public class NinjectChildContainer : DisposeNotifyingObject, IContainer
     {
-        private readonly IResolutionRoot resolutionRoot;
+        IResolutionRoot resolutionRoot;
 
         public NinjectChildContainer(IResolutionRoot resolutionRoot)
         {

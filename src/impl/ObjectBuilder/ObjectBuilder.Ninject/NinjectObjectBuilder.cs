@@ -69,7 +69,10 @@
 
             AddCustomPropertyInjectionHeuristic();
 
-            this.kernel.Bind<NinjectChildContainer>().ToSelf().DefinesNinjectObjectBuilderScope();
+            this.kernel
+                .Bind<NinjectChildContainer>()
+                .ToSelf()
+                .DefinesNinjectObjectBuilderScope();
         }
 
         /// <summary>
@@ -129,7 +132,8 @@
 
             var instanceScope = GetInstanceScopeFrom(dependencyLifecycle);
 
-            var bindingConfigurations = BindComponentToItself(component, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            var isInstancePerUnitOfWork = dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork;
+            var bindingConfigurations = BindComponentToItself(component, instanceScope, isInstancePerUnitOfWork);
             AddAliasesOfComponentToBindingConfigurations(component, bindingConfigurations);
 
             propertyHeuristic.RegisteredTypes.Add(component);
@@ -152,7 +156,8 @@
 
             var instanceScope = GetInstanceScopeFrom(dependencyLifecycle);
 
-            var bindingConfigurations = BindComponentToMethod(componentFactory, instanceScope, dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork);
+            var isInstancePerUnitOfWork = dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork;
+            var bindingConfigurations = BindComponentToMethod(componentFactory, instanceScope, isInstancePerUnitOfWork);
             AddAliasesOfComponentToBindingConfigurations(componentType, bindingConfigurations);
 
             propertyHeuristic.RegisteredTypes.Add(componentType);
@@ -198,13 +203,19 @@
         {
             if (propertyHeuristic.RegisteredTypes.Contains(lookupType))
             {
-                kernel.Rebind(lookupType).ToConstant(instance);
+                kernel
+                    .Rebind(lookupType)
+                    .ToConstant(instance);
                 return;
             }
 
-            propertyHeuristic.RegisteredTypes.Add(lookupType);
+            propertyHeuristic
+                .RegisteredTypes
+                .Add(lookupType);
 			
-            kernel.Bind(lookupType).ToConstant(instance);
+            kernel
+                .Bind(lookupType)
+                .ToConstant(instance);
         }
 
         /// <summary>
@@ -322,13 +333,31 @@
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(kernel.Bind(component).ToSelf().WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(kernel.Bind(component).ToSelf().WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
+                var instanceScopeConfiguration = kernel
+                    .Bind(component)
+                    .ToSelf()
+                    .WhenNotInUnitOfWork()
+                    .InScope(instanceScope)
+                    .BindingConfiguration;
+                bindingConfigurations.Add(instanceScopeConfiguration);
+
+                var unitOfWorkConfiguration = kernel
+                    .Bind(component)
+                    .ToSelf()
+                    .WhenInUnitOfWork()
+                    .InUnitOfWorkScope()
+                    .BindingConfiguration;
+                bindingConfigurations.Add(unitOfWorkConfiguration);
             }
             else
             {
-                bindingConfigurations.Add(kernel.Bind(component).ToSelf().InScope(instanceScope).BindingConfiguration);
-            }            
+                var instanceScopeConfiguration = kernel
+                    .Bind(component)
+                    .ToSelf()
+                    .InScope(instanceScope)
+                    .BindingConfiguration;
+                bindingConfigurations.Add(instanceScopeConfiguration);
+            }
 
             return bindingConfigurations;
         }
@@ -338,12 +367,30 @@
             var bindingConfigurations = new List<IBindingConfiguration>();
             if (addChildContainerScope)
             {
-                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).WhenNotInUnitOfWork().InScope(instanceScope).BindingConfiguration);
-                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).WhenInUnitOfWork().InUnitOfWorkScope().BindingConfiguration);
+                var instanceScopeConfiguration = kernel
+                    .Bind<T>()
+                    .ToMethod(context => component.Invoke())
+                    .WhenNotInUnitOfWork()
+                    .InScope(instanceScope)
+                    .BindingConfiguration;
+                bindingConfigurations.Add(instanceScopeConfiguration);
+
+                var unitOfWorkConfiguration = kernel
+                    .Bind<T>()
+                    .ToMethod(context => component.Invoke())
+                    .WhenInUnitOfWork()
+                    .InUnitOfWorkScope()
+                    .BindingConfiguration;
+                bindingConfigurations.Add(unitOfWorkConfiguration);
             }
             else
             {
-                bindingConfigurations.Add(kernel.Bind<T>().ToMethod(context => component.Invoke()).InScope(instanceScope).BindingConfiguration);
+                var instanceScopeConfiguration = kernel
+                    .Bind<T>()
+                    .ToMethod(context => component.Invoke())
+                    .InScope(instanceScope)
+                    .BindingConfiguration;
+                bindingConfigurations.Add(instanceScopeConfiguration);
             }
 
             return bindingConfigurations;
@@ -365,13 +412,20 @@
         /// </summary>
         void RegisterNecessaryBindings()
         {
-            kernel.Bind<IContainer>().ToConstant(this).InSingletonScope();
+            kernel
+                .Bind<IContainer>()
+                .ToConstant(this)
+                .InSingletonScope();
 
-            kernel.Bind<IObjectBuilderPropertyHeuristic>().To<ObjectBuilderPropertyHeuristic>()
+            kernel
+                .Bind<IObjectBuilderPropertyHeuristic>()
+                .To<ObjectBuilderPropertyHeuristic>()
                 .InSingletonScope()
                 .WithPropertyValue("Settings", context => context.Kernel.Settings);
 
-            kernel.Bind<IInjectorFactory>().ToMethod(context => context.Kernel.Components.Get<IInjectorFactory>());
+            kernel
+                .Bind<IInjectorFactory>()
+                .ToMethod(context => context.Kernel.Components.Get<IInjectorFactory>());
         }
     }
 }
