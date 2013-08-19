@@ -8,7 +8,6 @@
     using Castle.Windsor;
     using Castle.Core;
     using Castle.MicroKernel.Registration;
-    using System.Threading;
     using Logging;
 
     /// <summary>
@@ -16,7 +15,9 @@
     /// </summary>
     public class WindsorObjectBuilder : IContainer
     {
-        IWindsorContainer container { get; set; }
+        IWindsorContainer container;
+        IDisposable scope;
+        static ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
 
         /// <summary>
         /// Instantiates the class with a new WindsorContainer.
@@ -47,17 +48,16 @@
 
         void DisposeManaged()
         {
-            if (!scope.IsValueCreated && scope.Value != null)
+            //if we are in a child scope dispose of that but not the parent container
+            if (scope != null)
             {
-                scope.Value.Dispose();
-                scope.Value = null;
+                scope.Dispose();
                 return;
             }
             if (container != null)
             {
                 container.Dispose();
             }
-            scope.Dispose();
         }
 
 
@@ -67,8 +67,10 @@
         /// </summary>
         public IContainer BuildChildContainer()
         {
-            scope.Value = container.Kernel.BeginScope();
-            return this;
+            return new WindsorObjectBuilder(container)
+                                {
+                                    scope = container.Kernel.BeginScope()
+                                };
         }
 
 
@@ -157,7 +159,7 @@
             container.Release(instance);
         }
 
-        private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
+        static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)
             {
@@ -179,9 +181,6 @@
                 .Concat(new[] {t});
         }
 
-        readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
-       
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
   
     }
 }

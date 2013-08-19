@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using global::Spring.Context.Support;
     using Common;
-    using System.Threading;
     using global::Spring.Objects.Factory.Config;
     using global::Spring.Objects.Factory.Support;
 
@@ -14,6 +13,11 @@
     public class SpringObjectBuilder : IContainer
     {
         GenericApplicationContext context;
+        bool isChildContainer;
+        Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
+        Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
+        bool initialized;
+        DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
 
         /// <summary>
         /// Instantiates the builder using a new <see cref="GenericApplicationContext"/>.
@@ -25,9 +29,9 @@
         /// <summary>
         /// Instantiates the builder using the given container.
         /// </summary>
-        public SpringObjectBuilder(GenericApplicationContext container)
+        public SpringObjectBuilder(GenericApplicationContext context)
         {
-            context = container;
+            this.context = context;
         }
 
         public void Dispose()
@@ -38,7 +42,7 @@
         void DisposeManaged()
         {
             //This is to figure out if Dispose was called from a child container or not
-            if (scope.IsValueCreated)
+            if (isChildContainer)
             {
                 return;
             }
@@ -51,12 +55,15 @@
 
         public IContainer BuildChildContainer()
         {
-            //return this until we can get the child containers to work properly
-            //return new SpringObjectBuilder(new GenericApplicationContext(context));
-            
-            scope.Value = true;
-
-            return this;
+            Init();
+            return new SpringObjectBuilder(context)
+                   {
+                       isChildContainer = true,
+                       initialized = true,
+                       typeHandleLookup = typeHandleLookup,
+                       componentProperties = componentProperties,
+                       factory = factory
+                   };
         }
 
         public object Build(Type typeToBuild)
@@ -207,10 +214,5 @@
             context.Refresh();
         }
 
-        ThreadLocal<bool> scope = new ThreadLocal<bool>();
-        Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
-        Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
-        bool initialized;
-        DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }
