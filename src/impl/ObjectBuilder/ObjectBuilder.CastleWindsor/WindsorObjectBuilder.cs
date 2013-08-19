@@ -18,8 +18,6 @@
     {
         IWindsorContainer container { get; set; }
 
-        bool disposed;
-
         /// <summary>
         /// Instantiates the class with a new WindsorContainer.
         /// </summary>
@@ -42,24 +40,19 @@
             this.container = container;
         }
 
-        /// <summary>
-        /// Disposes the container and all resources instantiated by the container.
-        /// </summary>
         public void Dispose()
         {
-            if (!disposed && scope.IsValueCreated && scope.Value != null)
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
+            if (!scope.IsValueCreated && scope.Value != null)
             {
                 scope.Value.Dispose();
                 scope.Value = null;
                 return;
             }
-
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
             if (container != null)
             {
                 container.Dispose();
@@ -85,7 +78,7 @@
 
             if (registrations.Any())
             {
-                 Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
+                Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
                 return;
             }
 
@@ -189,5 +182,6 @@
         readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
        
         private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
+  
     }
 }
