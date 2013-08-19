@@ -5,12 +5,14 @@ namespace NServiceBus.ObjectBuilder.Spring
 {
     class ComponentConfig : IComponentConfig
     {
-        private readonly Dictionary<string, object> properties = new Dictionary<string, object>();
+        Dictionary<string, object> properties = new Dictionary<string, object>();
 
         public void Configure(ObjectDefinitionBuilder builder)
         {
             foreach (var key in properties.Keys)
+            {
                 builder.AddPropertyValue(key, properties[key]);
+            }
         }
 
         public IComponentConfig ConfigureProperty(string name, object value)

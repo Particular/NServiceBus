@@ -53,7 +53,7 @@
             }
         }
 
-        IContainer IContainer.BuildChildContainer()
+        public IContainer BuildChildContainer()
         {
             //return this until we can get the child containers to work properly
             //return new SpringObjectBuilder(new GenericApplicationContext(context));
@@ -63,7 +63,7 @@
             return this;
         }
 
-        object IContainer.Build(Type typeToBuild)
+        public object Build(Type typeToBuild)
         {
             Init();
             var dict = context.GetObjectsOfType(typeToBuild, true, false);
@@ -78,7 +78,7 @@
             throw new ArgumentException(string.Format("{0} has not been configured. In order to avoid this exception, check the return value of the 'HasComponent' method for this type.", typeToBuild));
         }
 
-        IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
+        public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             Init();
             var dict = context.GetObjectsOfType(typeToBuild, true, false);
@@ -90,7 +90,7 @@
             }
         }
 
-        void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
+        public void Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             if (initialized)
             {
@@ -108,11 +108,11 @@
             }
         }
 
-        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        public void Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var componentType = typeof(T);
 
-            if (((IContainer)this).HasComponent(componentType))
+            if (HasComponent(componentType))
             {
                 return;
             }
@@ -122,7 +122,7 @@
             context.ObjectFactory.RegisterSingleton(componentType.FullName, funcFactory);
         }
 
-        void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
+        public void ConfigureProperty(Type concreteComponent, string property, object value)
         {
             if (initialized)
             {
@@ -143,7 +143,7 @@
             }
         }
 
-        void IContainer.RegisterSingleton(Type lookupType, object instance)
+        public void RegisterSingleton(Type lookupType, object instance)
         {
             if (initialized)
             {
@@ -153,7 +153,7 @@
             context.ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
-        bool IContainer.HasComponent(Type componentType)
+        public bool HasComponent(Type componentType)
         {
             if (componentProperties.ContainsKey(componentType))
             {
@@ -181,7 +181,7 @@
             return false;
         }
 
-        void IContainer.Release(object instance)
+        public void Release(object instance)
         {
         }
 

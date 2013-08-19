@@ -5,14 +5,13 @@ namespace NServiceBus.ObjectBuilder.Spring
 
     class ArbitraryFuncDelegatingFactoryObject<T> : IFactoryObject
     {
-        bool isSingleton;
         Func<T> builderDelegate;
 
 
         public ArbitraryFuncDelegatingFactoryObject(Func<T> builderDelegate, bool isSingleton)
         {
             this.builderDelegate = builderDelegate;
-            this.isSingleton = isSingleton;
+            IsSingleton = isSingleton;
         }
 
 
@@ -41,9 +40,6 @@ namespace NServiceBus.ObjectBuilder.Spring
         /// <summary>
         /// Is the object managed by this factory a singleton or a prototype?
         /// </summary>
-        public bool IsSingleton
-        {
-            get { return isSingleton; }
-        }
+        public bool IsSingleton { get; private set; }
     }
 }
