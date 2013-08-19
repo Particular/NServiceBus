@@ -66,7 +66,7 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureStructureMapBuilder.cs" />
+    <Compile Include="ConfigureStructureMapBuilder.cs" />
     <Compile Include="StructureMapExtensions.cs" />
     <Compile Include="StructureMapObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

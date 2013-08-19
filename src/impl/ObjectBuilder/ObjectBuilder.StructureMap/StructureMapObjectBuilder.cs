@@ -65,12 +65,12 @@
             throw new ArgumentException(typeToBuild + " is not registered in the container");
         }
 
-        IEnumerable<object> Common.IContainer.BuildAll(Type typeToBuild)
+        public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             return container.GetAllInstances(typeToBuild).Cast<object>();
         }
 
-        void Common.IContainer.ConfigureProperty(Type component, string property, object value)
+        public void ConfigureProperty(Type component, string property, object value)
         {
             if (value == null)
             {
@@ -100,7 +100,7 @@
             }
         }
 
-        void Common.IContainer.Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             lock (configuredInstances)
             {
@@ -136,7 +136,7 @@
             }
         }
 
-        void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        public void Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var pluginType = typeof(T);
 
@@ -173,7 +173,7 @@
             }
         }
 
-        void Common.IContainer.RegisterSingleton(Type lookupType, object instance)
+        public void RegisterSingleton(Type lookupType, object instance)
         {
             container.Configure(x => x.For(lookupType)
                 .Singleton()
@@ -181,17 +181,17 @@
             PluginCache.AddFilledType(lookupType);
         }
 
-        bool Common.IContainer.HasComponent(Type componentType)
+        public bool HasComponent(Type componentType)
         {
             return container.Model.PluginTypes.Any(t => t.PluginType == componentType);
         }
 
-        void Common.IContainer.Release(object instance)
+        public void Release(object instance)
         {
 
         }
 
-        private static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)
+        static ILifecycle GetLifecycleFrom(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)
             {
@@ -206,7 +206,7 @@
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
         }
 
-        private static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
+        static IEnumerable<Type> GetAllInterfacesImplementedBy(Type t)
         {
             return t.GetInterfaces().Where(x=>x.FullName != null && !x.FullName.StartsWith("System."));
         }
