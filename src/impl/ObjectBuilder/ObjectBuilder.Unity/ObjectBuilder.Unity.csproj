@@ -73,8 +73,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureUnityBuilder.cs" />
+    <Compile Include="ConfigureUnityBuilder.cs" />
+    <Compile Include="DefaultInstances.cs" />
     <Compile Include="PropertyInjectionBuilderStrategy.cs" />
+    <Compile Include="PropertyInjectionContainerExtension.cs" />
     <Compile Include="UnityObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

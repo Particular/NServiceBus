@@ -90,7 +90,9 @@ namespace NServiceBus.ObjectBuilder.Unity
         public void Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             if (HasComponent(concreteComponent))
+            {
                 return;
+            }
 
             var interfaces = GetAllServiceTypesFor(concreteComponent);
       
@@ -112,8 +114,10 @@ namespace NServiceBus.ObjectBuilder.Unity
         {
             var componentType = typeof (T);
 
-           if (HasComponent(componentType))
-               return;
+            if (HasComponent(componentType))
+            {
+                return;
+            }
 
            var interfaces = GetAllServiceTypesFor(componentType);
 
@@ -154,16 +158,17 @@ namespace NServiceBus.ObjectBuilder.Unity
             container.Teardown(instance);
         }
 
-        private static IEnumerable<Type> GetAllServiceTypesFor(Type t)
+        static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
             if (t == null)
             {
                 return new List<Type>();
             }
 
-            var result = new List<Type>(t.GetInterfaces().Where(x => x.FullName != null && !x.FullName.StartsWith("System.")));
-            result.Add(t);
-            return result;
+            return new List<Type>(t.GetInterfaces().Where(x => x.FullName != null && !x.FullName.StartsWith("System.")))
+                   {
+                       t
+                   };
         }
 
         private static LifetimeManager GetLifetimeManager(DependencyLifecycle dependencyLifecycle)
@@ -178,26 +183,6 @@ namespace NServiceBus.ObjectBuilder.Unity
                     return new HierarchicalLifetimeManager();
             }
             throw new ArgumentException("Unhandled lifecycle - " + dependencyLifecycle);
-        }
-    }
-
-    public static class DefaultInstances
-    {
-        static readonly HashSet<Type> typesWithDefaultInstances = new HashSet<Type>();
-
-        public static bool Contains(Type type)
-        {
-            return typesWithDefaultInstances.Contains(type);
-        }
-
-        public static void Add(Type type)
-        {
-            typesWithDefaultInstances.Add(type);
-        }
-
-        public static void Clear()
-        {
-            typesWithDefaultInstances.Clear();
         }
     }
 }
