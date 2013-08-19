@@ -30,10 +30,12 @@
             context = container;
         }
 
-        /// <summary>
-        /// No resources to dispose.
-        /// </summary>
         public void Dispose()
+        {
+            //Injected at compile time
+        }
+
+        void DisposeManaged()
         {
             //This is to figure out if Dispose was called from a child container or not
             if (scope.IsValueCreated)
@@ -41,12 +43,6 @@
                 return;
             }
 
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
             if (context != null)
             {
                 context.Dispose();
@@ -215,7 +211,6 @@
         Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
         Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
         bool initialized;
-        bool disposed;
         DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }
