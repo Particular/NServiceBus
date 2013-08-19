@@ -12,20 +12,25 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
     /// </summary>
     class ObjectBuilderPropertyHeuristic : IObjectBuilderPropertyHeuristic
     {
+        IList<Type> registeredTypes;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ObjectBuilderPropertyHeuristic"/> class.
         /// </summary>
         public ObjectBuilderPropertyHeuristic()
         {
-            RegisteredTypes = new List<Type>();
+            registeredTypes = new List<Type>();
         }
 
         /// <summary>
         /// Gets the registered types.
         /// </summary>
         /// <value>The registered types.</value>
-        public IList<Type> RegisteredTypes { get; private set; }
+        public IList<Type> RegisteredTypes
+        {
+            get { return registeredTypes; }
+            private set { registeredTypes = value; }
+        }
 
         /// <summary>
         /// Gets or sets the settings.
@@ -47,7 +52,7 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
                 return false;
             }
 
-            return RegisteredTypes.Any(x => propertyInfo.DeclaringType.IsAssignableFrom(x))
+            return registeredTypes.Any(x => propertyInfo.DeclaringType.IsAssignableFrom(x))
                    && RegisteredTypes.Any(x => propertyInfo.PropertyType.IsAssignableFrom(x)) 
                    && propertyInfo.CanWrite;
         }
@@ -59,9 +64,9 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
 
         void DisposeManaged()
         {
-            if (RegisteredTypes != null)
+            if (registeredTypes != null)
             {
-                RegisteredTypes.Clear();
+                registeredTypes.Clear();
             }
         }
     }
