@@ -26,8 +26,6 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         ///     Verified that the counter exists
         /// </summary>
-        /// <param name="sla"> </param>
-        /// <param name="slaBreachCounter"></param>
         public void Initialize(TimeSpan sla, PerformanceCounter slaBreachCounter)
         {
             endpointSLA = sla;
@@ -40,9 +38,6 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         ///     Updates the counter based on the passed times
         /// </summary>
-        /// <param name="sent"> </param>
-        /// <param name="processingStarted"></param>
-        /// <param name="processingEnded"></param>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             var dataPoint = new DataPoint
