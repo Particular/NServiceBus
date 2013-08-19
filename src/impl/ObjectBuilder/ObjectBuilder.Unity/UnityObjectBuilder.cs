@@ -9,12 +9,7 @@ namespace NServiceBus.ObjectBuilder.Unity
 
     public class UnityObjectBuilder : IContainer
     {
-        /// <summary>
-        /// The container itself.
-        /// </summary>
         IUnityContainer container;
-
-        bool disposed;
 
         /// <summary>
         /// Instantiates the class with a new <see cref="UnityContainer"/>.
@@ -39,21 +34,9 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         }
 
-        /// <summary>
-        /// Disposes the container and all resources instantiated by the container.
-        /// </summary>
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            if (container != null)
-            {
-                container.Dispose();
-            }
+            //Injected at compile time
         }
 
         /// <summary>
