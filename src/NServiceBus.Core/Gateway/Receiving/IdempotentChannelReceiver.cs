@@ -25,12 +25,12 @@ namespace NServiceBus.Gateway.Receiving
         public IDataBus DataBus { get; set; }
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
-        public void Start(Channel channel, int numWorkerThreads)
+        public void Start(Channel channel, int numberOfWorkerThreads)
         {
             channelReceiver = channelFactory.GetReceiver(channel.Type);
 
             channelReceiver.DataReceived += DataReceivedOnChannel;
-            channelReceiver.Start(channel.Address, numWorkerThreads);
+            channelReceiver.Start(channel.Address, numberOfWorkerThreads);
         }
 
         public void Dispose()

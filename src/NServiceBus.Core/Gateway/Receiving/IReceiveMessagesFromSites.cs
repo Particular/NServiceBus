@@ -7,6 +7,6 @@ namespace NServiceBus.Gateway.Receiving
     public interface IReceiveMessagesFromSites : IDisposable
     {
         event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
-        void Start(Channel channel, int numWorkerThreads);
+        void Start(Channel channel, int numberOfWorkerThreads);
     }
 }
