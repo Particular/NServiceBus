@@ -145,19 +145,19 @@
         }
 
         [Test]
-        [ExpectedException(typeof(Exception))]
         public void Should_throw_if_given_badly_formatted_max_wait_time_for_confirms()
         {
             var parser = new ConnectionStringParser();
-            parser.Parse("host=localhost;maxWaitTimeForConfirms=00:0d0:10");
+            var formatException = Assert.Throws<FormatException>(() => parser.Parse("host=localhost;maxWaitTimeForConfirms=00:0d0:10"));
+            Assert.AreEqual("00:0d0:10 is not a valid value for TimeSpan.",formatException.Message);
         }
 
         [Test]
-        [ExpectedException(typeof(Exception))]
         public void Should_throw_if_given_badly_formatted_retry_delay()
         {
             var parser = new ConnectionStringParser();
-            parser.Parse("host=localhost;retryDelay=00:0d0:10");
+            var formatException = Assert.Throws<FormatException>(() => parser.Parse("host=localhost;retryDelay=00:0d0:10"));
+            Assert.AreEqual("00:0d0:10 is not a valid value for TimeSpan.", formatException.Message);
         }
 
         [Test]
