@@ -45,7 +45,7 @@
             //Injected at compile time
         }
 
-        public void DisposeManaged()
+        void DisposeManaged()
         {
             if (!scope.IsValueCreated && scope.Value != null)
             {
