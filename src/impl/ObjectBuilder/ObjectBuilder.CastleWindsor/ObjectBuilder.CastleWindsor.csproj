@@ -74,7 +74,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigureWindsorBuilder.cs" />
+    <Compile Include="ConfigureWindsorBuilder.cs" />
+    <Compile Include="ExternalInstanceActivatorWithDecommissionConcern.cs" />
+    <Compile Include="NoOpInterpreter.cs" />
     <Compile Include="WindsorObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

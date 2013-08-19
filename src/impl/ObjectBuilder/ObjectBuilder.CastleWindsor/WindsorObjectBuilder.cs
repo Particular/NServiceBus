@@ -3,18 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Castle.Core.Resource;
     using Castle.MicroKernel.Lifestyle;
-    using Castle.MicroKernel.SubSystems.Configuration;
-    using Castle.Windsor.Configuration.Interpreters;
     using Common;
     using Castle.Windsor;
-    using Castle.MicroKernel;
     using Castle.Core;
     using Castle.MicroKernel.Registration;
     using System.Threading;
-    using Castle.MicroKernel.ComponentActivator;
-    using Castle.MicroKernel.Context;
     using Logging;
 
     /// <summary>
@@ -41,7 +35,9 @@
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             if (container == null)
+            {
                 throw new ArgumentNullException("container", "The object builder must be initialized with a valid windsor container");
+            }
 
             this.container = container;
         }
@@ -120,8 +116,11 @@
         {
             var registration = container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
 
-            if (registration==null)
-                throw new InvalidOperationException("Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.");
+            if (registration == null)
+            {
+                var message = "Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.";
+                throw new InvalidOperationException(message);
+            }
 
             var propertyInfo = component.GetProperty(property);
 
@@ -182,7 +181,6 @@
 
         static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
-
             return t.GetInterfaces()
                 .Where(x => x.FullName != null && !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
@@ -191,42 +189,5 @@
         readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
        
         private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
-    }
-
-    class ExternalInstanceActivatorWithDecommissionConcern : AbstractComponentActivator, IDependencyAwareActivator
-    {
-        public ExternalInstanceActivatorWithDecommissionConcern(ComponentModel model, IKernelInternal kernel, ComponentInstanceDelegate onCreation, ComponentInstanceDelegate onDestruction)
-            : base(model, kernel, onCreation, onDestruction)
-        {
-        }
-
-        public bool CanProvideRequiredDependencies(ComponentModel component)
-        {
-            //we already have an instance so we don't need to provide any dependencies at all
-            return true;
-        }
-
-        public bool IsManagedExternally(ComponentModel component)
-        {
-            return false;
-        }
-
-        protected override object InternalCreate(CreationContext context)
-        {
-            return Model.ExtendedProperties["instance"];
-        }
-
-        protected override void InternalDestroy(object instance)
-        {
-            ApplyDecommissionConcerns(instance);
-        }
-    }
-
-    internal class NoOpInterpreter : AbstractInterpreter
-    {
-        public override void ProcessResource(IResource resource, IConfigurationStore store, IKernel kernel)
-        {
-
-        }
     }
 }
