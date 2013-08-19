@@ -1,7 +1,6 @@
-﻿using IHostConfiguration = EasyNetQ.IHostConfiguration;
-
-namespace NServiceBus.Transports.RabbitMQ.Config
+﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
+    using IHostConfiguration = EasyNetQ.IHostConfiguration;
     using System.Collections.Generic;
     using System;
 
@@ -14,7 +13,6 @@ namespace NServiceBus.Transports.RabbitMQ.Config
         ushort RequestedHeartbeat { get; }
         ushort PrefetchCount { get; }
         IDictionary<string, string> ClientProperties { get; } 
-        
         IEnumerable<IHostConfiguration> Hosts { get; }
         TimeSpan RetryDelay { get; set; }
         bool UsePublisherConfirms { get; set; }

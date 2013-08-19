@@ -8,24 +8,13 @@
     [TestFixture]
     public class ConnectionStringParserTests
     {
-        #region Setup/Teardown
-
-        [SetUp]
-        public void Setup() {
-            parser = new ConnectionStringParser();
-        }
-
-        #endregion
-
-        ConnectionStringParser parser;
-        IConnectionConfiguration connectionConfiguration;
-
         const string connectionString =
             "virtualHost=Copa;username=Copa;host=192.168.1.1:1234,192.168.1.2:2345;password=abc_xyz;port=12345;requestedHeartbeat=3;prefetchcount=2;maxRetries=4;usePublisherConfirms=true;maxWaitTimeForConfirms=02:03:39;retryDelay=01:02:03";
 
         [Test]
         public void Should_correctly_parse_full_connection_string() {
-            connectionConfiguration = parser.Parse(connectionString);
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse(connectionString);
 
             Assert.AreEqual(connectionConfiguration.Hosts.First().Host, "192.168.1.1");
             Assert.AreEqual(connectionConfiguration.Hosts.First().Port, 1234);
@@ -45,12 +34,16 @@
         [Test]
         [ExpectedException(typeof(Exception))]
         public void Should_fail_if_host_is_not_present() {
+
+            var parser = new ConnectionStringParser();
             parser.Parse("virtualHost=Copa;username=Copa;password=abc_xyz;port=12345;requestedHeartbeat=3");
         }
 
         [Test]
         public void Should_parse_list_of_hosts() {
-            connectionConfiguration = parser.Parse("host=host.one:1001,host.two:1002,host.three:1003");
+
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=host.one:1001,host.two:1002,host.three:1003");
             var hosts = connectionConfiguration.Hosts;
 
             Assert.AreEqual(hosts.Count(), 3);
@@ -63,8 +56,10 @@
         }
 
         [Test]
-        public void Should_parse_list_of_hosts_with_single_port() {
-            connectionConfiguration = parser.Parse("host=my.host.com,my.host2.com;port=1234");
+        public void Should_parse_list_of_hosts_with_single_port()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=my.host.com,my.host2.com;port=1234");
 
             Assert.AreEqual(connectionConfiguration.Hosts.First().Host, "my.host.com");
             Assert.AreEqual(connectionConfiguration.Hosts.Last().Host, "my.host2.com");
@@ -74,7 +69,9 @@
 
         [Test]
         public void Should_parse_list_of_hosts_without_ports() {
-            connectionConfiguration = parser.Parse("host=my.host.com,my.host2.com");
+
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=my.host.com,my.host2.com");
 
             Assert.AreEqual(connectionConfiguration.Hosts.First().Host, "my.host.com");
             Assert.AreEqual(connectionConfiguration.Hosts.Last().Host, "my.host2.com");
@@ -83,69 +80,91 @@
         }
 
         [Test]
-        public void Should_parse_the_hostname() {
-            connectionConfiguration = parser.Parse("host=myHost");
+        public void Should_parse_the_hostname()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=myHost");
             Assert.AreEqual("myHost", connectionConfiguration.Hosts.First().Host);
         }
 
 
         [Test]
-        public void Should_parse_the_password() {
-            connectionConfiguration = parser.Parse("host=localhost;password=test");
+        public void Should_parse_the_password()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;password=test");
             Assert.AreEqual("test", connectionConfiguration.Password);
         }
 
         [Test]
-        public void Should_parse_the_port() {
-            connectionConfiguration = parser.Parse("host=localhost;port=8181");
+        public void Should_parse_the_port()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;port=8181");
             Assert.AreEqual(8181, connectionConfiguration.Hosts.First().Port);
         }
 
         [Test]
-        public void Should_parse_the_prefetch_count() {
-            connectionConfiguration = parser.Parse("host=localhost;prefetchcount=10");
+        public void Should_parse_the_prefetch_count()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;prefetchcount=10");
             Assert.AreEqual(10, connectionConfiguration.PrefetchCount);
         }
 
         [Test]
-        public void Should_parse_the_requestedHeartbeat() {
-            connectionConfiguration = parser.Parse("host=localhost;requestedHeartbeat=5");
+        public void Should_parse_the_requestedHeartbeat()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;requestedHeartbeat=5");
             Assert.AreEqual(5, connectionConfiguration.RequestedHeartbeat);
         }
 
         [Test]
-        public void Should_parse_the_retry_delay() {
-            connectionConfiguration = parser.Parse("host=localhost;retryDelay=00:00:10");
+        public void Should_parse_the_retry_delay()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;retryDelay=00:00:10");
             Assert.AreEqual(TimeSpan.FromSeconds(10), connectionConfiguration.RetryDelay);
         }
 
         [Test]
-        public void Should_parse_the_username() {
-            connectionConfiguration = parser.Parse("host=localhost;username=test");
+        public void Should_parse_the_username()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;username=test");
             Assert.AreEqual("test", connectionConfiguration.UserName);
         }
 
         [Test]
-        public void Should_parse_the_virtual_hostname() {
-            connectionConfiguration = parser.Parse("host=localhost;virtualHost=myVirtualHost");
+        public void Should_parse_the_virtual_hostname()
+        {
+            var parser = new ConnectionStringParser();
+            var connectionConfiguration = parser.Parse("host=localhost;virtualHost=myVirtualHost");
             Assert.AreEqual("myVirtualHost", connectionConfiguration.VirtualHost);
         }
 
         [Test]
         [ExpectedException(typeof(Exception))]
-        public void Should_throw_if_given_badly_formatted_max_wait_time_for_confirms() {
+        public void Should_throw_if_given_badly_formatted_max_wait_time_for_confirms()
+        {
+            var parser = new ConnectionStringParser();
             parser.Parse("host=localhost;maxWaitTimeForConfirms=00:0d0:10");
         }
 
         [Test]
         [ExpectedException(typeof(Exception))]
-        public void Should_throw_if_given_badly_formatted_retry_delay() {
+        public void Should_throw_if_given_badly_formatted_retry_delay()
+        {
+            var parser = new ConnectionStringParser();
             parser.Parse("host=localhost;retryDelay=00:0d0:10");
         }
 
         [Test]
         [ExpectedException(typeof(ArgumentException))]
-        public void Should_throw_on_malformed_string() {
+        public void Should_throw_on_malformed_string()
+        {
+            var parser = new ConnectionStringParser();
             parser.Parse("not a well formed name value pair;");
         }
     }
