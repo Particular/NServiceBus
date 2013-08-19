@@ -16,7 +16,6 @@
     {
         IContainer container;
         IDictionary<Type, Instance> configuredInstances = new Dictionary<Type, Instance>();
-        bool disposed;
 
         public StructureMapObjectBuilder()
         {
@@ -28,34 +27,21 @@
             this.container = container;
         }
 
-        /// <summary>
-        /// Disposes the container and all resources instantiated by the container.
-        /// </summary>
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            if (container != null)
-            {
-                container.Dispose();
-            }
+            //Injected at compile time
         }
 
         /// <summary>
         /// Returns a child instance of the container to facilitate deterministic disposal
         /// of all resources built by the child container.
         /// </summary>
-        /// <returns></returns>
         public Common.IContainer BuildChildContainer()
         {
             return new StructureMapObjectBuilder(container.GetNestedContainer());
         }
 
-        object Common.IContainer.Build(Type typeToBuild)
+        public object Build(Type typeToBuild)
         {
             if (container.Model.PluginTypes.Any(t => t.PluginType == typeToBuild))
             {
