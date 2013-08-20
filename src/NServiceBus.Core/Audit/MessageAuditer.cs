@@ -3,7 +3,6 @@
     using System;
     using Features;
     using Transports;
-    using Unicast.Queuing;
 
     /// <summary>
     /// This class is used to forward messages to the configured audit queue, reverting the body to 
@@ -55,16 +54,6 @@
 
             // Send the newly created transport message to the configured audit queue
             MessageForwarder.Send(messageToForward, AuditQueue);            
-        }
-
-        public Address Address
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public bool IsDisabled
-        {
-            get { throw new NotImplementedException(); }
         }
     }
 }
