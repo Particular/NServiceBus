@@ -3,6 +3,7 @@
     using System;
     using Features;
     using Transports;
+    using Unicast.Queuing;
 
     /// <summary>
     /// This class is used to forward messages to the configured audit queue, reverting the body to 
@@ -19,20 +20,14 @@
         /// <summary>
         /// The TTR to set on forwarded messages. 
         /// </summary>
-        public TimeSpan TimeToBeReceivedOnForwardedMessages
-        {
-            get;
-            set;
-        }
+        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        
 
         /// <summary>
         /// address where the messages needs to be forwarded when the auditing feature is turned on
         /// </summary>
-        public Address AuditQueue
-        {
-            get;
-            set;
-        }
+        public Address AuditQueue { get; set; }
+        
 
         /// <summary>
         /// If the auditing feature is turned on, forward the given transport to the configured audit queue.
@@ -60,6 +55,16 @@
 
             // Send the newly created transport message to the configured audit queue
             MessageForwarder.Send(messageToForward, AuditQueue);            
+        }
+
+        public Address Address
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public bool IsDisabled
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 }
