@@ -1,18 +1,14 @@
 ﻿
-
-using NServiceBus.AcceptanceTests.ScenarioDescriptors;
-
 namespace NServiceBus.AcceptanceTests.Audit
 {
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using ScenarioDescriptors;
     using NUnit.Framework;
 
     public class When_using_auditing_as_a_feature : NServiceBusAcceptanceTest
     {
-        private const string AuditQueue = "SomeAuditQueue";
-        
         [Test]
         public void Message_should_not_be_forwarded_to_auditQueue_when_auditing_is_disabled()
         {

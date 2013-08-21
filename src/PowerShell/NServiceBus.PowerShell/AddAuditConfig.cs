@@ -8,12 +8,12 @@
     public class AddAuditConfig : AddConfigSection
     {
         const string Instructions = @"<AuditConfig 
-    ForwardReceivedMessagesTo=""The address to which messages received will be forwarded.""
-    TimeToBeReceivedOnForwardedMessages=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""  />";
+    QueueName=""The address to which messages received will be forwarded.""
+    OverrideTimeToBeRecieved=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""  />";
 
         public override void ModifyConfig(XDocument doc)
         {
-            var sectionElement = doc.XPathSelectElement("/configuration/configSections/section[@name='MessageAuditingConfig' and @type='NServiceBus.Config.MessageAuditingConfig, NServiceBus.Core']");
+            var sectionElement = doc.XPathSelectElement("/configuration/configSections/section[@name='AuditConfig' and @type='NServiceBus.Config.AuditConfig, NServiceBus.Core']");
             if (sectionElement == null)
             {
 
@@ -31,7 +31,7 @@
                 doc.Root.LastNode.AddAfterSelf(
                                                 new XComment(Instructions),
                                                 new XElement("AuditConfig",
-                                                new XAttribute("ForwardReceivedMessagesTo", "audit")
+                                                new XAttribute("QueueName", "audit")
                                                 ));
             }
         }

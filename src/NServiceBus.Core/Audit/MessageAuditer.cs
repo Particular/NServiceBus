@@ -7,7 +7,7 @@
     /// <summary>
     /// This class is used to forward messages to the configured audit queue, reverting the body to 
     /// its original state if needed etc before forwarding the message to the audit queue. It uses
-    /// the ISendMessages which will be injected by the bus.
+    /// <see cref="ISendMessages"/> which will be injected by the bus.
     /// </summary>
     public class MessageAuditer 
     {
@@ -31,12 +31,11 @@
         /// <summary>
         /// If the auditing feature is turned on, forward the given transport to the configured audit queue.
         /// </summary>
-        /// <param name="transportMessage"></param>
         public void ForwardMessageToAuditQueue(TransportMessage transportMessage)
         {
             if (!Feature.IsEnabled<Audit>()) return;
             
-            // Rever the original body if needed (if any mutators were applied, forward the original body as received)
+            // Revert the original body if needed (if any mutators were applied, forward the original body as received)
             transportMessage.RevertToOriginalBodyIfNeeded();
 
             // Create a new transport message which will contain the appropriate headers

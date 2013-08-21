@@ -11,12 +11,12 @@
         /// <summary>
         /// Gets/sets the address to which messages received will be forwarded.
         /// </summary>
-        [ConfigurationProperty("ForwardReceivedMessagesTo", IsRequired = false)]
-        public string ForwardReceivedMessagesTo
+        [ConfigurationProperty("QueueName", IsRequired = false)]
+        public string QueueName
         {
             get
             {
-                var result = this["ForwardReceivedMessagesTo"] as string;
+                var result = this["QueueName"] as string;
                 if (string.IsNullOrWhiteSpace(result))
                     result = null;
 
@@ -24,23 +24,23 @@
             }
             set
             {
-                this["ForwardReceivedMessagesTo"] = value;
+                this["QueueName"] = value;
             }
         }
 
         /// <summary>
         /// Gets/sets the time to be received set on forwarded messages
         /// </summary>
-        [ConfigurationProperty("TimeToBeReceivedOnForwardedMessages", IsRequired = false)]
-        public TimeSpan TimeToBeReceivedOnForwardedMessages
+        [ConfigurationProperty("OverrideTimeToBeRecieved", IsRequired = false)]
+        public TimeSpan OverrideTimeToBeRecieved
         {
             get
             {
-                return (TimeSpan)this["TimeToBeReceivedOnForwardedMessages"];
+                return (TimeSpan)this["OverrideTimeToBeRecieved"];
             }
             set
             {
-                this["TimeToBeReceivedOnForwardedMessages"] = value;
+                this["OverrideTimeToBeRecieved"] = value;
             }
         }
     }
