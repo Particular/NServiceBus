@@ -99,6 +99,26 @@
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.ReplyToAddress == Address.Local), Arg<Address>.Is.Anything));
         }
 
+        [Test]
+        public void Should_generate_a_conversation_id()
+        {
+            RegisterMessageType<TestMessage>();
+            bus.Send(new TestMessage());
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers.ContainsKey(Headers.ConversationId)), Arg<Address>.Is.Anything));
+        }
+
+        [Test]
+        public void Should_not_override_a_conversation_id_specified_by_the_user()
+        {
+            RegisterMessageType<TestMessage>();
+
+
+            bus.Send<TestMessage>(m=>m.SetHeader(Headers.ConversationId,"my order id"));
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<Address>.Is.Anything));
+        }
+
         [Test, Ignore("Needs refactoring to make testing possible")]
         public void Should_propagate_the_incoming_replyto_address_if_requested()
         {
