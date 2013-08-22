@@ -31,16 +31,16 @@
         /// <summary>
         /// Gets/sets the time to be received set on forwarded messages
         /// </summary>
-        [ConfigurationProperty("OverrideTimeToBeRecieved", IsRequired = false)]
-        public TimeSpan OverrideTimeToBeRecieved
+        [ConfigurationProperty("OverrideTimeToBeReceived", IsRequired = false)]
+        public TimeSpan OverrideTimeToBeReceived
         {
             get
             {
-                return (TimeSpan)this["OverrideTimeToBeRecieved"];
+                return (TimeSpan)this["OverrideTimeToBeReceived"];
             }
             set
             {
-                this["OverrideTimeToBeRecieved"] = value;
+                this["OverrideTimeToBeReceived"] = value;
             }
         }
     }

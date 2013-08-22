@@ -9,7 +9,7 @@
     {
         const string Instructions = @"<AuditConfig 
     QueueName=""The address to which messages received will be forwarded.""
-    OverrideTimeToBeRecieved=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""  />";
+    OverrideTimeToBeReceived=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""  />";
 
         public override void ModifyConfig(XDocument doc)
         {
