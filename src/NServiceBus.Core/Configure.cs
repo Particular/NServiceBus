@@ -517,6 +517,17 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Configures the given type with the given lifecycle
+        /// </summary>
+        public static IComponentConfig<T> Component<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle lifecycle)
+        {
+	        if (Instance == null)
+		        throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
+
+	        return Instance.Configurer.ConfigureComponent<T>(componentFactory, lifecycle);
+        }
+		  
+        /// <summary>
         /// Returns true if the given component exists in the container
         /// </summary>
         /// <typeparam name="T"></typeparam>
