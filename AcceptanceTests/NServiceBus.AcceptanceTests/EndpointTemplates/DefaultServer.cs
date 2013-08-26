@@ -37,9 +37,7 @@
             if (transportToUse == null || 
                 transportToUse.Contains("Msmq") || 
                 transportToUse.Contains("SqlServer") || 
-                transportToUse.Contains("RabbitMq") || 
-                transportToUse.Contains("AzureServiceBus") ||
-                transportToUse.Contains("AzureStorageQueue"))
+                transportToUse.Contains("RabbitMq"))
                 config.UseInMemoryTimeoutPersister();
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))

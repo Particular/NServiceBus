@@ -80,9 +80,6 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Azure">
-      <HintPath>..\..\binaries\NServiceBus.Azure.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
