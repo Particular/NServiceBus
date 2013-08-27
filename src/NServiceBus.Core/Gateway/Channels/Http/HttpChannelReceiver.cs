@@ -143,7 +143,11 @@ namespace NServiceBus.Gateway.Channels.Http
                 }
                 catch (HttpListenerException ex)
                 {
-                    Logger.Error("Gateway failed to receive incoming request.", ex);
+                    // a HttpListenerException can occur on listener.GetContext when we shutdown. this can be ignored
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        Logger.Error("Gateway failed to receive incoming request.", ex);
+                    }
                     break;
                 }
                 catch (InvalidOperationException ex)
