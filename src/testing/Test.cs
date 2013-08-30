@@ -9,6 +9,7 @@ namespace NServiceBus.Testing
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using Features.Categories;
     using DataBus.InMemory;
 
     /// <summary>
@@ -65,7 +66,7 @@ namespace NServiceBus.Testing
             if (initialized)
                 return;
 
-            Configure.Serialization.Xml();
+            Serializers.SetDefault<Features.XmlSerialization>();
 
             Configure.Instance
                 .DefineEndpointName("UnitTests")
