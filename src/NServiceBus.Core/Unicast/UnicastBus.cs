@@ -1003,7 +1003,26 @@ namespace NServiceBus.Unicast
         {
             using (var childBuilder = Builder.CreateChildBuilder())
             {
-                DispatchMessageToHandlersBasedOnType(childBuilder, @event);
+                var unitOfWorkRunner = new UnitOfWorkRunner
+                                       {
+                                           Builder = childBuilder
+                                       };
+
+                try
+                {
+                    unitOfWorkRunner.Begin();
+                    DispatchMessageToHandlersBasedOnType(childBuilder, @event);
+                    unitOfWorkRunner.End();
+                }
+                catch (Exception exception)
+                {
+                    var exceptionsToThrow = new List<Exception>
+                                            {
+                                                exception
+                                            };
+                    exceptionsToThrow.AddRange(unitOfWorkRunner.Cleanup(exception));
+                    throw new AggregateException(exceptionsToThrow);
+                }
             }
         }
 
@@ -1251,17 +1270,15 @@ namespace NServiceBus.Unicast
 
             SetupImpersonation(childBuilder, msg);
 
-            var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
-            var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
-            var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
+
+            var unitOfWorkRunner =new UnitOfWorkRunner
+                                  {
+                                      Builder = childBuilder
+                                  };
 
             try
             {
-                foreach (var uow in unitsOfWork)
-                {
-                    unitsOfWorkStarted.Add(uow);
-                    uow.Begin();
-                }
+                unitOfWorkRunner.Begin();
 
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
 
@@ -1277,31 +1294,14 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
-                {
-                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
-                    uow.End();
-                }
+                unitOfWorkRunner.End();
 
                 ForwardMessageIfNecessary(msg);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                var exceptionsToThrow = new List<Exception> { ex };
-
-                for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
-                {
-                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex];
-                    try
-                    {
-                        uow.End(ex);
-                    }
-                    catch (Exception anotherException)
-                    {
-                        exceptionsToThrow.Add(anotherException);
-                    }
-                }
-
+                var exceptionsToThrow = new List<Exception> { exception };
+                exceptionsToThrow.AddRange(unitOfWorkRunner.Cleanup(exception));
                 throw new AggregateException(exceptionsToThrow);
             }
 
