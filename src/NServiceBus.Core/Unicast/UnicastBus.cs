@@ -999,14 +999,17 @@ namespace NServiceBus.Unicast
             started = false;
         }
 
-        void IInMemoryOperations.Raise<T>(T @event)
+        public void Raise<T>(T @event)
         {
-            DispatchMessageToHandlersBasedOnType(Builder, @event);
+            using (var childBuilder = Builder.CreateChildBuilder())
+            {
+                DispatchMessageToHandlersBasedOnType(childBuilder, @event);
+            }
         }
 
-        void IInMemoryOperations.Raise<T>(Action<T> messageConstructor)
+        public void Raise<T>(Action<T> messageConstructor)
         {
-            ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
+            Raise(CreateInstance(messageConstructor));
         }
 
         /// <summary>
