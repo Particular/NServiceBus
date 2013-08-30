@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Linq;
     using Core.Tests;
     using NUnit.Framework;
     using UnitOfWork;
@@ -24,17 +25,37 @@
                          };
             runner.Begin();
             Assert.Throws<InvalidOperationException>(runner.End);
-            runner.Cleanup(null);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
             Assert.IsTrue(unitOfWork.BeginCalled);
             Assert.IsTrue(unitOfWork.EndCalled);
         }
 
+        [Test]
+        public void Should_append_end_exception_to_rethrow()
+        {
+            var builder = new FuncBuilder();
+
+            var unitOfWork = new UnitOfWorkThatThrowsFromEnd();
+
+            builder.Register<IManageUnitsOfWork>(() => unitOfWork);
+            var runner = new UnitOfWorkRunner
+            {
+                Builder = builder
+            };
+            var exception = new Exception();
+            runner.Begin();
+            var aggregateException = Assert.Throws<AggregateException>(() => runner.AppendEndExceptionsAndRethrow(exception));
+            var innerExceptions = aggregateException.InnerExceptions;
+            Assert.AreSame(exception, innerExceptions[0]);
+            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, innerExceptions[1]);
+        }
+
         public class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
         {
             public bool BeginCalled;
             public bool EndCalled;
+            public Exception ExceptionThrownFromEnd = new InvalidOperationException();
 
             public void Begin()
             {
@@ -44,10 +65,11 @@
             public void End(Exception ex = null)
             {
                 EndCalled = true;
-                throw new InvalidOperationException();
+                throw ExceptionThrownFromEnd;
             }
 
         }
+
         public class UnitOfWork : IManageUnitsOfWork
         {
             public bool BeginCalled;
@@ -82,7 +104,6 @@
                          };
             runner.Begin();
             runner.End();
-            runner.Cleanup(null);
 
             Assert.AreEqual(1, unitOfWork1.BeginCallIndex);
             Assert.AreEqual(2, unitOfWork2.BeginCallIndex);
@@ -91,6 +112,7 @@
             Assert.AreEqual(2, unitOfWork2.EndCallIndex);
             Assert.AreEqual(1, unitOfWork3.EndCallIndex);
         }
+
         public class CountingUnitOfWork : IManageUnitsOfWork
         {
             static int BeginCallCount;
@@ -115,7 +137,7 @@
         {
             var builder = new FuncBuilder();
 
-            var unitOfWork = new CaptureExceptionUnitOfWork();
+            var unitOfWork = new CaptureExceptionPassedToEndUnitOfWork();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
             var runner = new UnitOfWorkRunner
@@ -124,12 +146,12 @@
                          };
             var exception = new Exception();
             runner.Begin();
-            runner.Cleanup(exception);
-
+            var aggregateException = Assert.Throws<AggregateException>(() => runner.AppendEndExceptionsAndRethrow(exception));
             Assert.AreSame(exception, unitOfWork.Exception);
+            Assert.AreSame(exception, aggregateException.InnerExceptions.Single());
         }
 
-        public class CaptureExceptionUnitOfWork : IManageUnitsOfWork
+        public class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork
         {
             public void Begin()
             {
@@ -138,7 +160,6 @@
             {
                 Exception = ex;
             }
-
             public Exception Exception;
         }
     }

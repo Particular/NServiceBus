@@ -2,6 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using ObjectBuilder;
     using UnitOfWork;
 
@@ -18,32 +19,35 @@ namespace NServiceBus.Unicast
                 uow.Begin();
             }
         }
-        
+
         public void End()
         {
             while (unitsOfWork.Count > 0)
             {
-                var uow= unitsOfWork.Pop();
+                var uow = unitsOfWork.Pop();
                 uow.End();
             }
         }
 
-        public IEnumerable<Exception> Cleanup(Exception parentException)
+        public void AppendEndExceptionsAndRethrow(Exception parentException)
         {
-            var exceptions = new List<Exception>();
+            var exceptionsToThrow = new List<Exception>
+                                    {
+                                        parentException
+                                    };
             while (unitsOfWork.Count > 0)
             {
-                var uow= unitsOfWork.Pop();
+                var uow = unitsOfWork.Pop();
                 try
                 {
                     uow.End(parentException);
                 }
                 catch (Exception exception)
                 {
-                    exceptions.Add(exception);
+                    exceptionsToThrow.Add(exception);
                 }
             }
-            return exceptions;
+            throw new AggregateException(exceptionsToThrow);
         }
     }
 }

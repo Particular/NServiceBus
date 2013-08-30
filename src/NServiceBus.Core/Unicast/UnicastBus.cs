@@ -1016,12 +1016,7 @@ namespace NServiceBus.Unicast
                 }
                 catch (Exception exception)
                 {
-                    var exceptionsToThrow = new List<Exception>
-                                            {
-                                                exception
-                                            };
-                    exceptionsToThrow.AddRange(unitOfWorkRunner.Cleanup(exception));
-                    throw new AggregateException(exceptionsToThrow);
+                    unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
                 }
             }
         }
@@ -1300,9 +1295,7 @@ namespace NServiceBus.Unicast
             }
             catch (Exception exception)
             {
-                var exceptionsToThrow = new List<Exception> { exception };
-                exceptionsToThrow.AddRange(unitOfWorkRunner.Cleanup(exception));
-                throw new AggregateException(exceptionsToThrow);
+                unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
             }
 
             Log.Debug("Finished handling message.");
