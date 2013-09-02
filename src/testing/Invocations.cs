@@ -137,6 +137,14 @@ namespace NServiceBus.Testing
     public class ExpectedSendToSitesInvocation<M> : ExpectedMessageAndValueInvocation<SendToSitesInvocation<M>, M, IEnumerable<string>> { }
     public class SendToSitesInvocation<M> : MessageAndValueInvocation<M, IEnumerable<string>> { }
 
+    public class ExpectedNotSendToSitesInvocation<M> : ExpectedSendToSitesInvocation<M>
+    {
+        public ExpectedNotSendToSitesInvocation()
+        {
+            Negate = true;
+        }
+    }
+
     //Slightly abusing the single message model as these don't actually care about the message type.
     public class ExpectedHandleCurrentMessageLaterInvocation<M> : SingleMessageExpectedInvocation<HandleCurrentMessageLaterInvocation<M>, M> { }
     public class HandleCurrentMessageLaterInvocation<M> : MessageInvocation<M> { }

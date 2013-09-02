@@ -40,6 +40,23 @@ namespace NServiceBus.Testing.Tests
 
         [Test]
         [ExpectedException]
+        public void ShouldFailAssertingSendToSitesWasCalled()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectSendToSites<TestMessage>((m, a) => true)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldAssertSendToSitesWasNotCalled()
+        {
+            Test.Handler<EmptyHandler>()
+                .ExpectNotSendToSites<TestMessage>((m, a) => true)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        [ExpectedException]
         public void ShouldFailAssertingHandleCurrentMessageLaterWasCalled()
         {
             Test.Handler<EmptyHandler>()
