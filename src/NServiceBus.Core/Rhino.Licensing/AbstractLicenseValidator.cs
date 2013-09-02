@@ -19,6 +19,7 @@ namespace Rhino.Licensing
         /// <summary>
         /// License validator logger
         /// </summary>
+        // intentionally suppress logging with a NullLogger to make it easier to upgrade in the future
         protected readonly ILog Log = new NullLogger();
 
         private readonly string publicKey;
