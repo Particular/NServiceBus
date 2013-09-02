@@ -11,6 +11,7 @@ namespace NServiceBus.Testing
     using System.Collections.Generic;
     using Features.Categories;
     using DataBus.InMemory;
+    using Persistence.InMemory.SagaPersister;
 
     /// <summary>
     /// Entry class used for unit testing
@@ -72,7 +73,10 @@ namespace NServiceBus.Testing
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
                 .DefaultBuilder()
+                .UseInMemoryGatewayPersister()
+                .UseInMemoryTimeoutPersister()
                 .InMemoryFaultManagement()
+                .InMemorySubscriptionStorage()
                 .UnicastBus();
 
             Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
