@@ -217,6 +217,30 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Check that the handler sends a message of the given type to sites
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectSendToSites<TMessage>(Func<TMessage, IEnumerable<string>, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedSendToSitesInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler doesn't send a message of the given type to sites
+        /// </summary>
+        /// <typeparam name="TMessage"></typeparam>
+        /// <param name="check"></param>
+        /// <returns></returns>
+        public Handler<T> ExpectNotSendToSites<TMessage>(Func<TMessage, IEnumerable<string>, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotSendToSitesInvocation<TMessage> { Check = check });
+            return this;
+        }
+
+        /// <summary>
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         /// <param name="initializeMessage"></param>

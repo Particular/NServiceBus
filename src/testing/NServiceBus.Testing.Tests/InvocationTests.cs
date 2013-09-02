@@ -121,6 +121,44 @@ namespace NServiceBus.Testing.Tests
             exp3.Validate(i, j, k, l);
             exp4.Validate(i, j, k, l);
         }
+
+        [Test]
+        public void SendToSitesBasicPositive()
+        {
+            var i = new SendToSitesInvocation<MessageA> { Messages = new[] { new MessageA() }, Value = new[] {"SiteA"}};
+            var exp = new ExpectedSendToSitesInvocation<MessageA> { Check = (m,a) => true };
+
+            exp.Validate(i);
+        }
+
+        [Test]
+        [ExpectedException]
+        public void SendToSitesBasicNegativeCheck()
+        {
+            var i = new SendToSitesInvocation<MessageA> { Messages = new[] { new MessageA() }, Value = new[] { "SiteA" } };
+            var exp = new ExpectedSendToSitesInvocation<MessageA> { Check = (m, a) => false };
+
+            exp.Validate(i);
+        }
+
+        [Test]
+        [ExpectedException]
+        public void NotSendToSitesBasicNegative()
+        {
+            var i = new SendToSitesInvocation<MessageA> { Messages = new[] { new MessageA() }, Value = new[] { "SiteA" } };
+            var exp = new ExpectedNotSendToSitesInvocation<MessageA> { Check = (m, a) => true };
+
+            exp.Validate(i);
+        }
+
+        [Test]
+        public void NotSendToSitesBasicNegativeCheck()
+        {
+            var i = new SendToSitesInvocation<MessageA> { Messages = new[] { new MessageA() }, Value = new[] { "SiteA" } };
+            var exp = new ExpectedNotSendToSitesInvocation<MessageA> { Check = (m, a) => false };
+
+            exp.Validate(i);
+        }
     }
 
     public class MessageA
