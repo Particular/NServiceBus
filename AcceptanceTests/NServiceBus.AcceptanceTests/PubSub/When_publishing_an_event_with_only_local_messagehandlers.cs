@@ -9,10 +9,10 @@
     public class When_publishing_an_event_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_trigger_the_catch_all_handler()
+        public void Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<Publisher>(b =>
+                    .WithEndpoint<MessageDrivenPublisher>(b =>
                                              b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
                                                  {
                                                      context.LocalEndpointSubscribed = true;
@@ -20,11 +20,26 @@
                                               .When(c => c.LocalEndpointSubscribed, bus => bus.Publish(new EventHandledByLocalEndpoint()))
                 )
                     .Done(c => c.CatchAllHandlerGotTheMessage)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                     .Should(c =>
                         {
                             Assert.True(c.CatchAllHandlerGotTheMessage);
                         })
+
+                    .Run();
+        }
+
+        [Test]
+        public void Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
+        {
+            Scenario.Define<Context>()
+                    .WithEndpoint<CentralizedStoragePublisher>(b => b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint())))
+                    .Done(c => c.CatchAllHandlerGotTheMessage)
+                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
+                    .Should(c =>
+                    {
+                        Assert.True(c.CatchAllHandlerGotTheMessage);
+                    })
 
                     .Run();
         }
@@ -37,12 +52,12 @@
             public bool LocalEndpointSubscribed { get; set; }
         }
 
-        public class Publisher : EndpointConfigurationBuilder
+        public class MessageDrivenPublisher : EndpointConfigurationBuilder
         {
-            public Publisher()
+            public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultServer>(c=>Configure.Features.AutoSubscribe(s => s.DoNotRequireExplicitRouting()))
-                    .AddMapping<EventHandledByLocalEndpoint>(typeof(Publisher)); //a explicit mapping is needed
+                EndpointSetup<DefaultServer>()
+                    .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
             }
 
             class CatchAllHandler:IHandleMessages<IEvent> //not enough for auto subscribe to work
@@ -54,7 +69,32 @@
                 }
             }
 
-            class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //and a explicit handler
+            class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
+            {
+                public Context Context { get; set; }
+                public void Handle(EventHandledByLocalEndpoint message)
+                {
+                }
+            }
+        }
+
+        public class CentralizedStoragePublisher : EndpointConfigurationBuilder
+        {
+            public CentralizedStoragePublisher()
+            {
+                EndpointSetup<DefaultServer>(c => Configure.Features.AutoSubscribe(s => s.DoNotRequireExplicitRouting()));
+            }
+
+            class CatchAllHandler : IHandleMessages<IEvent> //not enough for auto subscribe to work
+            {
+                public Context Context { get; set; }
+                public void Handle(IEvent message)
+                {
+                    Context.CatchAllHandlerGotTheMessage = true;
+                }
+            }
+
+            class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
             {
                 public Context Context { get; set; }
                 public void Handle(EventHandledByLocalEndpoint message)

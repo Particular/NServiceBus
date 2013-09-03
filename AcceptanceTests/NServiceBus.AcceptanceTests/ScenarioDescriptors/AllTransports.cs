@@ -101,8 +101,26 @@
             get
             {
                 if (assemblies == null)
-                    assemblies = AssemblyScanner.GetScannableAssemblies().Assemblies;
+                {
+                    var result = AssemblyScanner.GetScannableAssemblies();
 
+
+
+                    if (result.Errors.Any())
+                    {
+                        foreach (var errors in result.Errors)
+                        {
+                            Console.Out.WriteLine(errors);
+                        }
+
+                        throw new InvalidOperationException("Assembly scanning failed");
+                    }
+
+                    
+
+                    assemblies = result.Assemblies;
+                }
+                    
                 return assemblies;
             }
         }
