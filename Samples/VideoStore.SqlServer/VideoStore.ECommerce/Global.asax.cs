@@ -20,6 +20,7 @@ namespace VideoStore.ECommerce
                      .UseTransport<SqlServer>()
                      .PurgeOnStartup(true)
                      .UnicastBus()
+                     .LoadMessageHandlers()
                      .RunHandlersUnderIncomingPrincipal(false)
                      .RijndaelEncryptionService()
                      .CreateBus()
