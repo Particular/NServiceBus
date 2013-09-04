@@ -105,8 +105,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
-            FuncBuilder.Register<MessageAuditer>(() => fakeMessageAuditer);
-
+     
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
