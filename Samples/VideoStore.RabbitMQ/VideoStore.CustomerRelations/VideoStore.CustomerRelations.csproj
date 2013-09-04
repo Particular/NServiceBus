@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')">
-</Import>
+  </Import>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +13,9 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
-</TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,12 +38,12 @@
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
-<Reference Include="RabbitMQ.Client" >
-    <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
-  </Reference>
-<Reference Include="NServiceBus.Transports.RabbitMQ" >
-    <HintPath>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
-  </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Transports.RabbitMQ">
+      <HintPath>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
@@ -49,19 +51,19 @@
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
     <Reference Include="System">
-</Reference>
+    </Reference>
     <Reference Include="System.Core">
-</Reference>
+    </Reference>
     <Reference Include="System.Xml.Linq">
-</Reference>
+    </Reference>
     <Reference Include="System.Data.DataSetExtensions">
-</Reference>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
-</Reference>
+    </Reference>
     <Reference Include="System.Data">
-</Reference>
+    </Reference>
     <Reference Include="System.Xml">
-</Reference>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\VideoStore.ContentManagement\DebugFlagMutator.cs">
@@ -71,19 +73,19 @@
       <Link>UnobtrusiveMessageConventions.cs</Link>
     </Compile>
     <Compile Include="EndpointConfig.cs">
-</Compile>
+    </Compile>
     <Compile Include="OrderAcceptedHandler.cs">
-</Compile>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
-</Compile>
+    </Compile>
     <Compile Include="SendLimitedTimeOffer.cs">
-</Compile>
+    </Compile>
     <Compile Include="SendWelcomePacket.cs">
-</Compile>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
-</None>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VideoStore.Messages\VideoStore.Messages.csproj">
@@ -92,7 +94,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets">
-</Import>
+  </Import>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>

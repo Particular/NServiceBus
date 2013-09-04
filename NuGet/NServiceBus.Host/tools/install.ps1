@@ -75,6 +75,7 @@ function Add-StartProgramIfNeeded {
 function Add-ConfigSettingIfRequired {
 	Add-NServiceBusMessageForwardingInCaseOfFaultConfig $project.Name
 	Add-NServiceBusUnicastBusConfig $project.Name
+    Add-NServiceBusAuditConfig $project.Name
 }
 
 function Add-EndpointConfigIfRequired {
