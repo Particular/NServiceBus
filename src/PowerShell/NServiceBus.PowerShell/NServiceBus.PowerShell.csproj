@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddConfigSection.cs" />
+    <Compile Include="AddAuditConfig.cs" />
     <Compile Include="AddNHibernateConfig.cs" />
     <Compile Include="AddTransportConfig.cs" />
     <Compile Include="AddUnicastBusConfig.cs" />

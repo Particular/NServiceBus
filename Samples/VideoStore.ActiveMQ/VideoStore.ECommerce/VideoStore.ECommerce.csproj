@@ -164,10 +164,8 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Handlers\OrderCancelledHandler.cs">
-</Compile>
-    <Compile Include="Handlers\OrderPlacedHandler.cs">
-</Compile>
+    <Compile Include="Handlers\OrderCancelledHandler.cs"></Compile>
+    <Compile Include="Handlers\OrderPlacedHandler.cs"></Compile>
     <Compile Include="Handlers\OrdersHub.cs">
     </Compile>
     <Compile Include="Handlers\OrderIsReadyHandler.cs">
@@ -200,10 +198,8 @@
     </Content>
     <Content Include="Global.asax">
     </Content>
-    <Content Include="Content\js\jquery.signalR-1.0.0.js">
-</Content>
-    <Content Include="Content\js\jquery.signalR-1.0.0.min.js">
-</Content>
+    <Content Include="Content\js\jquery.signalR-1.0.0.js"></Content>
+    <Content Include="Content\js\jquery.signalR-1.0.0.min.js"></Content>
     <Content Include="Web.config">
     </Content>
     <Content Include="Web.Debug.config">

@@ -12,6 +12,8 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Audit;
+    using Features;
     using Impersonation;
     using Licensing;
     using Logging;
@@ -185,6 +187,9 @@ namespace NServiceBus.Unicast
         /// The TTR to set on forwarded messages. 
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+
+
+        public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
         /// The router for this unicastbus
@@ -1283,7 +1288,9 @@ namespace NServiceBus.Unicast
                     uow.End();
                 }
 
-                ForwardMessageIfNecessary(msg);
+                // Will forward the message to the configured audit queue if the auditing feature is enabled.
+                MessageAuditer.ForwardMessageToAuditQueue(msg);
+                
             }
             catch (Exception ex)
             {
@@ -1372,34 +1379,6 @@ namespace NServiceBus.Unicast
         {
             message.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
             message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
-        }
-
-
-        /// <summary>
-        /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
-        /// if it isn't null.
-        /// </summary>
-        /// <param name="m">The message to forward</param>
-        private void ForwardMessageIfNecessary(TransportMessage m)
-        {
-            if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
-                return;
-
-            m.RevertToOriginalBodyIfNeeded();
-
-            var toSend = new TransportMessage(m.Id,m.Headers)
-                             {
-                                 Body = m.Body,
-                                 CorrelationId = m.CorrelationId,
-                                 MessageIntent = m.MessageIntent,
-                                 Recoverable = m.Recoverable,
-                                 ReplyToAddress = Address.Local,
-                                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
-                             };
-            if (m.ReplyToAddress != null)
-                toSend.Headers[Headers.OriginatingAddress] = m.ReplyToAddress.ToString();
-
-            MessageSender.Send(toSend, ForwardReceivedMessagesTo);
         }
 
         /// <summary>
@@ -1508,7 +1487,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Gets the destination address for a message type.
+        /// Gets the destination address For a message type.
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>

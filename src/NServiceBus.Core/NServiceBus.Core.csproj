@@ -91,12 +91,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
+    <Compile Include="Audit\Audit.cs" />
+    <Compile Include="Audit\ConfigureAudit.cs" />
+    <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
+    <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />

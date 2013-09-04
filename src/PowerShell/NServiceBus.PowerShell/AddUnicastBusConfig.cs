@@ -8,10 +8,8 @@
     public class AddUnicastBusConfig : AddConfigSection
     {
         const string Instructions = @"<UnicastBusConfig 
-    ForwardReceivedMessagesTo=""The address to which messages received will be forwarded.""
     DistributorControlAddress=""The address for sending control messages to the distributor.""
     DistributorDataAddress=""The distributor's data address, used as the return address of messages sent by this endpoint.""
-    TimeToBeReceivedOnForwardedMessages=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""
     TimeoutManagerAddress=""The address that the timeout manager will use to send and receive messages."" >
     <MessageEndpointMappings>
       To register all message types defined in an assembly:
@@ -45,7 +43,6 @@
                 doc.Root.LastNode.AddAfterSelf(
                                                 new XComment(Instructions), 
                                                 new XElement("UnicastBusConfig",
-                                                new XAttribute("ForwardReceivedMessagesTo", "audit"),
                                                 new XElement("MessageEndpointMappings")));
             }
         }
