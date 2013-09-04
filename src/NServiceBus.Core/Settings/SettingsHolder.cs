@@ -54,7 +54,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public static void Set(string key, object value)
         {
-            EnsureWriteEnabled();
+            EnsureWriteEnabled(key);
 
             Overrides[key] = value;
         }
@@ -115,7 +115,7 @@ namespace NServiceBus.Settings
         }
         public static void SetDefault(string key, object value)
         {
-            EnsureWriteEnabled();
+            EnsureWriteEnabled(key);
 
             Defaults[key] = value;
         }
@@ -175,11 +175,11 @@ namespace NServiceBus.Settings
             locked = true;
         }
 
-        static void EnsureWriteEnabled()
+        static void EnsureWriteEnabled(string key)
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException(string.Format("The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline"));
+                throw new ConfigurationErrorsException(string.Format("Unable to set the value for key: {0}. The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline", key));
             }
         }
 

@@ -3,7 +3,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Messaging;
     using System.Threading;
+    using Audit;
     using Core.Tests;
     using Helpers;
     using Impersonation;
@@ -47,6 +49,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+        protected FakeMessageAuditer fakeMessageAuditer;
 
      
         [SetUp]
@@ -84,7 +87,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-
+            fakeMessageAuditer = new FakeMessageAuditer(); 
             subscriptionManager = new MessageDrivenSubscriptionManager
                 {
                     Builder = FuncBuilder,
@@ -102,6 +105,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
+            FuncBuilder.Register<MessageAuditer>(() => fakeMessageAuditer);
 
             unicastBus = new UnicastBus
             {
@@ -125,8 +129,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 HandlerRegistry = handlerRegistry,
-                MessageRouter = router
-
+                MessageRouter = router,
+                MessageAuditer = fakeMessageAuditer
             };
             bus = unicastBus;
 
@@ -232,6 +236,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var type = Type.GetType(transportMessage.Headers[Headers.SubscriptionMessageType]);
 
             return type == typeof(T);
+        }
+    }
+
+    public class FakeMessageAuditer : MessageAuditer
+    {
+        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
+        {
         }
     }
 

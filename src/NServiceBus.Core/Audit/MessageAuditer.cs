@@ -31,7 +31,7 @@
         /// <summary>
         /// If the auditing feature is turned on, forward the given transport to the configured audit queue.
         /// </summary>
-        public void ForwardMessageToAuditQueue(TransportMessage transportMessage)
+        virtual public void ForwardMessageToAuditQueue(TransportMessage transportMessage)
         {
             if (!Feature.IsEnabled<Audit>()) return;
             
