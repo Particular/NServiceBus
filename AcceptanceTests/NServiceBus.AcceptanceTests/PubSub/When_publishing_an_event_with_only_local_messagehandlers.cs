@@ -35,7 +35,7 @@
             Scenario.Define<Context>()
                     .WithEndpoint<CentralizedStoragePublisher>(b => b.When(c => c.EndpointsStarted, (bus, context) => bus.Publish(new EventHandledByLocalEndpoint())))
                     .Done(c => c.CatchAllHandlerGotTheMessage)
-                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
+                    .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>(Transports.ActiveMQ)) //exclude active since the support for polymorphic routing is not implemented
                     .Should(c =>
                     {
                         Assert.True(c.CatchAllHandlerGotTheMessage);
@@ -85,20 +85,12 @@
                 EndpointSetup<DefaultServer>(c => Configure.Features.AutoSubscribe(s => s.DoNotRequireExplicitRouting()));
             }
 
-            class CatchAllHandler : IHandleMessages<IEvent> //not enough for auto subscribe to work
+            class CatchAllHandler : IHandleMessages<IEvent> 
             {
                 public Context Context { get; set; }
                 public void Handle(IEvent message)
                 {
                     Context.CatchAllHandlerGotTheMessage = true;
-                }
-            }
-
-            class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
-            {
-                public Context Context { get; set; }
-                public void Handle(EventHandledByLocalEndpoint message)
-                {
                 }
             }
         }
