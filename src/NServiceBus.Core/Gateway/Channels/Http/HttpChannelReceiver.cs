@@ -51,7 +51,6 @@ namespace NServiceBus.Gateway.Channels.Http
             tokenSource.Cancel();
 
             listener.Close();
-
             scheduler.Dispose();
             disposed = true;
         }
