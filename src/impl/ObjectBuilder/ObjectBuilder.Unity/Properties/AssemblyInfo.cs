@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus Container Unity Implementation")]
 [assembly: AssemblyDescription("Implementation of container functionality on top of Unity.")]
-[assembly: AssemblyVersion("4.0.0.0")]
-[assembly: AssemblyFileVersion("4.0.0.0")]
-[assembly: AssemblyCopyright("Copyright (C) NServiceBus 2010-2012")]
+[assembly: AssemblyCopyright("Copyright 2010-2013 NServiceBus. All rights reserved")]
 [assembly: AssemblyProduct("NServiceBus")]
-[assembly: AssemblyCompany("NServiceBus")]
+[assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: AssemblyConfiguration("release")]
-[assembly: AssemblyInformationalVersion("4.0.0-alpha0")]
 [assembly: ComVisible(false)]		
 [assembly: CLSCompliantAttribute(true)]
 

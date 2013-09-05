@@ -104,13 +104,10 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle(""$assemblyTitle"")]
 [assembly: AssemblyDescription(""$assemblyDescription"")]
-[assembly: AssemblyVersion(""$version"")]
-[assembly: AssemblyFileVersion(""$fileVersion"")]
 [assembly: AssemblyCopyright(""$copyright"")]
 [assembly: AssemblyProduct(""$product"")]
 [assembly: AssemblyCompany(""$company"")]
 [assembly: AssemblyConfiguration(""$configuration"")]
-[assembly: AssemblyInformationalVersion(""$infoVersion"")]
 [assembly: ComVisible(false)]		
 "
 	
