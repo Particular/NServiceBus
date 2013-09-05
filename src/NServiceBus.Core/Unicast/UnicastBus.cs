@@ -1006,10 +1006,7 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            using (var childBuilder = Builder.CreateChildBuilder())
-            {
-                DispatchMessageToHandlersBasedOnType(childBuilder, @event);
-            }
+            DispatchMessageToHandlersBasedOnType(Builder, @event);
         }
 
         public void Raise<T>(Action<T> messageConstructor)
