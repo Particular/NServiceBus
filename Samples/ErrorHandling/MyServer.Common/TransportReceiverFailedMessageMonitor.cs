@@ -7,11 +7,11 @@ namespace MyServer.Common
     internal class TransportReceiverFailedMessageMonitor : IWantToRunWhenBusStartsAndStops
 
     {                    
-        public TransportReceiver TransactionalTransport { get; set; }
+        public UnicastBus UnicastBus { get; set; }
 
         public void Start()
         {
-            TransactionalTransport.FailedMessageProcessing += OnFailedMessageProcessing;            
+            UnicastBus.Transport.FailedMessageProcessing += OnFailedMessageProcessing;            
         }
 
         void OnFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
