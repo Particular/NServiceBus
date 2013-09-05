@@ -20,7 +20,7 @@
         /// </summary>
         public static bool StartMsmqIfNecessary(bool allowReinstall = false)
         {
-            if(!InstallMsmqIfNecessary(allowReinstall))
+            if(!InstallMsmqIfNecessary())
             {
                 return false;
             }
@@ -62,7 +62,7 @@
             return HasOnlyNeededComponents(installedComponents);
         }
 
-        private static bool InstallMsmqIfNecessary(bool allowReinstall)
+        private static bool InstallMsmqIfNecessary()
         {
             Console.WriteLine("Checking if MSMQ is installed.");
 
@@ -79,42 +79,14 @@
                     return true;
                 }
 
-                Console.WriteLine("Installation isn't good.");
+                Console.WriteLine(
+                    "Installation isn't good. Make sure you remove the following components: {0} and also {1}",
+                    String.Join(", ", UndesirableMsmqComponentsXp), String.Join(", ", UndesirableMsmqComponentsV4));
 
-                if (!allowReinstall)
-                {
-                    return false;
-                }
-
-                Console.WriteLine("Going to re-install MSMQ. A reboot may be required.");
-
-                switch (os)
-                {
-                    case OperatingSystemEnum.Vista:
-                        RunExe(OcSetup, OcSetupVistaUninstallCommand);
-                        break;
-                        
-                    case OperatingSystemEnum.Windows7:
-                    case OperatingSystemEnum.Windows8:
-                    case OperatingSystemEnum.Server2008:
-                        RunExe(OcSetup, OcSetupUninstallCommand);
-                        break;
-
-                    case OperatingSystemEnum.Server2012:
-                        RunExe(Powershell, PowershellUninstallCommand);
-                        break;
-
-                    default:
-                        Console.WriteLine("OS not supported.");
-                        break;
-                }
-
-                Console.WriteLine("Uninstalling MSMQ.");
+                return false;
             }
-            else
-            {
-                Console.WriteLine("MSMQ is not installed. Going to install.");
-            }
+
+            Console.WriteLine("MSMQ is not installed. Going to install.");
 
             switch (os)
             {
@@ -126,14 +98,14 @@
                     RunExe(OcSetup, OcSetupVistaInstallCommand);
                     break;
 
-                case OperatingSystemEnum.Windows7:
-                case OperatingSystemEnum.Windows8:
                 case OperatingSystemEnum.Server2008:
                     RunExe(OcSetup, OcSetupInstallCommand);
                     break;
 
+                case OperatingSystemEnum.Windows7:
+                case OperatingSystemEnum.Windows8:
                 case OperatingSystemEnum.Server2012:
-                    RunExe(Powershell, PowershellInstallCommand);
+                    RunExe(DISM, DISMInstallCommand);
                     break;
 
                 default:
@@ -342,12 +314,9 @@
         enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008, Windows7, Windows8, Server2012 }
 
         const string OcSetup = "OCSETUP";
-        const string Powershell = "PowerShell";
+        const string DISM = "dism";
         const string OcSetupInstallCommand = "MSMQ-Server /passive";
-        const string OcSetupUninstallCommand = "MSMQ-Server /passive /uninstall";
         const string OcSetupVistaInstallCommand = "MSMQ-Container;MSMQ-Server /passive";
-        const string OcSetupVistaUninstallCommand = "MSMQ-Container;MSMQ-Server /passive /uninstall";
-        const string PowershellInstallCommand = @"-Command ""& {Install-WindowsFeature –Name MSMQ-Server}""";
-        const string PowershellUninstallCommand = @"-Command ""& {Uninstall-WindowsFeature –Name MSMQ-Server}""";
+        const string DISMInstallCommand = @"/Online /NoRestart /English /Enable-Feature /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server";
     }
 }
