@@ -1,5 +1,3 @@
-
-
 namespace MyServer.Common
 {
     using System;
