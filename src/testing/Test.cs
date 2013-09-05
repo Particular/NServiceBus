@@ -69,6 +69,8 @@ namespace NServiceBus.Testing
 
             Serializers.SetDefault<Features.XmlSerialization>();
 
+            Configure.Features.Disable<Features.Audit>();
+
             Configure.Instance
                 .DefineEndpointName("UnitTests")
                  .CustomConfigurationSource(testConfigurationSource)
@@ -79,6 +81,7 @@ namespace NServiceBus.Testing
                 .InMemorySubscriptionStorage()
                 .UnicastBus();
 
+      
             Configure.Component<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
             Configure.Instance.Initialize();
