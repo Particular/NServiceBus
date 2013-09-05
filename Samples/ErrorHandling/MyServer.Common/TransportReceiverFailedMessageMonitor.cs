@@ -1,11 +1,13 @@
+
+
 namespace MyServer.Common
 {
     using System;
     using NServiceBus;
+    using NServiceBus.Unicast;
     using NServiceBus.Unicast.Transport;
 
     internal class TransportReceiverFailedMessageMonitor : IWantToRunWhenBusStartsAndStops
-
     {                    
         public UnicastBus UnicastBus { get; set; }
 
