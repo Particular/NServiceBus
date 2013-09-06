@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using global::Spring.Context.Support;
     using Common;
-    using System.Threading;
     using global::Spring.Objects.Factory.Config;
     using global::Spring.Objects.Factory.Support;
 
@@ -14,6 +13,11 @@
     public class SpringObjectBuilder : IContainer
     {
         GenericApplicationContext context;
+        bool isChildContainer;
+        Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
+        Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
+        bool initialized;
+        DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
 
         /// <summary>
         /// Instantiates the builder using a new <see cref="GenericApplicationContext"/>.
@@ -25,45 +29,44 @@
         /// <summary>
         /// Instantiates the builder using the given container.
         /// </summary>
-        public SpringObjectBuilder(GenericApplicationContext container)
+        public SpringObjectBuilder(GenericApplicationContext context)
         {
-            context = container;
+            this.context = context;
         }
 
-        /// <summary>
-        /// No resources to dispose.
-        /// </summary>
         public void Dispose()
         {
+            //Injected at compile time
+        }
+
+        void DisposeManaged()
+        {
             //This is to figure out if Dispose was called from a child container or not
-            if (scope.IsValueCreated)
+            if (isChildContainer)
             {
                 return;
             }
 
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
             if (context != null)
             {
                 context.Dispose();
             }
         }
 
-        IContainer IContainer.BuildChildContainer()
+        public IContainer BuildChildContainer()
         {
-            //return this until we can get the child containers to work properly
-            //return new SpringObjectBuilder(new GenericApplicationContext(context));
-            
-            scope.Value = true;
-
-            return this;
+            Init();
+            return new SpringObjectBuilder(context)
+                   {
+                       isChildContainer = true,
+                       initialized = true,
+                       typeHandleLookup = typeHandleLookup,
+                       componentProperties = componentProperties,
+                       factory = factory
+                   };
         }
 
-        object IContainer.Build(Type typeToBuild)
+        public object Build(Type typeToBuild)
         {
             Init();
             var dict = context.GetObjectsOfType(typeToBuild, true, false);
@@ -78,7 +81,7 @@
             throw new ArgumentException(string.Format("{0} has not been configured. In order to avoid this exception, check the return value of the 'HasComponent' method for this type.", typeToBuild));
         }
 
-        IEnumerable<object> IContainer.BuildAll(Type typeToBuild)
+        public IEnumerable<object> BuildAll(Type typeToBuild)
         {
             Init();
             var dict = context.GetObjectsOfType(typeToBuild, true, false);
@@ -90,7 +93,7 @@
             }
         }
 
-        void IContainer.Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
+        public void Configure(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
         {
             if (initialized)
             {
@@ -108,11 +111,11 @@
             }
         }
 
-        void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        public void Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
             var componentType = typeof(T);
 
-            if (((IContainer)this).HasComponent(componentType))
+            if (HasComponent(componentType))
             {
                 return;
             }
@@ -122,7 +125,7 @@
             context.ObjectFactory.RegisterSingleton(componentType.FullName, funcFactory);
         }
 
-        void IContainer.ConfigureProperty(Type concreteComponent, string property, object value)
+        public void ConfigureProperty(Type concreteComponent, string property, object value)
         {
             if (initialized)
             {
@@ -143,7 +146,7 @@
             }
         }
 
-        void IContainer.RegisterSingleton(Type lookupType, object instance)
+        public void RegisterSingleton(Type lookupType, object instance)
         {
             if (initialized)
             {
@@ -153,7 +156,7 @@
             context.ObjectFactory.RegisterSingleton(lookupType.FullName, instance);
         }
 
-        bool IContainer.HasComponent(Type componentType)
+        public bool HasComponent(Type componentType)
         {
             if (componentProperties.ContainsKey(componentType))
             {
@@ -181,7 +184,7 @@
             return false;
         }
 
-        void IContainer.Release(object instance)
+        public void Release(object instance)
         {
         }
 
@@ -211,11 +214,5 @@
             context.Refresh();
         }
 
-        ThreadLocal<bool> scope = new ThreadLocal<bool>();
-        Dictionary<Type, DependencyLifecycle> typeHandleLookup = new Dictionary<Type, DependencyLifecycle>();
-        Dictionary<Type, ComponentConfig> componentProperties = new Dictionary<Type, ComponentConfig>();
-        bool initialized;
-        bool disposed;
-        DefaultObjectDefinitionFactory factory = new DefaultObjectDefinitionFactory();
     }
 }

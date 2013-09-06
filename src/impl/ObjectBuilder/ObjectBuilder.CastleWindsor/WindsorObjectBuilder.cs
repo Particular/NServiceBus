@@ -3,18 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Castle.Core.Resource;
     using Castle.MicroKernel.Lifestyle;
-    using Castle.MicroKernel.SubSystems.Configuration;
-    using Castle.Windsor.Configuration.Interpreters;
     using Common;
     using Castle.Windsor;
-    using Castle.MicroKernel;
     using Castle.Core;
     using Castle.MicroKernel.Registration;
-    using System.Threading;
-    using Castle.MicroKernel.ComponentActivator;
-    using Castle.MicroKernel.Context;
     using Logging;
 
     /// <summary>
@@ -22,9 +15,9 @@
     /// </summary>
     public class WindsorObjectBuilder : IContainer
     {
-        IWindsorContainer container { get; set; }
-
-        bool disposed;
+        IWindsorContainer container;
+        IDisposable scope;
+        static ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
 
         /// <summary>
         /// Instantiates the class with a new WindsorContainer.
@@ -41,34 +34,30 @@
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             if (container == null)
+            {
                 throw new ArgumentNullException("container", "The object builder must be initialized with a valid windsor container");
+            }
 
             this.container = container;
         }
 
-        /// <summary>
-        /// Disposes the container and all resources instantiated by the container.
-        /// </summary>
         public void Dispose()
         {
-            if (!disposed && scope.IsValueCreated && scope.Value != null)
+            //Injected at compile time
+        }
+
+        void DisposeManaged()
+        {
+            //if we are in a child scope dispose of that but not the parent container
+            if (scope != null)
             {
-                scope.Value.Dispose();
-                scope.Value = null;
+                scope.Dispose();
                 return;
             }
-
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
             if (container != null)
             {
                 container.Dispose();
             }
-            scope.Dispose();
         }
 
 
@@ -78,8 +67,10 @@
         /// </summary>
         public IContainer BuildChildContainer()
         {
-            scope.Value = container.Kernel.BeginScope();
-            return this;
+            return new WindsorObjectBuilder(container)
+                                {
+                                    scope = container.Kernel.BeginScope()
+                                };
         }
 
 
@@ -89,7 +80,7 @@
 
             if (registrations.Any())
             {
-                 Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
+                Logger.Info("Component " + concreteComponent.FullName + " was already registered in the container.");
                 return;
             }
 
@@ -120,8 +111,11 @@
         {
             var registration = container.Kernel.GetAssignableHandlers(component).Select(x => x.ComponentModel).SingleOrDefault();
 
-            if (registration==null)
-                throw new InvalidOperationException("Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.");
+            if (registration == null)
+            {
+                var message = "Cannot configure property for a type which hadn't been configured yet. Please call 'Configure' first.";
+                throw new InvalidOperationException(message);
+            }
 
             var propertyInfo = component.GetProperty(property);
 
@@ -165,7 +159,7 @@
             container.Release(instance);
         }
 
-        private static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
+        static LifestyleType GetLifestyleTypeFrom(DependencyLifecycle dependencyLifecycle)
         {
             switch (dependencyLifecycle)
             {
@@ -182,51 +176,11 @@
 
         static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
-
             return t.GetInterfaces()
                 .Where(x => x.FullName != null && !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
         }
 
-        readonly ThreadLocal<IDisposable> scope = new ThreadLocal<IDisposable>();
-       
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(WindsorObjectBuilder));
-    }
-
-    class ExternalInstanceActivatorWithDecommissionConcern : AbstractComponentActivator, IDependencyAwareActivator
-    {
-        public ExternalInstanceActivatorWithDecommissionConcern(ComponentModel model, IKernelInternal kernel, ComponentInstanceDelegate onCreation, ComponentInstanceDelegate onDestruction)
-            : base(model, kernel, onCreation, onDestruction)
-        {
-        }
-
-        public bool CanProvideRequiredDependencies(ComponentModel component)
-        {
-            //we already have an instance so we don't need to provide any dependencies at all
-            return true;
-        }
-
-        public bool IsManagedExternally(ComponentModel component)
-        {
-            return false;
-        }
-
-        protected override object InternalCreate(CreationContext context)
-        {
-            return Model.ExtendedProperties["instance"];
-        }
-
-        protected override void InternalDestroy(object instance)
-        {
-            ApplyDecommissionConcerns(instance);
-        }
-    }
-
-    internal class NoOpInterpreter : AbstractInterpreter
-    {
-        public override void ProcessResource(IResource resource, IConfigurationStore store, IKernel kernel)
-        {
-
-        }
+  
     }
 }
