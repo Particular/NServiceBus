@@ -74,7 +74,7 @@ namespace NServiceBus.Serializers.XML {
 		/// </summary>
 		public static bool IsLegalXmlChar(int character) 
 		{
-			return XmlSanitizingStream.IsLegalXmlChar("1.0", character);
+			return IsLegalXmlChar("1.0", character);
 		}
 	
 		public override int Read()
@@ -97,7 +97,7 @@ namespace NServiceBus.Serializers.XML {
 	
 			// Skip the character if it's prohibited, and try the next
 	
-			while (!XmlSanitizingStream.IsLegalXmlChar(nextCharacter));
+			while (!IsLegalXmlChar(nextCharacter));
 	
 			return nextCharacter;
 		}
@@ -119,7 +119,7 @@ namespace NServiceBus.Serializers.XML {
 				// If it's prohibited XML, skip over the character in the stream
 				// and try the next.
 	
-				!XmlSanitizingStream.IsLegalXmlChar(nextCharacter) &&
+				!IsLegalXmlChar(nextCharacter) &&
 				(nextCharacter = base.Read()) != EOF
 			);
 	

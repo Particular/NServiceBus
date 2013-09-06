@@ -14,7 +14,7 @@
         {
             var loggerFactory = new Log4NetLoggerFactory();
 
-            global::log4net.LogManager.ResetConfiguration();
+            log4net.LogManager.ResetConfiguration();
             Log4NetConfigurator.Configure(new ConsoleAppender { Threshold = Level.All });
 
             var log = loggerFactory.GetLogger("Test");

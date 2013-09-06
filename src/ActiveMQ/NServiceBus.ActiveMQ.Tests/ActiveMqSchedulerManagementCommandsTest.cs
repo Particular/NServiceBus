@@ -88,9 +88,9 @@
             return consumer;
         }
 
-        private static Mock<Apache.NMS.IMessageProducer> SetupCreateTopicProducer(Mock<ISession> producerSession, string topicName)
+        private static Mock<IMessageProducer> SetupCreateTopicProducer(Mock<ISession> producerSession, string topicName)
         {
-            var producer = new Mock<Apache.NMS.IMessageProducer>();
+            var producer = new Mock<IMessageProducer>();
             var topic = new Mock<ITopic>();
 
             topic.Setup(d => d.TopicName).Returns(topicName);

@@ -183,7 +183,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                     "set_" + prop.Name,
                     getMethodBuilder.Attributes,
                     null,
-                    new Type[] { propertyType });
+                    new[] { propertyType });
 
                 var setIL = setMethodBuilder.GetILGenerator();
                 // Load the instance and then the numeric argument, then store the

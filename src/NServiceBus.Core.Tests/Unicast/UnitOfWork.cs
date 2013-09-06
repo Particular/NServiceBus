@@ -21,7 +21,7 @@
                     beginCalled = true;
                     Assert.False(endCalled);
                 },
-                OnEnd = (ex) => { Assert.Null(ex); endCalled = true; }
+                OnEnd = ex => { Assert.Null(ex); endCalled = true; }
             };
 
             RegisterUow(uow);
@@ -148,11 +148,11 @@
 
             var firstUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) => { firstEndCalled = true; }
+                OnEnd = ex => { firstEndCalled = true; }
             };
             var throwableUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) =>
+                OnEnd = ex =>
                             {
                                 throwableEndCalled = true;
                                 throw new Exception();
@@ -160,7 +160,7 @@
             };
             var lastUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) => { lastEndCalled = true; }
+                OnEnd = ex => { lastEndCalled = true; }
             };
             RegisterUow(firstUoW);
             RegisterUow(throwableUoW);
@@ -181,11 +181,11 @@
 
             var firstUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) => { firstEndCalled++; }
+                OnEnd = ex => { firstEndCalled++; }
             };
             var throwableUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) =>
+                OnEnd = ex =>
                 {
                     throwableEndCalled++;
                     throw new Exception();
@@ -193,7 +193,7 @@
             };
             var lastUoW = new TestUnitOfWork
             {
-                OnEnd = (ex) => { lastEndCalled++; }
+                OnEnd = ex => { lastEndCalled++; }
             };
             RegisterUow(firstUoW);
             RegisterUow(throwableUoW);
@@ -259,7 +259,7 @@
                                                 beginCalled = true;
                                                 Assert.False(endCalled);
                                             },
-                              OnEnd = (ex) => { Assert.Null(ex); endCalled = true; }
+                              OnEnd = ex => { Assert.Null(ex); endCalled = true; }
                           };
 
             RegisterUow(uow);
@@ -284,7 +284,7 @@
 
             var uow = new TestUnitOfWork
             {
-                OnEnd = (ex) => { Assert.NotNull(ex); endCalled = true; }
+                OnEnd = ex => { Assert.NotNull(ex); endCalled = true; }
             };
 
             RegisterUow(uow);

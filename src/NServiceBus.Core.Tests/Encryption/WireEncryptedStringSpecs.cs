@@ -128,10 +128,10 @@
         [Test]
         public void Should_decrypt_the_property_correctly()
         {
-            var message = new MessageWithIndexProperties()
-                {
-                    Secret = Create()
-                };
+            var message = new MessageWithIndexProperties
+                          {
+                              Secret = Create()
+                          };
 
             message[0] = "boo";
             message[1] = "foo";

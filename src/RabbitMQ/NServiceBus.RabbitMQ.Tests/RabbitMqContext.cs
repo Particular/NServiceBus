@@ -98,7 +98,7 @@
                 RoutingTopology = routingTopology
             };
 
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, (m) =>
+            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, m =>
             {
                 receivedMessages.Add(m);
                 return true;

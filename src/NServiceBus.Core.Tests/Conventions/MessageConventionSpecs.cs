@@ -11,7 +11,7 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsMessageTypeAction = (t) =>
+                MessageConventionExtensions.IsMessageTypeAction = t =>
                 {
                     timesCalled++;
                     return false;
@@ -32,7 +32,7 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsEventTypeAction = (t) =>
+                MessageConventionExtensions.IsEventTypeAction = t =>
                 {
                     timesCalled++;
                     return false;
@@ -53,7 +53,7 @@
             public void Should_cache_the_message_convention()
             {
                 var timesCalled = 0;
-                MessageConventionExtensions.IsCommandTypeAction = (t) =>
+                MessageConventionExtensions.IsCommandTypeAction = t =>
                 {
                     timesCalled++;
                     return false;

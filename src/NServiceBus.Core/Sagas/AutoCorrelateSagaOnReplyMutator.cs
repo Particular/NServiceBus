@@ -77,7 +77,7 @@ namespace NServiceBus.Sagas
 
         public void Init()
         {
-            NServiceBus.Configure.Instance.Configurer
+            Configure.Instance.Configurer
                 .ConfigureComponent<AutoCorrelateSagaOnReplyMutator>(DependencyLifecycle.InstancePerCall);
         }
 

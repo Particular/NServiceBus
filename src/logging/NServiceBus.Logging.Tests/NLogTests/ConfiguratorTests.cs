@@ -12,7 +12,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
         [Test]
         public void Threshold_should_be_All()
         {
-            new ColoredConsoleTarget() {UseDefaultRowHighlightingRules = true};
+            new ColoredConsoleTarget{UseDefaultRowHighlightingRules = true};
 
             var filename = "logfile";
 
@@ -26,7 +26,7 @@ namespace NServiceBus.Logging.Tests.NLogTests
 
             new NLog.Config.LoggingConfiguration();
 
-            new FileTarget()
+            new FileTarget
                 {
                     FileName = Layout.FromString(filename),
                     ArchiveFileName = string.Format("{0}.{{#}}", filename),

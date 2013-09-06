@@ -139,7 +139,7 @@
     }
 
 
-    public class SagaThatDoesAReply : Saga.Saga<SagaThatDoesAReply.SagaThatDoesAReplyData>,
+    public class SagaThatDoesAReply : Saga<SagaThatDoesAReply.SagaThatDoesAReplyData>,
         IHandleMessages<MyRequest>
     {
 
@@ -163,7 +163,7 @@
     {
     }
 
-    public class MySaga : Saga.Saga<MySagaData>,
+    public class MySaga : Saga<MySagaData>,
                           IAmStartedByMessages<StartsSaga>,
                           IHandleTimeouts<StartsSaga>
     {
@@ -205,7 +205,7 @@
     {
     }
 
-    public class DiscountPolicy : Saga.Saga<DiscountPolicyData>,
+    public class DiscountPolicy : Saga<DiscountPolicyData>,
                                   IAmStartedByMessages<SubmitOrder>,
                                   IHandleTimeouts<SubmitOrder>
     {

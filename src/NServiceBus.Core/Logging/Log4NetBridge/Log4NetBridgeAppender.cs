@@ -8,7 +8,7 @@ namespace NServiceBus.Logging.Log4NetBridge
         protected override void Append(LoggingEvent loggingEvent)
         {
             // This might be slow but it should not be an issue since neither Topshelf or Rhino.Licensing logs that much.
-            var Log = NServiceBus.Logging.LogManager.GetLogger(loggingEvent.LoggerName);
+            var Log = LogManager.GetLogger(loggingEvent.LoggerName);
 
             if (loggingEvent.Level == Level.Debug)
                 Log.Debug(loggingEvent.RenderedMessage, loggingEvent.ExceptionObject);

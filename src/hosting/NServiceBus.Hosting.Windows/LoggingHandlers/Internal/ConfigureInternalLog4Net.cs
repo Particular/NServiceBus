@@ -51,8 +51,8 @@
 
         private static void ConfigureColoredConsoleAppender(Level threshold)
         {
-            var appender = new ColoredConsoleAppender()
-            {
+            var appender = new ColoredConsoleAppender
+                           {
                 Threshold = threshold
             };
 

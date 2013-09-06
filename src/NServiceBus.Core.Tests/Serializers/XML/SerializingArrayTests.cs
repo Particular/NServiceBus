@@ -62,7 +62,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeAndBack()
         {
-            var message = new MessageWithArray(Guid.NewGuid(), new int[] { 1234, 5323 });
+            var message = new MessageWithArray(Guid.NewGuid(), new[] { 1234, 5323 });
 
             var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 

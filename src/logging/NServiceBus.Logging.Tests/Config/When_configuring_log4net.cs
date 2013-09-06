@@ -11,7 +11,7 @@
         [SetUp]
         public void Setup()
         {
-            log4net.LogManager.ResetConfiguration();
+            LogManager.ResetConfiguration();
         }
 
         [Test]

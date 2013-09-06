@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         {
             var uniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithUniqueProperty()
+            var saga1 = new SagaWithUniqueProperty
                         {
                             Id = Guid.NewGuid(),
                             UniqueString = uniqueString,
@@ -33,8 +33,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 
             var anotherUniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithUniqueProperty()
-            {
+            var saga1 = new SagaWithUniqueProperty
+                        {
                 Id = Guid.NewGuid(),
                 UniqueString = uniqueString,
                 NonUniqueString = "notUnique"
@@ -70,8 +70,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
             var uniqueString = Guid.NewGuid().ToString();
             var anotherUniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithoutUniqueProperties()
-            {
+            var saga1 = new SagaWithoutUniqueProperties
+                        {
                 Id = Guid.NewGuid(),
                 UniqueString = uniqueString,
                 NonUniqueString = "notUnique"

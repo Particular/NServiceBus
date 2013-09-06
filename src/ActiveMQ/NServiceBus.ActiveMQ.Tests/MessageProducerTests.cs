@@ -112,9 +112,9 @@
             return jmsMessage;
         }
 
-        private Mock<Apache.NMS.IMessageProducer> SetupCreateProducer(Mock<ISession> sessionMock)
+        private Mock<IMessageProducer> SetupCreateProducer(Mock<ISession> sessionMock)
         {
-            var producerMock = new Mock<Apache.NMS.IMessageProducer>();
+            var producerMock = new Mock<IMessageProducer>();
             sessionMock.Setup(s => s.CreateProducer()).Returns(producerMock.Object);
             return producerMock;
         }

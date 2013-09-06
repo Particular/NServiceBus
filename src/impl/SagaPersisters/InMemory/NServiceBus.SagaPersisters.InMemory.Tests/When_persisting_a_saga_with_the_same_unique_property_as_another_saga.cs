@@ -21,7 +21,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         [Test]
         public void It_should_enforce_uniqueness_even_for_two_unique_properties()
         {
-            var saga1 = new SagaWithTwoUniqueProperties() { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5};
+            var saga1 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5};
             var saga2 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever1", UniqueInt = 3};
             var saga3 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever3", UniqueInt = 3 };
             var inMemorySagaPersister = new InMemorySagaPersister() as ISagaPersister;

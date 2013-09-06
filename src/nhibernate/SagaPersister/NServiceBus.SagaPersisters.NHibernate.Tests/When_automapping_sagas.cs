@@ -87,7 +87,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (TestSagaWithTableNameAttribute).FullName).ClassMetadata as
-                global::NHibernate.Persister.Entity.AbstractEntityPersister;
+                AbstractEntityPersister;
             Assert.AreEqual(persister.RootTableName, "MyTestSchema_MyTestTable");
         }
 
@@ -96,7 +96,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (DerivedFromTestSagaWithTableNameAttribute).FullName).
-                    ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+                    ClassMetadata as AbstractEntityPersister;
             Assert.AreEqual(persister.TableName, "DerivedFromTestSagaWithTableNameAttribute");
         }
 
@@ -105,7 +105,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (AlsoDerivedFromTestSagaWithTableNameAttribute).FullName).
-                    ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
+                    ClassMetadata as AbstractEntityPersister;
             Assert.AreEqual(persister.TableName, "MyDerivedTestTable");
         }
 

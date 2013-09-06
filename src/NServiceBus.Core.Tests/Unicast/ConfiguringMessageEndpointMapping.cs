@@ -29,7 +29,7 @@ namespace NServiceBus.Unicast.Tests
         {
             var mappings = new Dictionary<Type, Address>();
 
-            var mapping = new MessageEndpointMapping() { Endpoint = "SomeEndpoint" };
+            var mapping = new MessageEndpointMapping{ Endpoint = "SomeEndpoint" };
 
             setupMapping(mapping);
 

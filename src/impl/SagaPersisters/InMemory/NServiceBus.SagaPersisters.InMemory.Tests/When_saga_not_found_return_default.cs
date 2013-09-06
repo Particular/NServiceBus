@@ -29,7 +29,7 @@
         {
             var p = new InMemorySagaPersister() as ISagaPersister;
             var id = Guid.NewGuid();
-            var simpleSagaEntity = new SimpleSageEntity()
+            var simpleSagaEntity = new SimpleSageEntity
             {
                 Id = id,
                 OrderSource = "CA"

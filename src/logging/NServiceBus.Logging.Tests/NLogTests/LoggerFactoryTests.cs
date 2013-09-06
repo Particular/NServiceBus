@@ -11,7 +11,7 @@
         [Test]
         public void Test()
         {
-            global::NLog.Config.SimpleConfigurator.ConfigureForConsoleLogging(LogLevel.Trace);
+            NLog.Config.SimpleConfigurator.ConfigureForConsoleLogging(LogLevel.Trace);
 
             var loggerFactory = new NLogLoggerFactory();
 
