@@ -36,7 +36,7 @@ namespace NServiceBus.Hosting.Tests
     {
     }
 
-    internal class ConfigurationWithInheritedRole : IConfigureThisEndpoint, InheritedRole
+    internal class ConfigurationWithInheritedRole : IConfigureThisEndpoint, IInheritedRole
     {
     }
 
@@ -44,7 +44,7 @@ namespace NServiceBus.Hosting.Tests
     {
     }
 
-    public interface InheritedRole : TestRole
+    public interface IInheritedRole : TestRole
     {
     }
 

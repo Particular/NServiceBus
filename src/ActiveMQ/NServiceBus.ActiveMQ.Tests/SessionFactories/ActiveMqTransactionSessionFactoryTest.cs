@@ -33,7 +33,7 @@
         }
 
         [Test]
-        public void OnReleaseSessionsShouldBeReleasedtoThePooledSessionFactory()
+        public void OnReleaseSessionsShouldBeReleasedToThePooledSessionFactory()
         {
             pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 

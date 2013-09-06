@@ -27,17 +27,17 @@
             }
         }
 
-        private static void GetArgsForHttpAclCmd(int port, out string args, out string cmd)
+        private static void GetArgsForHttpAclCommand(int port, out string args, out string command)
         {
             if (Environment.OSVersion.Version.Major > 5)
             {
-                cmd = "netsh";
+                command = "netsh";
                 args = string.Format(@"http add urlacl url=http://+:{0}/ user=""{1}""", port,
                                      WindowsIdentity.GetCurrent().Name);
             }
             else
             {
-                cmd = "httpcfg";
+                command = "httpcfg";
                 args = string.Format(@"set urlacl /u http://+:{0}/ /a D:(A;;GX;;;""{1}"")", port,
                                      WindowsIdentity.GetCurrent().User);
             }
@@ -66,18 +66,18 @@
         private static void TryGrantingHttpPrivileges(int port)
         {
             string args;
-            string cmd;
-            GetArgsForHttpAclCmd(port, out args, out cmd);
+            string command;
+            GetArgsForHttpAclCommand(port, out args, out command);
 
             Console.WriteLine("Trying to grant rights for http.sys");
             try
             {
-                Console.WriteLine("runas {0} {1}", cmd, args);
+                Console.WriteLine("runas {0} {1}", command, args);
                 var process = Process.Start(new ProcessStartInfo
                 {
                     Verb = "runas",
                     Arguments = args,
-                    FileName = cmd,
+                    FileName = command,
                 });
                 process.WaitForExit();
             }

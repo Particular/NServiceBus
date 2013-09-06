@@ -6,7 +6,7 @@
     using UnitOfWork;
 
     [TestFixture]
-    public class When_processing_a_subscribe_message_successfully : using_the_unicastbus
+    public class When_processing_a_subscribe_message_successfully : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_uow_begin_and_end()
@@ -33,7 +33,7 @@
     }
 
     [TestFixture]
-    public class When_begin_and_end_executes : using_the_unicastbus
+    public class When_begin_and_end_executes : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_ends_in_reverse_order()
@@ -137,7 +137,7 @@
     }
 
     [TestFixture]
-    public class When_a_uow_end_throws : using_the_unicastbus
+    public class When_a_uow_end_throws : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_end_if_begin_was_invoked()
@@ -207,7 +207,7 @@
     }
 
     [TestFixture]
-    public class When_a_uow_begin_throws : using_the_unicastbus
+    public class When_a_uow_begin_throws : using_the_unicastBus
     {
         [Test]
         public void Should_not_invoke_end_if_begin_was_not_invoked()
@@ -244,7 +244,7 @@
     }
 
     [TestFixture]
-    public class When_processing_a_message_successfully : using_the_unicastbus
+    public class When_processing_a_message_successfully : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_uow_begin_and_end()
@@ -271,7 +271,7 @@
     }
 
     [TestFixture]
-    public class When_processing_a_message_fails : using_the_unicastbus
+    public class When_processing_a_message_fails : using_the_unicastBus
     {
         [Test]
         public void Should_pass_the_exception_to_the_uow_end()

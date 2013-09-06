@@ -30,10 +30,10 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                 queue = q;
 
-                var mpf = new MessagePropertyFilter();
-                mpf.SetAll();
+                var messageReadPropertyFilter = new MessagePropertyFilter();
+                messageReadPropertyFilter.SetAll();
 
-                queue.MessageReadPropertyFilter = mpf;
+                queue.MessageReadPropertyFilter = messageReadPropertyFilter;
             }
         }
 

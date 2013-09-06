@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
     public class When_starting_an_endpoint_containing_a_saga : AutoSubscriptionContext
     {
         [Test]
-        public void Should_autosubscribe_the_saga_messagehandler_by_default()
+        public void Should_autoSubscribe_the_saga_messageHandler_by_default()
         {
             var eventEndpointAddress = new Address("PublisherAddress", "localhost");
 
@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         }
 
         [Test]
-        public void Should_not_autosubscribe_the_saga_messagehandler_on_demand()
+        public void Should_not_autoSubscribe_the_saga_messageHandler_on_demand()
         {
             var eventEndpointAddress = new Address("PublisherAddress", "localhost");
 

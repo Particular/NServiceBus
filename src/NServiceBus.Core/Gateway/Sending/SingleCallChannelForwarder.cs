@@ -31,7 +31,7 @@
 
             //databus properties have to be available at the receiver site
             //before the body of the message is forwarded on the bus
-            TransmittDataBusProperties(channelSender, targetSite, headers);
+            TransmitDataBusProperties(channelSender, targetSite, headers);
 
             using (var messagePayload = new MemoryStream(message.Body))
             {
@@ -51,7 +51,7 @@
             channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
-        void TransmittDataBusProperties(IChannelSender channelSender, Site targetSite,
+        void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite,
             IDictionary<string, string> headers)
         {
             var headersToSend = new Dictionary<string, string>(headers);

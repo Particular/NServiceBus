@@ -10,11 +10,11 @@ namespace NServiceBus.IdGeneration
     /// </summary>
     /// <remarks>
     /// <p>
-    /// The <c>comb</c> algorithm is designed to make the use of GUIDs as Primary Keys, Foreign Keys, 
+    /// The <c>comb</c> algorithm is designed to make the use of <see cref="Guid"/>s as Primary Keys, Foreign Keys, 
     /// and Indexes nearly as efficient as ints.
     /// </p>
     /// <p>
-    /// This code was modifed based on Donald Mull's contributor to the
+    /// This code was modified based on Donald Mull's contributor to the
     /// NHibernate source.
     /// </p>
     /// </remarks>
@@ -32,20 +32,20 @@ namespace NServiceBus.IdGeneration
 
             // Get the days and milliseconds which will be used to build the byte string 
             var days = new TimeSpan(now.Ticks - baseDate.Ticks);
-            var msecs = now.TimeOfDay;
+            var timeOfDay = now.TimeOfDay;
 
             // Convert to a byte array 
             // Note that SQL Server is accurate to 1/300th of a millisecond so we divide by 3.333333 
             var daysArray = BitConverter.GetBytes(days.Days);
-            var msecsArray = BitConverter.GetBytes((long)(msecs.TotalMilliseconds / 3.333333));
+            var millisecondArray = BitConverter.GetBytes((long)(timeOfDay.TotalMilliseconds / 3.333333));
 
             // Reverse the bytes to match SQL Servers ordering 
             Array.Reverse(daysArray);
-            Array.Reverse(msecsArray);
+            Array.Reverse(millisecondArray);
 
             // Copy the bytes into the guid 
             Array.Copy(daysArray, daysArray.Length - 2, guidArray, guidArray.Length - 6, 2);
-            Array.Copy(msecsArray, msecsArray.Length - 4, guidArray, guidArray.Length - 4, 4);
+            Array.Copy(millisecondArray, millisecondArray.Length - 4, guidArray, guidArray.Length - 4, 4);
 
             return new Guid(guidArray);
         }

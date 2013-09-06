@@ -39,7 +39,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         }
 
         [Test]
-        public void Should_assign_overriden_connectionstring_if_specified()
+        public void Should_assign_overridden_connectionString_if_specified()
         {
             NHibernateSettingRetriever.AppSettings = () => new NameValueCollection{};
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection

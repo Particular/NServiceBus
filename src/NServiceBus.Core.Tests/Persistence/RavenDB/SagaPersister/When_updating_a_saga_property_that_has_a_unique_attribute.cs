@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
                 UniqueString = uniqueString
             };
 
-            //this should not blow since we changed the uniq value in the previous saga
+            //this should not blow since we changed the unique value in the previous saga
             SaveSaga(saga2);
         }
     }

@@ -14,7 +14,7 @@
         public IManageRabbitMqConnections ConnectionManager { get; set; }
 
         /// <summary>
-        /// If set to true pulisher confirms will be used to make sure that messages are acked by the broker before considered to be published
+        /// If set to true publisher confirms will be used to make sure that messages are acked by the broker before considered to be published
         /// </summary>
         public bool UsePublisherConfirms { get; set; }
 
@@ -113,7 +113,7 @@
         }
 
 
-        //we use a dictionary to make sure that actions from other tx doesn't spill over if threads are getting reused by the hosting infrastrcture
+        //we use a dictionary to make sure that actions from other tx doesn't spill over if threads are getting reused by the hosting infrastructure
         [ThreadStatic]
         static IDictionary<string, IList<Action<IModel>>> outstandingOperations;
     }

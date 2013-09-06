@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
     using Persistence.NHibernate;
 
     [TestFixture]
-    public class EnsuringBackwardsCompatability
+    public class EnsuringBackwardsCompatibility
     {
         private const string connectionString = @"Data Source=.\database.sqlite;Version=3;New=True;";
         private const string dialect = "NHibernate.Dialect.SQLiteDialect";

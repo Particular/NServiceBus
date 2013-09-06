@@ -73,7 +73,7 @@
         }
 
         [Test]
-        public void OnStart_MessageConsumerForAddreddIsCreated()
+        public void OnStart_MessageConsumerForAddressIsCreated()
         {
             var queue = "somequeue";
             var transactionSettings = TransactionSettings.Default;

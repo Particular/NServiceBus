@@ -33,7 +33,7 @@
         }
 
         [Test]
-        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq()
+        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue()
         {
             var expected = new Address("clientQ", "myMachine");
             message.ReplyToAddress = expected;
@@ -45,7 +45,7 @@
         }
 
         [Test]
-        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq_after_retries()
+        public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_error_queue_after_retries()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");            
 
@@ -61,7 +61,7 @@
         }
 
         [Test]
-        public void Message_should_be_sent_to_real_errorQ_if_defer_timespan_is_less_than_zero()
+        public void Message_should_be_sent_to_real_errorQ_if_defer_timeSpan_is_less_than_zero()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => { return TimeSpan.MinValue; };
@@ -72,7 +72,7 @@
         }
 
         [Test]
-        public void Message_should_be_sent_to_retryQ_if_defer_timespan_is_greater_than_zero()
+        public void Message_should_be_sent_to_retryQ_if_defer_timeSpan_is_greater_than_zero()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };

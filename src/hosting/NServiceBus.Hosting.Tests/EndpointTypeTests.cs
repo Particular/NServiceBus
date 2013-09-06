@@ -9,7 +9,7 @@ namespace NServiceBus.Hosting.Tests
 
         public abstract class TestContext
         {
-            protected EndpointType Sut;
+            protected EndpointType EndpointType;
             protected string TestValue;
         }
 
@@ -19,25 +19,25 @@ namespace NServiceBus.Hosting.Tests
             [TestFixtureSetUp]
             public void TestFixtureSetup()
             {
-                Sut = new EndpointType(typeof (TestEndpointType));
+                EndpointType = new EndpointType(typeof (TestEndpointType));
             }
 
             [Test]
-            public void the_assemblyqualifiedname_getter_should_not_blow_up()
+            public void the_assemblyQualifiedName_getter_should_not_blow_up()
             {
-                TestValue = Sut.AssemblyQualifiedName;
+                TestValue = EndpointType.AssemblyQualifiedName;
             }
 
             [Test]
-            public void the_endpointconfigurationfile_getter_should_not_blow_up()
+            public void the_endpointConfigurationFile_getter_should_not_blow_up()
             {
-                TestValue = Sut.EndpointConfigurationFile;
+                TestValue = EndpointType.EndpointConfigurationFile;
             }
 
             [Test]
-            public void the_endpointversion_getter_should_not_blow_up()
+            public void the_endpointVersion_getter_should_not_blow_up()
             {
-                TestValue = Sut.EndpointVersion;
+                TestValue = EndpointType.EndpointVersion;
             }
         }
 
@@ -63,46 +63,46 @@ namespace NServiceBus.Hosting.Tests
             }
 
             [Test]
-            public void when_endpointname_attribute_exists_it_should_have_first_priority()
+            public void when_endpointName_attribute_exists_it_should_have_first_priority()
             {
                 Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointTypeWithEndpointNameAttribute));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointTypeWithEndpointNameAttribute));
 
-                Assert.AreEqual("EndpointNameFromAttribute", Sut.EndpointName);
+                Assert.AreEqual("EndpointNameFromAttribute", EndpointType.EndpointName);
             }
 
             [Test]
             [Ignore("this hasn't been implemented yet as far as i can tell")]
-            public void when_endpointname_is_provided_via_configuration_it_should_have_second_priority()
+            public void when_endpointName_is_provided_via_configuration_it_should_have_second_priority()
             {
                 Configure.With().DefineEndpointName("EndpointNameFromConfiguration");
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointType));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
-                Assert.AreEqual("EndpointNameFromConfiguration", Sut.EndpointName);
+                Assert.AreEqual("EndpointNameFromConfiguration", EndpointType.EndpointName);
             }
 
             [Test]
-            public void when_endpointname_is_provided_via_hostargs_it_should_have_third_priority()
+            public void when_endpointName_is_provided_via_hostArgs_it_should_have_third_priority()
             {
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointType));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
-                Assert.AreEqual("EndpointNameFromHostArgs", Sut.EndpointName);
+                Assert.AreEqual("EndpointNameFromHostArgs", EndpointType.EndpointName);
             }
 
             [Test]
             [Ignore(
                 "not sure how to test this when interface marked as obsolete - get build errors if interface is referenced"
                 )]
-            public void when_inamethisendpoint_is_implemented_it_should_have_second_priority()
+            public void when_iNameThisEndpoint_is_implemented_it_should_have_second_priority()
             {
             }
 
             [Test]
-            public void when_no_endpointname_defined_it_should_return_null()
+            public void when_no_EndpointName_defined_it_should_return_null()
             {
                 hostArguments.EndpointName = null;
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointType));
-                Assert.IsNull(Sut.EndpointName);
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
+                Assert.IsNull(EndpointType.EndpointName);
             }
         }
 
@@ -113,42 +113,42 @@ namespace NServiceBus.Hosting.Tests
 
             [Test]
             public void
-                when_servicename_is_not_provided_via_hostargs_and_endpoint_has_a_namespace_it_should_use_the_namespace()
+                when_serviceName_is_not_provided_via_hostArgs_and_endpoint_has_a_namespace_it_should_use_the_namespace()
             {
                 hostArguments = new HostArguments(new string[0]);
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointType));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
-                Assert.AreEqual("NServiceBus.Hosting.Tests.EndpointTypeTests", Sut.ServiceName);
+                Assert.AreEqual("NServiceBus.Hosting.Tests.EndpointTypeTests", EndpointType.ServiceName);
             }
 
             [Test]
             public void
-                when_servicename_is_not_provided_via_hostargs_and_endpoint_has_no_namespace_it_should_use_the_assembly_name
+                when_serviceName_is_not_provided_via_hostArgs_and_endpoint_has_no_namespace_it_should_use_the_assembly_name
                 ()
             {
                 hostArguments = new HostArguments(new string[0]);
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointTypeWithoutANamespace));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointTypeWithoutANamespace));
 
-                Assert.AreEqual("NServiceBus.Hosting.Tests", Sut.ServiceName);
+                Assert.AreEqual("NServiceBus.Hosting.Tests", EndpointType.ServiceName);
             }
 
             [Test]
-            public void when_servicename_is_provided_via_hostargs_it_should_have_first_priority()
+            public void when_serviceName_is_provided_via_hostArgs_it_should_have_first_priority()
             {
                 hostArguments = new HostArguments(new string[0])
                     {
                         ServiceName = "ServiceNameFromHostArgs"
                     };
-                Sut = new EndpointType(hostArguments, typeof (TestEndpointType));
+                EndpointType = new EndpointType(hostArguments, typeof (TestEndpointType));
 
-                Assert.AreEqual("ServiceNameFromHostArgs", Sut.ServiceName);
+                Assert.AreEqual("ServiceNameFromHostArgs", EndpointType.ServiceName);
             }
         }
 
         [TestFixture]
         public class Constructor_Tests
         {
-            protected EndpointType Sut;
+            protected EndpointType EndpointType;
 
             [Test]
             [ExpectedException(typeof (InvalidOperationException),
@@ -156,7 +156,7 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void When_type_does_not_have_empty_public_constructor_it_should_blow_up()
             {
-                Sut = new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
+                EndpointType = new EndpointType(typeof (TypeWithoutEmptyPublicConstructor));
             }
         }
 

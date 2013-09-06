@@ -18,7 +18,7 @@
                 fakeReceiver.FakeMessageReceived();
 
             }
-            Assert.AreEqual(100, fakeReceiver.NumMessagesReceived);
+            Assert.AreEqual(100, fakeReceiver.NumberOfMessagesReceived);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Saga;
 
     [TestFixture]
-    public class When_automapping_sagas_with_nested_types
+    public class When_autoMapping_sagas_with_nested_types
     {
         private SessionFactoryImpl sessionFactory;
 
@@ -28,7 +28,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
         [Test]
-        public void Table_name_for_nested_entitiy_should_be_generated_correctly()
+        public void Table_name_for_nested_entity_should_be_generated_correctly()
         {
             var persister = sessionFactory.GetEntityPersister(typeof(SagaWithNestedType.Customer).FullName).
                    ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
@@ -51,7 +51,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
             var persister = sessionFactory.GetEntityPersister(typeof(TestSaga2).FullName).
                    ClassMetadata as global::NHibernate.Persister.Entity.AbstractEntityPersister;
 
-            Assert.AreEqual("When_automapping_sagas_with_nested_types", persister.TableName);
+            Assert.AreEqual("When_autoMapping_sagas_with_nested_types", persister.TableName);
         }
 
         public class TestSaga2 : ContainSagaData

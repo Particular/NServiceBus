@@ -56,7 +56,7 @@ namespace NServiceBus.Sagas
                 return;
             }
 
-            //for now we rewert back to send since this would be a breaking change. We'll fix this in v4.1
+            //for now we revert back to send since this would be a breaking change. We'll fix this in v4.1
             //https://github.com/NServiceBus/NServiceBus/issues/1409
             transportMessage.MessageIntent = MessageIntentEnum.Send;
             

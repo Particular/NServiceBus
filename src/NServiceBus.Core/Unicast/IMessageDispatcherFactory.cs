@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
     public interface IMessageDispatcherFactory
     {
         /// <summary>
-        /// Returns the action that will dipatch this message
+        /// Returns the action that will dispatch this message
         /// </summary>
         /// <param name="messageHandlerType"></param>
         /// <param name="builder"></param>

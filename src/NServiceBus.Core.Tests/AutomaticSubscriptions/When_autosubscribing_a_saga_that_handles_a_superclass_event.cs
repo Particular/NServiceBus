@@ -7,14 +7,14 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
     using Saga;
 
     [TestFixture]
-    public class When_autosubscribing_a_saga_that_handles_a_superclass_event : AutoSubscriptionContext
+    public class When_autoSubscribing_a_saga_that_handles_a_superclass_event : AutoSubscriptionContext
     {
         protected override IEnumerable<Type> KnownMessageTypes()
         {
             return new[] { typeof(EventWithParent), typeof(EventMessageBase) };
         }
         [Test]
-        public void Should_autosubscribe_the_saga_messagehandler()
+        public void Should_autoSubscribe_the_saga_messageHandler()
         {
 
             var eventEndpointAddress = new Address("PublisherAddress", "localhost");

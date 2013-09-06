@@ -230,25 +230,25 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             // For each constructor parameter, get corresponding (by name similarity) property and get its value
             var args = new object[longestCtor.GetParameters().Length];
-            var pos = 0;
+            var position = 0;
             foreach (var consParamInfo in longestCtor.GetParameters())
             {
                 var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (attrPropInfo != null)
-                    args[pos] = attrPropInfo.GetValue(customAttribute, null);
+                    args[position] = attrPropInfo.GetValue(customAttribute, null);
                 else
                 {
-                    args[pos] = null;
+                    args[position] = null;
                     var attrFieldInfo = customAttribute.GetType().GetField(consParamInfo.Name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase);
                     if (attrFieldInfo == null)
                     {
                         if (consParamInfo.ParameterType.IsValueType)
-                            args[pos] = Activator.CreateInstance(consParamInfo.ParameterType);
+                            args[position] = Activator.CreateInstance(consParamInfo.ParameterType);
                     }
                     else
-                        args[pos] = attrFieldInfo.GetValue(customAttribute);
+                        args[position] = attrFieldInfo.GetValue(customAttribute);
                 }
-                ++pos;
+                ++position;
             }
 
             var propList = new List<PropertyInfo>();
@@ -258,10 +258,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 if (!attrPropInfo.CanWrite)
                     continue;
                 object defaultValue = null;
-                var defaultAttrs = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
-                if (defaultAttrs.Length > 0)
+                var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
+                if (defaultAttributes.Length > 0)
                 {
-                    defaultValue = ((DefaultValueAttribute)defaultAttrs[0]).Value;
+                    defaultValue = ((DefaultValueAttribute)defaultAttributes[0]).Value;
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)

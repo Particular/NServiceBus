@@ -61,7 +61,7 @@
         IConfigureThisEndpoint Config { get; set; }
     }
     /// <summary>
-    /// Implementors will recieve the list of active Profiles from the <see cref="ProfileManager" />. 
+    /// Implementors will receive the list of active Profiles from the <see cref="ProfileManager" />. 
     /// Implementors must implement <see cref="IHandleProfile"/>.
     /// </summary>
     public interface IWantTheListOfActiveProfiles

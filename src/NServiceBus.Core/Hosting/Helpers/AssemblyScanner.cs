@@ -32,9 +32,9 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     assembly = Assembly.LoadFrom(assemblyFile.FullName);
                 }
-                catch (BadImageFormatException bif)
+                catch (BadImageFormatException badImageFormatException)
                 {
-                    var error = new ErrorWhileScanningAssemblies(bif, "Could not load " + assemblyFile.FullName +
+                    var error = new ErrorWhileScanningAssemblies(badImageFormatException, "Could not load " + assemblyFile.FullName +
                         ". Consider using 'Configure.With(AllAssemblies.Except(\"" + assemblyFile.Name + "\"))' to tell NServiceBus not to load this file.");
                     results.Errors.Add(error);
                     continue;

@@ -72,7 +72,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
@@ -84,7 +84,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -97,7 +97,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
@@ -109,7 +109,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)

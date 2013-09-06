@@ -6,7 +6,7 @@
     using Rhino.Mocks;
 
     [TestFixture]
-    public class When_sending_a_message_with_databusproperty : using_the_unicastbus
+    public class When_sending_a_message_with_databusProperty : using_the_unicastBus
     {
         [Test]
         public void Should_throw_if_more_than_one_is_sent_in_the_same_send()
@@ -26,7 +26,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_event_message : using_the_unicastbus
+    public class When_sending_a_event_message : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -37,7 +37,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_event_message_to_sites : using_the_unicastbus
+    public class When_sending_a_event_message_to_sites : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -48,10 +48,10 @@
     }
 
     [TestFixture]
-    public class When_sending_messages_to_sites : using_the_unicastbus
+    public class When_sending_messages_to_sites : using_the_unicastBus
     {
         [Test]
-        public void The_destination_sites_header_should_be_set_to_the_given_sitekeys()
+        public void The_destination_sites_header_should_be_set_to_the_given_siteKeys()
         {
             RegisterMessageType<TestMessage>();
             bus.SendToSites(new[] { "SiteA,SiteB" }, new TestMessage());
@@ -70,7 +70,7 @@
     }
 
     [TestFixture]
-    public class When_sending_any_message : using_the_unicastbus
+    public class When_sending_any_message : using_the_unicastBus
     {
         [Test]
         public void The_content_type_should_be_set()
@@ -120,7 +120,7 @@
         }
 
         [Test, Ignore("Needs refactoring to make testing possible")]
-        public void Should_propagate_the_incoming_replyto_address_if_requested()
+        public void Should_propagate_the_incoming_replyTo_address_if_requested()
         {
             var addressOfIncomingMessage = Address.Parse("Incoming");
 
@@ -135,7 +135,7 @@
     }
 
     [TestFixture]
-    public class When_sending_multiple_messages_in_one_go : using_the_unicastbus
+    public class When_sending_multiple_messages_in_one_go : using_the_unicastBus
     {
 
         [Test]
@@ -150,7 +150,7 @@
 
 
         [Test]
-        public void Should_use_the_lovest_time_to_be_received()
+        public void Should_use_the_lowest_time_to_be_received()
         {
             RegisterMessageType<NonPersistentMessage>();
             RegisterMessageType<PersistentMessage>();
@@ -182,7 +182,7 @@
 
 
     [TestFixture]
-    public class When_sending_any_message_from_a_volatile_endpoint : using_the_unicastbus
+    public class When_sending_any_message_from_a_volatile_endpoint : using_the_unicastBus
     {
         [Test]
         public void It_should_be_non_persistent_by_default()
@@ -196,7 +196,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_message_that_has_no_configured_address : using_the_unicastbus
+    public class When_sending_a_message_that_has_no_configured_address : using_the_unicastBus
     {
         [Test]
         public void Should_throw()
@@ -206,7 +206,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_command_message : using_the_unicastbus
+    public class When_sending_a_command_message : using_the_unicastBus
     {
         [Test]
         public void Should_specify_the_message_to_be_recoverable()
@@ -220,7 +220,7 @@
     }
 
     [TestFixture]
-    public class When_sending_a_interface_message : using_the_unicastbus
+    public class When_sending_a_interface_message : using_the_unicastBus
     {
         [Test]
         public void Should_specify_the_message_to_be_recoverable()
@@ -234,7 +234,7 @@
     }
 
     [TestFixture]
-    public class When_raising_an_in_memory_message : using_the_unicastbus
+    public class When_raising_an_in_memory_message : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_registered_message_handlers()

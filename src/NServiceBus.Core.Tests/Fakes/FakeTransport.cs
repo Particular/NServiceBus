@@ -53,7 +53,7 @@
 
         public int MaximumMessageThroughputPerSecond { get; private set; }
 
-        public bool IsEventAssiged
+        public bool IsEventAssigned
         {
             get { return TransportMessageReceived != null; }
         }

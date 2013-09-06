@@ -62,7 +62,7 @@ namespace NServiceBus.MessageInterfaces.Tests
 
 
         [Test]
-        public void Accept_Attributes_with_no_default_ctor_while_ctor_parameters_are_different_than_properties_of_custom_attibute()
+        public void Accept_Attributes_with_no_default_ctor_while_ctor_parameters_are_different_than_properties_of_custom_attribute()
         {
             mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters) });
             var instance = mapper.CreateInstance(typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
@@ -81,7 +81,7 @@ namespace NServiceBus.MessageInterfaces.Tests
         }
 
         [Test]
-        public void Accept_attributes_with_value_attibute()
+        public void Accept_attributes_with_value_attribute()
         {
             mapper.Initialize(new[] { typeof(IMyEventWithAttributeWithBoolProperty) });
             var instance = mapper.CreateInstance(typeof(IMyEventWithAttributeWithBoolProperty));

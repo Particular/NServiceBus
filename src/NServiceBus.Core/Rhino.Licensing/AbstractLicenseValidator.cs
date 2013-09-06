@@ -233,12 +233,12 @@
             Name = name.Value;
 
             var license = doc.SelectSingleNode("/license");
-            foreach (XmlAttribute attrib in license.Attributes)
+            foreach (XmlAttribute attribute in license.Attributes)
             {
-                if (attrib.Name == "type" || attrib.Name == "expiration" || attrib.Name == "id")
+                if (attribute.Name == "type" || attribute.Name == "expiration" || attribute.Name == "id")
                     continue;
 
-                LicenseAttributes[attrib.Name] = attrib.Value;
+                LicenseAttributes[attribute.Name] = attribute.Value;
             }
 
             return true;
@@ -253,13 +253,13 @@
             nsMgr.AddNamespace("sig", "http://www.w3.org/2000/09/xmldsig#");
 
             var signedXml = new SignedXml(doc);
-            var sig = (XmlElement)doc.SelectSingleNode("//sig:Signature", nsMgr);
-            if (sig == null)
+            var signature = (XmlElement)doc.SelectSingleNode("//sig:Signature", nsMgr);
+            if (signature == null)
             {
                 Log.WarnFormat("Could not find this signature node on license:\r\n{0}", License);
                 return false;
             }
-            signedXml.LoadXml(sig);
+            signedXml.LoadXml(signature);
 
             return signedXml.CheckSignature(rsa);
         }

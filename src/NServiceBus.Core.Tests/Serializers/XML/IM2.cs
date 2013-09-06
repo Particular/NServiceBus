@@ -13,7 +13,7 @@
         TimeSpan Duration { get; set; }
         DateTimeOffset Offset { get; set; }
         IM1[] MoreNames { get; set; }
-        MyDic Lookup { get; set; }
+        MyDictionary Lookup { get; set; }
         Dictionary<string, List<Foo>> Foos { get; set; }
         byte[] Data { get; set; }
         IEnumerable<string> SomeStrings { get; set; }
@@ -35,7 +35,7 @@
         public int Length { get; set; }
     }
 
-    public class MyDic : Dictionary<string, string>
+    public class MyDictionary : Dictionary<string, string>
     {
         
     }

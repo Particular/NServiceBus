@@ -8,7 +8,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Saga;
 
     [TestFixture]
-    public class When_automapping_sagas_with_abstract_base_class
+    public class When_autoMapping_sagas_with_abstract_base_class
     {
         private SessionFactoryImpl sessionFactory;
 

@@ -353,12 +353,12 @@ namespace NDesk.Options
 
         protected static T Parse<T>(string value, OptionContext c)
         {
-            var conv = TypeDescriptor.GetConverter(typeof(T));
+            var typeConverter = TypeDescriptor.GetConverter(typeof(T));
             var t = default(T);
             try
             {
                 if (value != null)
-                    t = (T)conv.ConvertFromString(value);
+                    t = (T)typeConverter.ConvertFromString(value);
             }
             catch (Exception e)
             {

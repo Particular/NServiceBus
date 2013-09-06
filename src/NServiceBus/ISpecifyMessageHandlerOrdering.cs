@@ -37,7 +37,7 @@
         }
 
         /// <summary>
-        /// Obselete - use SpecifyFirst instead.
+        /// Obsolete - use SpecifyFirst instead.
         /// </summary>
         /// <typeparam name="TFirst"></typeparam>
         [ObsoleteEx(Replacement = "SpecifyFirst<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]

@@ -8,7 +8,7 @@
     public static class XmlSerializerConfigurationExtensions
     {
         /// <summary>
-        /// Enables the xml message serializer with the geiven settings
+        /// Enables the xml message serializer with the given settings
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="customSettings"></param>

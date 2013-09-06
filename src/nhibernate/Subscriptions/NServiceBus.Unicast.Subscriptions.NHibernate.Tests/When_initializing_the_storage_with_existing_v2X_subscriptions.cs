@@ -11,11 +11,11 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
         {
             using (var session = subscriptionStorageSessionProvider.OpenSession())
             {
-                var cmd = session.Connection.CreateCommand();
+                var command = session.Connection.CreateCommand();
 
-                cmd.CommandText = string.Format("INSERT INTO Subscription([SubscriberEndpoint],[MessageType]) values ('{0}','{1}')", TestClients.ClientA, typeof(MessageB).AssemblyQualifiedName);
+                command.CommandText = string.Format("INSERT INTO Subscription([SubscriberEndpoint],[MessageType]) values ('{0}','{1}')", TestClients.ClientA, typeof(MessageB).AssemblyQualifiedName);
 
-                cmd.ExecuteNonQuery();
+                command.ExecuteNonQuery();
             }
 
             storage.Init();

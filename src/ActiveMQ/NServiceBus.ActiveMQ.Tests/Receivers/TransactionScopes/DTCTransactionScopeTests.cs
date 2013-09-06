@@ -11,18 +11,18 @@
     [TestFixture]
     public class DTCTransactionScopeTests
     {
-        private Mock<ISessionFactory> sesstionFactoryMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
 
         [SetUp]
         public void SetUp()
         {
-            sesstionFactoryMock = new Mock<ISessionFactory>();
+            sessionFactoryMock = new Mock<ISessionFactory>();
         }
 
         [Test]
         public void WhenCreated_ThenNewTransactionIsStarted()
         {
-            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
+            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sessionFactoryMock.Object))
             {
                 Transaction.Current.Should().NotBeNull();
 
@@ -31,11 +31,11 @@
         }
 
         [Test]
-        public void WhenCompleted_ThenTransactionShouldBeCommited()
+        public void WhenCompleted_ThenTransactionShouldBeCommitted()
         {
             var transactionStatus = TransactionStatus.InDoubt;
 
-            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
+            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sessionFactoryMock.Object))
             {
                 Transaction.Current.TransactionCompleted +=
                     (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
@@ -47,13 +47,13 @@
         }
 
         [Test]
-        public void WhenDisposedButNotCommited_ThenTransactionShouldBeAbortedAndExceptionThrown()
+        public void WhenDisposedButNotCommitted_ThenTransactionShouldBeAbortedAndExceptionThrown()
         {
             var transactionStatus = TransactionStatus.InDoubt;
 
             Action action = () =>
                 {
-                    using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
+                    using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sessionFactoryMock.Object))
                     {
                         Transaction.Current.TransactionCompleted +=
                             (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;

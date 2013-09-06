@@ -31,19 +31,19 @@ namespace NServiceBus.Transports.RabbitMQ.Tests.ClusteringTests
         }
 
         [Test]
-        public void it_should_be_able_to_roundtrip_a_message_when_all_nodes_are_up() {
+        public void it_should_be_able_to_round_trip_a_message_when_all_nodes_are_up() {
             messageReceivedWhenAllNodesUp.Should().NotBeNull();
             messageReceivedWhenAllNodesUp.Id.Should().Be(messageSentWhenAllNodesUp.Id);
         }
 
         [Test]
-        public void it_should_be_able_to_roundtrip_a_message_when_node_1_is_down() {
+        public void it_should_be_able_to_round_trip_a_message_when_node_1_is_down() {
             messageReceivedWhen1NodeIsDown.Should().NotBeNull();
             messageReceivedWhen1NodeIsDown.Id.Should().Be(messageSentWhen1NodeIsDown.Id);
         }
 
         [Test]
-        public void it_should_be_able_to_roundtrip_a_message_when_nodes_1_and_2_are_down() {
+        public void it_should_be_able_to_round_trip_a_message_when_nodes_1_and_2_are_down() {
             messageReceivedWhen2NodesAreDown.Should().NotBeNull();
             messageReceivedWhen2NodesAreDown.Id.Should().Be(messageSentWhen2NodesAreDown.Id);
         }

@@ -144,7 +144,7 @@
                 return null;
 
             List<Type> messageTypes;
-            SagaTypeToMessagTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);
+            SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);
 
             if (messageTypes == null)
                 return null;
@@ -302,13 +302,13 @@
 
                 Type sagaEntityType = null;
                 Type messageType = null;
-                foreach (var typ in args)
+                foreach (var type in args)
                 {
-                    if (typeof(IContainSagaData).IsAssignableFrom(typ))
-                        sagaEntityType = typ;
+                    if (typeof(IContainSagaData).IsAssignableFrom(type))
+                        sagaEntityType = type;
 
-                    if (MessageConventionExtensions.IsMessageType(typ) || typ == typeof(object))
-                        messageType = typ;
+                    if (MessageConventionExtensions.IsMessageType(type) || type == typeof(object))
+                        messageType = type;
                 }
 
                 if (sagaEntityType == null || messageType == null)
@@ -392,12 +392,12 @@
         static void MessageTypeRequiresStartingSaga(Type messageType, Type sagaType)
         {
             List<Type> messages;
-            SagaTypeToMessagTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messages);
+            SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messages);
 
             if (messages == null)
             {
                 messages = new List<Type>(1);
-                SagaTypeToMessagTypesRequiringSagaStartLookup[sagaType] = messages;
+                SagaTypeToMessageTypesRequiringSagaStartLookup[sagaType] = messages;
             }
 
             if (!messages.Contains(messageType))
@@ -412,7 +412,7 @@
         static readonly IDictionary<Type, Type> FinderTypeToSagaEntityTypeLookup = new Dictionary<Type, Type>();
         static readonly IDictionary<Type, IDictionary<Type, MethodInfo>> FinderTypeToMessageToMethodInfoLookup = new Dictionary<Type, IDictionary<Type, MethodInfo>>();
 
-        static readonly IDictionary<Type, List<Type>> SagaTypeToMessagTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
+        static readonly IDictionary<Type, List<Type>> SagaTypeToMessageTypesRequiringSagaStartLookup = new Dictionary<Type, List<Type>>();
 
         static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 

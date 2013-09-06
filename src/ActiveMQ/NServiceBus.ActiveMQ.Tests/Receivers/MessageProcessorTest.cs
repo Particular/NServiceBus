@@ -75,11 +75,11 @@ order = string.Empty;
         }
 
         [Test]
-        public void WhenMessageIsProcessedSucccessfully_ThenTransactionIsCompleted()
+        public void WhenMessageIsProcessedSuccessfully_ThenTransactionIsCompleted()
         {
             var message = new Mock<IMessage>().Object;
 
-            SetuptransactionOrderTracking(message);
+            SetupTransactionOrderTracking(message);
 
             testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
             testee.TryProcessMessage = m =>
@@ -99,7 +99,7 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            SetuptransactionOrderTracking(message);
+            SetupTransactionOrderTracking(message);
 
             testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
             testee.TryProcessMessage = m =>
@@ -119,7 +119,7 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            SetuptransactionOrderTracking(message);
+            SetupTransactionOrderTracking(message);
 
             testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
             testee.TryProcessMessage = m =>
@@ -135,11 +135,11 @@ order = string.Empty;
         }
 
         [Test]
-        public void WhenStoppedBeforeIncrementingCounter_MessageIsNotProcessedAndTransactionRollbacked()
+        public void WhenStoppedBeforeIncrementingCounter_MessageIsNotProcessedAndTransactionRolledBack()
         {
             var message = new Mock<IMessage>().Object;
 
-            SetuptransactionOrderTracking(message);
+            SetupTransactionOrderTracking(message);
 
             testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
             testee.TryProcessMessage = m =>
@@ -160,7 +160,7 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            SetuptransactionOrderTracking(message);
+            SetupTransactionOrderTracking(message);
 
             testee.EndProcessMessage = (m, e) => { };
             testee.TryProcessMessage = m => true;
@@ -202,7 +202,7 @@ order = string.Empty;
             purger.Verify(p => p.Purge(session.Object, It.Is<IQueue>(d => d.QueueName.Contains(Destination))), Times.Never());
         }
 
-        private void SetuptransactionOrderTracking(IMessage message)
+        private void SetupTransactionOrderTracking(IMessage message)
         {
             var transactionScopeMock = new Mock<ITransactionScope>();
 

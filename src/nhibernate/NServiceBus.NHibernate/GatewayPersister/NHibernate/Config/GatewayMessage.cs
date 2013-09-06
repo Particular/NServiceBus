@@ -18,7 +18,7 @@ namespace NServiceBus.GatewayPersister.NHibernate.Config
         public virtual string Headers { get; set; }
 
         /// <summary>
-        /// The time at which the message was recived.
+        /// The time at which the message was received.
         /// </summary>
         public virtual DateTime TimeReceived { get; set; }
 
@@ -28,7 +28,7 @@ namespace NServiceBus.GatewayPersister.NHibernate.Config
         public virtual byte[] OriginalMessage { get; set; }
 
         /// <summary>
-        /// Acknowlegment that the message was successfully received.
+        /// Acknowledgment that the message was successfully received.
         /// </summary>
         public virtual bool Acknowledged { get; set; }
     }

@@ -33,17 +33,17 @@ namespace NServiceBus.Config
         /// <returns></returns>
         public IDictionary<string,string> ToProperties()
         {
-            var retval = new Dictionary<string, string>();
+            var returnValue = new Dictionary<string, string>();
 
             foreach(var element in this)
             {
 
-                retval.Add(
+                returnValue.Add(
                     (element as NHibernateProperty).Key,
                     (element as NHibernateProperty).Value);
             }
 
-            return retval;
+            return returnValue;
         }
     }
 }

@@ -27,21 +27,21 @@ namespace NServiceBus.Gateway.Persistence.Sql
                     cn.Open();
                     using (var tx = cn.BeginTransaction())
                     {
-                        var cmd = cn.CreateCommand();
-                        cmd.CommandText =
+                        var command = cn.CreateCommand();
+                        command.CommandText =
                             "IF NOT EXISTS (SELECT Status FROM Messages WHERE (ClientId = @ClientId)) INSERT INTO Messages  (DateTime, ClientId, Status, Message, Headers) VALUES (@DateTime, @ClientId, 0, @Message, @Headers)";
 
-                        var datetimeIdParam = cmd.CreateParameter();
+                        var datetimeIdParam = command.CreateParameter();
                         datetimeIdParam.ParameterName = "@DateTime";
                         datetimeIdParam.Value = timeReceived;
-                        cmd.Parameters.Add(datetimeIdParam);
+                        command.Parameters.Add(datetimeIdParam);
 
-                        var clientIdParam = cmd.CreateParameter();
+                        var clientIdParam = command.CreateParameter();
                         clientIdParam.ParameterName = "@ClientId";
                         clientIdParam.Value = clientId;
-                        cmd.Parameters.Add(clientIdParam);
+                        command.Parameters.Add(clientIdParam);
 
-                        var messageParam = cmd.CreateParameter();
+                        var messageParam = command.CreateParameter();
                         messageParam.ParameterName = "@Message";
                         var ms = message as MemoryStream;
                         if (ms == null)
@@ -52,14 +52,14 @@ namespace NServiceBus.Gateway.Persistence.Sql
                         {
                             messageParam.Value = ms.ToArray();
                         }
-                        cmd.Parameters.Add(messageParam);
+                        command.Parameters.Add(messageParam);
 
-                        var headersParam = cmd.CreateParameter();
+                        var headersParam = command.CreateParameter();
                         headersParam.ParameterName = "@Headers";
                         headersParam.Value = stream.ToArray();
-                        cmd.Parameters.Add(headersParam);
+                        command.Parameters.Add(headersParam);
 
-                        results = cmd.ExecuteNonQuery();
+                        results = command.ExecuteNonQuery();
 
                         tx.Commit();
                     }
@@ -79,30 +79,30 @@ namespace NServiceBus.Gateway.Persistence.Sql
                 cn.Open();
                 using (var tx = cn.BeginTransaction())
                 {
-                    var cmd = cn.CreateCommand();
-                    cmd.CommandText =
+                    var command = cn.CreateCommand();
+                    command.CommandText =
                         "UPDATE Messages SET Status=1 WHERE (Status=0) AND (ClientId=@ClientId); SELECT Message, Headers FROM Messages WHERE (ClientId = @ClientId) AND (@@ROWCOUNT = 1)";
 
-                    var clientIdParam = cmd.CreateParameter();
+                    var clientIdParam = command.CreateParameter();
                     clientIdParam.ParameterName = "@ClientId";
                     clientIdParam.Value = clientId;
-                    cmd.Parameters.Add(clientIdParam);
+                    command.Parameters.Add(clientIdParam);
 
-                    var statusParam = cmd.CreateParameter();
+                    var statusParam = command.CreateParameter();
                     statusParam.ParameterName = "@Status";
                     statusParam.Value = 0;
-                    cmd.Parameters.Add(statusParam);
+                    command.Parameters.Add(statusParam);
 
                     var ackOk = false;
 
-                    using (var reader = cmd.ExecuteReader())
+                    using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
                             message = (byte[]) reader.GetValue(0);
 
-                            var serHeaders = (byte[]) reader.GetValue(1);
-                            var stream = new MemoryStream(serHeaders);
+                            var serializedHeaders = (byte[]) reader.GetValue(1);
+                            var stream = new MemoryStream(serializedHeaders);
                             var o = serializer.Deserialize(stream);
                             stream.Close();
                             headers = o as IDictionary<string, string>;
@@ -132,16 +132,16 @@ namespace NServiceBus.Gateway.Persistence.Sql
                 cn.Open();
                 using (var tx = cn.BeginTransaction())
                 {
-                    var cmd = cn.CreateCommand();
-                    cmd.CommandText =
+                    var command = cn.CreateCommand();
+                    command.CommandText =
                         "DELETE FROM Messages WHERE (DATEDIFF(second, @DateTime, DateTime) < 0) AND (STATUS=1)";
 
-                    var dateParam = cmd.CreateParameter();
+                    var dateParam = command.CreateParameter();
                     dateParam.ParameterName = "@DateTime";
                     dateParam.Value = until;
-                    cmd.Parameters.Add(dateParam);
+                    command.Parameters.Add(dateParam);
 
-                    result = cmd.ExecuteNonQuery();
+                    result = command.ExecuteNonQuery();
 
                     tx.Commit();
                 }

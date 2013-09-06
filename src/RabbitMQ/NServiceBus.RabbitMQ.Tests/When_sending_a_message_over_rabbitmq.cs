@@ -44,7 +44,7 @@
         
 
         [Test]
-        public void Should_set_the_message_type_based_on_the_encloded_message_types_header()
+        public void Should_set_the_message_type_based_on_the_encoded_message_types_header()
         {
             var messageType = typeof (MyMessage);
 
@@ -90,7 +90,7 @@
         }
 
         [Test]
-        public void Should_transmitt_all_transportmessage_headers()
+        public void Should_transmit_all_transportMessage_headers()
         {
 
             Verify(new TransportMessageBuilder().WithHeader("h1", "v1").WithHeader("h2", "v2"),
@@ -143,7 +143,7 @@
 
 
         [Test, Ignore("Not sure we should enforce this")]
-        public void Should_throw_when_sending_to_a_nonexisting_queue()
+        public void Should_throw_when_sending_to_a_non_existing_queue()
         {
             Assert.Throws<QueueNotFoundException>(() =>
                  sender.Send(new TransportMessage

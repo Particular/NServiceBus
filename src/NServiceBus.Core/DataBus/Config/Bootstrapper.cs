@@ -64,7 +64,7 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
         {
             if (dataBusPropertyFound)
             {
-                Bus.Started += (sender, eventargs) => Configure.Instance.Builder.Build<IDataBus>().Start();
+                Bus.Started += (sender, eventArgs) => Configure.Instance.Builder.Build<IDataBus>().Start();
             }
         }
 

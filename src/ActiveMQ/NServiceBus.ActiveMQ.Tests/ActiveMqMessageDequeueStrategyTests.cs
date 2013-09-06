@@ -24,8 +24,8 @@
                                  .EnableDistributedTransactions());
 
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
-            sessionFactroyMock = new Mock<ISessionFactory>();
-            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, sessionFactroyMock.Object);
+            sessionFactoryMock = new Mock<ISessionFactory>();
+            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, sessionFactoryMock.Object);
             messageReceivers = new List<Mock<INotifyMessageReceived>>();
             stoppedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
             disposedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
@@ -41,7 +41,7 @@
         private List<Mock<INotifyMessageReceived>> stoppedMessageReceivers;
         private List<Mock<INotifyMessageReceived>> disposedMessageReceivers;
         private readonly Func<TransportMessage, bool> tryReceiveMessage = m => true;
-        private Mock<ISessionFactory> sessionFactroyMock;
+        private Mock<ISessionFactory> sessionFactoryMock;
 
         private void VerifyAllReceiversAreStarted(Address address, TransactionSettings settings)
         {
@@ -77,7 +77,7 @@
         }
 
         [Test]
-        public void WhenStoped_ThenAllReceiversAreStopped()
+        public void WhenStopped_ThenAllReceiversAreStopped()
         {
             const int InitialNumberOfWorkers = 5;
             var address = new Address("someQueue", "machine");
@@ -90,7 +90,7 @@
         }
 
         [Test]
-        public void WhenStoped_ThenAllReceiversAreDisposed()
+        public void WhenStopped_ThenAllReceiversAreDisposed()
         {
             const int InitialNumberOfWorkers = 5;
             var address = new Address("someQueue", "machine");
@@ -103,18 +103,18 @@
         }
 
         [Test]
-        public void WhenStoped_SessionFactoryIsDisposedAfterMessageReceivers()
+        public void WhenStopped_SessionFactoryIsDisposedAfterMessageReceivers()
         {
             const int InitialNumberOfWorkers = 5;
             var disposedReceivers = 0;
-            sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = disposedMessageReceivers.Count);
+            sessionFactoryMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = disposedMessageReceivers.Count);
             var address = new Address("someQueue", "machine");
 
             testee.Init(address, TransactionSettings.Default, m => true, (s, exception) => { });
             testee.Start(InitialNumberOfWorkers);
             testee.Stop();
 
-            sessionFactroyMock.VerifyAll();
+            sessionFactoryMock.VerifyAll();
             disposedReceivers.Should().Be(InitialNumberOfWorkers);
         }
     }

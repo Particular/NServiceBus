@@ -438,7 +438,7 @@ namespace NServiceBus
 
 
         /// <summary>
-        /// Find and return all assemblies in the given directory and the current appdomain 
+        /// Find and return all assemblies in the given directory and the current <see cref="AppDomain"/> 
         /// filtered to <paramref name="includeAssemblyNames"/>, if given, 
         /// but except <paramref name="excludeAssemblyNames"/>
         /// </summary>
@@ -675,17 +675,17 @@ namespace NServiceBus
                         }
                     }
                 }
-                catch (BadImageFormatException bif)
+                catch (BadImageFormatException badImageFormatException)
                 {
-                    if (bif.FileName.ToLower().Contains("system.data.sqlite.dll"))
+                    if (badImageFormatException.FileName.ToLower().Contains("system.data.sqlite.dll"))
                         throw new BadImageFormatException(
                             "You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.",
-                            bif.FileName, bif);
+                            badImageFormatException.FileName, badImageFormatException);
 
                     throw new InvalidOperationException(
                         "Could not load " + file.FullName +
                         ". Consider using 'Configure.With(AllAssemblies.Except(\"" + file.Name + "\"))' to tell NServiceBus not to load this file.",
-                        bif);
+                        badImageFormatException);
                 }
             }
 

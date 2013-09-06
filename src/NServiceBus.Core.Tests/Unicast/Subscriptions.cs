@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_subscribing_to_messages : using_the_unicastbus
+    public class When_subscribing_to_messages : using_the_unicastBus
     {
         readonly Address addressToOwnerOfTestMessage = new Address("TestMessageOwner", "localhost");
         /// <summary>
@@ -17,7 +17,7 @@ namespace NServiceBus.Unicast.Tests
             router.RegisterRoute(typeof(TestMessage), addressToOwnerOfTestMessage);
         }
         [Test]
-        public void Should_send_the_assemblyqualified_name_as_subscription_type()
+        public void Should_send_the_assemblyQualified_name_as_subscription_type()
         {
             bus.Subscribe<TestMessage>();
 
@@ -38,7 +38,7 @@ namespace NServiceBus.Unicast.Tests
     }
     
     [TestFixture]
-    public class When_subscribing_to_a_message_that_has_no_configured_address : using_the_unicastbus
+    public class When_subscribing_to_a_message_that_has_no_configured_address : using_the_unicastBus
     {
         [Test]
         public void Should_throw()
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_unsubscribing_to_a_message_that_has_no_configured_address : using_the_unicastbus
+    public class When_unsubscribing_to_a_message_that_has_no_configured_address : using_the_unicastBus
     {
         [Test]
         public void Should_throw()
@@ -57,7 +57,7 @@ namespace NServiceBus.Unicast.Tests
         }
     }
     [TestFixture]
-    public class When_subscribing_to_command_messages : using_the_unicastbus
+    public class When_subscribing_to_command_messages : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()
@@ -68,7 +68,7 @@ namespace NServiceBus.Unicast.Tests
     }
 
     [TestFixture]
-    public class When_unsubscribing_to_command_messages : using_the_unicastbus
+    public class When_unsubscribing_to_command_messages : using_the_unicastBus
     {
         [Test]
         public void Should_get_an_error_messages()

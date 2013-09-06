@@ -20,7 +20,7 @@
         }
 
         [Test]
-        public void WhenSessionIsRequested_OneFromThePoolesSessionFactoryIsReturned()
+        public void WhenSessionIsRequested_OneFromThePooledSessionFactoryIsReturned()
         {
             var expectedSessions = pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 

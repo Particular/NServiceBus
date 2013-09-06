@@ -70,9 +70,12 @@ namespace ObjectBuilder.Tests
         [TearDown]
         public void DisposeContainers()
         {
-            foreach (var builder in objectBuilders)
+            if (objectBuilders != null)
             {
-                builder.Dispose();
+                foreach (var builder in objectBuilders)
+                {
+                    builder.Dispose();
+                }
             }
         }
     }

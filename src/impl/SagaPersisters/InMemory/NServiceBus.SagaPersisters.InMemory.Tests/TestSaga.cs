@@ -22,7 +22,7 @@
 
         public virtual TestComponent TestComponent { get; set; }
 
-        public virtual PolymorpicPropertyBase PolymorpicRelatedProperty { get; set; }
+        public virtual PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -53,7 +53,7 @@
         }
     }
     
-    public class PolymorpicProperty : PolymorpicPropertyBase
+    public class PolymorphicProperty : PolymorphicPropertyBase
     {
         public virtual int SomeInt { get; set; }
 
@@ -68,7 +68,7 @@
         }
     }
 
-    public class PolymorpicPropertyBase
+    public class PolymorphicPropertyBase
     {
         public virtual Guid Id { get; set; }
     }

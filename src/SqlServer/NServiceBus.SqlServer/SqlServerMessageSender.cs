@@ -125,7 +125,7 @@
             command.Parameters.Add("Id", SqlDbType.UniqueIdentifier).Value = Guid.Parse(message.Id);
             command.Parameters.Add("CorrelationId", SqlDbType.VarChar).Value =
                 GetValue(message.CorrelationId);
-            if (message.ReplyToAddress == null) // Sendonly endpoint
+            if (message.ReplyToAddress == null) // SendOnly endpoint
             {
                 command.Parameters.Add("ReplyToAddress", SqlDbType.VarChar).Value = DBNull.Value;
             }

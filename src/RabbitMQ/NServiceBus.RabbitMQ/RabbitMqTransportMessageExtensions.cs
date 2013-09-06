@@ -62,7 +62,7 @@
             if (properties.IsCorrelationIdPresent())
                 result.CorrelationId = properties.CorrelationId;
 
-            //When doing native interop we only require the type to be set the "fullname" of the message
+            //When doing native interop we only require the type to be set the "fullName" of the message
             if (!result.Headers.ContainsKey(Headers.EnclosedMessageTypes) && properties.IsTypePresent())
             {
                 result.Headers[Headers.EnclosedMessageTypes] = properties.Type;
@@ -80,8 +80,8 @@
 
             return message.BasicProperties.Headers.Cast<DictionaryEntry>()
                         .ToDictionary(
-                            kvp => (string)kvp.Key,
-                            kvp => kvp.Value == null ? null : Encoding.UTF8.GetString((byte[])kvp.Value));
+                            dictionaryEntry => (string)dictionaryEntry.Key,
+                            dictionaryEntry => dictionaryEntry.Value == null ? null : Encoding.UTF8.GetString((byte[])dictionaryEntry.Value));
 
         }
     }

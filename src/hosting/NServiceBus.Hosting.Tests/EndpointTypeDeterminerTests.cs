@@ -17,7 +17,7 @@ namespace NServiceBus.Hosting.Tests
             protected AssemblyScannerResults AssemblyScannerResults;
             protected Type EndpointTypeDefinedInConfigurationFile = typeof (ConfigWithCustomTransport);
             protected Type RetrievedEndpointType;
-            protected EndpointTypeDeterminer Sut;
+            protected EndpointTypeDeterminer EndpointTypeDeterminer;
         }
 
         [TestFixture]
@@ -33,46 +33,46 @@ namespace NServiceBus.Hosting.Tests
 
             [Test]
             public void
-                when_endpoint_type_is_not_provided_via_hostargs_it_should_fall_through_to_other_modes_of_determining_endpoint_type
+                when_endpoint_type_is_not_provided_via_hostArgs_it_should_fall_through_to_other_modes_of_determining_endpoint_type
                 ()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScannerResults,
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScannerResults,
                                                  () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
                 hostArguments = new HostArguments(new string[0]);
 
                 // will match with config-based type
-                RetrievedEndpointType = Sut.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
 
                 Assert.AreEqual(EndpointTypeDefinedInConfigurationFile, RetrievedEndpointType);
             }
 
             [Test]
-            public void when_endpoint_type_is_provided_via_hostargs_it_should_have_first_priority()
+            public void when_endpoint_type_is_provided_via_hostArgs_it_should_have_first_priority()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScannerResults,
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScannerResults,
                                                  () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
                 hostArguments = new HostArguments(new string[0])
                     {
                         EndpointConfigurationType = typeof (TestEndpointType).AssemblyQualifiedName
                     };
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
 
                 Assert.AreEqual(typeof (TestEndpointType), RetrievedEndpointType);
             }
 
             [Test]
             [ExpectedException(typeof (ConfigurationErrorsException))]
-            public void when_invalid_endpoint_type_is_provided_via_hostargs_it_should_blow_up()
+            public void when_invalid_endpoint_type_is_provided_via_hostArgs_it_should_blow_up()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScannerResults,
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScannerResults,
                                                  () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
                 hostArguments = new HostArguments(new string[0])
                     {
                         EndpointConfigurationType = "I am an invalid type name"
                     };
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(hostArguments).Type;
             }
         }
 
@@ -82,13 +82,13 @@ namespace NServiceBus.Hosting.Tests
             Assembly BuildTestEndpointAssembly(out Type endpointType)
             {
                 var appDomain = AppDomain.CurrentDomain;
-                var aname = new AssemblyName("MyDynamicAssembly");
-                var assemBuilder = appDomain.DefineDynamicAssembly(aname, AssemblyBuilderAccess.Run);
-                var modBuilder = assemBuilder.DefineDynamicModule("DynModule");
+                var assemblyName = new AssemblyName("MyDynamicAssembly");
+                var assemblyBuilder = appDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+                var modBuilder = assemblyBuilder.DefineDynamicModule("DynModule");
                 var tb = modBuilder.DefineType("TestEndpoint", TypeAttributes.Public, typeof (Object),
                                                        new[] {typeof (IConfigureThisEndpoint)});
                 endpointType = tb.CreateType();
-                return assemBuilder;
+                return assemblyBuilder;
             }
 
             [Test]
@@ -98,9 +98,9 @@ namespace NServiceBus.Hosting.Tests
                 Type endpointTypeInAssembly;
                 var dynamicAssembly = BuildTestEndpointAssembly(out endpointTypeInAssembly);
                 AssemblyScannerResults.Assemblies.Add(dynamicAssembly);
-                Sut = new EndpointTypeDeterminer(AssemblyScannerResults, () => null);
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScannerResults, () => null);
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationType().Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
 
                 Assert.AreEqual(endpointTypeInAssembly, RetrievedEndpointType);
             }
@@ -108,10 +108,10 @@ namespace NServiceBus.Hosting.Tests
             [Test]
             public void when_endpoint_type_is_provided_via_configuration_it_should_have_first_priority()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
                                                  () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationType().Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
 
                 Assert.AreEqual(EndpointTypeDefinedInConfigurationFile, RetrievedEndpointType);
             }
@@ -122,10 +122,10 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void when_invalid_endpoint_type_is_provided_via_configuration_it_should_blow_up()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
                                                  () => "I am an invalid type name");
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationType().Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
             }
 
             [Test]
@@ -134,9 +134,9 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void when_multiple_endpoint_types_found_via_assembly_scanning_it_should_blow_up()
             {
-                Sut = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(), () => null);
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(), () => null);
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationType().Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
             }
 
             [Test]
@@ -145,9 +145,9 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void when_no_endpoint_type_found_via_configuration_or_assembly_scanning_it_should_blow_up()
             {
-                Sut = new EndpointTypeDeterminer(new AssemblyScannerResults(), () => null);
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(new AssemblyScannerResults(), () => null);
 
-                RetrievedEndpointType = Sut.GetEndpointConfigurationType().Type;
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
             }
         }
     }

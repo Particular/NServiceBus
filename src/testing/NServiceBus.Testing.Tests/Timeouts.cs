@@ -30,7 +30,7 @@
         }
 
         [Test]
-        public void Should_assert_30_style_timeouts_being_set_with_the_correct_timespan()
+        public void Should_assert_30_style_timeouts_being_set_with_the_correct_timeSpan()
         {
             Test.Saga<TimeoutSaga>()
                 .ExpectTimeoutToBeSetIn<MyTimeout>((state, expiresIn) => expiresIn == TimeSpan.FromDays(1))

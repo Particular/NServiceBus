@@ -5,7 +5,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-	public class When_mapping_ienumerable_implementations
+	public class When_mapping_iEnumerable_implementations
 	{
 		IMessageMapper mapper;
 
@@ -16,7 +16,7 @@
 		}
 
 		[Test]
-		public void Class_implementing_ienumerable_string_should_be_mapped()
+		public void Class_implementing_iEnumerable_string_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerable<string>) });
 
@@ -24,7 +24,7 @@
 		}
 
 		[Test]
-		public void Class_implementing_ienumerable_string_and_ireturnmyself_should_be_mapped()
+		public void Class_implementing_iEnumerable_string_and_iReturnMyself_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerableAndIReturnMyself<string>) });
 
@@ -32,7 +32,7 @@
 		}
 
 		[Test]
-		public void Class_implementing_ienumerable_returnmyself_should_be_mapped()
+		public void Class_implementing_iEnumerable_returnMyself_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerable<ReturnMyself>) });
 
@@ -40,7 +40,7 @@
 		}
 
 		[Test]
-		public void Class_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_inheriting_from_iEnumerable_returnMyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionObject) });
 
@@ -48,7 +48,7 @@
 		}
 
 		[Test]
-		public void Class_implementing_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_implementing_returnMyself_inheriting_from_iEnumerable_returnMyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself) });
 
@@ -56,7 +56,7 @@
 		}
 
 		[Test]
-		public void Class_implementing_base_returnmyself_inheriting_from_ienumerable_returnmyself_implementation_should_be_mapped()
+		public void Class_implementing_base_returnMyself_inheriting_from_iEnumerable_returnMyself_implementation_should_be_mapped()
 		{
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself) });
 

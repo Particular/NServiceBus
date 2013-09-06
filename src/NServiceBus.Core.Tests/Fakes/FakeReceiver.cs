@@ -14,7 +14,7 @@
         public void FakeMessageReceived(TransportMessage message)
         {
             if (TryProcessMessage(message))
-                NumMessagesReceived++;
+                NumberOfMessagesReceived++;
         }
 
 
@@ -39,7 +39,7 @@
 
 
         Func<TransportMessage, bool> TryProcessMessage;
-        public int NumMessagesReceived;
+        public int NumberOfMessagesReceived;
 
         public bool IsStarted { get; set; }
 

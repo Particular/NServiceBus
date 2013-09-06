@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Transport
 		/// Starts the transport.
 		/// </summary>
 		/// <param name="inputqueue">
-		/// The adress of a local queue that should be used as input channel for this transport
+		/// The address of a local queue that should be used as input channel for this transport
 		/// </param>
 		[ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]		
 		void Start(string inputqueue);

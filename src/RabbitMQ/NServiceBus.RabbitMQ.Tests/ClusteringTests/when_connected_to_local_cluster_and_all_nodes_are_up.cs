@@ -22,7 +22,7 @@
         }
 
         [Test]
-        public void it_should_be_able_to_roundtrip_a_message() {
+        public void it_should_be_able_to_round_trip_a_message() {
             receivedMessage.Should().NotBeNull();
             receivedMessage.Id.Should().Be(sentMessage.Id);
         }

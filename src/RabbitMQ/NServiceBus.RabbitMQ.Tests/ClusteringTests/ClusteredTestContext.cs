@@ -70,8 +70,8 @@
             InvokeExternalProgram(rabbitMqServer, "-detached", envVars);
         }
 
-        protected void InvokeRabbitMqCtl(RabbitNode node, string cmd) {
-            var args = (string.Format("-n {0} {1}", node.Name, cmd));
+        protected void InvokeRabbitMqCtl(RabbitNode node, string command) {
+            var args = (string.Format("-n {0} {1}", node.Name, command));
             InvokeExternalProgram(rabbitMqCtl, args);
         }
 
@@ -136,8 +136,8 @@
         }
 
         void SetHAPolicy() {
-            const string cmd = @"set_policy ha-all ""^(?!amq\.).*"" ""{""""ha-mode"""": """"all""""}""";
-            InvokeRabbitMqCtl(RabbitNodes[1], cmd);
+            const string command = @"set_policy ha-all ""^(?!amq\.).*"" ""{""""ha-mode"""": """"all""""}""";
+            InvokeRabbitMqCtl(RabbitNodes[1], command);
         }
 
         void CaptureExistingErlangProcesses() {

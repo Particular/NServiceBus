@@ -25,7 +25,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastbus
+    public class using_a_configured_unicastBus
     {
         protected UnicastBus bus;
 
@@ -244,7 +244,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class using_the_unicastbus : using_a_configured_unicastbus
+    public class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()
@@ -258,7 +258,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                Transport.FakeMessageBeeingProcessed(transportMessage);
+                Transport.FakeMessageBeingProcessed(transportMessage);
             }
             catch (Exception ex)
             {
@@ -266,11 +266,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void SimulateMessageBeeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
+        protected void SimulateMessageBeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
         {
             try
             {
-                Transport.FakeMessageBeeingPassedToTheFaultManager(transportMessage);
+                Transport.FakeMessageBeingPassedToTheFaultManager(transportMessage);
             }
             catch (Exception ex)
             {

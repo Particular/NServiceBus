@@ -75,7 +75,7 @@
                     q.Send(toSend, MessageQueueTransactionType.Automatic);
                 }
 
-                //when we complete raven commits it tx but the DTC tx is never commited and eventually times out
+                //when we complete raven commits it tx but the DTC tx is never committed and eventually times out
                 tx.Complete();
             }
             Thread.Sleep(1000);

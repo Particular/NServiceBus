@@ -54,7 +54,7 @@
         }
 
         [Test]
-        public void PublishBasicMuliplePositive()
+        public void PublishBasicMultiplePositive()
         {
             var i = new PublishInvocation<MessageA> {Messages = new[] {new MessageA()}};
             var j = new PublishInvocation<MessageA> {Messages = new[] {new MessageA()}};
@@ -64,7 +64,7 @@
         }
 
         [Test]
-        public void PublishValueMuliplePositive()
+        public void PublishValueMultiplePositive()
         {
             var i = new PublishInvocation<MessageA> {Messages = new[] {new MessageA {Value = 3}}};
             var j = new PublishInvocation<MessageA> {Messages = new[] {new MessageA {Value = 2}}};

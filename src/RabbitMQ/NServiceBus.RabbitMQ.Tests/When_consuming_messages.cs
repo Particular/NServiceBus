@@ -79,7 +79,7 @@
 
 
         [Test]
-        public void Should_upconvert_the_native_type_to_the_enclosed_message_types_header_if_empty()
+        public void Should_up_convert_the_native_type_to_the_enclosed_message_types_header_if_empty()
         {
             var address = Address.Parse(MYRECEIVEQUEUE);
 

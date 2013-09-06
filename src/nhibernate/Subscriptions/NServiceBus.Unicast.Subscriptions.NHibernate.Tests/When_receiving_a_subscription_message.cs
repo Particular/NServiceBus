@@ -26,7 +26,7 @@
         }
 
         [Test]
-        public void Duplicate_subcription_shouldnt_create_additional_db_rows()
+        public void Duplicate_subscription_shouldnt_create_additional_db_rows()
         {
 
             storage.Subscribe(TestClients.ClientA, MessageTypes.MessageA);

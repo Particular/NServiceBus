@@ -9,7 +9,7 @@
     public interface IMessageHandlerRegistry
     {
         /// <summary>
-        /// Gets the list of messagehandlers for the given message type
+        /// Gets the list of <see cref="IMessageHandler{T}"/> <see cref="Type"/>s for the given <paramref name="messageType"/>
         /// </summary>
         /// <param name="messageType"></param>
         /// <returns></returns>

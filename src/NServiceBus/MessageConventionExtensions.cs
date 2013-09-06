@@ -210,7 +210,7 @@
         public static Func<PropertyInfo, bool> IsDataBusPropertyAction = property => typeof(IDataBusProperty).IsAssignableFrom(property.PropertyType) && typeof(IDataBusProperty) != property.PropertyType;
 
         /// <summary>
-        /// The function to evaluate wheather the message has a time to be received or not (<value>TimeSpan.MaxValue</value>).
+        /// The function to evaluate whether the message has a time to be received or not (<value>TimeSpan.MaxValue</value>).
         /// </summary>
         public static Func<Type, TimeSpan> TimeToBeReceivedAction = t =>
                                                                                   {

@@ -28,7 +28,10 @@
         [TearDown]
         public void Cleanup()
         {
-            store.Dispose();
+            if (store != null)
+            {
+                store.Dispose();
+            }
         }
     }
 }

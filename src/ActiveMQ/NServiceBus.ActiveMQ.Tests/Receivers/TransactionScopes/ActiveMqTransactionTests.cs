@@ -34,7 +34,7 @@
         }
 
         [Test]
-        public void WhenCompletedAndDisposed_ThenSessionIsCommit_AndNotRollbacked()
+        public void WhenCompletedAndDisposed_ThenSessionIsCommit_AndNotRolledBack()
         {
             var sessionFactoryMock = new Mock<ISessionFactory>();
             var sessionMock = new Mock<ISession>();
@@ -48,7 +48,7 @@
         }
 
         [Test]
-        public void WhenDisposed_ThenSessionIsRollbacked()
+        public void WhenDisposed_ThenSessionIsRolledBack()
         {
             var sessionFactoryMock = new Mock<ISessionFactory>();
             var sessionMock = new Mock<ISession>();

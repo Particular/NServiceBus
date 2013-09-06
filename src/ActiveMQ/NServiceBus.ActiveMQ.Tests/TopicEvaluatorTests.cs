@@ -15,7 +15,7 @@
         }    
 
         [Test]
-        public void GetTopicFromMessageType_ShouldReturnTheFirstMessageTypePreceededByVirtualTopic()
+        public void GetTopicFromMessageType_ShouldReturnTheFirstMessageTypePrecededByVirtualTopic()
         {
             var topic = testee.GetTopicFromMessageType(typeof(ISimpleMessage));
 

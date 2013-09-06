@@ -15,15 +15,15 @@
                                         <configSections></configSections>
                                     </configuration>";
 
-            var xdoc = XDocument.Parse(appConfigString);
+            var xDocument = XDocument.Parse(appConfigString);
             var addAuditConfig = new AddAuditConfig();
-            addAuditConfig.ModifyConfig(xdoc);
+            addAuditConfig.ModifyConfig(xDocument);
 
             // Does the xmlDocument contain the new config section & attributes?
-            var sectionElement = xdoc.XPathSelectElement("/configuration/configSections/section[@name='AuditConfig' and @type='NServiceBus.Config.AuditConfig, NServiceBus.Core']");
+            var sectionElement = xDocument.XPathSelectElement("/configuration/configSections/section[@name='AuditConfig' and @type='NServiceBus.Config.AuditConfig, NServiceBus.Core']");
             Assert.IsNotNull(sectionElement);
 
-            var configElement = xdoc.XPathSelectElement("/configuration/AuditConfig").Attribute("QueueName");
+            var configElement = xDocument.XPathSelectElement("/configuration/AuditConfig").Attribute("QueueName");
             Assert.IsNotNull(configElement);
             Assert.AreEqual(configElement.Value, "audit");
 

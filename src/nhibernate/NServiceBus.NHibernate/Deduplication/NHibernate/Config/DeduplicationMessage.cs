@@ -13,7 +13,7 @@
         public virtual string Id { get; set; }
 
         /// <summary>
-        /// The time at which the message was recived.
+        /// The time at which the message was received.
         /// </summary>
         public virtual DateTime TimeReceived { get; set; }
     }

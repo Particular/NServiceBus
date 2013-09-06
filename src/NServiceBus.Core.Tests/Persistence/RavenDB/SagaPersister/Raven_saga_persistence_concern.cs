@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
 
         [TestFixtureTearDown]
-        public void Teardown()
+        public void TearDown()
         {
             store.Dispose();
         }

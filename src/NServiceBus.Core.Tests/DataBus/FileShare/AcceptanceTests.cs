@@ -64,7 +64,7 @@
         }
 
         [Test]
-        public void Should_honour_the_ttl_limit()
+        public void Should_honor_the_ttl_limit()
         {
             dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
 

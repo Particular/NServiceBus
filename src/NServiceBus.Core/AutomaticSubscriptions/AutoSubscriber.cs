@@ -17,7 +17,7 @@
 
 
             foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
-                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never autosubscribe system messages
+                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never auto-subscribe system messages
             {
                 Bus.Subscribe(eventType);
 

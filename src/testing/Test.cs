@@ -110,10 +110,10 @@
             ExtensionMethods.SetHeaderAction = (msg, key, val) =>
                     messageHeaders.AddOrUpdate(msg, 
                         o => new ConcurrentDictionary<string, string>(new[]{new KeyValuePair<string, string>(key, val)}), 
-                        (o, dic) =>
+                        (o, dictionary) =>
                             {
-                                dic.AddOrUpdate(key, val, (s, s1) => val);
-                                return dic;
+                                dictionary.AddOrUpdate(key, val, (s, s1) => val);
+                                return dictionary;
                             });
                 
             ExtensionMethods.GetStaticOutgoingHeadersAction = () => staticOutgoingHeaders;

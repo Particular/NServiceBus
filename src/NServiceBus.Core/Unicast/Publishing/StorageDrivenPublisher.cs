@@ -14,7 +14,7 @@
     public class StorageDrivenPublisher:IPublishMessages
     {
         /// <summary>
-        /// Subscription storge containing information about events and their subscribers
+        /// Subscription storage containing information about events and their subscribers
         /// </summary>
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
@@ -25,7 +25,7 @@
       
       
         /// <summary>
-        /// Pubvlishes the given message to all subscribers
+        /// Publishes the given message to all subscribers
         /// </summary>
         /// <param name="message"></param>
         /// <param name="eventTypes"></param>

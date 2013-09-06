@@ -21,10 +21,10 @@
 
             
             var queue = new MessageQueue(queueAddress);
-            var mpf = new MessagePropertyFilter();
-            mpf.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter();
+            messageReadPropertyFilter.SetAll();
 
-            queue.MessageReadPropertyFilter = mpf;
+            queue.MessageReadPropertyFilter = messageReadPropertyFilter;
 
             var output = queue.GetAllMessages().Select(m => new
                 {

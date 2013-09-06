@@ -208,7 +208,7 @@
         }
 
         [Test]
-        public void CreateTransportMessage_WhenHeaderWith_DOT_ThenConvertedtoDot()
+        public void CreateTransportMessage_WhenHeaderWith_DOT_ThenConvertedToDot()
         {
             const string Value = "Value";
             var message = CreateTextMessage(string.Empty);
@@ -220,7 +220,7 @@
         }
 
         [Test]
-        public void CreateTransportMessage_WhenHeaderWith_HYPHEN_ThenConvertedtoHyphen()
+        public void CreateTransportMessage_WhenHeaderWith_HYPHEN_ThenConvertedToHyphen()
         {
             const string Value = "Value";
             var message = CreateTextMessage(string.Empty);

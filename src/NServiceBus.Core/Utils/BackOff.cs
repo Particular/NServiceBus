@@ -12,7 +12,7 @@
         private int currentDelay = 50;
 
         /// <summary>
-        /// Initialises a new instance.
+        /// Initializes a new instance.
         /// </summary>
         /// <param name="maximum">The maximum number of milliseconds for which the thread is blocked.</param>
         public BackOff(int maximum)

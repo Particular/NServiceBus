@@ -76,7 +76,7 @@ namespace NServiceBus.Unicast.Subscriptions
         public Version Version { get; private set; }
 
         /// <summary>
-        /// Overriden to append Version along with Type Name
+        /// Overridden to append Version along with Type Name
         /// </summary>
         /// <returns></returns>
         public override string ToString()

@@ -24,10 +24,10 @@
         public void RequestDeferredMessages(IDestination browseDestination)
         {
             var session = SessionFactory.GetSession();
-            var amqSchedulerManagementDestionation =
+            var amqSchedulerManagementDestination =
                 session.GetTopic(ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION);
 
-            using (var producer = session.CreateProducer(amqSchedulerManagementDestionation))
+            using (var producer = session.CreateProducer(amqSchedulerManagementDestination))
             {
                 var request = session.CreateMessage();
                 request.Properties[ScheduledMessage.AMQ_SCHEDULER_ACTION] = ScheduledMessage.AMQ_SCHEDULER_ACTION_BROWSE;

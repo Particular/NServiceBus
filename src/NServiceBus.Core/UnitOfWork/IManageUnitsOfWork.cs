@@ -14,7 +14,7 @@ namespace NServiceBus.UnitOfWork
         void Begin();
 
         /// <summary>
-        /// Called after all message handlers and modules, if an error has occured the excption will be passed
+        /// Called after all message handlers and modules, if an error has occurred the exception will be passed
         /// </summary>
         void End(Exception ex = null);
     }

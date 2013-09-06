@@ -10,7 +10,7 @@
     public class When_sending_a_message_using_the_default_convention : WireEncryptedStringContext
     {
         [Test]
-        public void Should_use_the_wireencrypted_string()
+        public void Should_use_the_wireEncrypted_string()
         {
             var message = new Customer
                 {
@@ -46,7 +46,7 @@
         [Test]
         public void Should_encrypt_the_property_correctly()
         {
-            var message = new MessageWithindexdProperties
+            var message = new MessageWithIndexedProperties
                 {
                     Secret = MySecretMessage
                 };
@@ -61,7 +61,7 @@
             Assert.AreEqual(EncryptedBase64Value, message.Secret.EncryptedValue.EncryptedBase64Value);
         }
 
-        public class MessageWithindexdProperties : IMessage
+        public class MessageWithIndexedProperties : IMessage
         {
             private readonly string[] indexedList = new string[2];
 
@@ -81,7 +81,7 @@
         [Test]
         public void Should_throw_exception()
         {
-            var message = new MessageWithindexdProperties();
+            var message = new MessageWithIndexedProperties();
 
             message[0] = MySecretMessage;
             message[1] = MySecretMessage;
@@ -89,7 +89,7 @@
             Assert.Throws<NotSupportedException>(() => mutator.MutateOutgoing(message));
         }
 
-        public class MessageWithindexdProperties : IMessage
+        public class MessageWithIndexedProperties : IMessage
         {
             private readonly WireEncryptedString[] indexedList = new WireEncryptedString[2];
 
@@ -261,7 +261,7 @@
     public class When_decrypting_a_message_using_the_default_convention : WireEncryptedStringContext
     {
         [Test]
-        public void Should_use_the_wireencrypted_string()
+        public void Should_use_the_wireEncrypted_string()
         {
             var message = new Customer
                 {

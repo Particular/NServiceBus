@@ -23,7 +23,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         }
 
         [Test]
-        public void Should_not_throw_if_connectionstringname_is_used_instead_of_connectionstring()
+        public void Should_not_throw_if_connectionStringName_is_used_instead_of_connectionString()
         {
             Assert.DoesNotThrow(() => ConfigureNHibernate.ThrowIfRequiredPropertiesAreMissing(new Dictionary<string, string>
                                                                                                   {

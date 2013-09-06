@@ -282,8 +282,8 @@
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
             bus.CurrentMessageContext = context;
 
-            foreach (var kvp in incomingHeaders)
-                ExtensionMethods.SetHeaderAction(message, kvp.Key, kvp.Value);
+            foreach (var keyValuePair in incomingHeaders)
+                ExtensionMethods.SetHeaderAction(message, keyValuePair.Key, keyValuePair.Value);
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 

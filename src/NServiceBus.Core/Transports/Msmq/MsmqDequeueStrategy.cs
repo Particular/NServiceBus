@@ -65,10 +65,10 @@ namespace NServiceBus.Transports.Msmq
                 throw new ArgumentException("Queue must be transactional if you configure your endpoint to be transactional (" + address + ").");
             }
 
-            var mpf = new MessagePropertyFilter();
-            mpf.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter();
+            messageReadPropertyFilter.SetAll();
 
-            queue.MessageReadPropertyFilter = mpf;
+            queue.MessageReadPropertyFilter = messageReadPropertyFilter;
 
             if (PurgeOnStartup)
             {
@@ -251,9 +251,9 @@ namespace NServiceBus.Transports.Msmq
             {
                 action();
             }
-            catch (MessageQueueException mqe)
+            catch (MessageQueueException messageQueueException)
             {
-                RaiseCriticalException(mqe);
+                RaiseCriticalException(messageQueueException);
             }
         }
 
@@ -289,15 +289,15 @@ namespace NServiceBus.Transports.Msmq
             {
                 message = receive();
             }
-            catch (MessageQueueException mqe)
+            catch (MessageQueueException messageQueueException)
             {
-                if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                 {
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
                     return null;
                 }
 
-                RaiseCriticalException(mqe);
+                RaiseCriticalException(messageQueueException);
             }
             catch (Exception ex)
             {
@@ -310,16 +310,16 @@ namespace NServiceBus.Transports.Msmq
             return message;
         }
 
-        void RaiseCriticalException(MessageQueueException mqe)
+        void RaiseCriticalException(MessageQueueException messageQueueException)
         {
             var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
 
-            if (mqe.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
+            if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
             {
                 errorException = string.Format("Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",queue.FormatName,GetUserName());
             }
 
-            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", new InvalidOperationException(errorException, mqe)));
+            circuitBreaker.Execute(() => Configure.Instance.RaiseCriticalError("Error in receiving messages.", new InvalidOperationException(errorException, messageQueueException)));
         }
 
         static string GetUserName()

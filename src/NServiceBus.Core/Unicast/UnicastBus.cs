@@ -191,13 +191,13 @@ namespace NServiceBus.Unicast
         public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
-        /// The router for this unicastbus
+        /// The router for this <see cref="UnicastBus"/>
         /// </summary>
         public IRouteMessages MessageRouter { get; set; }
 
 
         /// <summary>
-        /// The handler registry for this unicastbus
+        /// The handler registry for this <see cref="UnicastBus"/>
         /// </summary>
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -1534,7 +1534,7 @@ namespace NServiceBus.Unicast
 #pragma warning restore 0618
 
         /// <summary>
-        /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
+        /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 

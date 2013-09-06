@@ -29,7 +29,7 @@
         }
 
         [Test]
-        public void WhenSendingASendMessage_OnExcpetion_TheSessionIsReleasedAfterwards()
+        public void WhenSendingASendMessage_OnException_TheSessionIsReleasedAfterwards()
         {
             const string Reason = "TheExcpetionReason";
             var sessionMock = SetupCreateSession();

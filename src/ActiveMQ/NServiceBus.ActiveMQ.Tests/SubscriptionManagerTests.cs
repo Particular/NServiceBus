@@ -87,7 +87,7 @@
         }
 
         [Test]
-        public void WhenATopicIsUnsubscribed_ThenTopicUnubscribedShouldBeRaised()
+        public void WhenATopicIsUnsubscribed_ThenTopicUnsubscribedShouldBeRaised()
         {
             SetupTypeToTopicMapping(defaultType, DefaultTopic);
 

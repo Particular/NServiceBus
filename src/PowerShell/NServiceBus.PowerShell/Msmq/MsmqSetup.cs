@@ -200,9 +200,9 @@
         // Based on http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833(v=vs.85).aspx
         private static OperatingSystemEnum GetOperatingSystem()
         {
-            var osvi = new OSVersionInfoEx {OSVersionInfoSize = (UInt32) Marshal.SizeOf(typeof (OSVersionInfoEx))};
+            var osVersionInfoEx = new OSVersionInfoEx {OSVersionInfoSize = (UInt32) Marshal.SizeOf(typeof (OSVersionInfoEx))};
 
-            GetVersionEx(osvi);
+            GetVersionEx(osVersionInfoEx);
             
             switch (Environment.OSVersion.Version.Major)
             {
@@ -211,7 +211,7 @@
                     {
                         case 0:
 
-                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfoEx.ProductType == VER_NT_WORKSTATION)
                             {
                                 return OperatingSystemEnum.Vista;
                             }
@@ -219,7 +219,7 @@
                             return OperatingSystemEnum.Server2008;
 
                         case 1:
-                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfoEx.ProductType == VER_NT_WORKSTATION)
                             {
                                 return OperatingSystemEnum.Windows7;
                             }
@@ -227,7 +227,7 @@
                             return OperatingSystemEnum.Server2008;
 
                         case 2:
-                            if (osvi.ProductType == VER_NT_WORKSTATION)
+                            if (osVersionInfoEx.ProductType == VER_NT_WORKSTATION)
                             {
                                 return OperatingSystemEnum.Windows8;
                             }

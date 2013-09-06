@@ -13,7 +13,7 @@
     public class ConfigManager
     {
         /// <summary>
-        /// Contructs the manager with the given user configuration and the list of assemblies that should be scanned
+        /// Constructs the manager with the given user configuration and the list of assemblies that should be scanned
         /// </summary>
         /// <param name="assembliesToScan"></param>
         /// <param name="specifier"></param>
@@ -63,7 +63,7 @@
             foreach (var thing in thingsToRunAtStartup)
             {
                 var toRun = thing;
-                Action onstart = () =>
+                Action onStart = () =>
                                      {
                                          var logger = LogManager.GetLogger(toRun.GetType());
                                          try
@@ -80,12 +80,12 @@
 
                                      };
 
-                onstart.BeginInvoke(null, null);
+                onStart.BeginInvoke(null, null);
             }
         }
 
         /// <summary>
-        /// Shutsdown the user classes started earlier
+        /// Shuts down the user classes started earlier
         /// </summary>
         public void Shutdown()
         {

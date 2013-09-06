@@ -20,7 +20,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         }
 
         [Test]
-        public void Should_read_sites_and_their_keys_from_the_configsource()
+        public void Should_read_sites_and_their_keys_from_the_configSource()
         {
              
             var message = new TransportMessage();

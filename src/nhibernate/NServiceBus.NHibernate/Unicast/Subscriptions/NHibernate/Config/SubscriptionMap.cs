@@ -8,7 +8,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Config
     {
         public SubscriptionMap()
         {
-            // Maximum keylength for sql server is 900 bytes
+            // Maximum key length for sql server is 900 bytes
             Action<IColumnMapper> columnMapper = col =>
             {
                 col.Length(450);

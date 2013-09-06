@@ -10,7 +10,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
     using Timeout.Core;
 
     /// <summary>
-    /// Timeout storage implementation for NHIbernate.
+    /// Timeout storage implementation for NHibernate.
     /// </summary>
     public class TimeoutStorage : IPersistTimeouts
     {

@@ -98,7 +98,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     timeoutPushed = false;
                 }
 
-                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuitbreaker if we
+                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
                 // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
                 // will be picked up after at most 1 minute
                 var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
@@ -117,7 +117,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         static TransportMessage CreateTransportMessage(string timeoutId)
         {
-            //use the dispatcher as the replytoaddress so that retries go back to the dispatcher q
+            //use the dispatcher as the reply to address so that retries go back to the dispatcher q
             // instead of the main endpoint q
             var transportMessage = ControlMessage.Create(Features.TimeoutManager.DispatcherAddress);
 

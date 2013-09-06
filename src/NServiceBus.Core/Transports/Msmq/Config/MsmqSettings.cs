@@ -32,7 +32,7 @@ namespace NServiceBus.Transports.Msmq.Config
         public bool UseConnectionCache { get; set; }
 
         /// <summary>
-        /// Detmines if the system uses transactional queues
+        /// Determines if the system uses transactional queues
         /// </summary>
         public bool UseTransactionalQueues { get; set; }
     }

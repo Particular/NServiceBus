@@ -12,7 +12,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
 
         Address addressOfOriginatingEndpoint;
         const string originatingSite = "SiteA";
-        const string idOfIncommingMessage = "xyz";
+        const string idOfIncomingMessage = "xyz";
 
         [SetUp]
         public void SetUp()
@@ -33,12 +33,12 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
 
             responseMessage = new TransportMessage
             {
-                CorrelationId = idOfIncommingMessage
+                CorrelationId = idOfIncomingMessage
             };
         }
        
         [Test]
-        public void Should_use_the_originating_sitekey_as_destination_for_response_messages()
+        public void Should_use_the_originating_siteKey_as_destination_for_response_messages()
         {      
             gatewayHeaderManager.MutateOutgoing(null, responseMessage);
 
@@ -46,7 +46,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         }
 
         [Test]
-        public void Should_route_the_response_to_the_replyto_address_specified_in_the_incoming_message()
+        public void Should_route_the_response_to_the_replyTo_address_specified_in_the_incoming_message()
         {
             gatewayHeaderManager.MutateOutgoing(null, responseMessage);
 

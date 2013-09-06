@@ -10,13 +10,13 @@
     public class WireEncryptedString : ISerializable
     {
         /// <summary>
-        /// Default contstructor
+        /// Default constructor
         /// </summary>
         public WireEncryptedString()
         {}
 
         /// <summary>
-        /// Deseralizing contructor
+        /// Deseralizing constructor
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -63,12 +63,12 @@
         //**** we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string EncryptedBase64Value { get; set; }
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string Base64Iv { get; set; }
         

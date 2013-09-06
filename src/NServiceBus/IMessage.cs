@@ -62,7 +62,7 @@ namespace NServiceBus
 		/// </summary>
 		/// <remarks>
 		/// If the interval specified by the TimeToBeReceived property expires before the message 
-		/// is received by the destination of the message the message will automatically be cancelled.
+		/// is received by the destination of the message the message will automatically be canceled.
 		/// </remarks>
         public TimeSpan TimeToBeReceived
         {

@@ -18,7 +18,7 @@
             WarnUserIfUsingUnicastBusConfigForAudit();
                 
             // Check to see if this entry is specified either in the app.config 
-            // (in the new config section or existing unicastbus config section or the registry)
+            // (in the new config section or existing unicastBus config section or the registry)
             Address forwardAddress = null;
             var timeToBeReceivedOnForwardedMessages = new TimeSpan();
 

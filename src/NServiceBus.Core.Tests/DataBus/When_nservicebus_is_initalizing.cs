@@ -7,7 +7,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_nservicebus_is_initalizing
+    public class When_nservicebus_is_initializing
     {
         [Test]
         public void Databus_mutators_should_be_registered_if_a_databus_property_is_found()
@@ -16,11 +16,11 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
-            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
         	Configure.Instance.Configurer.ConfigureComponent<InMemoryDataBus>(DependencyLifecycle.SingleInstance);
 
-            bootStrapper.Run();
+            bootstrapper.Run();
 
             Assert.True(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
         }
@@ -32,15 +32,15 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefineEndpointName("xyz") 
                 .DefaultBuilder();
 
-            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            bootStrapper.Run();
+            bootstrapper.Run();
 
             Assert.False(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
         }
 
         [Test]
-        public void Should_throw_if_propertytype_is_not_serializable()
+        public void Should_throw_if_propertyType_is_not_serializable()
         {
             if (!System.Diagnostics.Debugger.IsAttached)
             {
@@ -53,13 +53,13 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefaultBuilder()
                 .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
-            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
-            Assert.Throws<InvalidOperationException>(bootStrapper.Run);
+            Assert.Throws<InvalidOperationException>(bootstrapper.Run);
         }
 
         [Test]
-        public void Should_not_throw_propertytype_is_not_serializable_if_a_IDataBusSerializer_is_already_registered()
+        public void Should_not_throw_propertyType_is_not_serializable_if_a_IDataBusSerializer_is_already_registered()
         {
             if (!System.Diagnostics.Debugger.IsAttached)
             {
@@ -72,11 +72,11 @@ namespace NServiceBus.Core.Tests.DataBus
                 .DefaultBuilder()
                 .Configurer.RegisterSingleton<IDataBus>(new InMemoryDataBus());
 
-            IWantToRunBeforeConfigurationIsFinalized bootStrapper = new Bootstrapper();
+            IWantToRunBeforeConfigurationIsFinalized bootstrapper = new Bootstrapper();
 
             Configure.Instance.Configurer.ConfigureComponent<IDataBusSerializer>(() => new MyDataBusSerializer(),DependencyLifecycle.SingleInstance);
 
-            Assert.DoesNotThrow(bootStrapper.Run);
+            Assert.DoesNotThrow(bootstrapper.Run);
         }
 
         class MyDataBusSerializer : IDataBusSerializer

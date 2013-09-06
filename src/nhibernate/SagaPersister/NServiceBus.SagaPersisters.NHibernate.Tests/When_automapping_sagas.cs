@@ -12,7 +12,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Saga;
 
     [TestFixture]
-    public class When_automapping_sagas
+    public class When_autoMapping_sagas
     {
         private IEntityPersister persisterForTestSaga;
         private SessionFactoryImpl sessionFactory;
@@ -66,7 +66,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 
 
         [Test]
-        public void Users_can_override_automappings_by_embedding_hbm_files()
+        public void Users_can_override_autoMappings_by_embedding_hbm_files()
         {
             Assert.AreEqual(sessionFactory.GetEntityPersisterFor<TestSagaWithHbmlXmlOverride>()
                                 .IdentifierGenerator.GetType(), typeof (IdentityGenerator));
@@ -76,14 +76,14 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         [Test,Ignore("Not supported any more")]
         public void Inherited_property_classes_should_be_mapped()
         {
-            persisterForTestSaga.ShouldContainMappingsFor<PolymorpicPropertyBase>();
+            persisterForTestSaga.ShouldContainMappingsFor<PolymorphicPropertyBase>();
 
-            sessionFactory.ShouldContainPersisterFor<PolymorpicProperty>();
+            sessionFactory.ShouldContainPersisterFor<PolymorphicProperty>();
 
         }
 
         [Test]
-        public void Users_can_override_tablenames_by_using_an_attribute()
+        public void Users_can_override_tableNames_by_using_an_attribute()
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (TestSagaWithTableNameAttribute).FullName).ClassMetadata as
@@ -92,7 +92,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
         [Test]
-        public void Users_can_override_tablenames_by_using_an_attribute_which_does_not_derive()
+        public void Users_can_override_tableNames_by_using_an_attribute_which_does_not_derive()
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (DerivedFromTestSagaWithTableNameAttribute).FullName).
@@ -101,7 +101,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         }
 
         [Test]
-        public void Users_can_override_derived_tablenames_by_using_an_attribute()
+        public void Users_can_override_derived_tableNames_by_using_an_attribute()
         {
             var persister =
                 sessionFactory.GetEntityPersister(typeof (AlsoDerivedFromTestSagaWithTableNameAttribute).FullName).

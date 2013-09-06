@@ -73,9 +73,9 @@ namespace NServiceBus.Core.Tests.Config
         }
 
         [Test]
-        public void Should_use_Appdomain_Assemblies_if_flagged()
+        public void Should_use_AppDomain_Assemblies_if_flagged()
         {
-            var loadThisIntoAppdomain = new TestAssembly.Class1();
+            var loadThisIntoAppDomain = new TestAssembly.Class1();
 
             var someDir = Path.Combine(Path.GetTempPath(), "empty");
             Directory.CreateDirectory(someDir);

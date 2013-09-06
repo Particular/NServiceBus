@@ -15,7 +15,7 @@
         /// <param name="configFile"></param>
         public static void Install(string[] args, string configFile)
         {
-            // Create the new appdomain with the new config.
+            // Create the new appDomain with the new config.
             var installDomain = AppDomain.CreateDomain("installDomain", AppDomain.CurrentDomain.Evidence, new AppDomainSetup
                                                                                                               {
                                                                                                                   ConfigurationFile = configFile,
@@ -23,7 +23,7 @@
                                                                                                                   AppDomainInitializerArguments = args
                                                                                                               });
 
-            // Call the right config method in that appdomain.
+            // Call the right config method in that appDomain.
             var del = new CrossAppDomainDelegate(RunInstall);
             installDomain.DoCallBack(del);
         }

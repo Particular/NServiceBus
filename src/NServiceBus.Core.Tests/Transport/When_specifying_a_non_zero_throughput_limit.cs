@@ -17,10 +17,10 @@
             ThreadPool.QueueUserWorkItem(Receive10);
 
             Thread.Sleep(600);
-            Assert.AreEqual(ThroughputLimit, fakeReceiver.NumMessagesReceived);
+            Assert.AreEqual(ThroughputLimit, fakeReceiver.NumberOfMessagesReceived);
 
             Thread.Sleep(500);
-            Assert.AreEqual(ThroughputLimit*2, fakeReceiver.NumMessagesReceived);
+            Assert.AreEqual(ThroughputLimit * 2, fakeReceiver.NumberOfMessagesReceived);
         }
 
         private void Receive10(object state)

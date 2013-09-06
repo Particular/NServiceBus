@@ -4,10 +4,10 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_receiving_an_unsubscription_message : WithRavenSubscriptionStorage
+    public class When_receiving_an_unsubscribe_message : WithRavenSubscriptionStorage
     {
         [Test]
-        public void All_subscription_entries_for_specfied_message_types_should_be_removed()
+        public void All_subscription_entries_for_specified_message_types_should_be_removed()
         {
             storage.Subscribe(TestClients.ClientA, MessageTypes.All);
             

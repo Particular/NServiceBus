@@ -6,7 +6,7 @@ namespace NServiceBus.Settings
     public class SerializationSettings
     {
         /// <summary>
-        /// Tells the framework to always wrap out going messages as if there was multiple messages beeing sent
+        /// Tells the framework to always wrap out going messages as if there was multiple messages being sent
         /// </summary>
         /// <returns></returns>
         public SerializationSettings WrapSingleMessages()
@@ -17,7 +17,7 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Tells the framework to not wrap out going messages as if there was multiple messages beeing sent
+        /// Tells the framework to not wrap out going messages as if there was multiple messages being sent
         /// </summary>
         /// <returns></returns>
         public SerializationSettings DontWrapSingleMessages()

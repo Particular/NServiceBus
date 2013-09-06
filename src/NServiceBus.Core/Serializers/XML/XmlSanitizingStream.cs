@@ -9,7 +9,7 @@ namespace NServiceBus.Serializers.XML {
 	public class XmlSanitizingStream : StreamReader
 	{
 		/// <summary>
-		/// The charactet that denotes the end of a file has been reached.
+		/// The character that denotes the end of a file has been reached.
 		/// </summary>
 		private const int EOF = -1;
 	
@@ -30,7 +30,7 @@ namespace NServiceBus.Serializers.XML {
         /// validation, and use "1.1" for XML 1.1 character validation.
         /// </param>
 		/// <param name="character"></param>
-		/// <returns><c>true</c> if is a legal xml chracter.</returns>
+		/// <returns><c>true</c> if is a legal xml character.</returns>
 		public static bool IsLegalXmlChar(string xmlVersion, int character)
 		{
 			switch (xmlVersion)
@@ -104,7 +104,7 @@ namespace NServiceBus.Serializers.XML {
 	
 		public override int Peek()
 		{
-			// Return the next legl XML character without reading it 
+			// Return the next legal XML character without reading it 
 	
 			int nextCharacter;
 	
@@ -130,7 +130,7 @@ namespace NServiceBus.Serializers.XML {
 		#region Read*() method overrides
 		
 		// The following methods are exact copies of the methods in TextReader, 
-		// extracting by disassembling it in Refelctor
+		// extracting by disassembling it in Reflector
 	
 		public override int Read(char[] buffer, int index, int count)
 		{
@@ -150,30 +150,30 @@ namespace NServiceBus.Serializers.XML {
 			{
 				throw new ArgumentException();
 			}
-			var num = 0;
+			var number = 0;
 			do
 			{
-				var num2 = Read();
-				if (num2 == -1)
+				var nextNumber = Read();
+				if (nextNumber == -1)
 				{
-					return num;
+					return number;
 				}
-				buffer[index + num++] = (char)num2;
+				buffer[index + number++] = (char)nextNumber;
 			}
-			while (num < count);
-			return num;
+			while (number < count);
+			return number;
 		}
 	
 		public override int ReadBlock(char[] buffer, int index, int count)
 		{
-			int num;
-			var num2 = 0;
+			int number;
+			var nextNumber = 0;
 			do
 			{
-				num2 += num = Read(buffer, index + num2, count - num2);
+				nextNumber += number = Read(buffer, index + nextNumber, count - nextNumber);
 			}
-			while ((num > 0) && (num2 < count));
-			return num2;
+			while ((number > 0) && (nextNumber < count));
+			return nextNumber;
 		}
 	
 		public override string ReadLine()
@@ -181,8 +181,8 @@ namespace NServiceBus.Serializers.XML {
 			var builder = new StringBuilder();
 			while (true)
 			{
-				var num = Read();
-				switch (num)
+				var number = Read();
+				switch (number)
 				{
 					case -1:
 						if (builder.Length > 0)
@@ -193,24 +193,24 @@ namespace NServiceBus.Serializers.XML {
 	
 					case 13:
 					case 10:
-						if ((num == 13) && (Peek() == 10))
+						if ((number == 13) && (Peek() == 10))
 						{
 							Read();
 						}
 						return builder.ToString();
 				}
-				builder.Append((char)num);
+				builder.Append((char)number);
 			}
 		}
 	
 		public override string ReadToEnd()
 		{
-			int num;
+			int number;
 			var buffer = new char[0x1000];
 			var builder = new StringBuilder(0x1000);
-			while ((num = Read(buffer, 0, buffer.Length)) != 0)
+			while ((number = Read(buffer, 0, buffer.Length)) != 0)
 			{
-				builder.Append(buffer, 0, num);
+				builder.Append(buffer, 0, number);
 			}
 			return builder.ToString();
 		}

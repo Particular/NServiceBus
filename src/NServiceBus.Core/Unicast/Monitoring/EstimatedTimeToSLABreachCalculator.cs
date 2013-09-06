@@ -75,7 +75,7 @@ namespace NServiceBus.Unicast.Monitoring
 
         double CalculateTimeToSLABreach(IList<DataPoint> snapshots)
         {
-            //need at least 2 datapoints to be able to calculate
+            //need at least 2 data points to be able to calculate
             if (snapshots.Count < 2)
             {
                 return double.MaxValue;

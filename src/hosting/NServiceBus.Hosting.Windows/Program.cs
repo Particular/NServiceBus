@@ -44,19 +44,19 @@
                 serviceName += "-" + endpointVersion;
             }
 
-            //Add the endpoint name so that the new appdomain can get it
+            //Add the endpoint name so that the new appDomain can get it
             if (arguments.EndpointName == null && !String.IsNullOrEmpty(endpointName))
             {
                 args = args.Concat(new[] { String.Format(@"/endpointName={0}", endpointName) }).ToArray();
             }
 
-            //Add the ScannedAssemblies name so that the new appdomain can get it
+            //Add the ScannedAssemblies name so that the new appDomain can get it
             if (arguments.ScannedAssemblies.Count == 0)
             {
                 args = assemblyScannerResults.Assemblies.Select(s => s.ToString()).Aggregate(args, (current, result) => current.Concat(new[] { String.Format(@"/scannedAssemblies={0}", result) }).ToArray());
             }
 
-            //Add the endpointConfigurationType name so that the new appdomain can get it
+            //Add the endpointConfigurationType name so that the new appDomain can get it
             if (arguments.EndpointConfigurationType == null)
             {
                 args = args.Concat(new[] { String.Format(@"/endpointConfigurationType={0}", endpointConfigurationType.AssemblyQualifiedName) }).ToArray();

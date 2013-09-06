@@ -9,7 +9,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using Saga;
 
     [TestFixture]
-    public class When_building_the_sessionfactory
+    public class When_building_the_sessionFactory
     {
         private readonly IDictionary<string, string> testProperties = SQLiteConfiguration.InMemory();
 

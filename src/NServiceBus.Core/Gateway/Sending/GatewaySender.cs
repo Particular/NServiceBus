@@ -101,7 +101,7 @@ namespace NServiceBus.Gateway.Sending
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
-            //todo - derive this from the message and the channeltype
+            //TODO: derive this from the message and the channelType
             var forwarder = HandleLegacy(transportMessage, targetSite) ??
                             Builder.Build<IForwardMessagesToSites>();
             forwarder.Forward(transportMessage, targetSite);

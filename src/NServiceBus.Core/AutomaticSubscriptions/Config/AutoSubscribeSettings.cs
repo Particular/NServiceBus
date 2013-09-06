@@ -31,7 +31,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns on autosubscriptions for messages not marked as commands. This was the default before v4
+        /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4
         /// </summary>
         /// <returns></returns>
         public AutoSubscribeSettings AutoSubscribePlainMessages()
@@ -43,7 +43,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
 
         /// <summary>
-        /// Registers a custom autosubscription strategy
+        /// Registers a custom auto-subscription strategy
         /// </summary>
         /// <returns></returns>
         public AutoSubscribeSettings CustomAutoSubscriptionStrategy<T>() where T : IAutoSubscriptionStrategy

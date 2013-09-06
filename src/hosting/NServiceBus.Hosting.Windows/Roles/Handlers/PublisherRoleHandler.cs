@@ -11,7 +11,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
     {
         /// <summary>
         /// Configures the UnicastBus with typical settings for a publisher
-        /// This role is only relevant for the transports that doesn't support native pub/sub like msmq and sqlserver
+        /// This role is only relevant for the transports that doesn't support native pub/sub like msmq and sqlServer
         /// </summary>
         /// <param name="specifier"></param>
         /// <returns></returns>

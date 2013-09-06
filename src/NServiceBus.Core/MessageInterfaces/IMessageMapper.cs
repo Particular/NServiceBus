@@ -17,7 +17,7 @@ namespace NServiceBus.MessageInterfaces
 
         /// <summary>
         /// If the given type is an interface, returns the generated concrete type.
-        /// If the given type is concerete, returns the interface it was generated from.
+        /// If the given type is concrete, returns the interface it was generated from.
         /// </summary>
         /// <param name="t"></param>
         /// <returns></returns>

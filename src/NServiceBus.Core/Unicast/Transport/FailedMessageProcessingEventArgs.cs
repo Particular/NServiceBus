@@ -3,7 +3,7 @@ namespace NServiceBus.Unicast.Transport
     using System;
 
     /// <summary>
-    /// Defives the event data for the failed message processing event
+    /// Defines the event data for the failed message processing event
     /// </summary>
     public class FailedMessageProcessingEventArgs : EventArgs
     {

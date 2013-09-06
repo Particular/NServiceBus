@@ -119,8 +119,8 @@ namespace NServiceBus.Utils.Reflection
 
         static bool IsClrType(byte[] a1)
         {
-            IStructuralEquatable eqa1 = a1;
-            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+            IStructuralEquatable structuralEquatable = a1;
+            return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
         public static bool IsSystemType(this Type type)

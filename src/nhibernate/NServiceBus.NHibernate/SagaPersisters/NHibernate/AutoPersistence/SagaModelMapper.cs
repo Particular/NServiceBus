@@ -14,19 +14,19 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
     {
         public ConventionModelMapper Mapper { get; private set; }
         readonly IEnumerable<Type> _entityTypes;
-        readonly IEnumerable<Type> _sagaEntites;
+        readonly IEnumerable<Type> _sagaEntities;
 
         public SagaModelMapper(IEnumerable<Type> typesToScan)
         {
             Mapper = new ConventionModelMapper();
 
-            _sagaEntites =
+            _sagaEntities =
                 typesToScan.Where(t => typeof (IContainSagaData).IsAssignableFrom(t) && !t.IsInterface);
 
-            _entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntites, typesToScan);
+            _entityTypes = GetTypesThatShouldBeAutoMapped(_sagaEntities, typesToScan);
 
             Mapper.IsTablePerClass((type, b) => false);
-            Mapper.IsTablePerConcreteClass((type, b) => _sagaEntites.Contains(type));
+            Mapper.IsTablePerConcreteClass((type, b) => _sagaEntities.Contains(type));
             Mapper.IsTablePerClassHierarchy((type, b) => false);
             Mapper.IsEntity((type, mapped) => _entityTypes.Contains(type));
             Mapper.IsArray((info, b) => false);
@@ -47,7 +47,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
 
         void ApplyClassConvention(IModelInspector mi, Type type, IClassAttributesMapper map)
         {
-            if (!_sagaEntites.Contains(type))
+            if (!_sagaEntities.Contains(type))
                 map.Id(idMapper => idMapper.Generator(Generators.GuidComb));
             else
                 map.Id(idMapper => idMapper.Generator(Generators.Assigned));
@@ -159,12 +159,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
                 hbmSubclass.dynamicupdate = true;
         }
 
-        static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntites,
+        static IEnumerable<Type> GetTypesThatShouldBeAutoMapped(IEnumerable<Type> sagaEntities,
                                                                 IEnumerable<Type> typesToScan)
         {
             IList<Type> entityTypes = new List<Type>();
 
-            foreach (var rootEntity in sagaEntites)
+            foreach (var rootEntity in sagaEntities)
             {
                 AddEntitiesToBeMapped(rootEntity, entityTypes, typesToScan);
             }

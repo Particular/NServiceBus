@@ -38,7 +38,7 @@
             Subscribe<SubEvent1>();
 
             Publish<EventBase>();
-            AsserNoEventReceived();
+            AssertNoEventReceived();
         }
 
 
@@ -61,7 +61,7 @@
             Subscribe<MyEvent1>();
 
             Publish<IMyEvent>();
-            AsserNoEventReceived();
+            AssertNoEventReceived();
         }
 
 
@@ -110,7 +110,7 @@
             Publish<IMyEvent>();
 
             AssertReceived<CombinedClassAndInterface>();
-            AsserNoEventReceived();
+            AssertNoEventReceived();
         }
 
 
@@ -137,7 +137,7 @@
             //publish a event that that this publisher isn't subscribed to
             Publish<MyEvent>();
 
-            AsserNoEventReceived();
+            AssertNoEventReceived();
         }
 
         void Subscribe<T>()
@@ -166,7 +166,7 @@
 
         }
 
-        void AsserNoEventReceived()
+        void AssertNoEventReceived()
         {
             var receivedEvent = WaitForMessage();
 
