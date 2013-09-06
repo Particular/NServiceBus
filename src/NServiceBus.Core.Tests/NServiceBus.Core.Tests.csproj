@@ -123,10 +123,6 @@
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Gateway\via_the_gateway.cs" />
-    <Compile Include="Gateway\When_a_message_is_sent.cs" />
-    <Compile Include="Gateway\When_a_message_is_sent_from_old_gateway.cs" />
-    <Compile Include="Gateway\When_a_message_with_a_databus_property_is_sent.cs" />
     <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
     <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
