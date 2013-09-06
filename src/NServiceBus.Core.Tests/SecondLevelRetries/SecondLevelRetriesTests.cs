@@ -33,6 +33,13 @@
         }
 
         [Test]
+        public void When_feature_is_disabled_then_disabled_property_should_return_true()
+        {
+            Configure.Features.Disable<Features.SecondLevelRetries>();
+            Assert.IsTrue(satellite.Disabled);
+        }
+
+        [Test]
         public void Message_should_have_ReplyToAddress_set_to_original_sender_when_sent_to_real_errorq()
         {
             var expected = new Address("clientQ", "myMachine");

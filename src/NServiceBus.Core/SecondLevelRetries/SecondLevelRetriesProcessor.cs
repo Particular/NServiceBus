@@ -1,6 +1,7 @@
 namespace NServiceBus.SecondLevelRetries
 {
     using System;
+    using Features;
     using Helpers;
     using Faults.Forwarder;
     using Logging;
@@ -15,7 +16,9 @@ namespace NServiceBus.SecondLevelRetries
         
         public Address InputAddress { get; set; }
 
-        public bool Disabled { get; set; }
+        public bool Disabled {
+            get { return !Feature.IsEnabled<SecondLevelRetries>(); }
+        }
 
         public FaultManager FaultManager { get; set; }
 
