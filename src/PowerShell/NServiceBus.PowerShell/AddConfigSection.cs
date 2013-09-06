@@ -38,7 +38,7 @@
             //( Get-Project).DTE.ItemOperations.AddNewItem("Visual C# Items\General\Application Configuration File")
             // but for some reason it doesn't work!
 
-            XDocument doc = GetOrCreateDocument(configFilePath);
+            var doc = GetOrCreateDocument(configFilePath);
 
             CreateConfigSectionIfRequired(doc);
 
@@ -132,7 +132,7 @@
 
         IEnumerable<string> GetProjectTypeGuids()
         {
-            string projectTypeGuids = Microsoft.Build.Evaluation.ProjectCollection.GlobalProjectCollection.GetLoadedProjects((string)project.FullName).Single().GetPropertyValue("ProjectTypeGuids");
+            var projectTypeGuids = Microsoft.Build.Evaluation.ProjectCollection.GlobalProjectCollection.GetLoadedProjects((string)project.FullName).Single().GetPropertyValue("ProjectTypeGuids");
 
             if (String.IsNullOrEmpty(projectTypeGuids))
                 return Enumerable.Empty<string>();

@@ -27,7 +27,7 @@ namespace NServiceBus.Hosting.Windows
 
             var arguments = new HostArguments(Args);
 
-            string endpointName = string.Empty;
+            var endpointName = string.Empty;
             if (arguments.EndpointName != null)
                 endpointName = arguments.EndpointName;
 

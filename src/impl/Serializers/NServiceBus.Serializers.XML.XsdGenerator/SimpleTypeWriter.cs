@@ -13,7 +13,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             builder.AppendFormat("<xs:simpleType name=\"{0}\">\n", t.Name);
             builder.AppendLine("<xs:restriction base=\"xs:string\">");
 
-            foreach(string val in Enum.GetNames(t))
+            foreach(var val in Enum.GetNames(t))
                 builder.AppendFormat("<xs:enumeration value=\"{0}\" />\n", val);
 
             builder.AppendLine("</xs:restriction>");

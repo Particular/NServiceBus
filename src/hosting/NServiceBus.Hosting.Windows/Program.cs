@@ -68,7 +68,7 @@
                 WindowsInstaller.Install(args, endpointConfigurationFile);
             }
             
-            IRunConfiguration cfg = RunnerConfigurator.New(x =>
+            var cfg = RunnerConfigurator.New(x =>
                                                                {
                                                                    x.ConfigureServiceInIsolation<WindowsHost>(endpointConfigurationType.AssemblyQualifiedName, c =>
                                                                     {

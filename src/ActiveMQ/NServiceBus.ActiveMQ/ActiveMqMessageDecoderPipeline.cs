@@ -23,7 +23,7 @@ namespace NServiceBus.Transports.ActiveMQ
         {
             foreach (var decoder in decoders)
             {
-                bool decoded = decoder.Decode(transportMessage, message);
+                var decoded = decoder.Decode(transportMessage, message);
                 if (decoded)
                 {
                     return;

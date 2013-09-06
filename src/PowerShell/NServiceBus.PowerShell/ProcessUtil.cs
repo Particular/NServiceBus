@@ -60,7 +60,7 @@
 
         private static void ThrowUnableToChangeStatus(string serviceName, ServiceControllerStatus status, Exception exception)
         {
-            string message = "Unable to change " + serviceName + " status to " + Enum.GetName(typeof(ServiceControllerStatus), status);
+            var message = "Unable to change " + serviceName + " status to " + Enum.GetName(typeof(ServiceControllerStatus), status);
 
             if (exception == null)
             {

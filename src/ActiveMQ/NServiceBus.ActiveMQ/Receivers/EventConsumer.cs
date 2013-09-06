@@ -73,7 +73,7 @@
 
         public void TopicSubscribed(object sender, SubscriptionEventArgs e)
         {
-            string topic = e.Topic;
+            var topic = e.Topic;
             Subscribe(topic);
         }
 
@@ -81,7 +81,7 @@
         {
             lock (notifyTopicSubscriptions)
             {
-                foreach (string topic in notifyTopicSubscriptions.Register(this))
+                foreach (var topic in notifyTopicSubscriptions.Register(this))
                 {
                     Subscribe(topic);
                 }

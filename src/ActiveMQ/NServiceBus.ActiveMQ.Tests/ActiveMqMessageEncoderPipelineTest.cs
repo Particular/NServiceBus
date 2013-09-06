@@ -31,7 +31,7 @@
             var expectedMessage = Mock.Of<IMessage>();
             firstEncoder.Setup(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>())).Returns(expectedMessage);
 
-            IMessage message = testee.Encode(new TransportMessage(), Mock.Of<ISession>());
+            var message = testee.Encode(new TransportMessage(), Mock.Of<ISession>());
 
             secondEncoder.Verify(d => d.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()), Times.Never());
             Assert.AreSame(expectedMessage, message);

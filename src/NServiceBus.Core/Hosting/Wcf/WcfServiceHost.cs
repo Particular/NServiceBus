@@ -36,7 +36,7 @@ namespace NServiceBus.Hosting.Wcf
             if(serviceModel == null)
              throw new InvalidOperationException("No service model section found in config");
             
-            bool endpointAlreadyConfigured = false;
+            var endpointAlreadyConfigured = false;
 
             foreach (ServiceElement se in serviceModel.Services.Services)
             {

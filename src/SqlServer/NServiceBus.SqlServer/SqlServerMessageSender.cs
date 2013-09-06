@@ -85,7 +85,7 @@
             {
                 if (ex.Number == 208)
                 {
-                    string msg = address == null
+                    var msg = address == null
                                      ? "Failed to send message. Target address is null."
                                      : string.Format("Failed to send message to address: [{0}]", address);
 

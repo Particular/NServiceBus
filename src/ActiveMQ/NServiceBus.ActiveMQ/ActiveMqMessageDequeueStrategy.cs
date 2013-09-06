@@ -53,7 +53,7 @@
         /// <param name="maximumConcurrencyLevel">Indicates the maximum concurrency level this <see cref="IDequeueMessages"/> is able to support.</param>
         public void Start(int maximumConcurrencyLevel)
         {
-            for (int i = 0; i < maximumConcurrencyLevel; i++)
+            for (var i = 0; i < maximumConcurrencyLevel; i++)
             {
                 CreateAndStartMessageReceiver();
             }
@@ -64,12 +64,12 @@
         /// </summary>
         public void Stop()
         {
-            foreach (INotifyMessageReceived messageReceiver in messageReceivers)
+            foreach (var messageReceiver in messageReceivers)
             {
                 messageReceiver.Stop();
             }
 
-            foreach (INotifyMessageReceived messageReceiver in messageReceivers)
+            foreach (var messageReceiver in messageReceivers)
             {
                 messageReceiver.Dispose();
             }
@@ -80,7 +80,7 @@
         
         void CreateAndStartMessageReceiver()
         {
-            INotifyMessageReceived receiver = notifyMessageReceivedFactory.CreateMessageReceiver(tryProcessMessage, endProcessMessage);
+            var receiver = notifyMessageReceivedFactory.CreateMessageReceiver(tryProcessMessage, endProcessMessage);
             receiver.Start(address, settings);
             messageReceivers.Add(receiver);
         }

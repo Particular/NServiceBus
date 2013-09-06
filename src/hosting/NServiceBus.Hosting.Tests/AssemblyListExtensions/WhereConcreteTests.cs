@@ -29,7 +29,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
         [Test]
         public void ValidateIncludedTypes()
         {
-            List<Type> types = Assembly.GetExecutingAssembly()
+            var types = Assembly.GetExecutingAssembly()
                                        .GetTypes()
                                        .WhereConcrete()
                                        .ToList();

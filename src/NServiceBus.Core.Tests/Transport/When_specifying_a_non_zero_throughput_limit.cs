@@ -25,7 +25,7 @@
 
         private void Receive10(object state)
         {
-            for (int i = 0; i < ThroughputLimit*2; i++)
+            for (var i = 0; i < ThroughputLimit*2; i++)
             {
                 fakeReceiver.FakeMessageReceived();
             }

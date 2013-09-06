@@ -662,7 +662,7 @@ namespace NServiceBus
         {
             var result = new List<Assembly>();
 
-            foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
+            foreach (var file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
                 try
                 {

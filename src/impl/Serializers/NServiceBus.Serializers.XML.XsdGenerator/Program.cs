@@ -11,7 +11,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            Assembly a = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, args[0]));
+            var a = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, args[0]));
 
             if (args.Length == 2)
                 baseNameSpace = args[1];
@@ -21,16 +21,16 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                                            needToGenerateGuid = true;
                                        };
 
-            foreach(Type t in a.GetTypes())
+            foreach(var t in a.GetTypes())
                 TopLevelScan(t);
 
-            string xsd = GenerateXsdString();
+            var xsd = GenerateXsdString();
 
-            using(StreamWriter writer = File.CreateText(GetFileName()))
+            using(var writer = File.CreateText(GetFileName()))
                 writer.Write(xsd);
 
             if (needToGenerateGuid)
-                using (StreamWriter writer = File.CreateText(GetFileName()))
+                using (var writer = File.CreateText(GetFileName()))
                     writer.Write(Strings.GuidXsd);
         }
 
@@ -41,7 +41,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         private static string GetFileName()
         {
-            int i = 0;
+            var i = 0;
             while (File.Exists(string.Format("schema{0}.xsd", i)))
                 i++;
 
@@ -50,7 +50,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         private static string GenerateXsdString()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             builder.AppendLine("<xs:schema elementFormDefault=\"qualified\" targetNamespace=\"" + baseNameSpace + "/" + nameSpace + "\" xmlns=\"" + baseNameSpace + "/" + nameSpace + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">");
@@ -58,7 +58,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (needToGenerateGuid)
                 builder.AppendLine("<xs:import namespace=\"http://microsoft.com/wsdl/types/\" />");
 
-            foreach (ComplexType complex in Repository.ComplexTypes)
+            foreach (var complex in Repository.ComplexTypes)
             {
                 builder.AppendFormat("<xs:element name=\"{0}\" nillable=\"true\" type=\"{0}\">\n", complex.Name);
 
@@ -75,7 +75,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                 ComplexTypeWriter.Write(complex, builder);
             }
 
-            foreach (Type simple in Repository.SimpleTypes)
+            foreach (var simple in Repository.SimpleTypes)
             {
                 builder.AppendFormat("<xs:element name=\"{0}\" type=\"{0}\" />\n", simple.Name);
                 SimpleTypeWriter.Write(simple, builder);
@@ -85,7 +85,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
             builder.AppendLine("</xs:schema>");
 
-            string result = builder.ToString();
+            var result = builder.ToString();
 
             return result;
         }
@@ -119,7 +119,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (!type.IsInterface)
                 Scan(type.BaseType);
             else
-                foreach (Type i in type.GetInterfaces())
+                foreach (var i in type.GetInterfaces())
                     Scan(i);
         }
 

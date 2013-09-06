@@ -27,7 +27,7 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 
           var mapper = new ModelMapper();
           mapper.AddMappings(typeof(NHibernate.Config.SubscriptionMap).Assembly.GetExportedTypes());
-          HbmMapping faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
+          var faultMappings = mapper.CompileMappingForAllExplicitlyAddedEntities();
 
           cfg.AddMapping(faultMappings);
 

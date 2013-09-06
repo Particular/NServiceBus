@@ -29,14 +29,14 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (type.IsPrimitive || type == typeof(string) || type == typeof(object) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(DateTimeOffset) || type.IsEnum || type == typeof(Decimal))
                 return null;
 
-            ComplexType complex = new ComplexType();
+            var complex = new ComplexType();
             complex.Name = Reflect.GetTypeNameFrom(type);
 
             if (Repository.IsNormalizedList(type))
             {
-                Type enumerated = Reflect.GetEnumeratedTypeFrom(type);
+                var enumerated = Reflect.GetEnumeratedTypeFrom(type);
 
-                Element e = Element.Scan(enumerated, Reflect.GetTypeNameFrom(enumerated));
+                var e = Element.Scan(enumerated, Reflect.GetTypeNameFrom(enumerated));
 
                 if (e != null)
                 {
@@ -57,7 +57,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                         baseType = type.BaseType;
 
                 if (type.IsInterface)
-                    foreach(Type i in type.GetInterfaces())
+                    foreach(var i in type.GetInterfaces())
                         if (i == typeof(IMessage))
                             continue;
                         else
@@ -66,7 +66,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                             break;
                         }
 
-                List<PropertyInfo> propsToIgnore = new List<PropertyInfo>();
+                var propsToIgnore = new List<PropertyInfo>();
 
                 if (baseType != null)
                 {
@@ -74,7 +74,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
                     propsToIgnore = new List<PropertyInfo>(baseType.GetProperties());
                 }
 
-                foreach (PropertyInfo prop in type.GetProperties())
+                foreach (var prop in type.GetProperties())
                 {
                     if (IsInList(prop, propsToIgnore))
                         continue;
@@ -84,7 +84,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
                     Repository.Handle(prop.PropertyType);
 
-                    Element e = Element.Scan(prop.PropertyType, prop.Name);
+                    var e = Element.Scan(prop.PropertyType, prop.Name);
 
                     if (e != null)
                         complex.elements.Add(e);
@@ -99,7 +99,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         private static bool IsKeyValuePair(Type t)
         {
-            Type[] args = t.GetGenericArguments();
+            var args = t.GetGenericArguments();
             if (args == null)
                 return false;
             if (args.Length != 2)
@@ -112,7 +112,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (propsToIgnore.Contains(prop))
                 return true;
                                 
-            foreach(PropertyInfo pi in propsToIgnore)
+            foreach(var pi in propsToIgnore)
                 if (pi.Name == prop.Name)
                     return true;
 

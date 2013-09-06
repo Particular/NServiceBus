@@ -150,10 +150,10 @@ namespace NServiceBus.Serializers.XML {
 			{
 				throw new ArgumentException();
 			}
-			int num = 0;
+			var num = 0;
 			do
 			{
-				int num2 = Read();
+				var num2 = Read();
 				if (num2 == -1)
 				{
 					return num;
@@ -167,7 +167,7 @@ namespace NServiceBus.Serializers.XML {
 		public override int ReadBlock(char[] buffer, int index, int count)
 		{
 			int num;
-			int num2 = 0;
+			var num2 = 0;
 			do
 			{
 				num2 += num = Read(buffer, index + num2, count - num2);
@@ -178,10 +178,10 @@ namespace NServiceBus.Serializers.XML {
 	
 		public override string ReadLine()
 		{
-			StringBuilder builder = new StringBuilder();
+			var builder = new StringBuilder();
 			while (true)
 			{
-				int num = Read();
+				var num = Read();
 				switch (num)
 				{
 					case -1:
@@ -206,8 +206,8 @@ namespace NServiceBus.Serializers.XML {
 		public override string ReadToEnd()
 		{
 			int num;
-			char[] buffer = new char[0x1000];
-			StringBuilder builder = new StringBuilder(0x1000);
+			var buffer = new char[0x1000];
+			var builder = new StringBuilder(0x1000);
 			while ((num = Read(buffer, 0, buffer.Length)) != 0)
 			{
 				builder.Append(buffer, 0, num);

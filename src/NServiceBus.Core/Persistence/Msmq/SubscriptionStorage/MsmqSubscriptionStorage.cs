@@ -19,7 +19,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     {
         void ISubscriptionStorage.Init()
         {
-            string path = MsmqUtilities.GetFullPath(Queue);
+            var path = MsmqUtilities.GetFullPath(Queue);
 
             q = new MessageQueue(path);
 
@@ -86,7 +86,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             {
                 foreach (var messageType in messageTypes)
                 {
-                    bool found = false;
+                    var found = false;
                     foreach (var e in entries)
                         if (e.MessageType == messageType && e.Subscriber == address)
                         {

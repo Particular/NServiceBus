@@ -76,7 +76,7 @@ namespace NServiceBus.Serializers.Json
                 };
             }
 
-            JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
+            var jsonSerializer = JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
 
             var reader = CreateJsonReader(stream);

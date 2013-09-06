@@ -87,7 +87,7 @@
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
 
-            for (int i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
+            for (var i = 0; i < DefaultRetryPolicy.NumberOfRetries + 1; i++)
             {
                 satellite.Handle(message);
             }
@@ -125,7 +125,7 @@
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
             satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };            
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 satellite.Handle(message);
             }

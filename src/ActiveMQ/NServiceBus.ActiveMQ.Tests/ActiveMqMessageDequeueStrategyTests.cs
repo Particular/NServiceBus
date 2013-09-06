@@ -65,7 +65,7 @@
         [Test]
         public void WhenStarted_ThenTheSpecifiedNumberOfReceiversIsCreatedAndStarted()
         {
-            TransactionSettings settings = TransactionSettings.Default;
+            var settings = TransactionSettings.Default;
             const int NumberOfWorkers = 2;
 
             var address = new Address("someQueue", "machine");
@@ -107,7 +107,7 @@
         public void WhenStoped_SessionFactoryIsDisposedAfterMessageReceivers()
         {
             const int InitialNumberOfWorkers = 5;
-            int disposedReceivers = 0;
+            var disposedReceivers = 0;
             sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = disposedMessageReceivers.Count);
             var address = new Address("someQueue", "machine");
 

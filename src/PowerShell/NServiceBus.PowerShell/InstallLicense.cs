@@ -18,7 +18,7 @@
 
         protected override void ProcessRecord()
         {
-            string selectedLicenseText = ReadAllTextWithoutLocking(Path);
+            var selectedLicenseText = ReadAllTextWithoutLocking(Path);
 
             if (Environment.Is64BitOperatingSystem)
             {

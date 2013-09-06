@@ -7,7 +7,7 @@
     {
         public IMessage Encode(TransportMessage message, ISession session)
         {
-            string contentType = message.Headers[Headers.ContentType];
+            var contentType = message.Headers[Headers.ContentType];
 
             if (contentType == ContentTypes.Json || contentType == ContentTypes.Xml)
             {
@@ -15,7 +15,7 @@
 
                 if (message.Body != null)
                 {
-                    string messageBody = Encoding.UTF8.GetString(message.Body);
+                    var messageBody = Encoding.UTF8.GetString(message.Body);
                     encoded = session.CreateTextMessage(messageBody);
                 }
 

@@ -31,7 +31,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<ITextMessage>(message);
             Assert.IsNullOrEmpty(((ITextMessage)message).Text);
@@ -50,7 +50,7 @@
                                        };
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<ITextMessage>(message);
             Assert.AreEqual(ExpectedContent, ((ITextMessage)message).Text);
@@ -64,7 +64,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsNull(message);
         }

@@ -13,8 +13,8 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         {
             get
             {
-                List<Type> keys = new List<Type>(types.Keys);
-                for (int i = keys.Count - 1; i >= 0; i-- )
+                var keys = new List<Type>(types.Keys);
+                for (var i = keys.Count - 1; i >= 0; i-- )
                     yield return types[keys[i]];
             }
         }
@@ -26,7 +26,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public static void Handle(Type type)
         {
-            Type normalized = Normalize(type);
+            var normalized = Normalize(type);
             if (normalized != type)
             {
                 Handle(normalized);
@@ -39,7 +39,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (simpleTypesToCreate.Contains(type))
                 return;
 
-            ComplexType complex = ComplexType.Scan(type);
+            var complex = ComplexType.Scan(type);
             if (complex != null)
             {
                 types[type] = complex;
@@ -53,9 +53,9 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public static bool IsNormalizedList(Type type)
         {
-            foreach (Type interfaceType in type.GetInterfaces())
+            foreach (var interfaceType in type.GetInterfaces())
             {
-                Type[] genericArgs = interfaceType.GetGenericArguments();
+                var genericArgs = interfaceType.GetGenericArguments();
                 if (genericArgs == null)
                     continue;
 
@@ -74,7 +74,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (!typeof(IEnumerable).IsAssignableFrom(type))
                 return type;
 
-            Type enumerated = Reflect.GetEnumeratedTypeFrom(type);
+            var enumerated = Reflect.GetEnumeratedTypeFrom(type);
             if (enumerated == null)
                 return type;
 

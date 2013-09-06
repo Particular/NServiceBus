@@ -13,7 +13,7 @@
             TransportReceiver.ChangeMaximumMessageThroughputPerSecond(throughputLimit);
             TransportReceiver.Start(Address.Parse("mytest"));
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 fakeReceiver.FakeMessageReceived();
 

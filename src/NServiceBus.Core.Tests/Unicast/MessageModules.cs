@@ -14,7 +14,7 @@
             var endCalled = false;
 
             var messageModule = new StubMessageModule();
-            bool beginCalled = false;
+            var beginCalled = false;
 
             var receivedMessage = Helpers.Helpers.EmptyTransportMessage();
 
@@ -52,7 +52,7 @@
             var endCalled = false;
 
             var messageModule = new StubMessageModule();
-            bool beginCalled = false;
+            var beginCalled = false;
 
             messageModule.OnBegin = () =>
             {

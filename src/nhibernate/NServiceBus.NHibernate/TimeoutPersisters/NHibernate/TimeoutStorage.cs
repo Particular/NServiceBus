@@ -27,7 +27,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
         /// <returns>Returns the next range of timeouts that are due.</returns>
         public List<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            DateTime now = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
             
             using (var session = SessionFactory.OpenStatelessSession())
             using (var tx = session.BeginTransaction(IsolationLevel.ReadCommitted))

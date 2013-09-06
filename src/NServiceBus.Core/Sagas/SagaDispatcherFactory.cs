@@ -31,8 +31,8 @@ namespace NServiceBus.Sagas
 
             foreach (var finder in GetFindersFor(message, builder))
             {
-                bool sagaEntityIsPersistent = true;
-                IContainSagaData sagaEntity = UseFinderToFindSaga(finder, message);
+                var sagaEntityIsPersistent = true;
+                var sagaEntity = UseFinderToFindSaga(finder, message);
                 Type sagaType;
 
                 if (sagaEntity == null)
@@ -201,7 +201,7 @@ namespace NServiceBus.Sagas
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
-            MethodInfo method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+            var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
                 return method.Invoke(finder, new [] { message }) as IContainSagaData;

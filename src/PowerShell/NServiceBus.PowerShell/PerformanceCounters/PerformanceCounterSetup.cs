@@ -12,7 +12,7 @@
         {
             if (PerformanceCounterCategory.Exists(categoryName))
             {
-                bool needToRecreateCategory = false;
+                var needToRecreateCategory = false;
 
                 foreach (CounterCreationData counter in Counters)
                 {

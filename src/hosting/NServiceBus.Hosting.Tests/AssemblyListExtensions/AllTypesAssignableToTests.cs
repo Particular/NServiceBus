@@ -32,7 +32,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
         [Test]
         public void ShouldContainAllImplementations()
         {
-            List<Type> types = AssemblyPathHelper.GetAllAssemblies()
+            var types = AssemblyPathHelper.GetAllAssemblies()
                                                  .AllTypesAssignableTo<IProfile>()
                                                  .ToList();
             Assert.IsTrue(types.Any(x => x.Name == "ClassChild"));
@@ -44,7 +44,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
         [Test]
         public void ShouldNotContainNonImpl()
         {
-            List<Type> types = AssemblyPathHelper.GetAllAssemblies()
+            var types = AssemblyPathHelper.GetAllAssemblies()
                                                  .AllTypesAssignableTo<IProfile>()
                                                  .ToList();
             Assert.IsFalse(types.Any(x => x.Name == "ClassNotImplementing"));
@@ -53,7 +53,7 @@ namespace NServiceBus.Hosting.Tests.AssemblyListExtensions
         [Test]
         public void ShouldNotContainSelf()
         {
-            List<Type> types = AssemblyPathHelper.GetAllAssemblies()
+            var types = AssemblyPathHelper.GetAllAssemblies()
                                                  .AllTypesAssignableTo<IProfile>()
                                                  .ToList();
             Assert.IsFalse(types.Any(x => x.Name == "IProfile"));

@@ -82,7 +82,7 @@ namespace NServiceBus.Hosting
                 {
                     if (specifier is IWantCustomLogging)
                     {
-                        bool called = false;
+                        var called = false;
                         //make sure we don't call the Init method again, unless there's an explicit impl
                         var initMap = specifier.GetType().GetInterfaceMap(typeof(IWantCustomInitialization));
                         foreach (var m in initMap.TargetMethods)

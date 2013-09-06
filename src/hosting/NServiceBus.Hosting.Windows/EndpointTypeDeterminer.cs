@@ -90,7 +90,7 @@
                 return false;
             }
 
-            Type endpointType = Type.GetType(arguments.EndpointConfigurationType, false);
+            var endpointType = Type.GetType(arguments.EndpointConfigurationType, false);
             if (endpointType == null)
             {
                 throw new ConfigurationErrorsException(
@@ -104,14 +104,14 @@
 
         bool TryGetEndpointConfigurationTypeFromConfiguration(out Type type)
         {
-            string endpoint = getEndpointConfigurationTypeFromConfig();
+            var endpoint = getEndpointConfigurationTypeFromConfig();
             if (endpoint == null)
             {
                 type = null;
                 return false;
             }
 
-            Type endpointType = Type.GetType(endpoint, false);
+            var endpointType = Type.GetType(endpoint, false);
             if (endpointType == null)
             {
                 throw new ConfigurationErrorsException(
@@ -126,7 +126,7 @@
 
         bool TryGetEndpointConfigurationTypeFromScannedAssemblies(out Type type)
         {
-            List<Type> endpoints = ScanAssembliesForEndpoints().ToList();
+            var endpoints = ScanAssembliesForEndpoints().ToList();
             if (!endpoints.Any())
             {
                 Console.Out.WriteLine(assemblyScannerResults);
@@ -156,7 +156,7 @@
 
         IEnumerable<Type> ScanAssembliesForEndpoints()
         {
-            List<Assembly> scannableAssemblies = assemblyScannerResults.Assemblies;
+            var scannableAssemblies = assemblyScannerResults.Assemblies;
 
             return scannableAssemblies.SelectMany(assembly => assembly.GetTypes().Where(
                 t => typeof (IConfigureThisEndpoint).IsAssignableFrom(t)

@@ -21,7 +21,7 @@ namespace ReturnToSourceQueue
             if (args != null && args.Length > 1)
                 messageId = args[1];
 
-            bool script = true;
+            var script = true;
 
             if (inputQueue == null)
             {
@@ -40,7 +40,7 @@ namespace ReturnToSourceQueue
                 script = false;
             }
 
-            Address errorQueueAddress = Address.Parse(inputQueue);
+            var errorQueueAddress = Address.Parse(inputQueue);
 
             if(!IsLocalIpAddress(errorQueueAddress.Machine))
             {
@@ -92,12 +92,12 @@ namespace ReturnToSourceQueue
         public static bool IsLocalIpAddress(string host)
         {
             // get host IP addresses
-            IPAddress[] hostIPs = Dns.GetHostAddresses(host);
+            var hostIPs = Dns.GetHostAddresses(host);
             // get local IP addresses
-            IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+            var localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
             // test if any host IP equals to any local IP or to localhost
-            foreach (IPAddress hostIP in hostIPs)
+            foreach (var hostIP in hostIPs)
             {
                 // is localhost
                 if (IPAddress.IsLoopback(hostIP)) return true;

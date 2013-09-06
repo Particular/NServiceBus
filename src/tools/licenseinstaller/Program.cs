@@ -26,7 +26,7 @@
                 return 1;
             }
 
-            string selectedLicenseText = ReadAllTextWithoutLocking(licensePath);
+            var selectedLicenseText = ReadAllTextWithoutLocking(licensePath);
 
             if (Environment.Is64BitOperatingSystem)
             {

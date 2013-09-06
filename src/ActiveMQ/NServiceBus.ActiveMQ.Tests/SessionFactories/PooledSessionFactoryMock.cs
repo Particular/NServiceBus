@@ -13,7 +13,7 @@
         {
             var result = new List<ISession>();
 
-            for (int i = 0; i < count; i++ )
+            for (var i = 0; i < count; i++ )
             {
                 var session = new Mock<ISession>().Object;
                 sessions.Enqueue(session);

@@ -72,7 +72,7 @@ Here is an example of what is required:
             connectionStringSettingsCollection = NHibernateSettingRetriever.ConnectionStrings() ??
                                                  new ConnectionStringSettingsCollection();
 
-            Configuration configuration = CreateNHibernateConfiguration();
+            var configuration = CreateNHibernateConfiguration();
 
             var defaultConnectionString = GetConnectionStringOrNull("NServiceBus/Persistence");
             var configurationProperties = configuration.Properties;
@@ -165,7 +165,7 @@ Here is an example of what is required:
                 return;
             }
 
-            string errorMsg =
+            var errorMsg =
                 @"No NHibernate properties found in your config file ({0}).
 {1}";
             throw new InvalidOperationException(String.Format(errorMsg, GetConfigFileIfExists(), Message));
@@ -180,7 +180,7 @@ Here is an example of what is required:
             if (!System.Diagnostics.Debugger.IsAttached || properties.Count != 0) 
                 return;
 
-            string warningMsg =
+            var warningMsg =
                 @"No NHibernate properties found in your config file ({0}). 
 We have automatically fallen back to use SQLite. However, this only happens while you are running in Visual Studio.
 To run in this mode you need to reference the SQLite assembly, here is the NuGet package you need to install:
@@ -224,13 +224,13 @@ PM> Install-Package System.Data.SQLite.{1}
 
         private static string GetDefaultConfigurationFilePath()
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
             // Note RelativeSearchPath can be null even if the doc say something else; don't remove the check
             var searchPath = AppDomain.CurrentDomain.RelativeSearchPath ?? string.Empty;
 
-            string relativeSearchPath = searchPath.Split(';').First();
-            string binPath = Path.Combine(baseDir, relativeSearchPath);
+            var relativeSearchPath = searchPath.Split(';').First();
+            var binPath = Path.Combine(baseDir, relativeSearchPath);
             return Path.Combine(binPath, Configuration.DefaultHibernateCfgFileName);
         }
 

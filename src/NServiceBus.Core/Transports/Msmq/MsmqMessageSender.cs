@@ -36,12 +36,12 @@ namespace NServiceBus.Transports.Msmq
         /// </param>
         public void Send(TransportMessage message, Address address)
         {
-            string queuePath = MsmqUtilities.GetFullPath(address);
+            var queuePath = MsmqUtilities.GetFullPath(address);
             try
             {
                 using (var q = new MessageQueue(queuePath, false, Settings.UseConnectionCache, QueueAccessMode.Send))
                 {
-                    using (Message toSend = MsmqUtilities.Convert(message))
+                    using (var toSend = MsmqUtilities.Convert(message))
                     {
                         toSend.UseDeadLetterQueue = Settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = Settings.UseJournalQueue;
@@ -66,7 +66,7 @@ namespace NServiceBus.Transports.Msmq
             {
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
                 {
-                    string msg = address == null
+                    var msg = address == null
                                      ? "Failed to send message. Target address is null."
                                      : string.Format("Failed to send message to address: [{0}]", address);
 

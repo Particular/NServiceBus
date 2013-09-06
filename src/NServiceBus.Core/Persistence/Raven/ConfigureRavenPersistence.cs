@@ -261,7 +261,7 @@ namespace NServiceBus
         static void VerifyConnectionToRavenDBServer(IDocumentStore store)
         {
             RavenBuildInfo ravenBuildInfo = null;
-            bool connectionSuccessful = false;
+            var connectionSuccessful = false;
             Exception exception = null;
             try
             {

@@ -153,7 +153,7 @@ namespace NServiceBus.Settings
             private static TimeSpan GetMaxTimeout()
             {
                 //default is 10 always 10 minutes
-                TimeSpan maxTimeout = TimeSpan.FromMinutes(10);
+                var maxTimeout = TimeSpan.FromMinutes(10);
 
                 var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
                                                                   .GetSectionGroup("system.transactions");

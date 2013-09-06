@@ -6,7 +6,7 @@
     {
         public IMessage Encode(TransportMessage message, ISession session)
         {
-            string contentType = message.Headers[Headers.ContentType];
+            var contentType = message.Headers[Headers.ContentType];
 
             if (contentType == ContentTypes.Bson || contentType == ContentTypes.Binary)
             {

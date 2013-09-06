@@ -30,7 +30,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
         public IMessage CreateJmsMessage(TransportMessage message, ISession session)
         {
-            IMessage jmsmessage = encoderPipeline.Encode(message, session);
+            var jmsmessage = encoderPipeline.Encode(message, session);
 
             // We only assign the correlation id because the message id is chosen by the broker.
             jmsmessage.NMSCorrelationID = message.CorrelationId;

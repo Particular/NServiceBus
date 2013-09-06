@@ -78,7 +78,7 @@
         {
             tokenSource = new CancellationTokenSource();
 
-            for (int i = 0; i < maximumConcurrencyLevel; i++)
+            for (var i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartThread();
             }
@@ -103,7 +103,7 @@
                             CommandType = CommandType.Text
                         })
                 {
-                    int numberOfPurgedRows = command.ExecuteNonQuery();
+                    var numberOfPurgedRows = command.ExecuteNonQuery();
 
                     Logger.InfoFormat("{0} messages was purged from table {1}", numberOfPurgedRows, tableName);
                 }
@@ -112,7 +112,7 @@
 
         private void StartThread()
         {
-            CancellationToken token = tokenSource.Token;
+            var token = tokenSource.Token;
 
             Task.Factory
                 .StartNew(Action, token, token, TaskCreationOptions.LongRunning, TaskScheduler.Default)

@@ -282,14 +282,14 @@ namespace NServiceBus.Testing
             var context = new MessageContext { Id = messageId, ReturnAddress = "client", Headers = incomingHeaders };
             bus.CurrentMessageContext = context;
 
-            foreach (KeyValuePair<string, string> kvp in incomingHeaders)
+            foreach (var kvp in incomingHeaders)
                 ExtensionMethods.SetHeaderAction(message, kvp.Key, kvp.Value);
 
             ExtensionMethods.CurrentMessageBeingHandled = message;
 
             try
             {
-                MethodInfo method = GetMessageHandler(handler.GetType(), typeof(TMessage));
+                var method = GetMessageHandler(handler.GetType(), typeof(TMessage));
                 method.Invoke(handler, new object[] {message});
             }
             catch (TargetInvocationException e)

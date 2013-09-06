@@ -153,9 +153,9 @@ namespace NServiceBus.Hosting.Windows.Arguments
         {
             var sb = new StringBuilder();
 
-            string helpText = String.Empty;
+            var helpText = String.Empty;
             using (
-                Stream stream =
+                var stream =
                     Assembly.GetCallingAssembly()
                             .GetManifestResourceStream("NServiceBus.Hosting.Windows.Content.Help.txt"))
             {
@@ -169,11 +169,11 @@ namespace NServiceBus.Hosting.Windows.Arguments
             }
 
             installOptions.WriteOptionDescriptions(new StringWriter(sb));
-            string installOptionsHelp = sb.ToString();
+            var installOptionsHelp = sb.ToString();
 
             sb.Clear();
             uninstallOptions.WriteOptionDescriptions(new StringWriter(sb));
-            string uninstallOptionsHelp = sb.ToString();
+            var uninstallOptionsHelp = sb.ToString();
 
             Console.Out.WriteLine(helpText, installOptionsHelp, uninstallOptionsHelp);
         }

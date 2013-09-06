@@ -27,16 +27,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             if (types == null || !typesToList.Any())
                 return;
 
-            string name = typesToList.First().Namespace + SUFFIX;
+            var name = typesToList.First().Namespace + SUFFIX;
 
-            AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
+            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName(name),
                 AssemblyBuilderAccess.Run
                 );
 
-            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
-            foreach (Type t in typesToList)
+            foreach (var t in typesToList)
                 InitType(t, moduleBuilder);
         }
 
@@ -86,10 +86,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             nameToType[typeName] = t;
 
-            foreach (FieldInfo field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+            foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
                 InitType(field.FieldType, moduleBuilder);
 
-            foreach (PropertyInfo prop in t.GetProperties())
+            foreach (var prop in t.GetProperties())
                 InitType(prop.PropertyType, moduleBuilder);
         }
 
@@ -135,7 +135,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
         {
-            TypeBuilder typeBuilder = moduleBuilder.DefineType(
+            var typeBuilder = moduleBuilder.DefineType(
                 GetNewTypeName(t),
                 TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
                 typeof(object)
@@ -143,16 +143,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             typeBuilder.DefineDefaultConstructor(MethodAttributes.Public);
 
-            foreach (PropertyInfo prop in GetAllProperties(t))
+            foreach (var prop in GetAllProperties(t))
             {
-                Type propertyType = prop.PropertyType;
+                var propertyType = prop.PropertyType;
 
-                FieldBuilder fieldBuilder = typeBuilder.DefineField(
+                var fieldBuilder = typeBuilder.DefineField(
                     "field_" + prop.Name,
                     propertyType,
                     FieldAttributes.Private);
 
-                PropertyBuilder propBuilder = typeBuilder.DefineProperty(
+                var propBuilder = typeBuilder.DefineProperty(
                     prop.Name,
                     prop.Attributes | PropertyAttributes.HasDefault,
                     propertyType,
@@ -163,13 +163,13 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                     AddCustomAttributeToProperty(customAttribute, propBuilder);
                 }
 
-                MethodBuilder getMethodBuilder = typeBuilder.DefineMethod(
+                var getMethodBuilder = typeBuilder.DefineMethod(
                     "get_" + prop.Name,
                     MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Final | MethodAttributes.Virtual | MethodAttributes.VtableLayoutMask,
                     propertyType,
                     Type.EmptyTypes);
 
-                ILGenerator getIL = getMethodBuilder.GetILGenerator();
+                var getIL = getMethodBuilder.GetILGenerator();
                 // For an instance property, argument zero is the instance. Load the 
                 // instance, then load the private field and return, leaving the
                 // field value on the stack.
@@ -179,13 +179,13 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
                 // Define the "set" accessor method for Number, which has no return
                 // type and takes one argument of type int (Int32).
-                MethodBuilder setMethodBuilder = typeBuilder.DefineMethod(
+                var setMethodBuilder = typeBuilder.DefineMethod(
                     "set_" + prop.Name,
                     getMethodBuilder.Attributes,
                     null,
                     new Type[] { propertyType });
 
-                ILGenerator setIL = setMethodBuilder.GetILGenerator();
+                var setIL = setMethodBuilder.GetILGenerator();
                 // Load the instance and then the numeric argument, then store the
                 // argument in the field.
                 setIL.Emit(OpCodes.Ldarg_0);
@@ -221,7 +221,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             ConstructorInfo longestCtor = null;
             // Get constructor with the largest number of parameters
-            foreach (ConstructorInfo cInfo in customAttribute.GetType().GetConstructors().
+            foreach (var cInfo in customAttribute.GetType().GetConstructors().
                 Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
                 longestCtor = cInfo;
 
@@ -230,7 +230,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             // For each constructor parameter, get corresponding (by name similarity) property and get its value
             var args = new object[longestCtor.GetParameters().Length];
-            int pos = 0;
+            var pos = 0;
             foreach (var consParamInfo in longestCtor.GetParameters())
             {
                 var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
@@ -280,7 +280,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         private static IEnumerable<PropertyInfo> GetAllProperties(Type t)
         {
             var props = new List<PropertyInfo>(t.GetProperties());
-            foreach (Type interfaceType in t.GetInterfaces())
+            foreach (var interfaceType in t.GetInterfaces())
                 props.AddRange(GetAllProperties(interfaceType));
 
             var names = new List<string>(props.Count);
@@ -328,7 +328,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public Type GetMappedTypeFor(string typeName)
         {
-            string name = typeName;
+            var name = typeName;
             if (typeName.EndsWith(SUFFIX, StringComparison.Ordinal))
             {
                 name = typeName.Substring(0, typeName.Length - SUFFIX.Length);
@@ -349,7 +349,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public T CreateInstance<T>(Action<T> action)
         {
-            T result = CreateInstance<T>();
+            var result = CreateInstance<T>();
 
             if (action != null)
                 action(result);
@@ -376,7 +376,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <returns></returns>
         public object CreateInstance(Type t)
         {
-            Type mapped = t;
+            var mapped = t;
             if (t.IsInterface || t.IsAbstract)
             {
                 mapped = GetMappedTypeFor(t);

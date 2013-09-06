@@ -30,7 +30,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.IsEmpty(((IBytesMessage)message).Content);
@@ -41,12 +41,12 @@
         [TestCase(ContentTypes.Binary)]
         public void Encode_WhenBinaryContentTypeWithBody_ReturnFilledBinaryMessage(string contentType)
         {
-            byte[] content = new byte[] { 2 };
+            var content = new byte[] { 2 };
 
             var transportMessage = new TransportMessage { Body = content };
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.AreEqual(content, ((IBytesMessage)message).Content);
@@ -60,7 +60,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsNull(message);
         }

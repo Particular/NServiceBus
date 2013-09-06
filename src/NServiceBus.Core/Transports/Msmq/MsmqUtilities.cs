@@ -108,14 +108,14 @@ namespace NServiceBus.Transports.Msmq
             if (q == null)
                 return null;
 
-            string[] arr = q.FormatName.Split('\\');
-            string queueName = arr[arr.Length - 1];
+            var arr = q.FormatName.Split('\\');
+            var queueName = arr[arr.Length - 1];
 
-            int directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
+            var directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
                 return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
 
-            int tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
+            var tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
                 return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
 

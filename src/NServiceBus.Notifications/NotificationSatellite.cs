@@ -43,7 +43,7 @@ namespace NServiceBus.Notifications
 
             using (var c = new SmtpClient())
             {
-                using (MailMessage mailMessage = sendEmail.Message.ToMailMessage())
+                using (var mailMessage = sendEmail.Message.ToMailMessage())
                 {
                     try
                     {
@@ -51,7 +51,7 @@ namespace NServiceBus.Notifications
                     }
                     catch (SmtpFailedRecipientsException ex)
                     {
-                        int originalRecipientCount = mailMessage.To.Count + mailMessage.Bcc.Count + mailMessage.CC.Count;
+                        var originalRecipientCount = mailMessage.To.Count + mailMessage.Bcc.Count + mailMessage.CC.Count;
                         if (ex.InnerExceptions.Length == originalRecipientCount)
                         {
                             // All messages failed.
@@ -61,7 +61,7 @@ namespace NServiceBus.Notifications
 
                         var sb = new StringBuilder();
 
-                        foreach (SmtpFailedRecipientException recipientException in ex.InnerExceptions)
+                        foreach (var recipientException in ex.InnerExceptions)
                         {
                             sb.AppendLine();
                             sb.AppendFormat("{0}", recipientException.FailedRecipient);

@@ -44,7 +44,7 @@
 
                 if (ShowDialogInSTA(openDialog) == DialogResult.OK)
                 {
-                    string licenseFileSelected = openDialog.FileName;
+                    var licenseFileSelected = openDialog.FileName;
 
                     if (ValidateLicenseFile(this, licenseFileSelected))
                     {

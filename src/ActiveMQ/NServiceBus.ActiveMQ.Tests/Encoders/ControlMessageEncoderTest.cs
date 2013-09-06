@@ -28,7 +28,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.IsEmpty(((IBytesMessage)message).Content);
@@ -37,11 +37,11 @@
         [Test]
         public void Encode_WhenControlMessageWithBody_ReturnFilledBinaryMessage()
         {
-            byte[] content = new byte[] { 2 };
+            var content = new byte[] { 2 };
             var transportMessage = new TransportMessage { Body = content };
             transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.AreEqual(content, ((IBytesMessage)message).Content);
@@ -52,7 +52,7 @@
         {
             var transportMessage = new TransportMessage();
 
-            IMessage message = testee.Encode(transportMessage, session.Object);
+            var message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsNull(message);
         }

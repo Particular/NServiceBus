@@ -216,7 +216,7 @@ namespace NServiceBus.Testing
 
             var handler = handlerCreationCallback.Invoke(bus);
 
-            bool isHandler = (from i in handler.GetType().GetInterfaces()
+            var isHandler = (from i in handler.GetType().GetInterfaces()
                               let args = i.GetGenericArguments()
                               where args.Length == 1
                               where MessageConventionExtensions.IsMessageType(args[0])

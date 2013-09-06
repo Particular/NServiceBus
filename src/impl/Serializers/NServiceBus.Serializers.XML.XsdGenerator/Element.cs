@@ -64,7 +64,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public static Element Scan(Type t, string name)
         {
-            Element e = new Element();
+            var e = new Element();
 
             if (t == typeof(Guid))
             {

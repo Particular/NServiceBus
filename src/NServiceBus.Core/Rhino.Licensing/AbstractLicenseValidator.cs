@@ -132,7 +132,7 @@ namespace Rhino.Licensing
                 }
                 Log.InfoFormat("License expiration date is {0}", ExpirationDate);
 
-                bool result = DateTime.UtcNow < ExpirationDate;
+                var result = DateTime.UtcNow < ExpirationDate;
 
                 if (!result)
                     throw new LicenseExpiredException("Expiration Date : " + ExpirationDate);
@@ -197,7 +197,7 @@ namespace Rhino.Licensing
 
         internal bool ValidateXmlDocumentLicense(XmlDocument doc)
         {
-            XmlNode id = doc.SelectSingleNode("/license/@id");
+            var id = doc.SelectSingleNode("/license/@id");
             if (id == null)
             {
                 Log.WarnFormat("Could not find id attribute in license:\r\n{0}", License);
@@ -206,7 +206,7 @@ namespace Rhino.Licensing
 
             UserId = new Guid(id.Value);
 
-            XmlNode date = doc.SelectSingleNode("/license/@expiration");
+            var date = doc.SelectSingleNode("/license/@expiration");
             if (date == null)
             {
                 Log.WarnFormat("Could not find expiration in license:\r\n{0}", License);
@@ -215,7 +215,7 @@ namespace Rhino.Licensing
 
             ExpirationDate = DateTime.ParseExact(date.Value, "yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture);
 
-            XmlNode licenseType = doc.SelectSingleNode("/license/@type");
+            var licenseType = doc.SelectSingleNode("/license/@type");
             if (licenseType == null)
             {
                 Log.WarnFormat("Could not find license type in {0}", licenseType);
@@ -224,7 +224,7 @@ namespace Rhino.Licensing
 
             LicenseType = (LicenseType)Enum.Parse(typeof(LicenseType), licenseType.Value);
 
-            XmlNode name = doc.SelectSingleNode("/license/name/text()");
+            var name = doc.SelectSingleNode("/license/name/text()");
             if (name == null)
             {
                 Log.WarnFormat("Could not find licensee's name in license:\r\n{0}", License);

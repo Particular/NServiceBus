@@ -56,7 +56,7 @@
                 Purge();
             }
 
-            for (int i = 0; i < maximumConcurrencyLevel; i++)
+            for (var i = 0; i < maximumConcurrencyLevel; i++)
             {
                 StartConsumer();
             }

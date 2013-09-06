@@ -18,7 +18,7 @@
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
         {
-            string messageId = message.Id;
+            var messageId = message.Id;
             Tuple<int, Exception> e;
 
             if (failuresPerMessage.TryGetValue(messageId, out e))
@@ -39,7 +39,7 @@
 
         public void ClearFailuresForMessage(TransportMessage message)
         {
-            string messageId = message.Id;
+            var messageId = message.Id;
             Tuple<int, Exception> e;
             failuresPerMessage.TryRemove(messageId, out e);
         }
@@ -54,7 +54,7 @@
         {
             try
             {
-                Exception e = exception;
+                var e = exception;
 
                 if (e is AggregateException)
                 {

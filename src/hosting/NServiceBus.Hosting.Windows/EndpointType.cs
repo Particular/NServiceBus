@@ -59,7 +59,7 @@
         {
             get
             {
-                object[] arr = type.GetCustomAttributes(typeof (EndpointNameAttribute), false);
+                var arr = type.GetCustomAttributes(typeof (EndpointNameAttribute), false);
                 if (arr.Length == 1)
                 {
                     return ((EndpointNameAttribute) arr[0]).Name;
@@ -83,7 +83,7 @@
         {
             get
             {
-                string serviceName = type.Namespace ?? type.Assembly.GetName().Name;
+                var serviceName = type.Namespace ?? type.Assembly.GetName().Name;
 
                 if (arguments.ServiceName != null)
                 {
@@ -96,7 +96,7 @@
 
         void AssertIsValid()
         {
-            ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
+            var constructor = type.GetConstructor(Type.EmptyTypes);
 
             if (constructor == null)
             {

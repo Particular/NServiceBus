@@ -114,7 +114,7 @@ namespace NServiceBus
         {
             get
             {
-                MessageIntentEnum messageIntent = default(MessageIntentEnum);
+                var messageIntent = default(MessageIntentEnum);
 
                 if (Headers.ContainsKey(NServiceBus.Headers.MessageIntent))
                 {

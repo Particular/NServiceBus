@@ -328,7 +328,7 @@ namespace NServiceBus.Serializers.XML.Test
         public void Culture()
         {
             var serializer = SerializerFactory.Create<MessageWithDouble>();
-            double val = 65.36;
+            var val = 65.36;
             var msg = new MessageWithDouble { Double = val };
 
             Thread.CurrentThread.CurrentCulture = new CultureInfo("de-DE");
@@ -395,7 +395,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
 
             o.Names = new List<IM1>();
-            for (int i = 0; i < number; i++)
+            for (var i = 0; i < number; i++)
             {
                 var m1 = mapper.CreateInstance<IM1>();
                 o.Names.Add(m1);
@@ -408,7 +408,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             o.MoreNames = o.Names.ToArray();
 
-            IMessage[] messages = new IMessage[] { o };
+            var messages = new IMessage[] { o };
 
             Time(messages, serializer);
         }
@@ -416,26 +416,26 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestDataContractSerializer()
         {
-            M2 o = CreateM2();
-            IMessage[] messages = new IMessage[] { o };
+            var o = CreateM2();
+            var messages = new IMessage[] { o };
 
-            DataContractSerializer dcs = new DataContractSerializer(typeof(ArrayList), new Type[] { typeof(M2), typeof(SomeEnum), typeof(M1), typeof(Risk), typeof(List<M1>) });
+            var dcs = new DataContractSerializer(typeof(ArrayList), new Type[] { typeof(M2), typeof(SomeEnum), typeof(M1), typeof(Risk), typeof(List<M1>) });
 
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             sw.Start();
 
-            XmlWriterSettings xws = new XmlWriterSettings();
+            var xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = false;
 
-            XmlReaderSettings xrs = new XmlReaderSettings();
+            var xrs = new XmlReaderSettings();
             xrs.IgnoreProcessingInstructions = true;
             xrs.ValidationType = ValidationType.None;
             xrs.IgnoreWhitespace = true;
             xrs.CheckCharacters = false;
             xrs.ConformanceLevel = ConformanceLevel.Auto;
 
-            for (int i = 0; i < numberOfIterations; i++)
-                using (MemoryStream stream = new MemoryStream())
+            for (var i = 0; i < numberOfIterations; i++)
+                using (var stream = new MemoryStream())
                     DataContractSerialize(xws, dcs, messages, stream);
 
             sw.Stop();
@@ -444,18 +444,18 @@ namespace NServiceBus.Serializers.XML.Test
             sw.Reset();
 
             File.Delete("a.xml");
-            using (FileStream fs = File.Open("a.xml", FileMode.OpenOrCreate))
+            using (var fs = File.Open("a.xml", FileMode.OpenOrCreate))
                 DataContractSerialize(xws, dcs, messages, fs);
 
-            MemoryStream s = new MemoryStream();
+            var s = new MemoryStream();
             DataContractSerialize(xws, dcs, messages, s);
-            byte[] buffer = s.GetBuffer();
+            var buffer = s.GetBuffer();
             s.Dispose();
 
             sw.Start();
 
-            for (int i = 0; i < numberOfIterations; i++)
-                using (XmlReader reader = XmlReader.Create(new MemoryStream(buffer), xrs))
+            for (var i = 0; i < numberOfIterations; i++)
+                using (var reader = XmlReader.Create(new MemoryStream(buffer), xrs))
                     dcs.ReadObject(reader);
 
             sw.Stop();
@@ -585,8 +585,8 @@ namespace NServiceBus.Serializers.XML.Test
 
         private void DataContractSerialize(XmlWriterSettings xws, DataContractSerializer dcs, IMessage[] messages, Stream str)
         {
-            ArrayList o = new ArrayList(messages);
-            using (XmlWriter xwr = XmlWriter.Create(str, xws))
+            var o = new ArrayList(messages);
+            using (var xwr = XmlWriter.Create(str, xws))
             {
                 dcs.WriteStartObject(xwr, o);
                 dcs.WriteObjectContent(xwr, o);
@@ -596,7 +596,7 @@ namespace NServiceBus.Serializers.XML.Test
 
         private M2 CreateM2()
         {
-            M2 o = new M2();
+            var o = new M2();
             o.Id = Guid.NewGuid();
             o.Age = 10;
             o.Address = Guid.NewGuid().ToString();
@@ -617,7 +617,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
 
             o.Names = new List<M1>();
-            for (int i = 0; i < number; i++)
+            for (var i = 0; i < number; i++)
             {
                 var m1 = new M1();
                 o.Names.Add(m1);
@@ -635,11 +635,11 @@ namespace NServiceBus.Serializers.XML.Test
 
         private void Time(IMessage[] messages, IMessageSerializer serializer)
         {
-            Stopwatch watch = new Stopwatch();
+            var watch = new Stopwatch();
             watch.Start();
 
-            for (int i = 0; i < numberOfIterations; i++)
-                using (MemoryStream stream = new MemoryStream())
+            for (var i = 0; i < numberOfIterations; i++)
+                using (var stream = new MemoryStream())
                     serializer.Serialize(messages, stream);
 
             watch.Stop();
@@ -647,16 +647,16 @@ namespace NServiceBus.Serializers.XML.Test
 
             watch.Reset();
 
-            MemoryStream s = new MemoryStream();
+            var s = new MemoryStream();
             serializer.Serialize(messages, s);
-            byte[] buffer = s.GetBuffer();
+            var buffer = s.GetBuffer();
             s.Dispose();
 
             watch.Start();
 
             object[] result = null;
 
-            for (int i = 0; i < numberOfIterations; i++)
+            for (var i = 0; i < numberOfIterations; i++)
                 using (var forDeserializing = new MemoryStream(buffer))
                     result = serializer.Deserialize(forDeserializing);
 
@@ -668,18 +668,18 @@ namespace NServiceBus.Serializers.XML.Test
         {
             try
             {
-                XmlReaderSettings settings = new XmlReaderSettings();
+                var settings = new XmlReaderSettings();
                 settings.Schemas.Add(null, "schema0.xsd");
                 settings.Schemas.Add(null, "schema1.xsd");
                 settings.ValidationType = ValidationType.Schema;
-                XmlDocument document = new XmlDocument();
+                var document = new XmlDocument();
                 document.Load("XMLFile1.xml");
-                XmlReader rdr = XmlReader.Create(new StringReader(document.InnerXml), settings);
+                var rdr = XmlReader.Create(new StringReader(document.InnerXml), settings);
                 while (rdr.Read()) { }
             }
             catch (Exception e)
             {
-                string s = e.Message;
+                var s = e.Message;
             }
         }
         [Test]

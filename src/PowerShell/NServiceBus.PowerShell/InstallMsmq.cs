@@ -14,7 +14,7 @@
         {
             if (ShouldProcess(Environment.MachineName))
             {
-                bool msmqIsGood = MsmqSetup.StartMsmqIfNecessary(Force);
+                var msmqIsGood = MsmqSetup.StartMsmqIfNecessary(Force);
 
                 if (!msmqIsGood && !Force)
                 {

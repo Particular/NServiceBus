@@ -81,11 +81,11 @@ namespace NServiceBus.Hosting.Tests
         {
             Assembly BuildTestEndpointAssembly(out Type endpointType)
             {
-                AppDomain appDomain = AppDomain.CurrentDomain;
+                var appDomain = AppDomain.CurrentDomain;
                 var aname = new AssemblyName("MyDynamicAssembly");
-                AssemblyBuilder assemBuilder = appDomain.DefineDynamicAssembly(aname, AssemblyBuilderAccess.Run);
-                ModuleBuilder modBuilder = assemBuilder.DefineDynamicModule("DynModule");
-                TypeBuilder tb = modBuilder.DefineType("TestEndpoint", TypeAttributes.Public, typeof (Object),
+                var assemBuilder = appDomain.DefineDynamicAssembly(aname, AssemblyBuilderAccess.Run);
+                var modBuilder = assemBuilder.DefineDynamicModule("DynModule");
+                var tb = modBuilder.DefineType("TestEndpoint", TypeAttributes.Public, typeof (Object),
                                                        new[] {typeof (IConfigureThisEndpoint)});
                 endpointType = tb.CreateType();
                 return assemBuilder;
@@ -96,7 +96,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 AssemblyScannerResults = new AssemblyScannerResults();
                 Type endpointTypeInAssembly;
-                Assembly dynamicAssembly = BuildTestEndpointAssembly(out endpointTypeInAssembly);
+                var dynamicAssembly = BuildTestEndpointAssembly(out endpointTypeInAssembly);
                 AssemblyScannerResults.Assemblies.Add(dynamicAssembly);
                 Sut = new EndpointTypeDeterminer(AssemblyScannerResults, () => null);
 

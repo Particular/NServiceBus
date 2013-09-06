@@ -69,11 +69,11 @@ namespace NServiceBus
         /// <returns></returns>
         public IEnumerator<Assembly> GetEnumerator()
         {
-            Predicate<string> exclude = assembliesToExclude != null 
+            var exclude = assembliesToExclude != null 
                 ? name => assembliesToExclude.Any(skip => Configure.IsMatch(skip, name))
                 : (Predicate<string>) null;
 
-            Predicate<string> include = assembliesToInclude != null
+            var include = assembliesToInclude != null
                 ? name => assembliesToInclude.Any(skip => Configure.IsMatch(skip, name))
                 : (Predicate<string>) null;
 

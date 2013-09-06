@@ -16,7 +16,7 @@ namespace NServiceBus.Testing
         public void Validate(params ActualInvocation[] invocations)
         {
             var calls = invocations.Where(i => typeof(T) == i.GetType());
-            bool success = calls.Any(c =>
+            var success = calls.Any(c =>
                                          {
                                              var result = Validate(c as T);
                                              

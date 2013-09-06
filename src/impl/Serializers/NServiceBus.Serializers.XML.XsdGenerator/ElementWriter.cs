@@ -22,7 +22,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
         public string Write()
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
             builder.AppendFormat(startFormat, e.MinOccurs);
 

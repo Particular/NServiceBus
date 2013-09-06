@@ -45,7 +45,7 @@
         {
             SetupMessageCreation();
 
-            TransportMessage transportMessage = CreateTransportMessage();
+            var transportMessage = CreateTransportMessage();
 
             testee.CreateJmsMessage(transportMessage, session.Object);
 
@@ -57,7 +57,7 @@
         {
             SetupMessageCreation();
 
-            TransportMessage transportMessage = CreateTransportMessage();
+            var transportMessage = CreateTransportMessage();
             transportMessage.Headers[Headers.EnclosedMessageTypes] = typeof(string).AssemblyQualifiedName;
 
             var message = testee.CreateJmsMessage(transportMessage, session.Object);
@@ -70,7 +70,7 @@
         {
             SetupMessageCreation();
 
-            TransportMessage transportMessage = CreateTransportMessage();
+            var transportMessage = CreateTransportMessage();
             transportMessage.Headers[Headers.EnclosedMessageTypes] = string.Format("{0};{1}", typeof(string).AssemblyQualifiedName, typeof(int).AssemblyQualifiedName);
 
             var message = testee.CreateJmsMessage(transportMessage, session.Object);
@@ -150,7 +150,7 @@
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsDefined_ShouldAssignIt()
         {
-            string EnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
+            var EnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
 
             var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.EnclosedMessageTypes] = EnclosedMessageTypes;
@@ -163,7 +163,7 @@
         [Test]
         public void CreateTransportMessage_IfEnclosedMessageTypesIsNotDefined_ShouldAssignInterpretedTypeFromJmsMessage()
         {
-            string ExpectedEnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
+            var ExpectedEnclosedMessageTypes = typeof(string).AssemblyQualifiedName;
             const string JmsMessageType = "JmsMessageType";
             var message = CreateTextMessage(string.Empty);
             message.NMSType = JmsMessageType;

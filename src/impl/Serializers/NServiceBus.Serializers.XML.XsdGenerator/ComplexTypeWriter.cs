@@ -31,7 +31,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
 
             builder.AppendLine(beginSequence);
 
-            foreach (Element e in complex.Elements)
+            foreach (var e in complex.Elements)
                 builder.AppendFormat(ElementWriter.Write(e));
 
             builder.AppendLine(endSequence);

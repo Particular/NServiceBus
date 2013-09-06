@@ -177,7 +177,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<TFirst>()
         {
-            Type[] args = typeof(TFirst).GetGenericArguments();
+            var args = typeof(TFirst).GetGenericArguments();
             if (args.Length == 1)
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
@@ -207,7 +207,7 @@ namespace NServiceBus.Unicast.Config
             LoadMessageHandlersCalled = true;
             var types = new List<Type>(TypesToScan);
 
-            foreach (Type t in orderedTypes)
+            foreach (var t in orderedTypes)
                 types.Remove(t);
 
             types.InsertRange(0, orderedTypes);
@@ -227,7 +227,7 @@ namespace NServiceBus.Unicast.Config
             var handlerRegistry = new MessageHandlerRegistry();
             var handlers = new List<Type>();
 
-            foreach (Type t in types.Where(IsMessageHandler))
+            foreach (var t in types.Where(IsMessageHandler))
             {
                 Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
@@ -417,11 +417,11 @@ namespace NServiceBus.Unicast.Config
         {
             if (t.IsGenericType)
             {
-                Type[] args = t.GetGenericArguments();
+                var args = t.GetGenericArguments();
                 if (args.Length != 1)
                     return null;
 
-                Type handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
+                var handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
                 if (handlerType.IsAssignableFrom(t))
                     return args[0];
             }

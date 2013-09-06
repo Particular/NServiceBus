@@ -10,7 +10,7 @@ namespace NServiceBus.Serializers.Binary
 
         public void GetObjectData(object obj, SerializationInfo info, StreamingContext context)
         {
-            XDocument document = (XDocument)obj;
+            var document = (XDocument)obj;
             info.AddValue(FieldName, document.ToString(SaveOptions.DisableFormatting));
         }
 

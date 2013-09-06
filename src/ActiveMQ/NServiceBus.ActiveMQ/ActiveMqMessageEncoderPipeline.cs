@@ -23,7 +23,7 @@ namespace NServiceBus.Transports.ActiveMQ
         {
             foreach (var encoder in encoders)
             {
-                IMessage encoded = encoder.Encode(message, session);
+                var encoded = encoder.Encode(message, session);
                 if (encoded != null)
                 {
                     return encoded;

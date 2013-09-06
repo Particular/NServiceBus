@@ -12,7 +12,7 @@ namespace NServiceBus.Transports.ActiveMQ.Decoders
             {
                 // currently there is an issue in active mq NMS, accessing the content property 
                 // multiple times will return different results
-                byte[] content = decoded.Content;
+                var content = decoded.Content;
                 if (content != null)
                 {
                     transportMessage.Body = content;

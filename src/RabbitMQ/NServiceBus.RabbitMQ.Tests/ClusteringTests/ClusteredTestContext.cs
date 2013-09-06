@@ -60,7 +60,7 @@
         }
 
         void StartRabbitMqServer(RabbitNode node) {
-            Dictionary<string,string> envVars = new Dictionary<string,string>
+            var envVars = new Dictionary<string,string>
                 {
                     {"RABBITMQ_NODENAME", node.Name},
                     {"RABBITMQ_NODE_PORT", node.Port.ToString(CultureInfo.InvariantCulture)},
@@ -76,11 +76,11 @@
         }
 
         static void InvokeExternalProgram(string program, string args, Dictionary<string,string> customEnvVars = null) {
-            ProcessStartInfo startInfo = new ProcessStartInfo {UseShellExecute = false, RedirectStandardOutput = true, FileName = program, Arguments = args,CreateNoWindow = true,WindowStyle = ProcessWindowStyle.Hidden};
+            var startInfo = new ProcessStartInfo {UseShellExecute = false, RedirectStandardOutput = true, FileName = program, Arguments = args,CreateNoWindow = true,WindowStyle = ProcessWindowStyle.Hidden};
             var environmentVariables = startInfo.EnvironmentVariables;
 
             if (customEnvVars != null) {
-                foreach (KeyValuePair<string, string> customEnvVar in customEnvVars) {
+                foreach (var customEnvVar in customEnvVars) {
                     Logger.Debug("Setting env var {0} to '{1}'", customEnvVar.Key, customEnvVar.Value);
                     if (environmentVariables.ContainsKey(customEnvVar.Key)) {
                         environmentVariables[customEnvVar.Key] = customEnvVar.Value;
@@ -91,10 +91,10 @@
                 }
             }
 
-            string programName = Path.GetFileName(program);
+            var programName = Path.GetFileName(program);
             Logger.Debug("Running {0} with args: '{1}'", programName, args);
-            Process p = Process.Start(startInfo);
-            string output = p.StandardOutput.ReadToEnd();
+            var p = Process.Start(startInfo);
+            var output = p.StandardOutput.ReadToEnd();
             output = output.Replace("\n", "  "); // replace line breaks for more terse logging output
             p.WaitForExit();
             Logger.Debug("Result: {0}", output);
@@ -249,7 +249,7 @@
 
         protected string GetConnectionString() {
             var hosts = RabbitNodes.Values.OrderBy(n => n.Port).Select(n => string.Format("{0}:{1}", RabbitNode.LocalHostName, n.Port));
-            string connectionString = string.Concat("host=" ,string.Join(",", hosts));
+            var connectionString = string.Concat("host=" ,string.Join(",", hosts));
             Logger.Info("Connection string is: '{0}'", connectionString);
             return connectionString;
         }

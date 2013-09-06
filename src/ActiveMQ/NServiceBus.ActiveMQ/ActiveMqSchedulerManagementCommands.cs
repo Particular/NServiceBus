@@ -53,7 +53,7 @@
 
         public void ProcessJob(ActiveMqSchedulerManagementJob job)
         {
-            IMessage message = job.Consumer.ReceiveNoWait();
+            var message = job.Consumer.ReceiveNoWait();
             while (message != null)
             {
                 RemoveDeferredMessages(message.Properties[ScheduledMessage.AMQ_SCHEDULED_ID]);

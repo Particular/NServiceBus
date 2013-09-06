@@ -32,7 +32,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (t == typeof(Object))
                 return "xs:anyType";
 
-            Type arrayType = GetEnumeratedTypeFrom(t);
+            var arrayType = GetEnumeratedTypeFrom(t);
 
             if (arrayType != null)
                 return Strings.ArrayOf + GetTypeNameFrom(arrayType);
@@ -45,9 +45,9 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (t.IsArray)
                 return t.GetElementType();
 
-            foreach (Type interfaceType in t.GetInterfaces())
+            foreach (var interfaceType in t.GetInterfaces())
             {
-                Type[] genericArgs = interfaceType.GetGenericArguments();
+                var genericArgs = interfaceType.GetGenericArguments();
                 if (genericArgs.Length == 1)
                     if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]).IsAssignableFrom(t))
                         return genericArgs[0];

@@ -181,7 +181,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
             using (var provider = new MD5CryptoServiceProvider())
             {
                 var inputBytes = Encoding.Default.GetBytes(uniqueProperty.Value.ToString());
-                byte[] hashBytes = provider.ComputeHash(inputBytes);
+                var hashBytes = provider.ComputeHash(inputBytes);
 
                 // generate a guid from the hash:
                 var value = new Guid(hashBytes);

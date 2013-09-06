@@ -39,7 +39,7 @@ namespace NServiceBus.Serializers.Json.Internal
                         reader.Value));
             }
 
-            string value = (string)reader.Value;
+            var value = (string)reader.Value;
             if (objectType == typeof(XDocument))
             {
                 try
