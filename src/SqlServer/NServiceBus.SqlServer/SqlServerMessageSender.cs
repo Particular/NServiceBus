@@ -12,32 +12,27 @@
     /// </summary>
     public class SqlServerMessageSender : ISendMessages, IDisposable
     {
-        private const string SqlSend =
+        const string SqlSend =
             @"INSERT INTO [{0}] ([Id],[CorrelationId],[ReplyToAddress],[Recoverable],[Expires],[Headers],[Body]) 
                                     VALUES (@Id,@CorrelationId,@ReplyToAddress,@Recoverable,@Expires,@Headers,@Body)";
 
-        private static readonly JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
-        private readonly ThreadLocal<SqlTransaction> currentTransaction = new ThreadLocal<SqlTransaction>();
-        private bool disposed;
+        static JsonMessageSerializer Serializer = new JsonMessageSerializer(null);
+        ThreadLocal<SqlTransaction> currentTransaction = new ThreadLocal<SqlTransaction>();
 
         public string ConnectionString { get; set; }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (currentTransaction != null)
             {
                 currentTransaction.Dispose();
             }
-
-            disposed = true;
         }
 
         /// <summary>

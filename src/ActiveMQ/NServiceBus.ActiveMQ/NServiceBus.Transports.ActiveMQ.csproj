@@ -46,6 +46,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\lib\Apache.NMS-CustomBuild\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
+    <Reference Include="Janitor">
+      <HintPath>..\..\..\packages\Janitor.Fody.0.3.0\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />

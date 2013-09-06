@@ -7,11 +7,13 @@ namespace NServiceBus.Transports.RabbitMQ
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
     using global::RabbitMQ.Client.Exceptions;
+    using Janitor;
     using Logging;
 
     /// <summary>
     /// A connection that attempts to reconnect if the inner connection is closed.
     /// </summary>
+    [SkipWeaving]
     public class PersistentConnection : IPersistentConnection, IConnection
     {
         public PersistentConnection(IConnectionFactory connectionFactory, TimeSpan retryDelay)

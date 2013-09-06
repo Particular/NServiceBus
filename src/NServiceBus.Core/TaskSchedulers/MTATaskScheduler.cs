@@ -10,9 +10,11 @@ namespace System.Threading.Tasks.Schedulers
 {
     using Collections.Concurrent;
     using Collections.Generic;
+    using Janitor;
     using Linq;
 
     /// <summary>Provides a scheduler that uses MTA threads.</summary>
+    [SkipWeaving]
     public sealed class MTATaskScheduler : TaskScheduler, IDisposable
     {
         private bool disposed;
@@ -96,6 +98,7 @@ namespace System.Threading.Tasks.Schedulers
                 return;
             }
 
+            disposed = true;
             if (tasks != null)
             {
                 // Indicate that no new tasks will be coming in
@@ -112,7 +115,6 @@ namespace System.Threading.Tasks.Schedulers
                 tasks = null;
             }
 
-            disposed = true;
         }
     }
 }

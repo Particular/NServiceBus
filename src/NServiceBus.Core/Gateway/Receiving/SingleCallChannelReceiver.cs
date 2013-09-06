@@ -37,11 +37,11 @@
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (channelReceiver != null)
             {
                 channelReceiver.DataReceived -= DataReceivedOnChannel;
@@ -51,8 +51,6 @@
                 }
                 channelReceiver.Dispose();
             }
-
-            disposed = true;
         }
 
         void MessageReceivedOnOldChannel(object sender, MessageReceivedOnChannelArgs e)
@@ -198,6 +196,5 @@
             receiver;
 
         IChannelReceiver channelReceiver;
-        bool disposed;
     }
 }

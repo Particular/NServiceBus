@@ -446,19 +446,17 @@ namespace NServiceBus.Unicast.Transport
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             Stop();
 
             if (currentReceivePerformanceDiagnostics != null)
             {
                 currentReceivePerformanceDiagnostics.Dispose();
             }
-
-            disposed = true;
         }
 
 
@@ -466,7 +464,6 @@ namespace NServiceBus.Unicast.Transport
         bool isStarted;
         ThroughputLimiter throughputLimiter;
         FirstLevelRetries firstLevelRetries;
-        bool disposed;
 
         [ThreadStatic]
         static volatile bool needToAbort;

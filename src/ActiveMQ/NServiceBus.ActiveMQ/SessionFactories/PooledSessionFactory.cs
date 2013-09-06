@@ -6,10 +6,9 @@
 
     public class PooledSessionFactory : ISessionFactory
     {
-        private readonly IConnectionFactory connectionFactory;
-        private readonly ConcurrentBag<ISession> sessionPool = new ConcurrentBag<ISession>();
-        private readonly ConcurrentDictionary<ISession, IConnection> connections = new ConcurrentDictionary<ISession, IConnection>();
-        private bool disposed;
+        IConnectionFactory connectionFactory;
+        ConcurrentBag<ISession> sessionPool = new ConcurrentBag<ISession>();
+        ConcurrentDictionary<ISession, IConnection> connections = new ConcurrentDictionary<ISession, IConnection>();
 
         public PooledSessionFactory(IConnectionFactory connectionFactory)
         {
@@ -55,17 +54,18 @@
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
-            foreach (var connection in connections)
+        public void DisposeManaged()
+        {
+            if (connections != null)
             {
-                connection.Value.Close();
+                foreach (var connection in connections)
+                {
+                    connection.Value.Close();
+                }
             }
-
-            disposed = true;
         }
     }
 }

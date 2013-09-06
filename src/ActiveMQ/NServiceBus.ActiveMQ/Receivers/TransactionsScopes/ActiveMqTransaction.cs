@@ -5,11 +5,9 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
     public class ActiveMqTransaction : ITransactionScope
     {
-        private readonly ISessionFactory sessionFactory;
-        private readonly ISession session;
-
-        bool disposed;
-        private bool doRollback = true;
+        ISessionFactory sessionFactory;
+        ISession session;
+        bool doRollback = true;
 
         public ActiveMqTransaction(ISessionFactory sessionFactory, ISession session)
         {
@@ -31,19 +29,17 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
-            // Dispose managed resources.
+        public void DisposeManaged()
+        {
             if (doRollback)
             {
                 session.Rollback();
             }
 
             sessionFactory.RemoveSessionForCurrentThread();
-            disposed = true;
         }
     }
 }

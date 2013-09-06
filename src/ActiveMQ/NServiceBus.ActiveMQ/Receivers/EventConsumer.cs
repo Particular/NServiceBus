@@ -5,12 +5,11 @@
 
     public class EventConsumer : ITopicSubscriptionListener, IConsumeEvents
     {
-        private readonly IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
-        private readonly INotifyTopicSubscriptions notifyTopicSubscriptions;
-        private readonly IProcessMessages messageProcessor;
-        private bool disposed;
-        private string consumerName;
-        private string internalConsumerName;
+        IDictionary<string, IMessageConsumer> topicConsumers = new Dictionary<string, IMessageConsumer>();
+        INotifyTopicSubscriptions notifyTopicSubscriptions;
+        IProcessMessages messageProcessor;
+        string consumerName;
+        string internalConsumerName;
 
         public EventConsumer(INotifyTopicSubscriptions notifyTopicSubscriptions, IProcessMessages messageProcessor)
         {
@@ -47,17 +46,18 @@
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
-            foreach (var messageConsumer in topicConsumers)
+        public void DisposeManaged()
+        {
+            if (topicConsumers != null)
             {
-                messageConsumer.Value.Dispose();
+                foreach (var messageConsumer in topicConsumers)
+                {
+                    messageConsumer.Value.Dispose();
+                }
             }
-
-            disposed = true;
         }
 
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)

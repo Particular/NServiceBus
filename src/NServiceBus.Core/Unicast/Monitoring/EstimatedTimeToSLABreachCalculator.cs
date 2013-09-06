@@ -8,19 +8,18 @@ namespace NServiceBus.Unicast.Monitoring
 
     public class EstimatedTimeToSLABreachCalculator : IDisposable
     {
+
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (counter != null)
             {
                 counter.Dispose();
             }
-
-            disposed = true;
         }
 
         /// <summary>
@@ -141,7 +140,6 @@ namespace NServiceBus.Unicast.Monitoring
         const int MaxDataPoints = 10;
         readonly List<DataPoint> dataPoints = new List<DataPoint>();
         PerformanceCounter counter;
-        bool disposed;
         TimeSpan endpointSLA;
         Timer timer;
 

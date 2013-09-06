@@ -12,16 +12,15 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
     public class MessageProcessor : IProcessMessages
     {
-        private readonly IActiveMqMessageMapper activeMqMessageMapper;
-        private readonly IActiveMqPurger purger;
-        private readonly ISessionFactory sessionFactory;
-        private readonly ITransactionScopeFactory transactionScopeFactory;
-        readonly AutoResetEvent resetEvent = new AutoResetEvent(true);
+        IActiveMqMessageMapper activeMqMessageMapper;
+        IActiveMqPurger purger;
+        ISessionFactory sessionFactory;
+        ITransactionScopeFactory transactionScopeFactory;
+        AutoResetEvent resetEvent = new AutoResetEvent(true);
 
-        private volatile bool stop;
-        private ISession session;
-        private TransactionSettings transactionSettings;
-        private bool disposed;
+        volatile bool stop;
+        ISession session;
+        TransactionSettings transactionSettings;
 
         public Action<TransportMessage, Exception> EndProcessMessage { get; set; }
         public Func<TransportMessage, bool> TryProcessMessage { get; set; }
@@ -54,17 +53,19 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (sessionFactory != null)
             {
                 sessionFactory.Release(session);
             }
-
-            disposed = true;
+            if (resetEvent != null)
+            {
+                resetEvent.Dispose();
+            }
         }
 
         public void ProcessMessage(IMessage message)

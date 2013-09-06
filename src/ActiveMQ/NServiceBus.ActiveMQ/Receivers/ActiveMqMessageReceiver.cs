@@ -7,14 +7,11 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
     public class ActiveMqMessageReceiver : INotifyMessageReceived
     {
-        private readonly IConsumeEvents eventConsumer;
-        private readonly IProcessMessages messageProcessor;
-        private IMessageConsumer defaultConsumer;
-        private bool disposed;
-
-        public ActiveMqMessageReceiver(
-            IConsumeEvents eventConsumer,
-            IProcessMessages messageProcessor)
+        IConsumeEvents eventConsumer;
+        IProcessMessages messageProcessor;
+        IMessageConsumer defaultConsumer;
+        
+        public ActiveMqMessageReceiver(IConsumeEvents eventConsumer,IProcessMessages messageProcessor)
         {
             this.eventConsumer = eventConsumer;
             this.messageProcessor = messageProcessor;
@@ -22,8 +19,11 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         public void Dispose()
         {
-            if (disposed) return;
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             try
             {
                 if (eventConsumer != null)
@@ -43,8 +43,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             {
                 Logger.Warn("Failed to dispose the receiver",ex);
             }
-
-            disposed = true;
         }
 
         public void Start(Address address, TransactionSettings transactionSettings)

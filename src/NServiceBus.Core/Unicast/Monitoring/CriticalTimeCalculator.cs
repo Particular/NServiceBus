@@ -13,11 +13,14 @@ namespace NServiceBus.Unicast.Monitoring
         TimeSpan maxDelta = TimeSpan.FromSeconds(2);
         DateTime timeOfLastCounter;
         Timer timer;
-        bool disposed;
 
         public void Dispose()
         {
-            disposed = true;
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
             if (counter != null)
             {
                 counter.Dispose();
@@ -36,11 +39,6 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="processingEnded"></param>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
             counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);
 
             timeOfLastCounter = processingEnded;
@@ -54,11 +52,6 @@ namespace NServiceBus.Unicast.Monitoring
         /// </summary>
         public void Initialize(PerformanceCounter cnt)
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
             counter = cnt;
             timer = new Timer(ClearPerfCounter, null, 0, 2000);
         }

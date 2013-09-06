@@ -15,11 +15,6 @@
 
         public IConnection GetPublishConnection()
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
             lock (connectionFactory)
             {
@@ -29,11 +24,6 @@
 
         public IConnection GetConsumeConnection()
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
             lock (connectionFactory)
             {
@@ -43,11 +33,6 @@
 
         public IConnection GetAdministrationConnection()
         {
-            if (disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
             //note: The purpose is there so that we/users can add more advanced connection managers in the future
             lock (connectionFactory)
             {
@@ -57,7 +42,11 @@
 
         public void Dispose()
         {
-            disposed = true;
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
 
             if (connectionConsume != null)
             {
@@ -78,6 +67,5 @@
         PersistentConnection connectionConsume;
         PersistentConnection connectionAdministration;
         PersistentConnection connectionPublish;
-        bool disposed;
     }
 }

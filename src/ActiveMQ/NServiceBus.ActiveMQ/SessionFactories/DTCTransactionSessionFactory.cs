@@ -7,9 +7,8 @@
 
     public class DTCTransactionSessionFactory : ISessionFactory
     {
-        private readonly ISessionFactory pooledSessionFactory;
-        private readonly ConcurrentDictionary<string, ISession> sessionsForTransactions = new ConcurrentDictionary<string, ISession>();
-        private bool disposed;
+        ISessionFactory pooledSessionFactory;
+        ConcurrentDictionary<string, ISession> sessionsForTransactions = new ConcurrentDictionary<string, ISession>();
 
         public DTCTransactionSessionFactory(ISessionFactory pooledSessionFactory) 
         {
@@ -41,7 +40,7 @@
             pooledSessionFactory.Release(session);
         }
 
-        private ISession GetSessionForTransaction()
+        ISession GetSessionForTransaction()
         {
             var session = pooledSessionFactory.GetSession();
 
@@ -50,7 +49,7 @@
             return session;
         }
 
-        private void ReleaseSessionForTransaction(Transaction transaction)
+        void ReleaseSessionForTransaction(Transaction transaction)
         {
             ISession session;
             sessionsForTransactions.TryRemove(transaction.TransactionInformation.LocalIdentifier, out session);
@@ -58,7 +57,7 @@
         }
 
         [ThreadStatic]
-        private static string transactionId;
+        static string transactionId;
 
         public virtual void SetSessionForCurrentThread(ISession session)
         {
@@ -74,17 +73,15 @@
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (pooledSessionFactory != null)
             {
                 pooledSessionFactory.Dispose();
             }
-
-            disposed = true;
         }
     }
 }

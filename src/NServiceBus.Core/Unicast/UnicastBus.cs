@@ -941,16 +941,14 @@ namespace NServiceBus.Unicast
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             Shutdown();
 
             Configure.Instance.Builder.Dispose();
-
-            disposed = true;
         }
 
 
@@ -1564,6 +1562,5 @@ namespace NServiceBus.Unicast
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
-        bool disposed;
     }
 }

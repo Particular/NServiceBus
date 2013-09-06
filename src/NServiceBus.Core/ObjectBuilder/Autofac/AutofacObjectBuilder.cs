@@ -18,7 +18,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
 #endif
     {
         ILifetimeScope container;
-        bool disposed;
 
         ///<summary>
         /// Instantiates the class utilizing the given container.

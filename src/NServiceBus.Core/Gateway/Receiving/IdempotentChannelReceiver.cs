@@ -35,18 +35,16 @@ namespace NServiceBus.Gateway.Receiving
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (channelReceiver != null)
             {
                 channelReceiver.DataReceived -= DataReceivedOnChannel;
                 channelReceiver.Dispose();
             }
-
-            disposed = true;
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
@@ -192,9 +190,8 @@ namespace NServiceBus.Gateway.Receiving
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));
 
-        readonly IChannelFactory channelFactory;
-        readonly IPersistMessages persister;
+        IChannelFactory channelFactory;
+        IPersistMessages persister;
         IChannelReceiver channelReceiver;
-        bool disposed;
     }
 }

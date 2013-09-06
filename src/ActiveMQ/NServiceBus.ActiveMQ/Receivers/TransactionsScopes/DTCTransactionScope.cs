@@ -7,11 +7,9 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
     public class DTCTransactionScope : ITransactionScope
     {
-        private readonly ISessionFactory sessionFactory;
-
-        private readonly TransactionScope transactionScope;
-        private bool complete;
-        bool disposed;
+        ISessionFactory sessionFactory;
+        TransactionScope transactionScope;
+        bool complete;
 
         public DTCTransactionScope(ISession session, TransactionOptions transactionOptions, ISessionFactory sessionFactory)
         {
@@ -22,11 +20,11 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (sessionFactory != null)
             {
                 sessionFactory.RemoveSessionForCurrentThread();
@@ -39,8 +37,6 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
             {
                 throw new Exception();
             }
-
-            disposed = true;
         }
 
 

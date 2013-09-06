@@ -6,10 +6,9 @@
 
     public class ActiveMqTransactionSessionFactory : ISessionFactory
     {
-        private readonly ISessionFactory pooledSessionFactory;
-        private readonly ConcurrentDictionary<int, ISession> sessionsForThreads = new ConcurrentDictionary<int, ISession>();
-        bool disposed;
-
+        ISessionFactory pooledSessionFactory;
+        ConcurrentDictionary<int, ISession> sessionsForThreads = new ConcurrentDictionary<int, ISession>();
+        
         public ActiveMqTransactionSessionFactory(ISessionFactory pooledSessionFactory)
         {
             this.pooledSessionFactory = pooledSessionFactory;
@@ -50,17 +49,15 @@
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (pooledSessionFactory != null)
             {
                 pooledSessionFactory.Dispose();
             }
-
-            disposed = true;
         }
     }
 }

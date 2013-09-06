@@ -48,7 +48,6 @@ namespace NServiceBus.ObjectBuilder.Common
             }
         }
 
-        #region IConfigureComponents Members
         IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
             Container.Configure(concreteComponent, instanceLifecycle);
@@ -132,9 +131,6 @@ namespace NServiceBus.ObjectBuilder.Common
             return Container.HasComponent(componentType);
         }
 
-        #endregion
-
-        #region IBuilder Members
 
         IBuilder IBuilder.CreateChildBuilder()
         {
@@ -146,17 +142,15 @@ namespace NServiceBus.ObjectBuilder.Common
 
         public void Dispose()
         {
-            if (disposed)
-            {
-                return;
-            }
+            //Injected at compile time
+        }
 
+        public void DisposeManaged()
+        {
             if (Container != null)
             {
                 Container.Dispose();
             }
-
-            disposed = true;
         }
 
         T IBuilder.Build<T>()
@@ -196,8 +190,6 @@ namespace NServiceBus.ObjectBuilder.Common
             }
         }
 
-        #endregion
-
         static DependencyLifecycle MapToDependencyLifecycle(ComponentCallModelEnum callModel)
         {
             switch (callModel)
@@ -213,8 +205,7 @@ namespace NServiceBus.ObjectBuilder.Common
             throw new ArgumentException("Unhandled component call model: " + callModel);
         }
 
-        private bool disposed;
-        private static SynchronizedInvoker sync;
-        private IContainer container;
+        static SynchronizedInvoker sync;
+        IContainer container;
     }
 }

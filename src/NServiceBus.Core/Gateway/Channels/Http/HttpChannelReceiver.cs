@@ -43,16 +43,23 @@ namespace NServiceBus.Gateway.Channels.Http
 
         public void Dispose()
         {
-            if (disposed)
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
+            if (tokenSource != null)
             {
-                return;
+                tokenSource.Cancel();
             }
-
-            tokenSource.Cancel();
-
-            listener.Close();
-            scheduler.Dispose();
-            disposed = true;
+            if (listener != null)
+            {
+                listener.Close();
+            }
+            if (scheduler != null)
+            {
+                scheduler.Dispose();
+            }
         }
 
         public void Handle(HttpListenerContext context)
@@ -203,7 +210,6 @@ namespace NServiceBus.Gateway.Channels.Http
         const int MaximumBytesToRead = 100000;
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelReceiver));
-        bool disposed;
         HttpListener listener;
         MTATaskScheduler scheduler;
         CancellationTokenSource tokenSource;
