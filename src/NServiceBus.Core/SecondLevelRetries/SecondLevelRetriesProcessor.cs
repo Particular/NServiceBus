@@ -14,12 +14,7 @@ namespace NServiceBus.SecondLevelRetries
         {
             if (!Feature.IsEnabled<SecondLevelRetries>())
             {
-                isDisabled = true;
-            }
-            else if (Configure.Instance.WorkerRunsOnThisEndpoint() &&
-                     !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
-            {
-                isDisabled = true;
+                Disabled = true;
             }
         }
 
@@ -31,7 +26,7 @@ namespace NServiceBus.SecondLevelRetries
 
         public bool Disabled
         {
-            get { return isDisabled; }
+            get; set;
         }
 
         public void Start()

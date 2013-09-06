@@ -74,6 +74,10 @@ namespace NServiceBus.Features
             if (useRemoteRetryProcessor)
             {
                 Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
+            } 
+            else if (Configure.Instance.WorkerRunsOnThisEndpoint() && !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
+            {
+                Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
             }
         }
 
