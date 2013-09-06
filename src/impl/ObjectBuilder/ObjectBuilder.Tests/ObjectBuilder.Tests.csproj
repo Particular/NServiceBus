@@ -105,7 +105,6 @@
     <Compile Include="When_registering_components.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="Fody.targets" />
     <None Include="packages.config" />
   </ItemGroup>
