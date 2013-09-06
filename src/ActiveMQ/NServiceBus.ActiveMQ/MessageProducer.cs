@@ -20,14 +20,14 @@
 
         public void SendMessage(TransportMessage message, string destination, string destinationPrefix)
         {
-            var session = this.sessionFactory.GetSession();
+            var session = sessionFactory.GetSession();
             try
             {
-                var jmsMessage = this.activeMqMessageMapper.CreateJmsMessage(message, session);
+                var jmsMessage = activeMqMessageMapper.CreateJmsMessage(message, session);
 
                 using (var producer = session.CreateProducer())
                 {
-                    producer.Send(this.destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
+                    producer.Send(destinationEvaluator.GetDestination(session, destination, destinationPrefix), jmsMessage);
                 }
 
                 // We assign here the Id to the underlying id which was chosen by the broker.
@@ -36,7 +36,7 @@
             }
             finally
             {
-                this.sessionFactory.Release(session);
+                sessionFactory.Release(session);
             }
         }        
     }

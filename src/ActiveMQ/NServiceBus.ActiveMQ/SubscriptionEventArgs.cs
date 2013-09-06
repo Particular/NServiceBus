@@ -6,7 +6,7 @@ namespace NServiceBus.Transports.ActiveMQ
     {
         public SubscriptionEventArgs(string topic)
         {
-            this.Topic = topic;
+            Topic = topic;
         }
 
         public string Topic { get; private set; }

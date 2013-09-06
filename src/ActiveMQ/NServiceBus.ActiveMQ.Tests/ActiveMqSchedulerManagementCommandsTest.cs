@@ -17,23 +17,23 @@
         [SetUp]
         public void SetUp()
         {
-            this.sessionFactoryMock = new Mock<ISessionFactory>();
+            sessionFactoryMock = new Mock<ISessionFactory>();
 
-            this.testee = new ActiveMqSchedulerManagementCommands
+            testee = new ActiveMqSchedulerManagementCommands
                 {
-                    SessionFactory = this.sessionFactoryMock.Object
+                    SessionFactory = sessionFactoryMock.Object
                 };
         }
 
         [Test]
         public void WhenStopped_SessionIsReleased()
         {
-            var session = this.SetupCreateSession();
+            var session = SetupCreateSession();
 
-            this.testee.Start();
-            this.testee.Stop();
+            testee.Start();
+            testee.Stop();
 
-            this.sessionFactoryMock.Verify(sf => sf.Release(session.Object));
+            sessionFactoryMock.Verify(sf => sf.Release(session.Object));
         }
 
         [Test]
@@ -41,11 +41,11 @@
         {
             IMessage sentMessage = null;
             var destination = new ActiveMQTopic("someTopic");
-            var session = this.SetupCreateSession();
+            var session = SetupCreateSession();
             var producer = SetupCreateTopicProducer(session, ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION);
             producer.Setup(p => p.Send(It.IsAny<IMessage>())).Callback<IMessage>(m => sentMessage = m);
 
-            this.testee.RequestDeferredMessages(destination);
+            testee.RequestDeferredMessages(destination);
 
             sentMessage.Should().NotBeNull();
             sentMessage.NMSReplyTo.Should().Be(destination);
@@ -64,15 +64,15 @@
             messages.Enqueue(message);
             IMessage sentDeletionMessage = null;
 
-            var session = this.SetupCreateSession();
-            var consumer = this.SetupCreateTemporaryTopicConsumer(session, Selector, "");
+            var session = SetupCreateSession();
+            var consumer = SetupCreateTemporaryTopicConsumer(session, Selector, "");
             consumer.Setup(c => c.ReceiveNoWait()).Returns(() => messages.Count > 0 ? messages.Dequeue() : null);
             var producer = SetupCreateTopicProducer(session, ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION);
             producer.Setup(p => p.Send(It.IsAny<IMessage>())).Callback<IMessage>(m => sentDeletionMessage = m);
 
-            this.testee.Start();
-            var job = this.testee.CreateActiveMqSchedulerManagementJob(Selector);
-            this.testee.ProcessJob(job);
+            testee.Start();
+            var job = testee.CreateActiveMqSchedulerManagementJob(Selector);
+            testee.ProcessJob(job);
 
             sentDeletionMessage.Should().NotBeNull();
             sentDeletionMessage.Properties[ScheduledMessage.AMQ_SCHEDULER_ACTION].Should().Be(ScheduledMessage.AMQ_SCHEDULER_ACTION_REMOVE);
@@ -105,7 +105,7 @@
         {
             var session = new Mock<ISession>();
             session.Setup(s => s.CreateMessage()).Returns(() => new ActiveMQMessage());
-            this.sessionFactoryMock.Setup(sf => sf.GetSession()).Returns(session.Object);
+            sessionFactoryMock.Setup(sf => sf.GetSession()).Returns(session.Object);
             return session;
         }
     }

@@ -120,7 +120,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
         public IMessageConsumer CreateMessageConsumer(string destination)
         {
             IDestination d = SessionUtil.GetDestination(session, destination);
-            this.PurgeIfNecessary(session, d);
+            PurgeIfNecessary(session, d);
             var consumer = session.CreateConsumer(d);
             ((MessageConsumer)consumer).CreateTransactionScopeForAsyncMessage = CreateTransactionScopeForAsyncMessage;
             return consumer;

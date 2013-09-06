@@ -21,9 +21,9 @@ namespace NServiceBus.Transports.ActiveMQ
         {
             lock (subscriptions)
             {
-                this.TopicSubscribed += listener.TopicSubscribed;
-                this.TopicUnsubscribed += listener.TopicUnsubscribed;
-                return new HashSet<string>(this.subscriptions);
+                TopicSubscribed += listener.TopicSubscribed;
+                TopicUnsubscribed += listener.TopicUnsubscribed;
+                return new HashSet<string>(subscriptions);
             }
         }
 
@@ -31,33 +31,33 @@ namespace NServiceBus.Transports.ActiveMQ
         {
             lock (subscriptions)
             {
-                this.TopicSubscribed -= listener.TopicSubscribed;
-                this.TopicUnsubscribed -= listener.TopicUnsubscribed;
+                TopicSubscribed -= listener.TopicSubscribed;
+                TopicUnsubscribed -= listener.TopicUnsubscribed;
             }
         }
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
-            var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
+            var topic = topicEvaluator.GetTopicFromMessageType(eventType);
 
             lock (subscriptions)
             {
-                if (this.subscriptions.Add(topic))
+                if (subscriptions.Add(topic))
                 {
-                    this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+                    TopicSubscribed(this, new SubscriptionEventArgs(topic));
                 }
             }
         }
 
         public void Unsubscribe(Type eventType, Address publisherAddress)
         {
-            var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
+            var topic = topicEvaluator.GetTopicFromMessageType(eventType);
 
             lock (subscriptions)
             {
-                if (this.subscriptions.Remove(topic))
+                if (subscriptions.Remove(topic))
                 {
-                    this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+                    TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
                 }
             }
         }

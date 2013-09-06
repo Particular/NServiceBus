@@ -40,7 +40,7 @@
             var message = new TransportMessage();
 
 
-            using (var channel = this.connectionManager.GetPublishConnection().CreateModel())
+            using (var channel = connectionManager.GetPublishConnection().CreateModel())
             {
                 var properties = channel.CreateBasicProperties();
 
@@ -88,7 +88,7 @@
 
             var typeName = typeof(MyMessage).FullName;
 
-            using (var channel = this.connectionManager.GetPublishConnection().CreateModel())
+            using (var channel = connectionManager.GetPublishConnection().CreateModel())
             {
                 var properties = channel.CreateBasicProperties();
 

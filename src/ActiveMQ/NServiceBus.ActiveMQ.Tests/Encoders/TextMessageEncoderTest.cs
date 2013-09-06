@@ -16,11 +16,11 @@
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
+            session = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
 
-            this.SetupMessageCreation();
+            SetupMessageCreation();
 
-            this.testee = new TextMessageEncoder();
+            testee = new TextMessageEncoder();
         }
 
         [Test]
@@ -31,7 +31,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<ITextMessage>(message);
             Assert.IsNullOrEmpty(((ITextMessage)message).Text);
@@ -50,7 +50,7 @@
                                        };
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<ITextMessage>(message);
             Assert.AreEqual(ExpectedContent, ((ITextMessage)message).Text);
@@ -64,7 +64,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ContentType, contentType);
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsNull(message);
         }
@@ -72,7 +72,7 @@
         private void SetupMessageCreation()
         {
             string content = null;
-            this.session.Setup(s => s.CreateTextMessage(It.IsAny<string>()))
+            session.Setup(s => s.CreateTextMessage(It.IsAny<string>()))
                 .Callback<string>(c => content = c)
                 .Returns(() => Mock.Of<ITextMessage>(m => m.Text == content));
         }

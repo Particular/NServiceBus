@@ -13,7 +13,7 @@
 
         public DestinationEvaluatorTests()
         {
-            this.testee = new DestinationEvaluator();
+            testee = new DestinationEvaluator();
         }
 
         [Test]
@@ -25,7 +25,7 @@
 
             session.Setup(s => s.GetQueue(QueueName)).Returns(destination);
 
-            var result = this.testee.GetDestination(session.Object, QueueName, "queue://");
+            var result = testee.GetDestination(session.Object, QueueName, "queue://");
 
             result.Should().BeSameAs(destination);
         }
@@ -39,7 +39,7 @@
 
             session.Setup(s => s.GetQueue(QueueName)).Returns(destination);
 
-            var result = this.testee.GetDestination(session.Object, "queue://" + QueueName, "queue://");
+            var result = testee.GetDestination(session.Object, "queue://" + QueueName, "queue://");
 
             result.Should().BeSameAs(destination);
         }
@@ -50,7 +50,7 @@
             const string QueueName = "temp-queue://Queue";
             var session = new Mock<ISession>();
 
-            var result = this.testee.GetDestination(session.Object, QueueName, "queue://");
+            var result = testee.GetDestination(session.Object, QueueName, "queue://");
 
             result.IsTemporary.Should().BeTrue();
             result.IsQueue.Should().BeTrue();
@@ -66,7 +66,7 @@
 
             session.Setup(s => s.GetTopic(TopicName)).Returns(destination);
 
-            var result = this.testee.GetDestination(session.Object, TopicName, "topic://");
+            var result = testee.GetDestination(session.Object, TopicName, "topic://");
 
             result.Should().BeSameAs(destination);
         }
@@ -80,7 +80,7 @@
 
             session.Setup(s => s.GetTopic(TopicName)).Returns(destination);
 
-            var result = this.testee.GetDestination(session.Object, "topic://" + TopicName, "topic://");
+            var result = testee.GetDestination(session.Object, "topic://" + TopicName, "topic://");
 
             result.Should().BeSameAs(destination);
         }
@@ -91,7 +91,7 @@
             const string TopicName = "temp-topic://Topic";
             var session = new Mock<ISession>();
 
-            var result = this.testee.GetDestination(session.Object, TopicName, "topic://");
+            var result = testee.GetDestination(session.Object, TopicName, "topic://");
 
             result.IsTemporary.Should().BeTrue();
             result.IsTopic.Should().BeTrue();

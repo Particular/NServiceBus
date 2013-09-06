@@ -7,9 +7,9 @@
     {
         public ActiveMqSchedulerManagementJob(IMessageConsumer consumer, IDestination temporaryDestination, DateTime expirationDate)
         {
-            this.Consumer = consumer;
-            this.Destination = temporaryDestination;
-            this.ExprirationDate = expirationDate;
+            Consumer = consumer;
+            Destination = temporaryDestination;
+            ExprirationDate = expirationDate;
         }
 
         public IMessageConsumer Consumer { get; set; }

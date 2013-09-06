@@ -18,7 +18,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
         public DTCTransactionScope(ISession session, TransactionOptions transactionOptions, ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
-            this.transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
+            transactionScope = new TransactionScope(TransactionScopeOption.Required, transactionOptions);
             this.sessionFactory.SetSessionForCurrentThread(session);
         }
 
@@ -52,8 +52,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Complete()
         {
-            this.complete = true;
-            this.transactionScope.Complete();
+            complete = true;
+            transactionScope.Complete();
         }
     }
 }

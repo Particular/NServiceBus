@@ -13,12 +13,12 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
 
         public ISession OpenSession()
         {
-            return this.sessionFactory.OpenSession();
+            return sessionFactory.OpenSession();
         }
 
         public IStatelessSession OpenStatelessSession()
         {
-            return this.sessionFactory.OpenStatelessSession();
+            return sessionFactory.OpenStatelessSession();
         }
     }
 }

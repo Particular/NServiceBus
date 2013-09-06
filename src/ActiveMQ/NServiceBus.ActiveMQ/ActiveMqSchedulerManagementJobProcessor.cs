@@ -19,29 +19,29 @@
 
         public void Start()
         {
-            this.activeMqSchedulerManagementCommands.Start();
+            activeMqSchedulerManagementCommands.Start();
         }
 
         public void Stop()
         {
-            this.DeleteJobs(this.jobs.Keys);
-            this.activeMqSchedulerManagementCommands.Stop();
+            DeleteJobs(jobs.Keys);
+            activeMqSchedulerManagementCommands.Stop();
         }
         
         public bool HandleTransportMessage(TransportMessage message)
         {
-            var job = this.activeMqSchedulerManagementCommands.CreateActiveMqSchedulerManagementJob(
+            var job = activeMqSchedulerManagementCommands.CreateActiveMqSchedulerManagementJob(
                 message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader]);
 
-            this.activeMqSchedulerManagementCommands.RequestDeferredMessages(job.Destination);
-            this.jobs[job] = job;
+            activeMqSchedulerManagementCommands.RequestDeferredMessages(job.Destination);
+            jobs[job] = job;
 
             return true;
         }
 
         public void ProcessAllJobs(CancellationToken token)
         {
-            foreach (var job in this.jobs.Keys.ToList())
+            foreach (var job in jobs.Keys.ToList())
             {
                 if (token.IsCancellationRequested)
                 {
@@ -55,7 +55,7 @@
 
         private void RemoveExpiredJobs()
         {
-            this.DeleteJobs(this.jobs.Keys.Where(j => DateTime.Now > j.ExprirationDate));
+            DeleteJobs(jobs.Keys.Where(j => DateTime.Now > j.ExprirationDate));
         }
 
         private void DeleteJobs(IEnumerable<ActiveMqSchedulerManagementJob> jobs)
@@ -64,7 +64,7 @@
             {
                 ActiveMqSchedulerManagementJob jobValue;
                 this.jobs.TryRemove(job, out jobValue);
-                this.activeMqSchedulerManagementCommands.DisposeJob(job);
+                activeMqSchedulerManagementCommands.DisposeJob(job);
             }
         }
     }

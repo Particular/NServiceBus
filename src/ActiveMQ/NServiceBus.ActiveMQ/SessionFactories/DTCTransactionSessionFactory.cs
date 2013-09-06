@@ -24,11 +24,11 @@
                 // https://issues.apache.org/jira/browse/AMQNET-405 . When this issue is resolved then we should return the same session within
                 // a DTC transaction to be able to use Single Phase Commits in case no other systems are involved in the transaction for better
                 // performance.
-                return this.sessionsForTransactions.GetOrAdd(
-                    Transaction.Current.TransactionInformation.LocalIdentifier, id => this.GetSessionForTransaction());
+                return sessionsForTransactions.GetOrAdd(
+                    Transaction.Current.TransactionInformation.LocalIdentifier, id => GetSessionForTransaction());
             }
 
-            return this.pooledSessionFactory.GetSession();
+            return pooledSessionFactory.GetSession();
         }
 
         public void Release(ISession session)
@@ -38,14 +38,14 @@
                 return;
             }
 
-            this.pooledSessionFactory.Release(session);
+            pooledSessionFactory.Release(session);
         }
 
         private ISession GetSessionForTransaction()
         {
-            var session = this.pooledSessionFactory.GetSession();
+            var session = pooledSessionFactory.GetSession();
 
-            Transaction.Current.TransactionCompleted += (s, e) => this.ReleaseSessionForTransaction(e.Transaction);
+            Transaction.Current.TransactionCompleted += (s, e) => ReleaseSessionForTransaction(e.Transaction);
 
             return session;
         }
@@ -53,8 +53,8 @@
         private void ReleaseSessionForTransaction(Transaction transaction)
         {
             ISession session;
-            this.sessionsForTransactions.TryRemove(transaction.TransactionInformation.LocalIdentifier, out session);
-            this.pooledSessionFactory.Release(session);
+            sessionsForTransactions.TryRemove(transaction.TransactionInformation.LocalIdentifier, out session);
+            pooledSessionFactory.Release(session);
         }
 
         [ThreadStatic]
@@ -63,13 +63,13 @@
         public virtual void SetSessionForCurrentThread(ISession session)
         {
             transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-            this.sessionsForTransactions.TryAdd(transactionId, session);
+            sessionsForTransactions.TryAdd(transactionId, session);
         }
 
         public virtual void RemoveSessionForCurrentThread()
         {
             ISession session;
-            this.sessionsForTransactions.TryRemove(transactionId, out session);
+            sessionsForTransactions.TryRemove(transactionId, out session);
         }
 
         public void Dispose()

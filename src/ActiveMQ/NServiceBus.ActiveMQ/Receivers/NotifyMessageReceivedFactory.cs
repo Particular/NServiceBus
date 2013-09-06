@@ -13,7 +13,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
             messageProcessor.EndProcessMessage = endProcessMessage;
 
             var subscriptionManager = Configure.Instance.Builder.Build<INotifyTopicSubscriptions>();
-            var eventConsumer = new EventConsumer(subscriptionManager, messageProcessor) { ConsumerName = this.ConsumerName };
+            var eventConsumer = new EventConsumer(subscriptionManager, messageProcessor) { ConsumerName = ConsumerName };
 
             var messageReceiver = new ActiveMqMessageReceiver(eventConsumer, messageProcessor);
 

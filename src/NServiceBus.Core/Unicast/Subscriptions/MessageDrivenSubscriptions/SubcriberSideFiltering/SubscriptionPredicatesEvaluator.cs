@@ -23,7 +23,7 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subcriber
 
             lock (locker)
                 if (messageTypeToConditionLookup.ContainsKey(message.GetType()))
-                    foreach (Predicate<object> condition in this.messageTypeToConditionLookup[message.GetType()])
+                    foreach (Predicate<object> condition in messageTypeToConditionLookup[message.GetType()])
                         result.Add(condition);
 
             return result;

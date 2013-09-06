@@ -19,8 +19,8 @@
         {
             var eventType = eventTypes.First(); //we route on the first event for now
 
-            var topic = this.topicEvaluator.GetTopicFromMessageType(eventType);
-            this.messageProducer.SendMessage(message, topic, "topic://");
+            var topic = topicEvaluator.GetTopicFromMessageType(eventType);
+            messageProducer.SendMessage(message, topic, "topic://");
 
             return true;
         }

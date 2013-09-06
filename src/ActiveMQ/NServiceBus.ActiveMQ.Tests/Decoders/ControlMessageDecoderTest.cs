@@ -14,7 +14,7 @@
         [SetUp]
         public void SetUp()
          {
-             this.testee = new ControlMessageDecoder();
+             testee = new ControlMessageDecoder();
          }
 
         [Test]
@@ -25,7 +25,7 @@
 
             var message = Mock.Of<IBytesMessage>(x => x.Properties == primitiveMap);
 
-            var result = this.testee.Decode(new TransportMessage(), message);
+            var result = testee.Decode(new TransportMessage(), message);
 
             Assert.IsTrue(result);
         }
@@ -40,7 +40,7 @@
 
             var bytesMessage = Mock.Of<IBytesMessage>(m => m.Properties == primitiveMap && m.Content == new byte[] { 1 });
 
-            this.testee.Decode(transportMessage, bytesMessage);
+            testee.Decode(transportMessage, bytesMessage);
 
             Assert.NotNull(transportMessage.Body);
         }
@@ -54,7 +54,7 @@
             var bytesMessage = Mock.Of<IBytesMessage>();
             bytesMessage.Content = null;
 
-            this.testee.Decode(transportMessage, bytesMessage);
+            testee.Decode(transportMessage, bytesMessage);
 
             Assert.Null(transportMessage.Body);
         }
@@ -64,7 +64,7 @@
         {
             var message = Mock.Of<IMessage>(x => x.Properties == new PrimitiveMap());
 
-            var result = this.testee.Decode(new TransportMessage(), message);
+            var result = testee.Decode(new TransportMessage(), message);
 
             Assert.IsFalse(result);
         }

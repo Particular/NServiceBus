@@ -18,30 +18,30 @@
         [SetUp]
         public void SetUp()
         {
-            this.firstDecoder = new Mock<IActiveMqMessageDecoder>();
-            this.secondDecoder = new Mock<IActiveMqMessageDecoder>();
+            firstDecoder = new Mock<IActiveMqMessageDecoder>();
+            secondDecoder = new Mock<IActiveMqMessageDecoder>();
 
-            this.testee =
-                new ActiveMqMessageDecoderPipeline(new[] { this.firstDecoder.Object, this.secondDecoder.Object });
+            testee =
+                new ActiveMqMessageDecoderPipeline(new[] { firstDecoder.Object, secondDecoder.Object });
         }
 
         [Test]
         public void Decode_FirstDecoderReturnsDecodedMessage()
         {
-            this.firstDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(true);
+            firstDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(true);
 
-            this.testee.Decode(new TransportMessage(), Mock.Of<IMessage>());
+            testee.Decode(new TransportMessage(), Mock.Of<IMessage>());
 
-            this.secondDecoder.Verify(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>()), Times.Never());
+            secondDecoder.Verify(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>()), Times.Never());
         }
 
         [Test]
         public void Decode_WhenAllDecoderCannotDecode_ThenThrow()
         {
-            this.firstDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(false);
-            this.secondDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(false);
+            firstDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(false);
+            secondDecoder.Setup(d => d.Decode(It.IsAny<TransportMessage>(), It.IsAny<IMessage>())).Returns(false);
 
-            Assert.Throws<InvalidOperationException>(() => this.testee.Decode(new TransportMessage(), Mock.Of<IMessage>()));
+            Assert.Throws<InvalidOperationException>(() => testee.Decode(new TransportMessage(), Mock.Of<IMessage>()));
         }
     }
 }

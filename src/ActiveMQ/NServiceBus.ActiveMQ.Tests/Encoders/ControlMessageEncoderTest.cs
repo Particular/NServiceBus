@@ -15,11 +15,11 @@
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
+            session = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
 
-            this.SetupMessageCreation();
+            SetupMessageCreation();
 
-            this.testee = new ControlMessageEncoder();
+            testee = new ControlMessageEncoder();
         }
 
         [Test]
@@ -28,7 +28,7 @@
             var transportMessage = new TransportMessage();
             transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.IsEmpty(((IBytesMessage)message).Content);
@@ -41,7 +41,7 @@
             var transportMessage = new TransportMessage { Body = content };
             transportMessage.Headers.Add(Headers.ControlMessageHeader, null);
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsInstanceOf<IBytesMessage>(message);
             Assert.AreEqual(content, ((IBytesMessage)message).Content);
@@ -52,7 +52,7 @@
         {
             var transportMessage = new TransportMessage();
 
-            IMessage message = this.testee.Encode(transportMessage, this.session.Object);
+            IMessage message = testee.Encode(transportMessage, session.Object);
 
             Assert.IsNull(message);
         }
@@ -60,7 +60,7 @@
         private void SetupMessageCreation()
         {
             byte[] content = null;
-            this.session.Setup(s => s.CreateBytesMessage(It.IsAny<byte[]>()))
+            session.Setup(s => s.CreateBytesMessage(It.IsAny<byte[]>()))
                 .Callback<byte[]>(c => content = c)
                 .Returns(() => Mock.Of<IBytesMessage>(m => m.Content == content));
         }

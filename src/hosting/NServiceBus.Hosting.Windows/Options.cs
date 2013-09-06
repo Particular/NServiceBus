@@ -251,7 +251,7 @@ namespace NDesk.Options
         public OptionContext(OptionSet set)
         {
             this.set = set;
-            this.c = new OptionValueCollection(this);
+            c = new OptionValueCollection(this);
         }
 
         public Option Option
@@ -313,23 +313,23 @@ namespace NDesk.Options
                 throw new ArgumentOutOfRangeException("maxValueCount");
 
             this.prototype = prototype;
-            this.names = prototype.Split('|');
+            names = prototype.Split('|');
             this.description = description;
-            this.count = maxValueCount;
-            this.type = ParsePrototype();
+            count = maxValueCount;
+            type = ParsePrototype();
 
-            if (this.count == 0 && type != OptionValueType.None)
+            if (count == 0 && type != OptionValueType.None)
                 throw new ArgumentException(
                         "Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
                             "OptionValueType.Optional.",
                         "maxValueCount");
-            if (this.type == OptionValueType.None && maxValueCount > 1)
+            if (type == OptionValueType.None && maxValueCount > 1)
                 throw new ArgumentException(
                         string.Format("Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount),
                         "maxValueCount");
             if (Array.IndexOf(names, "<>") >= 0 &&
-                    ((names.Length == 1 && this.type != OptionValueType.None) ||
-                     (names.Length > 1 && this.MaxValueCount > 1)))
+                    ((names.Length == 1 && type != OptionValueType.None) ||
+                     (names.Length > 1 && MaxValueCount > 1)))
                 throw new ArgumentException(
                         "The default option handler '<>' cannot require values.",
                         "prototype");
@@ -410,11 +410,11 @@ namespace NDesk.Options
             if (count > 1)
             {
                 if (seps.Count == 0)
-                    this.separators = new string[] { ":", "=" };
+                    separators = new string[] { ":", "=" };
                 else if (seps.Count == 1 && seps[0].Length == 0)
-                    this.separators = null;
+                    separators = null;
                 else
-                    this.separators = seps.ToArray();
+                    separators = seps.ToArray();
             }
 
             return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
@@ -482,24 +482,24 @@ namespace NDesk.Options
         public OptionException(string message, string optionName)
             : base(message)
         {
-            this.option = optionName;
+            option = optionName;
         }
 
         public OptionException(string message, string optionName, Exception innerException)
             : base(message, innerException)
         {
-            this.option = optionName;
+            option = optionName;
         }
 
         protected OptionException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            this.option = info.GetString("OptionName");
+            option = info.GetString("OptionName");
         }
 
         public string OptionName
         {
-            get { return this.option; }
+            get { return option; }
         }
 
         [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]

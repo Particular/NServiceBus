@@ -16,9 +16,9 @@
         [SetUp]
         public void SetUp()
         {
-            this.messageSenderMock = new Mock<ISendMessages>();
+            messageSenderMock = new Mock<ISendMessages>();
 
-            this.testee = new ActiveMQMessageDefer { MessageSender = this.messageSenderMock.Object };
+            testee = new ActiveMQMessageDefer { MessageSender = messageSenderMock.Object };
         }      
 
         [Test]
@@ -28,9 +28,9 @@
             var time = DateTime.UtcNow + TimeSpan.FromMinutes(1);
             var message = new TransportMessage();
 
-            this.testee.Defer(message, time, address);
+            testee.Defer(message, time, address);
 
-            this.messageSenderMock.Verify(s => s.Send(message, address));
+            messageSenderMock.Verify(s => s.Send(message, address));
             message.Headers.Should().ContainKey(ScheduledMessage.AMQ_SCHEDULED_DELAY);
             Int32.Parse(message.Headers[ScheduledMessage.AMQ_SCHEDULED_DELAY]).Should().BeInRange(59500,60100);
         }
@@ -45,11 +45,11 @@
             var expectedSelector = string.Format("{0} = '{1}'", headerKey, headerValue);
             Address sentToAddress = null;
             TransportMessage sentMessage = null;
-            this.messageSenderMock
+            messageSenderMock
                 .Setup(ms => ms.Send(It.IsAny<TransportMessage>(), It.IsAny<Address>()))
                 .Callback<TransportMessage, Address>((m, a) => { sentToAddress = a; sentMessage = m; });
  
-            this.testee.ClearDeferredMessages(headerKey, headerValue);
+            testee.ClearDeferredMessages(headerKey, headerValue);
 
             sentToAddress.Queue.Should().Be("localqueue.ActiveMqSchedulerManagement");
             sentMessage.Headers.Should().Contain(ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader, expectedSelector);

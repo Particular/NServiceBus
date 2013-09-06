@@ -14,7 +14,7 @@
             message.Headers[ScheduledMessage.AMQ_SCHEDULED_DELAY] = 
                 ((int)processAt.Subtract(DateTime.UtcNow).TotalMilliseconds).ToString(CultureInfo.InvariantCulture);
 
-            this.MessageSender.Send(message, address);
+            MessageSender.Send(message, address);
         }
 
         public void ClearDeferredMessages(string headerKey, string headerValue)
@@ -24,7 +24,7 @@
             var message = ControlMessage.Create(Address.Local);
             message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = selector;
 
-            this.MessageSender.Send(message, Address.Local.SubScope(ActiveMqSchedulerManagement.SubScope));
+            MessageSender.Send(message, Address.Local.SubScope(ActiveMqSchedulerManagement.SubScope));
         }
     }
 }

@@ -153,7 +153,7 @@ namespace NServiceBus.Serializers.XML {
 			int num = 0;
 			do
 			{
-				int num2 = this.Read();
+				int num2 = Read();
 				if (num2 == -1)
 				{
 					return num;
@@ -170,7 +170,7 @@ namespace NServiceBus.Serializers.XML {
 			int num2 = 0;
 			do
 			{
-				num2 += num = this.Read(buffer, index + num2, count - num2);
+				num2 += num = Read(buffer, index + num2, count - num2);
 			}
 			while ((num > 0) && (num2 < count));
 			return num2;
@@ -181,7 +181,7 @@ namespace NServiceBus.Serializers.XML {
 			StringBuilder builder = new StringBuilder();
 			while (true)
 			{
-				int num = this.Read();
+				int num = Read();
 				switch (num)
 				{
 					case -1:
@@ -193,9 +193,9 @@ namespace NServiceBus.Serializers.XML {
 	
 					case 13:
 					case 10:
-						if ((num == 13) && (this.Peek() == 10))
+						if ((num == 13) && (Peek() == 10))
 						{
-							this.Read();
+							Read();
 						}
 						return builder.ToString();
 				}
@@ -208,7 +208,7 @@ namespace NServiceBus.Serializers.XML {
 			int num;
 			char[] buffer = new char[0x1000];
 			StringBuilder builder = new StringBuilder(0x1000);
-			while ((num = this.Read(buffer, 0, buffer.Length)) != 0)
+			while ((num = Read(buffer, 0, buffer.Length)) != 0)
 			{
 				builder.Append(buffer, 0, num);
 			}

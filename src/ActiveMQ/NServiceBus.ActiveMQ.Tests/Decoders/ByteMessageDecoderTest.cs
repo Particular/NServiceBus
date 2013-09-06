@@ -13,7 +13,7 @@
         [SetUp]
         public void SetUp()
         {
-            this.testee = new ByteMessageDecoder();
+            testee = new ByteMessageDecoder();
         }
 
         [Test]
@@ -21,7 +21,7 @@
         {
             var transportMessage = new TransportMessage();
 
-            var result = this.testee.Decode(transportMessage, Mock.Of<IBytesMessage>());
+            var result = testee.Decode(transportMessage, Mock.Of<IBytesMessage>());
 
             Assert.True(result);
         }
@@ -32,7 +32,7 @@
             var transportMessage = new TransportMessage { Body = null };
             var bytesMessage = Mock.Of<IBytesMessage>(m => m.Content == new byte[] { 1 });
 
-            this.testee.Decode(transportMessage, bytesMessage);
+            testee.Decode(transportMessage, bytesMessage);
 
             Assert.NotNull(transportMessage.Body);
         }
@@ -44,7 +44,7 @@
             var bytesMessage = Mock.Of<IBytesMessage>();
             bytesMessage.Content = null;
 
-            this.testee.Decode(transportMessage, bytesMessage);
+            testee.Decode(transportMessage, bytesMessage);
 
             Assert.Null(transportMessage.Body);
         }
@@ -54,7 +54,7 @@
         {
             var transportMessage = new TransportMessage();
 
-            var result = this.testee.Decode(transportMessage, Mock.Of<ITextMessage>());
+            var result = testee.Decode(transportMessage, Mock.Of<ITextMessage>());
 
             Assert.False(result);
         }

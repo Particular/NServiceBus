@@ -26,7 +26,7 @@
 
             notifyMessageReceivedFactoryMock = new Mock<INotifyMessageReceivedFactory>();
             sessionFactroyMock = new Mock<ISessionFactory>();
-            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, this.sessionFactroyMock.Object);
+            testee = new ActiveMqMessageDequeueStrategy(notifyMessageReceivedFactoryMock.Object, sessionFactroyMock.Object);
             messageReceivers = new List<Mock<INotifyMessageReceived>>();
             stoppedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
             disposedMessageReceivers = new List<Mock<INotifyMessageReceived>>();
@@ -70,7 +70,7 @@
 
             var address = new Address("someQueue", "machine");
 
-            testee.Init(address, settings, this.tryReceiveMessage, (s, exception) => { });
+            testee.Init(address, settings, tryReceiveMessage, (s, exception) => { });
             testee.Start(NumberOfWorkers);
 
             messageReceivers.Count.Should().Be(NumberOfWorkers);
@@ -108,7 +108,7 @@
         {
             const int InitialNumberOfWorkers = 5;
             int disposedReceivers = 0;
-            sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = this.disposedMessageReceivers.Count);
+            sessionFactroyMock.Setup(sf => sf.Dispose()).Callback(() => disposedReceivers = disposedMessageReceivers.Count);
             var address = new Address("someQueue", "machine");
 
             testee.Init(address, TransactionSettings.Default, m => true, (s, exception) => { });

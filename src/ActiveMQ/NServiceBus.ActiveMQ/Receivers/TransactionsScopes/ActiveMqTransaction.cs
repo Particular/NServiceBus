@@ -28,8 +28,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
         public void Complete()
         {
-            this.session.Commit();
-            this.doRollback = false;
+            session.Commit();
+            doRollback = false;
         }
 
         public void Dispose()

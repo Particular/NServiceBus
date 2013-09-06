@@ -12,13 +12,13 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
         [SetUp]
         public void SetUp()
         {
-            this.testee = new MessageTypeInterpreter();
+            testee = new MessageTypeInterpreter();
         }        
 
         [Test]
         public void GetAssemblyQualifiedName_IfNull_ReturnsEmptyString()
         {
-            var result = this.testee.GetAssemblyQualifiedName(null);
+            var result = testee.GetAssemblyQualifiedName(null);
 
             result.Should().BeEmpty();
         }
@@ -26,7 +26,7 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
         [Test]
         public void GetAssemblyQualifiedName_IfEmptyString_ReturnsEmptyString()
         {
-            var result = this.testee.GetAssemblyQualifiedName(string.Empty);
+            var result = testee.GetAssemblyQualifiedName(string.Empty);
 
             result.Should().BeEmpty();
         }
@@ -34,9 +34,9 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
         [Test]
         public void GetAssemblyQualifiedName_IfAssemblyQualifiedName_ReturnsAssemblyQualifiedName()
         {
-            var name = this.GetType().AssemblyQualifiedName;
+            var name = GetType().AssemblyQualifiedName;
 
-            var result = this.testee.GetAssemblyQualifiedName(name);
+            var result = testee.GetAssemblyQualifiedName(name);
 
             result.Should().Be(name);
         }
@@ -44,10 +44,10 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
         [Test]
         public void GetAssemblyQualifiedName_IfFullName_ReturnsAssemblyQualifiedName()
         {
-            var name = this.GetType().FullName;
-            var expectedName = this.GetType().AssemblyQualifiedName;
+            var name = GetType().FullName;
+            var expectedName = GetType().AssemblyQualifiedName;
 
-            var result = this.testee.GetAssemblyQualifiedName(name);
+            var result = testee.GetAssemblyQualifiedName(name);
 
             result.Should().Be(expectedName);
         }
@@ -57,7 +57,7 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
         {
             const string Name = "SomeNonsenseType";
 
-            var result = this.testee.GetAssemblyQualifiedName(Name);
+            var result = testee.GetAssemblyQualifiedName(Name);
 
             result.Should().Be(Name);
         }

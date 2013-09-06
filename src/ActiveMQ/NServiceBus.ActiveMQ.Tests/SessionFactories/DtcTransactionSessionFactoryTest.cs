@@ -15,16 +15,16 @@
         [SetUp]
         public void SetUp()
         {
-            this.pooledPooledSessionFactoryMock = new PooledSessionFactoryMock();
-            this.testee = new DTCTransactionSessionFactory(this.pooledPooledSessionFactoryMock);
+            pooledPooledSessionFactoryMock = new PooledSessionFactoryMock();
+            testee = new DTCTransactionSessionFactory(pooledPooledSessionFactoryMock);
         }
 
         [Test]
         public void WhenSessionIsRequested_OneFromThePoolesSessionFactoryIsReturned()
         {
-            var expectedSessions = this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            var expectedSessions = pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
-            var session = this.testee.GetSession();
+            var session = testee.GetSession();
 
             session.Should().BeSameAs(expectedSessions[0]);
         }
@@ -32,29 +32,29 @@
         [Test]
         public void WhenSessionIsReleased_ItIsReturnedToThePooledSessionFactory()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
-            var session = this.testee.GetSession();
-            this.testee.Release(session);
+            var session = testee.GetSession();
+            testee.Release(session);
 
-            this.pooledPooledSessionFactoryMock.sessions.Should().Contain(session);
+            pooledPooledSessionFactoryMock.sessions.Should().Contain(session);
         }
         
         [Test]
         public void GetSession_WhenInTransaction_ThenSameSessionIsUsed()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
             ISession session1;
             ISession session2;
 
             using (var tx = new TransactionScope())
             {
-                session1 = this.testee.GetSession();
-                this.testee.Release(session1);
+                session1 = testee.GetSession();
+                testee.Release(session1);
 
-                session2 = this.testee.GetSession();
-                this.testee.Release(session2);
+                session2 = testee.GetSession();
+                testee.Release(session2);
 
                 tx.Complete();
             }
@@ -65,20 +65,20 @@
         [Test]
         public void GetSession_WhenInDifferentTransaction_ThenDifferentSessionAreUsed()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
 
             ISession session1;
             ISession session2;
 
             using (var tx1 = new TransactionScope())
             {
-                session1 = this.testee.GetSession();
-                this.testee.Release(session1);
+                session1 = testee.GetSession();
+                testee.Release(session1);
 
                 using (var tx2 = new TransactionScope(TransactionScopeOption.RequiresNew))
                 {
-                    session2 = this.testee.GetSession();
-                    this.testee.Release(session2);
+                    session2 = testee.GetSession();
+                    testee.Release(session2);
 
                     tx2.Complete();
                 }
@@ -92,22 +92,22 @@
         [Test]
         public void GetSession_WhenInDifferentCompletedTransaction_ThenSessionIsReused()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
             ISession session1;
             ISession session2;
             using (var tx1 = new TransactionScope())
             {
-                session1 = this.testee.GetSession();
-                this.testee.Release(session1);
+                session1 = testee.GetSession();
+                testee.Release(session1);
 
                 tx1.Complete();
             }
 
             using (var tx2 = new TransactionScope())
             {
-                session2 = this.testee.GetSession();
-                this.testee.Release(session2);
+                session2 = testee.GetSession();
+                testee.Release(session2);
 
                 tx2.Complete();
             }

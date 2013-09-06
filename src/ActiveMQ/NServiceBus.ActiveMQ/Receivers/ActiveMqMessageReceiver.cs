@@ -22,7 +22,7 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         public void Dispose()
         {
-            if (this.disposed) return;
+            if (disposed) return;
 
             try
             {
@@ -49,22 +49,22 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
 
         public void Start(Address address, TransactionSettings transactionSettings)
         {
-            this.messageProcessor.Start(transactionSettings);
+            messageProcessor.Start(transactionSettings);
 
-            this.defaultConsumer = this.messageProcessor.CreateMessageConsumer("queue://" + address.Queue);
-            this.defaultConsumer.Listener += this.messageProcessor.ProcessMessage;
+            defaultConsumer = messageProcessor.CreateMessageConsumer("queue://" + address.Queue);
+            defaultConsumer.Listener += messageProcessor.ProcessMessage;
 
             if (address == Address.Local)
             {
-                this.eventConsumer.Start();
+                eventConsumer.Start();
             }
         }
 
         public void Stop()
         {
-            this.messageProcessor.Stop();
-            this.eventConsumer.Stop();
-            this.defaultConsumer.Listener -= this.messageProcessor.ProcessMessage;
+            messageProcessor.Stop();
+            eventConsumer.Stop();
+            defaultConsumer.Listener -= messageProcessor.ProcessMessage;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(ActiveMqMessageReceiver));

@@ -13,8 +13,8 @@
         [SetUp]
         public void SetUp()
         {
-            this.messageProducerMock = new Mock<IMessageProducer>();
-            this.testee = new ActiveMqMessageSender(this.messageProducerMock.Object);
+            messageProducerMock = new Mock<IMessageProducer>();
+            testee = new ActiveMqMessageSender(messageProducerMock.Object);
         }
 
         [Test]
@@ -23,9 +23,9 @@
             const string Queue = "QueueName";
             var message = new TransportMessage();
 
-            this.testee.Send(message, new Address(Queue, "SomeMachineName"));
+            testee.Send(message, new Address(Queue, "SomeMachineName"));
 
-            this.messageProducerMock.Verify(mp => mp.SendMessage(message, Queue, "queue://"));
+            messageProducerMock.Verify(mp => mp.SendMessage(message, Queue, "queue://"));
         }
     }
 }

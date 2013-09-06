@@ -18,10 +18,10 @@
         [SetUp]
         public void SetUp()
         {
-            this.messageProcessorMock = new Mock<IProcessMessages>();
-            this.subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
+            messageProcessorMock = new Mock<IProcessMessages>();
+            subscriptionManagerMock = new NotifyTopicSubscriptionsMock();
 
-            this.testee = new EventConsumer(this.subscriptionManagerMock, this.messageProcessorMock.Object);
+            testee = new EventConsumer(subscriptionManagerMock, messageProcessorMock.Object);
         }
 
         [Test]
@@ -31,14 +31,14 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.RaiseEventReceived(topicConsumer, message);
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            RaiseEventReceived(topicConsumer, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
         }
 
         [Test]
@@ -48,15 +48,15 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.testee.Stop();
-            this.RaiseEventReceived(topicConsumer, message);
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            testee.Stop();
+            RaiseEventReceived(topicConsumer, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message), Times.Never());
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message), Times.Never());
         }
         
         [Test]
@@ -66,13 +66,13 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.RaiseEventReceived(topicConsumer, message);
+            testee.ConsumerName = ConsumerName;
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            RaiseEventReceived(topicConsumer, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(It.IsAny<IMessage>()), Times.Never());
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(It.IsAny<IMessage>()), Times.Never());
         }
 
         [Test]
@@ -82,14 +82,14 @@
             const string ConsumerName = "A";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
-            this.subscriptionManagerMock.InitialTopics.Add(Topic);
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            subscriptionManagerMock.InitialTopics.Add(Topic);
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.RaiseEventReceived(topicConsumer, message);
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            RaiseEventReceived(topicConsumer, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
         }
 
         [Test]
@@ -98,12 +98,12 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.subscriptionManagerMock.RaiseTopicUnsubscribed(Topic);
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            subscriptionManagerMock.RaiseTopicUnsubscribed(Topic);
 
             topicConsumer.Verify(c => c.Dispose());
         }
@@ -114,13 +114,13 @@
             const string Topic = "SomeTopic";
             const string ConsumerName = "A";
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.testee.Stop();
-            this.testee.Dispose();
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            testee.Stop();
+            testee.Dispose();
 
             topicConsumer.Verify(c => c.Dispose());
         }
@@ -133,20 +133,20 @@
             const string ExpectedConsumerName = "A-B-C";
             var message = new Mock<IMessage>().Object;
 
-            var topicConsumer = this.SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ExpectedConsumerName, Topic));
+            var topicConsumer = SetupCreateConsumer(string.Format("queue://Consumer.{0}.{1}", ExpectedConsumerName, Topic));
 
-            this.testee.ConsumerName = ConsumerName;
-            this.testee.Start();
-            this.subscriptionManagerMock.RaiseTopicSubscribed(Topic);
-            this.RaiseEventReceived(topicConsumer, message);
+            testee.ConsumerName = ConsumerName;
+            testee.Start();
+            subscriptionManagerMock.RaiseTopicSubscribed(Topic);
+            RaiseEventReceived(topicConsumer, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
         }
 
         private Mock<IMessageConsumer> SetupCreateConsumer(string queue)
         {
             var consumerMock = new Mock<IMessageConsumer>();
-            this.messageProcessorMock.Setup(mp => mp.CreateMessageConsumer(queue)).Returns(consumerMock.Object);
+            messageProcessorMock.Setup(mp => mp.CreateMessageConsumer(queue)).Returns(consumerMock.Object);
             return consumerMock;
         }
 
@@ -171,26 +171,26 @@
 
             public IEnumerable<string> Register(ITopicSubscriptionListener listener)
             {
-                this.TopicSubscribed += listener.TopicSubscribed;
-                this.TopicUnsubscribed += listener.TopicUnsubscribed;
+                TopicSubscribed += listener.TopicSubscribed;
+                TopicUnsubscribed += listener.TopicUnsubscribed;
 
-                return this.InitialTopics;
+                return InitialTopics;
             }
 
             public void Unregister(ITopicSubscriptionListener listener)
             {
-                this.TopicSubscribed -= listener.TopicSubscribed;
-                this.TopicUnsubscribed -= listener.TopicUnsubscribed;
+                TopicSubscribed -= listener.TopicSubscribed;
+                TopicUnsubscribed -= listener.TopicUnsubscribed;
             }
 
             public void RaiseTopicSubscribed(string topic)
             {
-                this.TopicSubscribed(this, new SubscriptionEventArgs(topic));
+                TopicSubscribed(this, new SubscriptionEventArgs(topic));
             }
 
             public void RaiseTopicUnsubscribed(string topic)
             {
-                this.TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
+                TopicUnsubscribed(this, new SubscriptionEventArgs(topic));
             }
         }
     }

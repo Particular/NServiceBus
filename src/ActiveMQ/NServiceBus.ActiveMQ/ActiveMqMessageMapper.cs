@@ -30,7 +30,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
         public IMessage CreateJmsMessage(TransportMessage message, ISession session)
         {
-            IMessage jmsmessage = this.encoderPipeline.Encode(message, session);
+            IMessage jmsmessage = encoderPipeline.Encode(message, session);
 
             // We only assign the correlation id because the message id is chosen by the broker.
             jmsmessage.NMSCorrelationID = message.CorrelationId;
@@ -66,7 +66,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             var transportMessage = new TransportMessage(message.NMSMessageId, headers);
 
-            this.decoderPipeline.Decode(transportMessage, message);
+            decoderPipeline.Decode(transportMessage, message);
 
             var replyToAddress = message.NMSReplyTo == null
                                      ? null
@@ -79,7 +79,7 @@ namespace NServiceBus.Transports.ActiveMQ
           
             if (!transportMessage.Headers.ContainsKey(Headers.EnclosedMessageTypes))
             {
-                var type = this.messageTypeInterpreter.GetAssemblyQualifiedName(message.NMSType);
+                var type = messageTypeInterpreter.GetAssemblyQualifiedName(message.NMSType);
                 if (!string.IsNullOrEmpty(type))
                 {
                     transportMessage.Headers[Headers.EnclosedMessageTypes] = type;
@@ -101,7 +101,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
             if (!transportMessage.Headers.ContainsKey(Headers.ContentType))
             {
-                transportMessage.Headers[Headers.ContentType] = this.serializer.ContentType;
+                transportMessage.Headers[Headers.ContentType] = serializer.ContentType;
             }
 
             return transportMessage;

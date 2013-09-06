@@ -362,7 +362,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activations.Add(this.GetType());
+                    activations.Add(GetType());
                 }
             }
 
@@ -370,7 +370,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activations.Add(this.GetType());
+                    activations.Add(GetType());
                 }
             }
 
@@ -499,7 +499,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activations.Add(this.GetType());
+                    activations.Add(GetType());
                 }
             }
 
@@ -507,7 +507,7 @@ namespace NServiceBus.Hosting.Tests
             {
                 public void ProfileActivated()
                 {
-                    activations.Add(this.GetType());
+                    activations.Add(GetType());
                 }
             }
 

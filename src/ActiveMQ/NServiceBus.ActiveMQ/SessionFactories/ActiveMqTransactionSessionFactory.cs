@@ -19,34 +19,34 @@
         public ISession GetSession()
         {
             ISession session;
-            if (this.sessionsForThreads.TryGetValue(Thread.CurrentThread.ManagedThreadId, out session))
+            if (sessionsForThreads.TryGetValue(Thread.CurrentThread.ManagedThreadId, out session))
             {
                 return session;
             }
 
-            return this.pooledSessionFactory.GetSession();
+            return pooledSessionFactory.GetSession();
         }
 
         public void Release(ISession session)
         {
-            if (this.sessionsForThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
+            if (sessionsForThreads.ContainsKey(Thread.CurrentThread.ManagedThreadId))
             {
                 return;
             }
 
             session.Commit();
-            this.pooledSessionFactory.Release(session);
+            pooledSessionFactory.Release(session);
         }
 
         public void SetSessionForCurrentThread(ISession session)
         {
-            this.sessionsForThreads.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, session, (key, value)  => session);
+            sessionsForThreads.AddOrUpdate(Thread.CurrentThread.ManagedThreadId, session, (key, value)  => session);
         }
 
         public void RemoveSessionForCurrentThread()
         {
             ISession session;
-            this.sessionsForThreads.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
+            sessionsForThreads.TryRemove(Thread.CurrentThread.ManagedThreadId, out session);
         }
 
         public void Dispose()

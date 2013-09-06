@@ -27,17 +27,17 @@
                                   .IsolationLevel(IsolationLevel.ReadCommitted)
                                   .EnableDistributedTransactions());
 
-            this.messageProcessorMock = new Mock<IProcessMessages>();
-            this.eventConsumerMock = new Mock<IConsumeEvents>();
-            this.messageConsumerMock = new Mock<IMessageConsumer>();
+            messageProcessorMock = new Mock<IProcessMessages>();
+            eventConsumerMock = new Mock<IConsumeEvents>();
+            messageConsumerMock = new Mock<IMessageConsumer>();
 
-            this.testee = new ActiveMqMessageReceiver(
-                this.eventConsumerMock.Object,
-                this.messageProcessorMock.Object);
+            testee = new ActiveMqMessageReceiver(
+                eventConsumerMock.Object,
+                messageProcessorMock.Object);
 
-            this.messageProcessorMock
+            messageProcessorMock
                 .Setup(mp => mp.CreateMessageConsumer(It.IsAny<string>()))
-                .Returns(this.messageConsumerMock.Object);
+                .Returns(messageConsumerMock.Object);
 
             Address.InitializeLocalAddress("local");
         }
@@ -47,9 +47,9 @@
         {
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(Address.Local, transactionSettings);
+            testee.Start(Address.Local, transactionSettings);
 
-            this.messageProcessorMock.Verify(mp => mp.Start(transactionSettings));
+            messageProcessorMock.Verify(mp => mp.Start(transactionSettings));
         }
 
         [Test]
@@ -57,9 +57,9 @@
         {
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(Address.Local, transactionSettings);
+            testee.Start(Address.Local, transactionSettings);
 
-            this.eventConsumerMock.Verify(mp => mp.Start());
+            eventConsumerMock.Verify(mp => mp.Start());
         }
 
         [Test]
@@ -67,9 +67,9 @@
         {
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(new Address("someOtherQueue", "localhost"), transactionSettings);
+            testee.Start(new Address("someOtherQueue", "localhost"), transactionSettings);
 
-            this.eventConsumerMock.Verify(mp => mp.Start(), Times.Never());
+            eventConsumerMock.Verify(mp => mp.Start(), Times.Never());
         }
 
         [Test]
@@ -78,9 +78,9 @@
             var queue = "somequeue";
             var transactionSettings = TransactionSettings.Default;
 
-            this.testee.Start(new Address(queue, "localhost"), transactionSettings);
+            testee.Start(new Address(queue, "localhost"), transactionSettings);
 
-            this.messageProcessorMock.Verify(mp => mp.CreateMessageConsumer("queue://" + queue));
+            messageProcessorMock.Verify(mp => mp.CreateMessageConsumer("queue://" + queue));
         }
 
         [Test]
@@ -88,28 +88,28 @@
         {
             var message = new Mock<IMessage>().Object;
 
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
+            testee.Start(Address.Local, TransactionSettings.Default);
+            messageConsumerMock.Raise(mc => mc.Listener += null, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message));
         }
 
         [Test]
         public void OnStop_MessageProcessorIsStopped()
         {
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
 
-            this.messageProcessorMock.Verify(mp => mp.Stop());
+            messageProcessorMock.Verify(mp => mp.Stop());
         }
 
         [Test]
         public void OnStop_EventConsumerIsStopped()
         {
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
 
-            this.eventConsumerMock.Verify(mp => mp.Stop());
+            eventConsumerMock.Verify(mp => mp.Stop());
         }
 
         [Test]
@@ -117,41 +117,41 @@
         {
             var message = new Mock<IMessage>().Object;
 
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
-            this.messageConsumerMock.Raise(mc => mc.Listener += null, message);
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
+            messageConsumerMock.Raise(mc => mc.Listener += null, message);
 
-            this.messageProcessorMock.Verify(mp => mp.ProcessMessage(message), Times.Never());
+            messageProcessorMock.Verify(mp => mp.ProcessMessage(message), Times.Never());
         }
 
         [Test]
         public void OnDispose_MessageProcessorIsDisposed()
         {
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
-            this.testee.Dispose();
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
+            testee.Dispose();
 
-            this.messageProcessorMock.Verify(mp => mp.Dispose());
+            messageProcessorMock.Verify(mp => mp.Dispose());
         }
 
         [Test]
         public void OnDispose_EventConsumerIsDisposed()
         {
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
-            this.testee.Dispose();
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
+            testee.Dispose();
 
-            this.eventConsumerMock.Verify(mp => mp.Dispose());
+            eventConsumerMock.Verify(mp => mp.Dispose());
         }
 
         [Test]
         public void OnDispose_MessageConsumerIsDisposed()
         {
-            this.testee.Start(Address.Local, TransactionSettings.Default);
-            this.testee.Stop();
-            this.testee.Dispose();
+            testee.Start(Address.Local, TransactionSettings.Default);
+            testee.Stop();
+            testee.Dispose();
 
-            this.messageConsumerMock.Verify(mp => mp.Dispose());
+            messageConsumerMock.Verify(mp => mp.Dispose());
         }
     }
 }

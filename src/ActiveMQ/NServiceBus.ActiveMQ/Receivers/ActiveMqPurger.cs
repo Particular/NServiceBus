@@ -9,18 +9,18 @@
 
         public ActiveMqPurger()
         {
-            this.destinations = new HashSet<IDestination>();
+            destinations = new HashSet<IDestination>();
         }
 
         public void Purge(ISession session, IDestination destination)
         {
-            lock (this.destinations)
+            lock (destinations)
             {
-                if (!this.destinations.Contains(destination))
+                if (!destinations.Contains(destination))
                 {
                     session.DeleteDestination(destination);
 
-                    this.destinations.Add(destination);
+                    destinations.Add(destination);
                 }
             }
         }

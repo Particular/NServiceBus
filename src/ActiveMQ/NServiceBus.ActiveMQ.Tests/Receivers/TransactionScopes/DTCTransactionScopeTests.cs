@@ -19,13 +19,13 @@
         [SetUp]
         public void SetUp()
         {
-            this.sesstionFactoryMock = new Mock<ISessionFactory>();
+            sesstionFactoryMock = new Mock<ISessionFactory>();
         }
 
         [Test]
         public void WhenCreated_ThenNewTransactionIsStarted()
         {
-            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), this.sesstionFactoryMock.Object))
+            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
             {
                 Transaction.Current.Should().NotBeNull();
 
@@ -38,7 +38,7 @@
         {
             var transactionStatus = TransactionStatus.InDoubt;
 
-            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), this.sesstionFactoryMock.Object))
+            using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
             {
                 Transaction.Current.TransactionCompleted +=
                     (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;
@@ -56,7 +56,7 @@
 
             Action action = () =>
                 {
-                    using (var tx = new DTCTransactionScope(null, new TransactionOptions(), this.sesstionFactoryMock.Object))
+                    using (var tx = new DTCTransactionScope(null, new TransactionOptions(), sesstionFactoryMock.Object))
                     {
                         Transaction.Current.TransactionCompleted +=
                             (s, e) => transactionStatus = e.Transaction.TransactionInformation.Status;

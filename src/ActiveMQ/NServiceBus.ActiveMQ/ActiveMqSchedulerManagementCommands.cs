@@ -13,17 +13,17 @@
 
         public void Start()
         {
-            this.consumerSession = this.SessionFactory.GetSession();
+            consumerSession = SessionFactory.GetSession();
         }
 
         public void Stop()
         {
-            this.SessionFactory.Release(this.consumerSession);
+            SessionFactory.Release(consumerSession);
         }
         
         public void RequestDeferredMessages(IDestination browseDestination)
         {
-            var session = this.SessionFactory.GetSession();
+            var session = SessionFactory.GetSession();
             var amqSchedulerManagementDestionation =
                 session.GetTopic(ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION);
 
@@ -38,17 +38,17 @@
 
         public ActiveMqSchedulerManagementJob CreateActiveMqSchedulerManagementJob(string selector)
         {
-            var temporaryDestination = this.consumerSession.CreateTemporaryTopic();
-            var consumer = this.consumerSession.CreateConsumer(
+            var temporaryDestination = consumerSession.CreateTemporaryTopic();
+            var consumer = consumerSession.CreateConsumer(
                 temporaryDestination,
                 selector);
-            return new ActiveMqSchedulerManagementJob(consumer, temporaryDestination, DateTime.Now + this.DeleteTaskMaxIdleTime);        
+            return new ActiveMqSchedulerManagementJob(consumer, temporaryDestination, DateTime.Now + DeleteTaskMaxIdleTime);        
         }
 
         public void DisposeJob(ActiveMqSchedulerManagementJob job)
         {
             job.Consumer.Dispose();
-            this.consumerSession.DeleteDestination(job.Destination);
+            consumerSession.DeleteDestination(job.Destination);
         }
 
         public void ProcessJob(ActiveMqSchedulerManagementJob job)
@@ -56,9 +56,9 @@
             IMessage message = job.Consumer.ReceiveNoWait();
             while (message != null)
             {
-                this.RemoveDeferredMessages(message.Properties[ScheduledMessage.AMQ_SCHEDULED_ID]);
+                RemoveDeferredMessages(message.Properties[ScheduledMessage.AMQ_SCHEDULED_ID]);
 
-                job.ExprirationDate = DateTime.Now + this.DeleteTaskMaxIdleTime;
+                job.ExprirationDate = DateTime.Now + DeleteTaskMaxIdleTime;
                 message = job.Consumer.ReceiveNoWait();
             }
         }
@@ -67,9 +67,9 @@
         {
             using (var tx = new TransactionScope(TransactionScopeOption.Suppress))
             {
-                using (var producer = this.consumerSession.CreateProducer(this.consumerSession.GetTopic(ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION)))
+                using (var producer = consumerSession.CreateProducer(consumerSession.GetTopic(ScheduledMessage.AMQ_SCHEDULER_MANAGEMENT_DESTINATION)))
                 {
-                    var remove = this.consumerSession.CreateMessage();
+                    var remove = consumerSession.CreateMessage();
                     remove.Properties[ScheduledMessage.AMQ_SCHEDULER_ACTION] = ScheduledMessage.AMQ_SCHEDULER_ACTION_REMOVE;
                     remove.Properties[ScheduledMessage.AMQ_SCHEDULED_ID] = id;
                     producer.Send(remove);

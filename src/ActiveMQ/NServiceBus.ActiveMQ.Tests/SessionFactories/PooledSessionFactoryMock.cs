@@ -16,7 +16,7 @@
             for (int i = 0; i < count; i++ )
             {
                 var session = new Mock<ISession>().Object;
-                this.sessions.Enqueue(session);
+                sessions.Enqueue(session);
                 result.Add(session);
             }
 
@@ -25,12 +25,12 @@
 
         public ISession GetSession()
         {
-            return this.sessions.Dequeue();
+            return sessions.Dequeue();
         }
 
         public void Release(ISession session)
         {
-            this.sessions.Enqueue(session);
+            sessions.Enqueue(session);
         }
 
         public void SetSessionForCurrentThread(ISession session)

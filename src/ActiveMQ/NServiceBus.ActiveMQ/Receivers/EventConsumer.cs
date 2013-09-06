@@ -23,26 +23,26 @@
         {
             get
             {
-                return this.consumerName;
+                return consumerName;
             }
             set
             {
-                this.consumerName = value;
-                this.internalConsumerName = value.Replace('.', '-');
+                consumerName = value;
+                internalConsumerName = value.Replace('.', '-');
             }
         }
 
         public void Start()
         {
-            this.SubscribeTopics();
+            SubscribeTopics();
         }
 
         public void Stop()
         {
-            this.notifyTopicSubscriptions.Unregister(this);
-            foreach (var messageConsumer in this.topicConsumers)
+            notifyTopicSubscriptions.Unregister(this);
+            foreach (var messageConsumer in topicConsumers)
             {
-                messageConsumer.Value.Listener -= this.messageProcessor.ProcessMessage;
+                messageConsumer.Value.Listener -= messageProcessor.ProcessMessage;
             }
         }
 
@@ -64,35 +64,35 @@
         public void TopicUnsubscribed(object sender, SubscriptionEventArgs e)
         {
             IMessageConsumer consumer;
-            if (this.topicConsumers.TryGetValue(e.Topic, out consumer))
+            if (topicConsumers.TryGetValue(e.Topic, out consumer))
             {
                 consumer.Dispose();
-                this.topicConsumers.Remove(e.Topic);
+                topicConsumers.Remove(e.Topic);
             }
         }
 
         public void TopicSubscribed(object sender, SubscriptionEventArgs e)
         {
             string topic = e.Topic;
-            this.Subscribe(topic);
+            Subscribe(topic);
         }
 
         private void SubscribeTopics()
         {
-            lock (this.notifyTopicSubscriptions)
+            lock (notifyTopicSubscriptions)
             {
-                foreach (string topic in this.notifyTopicSubscriptions.Register(this))
+                foreach (string topic in notifyTopicSubscriptions.Register(this))
                 {
-                    this.Subscribe(topic);
+                    Subscribe(topic);
                 }
             }
         }
 
         private void Subscribe(string topic)
         {
-            var consumer = this.messageProcessor.CreateMessageConsumer(string.Format("queue://Consumer.{0}.{1}", this.internalConsumerName, topic));
-            consumer.Listener += this.messageProcessor.ProcessMessage;
-            this.topicConsumers[topic] = consumer;
+            var consumer = messageProcessor.CreateMessageConsumer(string.Format("queue://Consumer.{0}.{1}", internalConsumerName, topic));
+            consumer.Listener += messageProcessor.ProcessMessage;
+            topicConsumers[topic] = consumer;
         }
     }
 }

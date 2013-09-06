@@ -16,28 +16,28 @@
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<ISession>();
-            this.destination = new Mock<IDestination>();
+            session = new Mock<ISession>();
+            destination = new Mock<IDestination>();
 
-            this.testee = new ActiveMqPurger();
+            testee = new ActiveMqPurger();
         }
 
         [Test]
         public void Purge_WhenAlreadyPurged_ThenDontPurgeAgain()
         {
-            this.testee.Purge(this.session.Object, this.destination.Object);
+            testee.Purge(session.Object, destination.Object);
 
-            this.testee.Purge(this.session.Object, this.destination.Object);
+            testee.Purge(session.Object, destination.Object);
 
-            this.session.Verify(s => s.DeleteDestination(this.destination.Object), Times.Once());
+            session.Verify(s => s.DeleteDestination(destination.Object), Times.Once());
         }
 
         [Test]
         public void Purge_WhenNotYetPurged_ThenPurge()
         {
-            this.testee.Purge(this.session.Object, this.destination.Object);
+            testee.Purge(session.Object, destination.Object);
 
-            this.session.Verify(s => s.DeleteDestination(this.destination.Object));
+            session.Verify(s => s.DeleteDestination(destination.Object));
         }
     }
 }

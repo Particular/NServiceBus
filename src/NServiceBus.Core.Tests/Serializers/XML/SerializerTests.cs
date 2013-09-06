@@ -964,7 +964,7 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 	{
 		public IEnumerator<string> GetEnumerator()
 		{
-			return this.ToArray().Select(item => item.Data).GetEnumerator();
+			return ToArray().Select(item => item.Data).GetEnumerator();
 		}
 	}
 

@@ -19,17 +19,17 @@
         public virtual ISession GetSession()
         {
             ISession session;
-            if (this.sessionPool.TryTake(out session))
+            if (sessionPool.TryTake(out session))
             {
                 return session;
             }
 
-            return this.CreateNewSession();
+            return CreateNewSession();
         }
 
         public virtual void Release(ISession session)
         {
-            this.sessionPool.Add(session);
+            sessionPool.Add(session);
         }
 
         public virtual void SetSessionForCurrentThread(ISession session)
@@ -44,11 +44,11 @@
 
         protected ISession CreateNewSession()
         {
-            var connection = this.connectionFactory.CreateConnection();
+            var connection = connectionFactory.CreateConnection();
             connection.Start();
 
             var session = connection.CreateSession();
-            this.connections.TryAdd(session, connection);
+            connections.TryAdd(session, connection);
 
             return session;
         }

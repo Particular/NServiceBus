@@ -25,10 +25,10 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 
             if (transactionSettings.DontUseDistributedTransactions)
             {
-                return new ActiveMqTransaction(this.sessionFactory, session);
+                return new ActiveMqTransaction(sessionFactory, session);
             }
 
-            return new DTCTransactionScope(session, new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout }, this.sessionFactory);
+            return new DTCTransactionScope(session, new TransactionOptions { IsolationLevel = transactionSettings.IsolationLevel, Timeout = transactionSettings.TransactionTimeout }, sessionFactory);
         }
 
         public TransactionScope CreateTransactionScopeForAsyncMessage(TransactionSettings transactionSettings)

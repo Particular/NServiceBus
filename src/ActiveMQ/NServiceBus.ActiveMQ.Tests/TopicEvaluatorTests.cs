@@ -12,13 +12,13 @@
         [SetUp]
         public void SetUp()
         {
-            this.testee = new TopicEvaluator();
+            testee = new TopicEvaluator();
         }    
 
         [Test]
         public void GetTopicFromMessageType_ShouldReturnTheFirstMessageTypePreceededByVirtualTopic()
         {
-            var topic = this.testee.GetTopicFromMessageType(typeof(ISimpleMessage));
+            var topic = testee.GetTopicFromMessageType(typeof(ISimpleMessage));
 
             topic.Should().Be("VirtualTopic." + typeof(ISimpleMessage).FullName);
         }

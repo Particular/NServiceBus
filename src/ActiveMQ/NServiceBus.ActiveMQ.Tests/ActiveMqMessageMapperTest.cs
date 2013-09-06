@@ -31,36 +31,36 @@
         [SetUp]
         public void SetUp()
         {
-            this.session = new Mock<ISession>();
-            this.serializer = new Mock<IMessageSerializer>();
-            this.messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
-            this.encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
-            this.decoderPipeline = new Mock<IActiveMqMessageDecoderPipeline>();
+            session = new Mock<ISession>();
+            serializer = new Mock<IMessageSerializer>();
+            messageTypeInterpreter = new Mock<IMessageTypeInterpreter>();
+            encoderPipeline = new Mock<IActiveMqMessageEncoderPipeline>();
+            decoderPipeline = new Mock<IActiveMqMessageDecoderPipeline>();
 
-            this.testee = new ActiveMqMessageMapper(this.serializer.Object, this.messageTypeInterpreter.Object, this.encoderPipeline.Object, this.decoderPipeline.Object);
+            testee = new ActiveMqMessageMapper(serializer.Object, messageTypeInterpreter.Object, encoderPipeline.Object, decoderPipeline.Object);
         }
 
         [Test]
         public void CreateJmsMessage_ShouldEncodeMessage()
         {
-            this.SetupMessageCreation();
+            SetupMessageCreation();
 
-            TransportMessage transportMessage = this.CreateTransportMessage();
+            TransportMessage transportMessage = CreateTransportMessage();
 
-            this.testee.CreateJmsMessage(transportMessage, this.session.Object);
+            testee.CreateJmsMessage(transportMessage, session.Object);
 
-            this.encoderPipeline.Verify(e => e.Encode(transportMessage, this.session.Object));
+            encoderPipeline.Verify(e => e.Encode(transportMessage, session.Object));
         }
 
         [Test]
         public void CreateJmsMessage_ShouldSetNMSTypeToNamespaceAndTypeOnlyForBetterInteroperability()
         {
-            this.SetupMessageCreation();
+            SetupMessageCreation();
 
-            TransportMessage transportMessage = this.CreateTransportMessage();
+            TransportMessage transportMessage = CreateTransportMessage();
             transportMessage.Headers[Headers.EnclosedMessageTypes] = typeof(string).AssemblyQualifiedName;
 
-            var message = this.testee.CreateJmsMessage(transportMessage, this.session.Object);
+            var message = testee.CreateJmsMessage(transportMessage, session.Object);
 
             message.NMSType.Should().Be("System.String");
         }
@@ -68,12 +68,12 @@
         [Test]
         public void CreateJmsMessage_WhenMultipleEnclosedTypes_ShouldSetNMSTypeToNamespaceAndTypeOnlyForBetterInteroperability()
         {
-            this.SetupMessageCreation();
+            SetupMessageCreation();
 
-            TransportMessage transportMessage = this.CreateTransportMessage();
+            TransportMessage transportMessage = CreateTransportMessage();
             transportMessage.Headers[Headers.EnclosedMessageTypes] = string.Format("{0};{1}", typeof(string).AssemblyQualifiedName, typeof(int).AssemblyQualifiedName);
 
-            var message = this.testee.CreateJmsMessage(transportMessage, this.session.Object);
+            var message = testee.CreateJmsMessage(transportMessage, session.Object);
 
             message.NMSType.Should().Be("System.String");
         }
@@ -86,7 +86,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties[KeyWhichIsNull] = null;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[KeyWhichIsNull].Should().BeNull();
         }
@@ -96,9 +96,9 @@
         {
             var message = CreateTextMessage("SomeContent");
 
-            this.testee.CreateTransportMessage(message);
+            testee.CreateTransportMessage(message);
 
-            this.decoderPipeline.Verify(d => d.Decode(It.IsAny<TransportMessage>(), message));
+            decoderPipeline.Verify(d => d.Decode(It.IsAny<TransportMessage>(), message));
         }
 
         [Test]
@@ -108,7 +108,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.NServiceBusVersion] = Version;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
         }
@@ -119,7 +119,7 @@
             const string Version = "4.0.0.0";
             var message = CreateTextMessage(string.Empty);
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.NServiceBusVersion].Should().Be(Version);
         }
@@ -130,7 +130,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.ContentType] = ContentTypes.Xml;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.ContentType].Should().Be(ContentTypes.Xml);
         }
@@ -138,11 +138,11 @@
         [Test]
         public void CreateTransportMessage_IfContentTypeIsNotDefined_ShouldAssignContentType()
         {
-            this.serializer.Setup(s => s.ContentType).Returns(ContentTypes.Xml);
+            serializer.Setup(s => s.ContentType).Returns(ContentTypes.Xml);
 
             var message = CreateTextMessage(string.Empty);
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.ContentType].Should().Be(ContentTypes.Xml);
         }
@@ -155,7 +155,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties[Headers.EnclosedMessageTypes] = EnclosedMessageTypes;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.EnclosedMessageTypes].Should().Be(EnclosedMessageTypes);
         }
@@ -168,11 +168,11 @@
             var message = CreateTextMessage(string.Empty);
             message.NMSType = JmsMessageType;
 
-            this.messageTypeInterpreter
+            messageTypeInterpreter
                 .Setup(i => i.GetAssemblyQualifiedName(JmsMessageType))
                 .Returns(ExpectedEnclosedMessageTypes);
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.EnclosedMessageTypes].Should().Be(ExpectedEnclosedMessageTypes);
         }
@@ -182,7 +182,7 @@
         {
             var message = CreateTextMessage(string.Empty);
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers.Should().NotContainKey(Headers.EnclosedMessageTypes);
         }
@@ -194,7 +194,7 @@
             var message = CreateTextMessage(string.Empty);
             message.NMSCorrelationID = CorrelationId;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.CorrelationId.Should().Be(CorrelationId);
         }
@@ -207,7 +207,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties[ActiveMqMessageMapper.ErrorCodeKey] = Error;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers[Headers.ReturnMessageErrorCodeHeader].Should().Be(Error);
             result.Headers[Headers.ControlMessageHeader].Should().Be("true");
@@ -220,7 +220,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties["NSB_DOT_Feature"] = Value;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers["NSB.Feature"].Should().Be(Value);
         }
@@ -232,7 +232,7 @@
             var message = CreateTextMessage(string.Empty);
             message.Properties["NSB_HYPHEN_Feature"] = Value;
 
-            var result = this.testee.CreateTransportMessage(message);
+            var result = testee.CreateTransportMessage(message);
 
             result.Headers["NSB-Feature"].Should().Be(Value);
         }
@@ -286,7 +286,7 @@
             message.SetupAllProperties();
             message.Setup(m => m.Properties).Returns(new PrimitiveMap());
 
-            this.encoderPipeline.Setup(e => e.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()))
+            encoderPipeline.Setup(e => e.Encode(It.IsAny<TransportMessage>(), It.IsAny<ISession>()))
                 .Returns(message.Object);
         }
 

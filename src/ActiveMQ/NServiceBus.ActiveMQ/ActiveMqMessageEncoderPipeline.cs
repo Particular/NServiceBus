@@ -21,7 +21,7 @@ namespace NServiceBus.Transports.ActiveMQ
 
         public IMessage Encode(TransportMessage message, ISession session)
         {
-            foreach (var encoder in this.encoders)
+            foreach (var encoder in encoders)
             {
                 IMessage encoded = encoder.Encode(message, session);
                 if (encoded != null)

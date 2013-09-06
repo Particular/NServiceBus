@@ -16,17 +16,17 @@
         [SetUp]
         public void SetUp()
         {
-            this.pooledPooledSessionFactoryMock = new PooledSessionFactoryMock();
-            this.testee = new ActiveMqTransactionSessionFactory(this.pooledPooledSessionFactoryMock);
+            pooledPooledSessionFactoryMock = new PooledSessionFactoryMock();
+            testee = new ActiveMqTransactionSessionFactory(pooledPooledSessionFactoryMock);
         }
 
         [Test]
         public void EachGetSessionShouldRequestASessionFromThePooledSessionFactory()
         {
-            var expectedSessions = this.pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
+            var expectedSessions = pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
 
-            var session1 = this.testee.GetSession();
-            var session2 = this.testee.GetSession();
+            var session1 = testee.GetSession();
+            var session2 = testee.GetSession();
 
             session1.Should().BeSameAs(expectedSessions[0]);
             session2.Should().BeSameAs(expectedSessions[1]);
@@ -35,23 +35,23 @@
         [Test]
         public void OnReleaseSessionsShouldBeReleasedtoThePooledSessionFactory()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
-            var session = this.testee.GetSession();
-            this.testee.Release(session);
+            var session = testee.GetSession();
+            testee.Release(session);
 
-            this.pooledPooledSessionFactoryMock.sessions.Should().Contain(session);
+            pooledPooledSessionFactoryMock.sessions.Should().Contain(session);
         }
 
         [Test]
         public void WhenSessionIsPinnedForThread_ItShouldBeReusedOnNextGetSession()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(1);
 
-            var session1 = this.testee.GetSession();
-            this.testee.SetSessionForCurrentThread(session1);
+            var session1 = testee.GetSession();
+            testee.SetSessionForCurrentThread(session1);
 
-            var session2 = this.testee.GetSession();
+            var session2 = testee.GetSession();
 
             session1.Should().BeSameAs(session2);
         }
@@ -59,13 +59,13 @@
         [Test]
         public void WhenSessionIsUnpinnedForThread_ANewOneShouldBeReturnedOnNextGetSession()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
 
-            var session1 = this.testee.GetSession();
-            this.testee.SetSessionForCurrentThread(session1);
-            this.testee.RemoveSessionForCurrentThread();
+            var session1 = testee.GetSession();
+            testee.SetSessionForCurrentThread(session1);
+            testee.RemoveSessionForCurrentThread();
 
-            var session2 = this.testee.GetSession();
+            var session2 = testee.GetSession();
 
             session1.Should().NotBeSameAs(session2);
         }
@@ -73,19 +73,19 @@
         [Test]
         public void WhenSessionIsPinnedForThread_ANewOneShouldBeReturnedOnAnotherThread()
         {
-            this.pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
+            pooledPooledSessionFactoryMock.EnqueueNewSessions(2);
 
             ISession session2 = null;
             var autoResetEvent = new AutoResetEvent(false);
 
-            var session1 = this.testee.GetSession();
-            this.testee.SetSessionForCurrentThread(session1);
+            var session1 = testee.GetSession();
+            testee.SetSessionForCurrentThread(session1);
 
 
             Task.Factory.StartNew(
                 () =>
                     {
-                        session2 = this.testee.GetSession();
+                        session2 = testee.GetSession();
                         autoResetEvent.Set();
                     });
 

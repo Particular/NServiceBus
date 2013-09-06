@@ -14,9 +14,9 @@
         [SetUp]
         public void SetUp()
         {
-            this.messageProducerMock = new Mock<IMessageProducer>();
-            this.topicEvaluatorMock = new Mock<ITopicEvaluator>();
-            this.testee = new ActiveMqMessagePublisher(this.topicEvaluatorMock.Object, this.messageProducerMock.Object);
+            messageProducerMock = new Mock<IMessageProducer>();
+            topicEvaluatorMock = new Mock<ITopicEvaluator>();
+            testee = new ActiveMqMessagePublisher(topicEvaluatorMock.Object, messageProducerMock.Object);
         }
 
         [Test]
@@ -24,13 +24,13 @@
         {
             const string Topic = "TheTopic";
             var message = new TransportMessage();
-            var type = this.GetType();
+            var type = GetType();
 
-            this.topicEvaluatorMock.Setup(te => te.GetTopicFromMessageType(type)).Returns(Topic);
+            topicEvaluatorMock.Setup(te => te.GetTopicFromMessageType(type)).Returns(Topic);
 
-            this.testee.Publish(message, new[] { type });
+            testee.Publish(message, new[] { type });
 
-            this.messageProducerMock.Verify(mp => mp.SendMessage(message, Topic, "topic://"));
+            messageProducerMock.Verify(mp => mp.SendMessage(message, Topic, "topic://"));
         }
     }
 }

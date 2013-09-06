@@ -15,25 +15,25 @@
         [SetUp]
         public void SetUp()
         {
-            this.activeMqSchedulerManagementCommandsMock = new Mock<IActiveMqSchedulerManagementCommands>();
+            activeMqSchedulerManagementCommandsMock = new Mock<IActiveMqSchedulerManagementCommands>();
 
-            this.testee = new ActiveMqSchedulerManagementJobProcessor(this.activeMqSchedulerManagementCommandsMock.Object);
+            testee = new ActiveMqSchedulerManagementJobProcessor(activeMqSchedulerManagementCommandsMock.Object);
         }
 
         [Test]
         public void WhenStarted_ActiveMqSchedulerManagementCommandsAreStarted()
         {
-            this.testee.Start();
+            testee.Start();
 
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.Start());
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.Start());
         }
 
         [Test]
         public void WhenStopped_ActiveMqSchedulerManagementCommandsAreStopped()
         {
-            this.testee.Stop();
+            testee.Stop();
 
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.Stop());
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.Stop());
         }
 
         [Test]
@@ -44,12 +44,12 @@
             var destination = new Mock<IDestination>().Object;
             message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = Selector;
 
-            this.activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector))
+            activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector))
                 .Returns(new ActiveMqSchedulerManagementJob(null, destination, DateTime.Now));
 
-            this.testee.HandleTransportMessage(message);
+            testee.HandleTransportMessage(message);
 
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.RequestDeferredMessages(destination));
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.RequestDeferredMessages(destination));
         }
 
         [Test]
@@ -61,13 +61,13 @@
             var job = new ActiveMqSchedulerManagementJob(null, destination, DateTime.Now + TimeSpan.FromMinutes(1));
             message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = Selector;
 
-            this.activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector)).Returns(job);
+            activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector)).Returns(job);
 
-            this.testee.HandleTransportMessage(message);
-            this.testee.ProcessAllJobs(new CancellationToken(false));
+            testee.HandleTransportMessage(message);
+            testee.ProcessAllJobs(new CancellationToken(false));
 
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.ProcessJob(job));
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.DisposeJob(job), Times.Never());
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.ProcessJob(job));
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.DisposeJob(job), Times.Never());
         }
 
         [Test]
@@ -79,12 +79,12 @@
             var job = new ActiveMqSchedulerManagementJob(null, destination, DateTime.Now + TimeSpan.FromMinutes(-1));
             message.Headers[ActiveMqSchedulerManagement.ClearScheduledMessagesSelectorHeader] = Selector;
 
-            this.activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector)).Returns(job);
+            activeMqSchedulerManagementCommandsMock.Setup(c => c.CreateActiveMqSchedulerManagementJob(Selector)).Returns(job);
 
-            this.testee.HandleTransportMessage(message);
-            this.testee.ProcessAllJobs(new CancellationToken(false));
+            testee.HandleTransportMessage(message);
+            testee.ProcessAllJobs(new CancellationToken(false));
 
-            this.activeMqSchedulerManagementCommandsMock.Verify(c => c.DisposeJob(job));
+            activeMqSchedulerManagementCommandsMock.Verify(c => c.DisposeJob(job));
         }
     }
 }

@@ -36,18 +36,18 @@
                                  .IsolationLevel(IsolationLevel.ReadCommitted)
                                  .EnableDistributedTransactions());
 
-            this.sessionFactoryMock = new Mock<ISessionFactory>();
-            this.activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
-            this.purger = new Mock<IActiveMqPurger>();
-            this.transactionScopeFactoryMock = new Mock<ITransactionScopeFactory>();
+            sessionFactoryMock = new Mock<ISessionFactory>();
+            activeMqMessageMapperMock = new Mock<IActiveMqMessageMapper>();
+            purger = new Mock<IActiveMqPurger>();
+            transactionScopeFactoryMock = new Mock<ITransactionScopeFactory>();
 
-            this.testee = new MessageProcessor(
-                this.activeMqMessageMapperMock.Object,
-                this.sessionFactoryMock.Object,
-                this.purger.Object,
-                this.transactionScopeFactoryMock.Object);
+            testee = new MessageProcessor(
+                activeMqMessageMapperMock.Object,
+                sessionFactoryMock.Object,
+                purger.Object,
+                transactionScopeFactoryMock.Object);
 
-            this.transactionScopeFactoryMock
+            transactionScopeFactoryMock
                 .Setup(f => f.CreateNewTransactionScope(It.IsAny<TransactionSettings>(), It.IsAny<ISession>()))
                 .Returns(new Mock<ITransactionScope>().Object);
 
@@ -61,18 +61,18 @@ order = string.Empty;
             var transportMessage = new TransportMessage();
             TransportMessage receivedMessage = null;
 
-            this.SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
+            SetupMapMessageToTransportMessage(messageMock.Object, transportMessage);
 
-            this.testee.EndProcessMessage = (m, e) => { };
-            this.testee.TryProcessMessage = m =>
+            testee.EndProcessMessage = (m, e) => { };
+            testee.TryProcessMessage = m =>
                 {
                     receivedMessage = m;
                     return true;
                 };
 
 
-            this.StartTestee();
-            this.testee.ProcessMessage(messageMock.Object);
+            StartTestee();
+            testee.ProcessMessage(messageMock.Object);
 
             receivedMessage.Should().Be(transportMessage);
         }
@@ -82,17 +82,17 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            this.SetuptransactionOrderTracking(message);
+            SetuptransactionOrderTracking(message);
 
-            this.testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
-            this.testee.TryProcessMessage = m =>
+            testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
+            testee.TryProcessMessage = m =>
                 {
                     order += "MsgProcessed_";  
                     return true; 
                 };
 
-            this.StartTestee();
-            this.testee.ProcessMessage(message);
+            StartTestee();
+            testee.ProcessMessage(message);
 
             order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_TxComplete_EndProcess_TxDispose_");
         }
@@ -102,17 +102,17 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            this.SetuptransactionOrderTracking(message);
+            SetuptransactionOrderTracking(message);
 
-            this.testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
-            this.testee.TryProcessMessage = m =>
+            testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
+            testee.TryProcessMessage = m =>
                 {
                     order += "MsgProcessed_";  
                     return false; 
                 };
 
-            this.StartTestee();
-            this.testee.ProcessMessage(message);
+            StartTestee();
+            testee.ProcessMessage(message);
 
             order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_");
         }
@@ -122,17 +122,17 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            this.SetuptransactionOrderTracking(message);
+            SetuptransactionOrderTracking(message);
 
-            this.testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
-            this.testee.TryProcessMessage = m =>
+            testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
+            testee.TryProcessMessage = m =>
             {
                 order += "MsgProcessed_";
                 throw new Exception();
             };
 
-            this.StartTestee();
-            this.testee.ProcessMessage(message);
+            StartTestee();
+            testee.ProcessMessage(message);
 
             order.Should().Be("StartTx_TxMessageAccepted_MsgProcessed_EndProcess_TxDispose_");
         }
@@ -142,18 +142,18 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            this.SetuptransactionOrderTracking(message);
+            SetuptransactionOrderTracking(message);
 
-            this.testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
-            this.testee.TryProcessMessage = m =>
+            testee.EndProcessMessage = (m, e) => { order += "EndProcess_"; };
+            testee.TryProcessMessage = m =>
             {
                 order += "MsgProcessed_";
                 return true;
             };
 
-            this.StartTestee();
-            this.testee.Stop();
-            this.testee.ProcessMessage(message);
+            StartTestee();
+            testee.Stop();
+            testee.ProcessMessage(message);
 
             order.Should().Be("");
         }
@@ -163,16 +163,16 @@ order = string.Empty;
         {
             var message = new Mock<IMessage>().Object;
 
-            this.SetuptransactionOrderTracking(message);
+            SetuptransactionOrderTracking(message);
 
-            this.testee.EndProcessMessage = (m, e) => { };
-            this.testee.TryProcessMessage = m => true;
+            testee.EndProcessMessage = (m, e) => { };
+            testee.TryProcessMessage = m => true;
 
-            this.StartTestee();
-            this.testee.Stop();
-            this.testee.Dispose();
+            StartTestee();
+            testee.Stop();
+            testee.Dispose();
 
-            this.sessionFactoryMock.Verify(sf => sf.Release(this.session.Object));
+            sessionFactoryMock.Verify(sf => sf.Release(session.Object));
         }
 
         [Test]
@@ -181,13 +181,13 @@ order = string.Empty;
         {
             const string Destination = "anyqueue";
 
-            this.testee.PurgeOnStartup = true;
-            this.StartTestee(TransactionSettings.Default);
-            this.SetupGetQueue(this.session, Destination);
+            testee.PurgeOnStartup = true;
+            StartTestee(TransactionSettings.Default);
+            SetupGetQueue(session, Destination);
 
-            this.testee.CreateMessageConsumer(Destination);
+            testee.CreateMessageConsumer(Destination);
 
-            this.purger.Verify(p => p.Purge(this.session.Object, It.Is<IQueue>(d => d.QueueName.Contains(Destination))));
+            purger.Verify(p => p.Purge(session.Object, It.Is<IQueue>(d => d.QueueName.Contains(Destination))));
         }
 
         [Test]
@@ -196,27 +196,27 @@ order = string.Empty;
         {
             const string Destination = "anyqueue";
 
-            this.testee.PurgeOnStartup = false;
-            this.StartTestee(TransactionSettings.Default);
-            this.SetupGetQueue(this.session, Destination);
+            testee.PurgeOnStartup = false;
+            StartTestee(TransactionSettings.Default);
+            SetupGetQueue(session, Destination);
 
-            this.testee.CreateMessageConsumer(Destination);
+            testee.CreateMessageConsumer(Destination);
 
-            this.purger.Verify(p => p.Purge(this.session.Object, It.Is<IQueue>(d => d.QueueName.Contains(Destination))), Times.Never());
+            purger.Verify(p => p.Purge(session.Object, It.Is<IQueue>(d => d.QueueName.Contains(Destination))), Times.Never());
         }
 
         private void SetuptransactionOrderTracking(IMessage message)
         {
             var transactionScopeMock = new Mock<ITransactionScope>();
 
-            transactionScopeMock.Setup(tx => tx.Complete()).Callback(() => this.order += "TxComplete_");
-            transactionScopeMock.Setup(tx => tx.MessageAccepted(message)).Callback(() => this.order += "TxMessageAccepted_");
-            transactionScopeMock.Setup(tx => tx.Dispose()).Callback(() => this.order += "TxDispose_");
+            transactionScopeMock.Setup(tx => tx.Complete()).Callback(() => order += "TxComplete_");
+            transactionScopeMock.Setup(tx => tx.MessageAccepted(message)).Callback(() => order += "TxMessageAccepted_");
+            transactionScopeMock.Setup(tx => tx.Dispose()).Callback(() => order += "TxDispose_");
 
-            this.transactionScopeFactoryMock.Setup(
+            transactionScopeFactoryMock.Setup(
                 f => f.CreateNewTransactionScope(It.IsAny<TransactionSettings>(), It.IsAny<ISession>()))
                 .Returns(transactionScopeMock.Object)
-                .Callback<TransactionSettings, ISession>((t, s) => this.order += "StartTx_");
+                .Callback<TransactionSettings, ISession>((t, s) => order += "StartTx_");
         }
 
         private void StartTestee()
@@ -231,8 +231,8 @@ order = string.Empty;
 
         private void StartTestee(TransactionSettings transactionSettings)
         {
-            this.session = this.SetupCreateSession();
-            this.testee.Start(transactionSettings);
+            session = SetupCreateSession();
+            testee.Start(transactionSettings);
         }
 
         private IQueue SetupGetQueue(Mock<ISession> sessionMock, string queue)
@@ -248,13 +248,13 @@ order = string.Empty;
         private Mock<ISession> SetupCreateSession()
         {
             var sessionMock = new Mock<ISession> { DefaultValue = DefaultValue.Mock };
-            this.sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
+            sessionFactoryMock.Setup(c => c.GetSession()).Returns(sessionMock.Object);
             return sessionMock;
         }
 
         private void SetupMapMessageToTransportMessage(IMessage messageMock, TransportMessage transportMessage)
         {
-            this.activeMqMessageMapperMock.Setup(m => m.CreateTransportMessage(messageMock)).Returns(transportMessage);
+            activeMqMessageMapperMock.Setup(m => m.CreateTransportMessage(messageMock)).Returns(transportMessage);
         }
     }
 }
