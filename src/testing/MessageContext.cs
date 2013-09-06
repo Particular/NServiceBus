@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing
 {
+    using System;
+    using System.Collections.Generic;
+
     class MessageContext : IMessageContext
     {
         public string Id { get; set; }

@@ -2,8 +2,7 @@
 {
     using System;
     using System.Globalization;
-    using NServiceBus.Unicast.Queuing;
-    using NServiceBus.Unicast.Transport;
+    using Unicast.Transport;
 
     public class ActiveMQMessageDefer : IDeferMessages
     {

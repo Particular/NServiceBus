@@ -1,8 +1,8 @@
-using System.Linq;
-using NUnit.Framework;
-
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
+    using System.Linq;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_listing_subscribers_for_message_types : InMemoryDBFixture
     {

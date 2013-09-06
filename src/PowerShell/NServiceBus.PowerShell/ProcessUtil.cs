@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Setup.Windows
 {
     using System;
+    using System.ComponentModel;
     using System.Security.Principal;
     using System.ServiceProcess;
-    using System.ComponentModel;
 
     /// <summary>
     /// Utility class for changing a windows service's status.

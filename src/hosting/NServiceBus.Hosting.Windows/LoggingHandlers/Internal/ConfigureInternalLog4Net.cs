@@ -1,12 +1,10 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using NServiceBus.Logging;
-using log4net.Appender;
-using log4net.Core;
-
-namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
+﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
 {
+    using System.Reflection;
+    using log4net.Appender;
+    using log4net.Core;
+    using Logging;
+
     internal class ConfigureInternalLog4Net
     {
         public static void Lite()

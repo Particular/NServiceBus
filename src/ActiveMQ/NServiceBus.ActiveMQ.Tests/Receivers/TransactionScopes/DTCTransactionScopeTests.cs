@@ -2,14 +2,11 @@
 {
     using System;
     using System.Transactions;
+    using ActiveMQ.Receivers.TransactionsScopes;
+    using ActiveMQ.SessionFactories;
     using FluentAssertions;
     using Moq;
-
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
-
     using NUnit.Framework;
-
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class DTCTransactionScopeTests

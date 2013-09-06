@@ -1,8 +1,7 @@
-﻿using NUnit.Framework;
-
-namespace NServiceBus.Logging.Log4NetBridge.Tests
+﻿namespace NServiceBus.Logging.Log4NetBridge.Tests
 {
     using Loggers;
+    using NUnit.Framework;
 
     [TestFixture]
     public class DummyTests

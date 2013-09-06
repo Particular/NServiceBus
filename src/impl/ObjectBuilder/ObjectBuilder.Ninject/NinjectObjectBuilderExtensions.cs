@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.ObjectBuilder.Ninject
 {
-    using Internal;
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
+    using Internal;
 
     public static class NinjectObjectBuilderExtensions
     {

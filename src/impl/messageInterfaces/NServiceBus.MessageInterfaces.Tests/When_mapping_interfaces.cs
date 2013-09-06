@@ -1,9 +1,8 @@
-using System;
-using System.Reflection;
-using NUnit.Framework;
-
 namespace NServiceBus.MessageInterfaces.Tests
 {
+    using System;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_mapping_interfaces
     {
@@ -111,7 +110,7 @@ namespace NServiceBus.MessageInterfaces.Tests
 
     public interface InterfaceWithPropertiesAndAttributes
     {
-        [SomeAttribute]
+        [Some]
         string SomeProperty { get; set; }
         
         string SomeOtherProperty { get; set; }

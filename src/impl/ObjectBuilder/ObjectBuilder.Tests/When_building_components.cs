@@ -1,12 +1,12 @@
-using System;
-using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.ObjectBuilder.Spring;
-using NUnit.Framework;
-using NServiceBus;
-using NServiceBus.ObjectBuilder.CastleWindsor;
-
 namespace ObjectBuilder.Tests
 {
+    using System;
+    using NServiceBus;
+    using NServiceBus.ObjectBuilder.CastleWindsor;
+    using NServiceBus.ObjectBuilder.Common;
+    using NServiceBus.ObjectBuilder.Spring;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_building_components : BuilderFixture
     {

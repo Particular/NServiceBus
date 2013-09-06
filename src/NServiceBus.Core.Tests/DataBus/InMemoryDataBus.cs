@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.DataBus
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System;
     using NServiceBus.DataBus;
 
     public class InMemoryDataBus : IDataBus

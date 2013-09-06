@@ -5,8 +5,7 @@ namespace NServiceBus.Transports.ActiveMQ
     using System.Linq;
     using Apache.NMS;
     using Apache.NMS.Util;
-
-    using NServiceBus.Serialization;
+    using Serialization;
 
     public class ActiveMqMessageMapper : IActiveMqMessageMapper
     {

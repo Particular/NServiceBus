@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Unicast.Routing;
     using Saga;
     using Unicast;
+    using Unicast.Routing;
 
     /// <summary>
     /// The default strategy for auto subscriptions.

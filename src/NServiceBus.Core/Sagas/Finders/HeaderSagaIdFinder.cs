@@ -1,7 +1,7 @@
 namespace NServiceBus.Sagas.Finders
 {
     using System;
-    using NServiceBus.Saga;
+    using Saga;
 
     /// <summary>
     /// Finds sagas based on the sagaid header

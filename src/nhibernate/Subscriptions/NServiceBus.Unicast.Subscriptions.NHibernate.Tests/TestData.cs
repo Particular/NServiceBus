@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     public interface ISomeInterface

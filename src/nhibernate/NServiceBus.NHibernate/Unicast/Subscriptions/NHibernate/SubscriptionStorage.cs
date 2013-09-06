@@ -3,9 +3,9 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate
     using System.Collections.Generic;
     using System.Linq;
     using System.Transactions;
+    using global::NHibernate.Criterion;
     using Logging;
     using MessageDrivenSubscriptions;
-    using global::NHibernate.Criterion;
 
     /// <summary>
     /// Subscription storage using NHibernate for persistence 

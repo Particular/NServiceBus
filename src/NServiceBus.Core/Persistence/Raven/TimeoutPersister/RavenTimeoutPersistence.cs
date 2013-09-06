@@ -5,11 +5,10 @@ namespace NServiceBus.Persistence.Raven.TimeoutPersister
     using System.Linq;
     using System.Net;
     using System.Text;
-    using Timeout.Core;
-    using Logging;
-    using Raven;
     using global::Raven.Client;
     using global::Raven.Client.Linq;
+    using Logging;
+    using Timeout.Core;
 
     public class RavenTimeoutPersistence : IPersistTimeouts
     {

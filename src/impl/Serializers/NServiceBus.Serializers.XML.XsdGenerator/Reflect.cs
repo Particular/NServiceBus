@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.Collections.Generic;
     using Utils.Reflection;
 
     public static class Reflect

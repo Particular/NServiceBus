@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace EasyNetQ
+﻿namespace EasyNetQ
 {
+    using System;
+    using System.Runtime.Serialization;
+
     [Serializable]
     public class EasyNetQException : Exception
     {

@@ -1,6 +1,5 @@
 namespace NServiceBus.Gateway.Tests.HeaderManagement
 {
-    using System.Collections.Generic;
     using Gateway.HeaderManagement;
     using NUnit.Framework;
 

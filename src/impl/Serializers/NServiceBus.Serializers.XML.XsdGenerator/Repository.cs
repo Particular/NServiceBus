@@ -1,9 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+
     public static class Repository
     {
         /// <summary>

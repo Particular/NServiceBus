@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Logging;
-
-namespace NServiceBus.Hosting.Configuration
+﻿namespace NServiceBus.Hosting.Configuration
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Helpers;
+    using Logging;
+
     /// <summary>
     /// Configures the host upon startup
     /// </summary>

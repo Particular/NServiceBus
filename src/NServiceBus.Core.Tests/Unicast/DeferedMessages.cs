@@ -3,7 +3,6 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Rhino.Mocks;
     using Timeout;
 
     [TestFixture]

@@ -3,12 +3,10 @@
     using System;
     using System.Text;
     using System.Transactions;
-    using NServiceBus;
-    using RabbitMQ;
-    using Unicast.Queuing;
-    using NUnit.Framework;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
+    using NUnit.Framework;
+    using Unicast.Queuing;
 
     [TestFixture]
     [Explicit("requires rabbit node")]

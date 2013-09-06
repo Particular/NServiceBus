@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class MessageProducerTests

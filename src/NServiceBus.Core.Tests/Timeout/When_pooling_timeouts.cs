@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-   [TestFixture]
+    [TestFixture]
    [Explicit]
     public class When_pooling_timeouts_with_raven : When_pooling_timeouts
     {

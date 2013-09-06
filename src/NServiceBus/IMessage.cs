@@ -1,8 +1,8 @@
-using System;
-
 namespace NServiceBus
 {
-	/// <summary>
+    using System;
+
+    /// <summary>
 	/// Marker interface to indicate that a class is a message suitable
 	/// for transmission and handling by an NServiceBus.
 	/// </summary>

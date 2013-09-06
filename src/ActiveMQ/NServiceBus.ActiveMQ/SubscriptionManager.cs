@@ -2,7 +2,6 @@ namespace NServiceBus.Transports.ActiveMQ
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Subscriptions;
 
     public class SubscriptionManager : INotifyTopicSubscriptions, IManageSubscriptions
     {

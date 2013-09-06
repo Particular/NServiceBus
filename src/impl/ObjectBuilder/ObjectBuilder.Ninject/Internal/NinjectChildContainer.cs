@@ -2,10 +2,10 @@ namespace NServiceBus.ObjectBuilder.Ninject.Internal
 {
     using System;
     using System.Collections.Generic;
+    using Common;
     using global::Ninject;
     using global::Ninject.Extensions.NamedScope;
     using global::Ninject.Syntax;
-    using Common;
 
     public class NinjectChildContainer : DisposeNotifyingObject, IContainer
     {

@@ -2,10 +2,10 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
     using System;
     using Config.Internal;
-    using NUnit.Framework;
-    using Saga;
     using global::NHibernate.Cfg;
     using global::NHibernate.Impl;
+    using NUnit.Framework;
+    using Saga;
 
     [TestFixture]
     public class When_automapping_sagas_with_abstract_base_class

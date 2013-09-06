@@ -2,17 +2,14 @@
 {
     using System;
     using System.Transactions;
+    using ActiveMQ.Receivers;
+    using ActiveMQ.Receivers.TransactionsScopes;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using FluentAssertions;
     using Moq;
-
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
-
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
-    using NServiceBus.Transports.ActiveMQ.Receivers;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
-    using TransactionSettings = Unicast.Transport.TransactionSettings;
+    using Unicast.Transport;
 
     [TestFixture]
     public class MessageProcessorTest

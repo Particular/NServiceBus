@@ -2,10 +2,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes
 {
     using System;
     using System.Transactions;
-
     using Apache.NMS;
-
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
+    using SessionFactories;
 
     public class DTCTransactionScope : ITransactionScope
     {

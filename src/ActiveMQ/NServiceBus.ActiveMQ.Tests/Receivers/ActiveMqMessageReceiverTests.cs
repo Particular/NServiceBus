@@ -2,11 +2,11 @@
 {
     using System;
     using System.Transactions;
+    using ActiveMQ.Receivers;
     using Apache.NMS;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.Receivers;
-    using TransactionSettings = Unicast.Transport.TransactionSettings;
+    using Unicast.Transport;
 
     [TestFixture]
     public class ActiveMqMessageReceiverTests

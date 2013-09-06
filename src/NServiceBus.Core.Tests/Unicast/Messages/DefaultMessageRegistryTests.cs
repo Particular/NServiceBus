@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
-	using System;
-	using NUnit.Framework;
-	using Unicast.Messages;
+    using System;
+    using NUnit.Framework;
+    using Unicast.Messages;
 
-	[TestFixture]
+    [TestFixture]
 	public class DefaultMessageRegistryTests
 	{
 		[TestFixture]

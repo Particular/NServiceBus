@@ -2,13 +2,10 @@
 {
     using System;
     using System.IO;
-    using System.Xml.Linq;
-
-    using NServiceBus.Serializers.Binary;
-
-    using NUnit.Framework;
-
     using System.Linq;
+    using System.Xml.Linq;
+    using NServiceBus.Serializers.Binary;
+    using NUnit.Framework;
 
     [TestFixture]
     public class BinarySerializerTest

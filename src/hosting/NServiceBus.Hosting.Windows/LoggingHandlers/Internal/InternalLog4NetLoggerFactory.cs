@@ -1,8 +1,8 @@
-﻿using System;
-using NServiceBus.Logging;
-
-namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
+﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers.Internal
 {
+    using System;
+    using Logging;
+
     internal class InternalLog4NetLoggerFactory : ILoggerFactory
     {
         public ILog GetLogger(Type type)

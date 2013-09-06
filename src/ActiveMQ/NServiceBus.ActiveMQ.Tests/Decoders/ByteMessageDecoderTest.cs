@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Decoders
 {
+    using ActiveMQ.Decoders;
     using Apache.NMS;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.Decoders;
 
     [TestFixture]
     public class ByteMessageDecoderTest

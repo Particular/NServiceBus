@@ -3,7 +3,6 @@
     using System;
     using Arguments;
 
-
     /// <summary>
     /// Windows Installer for NService Bus Host
     /// </summary>

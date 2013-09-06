@@ -1,8 +1,8 @@
 namespace NServiceBus.Unicast.Transport
 {
-	using System;
+    using System;
 
-	/// <summary>
+    /// <summary>
 	/// Defines the basic functionality of a transport to be used by NServiceBus.
 	/// </summary>
 	public interface ITransport

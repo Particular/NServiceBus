@@ -1,13 +1,10 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers.TransactionScopes
 {
+    using ActiveMQ.Receivers.TransactionsScopes;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using Moq;
-
-    using NServiceBus.Transports.ActiveMQ.Receivers.TransactionsScopes;
-
     using NUnit.Framework;
-
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class ActiveMqTransactionTests

@@ -1,8 +1,7 @@
-﻿using RabbitMQ.Client;
-
-namespace EasyNetQ
+﻿namespace EasyNetQ
 {
     using NServiceBus.Transports.RabbitMQ.Config;
+    using RabbitMQ.Client;
 
     public interface IConnectionFactory
     {

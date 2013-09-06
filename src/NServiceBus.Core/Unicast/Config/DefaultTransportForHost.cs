@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Config
     using Settings;
     using Transports;
 
-
     /// <summary>
     /// Default to MSMQ transport if no other transport has been configured. This can be removed when we introduce the modules concept
     /// </summary>

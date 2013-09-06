@@ -1,8 +1,8 @@
 namespace NServiceBus.GatewayPersister.NHibernate.Tests
 {
     using System;
-    using NUnit.Framework;
     using System.Linq;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_storing_a_new_message : BaseStorage

@@ -22,8 +22,6 @@ namespace NServiceBus.Features
     using NServiceBus.SecondLevelRetries;
     using Settings;
 
-    
-
     public class SecondLevelRetries : Feature
     {
         public override bool ShouldBeEnabled()

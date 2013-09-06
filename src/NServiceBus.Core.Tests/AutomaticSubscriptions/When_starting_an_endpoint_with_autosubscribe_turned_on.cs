@@ -1,9 +1,7 @@
 namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 {
-    using System;
     using System.Linq;
     using NUnit.Framework;
-    using Saga;
     using Unicast.Tests.Contexts;
 
     [TestFixture]

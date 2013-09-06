@@ -2,11 +2,11 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Installer
 {
     using System;
     using Config;
+    using global::NHibernate.Tool.hbm2ddl;
     using Installation;
     using Installation.Environments;
     using NServiceBus.Config;
     using Persistence.NHibernate;
-    using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
     /// Installer for <see cref="TimeoutStorage"/>

@@ -2,18 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-
     using Apache.NMS;
     using Apache.NMS.Util;
-
     using FluentAssertions;
-
     using Moq;
-
-    using NServiceBus.Serialization;
-    using NServiceBus.Transports.ActiveMQ;
-
     using NUnit.Framework;
+    using Serialization;
 
     [TestFixture]
     public class ActiveMqMessageMapperTest

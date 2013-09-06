@@ -3,15 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Common;
     using global::Ninject;
     using global::Ninject.Activation;
     using global::Ninject.Infrastructure;
     using global::Ninject.Injection;
     using global::Ninject.Parameters;
-    using global::Ninject.Selection;
-    using Common;
-    using Internal;
     using global::Ninject.Planning.Bindings;
+    using global::Ninject.Selection;
+    using Internal;
 
     /// <summary>
     /// Implementation of IBuilderInternal using the Ninject Framework container

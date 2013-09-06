@@ -2,7 +2,7 @@ namespace NServiceBus.Sagas.Finders
 {
     using System;
     using System.Reflection;
-    using NServiceBus.Saga;
+    using Saga;
 
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.

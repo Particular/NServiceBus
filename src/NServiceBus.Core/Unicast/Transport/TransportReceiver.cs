@@ -2,10 +2,10 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.Serialization;
     using System.Transactions;
     using Faults;
     using Logging;
-    using System.Runtime.Serialization;
     using Monitoring;
     using Transports;
 

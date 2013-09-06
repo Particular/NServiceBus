@@ -5,7 +5,6 @@ namespace NServiceBus.Config.Conventions
     using System.Linq;
     using System.Reflection;
     using System.Web;
-    using Hosting.Helpers;
     using Utils;
 
     /// <summary>

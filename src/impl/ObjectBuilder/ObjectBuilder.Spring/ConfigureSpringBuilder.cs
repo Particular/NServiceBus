@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
+    using ObjectBuilder.Common.Config;
     using ObjectBuilder.Spring;
     using Spring.Context.Support;
-    using ObjectBuilder.Common.Config;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/> for configuring the Spring container.

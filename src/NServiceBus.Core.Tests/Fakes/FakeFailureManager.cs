@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Fakes
 {
     using System;
-    using NServiceBus.Faults;
+    using Faults;
 
     public class FakeFailureManager : IManageMessageFailures
     {

@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Transport.Config
     using System.Configuration;
     using Licensing;
     using NServiceBus.Config;
-    using INeedInitialization = INeedInitialization;
+    using INeedInitialization = NServiceBus.INeedInitialization;
 
     public class Bootstrapper : INeedInitialization
     {

@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Tests
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Rhino.Mocks;
 
     [TestFixture]
     public class When_subscribing_to_messages : using_the_unicastbus

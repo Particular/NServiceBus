@@ -1,8 +1,8 @@
-using System;
-using System.Text;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.Text;
+
     public class SimpleTypeWriter
     {
         public static void Write(Type t, StringBuilder builder)

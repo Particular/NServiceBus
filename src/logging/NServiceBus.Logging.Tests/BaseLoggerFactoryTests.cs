@@ -1,8 +1,8 @@
-using System;
-using NUnit.Framework;
-
 namespace NServiceBus.Logging.Tests
 {
+    using System;
+    using NUnit.Framework;
+
     public abstract class BaseLoggerFactoryTests
     {
         protected void CallAllMethodsOnLog(ILog log)

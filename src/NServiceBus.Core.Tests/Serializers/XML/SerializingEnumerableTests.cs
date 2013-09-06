@@ -1,10 +1,10 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
-
-namespace NServiceBus.Serializers.XML.Test
+﻿﻿namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using NUnit.Framework;
+
     [Serializable]
     public class MessageWithEnumerableOfString
     {

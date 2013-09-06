@@ -8,7 +8,6 @@
     using System.IO;
     using System.Linq;
     using System.Security.Principal;
-    using NHibernate;
     using Config;
     using NUnit.Framework;
     using Persistence.NHibernate;

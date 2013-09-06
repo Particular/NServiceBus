@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using NServiceBus.Hosting.Profiles;
-
-namespace NServiceBus.Hosting.Windows.Profiles.Handlers
+﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.Linq;
+    using Hosting.Profiles;
+
     class DistributorProfileHandler : IHandleProfile<Distributor>, IWantTheListOfActiveProfiles
     {
         public void ProfileActivated()

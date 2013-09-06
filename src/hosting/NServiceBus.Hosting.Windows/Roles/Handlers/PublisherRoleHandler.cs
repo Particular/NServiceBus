@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     using Features;
     using Hosting.Roles;
-    using Settings;
     using Unicast.Config;
 
     /// <summary>

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Extension method on message handler.

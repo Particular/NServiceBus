@@ -1,7 +1,7 @@
 namespace NServiceBus.Sagas
 {
     using System;
-    using NServiceBus.MessageMutator;
+    using MessageMutator;
 
     /// <summary>
     /// Promotes the saga id and type headers on replies(bus.Reply|bus.Return) so that the saga can be 

@@ -2,7 +2,6 @@ namespace NServiceBus.Transports.Msmq
 {
     using System;
     using System.Messaging;
-    using System.Threading;
     using System.Transactions;
     using Config;
     using Settings;

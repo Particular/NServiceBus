@@ -1,10 +1,9 @@
-using NUnit.Framework;
-
 namespace NServiceBus.Gateway.Tests.Routing
 {
     using System.Collections.Generic;
     using System.Linq;
     using Channels;
+    using NUnit.Framework;
     using Receiving;
 
     [TestFixture]

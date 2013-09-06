@@ -5,9 +5,9 @@ namespace NServiceBus.TimeoutPersisters.NHibernate
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
+    using global::NHibernate;
     using Serializers.Json;
     using Timeout.Core;
-    using global::NHibernate;
 
     /// <summary>
     /// Timeout storage implementation for NHIbernate.

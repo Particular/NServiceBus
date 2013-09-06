@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Logging;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Utils.Reflection;
-
-namespace NServiceBus.Hosting.Roles
+﻿namespace NServiceBus.Hosting.Roles
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Helpers;
+    using Logging;
+    using Unicast.Config;
+    using Utils.Reflection;
+
     /// <summary>
     /// Handles the different roles that are registered
     /// </summary>

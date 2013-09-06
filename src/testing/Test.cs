@@ -1,17 +1,15 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.MessageInterfaces;
-using NServiceBus.Saga;
-using NServiceBus.Config.ConfigurationSource;
-
-namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using Features.Categories;
+    using System.Linq;
+    using System.Reflection;
+    using Config.ConfigurationSource;
     using DataBus.InMemory;
-    using Persistence.InMemory.SagaPersister;
+    using Features.Categories;
+    using MessageInterfaces;
+    using Saga;
 
     /// <summary>
     /// Entry class used for unit testing

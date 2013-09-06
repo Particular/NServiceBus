@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using NServiceBus.Faults;
+    using Faults;
 
     internal class FirstLevelRetries
     {

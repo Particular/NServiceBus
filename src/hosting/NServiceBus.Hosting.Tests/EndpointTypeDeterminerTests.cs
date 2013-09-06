@@ -6,11 +6,11 @@ namespace NServiceBus.Hosting.Tests
         using System.Configuration;
         using System.Reflection;
         using System.Reflection.Emit;
+        using Windows;
+        using Windows.Arguments;
         using EndpointTypeTests;
         using Helpers;
         using NUnit.Framework;
-        using Windows;
-        using Windows.Arguments;
 
         public abstract class TestContext
         {

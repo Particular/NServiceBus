@@ -3,6 +3,9 @@ namespace ObjectBuilder.Tests
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Ninject;
+    using Ninject.Extensions.ContextPreservation;
+    using Ninject.Extensions.NamedScope;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.CastleWindsor;
     using NServiceBus.ObjectBuilder.Ninject;
@@ -10,9 +13,6 @@ namespace ObjectBuilder.Tests
     using NServiceBus.ObjectBuilder.StructureMap;
     using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
-    using Ninject;
-    using Ninject.Extensions.ContextPreservation;
-    using Ninject.Extensions.NamedScope;
     using StructureMap;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 

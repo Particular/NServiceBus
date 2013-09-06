@@ -75,15 +75,15 @@
 
         public class ModelWithMultipleUniqueProperty
         {
-            [UniqueAttribute]
+            [Unique]
             public string PropertyWithAttribute1 { get; set; }   
-            [UniqueAttribute]
+            [Unique]
             public string PropertyWithAttribute2 { get; set; }   
         }
 
         public class ModelWithUniqueProperty
         {
-            [UniqueAttribute]
+            [Unique]
             public virtual string PropertyWithAttribute { get; set; }   
             public string PropertyWithNoAttribute { get; set; }   
         }

@@ -3,9 +3,9 @@ namespace NServiceBus.Hosting.Tests
     namespace EndpointTypeTests
     {
         using System;
-        using NUnit.Framework;
         using Windows;
         using Windows.Arguments;
+        using NUnit.Framework;
 
         public abstract class TestContext
         {

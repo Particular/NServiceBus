@@ -6,7 +6,6 @@
     using Transports.RabbitMQ;
     using Transports.RabbitMQ.Config;
     using Transports.RabbitMQ.Routing;
-    using Unicast.Queuing.Installers;
 
     public class RabbitMqTransport : ConfigureTransport<RabbitMQ>
     {

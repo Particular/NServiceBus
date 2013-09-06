@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.Conventions
 {
-    using NUnit.Framework;
-
     namespace NServiceBus.Config.UnitTests
     {
+        using NUnit.Framework;
+
         [TestFixture]
         public class When_applying_message_conventions_to_messages : MessageConventionTestBase
         {

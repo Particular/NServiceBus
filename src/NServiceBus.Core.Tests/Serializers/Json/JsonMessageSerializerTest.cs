@@ -3,7 +3,6 @@ namespace NServiceBus.Serializers.Json.Tests
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
-
     using NUnit.Framework;
 
     [TestFixture]

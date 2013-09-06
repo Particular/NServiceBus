@@ -4,7 +4,6 @@
     using System.Security;
     using Setup.Windows;
 
-
     public abstract class CmdletBase : PSCmdlet
     {
         protected override void BeginProcessing()

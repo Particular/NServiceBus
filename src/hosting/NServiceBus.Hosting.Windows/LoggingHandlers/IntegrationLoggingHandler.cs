@@ -1,9 +1,9 @@
-﻿using NServiceBus.Hosting.Windows.LoggingHandlers.Internal;
-using NServiceBus.Logging.Loggers.Log4NetAdapter;
-using NServiceBus.Logging.Loggers.NLogAdapter;
-
-namespace NServiceBus.Hosting.Windows.LoggingHandlers
+﻿namespace NServiceBus.Hosting.Windows.LoggingHandlers
 {
+    using Internal;
+    using Logging.Loggers.Log4NetAdapter;
+    using Logging.Loggers.NLogAdapter;
+
     /// <summary>
     /// Handles logging configuration for the integration profile.
     /// </summary>

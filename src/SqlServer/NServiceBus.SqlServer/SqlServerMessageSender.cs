@@ -4,7 +4,7 @@
     using System.Data;
     using System.Data.SqlClient;
     using System.Threading;
-    using NServiceBus.Serializers.Json;
+    using Serializers.Json;
     using Unicast.Queuing;
 
     /// <summary>

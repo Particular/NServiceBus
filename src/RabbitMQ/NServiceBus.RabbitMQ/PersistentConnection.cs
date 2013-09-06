@@ -1,13 +1,13 @@
 namespace NServiceBus.Transports.RabbitMQ
 {
     using System;
+    using System.Collections;
     using System.Threading;
     using EasyNetQ;
-    using System.Collections;
-    using Logging;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
     using global::RabbitMQ.Client.Exceptions;
+    using Logging;
 
     /// <summary>
     /// A connection that attempts to reconnect if the inner connection is closed.

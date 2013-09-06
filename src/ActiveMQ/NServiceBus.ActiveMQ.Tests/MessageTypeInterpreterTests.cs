@@ -2,7 +2,6 @@ namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using FluentAssertions;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     public class MessageTypeInterpreterTests

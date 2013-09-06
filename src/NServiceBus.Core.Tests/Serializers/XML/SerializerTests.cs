@@ -1,26 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.Collections;
-using NUnit.Framework;
-
 namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
     using System.Net.Mail;
+    using System.Runtime.Serialization;
     using System.Text;
+    using System.Threading;
+    using System.Xml;
     using System.Xml.Linq;
-
     using A;
     using B;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-
+    using NUnit.Framework;
     using Serialization;
 
     [TestFixture]
@@ -951,7 +948,10 @@ namespace NServiceBus.Serializers.XML.Test
 
 namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 {
-	public class AlternateItemList : List<MessageWithListItemAlternate>
+    using System.Collections.Generic;
+    using System.Linq;
+
+    public class AlternateItemList : List<MessageWithListItemAlternate>
 	{
 	}
 

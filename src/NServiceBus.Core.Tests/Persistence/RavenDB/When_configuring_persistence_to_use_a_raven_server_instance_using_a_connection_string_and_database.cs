@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB
 {
+    using System;
     using NServiceBus.Persistence.Raven;
     using NUnit.Framework;
-    using System;
 
     [TestFixture]
     public class When_configuring_persistence_to_use_a_raven_server_instance_using_a_connection_string_and_database : WithRavenDbServer

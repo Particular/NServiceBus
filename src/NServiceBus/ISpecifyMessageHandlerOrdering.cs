@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Specify the order in which message handlers will be invoked.
     /// </summary>

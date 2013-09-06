@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public abstract class ActualInvocation { }
 
     public interface IExpectedInvocation

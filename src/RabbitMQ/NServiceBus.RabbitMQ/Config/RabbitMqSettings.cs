@@ -3,9 +3,8 @@
     using System;
     using EasyNetQ;
     using NServiceBus.Config;
-    using Settings;
-    using RabbitMQ;
     using Routing;
+    using Settings;
 
     /// <summary>
     /// The custom settings available for the RabbitMq transport

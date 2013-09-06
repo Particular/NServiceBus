@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using Persistence.Raven;
     using Persistence.Raven.SubscriptionStorage;
-    using Raven.Client;
 
     public static class ConfigureRavenSubscriptionStorage
     {

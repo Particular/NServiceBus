@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Text;
-using NUnit.Framework;
-
 namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+    using System.IO;
+    using System.Text;
+    using NUnit.Framework;
+
     [Serializable]
     public class MessageWithArray
     {

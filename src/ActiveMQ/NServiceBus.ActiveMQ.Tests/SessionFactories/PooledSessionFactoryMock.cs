@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.SessionFactories
 {
     using System.Collections.Generic;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using Moq;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     internal class PooledSessionFactoryMock : ISessionFactory
     {

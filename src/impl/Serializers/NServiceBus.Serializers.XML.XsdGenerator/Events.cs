@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+
     public static class Events
     {
         public static event EventHandler GuidDetected;

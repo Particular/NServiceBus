@@ -3,12 +3,12 @@ namespace NServiceBus.Persistence.Raven
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Installation;
-    using NServiceBus.Installation.Environments;
-    using NServiceBus.Logging;
     using global::Raven.Abstractions.Extensions;
     using global::Raven.Client.Document;
     using global::Raven.Json.Linq;
+    using Installation;
+    using Installation.Environments;
+    using Logging;
 
     /// <summary>
     /// Add the identity to the Raven users group 

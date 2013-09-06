@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using NServiceBus.Hosting.Profiles;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+    using Hosting.Profiles;
+
     /// <summary>
     /// If you want to specify your own container or serializer,
     /// implement this interface on the class which implements <see cref="IConfigureThisEndpoint"/>.

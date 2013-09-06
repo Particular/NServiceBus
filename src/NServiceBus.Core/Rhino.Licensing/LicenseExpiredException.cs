@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace Rhino.Licensing
+﻿namespace Rhino.Licensing
 {
+    using System;
+    using System.Runtime.Serialization;
+
     ///<summary>
     /// Thrown when license is found but is past it's expiration date
     ///</summary>

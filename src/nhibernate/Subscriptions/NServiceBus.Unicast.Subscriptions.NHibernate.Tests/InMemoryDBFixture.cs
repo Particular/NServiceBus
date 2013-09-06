@@ -1,14 +1,12 @@
-using System.IO;
-using NHibernate.Cfg;
-using NHibernate.Cfg.MappingSchema;
-using NHibernate.Dialect;
-using NHibernate.Mapping.ByCode;
-using NHibernate.Tool.hbm2ddl;
-using NUnit.Framework;
-
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
+    using System.IO;
+    using global::NHibernate.Cfg;
+    using global::NHibernate.Dialect;
+    using global::NHibernate.Mapping.ByCode;
+    using global::NHibernate.Tool.hbm2ddl;
     using MessageDrivenSubscriptions;
+    using NUnit.Framework;
 
     public class InMemoryDBFixture
     {

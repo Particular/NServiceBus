@@ -10,8 +10,8 @@
     using CircuitBreakers;
     using Logging;
     using Serializers.Json;
-    using Utils;
     using Unicast.Transport;
+    using Utils;
     using IsolationLevel = System.Data.IsolationLevel;
 
     /// <summary>

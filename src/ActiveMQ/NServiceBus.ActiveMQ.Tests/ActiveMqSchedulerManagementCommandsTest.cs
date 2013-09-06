@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests
 {
     using System.Collections.Generic;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using Apache.NMS.ActiveMQ.Commands;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     public class ActiveMqSchedulerManagementCommandsTest
     {

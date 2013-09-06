@@ -2,7 +2,6 @@
 {
     using System;
     using Contexts;
-    using NServiceBus;
     using NUnit.Framework;
     using Transport;
 

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.Saga;
-
-namespace NServiceBus.Testing
+﻿namespace NServiceBus.Testing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class StubBus : IBus
     {
         private readonly IMessageCreator messageCreator;

@@ -1,5 +1,3 @@
-using NUnit.Framework;
-
 namespace NServiceBus.Gateway.Tests.Routing
 {
     using System.Linq;
@@ -7,6 +5,7 @@ namespace NServiceBus.Gateway.Tests.Routing
     using Channels;
     using Gateway.Routing;
     using Gateway.Routing.Sites;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_routing_using_the_configuration_source

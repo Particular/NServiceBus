@@ -2,7 +2,7 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Satellites;
+    using Satellites;
 
     public class ActiveMqSchedulerManagement : ISatellite
     {

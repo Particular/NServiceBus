@@ -1,8 +1,8 @@
-using System;
-using NUnit.Framework;
-
 namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests.Config
 {
+    using System;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_configuring_the_subscription_storage
     {

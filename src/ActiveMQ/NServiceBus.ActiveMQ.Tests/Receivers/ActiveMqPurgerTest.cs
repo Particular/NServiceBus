@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Receivers
 {
+    using ActiveMQ.Receivers;
     using Apache.NMS;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.Receivers;
 
     public class ActiveMqPurgerTest
     {

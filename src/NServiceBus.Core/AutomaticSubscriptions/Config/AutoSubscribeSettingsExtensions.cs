@@ -4,7 +4,6 @@ namespace NServiceBus
     using AutomaticSubscriptions.Config;
     using Features;
 
-
     public static class AutoSubscribeSettingsExtensions
     {
         public static FeatureSettings AutoSubscribe(this FeatureSettings settings, Action<AutoSubscribeSettings> customSettings)

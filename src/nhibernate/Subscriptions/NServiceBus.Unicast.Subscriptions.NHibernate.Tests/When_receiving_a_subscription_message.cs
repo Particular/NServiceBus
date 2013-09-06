@@ -1,8 +1,8 @@
-﻿using System.Transactions;
-using NUnit.Framework;
-
-namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
+﻿namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
+    using System.Transactions;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_receiving_a_subscription_message : InMemoryDBFixture
     {

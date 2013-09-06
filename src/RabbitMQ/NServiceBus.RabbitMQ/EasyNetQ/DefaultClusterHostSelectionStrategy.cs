@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace EasyNetQ
+﻿namespace EasyNetQ
 {
+    using System.Collections;
+    using System.Collections.Generic;
+
     /// <summary>
     /// A collection that hands out the next item until success, or until every item has been tried.
     /// </summary>

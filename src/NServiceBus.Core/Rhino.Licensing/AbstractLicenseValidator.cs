@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
-using System.Threading;
-using System.Xml;
-
-namespace Rhino.Licensing
+﻿namespace Rhino.Licensing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.Xml;
+    using System.Threading;
+    using System.Xml;
     using NServiceBus.Logging;
     using NServiceBus.Logging.Loggers;
 

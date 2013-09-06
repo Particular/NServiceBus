@@ -1,7 +1,7 @@
-using NServiceBus.Hosting.Roles;
-
 namespace NServiceBus
 {
+    using Hosting.Roles;
+
     /// <summary>
     /// Indicates this endpoint is a server.
     /// As such will be set up as a transactional endpoint using impersonation, not purging messages on startup.

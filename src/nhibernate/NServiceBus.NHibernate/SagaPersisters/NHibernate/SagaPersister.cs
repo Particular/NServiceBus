@@ -1,9 +1,9 @@
 namespace NServiceBus.SagaPersisters.NHibernate
 {
     using System;
+    using global::NHibernate.Criterion;
     using Saga;
     using UnitOfWork.NHibernate;
-    using global::NHibernate.Criterion;
 
     /// <summary>
     /// Saga persister implementation using NHibernate.

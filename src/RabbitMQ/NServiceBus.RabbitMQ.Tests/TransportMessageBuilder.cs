@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Transports.RabbitMQ.Tests
 {
     using System;
-    using NServiceBus;
 
     public class TransportMessageBuilder
     {

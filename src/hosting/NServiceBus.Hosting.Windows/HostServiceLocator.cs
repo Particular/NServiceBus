@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.Practices.ServiceLocation;
-using NServiceBus.Hosting.Windows.Arguments;
-
 namespace NServiceBus.Hosting.Windows
 {
+    using System;
+    using System.Collections.Generic;
+    using Arguments;
+    using Microsoft.Practices.ServiceLocation;
+
     /// <summary>
     /// Plugs into the generic service locator to return an instance of <see cref="GenericHost"/>.
     /// </summary>

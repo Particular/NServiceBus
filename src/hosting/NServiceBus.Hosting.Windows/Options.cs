@@ -123,17 +123,6 @@
 //      p.Parse (new string[]{"-a-"});  // sets v == null
 //
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Globalization;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
-using System.Text;
-using System.Text.RegularExpressions;
 
 #if LINQ
 using System.Linq;
@@ -145,6 +134,16 @@ using NDesk.Options;
 
 namespace NDesk.Options
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Runtime.Serialization;
+    using System.Security.Permissions;
+    using System.Text;
+    using System.Text.RegularExpressions;
 
     public class OptionValueCollection : IList, IList<string>
     {

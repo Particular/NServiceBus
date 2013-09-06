@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Tests.Decoders
 {
+    using ActiveMQ.Decoders;
     using Apache.NMS;
     using Apache.NMS.Util;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.Decoders;
 
     [TestFixture]
     public class ControlMessageDecoderTest

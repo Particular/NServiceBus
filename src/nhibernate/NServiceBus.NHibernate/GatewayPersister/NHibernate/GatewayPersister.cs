@@ -6,9 +6,9 @@ namespace NServiceBus.GatewayPersister.NHibernate
     using System.IO;
     using Config;
     using Gateway.Persistence;
-    using Serializers.Json;
     using global::NHibernate;
     using global::NHibernate.Exceptions;
+    using Serializers.Json;
 
     /// <summary>
     /// NHibernate Gateway persister;

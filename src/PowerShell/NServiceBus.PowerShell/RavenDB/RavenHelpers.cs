@@ -5,7 +5,6 @@
     using System.Net;
     using System.Security.Principal;
 
-
     /// <summary>
     /// Copied from RavenDB and modified for out needs
     /// </summary>

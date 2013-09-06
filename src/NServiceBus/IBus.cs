@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Defines a bus to be used with NServiceBus.
     /// </summary>

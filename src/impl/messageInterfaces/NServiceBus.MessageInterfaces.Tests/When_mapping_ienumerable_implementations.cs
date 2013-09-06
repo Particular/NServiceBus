@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using NUnit.Framework;
-
-namespace NServiceBus.MessageInterfaces.Tests
+﻿namespace NServiceBus.MessageInterfaces.Tests
 {
-	[TestFixture]
+    using System.Collections;
+    using System.Collections.Generic;
+    using NUnit.Framework;
+
+    [TestFixture]
 	public class When_mapping_ienumerable_implementations
 	{
 		IMessageMapper mapper;

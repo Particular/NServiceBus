@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("NServiceBus Notifications")]
 [assembly: AssemblyDescription("Enterprise application framework for publish/subscribe and long-running business processes.")]
@@ -11,5 +9,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: AssemblyConfiguration("release")]
 [assembly: ComVisible(false)]		
-[assembly: CLSCompliantAttribute(true)]
+[assembly: CLSCompliant(true)]
 

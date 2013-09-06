@@ -3,7 +3,7 @@ namespace NServiceBus.Sagas
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Saga;
+    using Saga;
 
     /// <summary>
     /// Defining <see cref="IHandleTimeouts{T}"/> as valid system messages

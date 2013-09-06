@@ -1,7 +1,7 @@
-using System;
-
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// The object found in <see cref="IAsyncResult"/>.AsyncState returned by the <see cref="AsyncCallback"/> 
     /// passed to the Send method of the bus.

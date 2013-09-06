@@ -6,12 +6,12 @@
 //
 //--------------------------------------------------------------------------
 
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace System.Threading.Tasks.Schedulers
 {
+    using Collections.Concurrent;
+    using Collections.Generic;
+    using Linq;
+
     /// <summary>Provides a scheduler that uses MTA threads.</summary>
     public sealed class MTATaskScheduler : TaskScheduler, IDisposable
     {

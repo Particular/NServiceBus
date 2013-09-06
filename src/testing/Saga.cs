@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using NServiceBus.Saga;
-
 namespace NServiceBus.Testing
 {
+    using System;
+    using System.Collections.Generic;
+    using Saga;
+
     /// <summary>
     /// Saga unit testing framework.
     /// </summary>

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ
 {
-    using NServiceBus.Unicast.Queuing;
-
     public class ActiveMqMessageSender : ISendMessages
     {
         private readonly IMessageProducer messageProducer;

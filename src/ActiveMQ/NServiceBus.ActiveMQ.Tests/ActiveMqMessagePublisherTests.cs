@@ -2,7 +2,6 @@
 {
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     public class ActiveMqMessagePublisherTests

@@ -1,10 +1,9 @@
-using NUnit.Framework;
-using log4net.Appender;
-using log4net.Core;
-
 namespace NServiceBus.Logging.Tests.Log4Net
 {
+    using log4net.Appender;
+    using log4net.Core;
     using Loggers.Log4NetAdapter;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ConfiguratorTests

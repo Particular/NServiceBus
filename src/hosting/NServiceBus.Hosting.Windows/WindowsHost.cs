@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-
 namespace NServiceBus.Hosting.Windows
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading;
+
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution
     /// </summary>

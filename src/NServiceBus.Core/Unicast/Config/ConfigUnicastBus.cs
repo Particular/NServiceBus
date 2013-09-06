@@ -9,9 +9,8 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
-    using Settings;
     using Routing;
-    using Utils;
+    using Settings;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.

@@ -1,11 +1,11 @@
-using System;
-using System.Linq;
-using System.Net;
-using NServiceBus;
-using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
-
 namespace ReturnToSourceQueue
 {
+    using System;
+    using System.Linq;
+    using System.Net;
+    using NServiceBus;
+    using NServiceBus.Tools.Management.Errors.ReturnToSourceQueue;
+
     class Program
     {
         static void Main(string[] args)

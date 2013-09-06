@@ -4,10 +4,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using CircuitBreakers;
-    using Logging;
-    using Unicast.Transport;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
+    using Logging;
+    using Unicast.Transport;
 
     /// <summary>
     ///     Default implementation of <see cref="IDequeueMessages" /> for RabbitMQ.

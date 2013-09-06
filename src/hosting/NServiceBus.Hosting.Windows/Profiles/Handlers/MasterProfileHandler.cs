@@ -6,7 +6,7 @@
     using System.Linq;
     using Features;
     using Hosting.Profiles;
-    
+
     class MasterProfileHandler : IHandleProfile<Master>, IWantTheListOfActiveProfiles
     {
         public void ProfileActivated()

@@ -1,6 +1,6 @@
 namespace NServiceBus.Sagas.Finders
 {
-    using NServiceBus.Saga;
+    using Saga;
 
     /// <summary>
     /// Catch-all finder to return null - so that we can later check

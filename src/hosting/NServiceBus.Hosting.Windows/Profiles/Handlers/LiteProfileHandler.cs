@@ -1,9 +1,7 @@
-﻿using NServiceBus.Faults;
-using NServiceBus.Hosting.Profiles;
-
-
-namespace NServiceBus.Hosting.Windows.Profiles.Handlers
+﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using Faults;
+    using Hosting.Profiles;
     using Persistence.InMemory;
 
     internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig

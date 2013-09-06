@@ -8,7 +8,6 @@
     using Subscriptions.MessageDrivenSubscriptions;
     using Transports;
 
-
     /// <summary>
     /// Published messages based on whats registered in the given subscription storage
     /// </summary>

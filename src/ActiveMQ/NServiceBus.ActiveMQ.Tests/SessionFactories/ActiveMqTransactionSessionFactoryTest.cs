@@ -2,10 +2,10 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using ActiveMQ.SessionFactories;
     using Apache.NMS;
     using FluentAssertions;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
 
     [TestFixture]
     public class ActiveMqTransactionSessionFactoryTest

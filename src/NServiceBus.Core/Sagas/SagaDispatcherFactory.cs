@@ -3,14 +3,13 @@ namespace NServiceBus.Sagas
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Finders;
-    using NServiceBus.IdGeneration;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Saga;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
+    using IdGeneration;
+    using Logging;
+    using ObjectBuilder;
+    using Saga;
+    using Transports;
+    using Unicast;
 
     /// <summary>
     /// Dispatch factory that can dispatch messages to sagas

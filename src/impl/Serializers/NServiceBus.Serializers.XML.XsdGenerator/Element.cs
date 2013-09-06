@@ -1,8 +1,8 @@
-using System;
-using System.Collections;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.Collections;
+
     public class Element
     {
         private string name;

@@ -2,7 +2,6 @@
 {
     using FluentAssertions;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     public class TopicEvaluatorTests

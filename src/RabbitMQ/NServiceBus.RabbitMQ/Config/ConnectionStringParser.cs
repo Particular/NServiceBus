@@ -2,8 +2,8 @@
 {
     using System.ComponentModel;
     using System.Data.Common;
-    using System.Text.RegularExpressions;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     public class ConnectionStringParser : DbConnectionStringBuilder, IConnectionStringParser
     {

@@ -13,7 +13,6 @@ namespace NServiceBus.Unicast
     using System.Threading;
     using System.Threading.Tasks;
     using Audit;
-    using Features;
     using Impersonation;
     using Licensing;
     using Logging;

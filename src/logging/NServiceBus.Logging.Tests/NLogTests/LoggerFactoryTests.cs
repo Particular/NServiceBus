@@ -1,9 +1,8 @@
-﻿using NLog;
-using NUnit.Framework;
-
-namespace NServiceBus.Logging.Tests.NLogTests
+﻿namespace NServiceBus.Logging.Tests.NLogTests
 {
     using Loggers.NLogAdapter;
+    using NLog;
+    using NUnit.Framework;
 
     [TestFixture]
     public class LoggerFactoryTests : BaseLoggerFactoryTests

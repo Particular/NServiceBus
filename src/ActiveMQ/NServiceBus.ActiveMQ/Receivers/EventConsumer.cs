@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Transports.ActiveMQ.Receivers
 {
-    using System;
     using System.Collections.Generic;
     using Apache.NMS;
 

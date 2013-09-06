@@ -1,9 +1,9 @@
-﻿using System;
-using NServiceBus.Saga;
-using NUnit.Framework;
-
-namespace NServiceBus.Testing.Tests
+﻿namespace NServiceBus.Testing.Tests
 {
+    using System;
+    using NUnit.Framework;
+    using Saga;
+
     [TestFixture]
     internal class SagaTests
     {

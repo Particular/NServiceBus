@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus.SagaPersisters.InMemory.Tests
+﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using Saga;
 
     public class TestSaga : IContainSagaData

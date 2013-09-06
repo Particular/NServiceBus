@@ -5,7 +5,6 @@
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
 
     [TestFixture]
     class SubscriptionManagerTests : ITopicSubscriptionListener

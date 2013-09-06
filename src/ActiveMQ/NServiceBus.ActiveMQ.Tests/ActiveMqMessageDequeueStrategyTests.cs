@@ -3,13 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Transactions;
+    using ActiveMQ.Receivers;
+    using ActiveMQ.SessionFactories;
     using FluentAssertions;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
-    using NServiceBus.Transports.ActiveMQ.Receivers;
-    using NServiceBus.Transports.ActiveMQ.SessionFactories;
-    using TransactionSettings = Unicast.Transport.TransactionSettings;
+    using Unicast.Transport;
 
     [TestFixture]
     public class ActiveMqMessageDequeueStrategyTests

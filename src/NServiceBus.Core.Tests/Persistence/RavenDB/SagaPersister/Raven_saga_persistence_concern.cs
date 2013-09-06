@@ -6,7 +6,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     using NUnit.Framework;
     using Raven.Client;
     using Raven.Client.Embedded;
-    using NServiceBus.Saga;
+    using Saga;
 
     public abstract class Raven_saga_persistence_concern
     {

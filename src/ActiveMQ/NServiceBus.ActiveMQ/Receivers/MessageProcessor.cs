@@ -6,11 +6,8 @@ namespace NServiceBus.Transports.ActiveMQ.Receivers
     using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Util;
-
-    using TransactionsScopes;
-
     using SessionFactories;
-
+    using TransactionsScopes;
     using Unicast.Transport;
 
     public class MessageProcessor : IProcessMessages

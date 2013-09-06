@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
+
     public class ComplexType
     {
         private readonly IList<Element> elements = new List<Element>();

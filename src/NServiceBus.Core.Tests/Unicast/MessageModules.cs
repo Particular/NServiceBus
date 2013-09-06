@@ -3,7 +3,7 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-   
+
     [TestFixture]
     public class When_processing_a_message_successfully_with_a_registered_message_module : using_the_unicastbus
     {

@@ -3,9 +3,9 @@ namespace NServiceBus.Gateway.Persistence.Raven
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using NServiceBus.Persistence.Raven;
+    using global::Raven.Abstractions.Exceptions;
     using global::Raven.Client;
-    using ConcurrencyException = global::Raven.Abstractions.Exceptions.ConcurrencyException;
+    using NServiceBus.Persistence.Raven;
 
     public class RavenDbPersistence : IPersistMessages
     {

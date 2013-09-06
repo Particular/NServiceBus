@@ -1,10 +1,10 @@
-﻿using System;
-using NHibernate.Exceptions;
-using NServiceBus.Saga;
-using NUnit.Framework;
-
-namespace NServiceBus.SagaPersisters.NHibernate.Tests
+﻿namespace NServiceBus.SagaPersisters.NHibernate.Tests
 {
+    using System;
+    using global::NHibernate.Exceptions;
+    using NUnit.Framework;
+    using Saga;
+
     [TestFixture]
     public class When_persisting_a_saga_with_a_unique_property : InMemoryFixture
     {

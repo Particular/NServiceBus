@@ -5,7 +5,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using IdGeneration;
     using global::RabbitMQ.Client;
     using global::RabbitMQ.Client.Events;
 

@@ -272,8 +272,8 @@
 
         /// Return Type: HMODULE->HINSTANCE->HINSTANCE__*
         ///lpLibFileName: LPCWSTR->WCHAR*
-        [DllImportAttribute("kernel32.dll", EntryPoint = "LoadLibraryW")]
-        static extern IntPtr LoadLibraryW([InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpLibFileName);
+        [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW")]
+        static extern IntPtr LoadLibraryW([In()] [MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
 
 
         [DllImport("Kernel32", CharSet = CharSet.Auto)]

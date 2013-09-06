@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus.Serializers.XML.Test
+﻿namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+    using System.Collections.Generic;
+
     [Serializable]
     public class M2 : M1
     {

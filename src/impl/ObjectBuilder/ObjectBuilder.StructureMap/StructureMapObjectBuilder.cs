@@ -7,7 +7,6 @@
     using global::StructureMap.Graph;
     using global::StructureMap.Pipeline;
     using global::StructureMap.TypeRules;
-    using IContainer = global::StructureMap.IContainer;
 
     /// <summary>
     /// ObjectBuilder implementation for the StructureMap IoC-Container

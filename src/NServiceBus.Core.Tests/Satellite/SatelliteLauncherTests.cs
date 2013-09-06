@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Satellite
 {
     using System;
-    using Satellites;
     using NUnit.Framework;
+    using Satellites;
 
     public class FakeSatellite : ISatellite
     {

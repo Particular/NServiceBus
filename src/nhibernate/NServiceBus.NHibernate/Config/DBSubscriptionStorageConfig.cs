@@ -1,7 +1,7 @@
-using System.Configuration;
-
 namespace NServiceBus.Config
 {
+    using System.Configuration;
+
     public class DBSubscriptionStorageConfig : ConfigurationSection
     {
         [ConfigurationProperty("NHibernateProperties", IsRequired = false)]

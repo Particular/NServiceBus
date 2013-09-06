@@ -7,7 +7,6 @@ namespace NServiceBus.Hosting
     using Configuration;
     using Helpers;
     using Installation;
-    using Logging;
     using Profiles;
     using Roles;
     using Settings;

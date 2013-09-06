@@ -4,11 +4,9 @@
     using System.Collections.Concurrent;
     using Config;
     using EasyNetQ;
-    using NServiceBus;
     using NUnit.Framework;
-    using RabbitMQ;
     using Routing;
-    using TransactionSettings = Unicast.Transport.TransactionSettings;
+    using Unicast.Transport;
 
     public class RabbitMqContext
     {

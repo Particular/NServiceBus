@@ -1,9 +1,8 @@
-﻿using Microsoft.Practices.Unity;
-using NServiceBus.ObjectBuilder.Unity;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using Microsoft.Practices.Unity;
     using ObjectBuilder.Common.Config;
+    using ObjectBuilder.Unity;
 
     /// <summary>
    /// Contains extension methods for configuring object builder infrastructure through Unity container.

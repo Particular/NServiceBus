@@ -9,13 +9,12 @@
     using Apache.NMS.ActiveMQ;
     using Apache.NMS.Policies;
     using Config;
+    using Settings;
     using Transports;
     using Transports.ActiveMQ;
     using Transports.ActiveMQ.Receivers;
     using Transports.ActiveMQ.Receivers.TransactionsScopes;
     using Transports.ActiveMQ.SessionFactories;
-    using Unicast.Queuing.Installers;
-    using Settings;
     using MessageProducer = Transports.ActiveMQ.MessageProducer;
 
     /// <summary>

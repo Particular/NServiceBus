@@ -2,7 +2,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes
 {
     using System;
 
-  [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class)]
   public class TableNameAttribute : Attribute
     {
         public string TableName { get; private set; }

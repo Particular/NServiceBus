@@ -2,7 +2,6 @@ namespace NServiceBus.Unicast.Subscriptions.NHibernate.Tests
 {
     using System.Linq;
     using NUnit.Framework;
-    using global::NHibernate.Criterion;
 
     [TestFixture]
     public class When_initializing_the_storage_with_existing_v2X_subscriptions : InMemoryDBFixture

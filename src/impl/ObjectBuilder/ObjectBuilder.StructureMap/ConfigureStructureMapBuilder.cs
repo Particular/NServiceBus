@@ -1,9 +1,8 @@
-﻿using NServiceBus.ObjectBuilder.StructureMap;
-using StructureMap;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using ObjectBuilder.Common.Config;
+    using ObjectBuilder.StructureMap;
+    using StructureMap;
 
     /// <summary>
     /// Contains extension methods to <see cref="Configure"/>.

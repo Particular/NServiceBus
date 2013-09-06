@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using ObjectBuilder.CastleWindsor;
     using Castle.Windsor;
+    using ObjectBuilder.CastleWindsor;
     using ObjectBuilder.Common.Config;
 
     /// <summary>

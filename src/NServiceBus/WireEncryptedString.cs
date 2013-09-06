@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>

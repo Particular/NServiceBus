@@ -77,8 +77,6 @@
 
     namespace MyMessages
     {
-        using System;
-
         public class TheMessage : IMessage
         {
             public DateTime TimeoutAt { get; set; }

@@ -3,11 +3,11 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Installer
     using System;
     using System.Linq;
     using AutoPersistence;
+    using global::NHibernate.Tool.hbm2ddl;
     using Installation;
     using Installation.Environments;
     using NServiceBus.Config;
     using Persistence.NHibernate;
-    using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
     /// Installer for <see cref="SagaPersister"/>

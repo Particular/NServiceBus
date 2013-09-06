@@ -1,12 +1,12 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-
 namespace NServiceBus.Hosting.Helpers
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text;
+
     /// <summary>
     /// Helpers for assembly scanning operations
     /// </summary>

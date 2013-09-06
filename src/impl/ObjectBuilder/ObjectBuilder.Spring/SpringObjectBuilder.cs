@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using global::Spring.Context.Support;
     using Common;
+    using global::Spring.Context.Support;
     using global::Spring.Objects.Factory.Config;
     using global::Spring.Objects.Factory.Support;
 

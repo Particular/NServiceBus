@@ -1,12 +1,12 @@
-using System;
-using System.Configuration;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Configuration;
-using NServiceBus.Logging;
-
 namespace NServiceBus.Hosting.Wcf
 {
+    using System;
+    using System.Configuration;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel.Configuration;
+    using Logging;
+
     /// <summary>
     /// A specialized service host that adds a default endpoint if non is specified in config
     /// </summary>

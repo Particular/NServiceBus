@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Utils.Reflection;
-
 namespace NServiceBus.Hosting.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Utils.Reflection;
+
     internal static class AssemblyListExtensions
     {
         public static IEnumerable<Type> AllTypes(this IEnumerable<Assembly> assemblies)

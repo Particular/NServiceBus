@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace NServiceBus.Serializers.XML.Test
+﻿namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+
     public interface IFirst : IMessage
     {
         String FirstName { get; set; }

@@ -8,12 +8,12 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using System.Security.Principal;
     using Config.Installer;
     using Config.Internal;
+    using global::NHibernate;
     using NUnit.Framework;
     using Persistence.NHibernate;
     using Saga;
     using UnitOfWork;
     using UnitOfWork.NHibernate;
-    using global::NHibernate;
 
     public class InMemoryFixture
     {

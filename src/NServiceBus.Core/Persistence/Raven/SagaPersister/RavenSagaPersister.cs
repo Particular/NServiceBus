@@ -6,10 +6,9 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-    using Raven;
-    using Saga;
     using global::Raven.Abstractions.Commands;
     using global::Raven.Client;
+    using Saga;
 
     public class RavenSagaPersister : ISagaPersister
     {

@@ -3,7 +3,6 @@
     using System.Linq;
     using Features;
     using Logging;
-    using Unicast.Subscriptions;
 
     public class AutoSubscriber:IWantToRunWhenBusStartsAndStops
     {

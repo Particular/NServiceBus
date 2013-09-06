@@ -1,11 +1,11 @@
-using System;
-using NServiceBus;
-using NServiceBus.ObjectBuilder.Spring;
-using NUnit.Framework;
-using System.Threading.Tasks;
-
 namespace ObjectBuilder.Tests
 {
+    using System;
+    using System.Threading.Tasks;
+    using NServiceBus;
+    using NServiceBus.ObjectBuilder.Spring;
+    using NUnit.Framework;
+
     [TestFixture]
     public class When_using_nested_containers : BuilderFixture
     {

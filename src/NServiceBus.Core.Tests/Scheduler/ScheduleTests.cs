@@ -3,10 +3,10 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using NUnit.Framework;
     using System.Threading.Tasks;
     using Core.Tests;
     using Core.Tests.Fakes;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ScheduleTests

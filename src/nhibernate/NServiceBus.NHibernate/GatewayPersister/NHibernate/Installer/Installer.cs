@@ -1,10 +1,10 @@
 namespace NServiceBus.GatewayPersister.NHibernate.Installer
 {
     using Config;
+    using global::NHibernate.Tool.hbm2ddl;
     using Installation;
     using Installation.Environments;
     using Persistence.NHibernate;
-    using global::NHibernate.Tool.hbm2ddl;
 
     /// <summary>
     /// Installer for <see cref="GatewayPersister"/>

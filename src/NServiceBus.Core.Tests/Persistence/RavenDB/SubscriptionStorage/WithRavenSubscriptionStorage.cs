@@ -6,7 +6,6 @@
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class WithRavenSubscriptionStorage

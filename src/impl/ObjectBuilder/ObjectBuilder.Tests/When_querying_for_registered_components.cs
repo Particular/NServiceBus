@@ -1,9 +1,9 @@
 namespace ObjectBuilder.Tests
 {
     using System;
+    using NServiceBus;
     using NServiceBus.ObjectBuilder.Common;
     using NUnit.Framework;
-    using NServiceBus;
 
     [TestFixture]
     public class When_querying_for_registered_components : BuilderFixture

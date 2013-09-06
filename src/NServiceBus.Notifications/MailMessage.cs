@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Net.Mail;
     using System.Text;
 
-
     /// <summary>
     /// Represents an e-mail message that can be sent using the <see cref="IBus"/>.
     /// </summary>
@@ -69,7 +68,7 @@ namespace NServiceBus
         /// </summary>
         /// 
         /// <returns>
-        /// A writable <see cref="List{String}"/> object.
+        /// A writable <see cref="List{T}"/> object.
         /// </returns>
         public List<string> Bcc { get; set; }
 

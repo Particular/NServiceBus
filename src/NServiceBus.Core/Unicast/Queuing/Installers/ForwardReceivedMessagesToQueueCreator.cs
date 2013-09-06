@@ -2,8 +2,6 @@ namespace NServiceBus.Unicast.Queuing.Installers
 {
     using Audit;
     using Features;
-    using NServiceBus.Config;
-    using Utils;
 
     /// <summary>
     /// Signals to create forward received messages queue.

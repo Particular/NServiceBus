@@ -1,7 +1,7 @@
-using System.Text;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System.Text;
+
     public class ComplexTypeWriter
     {
         private readonly ComplexType complex;

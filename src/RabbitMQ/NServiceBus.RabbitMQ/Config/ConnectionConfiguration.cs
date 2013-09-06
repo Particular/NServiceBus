@@ -1,6 +1,4 @@
-﻿using IHostConfiguration = EasyNetQ.IHostConfiguration;
-
-namespace NServiceBus.Transports.RabbitMQ.Config
+﻿namespace NServiceBus.Transports.RabbitMQ.Config
 {
     using System;
     using System.Collections.Generic;

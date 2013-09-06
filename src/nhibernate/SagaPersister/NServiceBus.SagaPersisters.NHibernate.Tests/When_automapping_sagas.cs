@@ -3,13 +3,13 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
     using System;
     using System.Linq;
     using Config.Internal;
-    using NUnit.Framework;
-    using Saga;
     using global::NHibernate.Cfg;
     using global::NHibernate.Engine;
     using global::NHibernate.Id;
     using global::NHibernate.Impl;
     using global::NHibernate.Persister.Entity;
+    using NUnit.Framework;
+    using Saga;
 
     [TestFixture]
     public class When_automapping_sagas

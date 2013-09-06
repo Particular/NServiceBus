@@ -1,7 +1,7 @@
-﻿using NUnit.Framework;
-
-namespace NServiceBus.Testing.Tests
+﻿namespace NServiceBus.Testing.Tests
 {
+    using NUnit.Framework;
+
     [TestFixture]
     public class InvocationTests
     {

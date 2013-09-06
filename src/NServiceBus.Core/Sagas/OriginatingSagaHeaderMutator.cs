@@ -1,6 +1,6 @@
 namespace NServiceBus.Sagas
 {
-    using NServiceBus.MessageMutator;
+    using MessageMutator;
 
     /// <summary>
     /// Adds the originating saga headers to outgoing messages

@@ -1,9 +1,8 @@
-using NServiceBus.Hosting.Roles;
-using NServiceBus.Unicast.Config;
-
 namespace NServiceBus.Hosting.Windows.Roles.Handlers
 {
     using Features;
+    using Hosting.Roles;
+    using Unicast.Config;
 
     /// <summary>
     /// Handles configuration related to the server role

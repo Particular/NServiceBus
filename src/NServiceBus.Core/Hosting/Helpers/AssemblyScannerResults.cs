@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-
-namespace NServiceBus.Hosting.Helpers
+﻿namespace NServiceBus.Hosting.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using System.Text;
+
     /// <summary>
     /// Holds GetScannableAssemblies results.
     /// Contains list of errors and list of scan-able assemblies.

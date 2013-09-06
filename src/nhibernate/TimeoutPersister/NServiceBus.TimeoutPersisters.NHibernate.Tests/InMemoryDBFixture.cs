@@ -6,10 +6,10 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
     using System.IO;
     using System.Linq;
     using System.Security.Principal;
+    using global::NHibernate;
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using Persistence.NHibernate;
-    using global::NHibernate;
 
     public abstract class InMemoryDBFixture
     {

@@ -1,10 +1,9 @@
-using NLog.Layouts;
-using NLog.Targets;
-using NUnit.Framework;
-
 namespace NServiceBus.Logging.Tests.NLogTests
 {
     using Loggers.NLogAdapter;
+    using NLog.Layouts;
+    using NLog.Targets;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ConfiguratorTests

@@ -1,8 +1,8 @@
-using System;
-using System.IO;
-
 namespace Rhino.Licensing
 {
+    using System;
+    using System.IO;
+
     /// <summary>
     /// License validator validates a license file
     /// that can be located on disk.

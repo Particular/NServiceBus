@@ -6,9 +6,9 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence
     using System.Linq;
     using System.Reflection;
     using Attributes;
-    using Saga;
     using global::NHibernate.Cfg.MappingSchema;
     using global::NHibernate.Mapping.ByCode;
+    using Saga;
 
     public class SagaModelMapper
     {

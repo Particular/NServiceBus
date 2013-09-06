@@ -1,12 +1,11 @@
 namespace NServiceBus.SecondLevelRetries
 {
     using System;
-    using Helpers;
     using Faults.Forwarder;
+    using Helpers;
     using Logging;
     using Satellites;
     using Transports;
-    using TransportMessageHelpers = Helpers.TransportMessageHelpers;
 
     public class SecondLevelRetriesProcessor : ISatellite
     {

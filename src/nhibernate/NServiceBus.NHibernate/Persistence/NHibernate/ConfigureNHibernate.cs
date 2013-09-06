@@ -7,10 +7,10 @@ namespace NServiceBus.Persistence.NHibernate
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using Logging;
     using global::NHibernate.Cfg;
     using global::NHibernate.Cfg.ConfigurationSchema;
     using global::NHibernate.Mapping.ByCode;
+    using Logging;
     using Configuration = global::NHibernate.Cfg.Configuration;
     using Environment = global::NHibernate.Cfg.Environment;
 
@@ -59,7 +59,7 @@ Here is an example of what is required:
         }
 
         /// <summary>
-        /// Initializes the <see cref="Configuration"/> NHibernate properties.
+        /// Initializes the <see cref="NHibernate.Cfg.Configuration"/> NHibernate properties.
         /// </summary>
         /// <remarks>
         /// Configure NHibernate using the <c>&lt;hibernate-configuration&gt;</c> section

@@ -1,7 +1,7 @@
 namespace NServiceBus.Sagas
 {
     using System;
-    using NServiceBus.Saga;
+    using Saga;
 
     /// <summary>
     /// Context class that holds the current saga beeing processed

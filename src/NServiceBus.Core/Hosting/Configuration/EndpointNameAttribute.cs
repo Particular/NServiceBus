@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// Used to specify the name of the current endpoint.
     /// Will be used as the name of the input queue as well.

@@ -2,11 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using ActiveMQ.Receivers;
     using Apache.NMS;
     using Moq;
     using NUnit.Framework;
-    using NServiceBus.Transports.ActiveMQ;
-    using NServiceBus.Transports.ActiveMQ.Receivers;
 
     [TestFixture]
     public class EventConsumerTests

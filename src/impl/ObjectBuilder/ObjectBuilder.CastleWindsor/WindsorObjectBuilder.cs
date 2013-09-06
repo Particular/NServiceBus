@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Castle.MicroKernel.Lifestyle;
-    using Common;
-    using Castle.Windsor;
     using Castle.Core;
+    using Castle.MicroKernel.Lifestyle;
     using Castle.MicroKernel.Registration;
+    using Castle.Windsor;
+    using Common;
     using Logging;
 
     /// <summary>

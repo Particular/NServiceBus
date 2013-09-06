@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Text;
-using System.Reflection;
-
 namespace NServiceBus.Serializers.XML.XsdGenerator
 {
+    using System;
+    using System.IO;
+    using System.Reflection;
+    using System.Text;
+
     class Program
     {
         static void Main(string[] args)
