@@ -77,7 +77,7 @@
         {
             if (!Hosts.Any())
             {
-                throw new Exception("Invalid connection string. 'host' value must be supplied. e.g: \"host=myserver\"");
+                throw new Exception("Invalid connection string. 'host' value must be supplied. e.g: \"host=myServer\"");
             }
             foreach (var hostConfiguration in Hosts)
             {

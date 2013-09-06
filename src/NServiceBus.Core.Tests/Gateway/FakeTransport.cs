@@ -13,9 +13,9 @@
         {
         }
 
-        public void Start(string inputqueue)
+        public void Start(string inputQueue)
         {
-            Start(Address.Parse(inputqueue));
+            Start(Address.Parse(inputQueue));
         }
 
         public bool IsStarted { get; set; }

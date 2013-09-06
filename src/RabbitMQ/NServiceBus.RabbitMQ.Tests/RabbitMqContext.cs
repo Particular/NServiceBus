@@ -79,10 +79,10 @@
 
             dequeueStrategy = new RabbitMqDequeueStrategy { ConnectionManager = connectionManager, PurgeOnStartup = true };
             
-            MakeSureQueueAndExchangeExists(MYRECEIVEQUEUE);
+            MakeSureQueueAndExchangeExists(ReceiverQueue);
 
-            DeleteExchange(MYRECEIVEQUEUE);
-            MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(MYRECEIVEQUEUE),null));
+            DeleteExchange(ReceiverQueue);
+            MakeSureExchangeExists(ExchangeNameConvention(Address.Parse(ReceiverQueue),null));
             
             
 
@@ -94,11 +94,11 @@
             subscriptionManager = new RabbitMqSubscriptionManager
             {
                 ConnectionManager = connectionManager,
-                EndpointQueueName = MYRECEIVEQUEUE,
+                EndpointQueueName = ReceiverQueue,
                 RoutingTopology = routingTopology
             };
 
-            dequeueStrategy.Init(Address.Parse(MYRECEIVEQUEUE), TransactionSettings.Default, m =>
+            dequeueStrategy.Init(Address.Parse(ReceiverQueue), TransactionSettings.Default, m =>
             {
                 receivedMessages.Add(m);
                 return true;
@@ -139,7 +139,7 @@
 
         BlockingCollection<TransportMessage> receivedMessages;
 
-        protected const string MYRECEIVEQUEUE = "testreceiver";
+        protected const string ReceiverQueue = "testreceiver";
         protected RabbitMqDequeueStrategy dequeueStrategy;
         protected RabbitMqConnectionManager connectionManager;
         protected RabbitMqMessageSender sender;

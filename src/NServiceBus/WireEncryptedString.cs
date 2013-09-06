@@ -16,7 +16,7 @@
         {}
 
         /// <summary>
-        /// Deseralizing constructor
+        /// Deserializing constructor
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>

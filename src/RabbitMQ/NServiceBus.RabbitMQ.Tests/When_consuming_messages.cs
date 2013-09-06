@@ -10,13 +10,13 @@
         [SetUp]
         public void SetUp()
         {
-            MakeSureQueueAndExchangeExists(MYRECEIVEQUEUE);
+            MakeSureQueueAndExchangeExists(ReceiverQueue);
         }
 
         [Test]
         public void Should_block_until_a_message_is_available()
         {
-            var address = Address.Parse(MYRECEIVEQUEUE);
+            var address = Address.Parse(ReceiverQueue);
 
 
             var message = new TransportMessage();
@@ -34,7 +34,7 @@
         [Test]
         public void Should_be_able_to_receive_messages_without_headers()
         {
-            var address = Address.Parse(MYRECEIVEQUEUE);
+            var address = Address.Parse(ReceiverQueue);
 
             var message = new TransportMessage();
 
@@ -57,7 +57,7 @@
         [Test]
         public void Should_be_able_to_receive_a_blank_message()
         {
-            var address = Address.Parse(MYRECEIVEQUEUE);
+            var address = Address.Parse(ReceiverQueue);
 
             var message = new TransportMessage();
 
@@ -81,7 +81,7 @@
         [Test]
         public void Should_up_convert_the_native_type_to_the_enclosed_message_types_header_if_empty()
         {
-            var address = Address.Parse(MYRECEIVEQUEUE);
+            var address = Address.Parse(ReceiverQueue);
 
             var message = new TransportMessage();
 

@@ -31,7 +31,7 @@
         [Test]
         public void WhenSendingASendMessage_OnException_TheSessionIsReleasedAfterwards()
         {
-            const string Reason = "TheExcpetionReason";
+            const string Reason = "TheExceptionReason";
             var sessionMock = SetupCreateSession();
             activeMqMessageMapperMock.Setup(mm => mm
                                                            .CreateJmsMessage(It.IsAny<TransportMessage>(), sessionMock.Object))

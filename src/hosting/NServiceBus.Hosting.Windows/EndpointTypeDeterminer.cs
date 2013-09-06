@@ -77,7 +77,7 @@
 
             throw new InvalidOperationException("No endpoint configuration found in scanned assemblies. " +
                                                 "This usually happens when NServiceBus fails to load your assembly containing IConfigureThisEndpoint." +
-                                                " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appsetting key: EndpointConfigurationType, " +
+                                                " Try specifying the type explicitly in the NServiceBus.Host.exe.config using the appSetting key: EndpointConfigurationType, " +
                                                 "Scanned path: " + AppDomain.CurrentDomain.BaseDirectory);
         }
 

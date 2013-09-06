@@ -16,7 +16,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// Constant taken from V2.6: 
         /// https://github.com/NServiceBus/NServiceBus/blob/v2.5/src/impl/unicast/NServiceBus.Unicast.Msmq/MsmqTransport.cs
         /// </summary>
-        private const string FAILEDQUEUE = "FailedQ";
+        const string FailedQueue = "FailedQ";
 
         public virtual Address InputQueue
         {
@@ -138,12 +138,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             if (string.IsNullOrEmpty(m.Label))
                 return string.Empty;
 
-            if (!m.Label.Contains(FAILEDQUEUE))
+            if (!m.Label.Contains(FailedQueue))
                 return m.Label;
 
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE));
-            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE));
-            endIndex += FAILEDQUEUE.Length + 3;
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FailedQueue));
+            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FailedQueue));
+            endIndex += FailedQueue.Length + 3;
 
             return m.Label.Remove(startIndex, endIndex - startIndex);
         }
@@ -159,11 +159,11 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             if (m.Label == null)
                 return null;
 
-            if (!m.Label.Contains(FAILEDQUEUE))
+            if (!m.Label.Contains(FailedQueue))
                 return null;
 
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FAILEDQUEUE)) + FAILEDQUEUE.Length + 2;
-            var count = m.Label.IndexOf(string.Format("</{0}>", FAILEDQUEUE)) - startIndex;
+            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FailedQueue)) + FailedQueue.Length + 2;
+            var count = m.Label.IndexOf(string.Format("</{0}>", FailedQueue)) - startIndex;
 
             return m.Label.Substring(startIndex, count);
         }

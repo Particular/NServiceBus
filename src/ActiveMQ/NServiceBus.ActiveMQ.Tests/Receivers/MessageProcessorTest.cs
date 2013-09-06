@@ -176,7 +176,7 @@ order = string.Empty;
         [Ignore]
         public void WhenConsumerIsCreated_AndPurgeOnStartup_ThenDestinationIsPurged()
         {
-            const string Destination = "anyqueue";
+            const string Destination = "anyQueue";
 
             testee.PurgeOnStartup = true;
             StartTestee(TransactionSettings.Default);
@@ -191,7 +191,7 @@ order = string.Empty;
         [Ignore]
         public void WhenConsumerIsCreated_AndNotPurgeOnStartup_ThenDestinationIsNotPurged()
         {
-            const string Destination = "anyqueue";
+            const string Destination = "anyQueue";
 
             testee.PurgeOnStartup = false;
             StartTestee(TransactionSettings.Default);

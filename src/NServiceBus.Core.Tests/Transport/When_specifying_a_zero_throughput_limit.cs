@@ -11,7 +11,7 @@
             const int throughputLimit = 0;
 
             TransportReceiver.ChangeMaximumMessageThroughputPerSecond(throughputLimit);
-            TransportReceiver.Start(Address.Parse("mytest"));
+            TransportReceiver.Start(Address.Parse("myTest"));
 
             for (var i = 0; i < 100; i++)
             {

@@ -24,7 +24,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                                       Destination = new Address("timeouts", RuntimeEnvironment.MachineName),
                                       SagaId = Guid.NewGuid(),
                                       State = new byte[] { 0, 0, 133 },
-                                      Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" }},
+                                      Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "aString1" }, { "Super", "aString2" } },
                                       OwningTimeoutManager = Configure.EndpointName,
                                   });
             }
@@ -44,7 +44,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
                 Destination = new Address("timeouts", RuntimeEnvironment.MachineName),
                 SagaId = Guid.NewGuid(),
                 State = new byte[] { 0, 0, 133 },
-                Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } },
+                Headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "aString1" }, { "Super", "aString2" } },
                 OwningTimeoutManager = Configure.EndpointName,
             });
             

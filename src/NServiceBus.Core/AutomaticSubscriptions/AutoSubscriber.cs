@@ -21,7 +21,7 @@
             {
                 Bus.Subscribe(eventType);
 
-                Logger.DebugFormat("Autosubscribed to event {0}", eventType);
+                Logger.DebugFormat("Auto subscribed to event {0}", eventType);
             }
         }
 

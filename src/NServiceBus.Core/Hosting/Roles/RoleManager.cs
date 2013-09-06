@@ -71,7 +71,7 @@
                 if (config != null)
                 {
                     if (unicastBusConfig != null)
-                        throw new InvalidOperationException("Only one role can configure the unicastbus");
+                        throw new InvalidOperationException("Only one role can configure the UnicastBus");
 
                     unicastBusConfig = config;
                 }

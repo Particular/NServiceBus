@@ -290,7 +290,7 @@
                 {
                     Recoverable = true,
                     TimeToBeReceived = TimeSpan.FromSeconds(2),
-                    ReplyToAddress = new Address("someAddress", "localhorst")
+                    ReplyToAddress = new Address("someAddress", "localhost")
                 };
         }
     }

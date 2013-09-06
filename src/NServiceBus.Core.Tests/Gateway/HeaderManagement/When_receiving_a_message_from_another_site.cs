@@ -17,7 +17,7 @@ namespace NServiceBus.Gateway.Tests.HeaderManagement
         [SetUp]
         public void SetUp()
         {
-            addressOfOriginatingEndpoint = Address.Parse( "EnpointLocatedInSiteA");
+            addressOfOriginatingEndpoint = Address.Parse( "EndpointLocatedInSiteA");
         
 
             incomingMessage = new TransportMessage

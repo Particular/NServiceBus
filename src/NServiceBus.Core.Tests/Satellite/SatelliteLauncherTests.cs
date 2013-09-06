@@ -120,7 +120,7 @@
     {
         public override void Start()
         {
-            throw new Exception("This enpoint should not start!");
+            throw new Exception("This endpoint should not start!");
         }
     }
 

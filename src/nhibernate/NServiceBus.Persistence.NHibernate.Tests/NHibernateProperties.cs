@@ -103,8 +103,8 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         {
             NHibernateSettingRetriever.AppSettings = () => new NameValueCollection
                 {
-                    {"myothersetting1", "provider"},
-                    {"myothersetting2", "driver_class"},
+                    {"myOtherSetting1", "provider"},
+                    {"myOtherSetting2", "driver_class"},
                 };
 
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection

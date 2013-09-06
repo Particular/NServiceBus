@@ -12,7 +12,7 @@
     [Explicit("requires rabbit node")]
     public class When_sending_a_message_over_rabbitmq : RabbitMqContext
     {
-        const string TESTQUEUE = "testendpoint";
+        
 
         [Test]
         public void Should_populate_the_body()
@@ -176,9 +176,9 @@
 
         void SendMessage(TransportMessage message)
         {
-            MakeSureQueueAndExchangeExists(TESTQUEUE);
+            MakeSureQueueAndExchangeExists("testEndPoint");
 
-            sender.Send(message, Address.Parse(TESTQUEUE));
+            sender.Send(message, Address.Parse("testEndPoint"));
         }
 
         BasicDeliverEventArgs Consume(string id)
@@ -188,7 +188,7 @@
             {
                 var consumer = new QueueingBasicConsumer(channel);
 
-                channel.BasicConsume(TESTQUEUE, false, consumer);
+                channel.BasicConsume("testEndPoint", false, consumer);
 
                 object message;
 

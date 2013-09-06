@@ -36,7 +36,7 @@ namespace NServiceBus.Config
 
             if (!SettingsHolder.HasSetting<T>())
             {
-                throw new ConfigurationErrorsException(string.Format("No explicit settings or default found for service {0}, please configure one explicity", serviceType.FullName));
+                throw new ConfigurationErrorsException(string.Format("No explicit settings or default found for service {0}, please configure one explicitly", serviceType.FullName));
             }
 
             var configAction = SettingsHolder.Get<Action>(serviceType.FullName);

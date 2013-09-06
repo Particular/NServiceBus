@@ -38,14 +38,14 @@
         /// Header for time when a message expires in the timeout manager
         /// This header is considered an applicative header.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
         public const string Expire = "NServiceBus.Timeout.Expire";
 
         /// <summary>
         /// Header for redirecting the expired timeout to a endpoint other than the one setting the Timeout
         /// This header is considered an applicative header.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
         public const string RouteExpiredTimeoutTo = "NServiceBus.Timeout.RouteExpiredTimeoutTo";
 
         /// <summary>
@@ -58,7 +58,7 @@
         /// Header telling the timeout manager to clear previous timeouts
         /// This header is considered an applicative header.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutmanager based deferral mechanism and will not be used in future versions")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
         public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
         /// <summary>

@@ -75,7 +75,7 @@
         [Test]
         public void OnStart_MessageConsumerForAddressIsCreated()
         {
-            var queue = "somequeue";
+            var queue = "someQueue";
             var transactionSettings = TransactionSettings.Default;
 
             testee.Start(new Address(queue, "localhost"), transactionSettings);

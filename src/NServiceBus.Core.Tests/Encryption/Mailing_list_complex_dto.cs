@@ -12,9 +12,9 @@
             var message = new TestDto();
 
             var dict = message.Options[TestEnum.EnumValue1];
-            dict["test"] = "asdf";
+            dict["test"] = "aString";
 
-            message.Options[TestEnum.EnumValue1]["test"] = "asdf";
+            message.Options[TestEnum.EnumValue1]["test"] = "aString";
 
             var result = (TestDto)mutator.MutateOutgoing(message);
 

@@ -368,7 +368,7 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
-                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to be a subscriber");
+                throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
 
             AssertHasLocalAddress();
 
@@ -404,7 +404,7 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
-                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to unsubscribe");
+                throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
 
             AssertHasLocalAddress();
 
@@ -1173,7 +1173,7 @@ namespace NServiceBus.Unicast
             MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
-                throw new InvalidOperationException("No dispatcher factory type configured for messagehandler " + messageHandlerTypeToInvoke);
+                throw new InvalidOperationException("No dispatcher factory type configured for messageHandler " + messageHandlerTypeToInvoke);
 
             var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
 

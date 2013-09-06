@@ -148,7 +148,7 @@ namespace NServiceBus.Hosting.Profiles
                 {
                     if (executedHandlers.Contains(handlerType))
                     {
-                        Logger.Debug("Profile handler was already activated by a preceeding profile: " + handlerType.AssemblyQualifiedName);
+                        Logger.Debug("Profile handler was already activated by a preceding profile: " + handlerType.AssemblyQualifiedName);
                         continue;
                     }
                     var profileHandler = (IHandleProfile)Activator.CreateInstance(handlerType);

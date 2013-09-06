@@ -12,12 +12,23 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
         [Test]
         public void Should_return_the_correct_headers()
         {
-            var headers = new Dictionary<string, string> { { "Bar", "34234" }, { "Foo", "dasdsa" }, { "Super", "dsfsdf" } };
+            var headers = new Dictionary<string, string>
+                          {
+                              {"Bar", "34234"},
+                              {"Foo", "aString1"},
+                              {"Super", "aString2"}
+                          };
 
             var timeout = new TimeoutData
-                {
-                    Time = DateTime.UtcNow.AddHours(-1), CorrelationId = "boo", Destination = new Address("timeouts", RuntimeEnvironment.MachineName), SagaId = Guid.NewGuid(), State = new byte[] {1, 1, 133, 200}, Headers = headers, OwningTimeoutManager = Configure.EndpointName,
-                };
+                          {
+                              Time = DateTime.UtcNow.AddHours(-1),
+                              CorrelationId = "boo",
+                              Destination = new Address("timeouts", RuntimeEnvironment.MachineName),
+                              SagaId = Guid.NewGuid(),
+                              State = new byte[] {1, 1, 133, 200},
+                              Headers = headers,
+                              OwningTimeoutManager = Configure.EndpointName,
+                          };
             persister.Add(timeout);
 
             TimeoutData timeoutData;
@@ -29,8 +40,24 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
         [Test]
         public void Should_remove_timeouts_by_id()
         {
-            var t1 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { Time = DateTime.Now.AddYears(-1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData
+                     {
+                         Time = DateTime.Now.AddYears(-1),
+                         OwningTimeoutManager = Configure.EndpointName,
+                         Headers = new Dictionary<string, string>
+                                   {
+                                       {"Header1", "Value1"}
+                                   }
+                     };
+            var t2 = new TimeoutData
+                     {
+                         Time = DateTime.Now.AddYears(-1),
+                         OwningTimeoutManager = Configure.EndpointName,
+                         Headers = new Dictionary<string, string>
+                                   {
+                                       {"Header1", "Value1"}
+                                   }
+                     };
 
             persister.Add(t1);
             persister.Add(t2);
@@ -56,8 +83,26 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
         {
             var sagaId1 = Guid.NewGuid();
             var sagaId2 = Guid.NewGuid();
-            var t1 = new TimeoutData { SagaId = sagaId1, Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
-            var t2 = new TimeoutData { SagaId = sagaId2, Time = DateTime.Now.AddYears(1), OwningTimeoutManager = Configure.EndpointName, Headers = new Dictionary<string, string> { { "Header1", "Value1" } } };
+            var t1 = new TimeoutData
+                     {
+                         SagaId = sagaId1,
+                         Time = DateTime.Now.AddYears(1),
+                         OwningTimeoutManager = Configure.EndpointName,
+                         Headers = new Dictionary<string, string>
+                                   {
+                                       {"Header1", "Value1"}
+                                   }
+                     };
+            var t2 = new TimeoutData
+                     {
+                         SagaId = sagaId2,
+                         Time = DateTime.Now.AddYears(1),
+                         OwningTimeoutManager = Configure.EndpointName,
+                         Headers = new Dictionary<string, string>
+                                   {
+                                       {"Header1", "Value1"}
+                                   }
+                     };
 
             persister.Add(t1);
             persister.Add(t2);
@@ -65,7 +110,7 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Tests
 
             persister.RemoveTimeoutBy(sagaId1);
             persister.RemoveTimeoutBy(sagaId2);
-            
+
             using (var session = sessionFactory.OpenSession())
             {
                 Assert.Null(session.Get<TimeoutEntity>(new Guid(t1.Id)));
