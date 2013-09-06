@@ -75,10 +75,6 @@ namespace NServiceBus.Features
             {
                 Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
             } 
-            else if (Configure.Instance.WorkerRunsOnThisEndpoint() && !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint())
-            {
-                Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
-            }
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
