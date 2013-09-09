@@ -70,6 +70,7 @@
     <Compile Include="AssemblyListExtensions\AllTypesAssignableToTests.cs" />
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
+    <Compile Include="AssemblyScannerTests.cs" />
     <Compile Include="ConfigManagerTests.cs" />
     <Compile Include="StackTracePreserverTests.cs" />
     <Compile Include="EndpointTypeDeterminerTests.cs" />
@@ -100,6 +101,27 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
+    <Content Include="TestDlls\Iesi.Collections.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\NServiceBus.Core.Tests.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\Rebus.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\some_random.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\some_random.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\Tail.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

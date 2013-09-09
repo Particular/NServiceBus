@@ -19,6 +19,7 @@
         {
             Errors = new List<ErrorWhileScanningAssemblies>();
             Assemblies = new List<Assembly>();
+            SkippedFiles = new List<SkippedFile>();
         }
         /// <summary>
         /// Dump error to console.
@@ -45,15 +46,48 @@
             
             return sb.ToString();
         }
+        
         /// <summary>
-        /// List of errors that occurred during 
+        /// List of errors that occurred while attempting to load an assembly
         /// </summary>
-        public List<ErrorWhileScanningAssemblies> Errors { get; set; }
+        public List<ErrorWhileScanningAssemblies> Errors { get; private set; }
+        
         /// <summary>
-        /// 
+        /// List of succefully found and loaded assemblies
         /// </summary>
-        public List<Assembly> Assemblies { get; set; }
+        public List<Assembly> Assemblies { get; private set; }
+        
+        /// <summary>
+        /// List of files that were skipped while scanning because they were a) explicitly excluded
+        /// by the user, b) not a .NET DLL, or c) not referencing NSB and thus not capable of implementing
+        /// <see cref="IHandleMessages{T}"/>
+        /// </summary>
+        public List<SkippedFile> SkippedFiles { get; private set; }
     }
+
+    /// <summary>
+    /// Contains information about a file that was skipped during scanning along with a text describing
+    /// the reason why the file was skipped
+    /// </summary>
+    public class SkippedFile
+    {
+        public SkippedFile(string filePath, string message)
+        {
+            FilePath = filePath;
+            SkipReason = message;
+        }
+
+        /// <summary>
+        /// The full path to the file that was skipped
+        /// </summary>
+        public string FilePath { get; private set; }
+        
+        /// <summary>
+        /// Description of the reason why this file was skipped
+        /// </summary>
+        public string SkipReason { get; private set; }
+    }
+
     /// <summary>
     /// Error information that occurred while scanning assemblies.
     /// </summary>

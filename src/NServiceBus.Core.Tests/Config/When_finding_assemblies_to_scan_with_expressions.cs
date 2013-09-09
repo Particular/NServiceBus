@@ -6,7 +6,7 @@ namespace NServiceBus.Core.Tests.Config
 
     [TestFixture]
     public class When_finding_assemblies_to_scan_with_expressions
-    {       
+    {
         [Test]
         public void Should_exclude_by_name_without_extension()
         {
@@ -70,20 +70,6 @@ namespace NServiceBus.Core.Tests.Config
                 .ToArray();
 
             Assert.True(found.Any(a => a.GetName().Name == "TestAssembly"));
-        }
-
-        [Test]
-        public void Should_use_AppDomain_Assemblies_if_flagged()
-        {
-            var loadThisIntoAppDomain = new TestAssembly.Class1();
-
-            var someDir = Path.Combine(Path.GetTempPath(), "empty");
-            Directory.CreateDirectory(someDir);
-
-            var found = Configure.FindAssemblies(someDir, /*includeAppDomainAssemblies*/ true, null, null);
-
-            var collection = found.Select(a => a.GetName().Name).ToArray();
-            CollectionAssert.Contains(collection, "TestAssembly");
         }
     }
 }

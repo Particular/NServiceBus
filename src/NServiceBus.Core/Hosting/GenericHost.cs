@@ -145,12 +145,14 @@ namespace NServiceBus.Hosting
 
             Configure.GetEndpointNameAction = () => endpointName;
             Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
-            List<Assembly> assembliesToScan;
 
-            if (scannableAssembliesFullName == null)
-                assembliesToScan = AssemblyScanner.GetScannableAssemblies().Assemblies;
-            else
-                assembliesToScan = scannableAssembliesFullName.Select(Assembly.Load).ToList();
+            var assembliesToScan = scannableAssembliesFullName == null
+                                       ? new AssemblyScanner()
+                                             .GetScannableAssemblies()
+                                             .Assemblies
+                                       : scannableAssembliesFullName
+                                             .Select(Assembly.Load)
+                                             .ToList();
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
             ProfileActivator.ProfileManager = profileManager;
