@@ -25,13 +25,12 @@ namespace NServiceBus.TimeoutPersisters.NHibernate.Config
                 pm.Length(1024);
             });
             Property(p => p.SagaId, pm => pm.Index("TimeoutEntity_SagaIdIdx"));
-            Property(p => p.Time);
+            Property(p => p.Time, pm => pm.Index("TimeoutEntity_EndpointIdx"));
             Property(p => p.Headers, pm => pm.Type(NHibernateUtil.StringClob));
             Property(p => p.Endpoint, pm =>
-                                          {
-                                              pm.Index("TimeoutEntity_EndpointIdx");
-                                              pm.Length(450);
-                                          });
+            {
+                pm.Index("TimeoutEntity_EndpointIdx");
+                pm.Length(440);
         }
     }
 }
