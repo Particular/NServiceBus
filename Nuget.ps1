@@ -26,7 +26,7 @@ task Clean {
 
 task Pack {
 
-	$v1Projects = @("NServiceBus.ActiveMQ.nuspec", "NServiceBus.RabbitMQ.nuspec", "NServiceBus.SqlServer.nuspec", "NServiceBus.Notifications.nuspec")
+	$v1Projects = @("NServiceBus.ActiveMQ.nuspec", "NServiceBus.SqlServer.nuspec", "NServiceBus.Notifications.nuspec")
 	
 	$nsbVersion = $ProductVersion + "." + $PatchVersion
 			

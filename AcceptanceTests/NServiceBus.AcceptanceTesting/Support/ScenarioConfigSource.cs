@@ -19,41 +19,44 @@
 
         public T GetConfiguration<T>() where T : class, new()
         {
-            var type = typeof (T);
+            var type = typeof(T);
 
             if (configuration.UserDefinedConfigSections.ContainsKey(type))
                 return configuration.UserDefinedConfigSections[type] as T;
 
 
-            if (type == typeof (MessageForwardingInCaseOfFaultConfig))
+            if (type == typeof(MessageForwardingInCaseOfFaultConfig))
                 return new MessageForwardingInCaseOfFaultConfig
                     {
                         ErrorQueue = "error"
                     } as T;
-            
-            if (type == typeof (UnicastBusConfig))
-            {
-                var auditAddress = configuration.AddressOfAuditQueue != null
-                                       ? configuration.AddressOfAuditQueue.ToString()
-                                       : null;
 
-                if (configuration.AuditEndpoint != null)
-                {
-                    auditAddress = routingTable[configuration.AuditEndpoint];
-                }
-                
+            if (type == typeof(UnicastBusConfig))
+            {
+
                 return new UnicastBusConfig
                 {
-                    ForwardReceivedMessagesTo = auditAddress,
                     MessageEndpointMappings = GenerateMappings()
                 } as T;
 
             }
-                
 
+            if (type == typeof(AuditConfig))
+            {
+                if (configuration.AddressOfAuditQueue != null)
+                {
+                    return new AuditConfig{QueueName = configuration.AddressOfAuditQueue.ToString()} as T;
+                }
+
+                if (configuration.AuditEndpoint != null)
+                {
+                    return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;
+                }
+
+            }
 
             if (type == typeof(Logging))
-                return new Logging()
+                return new Logging
                 {
                     Threshold = "WARN"
                 } as T;
@@ -71,12 +74,12 @@
                 var messageType = templateMapping.Key;
                 var endpoint = templateMapping.Value;
 
-               mappings.Add( new MessageEndpointMapping
-                    {
-                        AssemblyName = messageType.Assembly.FullName,
-                        TypeFullName = messageType.FullName,
-                        Endpoint = routingTable[endpoint]
-                    });
+                mappings.Add(new MessageEndpointMapping
+                     {
+                         AssemblyName = messageType.Assembly.FullName,
+                         TypeFullName = messageType.FullName,
+                         Endpoint = routingTable[endpoint]
+                     });
             }
 
             return mappings;
