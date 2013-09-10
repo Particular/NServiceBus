@@ -122,18 +122,11 @@
     <Reference Include="NServiceBus.Transports.ActiveMQ">
       <HintPath>..\..\binaries\NServiceBus.Transports.ActiveMQ.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Transports.RabbitMQ">
-      <HintPath>..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus.Transports.SQLServer">
       <HintPath>..\..\binaries\NServiceBus.Transports.SQLServer.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="RabbitMQ.Client, Version=3.1.1.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RabbitMQ.Client.3.1.1\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
       <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
