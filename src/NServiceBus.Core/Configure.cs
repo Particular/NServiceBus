@@ -89,7 +89,6 @@ namespace NServiceBus
             return builder != null && configurer != null;
         }
 
-
         IBuilder builder;
 
         static bool initialized { get; set; }
@@ -422,40 +421,11 @@ namespace NServiceBus
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             return new AssemblyScanner(path)
-                .SkipAssemblies(assembliesToSkip)
+                .ExcludeAssemblies(assembliesToSkip)
                 .GetScannableAssemblies()
                 .Assemblies
                 .ToList();
         }
-
-        //static string distillLowerAssemblyName(string assemblyOrFileName)
-        //{
-        //    var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
-        //    if (lowerAssemblyName.EndsWith(".dll"))
-        //        lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
-        //    return lowerAssemblyName;
-        //}
-
-        /// <summary>
-        /// Find and return all assemblies in the given directory and the current <see cref="AppDomain"/> 
-        /// filtered to <paramref name="includeAssemblyNames"/>, if given, 
-        /// but except <paramref name="excludeAssemblyNames"/>
-        /// </summary>
-        /// <param name="path">Directory to search in.</param>
-        /// <param name="includeAppDomainAssemblies">Shortcut Assembly.Load by instead using yet loaded assemblies.</param>
-        /// <param name="includeAssemblyNames">All, if <c>null</c></param>
-        /// <param name="excludeAssemblyNames">None, if <c>null</c></param>
-        /// <returns></returns>
-        //public static IEnumerable<Assembly> FindAssemblies(string path, bool includeAppDomainAssemblies)
-        //{
-        //    var scanner = new AssemblyScanner(path);
-        //    if (includeAppDomainAssemblies)
-        //    {
-        //        scanner.IncludeAppDomainAssemblies();
-        //    }
-        //    return scanner.GetScannableAssemblies()
-        //                  .Assemblies.ToList();
-        //}
 
         /// <summary>
         /// Configures the given type with the given lifecycle
@@ -631,77 +601,6 @@ namespace NServiceBus
             }
         }
 
-
-        //static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
-        //{
-        //    var result = new List<Assembly>();
-
-        //    foreach (var file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
-        //    {
-        //        try
-        //        {
-        //            if (IsIncluded(file.Name, includeAssemblyNames, excludeAssemblyNames))
-        //            {
-        //                var loadAssembly = LoadAssembly(file);
-        //                if (loadAssembly != null)
-        //                {
-        //                    result.Add(loadAssembly);
-        //                }
-        //            }
-        //        }
-        //        catch (BadImageFormatException badImageFormatException)
-        //        {
-        //            if (badImageFormatException.FileName.ToLower().Contains("system.data.sqlite.dll"))
-        //                throw new BadImageFormatException(
-        //                    "You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.",
-        //                    badImageFormatException.FileName, badImageFormatException);
-
-        //            throw new InvalidOperationException(
-        //                "Could not load " + file.FullName +
-        //                ". Consider using 'Configure.With(AllAssemblies.Except(\"" + file.Name + "\"))' to tell NServiceBus not to load this file.",
-        //                badImageFormatException);
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-        //static bool IsIncluded(string assemblyNameOrFileName, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
-        //{
-
-        //    if (includeAssemblyNames != null
-        //        && !includeAssemblyNames(assemblyNameOrFileName)
-        //        && !defaultAssemblyInclusionOverrides.Any(s => IsMatch(s, assemblyNameOrFileName)))
-        //        return false;
-
-        //    if (defaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName)))
-        //        return false;
-
-        //    if (excludeAssemblyNames != null && excludeAssemblyNames(assemblyNameOrFileName))
-        //        return false;
-
-        //    return true;
-        //}
-
-        /// <summary>
-        /// Check, if an assembly name matches the given expression.
-        /// </summary>
-        /// <param name="expression">
-        ///  <c>Wildcard.</c> matches 'Wildcard' and Assemblies starting with 'Wildcard.';
-        ///  <c>Exact</c> matches only "Exact". Casing is generally ignored.
-        /// </param>
-        /// <param name="scopedNameOrFileName">The name or file name of the assembly, a full type name or namespace.</param>
-        /// <returns></returns>
-        //public static bool IsMatch(string expression, string scopedNameOrFileName)
-        //{
-        //    if (distillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
-        //        return true;
-        //    if (distillLowerAssemblyName(expression).TrimEnd('.') == distillLowerAssemblyName(scopedNameOrFileName))
-        //        return true;
-
-        //    return false;
-        //}
-
         static bool IsGenericConfigSource(Type t)
         {
             if (!t.IsGenericType)
@@ -723,47 +622,5 @@ namespace NServiceBus
                 return LogManager.GetLogger(typeof(Configure));
             }
         }
-
-        static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
-
-        // TODO: rename to defaultAssemblyAndNamespaceExclusions
-        static readonly IEnumerable<string> defaultAssemblyExclusions
-            = new[]
-              {
-
-                  "system.", 
-                  "mscorlib.", 
-                  
-                  // NSB Build-Dependencies
-                  "nunit.", "pnunit.", "rhino.mocks.","XsdGenerator.",
-                 
-                  // NSB OSS Dependencies
-                  "rhino.licensing.", "bouncycastle.crypto",
-                  "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                  "common.logging.", "topshelf.",
-                  "Autofac.", "log4net.","nhibernate.", 
-
-                  // Raven
-                  "raven.server", "raven.client", "raven.munin.",
-                  "raven.storage.", "raven.abstractions.", "raven.database",
-                  "esent.interop", "asyncctplibrary.", "lucene.net.", 
-                  "icsharpcode.nrefactory", "spatial4n.core",
-
-                  // Azure host process, which is typically referenced for ease of deployment but should not be scanned
-                  "NServiceBus.Hosting.Azure.HostProcess.exe",
-
-                  // And other windows azure stuff
-                  "Microsoft.WindowsAzure.",
-
-                  // SQLite unmanaged DLLs that cause BadImageFormatException's
-                  "sqlite3.dll", "SQLite.Interop.dll"
-              };
-
-        // TODO: rename to additionalTypeExclusions 
-        private static readonly IEnumerable<string> defaultTypeExclusions
-            = new string[]
-              {
-                  // defaultAssemblyExclusions will merged inn; specify additional ones here 
-              };
     }
 }

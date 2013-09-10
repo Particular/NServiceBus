@@ -75,7 +75,7 @@ namespace NServiceBus
         {
             return new AssemblyScanner(directory)
                 .IncludeAppDomainAssemblies()
-                .SkipAssemblies(assembliesToExclude)
+                .ExcludeAssemblies(assembliesToExclude)
                 .IncludeAssemblies(assembliesToInclude)
                 .GetScannableAssemblies()
                 .Assemblies

@@ -180,7 +180,7 @@
             public void Context()
             {
                 results = new AssemblyScanner(TestDllDirectory)
-                .SkipAssemblies(new[] { "Rebus.dll" })
+                .ExcludeAssemblies(new[] { "Rebus.dll" })
                     .GetScannableAssemblies();
 
                 skippedFiles = results.SkippedFiles;

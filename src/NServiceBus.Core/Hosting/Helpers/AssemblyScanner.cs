@@ -58,7 +58,7 @@ namespace NServiceBus.Hosting.Helpers
             return this;
         }
 
-        public AssemblyScanner SkipAssemblies(IEnumerable<string> assembliesToAddToListOfSkippedAssemblies)
+        public AssemblyScanner ExcludeAssemblies(IEnumerable<string> assembliesToAddToListOfSkippedAssemblies)
         {
             if (assembliesToAddToListOfSkippedAssemblies != null)
             {
