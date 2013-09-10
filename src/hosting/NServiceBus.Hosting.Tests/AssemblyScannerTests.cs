@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using Helpers;
     using NUnit.Framework;
 
@@ -193,7 +192,7 @@
                 var explicitlySkippedDll = skippedFiles.FirstOrDefault(s => s.FilePath.Contains("Rebus.dll"));
 
                 Assert.That(explicitlySkippedDll, Is.Not.Null);
-                Assert.That(explicitlySkippedDll.SkipReason, Contains.Substring("Explicitly excluded from scanning"));
+                Assert.That(explicitlySkippedDll.SkipReason, Contains.Substring("File was explicitly excluded from scanning"));
             }
         }
 
@@ -238,7 +237,7 @@
                         throw new AssertionException(string.Format("Could not find skipped file matching {0}",
                                                                    cannotContainMessageHandler));
                     Assert.That(skippedFile.SkipReason,
-                                Contains.Substring("Does not reference NServiceBus and thus cannot contain any handlers"));
+                                Contains.Substring("Assembly does not reference NServiceBus and thus cannot contain any handlers"));
                 }
             }
 
