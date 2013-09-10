@@ -180,7 +180,10 @@ namespace NServiceBus.Hosting.Helpers
                   // defaultAssemblyExclusions will merged inn; specify additional ones here 
               };
 
-
+        /// <summary>
+        /// Determines whether the specified assembly name or file name can be included, given the set up include/exclude
+        /// patterns and default include/exclude patterns
+        /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
             var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
@@ -190,11 +193,11 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
 
             var noAssembliesWereExplicitlyIncluded = !assembliesToInclude.Any();
-            var isIncludedByDefault = DefaultAssemblyInclusionOverrides.Any(o => IsMatch(o, assemblyNameOrFileName));
+            var isAlwaysIncludedByDefault = DefaultAssemblyInclusionOverrides.Any(o => IsMatch(o, assemblyNameOrFileName));
             var isExplicitlyIncluded = assembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
 
             return noAssembliesWereExplicitlyIncluded
-                   || isIncludedByDefault
+                   || isAlwaysIncludedByDefault
                    || isExplicitlyIncluded;
         }
 
