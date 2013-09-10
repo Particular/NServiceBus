@@ -32,13 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Apache.NMS">
-      <HintPath>..\..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
-    </Reference>
-    <Reference Include="Apache.NMS.ActiveMQ, Version=1.5.6.2746, Culture=neutral, PublicKeyToken=82756feee3957618, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Apache.NMS-CustomBuild\Apache.NMS.ActiveMQ.dll</HintPath>
-    </Reference>
     <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Autofac.3.0.0\lib\net40\Autofac.dll</HintPath>
@@ -118,12 +111,6 @@
     </Reference>
     <Reference Include="NServiceBus.ObjectBuilder.Unity">
       <HintPath>..\..\binaries\containers\unity\NServiceBus.ObjectBuilder.Unity.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Transports.ActiveMQ">
-      <HintPath>..\..\binaries\NServiceBus.Transports.ActiveMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Transports.SQLServer">
-      <HintPath>..\..\binaries\NServiceBus.Transports.SQLServer.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
