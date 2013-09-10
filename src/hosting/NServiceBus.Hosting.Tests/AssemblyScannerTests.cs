@@ -27,6 +27,90 @@
         static readonly string[] DoesInFactContainMessageHandlers = new[] { "NServiceBus.Core.Tests" }; //< assembly name, not file name
 
         [TestFixture]
+        public class When_scanning_top_level_only
+        {
+            static readonly string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
+            static readonly string SomeSubdir = Path.Combine(BaseDirectoryToScan, "subDir");
+
+            AssemblyScannerResults results;
+
+            [SetUp]
+            public void Context()
+            {
+                Directory.CreateDirectory(BaseDirectoryToScan);
+                Directory.CreateDirectory(SomeSubdir);
+
+                var dllFilePath = Path.Combine(SomeSubdir, "NotAProper.dll");
+                File.WriteAllText(dllFilePath, "This is not a proper DLL");
+
+                results = new AssemblyScanner(BaseDirectoryToScan)
+                    .IncludeAppDomainAssemblies()
+                    .DoNotScanSubdirectories()
+                    .GetScannableAssemblies();
+            }
+
+            [TearDown]
+            public void TearDown()
+            {
+                if (Directory.Exists(BaseDirectoryToScan))
+                    Directory.Delete(BaseDirectoryToScan, true);
+            }
+            
+            [Test]
+            public void should_not_find_assembly_in_subdir()
+            {
+                var allEncounteredFileNames =
+                    results.Assemblies.Select(a => a.CodeBase)
+                           .Concat(results.SkippedFiles.Select(s => s.FilePath))
+                           .ToList();
+
+                Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.dll")),
+                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a subdir");
+            }
+        }
+        
+        [TestFixture]
+        public class When_scanning_for_dlls_only
+        {
+            static readonly string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
+
+            AssemblyScannerResults results;
+
+            [SetUp]
+            public void Context()
+            {
+                Directory.CreateDirectory(BaseDirectoryToScan);
+
+                var dllFilePath = Path.Combine(BaseDirectoryToScan, "NotAProper.exe");
+                File.WriteAllText(dllFilePath, "This is not a proper EXE");
+
+                results = new AssemblyScanner(BaseDirectoryToScan)
+                    .IncludeAppDomainAssemblies()
+                    .DoNotScanExeFiles()
+                    .GetScannableAssemblies();
+            }
+
+            [TearDown]
+            public void TearDown()
+            {
+                if (Directory.Exists(BaseDirectoryToScan))
+                    Directory.Delete(BaseDirectoryToScan, true);
+            }
+            
+            [Test]
+            public void should_not_find_assembly_in_subdir()
+            {
+                var allEncounteredFileNames =
+                    results.Assemblies.Select(a => a.CodeBase)
+                           .Concat(results.SkippedFiles.Select(s => s.FilePath))
+                           .ToList();
+
+                Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.exe")),
+                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a subdir");
+            }
+        }
+
+        [TestFixture]
         public class When_told_to_scan_app_domain
         {
             AssemblyScannerResults results;

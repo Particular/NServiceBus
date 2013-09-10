@@ -18,6 +18,8 @@ namespace NServiceBus.Hosting.Helpers
         readonly string baseDirectoryToScan;
 
         bool includeAppDomainAssemblies;
+        bool recurse = true;
+        bool includeExeInScan = true;
 
         public AssemblyScanner(string baseDirectoryToScan)
         {
@@ -32,12 +34,36 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScanner IncludeAppDomainAssemblies()
         {
             includeAppDomainAssemblies = true;
-            Console.WriteLine(@"In the app domain:
+            return this;
+        }
 
-{0}",
-                              string.Join(Environment.NewLine, AppDomain.CurrentDomain.GetAssemblies()
-                                                                        .Select(a => a.GetName()
-                                                                                      .Name)));
+        public AssemblyScanner DoNotScanSubdirectories()
+        {
+            recurse = false;
+            return this;
+        }
+
+        public AssemblyScanner DoNotScanExeFiles()
+        {
+            includeExeInScan = false;
+            return this;
+        }
+
+        public AssemblyScanner IncludeAssemblies(IEnumerable<string> assembliesToAddToListOfIncludedAssemblies)
+        {
+            if (assembliesToAddToListOfIncludedAssemblies != null)
+            {
+                assembliesToInclude.AddRange(assembliesToAddToListOfIncludedAssemblies);
+            }
+            return this;
+        }
+
+        public AssemblyScanner SkipAssemblies(IEnumerable<string> assembliesToAddToListOfSkippedAssemblies)
+        {
+            if (assembliesToAddToListOfSkippedAssemblies != null)
+            {
+                assembliesToSkip.AddRange(assembliesToAddToListOfSkippedAssemblies);
+            }
             return this;
         }
 
@@ -47,15 +73,9 @@ namespace NServiceBus.Hosting.Helpers
         /// Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET assembly
         /// reveals that it does not reference NServiceBus.
         /// </summary>
-        //[DebuggerNonUserCode]
+        [DebuggerNonUserCode]
         public AssemblyScannerResults GetScannableAssemblies()
         {
-            var baseDir = new DirectoryInfo(baseDirectoryToScan);
-
-            var assemblyFiles = baseDir.GetFiles("*.dll", SearchOption.AllDirectories)
-                                       .Union(baseDir.GetFiles("*.exe", SearchOption.AllDirectories))
-                                       .ToList();
-
             var results = new AssemblyScannerResults();
 
             if (includeAppDomainAssemblies)
@@ -68,27 +88,29 @@ namespace NServiceBus.Hosting.Helpers
                 results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
             }
 
+            var assemblyFiles = ScanDirectoryForAssemblyFiles();
+
             foreach (var assemblyFile in assemblyFiles)
             {
                 Assembly assembly;
 
+                if (!IsIncluded(assemblyFile.Name))
+                {
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File was explicitly excluded from scanning"));
+                    continue;
+                }
+
+                if (!Image.IsAssembly(assemblyFile.FullName))
+                {
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly"));
+                    continue;
+                }
+
                 try
                 {
-                    if (!IsIncluded(assemblyFile.Name))
-                    {
-                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "Explicitly excluded from scanning"));
-                        continue;
-                    }
-
-                    if (!Image.IsAssembly(assemblyFile.FullName))
-                    {
-                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "Is not a .NET assembly"));
-                        continue;
-                    }
-
                     if (!AssemblyReferencesNServiceBus(assemblyFile))
                     {
-                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "Does not reference NServiceBus and thus cannot contain any handlers"));
+                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "Assembly does not reference NServiceBus and thus cannot contain any handlers"));
                         continue;
                     }
 
@@ -96,7 +118,8 @@ namespace NServiceBus.Hosting.Helpers
                 }
                 catch (BadImageFormatException badImageFormatException)
                 {
-                    var errorMessage = string.Format("Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))' to tell NServiceBus not to load this file.", assemblyFile.FullName, assemblyFile.Name);
+                    var errorMessage = string.Format("Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))'" +
+                                                     " to tell NServiceBus not to load this file.", assemblyFile.FullName, assemblyFile.Name);
                     var error = new ErrorWhileScanningAssemblies(badImageFormatException, errorMessage);
                     results.Errors.Add(error);
                     continue;
@@ -110,12 +133,14 @@ namespace NServiceBus.Hosting.Helpers
                 catch (ReflectionTypeLoadException e)
                 {
                     var sb = new StringBuilder();
-                    sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", assemblyFile.FullName, e));
+                    sb.AppendFormat("Could not scan assembly: {0}. Exception message {1}.", assemblyFile.FullName, e);
                     if (e.LoaderExceptions.Any())
                     {
                         sb.Append(Environment.NewLine + "Scanned type errors: ");
                         foreach (var ex in e.LoaderExceptions)
+                        {
                             sb.Append(Environment.NewLine + ex.Message);
+                        }
                     }
                     var error = new ErrorWhileScanningAssemblies(e, sb.ToString());
                     results.Errors.Add(error);
@@ -128,7 +153,28 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
-        bool AssemblyReferencesNServiceBus(FileInfo assemblyFile)
+        IEnumerable<FileInfo> ScanDirectoryForAssemblyFiles()
+        {
+            var baseDir = new DirectoryInfo(baseDirectoryToScan);
+            var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var assemblyFiles = GetFileSearchPatternsToUse()
+                .SelectMany(extension => baseDir.GetFiles(extension, searchOption))
+                .ToList();
+            
+            return assemblyFiles;
+        }
+
+        IEnumerable<string> GetFileSearchPatternsToUse()
+        {
+            yield return "*.dll";
+
+            if (includeExeInScan)
+            {
+                yield return "*.exe";
+            }
+        }
+
+        bool AssemblyReferencesNServiceBus(FileSystemInfo assemblyFile)
         {
             var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyFile.FullName);
             var referencedAssemblies = lightLoad.GetReferencedAssemblies();
@@ -227,24 +273,6 @@ namespace NServiceBus.Hosting.Helpers
                 lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
             }
             return lowerAssemblyName;
-        }
-
-        public AssemblyScanner IncludeAssemblies(IEnumerable<string> assembliesToAddToListOfIncludedAssemblies)
-        {
-            if (assembliesToAddToListOfIncludedAssemblies != null)
-            {
-                assembliesToInclude.AddRange(assembliesToAddToListOfIncludedAssemblies);
-            }
-            return this;
-        }
-
-        public AssemblyScanner SkipAssemblies(IEnumerable<string> assembliesToAddToListOfSkippedAssemblies)
-        {
-            if (assembliesToAddToListOfSkippedAssemblies != null)
-            {
-                assembliesToSkip.AddRange(assembliesToAddToListOfSkippedAssemblies);
-            }
-            return this;
         }
 
         // Code kindly provided by the mono project: https://github.com/jbevain/mono.reflection/blob/master/Mono.Reflection/Image.cs
