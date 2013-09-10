@@ -445,6 +445,7 @@
     <ROW Action="AI_ChooseTextStyles" Type="1" Source="aicustact.dll" Target="ChooseTextStyles"/>
     <ROW Action="AI_DATA_SETTER" Type="51" Source="AI_ExtractFiles" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_DATA_SETTER_1" Type="51" Source="CustomActionData" Target="ServiceBus.Management"/>
+    <ROW Action="AI_DATA_SETTER_2" Type="51" Source="InstallRavenDb" Target="[RAVEN_PORT]"/>
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
     <ROW Action="AI_DeleteCadLzma" Type="51" Source="AI_DeleteLzma" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_DeleteLzma" Type="1025" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
@@ -472,7 +473,7 @@
     <ROW Action="InstallDtc" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallDtc"/>
     <ROW Action="InstallMsmq" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallMsmq"/>
     <ROW Action="InstallPerformanceCounters" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallPerformanceCounters"/>
-    <ROW Action="InstallRavenDb" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallRavenDb"/>
+    <ROW Action="InstallRavenDb" Type="1025" Source="Particular.CustomActions.CA.dll" Target="InstallRavenDb" AdditionalSeq="AI_DATA_SETTER_2"/>
     <ROW Action="Launch_Offline_HTML" Type="194" Source="viewer.exe" Target="&quot;[#NServiceBus4.0BetaReleaseNotes.htm]&quot;" Options="1"/>
     <ROW Action="Launch_Online_URL" Type="194" Source="viewer.exe" Target="http://www.particular.net/Installation-completed?installer=NServiceBus&amp;version=[ProductVersion]" Options="1"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]Particular Software\[ProductName]\v[MY_VERSION]"/>
@@ -508,9 +509,9 @@
     <ROW Action="Launch_Offline_HTML" Condition="( NOT Installed ) AND ( AI_INTERNET_CONNECTION&lt;&gt;&quot;AI_INET_CON_SUCCESS&quot; )" Sequence="6594"/>
     <ROW Action="CollectTroubleshootInfo" Condition="( NOT Installed ) AND ( TB_INFO )" Sequence="203"/>
     <ROW Action="InstallPerformanceCounters" Condition="( NOT Installed ) AND ( ABC )" Sequence="1601"/>
-    <ROW Action="InstallRavenDb" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( INSTALL_RAVENDB )" Sequence="1602"/>
-    <ROW Action="InstallDtc" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;DTC = 3) AND NOT (!DTC = 3)) )" Sequence="1603"/>
-    <ROW Action="InstallMsmq" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;MSMQ = 3) AND NOT (!MSMQ = 3)) )" Sequence="1604"/>
+    <ROW Action="InstallRavenDb" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( INSTALL_RAVENDB )" Sequence="1603"/>
+    <ROW Action="InstallDtc" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;DTC = 3) AND NOT (!DTC = 3)) )" Sequence="1604"/>
+    <ROW Action="InstallMsmq" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( ((&amp;MSMQ = 3) AND NOT (!MSMQ = 3)) )" Sequence="1605"/>
     <ROW Action="AI_AppSearchEx" Sequence="102"/>
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="201"/>
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="DefaultBuild"/>
@@ -526,6 +527,7 @@
     <ROW Action="AI_DATA_SETTER" Sequence="3997"/>
     <ROW Action="AI_EstimateExtractFiles" Sequence="3999" Builds="DefaultBuild"/>
     <ROW Action="GetTrialDate" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) )" Sequence="202"/>
+    <ROW Action="AI_DATA_SETTER_2" Condition="( ( NOT Installed ) OR ( Installed AND REMOVE &lt;&gt; &quot;ALL&quot; AND AI_INSTALL_MODE &lt;&gt; &quot;Remove&quot; ) ) AND ( INSTALL_RAVENDB )" Sequence="1602"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
