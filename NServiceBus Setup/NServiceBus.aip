@@ -11,7 +11,7 @@
     <ROW Property="AI_PRODUCTNAME_ARP" Value="Particular Software [|ProductName] v[|ProductVersion]"/>
     <ROW Property="AI_UNINSTALLER" Value="msiexec.exe"/>
     <ROW Property="ALLUSERS" Value="1"/>
-    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCOMMENTS" Value="Particular Software NServiceBus version [|ProductVersion]: The most developer-friendly service platform for .NET" ValueLocId="*"/>
     <ROW Property="ARPHELPLINK" Value="http://particular.net/support"/>
     <ROW Property="ARPPRODUCTICON" Value="NServiceBus.exe" Type="8"/>
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
