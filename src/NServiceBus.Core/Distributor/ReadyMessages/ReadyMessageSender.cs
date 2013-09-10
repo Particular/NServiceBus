@@ -13,20 +13,23 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public Address DistributorControlAddress { get; set; }
 
+        ITransport transport;
+
         public void Start()
         {
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
                 return;
 
-            var capacityAvailable = Bus.Transport.MaximumConcurrencyLevel;
+            transport = Bus.Transport;
+            var capacityAvailable = transport.MaximumConcurrencyLevel;
             SendReadyMessage(capacityAvailable, true);
 
-            Bus.Transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
+            transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
         }
 
         public void Stop()
         {
-            Bus.Transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+            transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
         }
 
         void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)

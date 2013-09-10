@@ -374,6 +374,11 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public void Stop()
         {
+            InnerStop();
+        }
+
+        void InnerStop()
+        {
             if (!isStarted)
             {
                 return;
@@ -451,7 +456,7 @@ namespace NServiceBus.Unicast.Transport
 
         public void DisposeManaged()
         {
-            Stop();
+            InnerStop();
 
             if (currentReceivePerformanceDiagnostics != null)
             {

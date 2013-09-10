@@ -946,7 +946,7 @@ namespace NServiceBus.Unicast
 
         public void DisposeManaged()
         {
-            Shutdown();
+            InnerShutdown();
 
             Configure.Instance.Builder.Dispose();
         }
@@ -980,6 +980,11 @@ namespace NServiceBus.Unicast
         }
 
         public void Shutdown()
+        {
+            InnerShutdown();
+        }
+
+        void InnerShutdown()
         {
             if (!started)
             {
