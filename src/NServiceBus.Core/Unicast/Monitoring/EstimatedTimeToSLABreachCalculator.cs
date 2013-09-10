@@ -20,6 +20,10 @@ namespace NServiceBus.Unicast.Monitoring
             {
                 counter.Dispose();
             }
+            if (timer != null)
+            {
+                timer.Dispose();
+            }
         }
 
         /// <summary>
