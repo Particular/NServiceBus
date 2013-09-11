@@ -44,7 +44,7 @@
 
                 results = new AssemblyScanner(BaseDirectoryToScan)
                     .IncludeAppDomainAssemblies()
-                    .DoNotScanSubdirectories()
+                    .ScanSubdirectories(false)
                     .GetScannableAssemblies();
             }
 
@@ -85,7 +85,7 @@
 
                 results = new AssemblyScanner(BaseDirectoryToScan)
                     .IncludeAppDomainAssemblies()
-                    .DoNotScanExeFiles()
+                    .ScanExeFiles(false)
                     .GetScannableAssemblies();
             }
 

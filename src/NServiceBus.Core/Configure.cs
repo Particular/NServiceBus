@@ -415,9 +415,8 @@ namespace NServiceBus
         /// <summary>
         /// Load and return all assemblies in the given directory except the given ones to exclude
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="assembliesToSkip">The exclude must either be the full</param>
-        /// <returns></returns>
+        /// <param name="path">Path to scan</param>
+        /// <param name="assembliesToSkip">The exclude must either be the full assembly name or a prefix-pattern</param>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             return new AssemblyScanner(path)

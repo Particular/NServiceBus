@@ -2,6 +2,7 @@ namespace NServiceBus.Hosting.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -18,34 +19,56 @@ namespace NServiceBus.Hosting.Helpers
         readonly string baseDirectoryToScan;
 
         bool includeAppDomainAssemblies;
-        bool recurse = true;
-        bool includeExeInScan = true;
-
-        public AssemblyScanner(string baseDirectoryToScan)
-        {
-            this.baseDirectoryToScan = baseDirectoryToScan;
-        }
+        bool recurse;
+        bool includeExeInScan;
 
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
         {
         }
 
+        public AssemblyScanner(string baseDirectoryToScan)
+        {
+            this.baseDirectoryToScan = baseDirectoryToScan;
+            
+            EnableCompatibilityMode();
+        }
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
+        void EnableCompatibilityMode()
+        {
+            // default
+            ScanExeFiles(true);
+            ScanSubdirectories(true);
+
+            // possibly opt-out of compatibility mode
+            bool compatibilityMode;
+            if (bool.TryParse(ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/CompabilityMode"],
+                              out compatibilityMode))
+            {
+                if (!compatibilityMode)
+                {
+                    ScanExeFiles(false);
+                    ScanSubdirectories(false);
+                }
+            }
+        }
+        
         public AssemblyScanner IncludeAppDomainAssemblies()
         {
             includeAppDomainAssemblies = true;
             return this;
         }
 
-        public AssemblyScanner DoNotScanSubdirectories()
+        public AssemblyScanner ScanSubdirectories(bool shouldRecurse)
         {
-            recurse = false;
+            recurse = shouldRecurse;
             return this;
         }
 
-        public AssemblyScanner DoNotScanExeFiles()
+        public AssemblyScanner ScanExeFiles(bool shouldScanForExeFiles)
         {
-            includeExeInScan = false;
+            includeExeInScan = shouldScanForExeFiles;
             return this;
         }
 
@@ -160,7 +183,7 @@ namespace NServiceBus.Hosting.Helpers
             var assemblyFiles = GetFileSearchPatternsToUse()
                 .SelectMany(extension => baseDir.GetFiles(extension, searchOption))
                 .ToList();
-            
+
             return assemblyFiles;
         }
 
