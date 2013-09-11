@@ -34,7 +34,7 @@ namespace NServiceBus.Hosting.Helpers
             EnableCompatibilityMode();
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
         void EnableCompatibilityMode()
         {
             // default
@@ -43,7 +43,7 @@ namespace NServiceBus.Hosting.Helpers
 
             // possibly opt-out of compatibility mode
             bool compatibilityMode;
-            if (bool.TryParse(ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/CompabilityMode"],
+            if (bool.TryParse(ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/CompatibilityMode"],
                               out compatibilityMode))
             {
                 if (!compatibilityMode)
