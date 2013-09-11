@@ -578,7 +578,7 @@
     <ROW Registry="INSTALL_RAVENDB" Root="-1" Key="Software\[Manufacturer]\[UpgradeCode]" Name="INSTALL_RAVENDB" Value="[INSTALL_RAVENDB]" Component_="INSTALL_RAVENDB"/>
     <ROW Registry="InstallLocation" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="InstallLocation" Value="[APPDIR]" Component_="AI_CustomARPName"/>
     <ROW Registry="Path" Root="2" Key="Software\ParticularSoftware\ServiceBus\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
-    <ROW Registry="Port" Root="1" Key="Software\ParticularSoftware\NServicebus" Name="Port" Value="#[PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7]" Component_="Port"/>
+    <ROW Registry="Port" Root="2" Key="Software\ParticularSoftware\ServiceControl" Name="Port" Value="#[PORT_VAL.CB8171C5_FE21_41EE_BC42_72123C0AD0F7]" Component_="Port"/>
     <ROW Registry="Publisher" Root="-1" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductName] [ProductVersion]" Name="Publisher" Value="[Manufacturer]" Component_="AI_CustomARPName"/>
     <ROW Registry="Samples_SH" Root="2" Key="Software\ParticularSoftware\ServiceBus\[ProductName]" Name="Samples_SH" Value="[SAMPLES_SH]" Component_="Samples_SH"/>
     <ROW Registry="ServiceBus_1" Root="2" Key="Software\[X64_REG]\ServiceBus" Name="+" Component_="ServiceBus"/>
