@@ -16,9 +16,7 @@
                     .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage { Id = context.Id })))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
-                    .Repeat(r =>
-                            r.For<AllTransports>()
-                               .For<AllSerializers>()
+                    .Repeat(r =>r.For<AllSerializers>()
                                   .For<AllBuilders>()
                     )
                     .Should(c =>

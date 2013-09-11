@@ -14,8 +14,8 @@
             Scenario.Define<Context>()
                     .WithEndpoint<SchedulingEndpoint>()
                     .Done(c => c.ScheduleActionInvoked)
-                    .Repeat(r => r.For<AllTransports>())
-                    .Run(TimeSpan.FromSeconds(60));
+                    .Repeat(r => r.For(Transports.Default))
+                  .Run(TimeSpan.FromSeconds(60));
         }
 
         public class Context : ScenarioContext
