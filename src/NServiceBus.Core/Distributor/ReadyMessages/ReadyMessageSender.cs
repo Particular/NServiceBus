@@ -29,7 +29,11 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public void Stop()
         {
-            transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+            //transport will be null if !WorkerRunsOnThisEndpoint
+            if (transport != null)
+            {
+                transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+            }
         }
 
         void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
