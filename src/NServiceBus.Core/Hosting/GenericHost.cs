@@ -59,7 +59,8 @@ namespace NServiceBus.Hosting
         public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             PerformConfiguration();
-            Configure.Instance.ForInstallationOn<TEnvironment>(username).Install();
+            //HACK: to ensure the installer runner performs its installation
+            Configure.Instance.Initialize();
         }
 
         void PerformConfiguration()
