@@ -123,7 +123,7 @@ namespace NServiceBus.Hosting.Helpers
                     continue;
                 }
 
-                var compilationMode = Image.IsAssembly(assemblyFile.FullName);
+                var compilationMode = Image.GetCompilationMode(assemblyFile.FullName);
                 if (compilationMode == CompilationMode.NativeOrInvalid)
                 {
                     results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly"));
@@ -336,18 +336,18 @@ namespace NServiceBus.Hosting.Helpers
             readonly long positionWhenCreated;
             readonly Stream stream;
 
-            public static CompilationMode IsAssembly(string file)
+            public static CompilationMode GetCompilationMode(string file)
             {
                 if (file == null)
                     throw new ArgumentNullException("file");
 
                 using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    return IsAssembly(stream);
+                    return GetCompilationMode(stream);
                 }
             }
 
-            static CompilationMode IsAssembly(Stream stream)
+            static CompilationMode GetCompilationMode(Stream stream)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -358,7 +358,7 @@ namespace NServiceBus.Hosting.Helpers
 
                 using (var image = new Image(stream))
                 {
-                    return image.IsManagedAssembly();
+                    return image.GetCompilationMode();
                 }
             }
 
@@ -369,7 +369,7 @@ namespace NServiceBus.Hosting.Helpers
                 this.stream.Position = 0;
             }
 
-            CompilationMode IsManagedAssembly()
+            CompilationMode GetCompilationMode()
             {
                 if (stream.Length < 318)
                     return CompilationMode.NativeOrInvalid;
