@@ -31,7 +31,7 @@
             
             foreach (var error in Errors)
             {
-                sb.Append(error.ToString());
+                sb.Append(error);
                 if (error.Exception is ReflectionTypeLoadException)
                 {
                     var e = error.Exception as ReflectionTypeLoadException;
@@ -53,7 +53,7 @@
         public List<ErrorWhileScanningAssemblies> Errors { get; private set; }
         
         /// <summary>
-        /// List of succefully found and loaded assemblies
+        /// List of successfully found and loaded assemblies
         /// </summary>
         public List<Assembly> Assemblies { get; private set; }
         

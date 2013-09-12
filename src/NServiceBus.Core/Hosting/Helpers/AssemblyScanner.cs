@@ -34,7 +34,7 @@ namespace NServiceBus.Hosting.Helpers
             EnableCompatibilityMode();
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
+        [ObsoleteEx(RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
         void EnableCompatibilityMode()
         {
             // default
@@ -123,9 +123,16 @@ namespace NServiceBus.Hosting.Helpers
                     continue;
                 }
 
-                if (!Image.IsAssembly(assemblyFile.FullName))
+                var compilationMode = Image.IsAssembly(assemblyFile.FullName);
+                if (compilationMode == CompilationMode.NativeOrInvalid)
                 {
                     results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly"));
+                    continue;
+                }
+
+                if (!Environment.Is64BitProcess && compilationMode == CompilationMode.CLRx64)
+                {
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "x64 .NET assembly can't be loaded by a 32Bit process"));
                     continue;
                 }
 
@@ -329,7 +336,7 @@ namespace NServiceBus.Hosting.Helpers
             readonly long positionWhenCreated;
             readonly Stream stream;
 
-            public static bool IsAssembly(string file)
+            public static CompilationMode IsAssembly(string file)
             {
                 if (file == null)
                     throw new ArgumentNullException("file");
@@ -340,7 +347,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
             }
 
-            static bool IsAssembly(Stream stream)
+            static CompilationMode IsAssembly(Stream stream)
             {
                 if (stream == null)
                     throw new ArgumentNullException("stream");
@@ -362,24 +369,45 @@ namespace NServiceBus.Hosting.Helpers
                 this.stream.Position = 0;
             }
 
-            bool IsManagedAssembly()
+            CompilationMode IsManagedAssembly()
             {
                 if (stream.Length < 318)
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
                 if (ReadUInt16() != 0x5a4d)
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
                 if (!Advance(58))
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
                 if (!MoveTo(ReadUInt32()))
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
                 if (ReadUInt32() != 0x00004550)
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
                 if (!Advance(20))
-                    return false;
-                if (!Advance(ReadUInt16() == 0x20b ? 222 : 206))
-                    return false;
+                    return CompilationMode.NativeOrInvalid;
 
-                return ReadUInt32() != 0;
+                var result = CompilationMode.NativeOrInvalid;
+                switch (ReadUInt16())
+                {
+                    case 0x10B:
+                        if (Advance(206))
+                        {
+                            result = CompilationMode.CLRx86;
+                        }
+                        
+                        break;
+                    case 0x20B:
+                        if (Advance(222))
+                        {
+                            result = CompilationMode.CLRx64;
+                        }
+                        break;
+                }
+
+                if (result == CompilationMode.NativeOrInvalid)
+                {
+                    return result;
+                }
+
+                return ReadUInt32() != 0 ? result : CompilationMode.NativeOrInvalid;
             }
 
             bool Advance(int length)
@@ -418,6 +446,13 @@ namespace NServiceBus.Hosting.Helpers
                               | (stream.ReadByte() << 16)
                               | (stream.ReadByte() << 24));
             }
+        }
+
+        public enum CompilationMode
+        {
+            NativeOrInvalid,
+            CLRx86,
+            CLRx64
         }
     }
 }

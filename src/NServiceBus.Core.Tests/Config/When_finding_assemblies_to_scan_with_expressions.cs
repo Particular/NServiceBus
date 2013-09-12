@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Config
 {
-    using System.IO;
     using System.Linq;
     using NUnit.Framework;
 
