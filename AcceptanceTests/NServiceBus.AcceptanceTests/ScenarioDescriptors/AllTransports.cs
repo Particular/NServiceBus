@@ -20,29 +20,11 @@
             {
                 if (activeTransports == null)
                 {
-                    activeTransports = new List<RunDescriptor>();
-
-                    var specificTransport = Environment.GetEnvironmentVariable("Transport.UseSpecific");
-
-                    var excludedTransports = Environment.GetEnvironmentVariable("Transport.Excluded");
-
-                    foreach (var transport in Transports.AllAvailable)
+                    //temporary fix until we can get rid of the "AllTransports" all together
+                    activeTransports = new List<RunDescriptor>
                     {
-                        var key = transport.Key;
-
-                        if (!string.IsNullOrEmpty(specificTransport) && specificTransport != key)
-                        {
-                            Console.Out.WriteLine("Transport {0} excluded since the test suite is only specified to run for {1}", key, specificTransport);
-                            continue;
-                        }
-                        if (!string.IsNullOrEmpty(excludedTransports) && excludedTransports.Contains(key))
-                        {
-                            Console.Out.WriteLine("Transport {0} excluded since its included in the list of exclude transports {1}", key, excludedTransports);
-                            continue;
-                        }
-
-                        activeTransports.Add(transport);
-                    } 
+                        Transports.Default
+                    }; 
                 }
 
                 return activeTransports;

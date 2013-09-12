@@ -13,7 +13,9 @@
         [Test]
         public void Event_should_be_delivered()
         {
-            Scenario.Define<Context>()
+            var cc = new Context();
+
+            Scenario.Define(cc)
                     .WithEndpoint<Publisher>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
                     .When(c => c.Subscriber1Subscribed && c.Subscriber2Subscribed, bus => bus.Publish(new MyEvent())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
@@ -31,14 +33,10 @@
                                 context.Subscriber2Subscribed = true;
                         }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For<AllTransports>(Transports.ActiveMQ))
-                    .Should(c =>
-                        {
-                            Assert.True(c.Subscriber1GotTheEvent);
-                            Assert.True(c.Subscriber2GotTheEvent);
-                        })
-
                     .Run();
+
+            Assert.True(cc.Subscriber1GotTheEvent);
+            Assert.True(cc.Subscriber2GotTheEvent);
         }
 
         public class Context : ScenarioContext

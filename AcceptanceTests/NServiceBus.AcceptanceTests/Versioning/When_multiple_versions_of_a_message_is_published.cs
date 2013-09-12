@@ -41,8 +41,8 @@
                                 c.V2Subscribed = true;
                         }))
                     .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
-                    .Repeat(r =>r.For<AllTransports>(Transports.ActiveMQ) //until #1098 is fixed
-                                    .For<AllSerializers>(Serializers.Binary)) //versioning isn't supported for binary serialization
+                    .Repeat(r =>//broken for active mq until #1098 is fixed
+                                    r.For<AllSerializers>(Serializers.Binary)) //versioning isn't supported for binary serialization
                     .Should(c =>
                         {
                             //put asserts in here if needed

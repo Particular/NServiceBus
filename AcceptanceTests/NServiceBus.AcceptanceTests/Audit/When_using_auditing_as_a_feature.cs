@@ -17,7 +17,6 @@ namespace NServiceBus.AcceptanceTests.Audit
             .WithEndpoint<EndpointWithAuditOff>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete)
-            .Repeat(r => r.For<AllTransports>())
             .Run();
 
             Assert.IsFalse(context.IsMessageHandledByTheAuditEndpoint);
@@ -31,7 +30,6 @@ namespace NServiceBus.AcceptanceTests.Audit
             .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
             .WithEndpoint<EndpointThatHandlesAuditMessages>()
             .Done(c => c.IsMessageHandlingComplete)
-            .Repeat(r => r.For<AllTransports>())
             .Run();
 
             Assert.IsTrue(context.IsMessageHandledByTheAuditEndpoint);
