@@ -94,23 +94,10 @@ namespace NServiceBus.Unicast.Config
 
             Configurer.RegisterSingleton<IRouteMessages>(router);
 
-            Address forwardAddress = null;
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-            }
-            
-            if (forwardAddress != null)
-            {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
             if (unicastConfig == null)
             {
                 return;
             }
-
-            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m=>m)
@@ -300,18 +287,7 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
             return this;
         }
-        /// <summary>
-        /// Forwards all received messages to a given endpoint (queue@machine).
-        /// This is useful as an auditing/debugging mechanism.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ConfigUnicastBus ForwardReceivedMessagesTo(string value)
-        {
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
-            return this;
-        }
-
+      
         /// <summary>
         /// Instructs the bus not to automatically subscribe to messages that
         /// it has handlers for (given those messages belong to a different endpoint).
