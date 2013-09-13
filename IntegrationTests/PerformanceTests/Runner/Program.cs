@@ -102,16 +102,17 @@ namespace Runner
                     config.UseTransport<Msmq>();
                     break;
 
-                case "sqlserver":
-                    config.UseTransport<SqlServer>(() => SqlServerConnectionString);
-                    break;
+                    //todo: dynamically load the transports or autodetect like we do in the acceptance tests
+                //case "sqlserver":
+                //    config.UseTransport<SqlServer>( () => SqlServerConnectionString);
+                //    break;
 
-                case "activemq":
-                    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
-                    break;
-                case "rabbitmq":
-                    config.UseTransport<RabbitMQ>(() => "host=localhost");
-                    break;
+                //case "activemq":
+                //    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
+                //    break;
+                //case "rabbitmq":
+                //    config.UseTransport<RabbitMQ>(() => "host=localhost");
+                //    break;
 
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);

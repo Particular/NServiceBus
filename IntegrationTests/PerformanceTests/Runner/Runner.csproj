@@ -35,9 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Apache.NMS">
-      <HintPath>..\packages\Apache.NMS.1.5.1\lib\net40\Apache.NMS.dll</HintPath>
-    </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\packages\Iesi.Collections.3.3.3.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
@@ -55,18 +52,6 @@
     <Reference Include="NServiceBus.NHibernate, Version=4.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\binaries\NServiceBus.NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Transports.ActiveMQ">
-      <HintPath>..\..\..\binaries\NServiceBus.Transports.ActiveMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Transports.RabbitMQ">
-      <HintPath>..\..\..\binaries\NServiceBus.Transports.RabbitMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Transports.SQLServer">
-      <HintPath>..\..\..\binaries\NServiceBus.Transports.SQLServer.dll</HintPath>
-    </Reference>
-    <Reference Include="RabbitMQ.Client">
-      <HintPath>..\packages\RabbitMQ.Client.3.0.0\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
       <HintPath>..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
