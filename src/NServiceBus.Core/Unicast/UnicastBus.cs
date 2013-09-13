@@ -1065,12 +1065,8 @@ namespace NServiceBus.Unicast
 
                 if (!callbackInvoked && !handlers.Any())
                 {
-                    var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
-
-                    if (Debugger.IsAttached)
-                        throw new InvalidOperationException(warning);
-
-                    Log.WarnFormat(warning);
+                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
+                    throw new InvalidOperationException(error);
                 }
 
                 LogPipelineInfo(messageToHandle, handlers);
