@@ -12,11 +12,20 @@
     [Parameter(Position=5,Mandatory=0)]
     [string]$messagemode = "normalmessages",
     [Parameter(Position=6,Mandatory=0)]
-    [string]$persistence = "ravendb"
+    [string]$persistence = "ravendb",
+	[Parameter(Position=7,Mandatory=0)]
+    [string]$concurrency = "1"
 )
 {
 
   
-    ..\.\bin\debug\Runner.exe $numThreads $numMessages $serializationFormat $transport $mode $messagemode $persistence
+    ..\.\bin\debug\Runner.exe $numThreads $numMessages $serializationFormat $transport $mode $messagemode $persistence $concurrency
 
+}
+
+function Cleanup ()
+{
+	sqlcmd -S .\SQLEXPRESS -d NServiceBus -i ..\..\..\..\src\SqlServer\Scripts\Reset-Database.sql | Out-Null
+	
+	..\..\..\..\src\NServiceBus.Core\Transports\Msmq\Scripts\Reset-Msmq.ps1 | Out-Null
 }

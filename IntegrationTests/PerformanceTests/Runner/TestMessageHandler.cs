@@ -12,18 +12,18 @@
 
         public void Handle(TestMessage message)
         {
-            if (!Timings.First.HasValue)
+            if (!Statistics.First.HasValue)
             {
-                Timings.First = DateTime.Now;
+                Statistics.First = DateTime.Now;
             }
-            Interlocked.Increment(ref Timings.NumberOfMessages);
+            Interlocked.Increment(ref Statistics.NumberOfMessages);
 
             if (message.TwoPhaseCommit)
             {
                 Transaction.Current.EnlistDurable(Guid.NewGuid(), enlistment, EnlistmentOptions.None);
             }
 
-            Timings.Last = DateTime.Now;
+            Statistics.Last = DateTime.Now;
         }
     }
 }

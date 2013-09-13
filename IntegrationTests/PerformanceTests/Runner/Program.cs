@@ -2,6 +2,7 @@
 
 namespace Runner
 {
+    using System.Configuration;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Runner
 
     using NServiceBus;
     using NServiceBus.Features;
+    using NServiceBus.Persistence.NHibernate;
     using Runner.Saga;
 
     class Program
@@ -21,6 +23,7 @@ namespace Runner
             bool twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
             bool saga = (args[5].ToLower() == "sagamessages");
             bool nhibernate = (args[6].ToLower() == "nhibernate");
+            int concurrency = int.Parse(args[7]);
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
 
@@ -66,6 +69,14 @@ namespace Runner
 
                 if (nhibernate)
                 {
+                    NHibernateSettingRetriever.ConnectionStrings = () =>
+                    {
+                        var c = new ConnectionStringSettingsCollection();
+
+                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", SqlServerConnectionString));
+                        return c;
+
+                    };
                     config.UseNHibernateSagaPersister();
 
                 }
@@ -91,16 +102,17 @@ namespace Runner
                     config.UseTransport<Msmq>();
                     break;
 
-                case "sqlserver":
-                    config.UseTransport<SqlServer>(() => @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;");
-                    break;
+                    //todo: dynamically load the transports or autodetect like we do in the acceptance tests
+                //case "sqlserver":
+                //    config.UseTransport<SqlServer>( () => SqlServerConnectionString);
+                //    break;
 
-                case "activemq":
-                    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
-                    break;
-                case "rabbitmq":
-                    config.UseTransport<RabbitMQ>(() => "host=localhost");
-                    break;
+                //case "activemq":
+                //    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
+                //    break;
+                //case "rabbitmq":
+                //    config.UseTransport<RabbitMQ>(() => "host=localhost");
+                //    break;
 
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);
@@ -110,31 +122,57 @@ namespace Runner
             {
                 Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
-                var processorTimeBefore = Process.GetCurrentProcess().TotalProcessorTime;
-                var sendTimeNoTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
-                var sendTimeWithTx = SeedInputQueue(numberOfMessages, endpointName, numberOfThreads, true, twoPhaseCommit, saga, false);
-
-                var startTime = DateTime.Now;
+                if (saga)
+                {
+                    SeedSagaMessages(numberOfMessages, endpointName, concurrency);
+                }
+                else
+                {
+                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages/2, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
+                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, saga, true);
+                }
+                
+                Statistics.StartTime = DateTime.Now;
 
                 startableBus.Start();
 
-                while (Interlocked.Read(ref Timings.NumberOfMessages) < numberOfMessages * 2)
+                while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);
 
-                var durationSeconds = (Timings.Last - Timings.First.Value).TotalSeconds;
-                Console.Out.WriteLine("Threads: {0}, NumMessages: {1}, Serialization: {2}, Transport: {3}, Throughput: {4:0.0} msg/s, Sending: {5:0.0} msg/s, Sending in Tx: {9:0.0} msg/s, TimeToFirstMessage: {6:0.0}s, TotalProcessorTime: {7:0.0}s, Mode:{8}",
-                                      numberOfThreads,
-                                      numberOfMessages * 2,
-                                      args[2],
-                                      args[3],
-                                      Convert.ToDouble(numberOfMessages * 2) / durationSeconds,
-                                      Convert.ToDouble(numberOfMessages) / sendTimeNoTx.TotalSeconds,
-                                      (Timings.First - startTime).Value.TotalSeconds,
-                                      (Process.GetCurrentProcess().TotalProcessorTime - processorTimeBefore).TotalSeconds,
-                                      args[4],
-                                      Convert.ToDouble(numberOfMessages) / sendTimeWithTx.TotalSeconds);
+            
+                DumpSetting(args);
+                Statistics.Dump();
+
+              
 
             }
+        }
+
+        static void DumpSetting(string[] args)
+        {
+            Console.Out.WriteLine("---------------- Settings ----------------");
+            Console.Out.WriteLine("Threads: {0}, Serialization: {1}, Transport: {2}",
+                                  args[0],
+                                  args[2],
+                                  args[3]);
+        }
+
+        static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
+        {
+            var bus = Configure.Instance.Builder.Build<IBus>();
+
+            for (int i = 0; i < numberOfMessages/concurrency; i++)
+            {
+
+                for (int j = 0; j < concurrency; j++)
+                {
+                    bus.Send(inputQueue, new StartSagaMessage
+                    {
+                        Id = i
+                    });
+                }
+            }
+            
         }
 
         static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool saga, bool startSaga)
@@ -185,5 +223,9 @@ namespace Runner
 
             return new TestMessage();
         }
+
+        static string SqlServerConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
+
+       
     }
 }
