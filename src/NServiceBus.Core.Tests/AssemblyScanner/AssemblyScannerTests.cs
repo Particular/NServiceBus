@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.Hosting.Tests
+﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Helpers;
+    using Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,17 +13,16 @@
         static readonly string TestDllDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestDlls");
 
         static readonly string[] NotProperDotNetDlls =
-            new[]
-                {
-                    "libzmq-v120-mt-3_2_3.dll",
-                    "Tail.exe",
-                    "some_random.dll",
-                    "some_random.exe",
-                };
+        {
+            "libzmq-v120-mt-3_2_3.dll",
+            "Tail.exe",
+            "some_random.dll",
+            "some_random.exe",
+        };
 
-        static readonly string[] DoesNotReferenceNServiceBus = new[] {"Rebus.dll"};
+        static readonly string[] DoesNotReferenceNServiceBus = {"Rebus.dll"};
 
-        static readonly string[] DoesInFactContainMessageHandlers = new[] { "NServiceBus.Core.Tests" }; //< assembly name, not file name
+        static readonly string[] DoesInFactContainMessageHandlers = {"NServiceBus.Core.Tests"}; //< assembly name, not file name
 
         [TestFixture]
         public class When_scanning_top_level_only
