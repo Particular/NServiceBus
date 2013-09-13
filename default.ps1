@@ -103,7 +103,7 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
     
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-	$v1Projects = @("NServiceBus.Transports.ActiveMQ.csproj", "NServiceBus.Transports.SQLServer.csproj", "NServiceBus.Notifications.csproj")
+	$v1Projects = @("NServiceBus.Transports.SQLServer.csproj", "NServiceBus.Notifications.csproj")
 	
 	foreach($projectFile in $projectFiles) {
 
@@ -225,7 +225,6 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.PowerShell.??? $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **.Tests.*
-	Copy-Item $outDir\NServiceBus.Transports.ActiveMQ.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Transports.SqlServer.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **.Tests.*, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **.Tests.*
