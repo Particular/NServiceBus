@@ -61,6 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestMessageHandler.cs" />
     <Compile Include="DataResponseMessageHandler.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="ClientEndpoint.cs" />
