@@ -4,6 +4,7 @@ namespace NServiceBus.Hosting.Windows
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using Profiles.Handlers;
 
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution
@@ -71,6 +72,10 @@ namespace NServiceBus.Hosting.Windows
         {
             if (runOtherInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
+
+            //HACK: to force username to passed through to the 
+            WindowsInstallerRunner.RunInstallers = true;
+            WindowsInstallerRunner.RunAs = username;
 
             genericHost.Install<Installation.Environments.Windows>(username);
         }
