@@ -7,6 +7,7 @@ namespace NServiceBus.Hosting.Helpers
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Text;
 
     /// <summary>
@@ -245,7 +246,7 @@ namespace NServiceBus.Hosting.Helpers
 
         public static bool IsAllowedType(Type type)
         {
-            return !type.IsValueType;
+            return !type.IsValueType && !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)
