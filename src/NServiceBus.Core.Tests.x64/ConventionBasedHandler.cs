@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Handler
+﻿namespace NServiceBus.Core.Tests.x64
 {
     using ConventionBasedMessages;
 

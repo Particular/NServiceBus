@@ -18,6 +18,7 @@ namespace NServiceBus
     using Logging;
     using ObjectBuilder;
     using Settings;
+    using Unicast;
 
     /// <summary>
     /// Central configuration entry point for NServiceBus.
@@ -91,7 +92,7 @@ namespace NServiceBus
 
         IBuilder builder;
 
-        static bool initialized { get; set; }
+        static bool initialized;
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
@@ -275,13 +276,20 @@ namespace NServiceBus
                 }
             }
 
-            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
+            TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
+
+            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count);
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
             instance.InvokeISetDefaultSettings();
 
             return instance;
+        }
+
+        static IEnumerable<Type> GetMessageTypes(IEnumerable<Type> types)
+        {
+            return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
         }
 
         /// <summary>
@@ -405,9 +413,11 @@ namespace NServiceBus
             var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
 
             if (sectionOverrideType == null)
+            {
                 return ConfigurationSource.GetConfiguration<T>();
+            }
 
-            var sectionOverride = Activator.CreateInstance(sectionOverrideType) as IProvideConfiguration<T>;
+            var sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
 
             return sectionOverride.GetConfiguration();
         }
@@ -459,7 +469,7 @@ namespace NServiceBus
             if (Instance == null)
                 throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
 
-            return Instance.Configurer.ConfigureComponent<T>(componentFactory, lifecycle);
+            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
         }
 
         /// <summary>
@@ -470,7 +480,7 @@ namespace NServiceBus
 	        if (Instance == null)
 		        throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
 
-	        return Instance.Configurer.ConfigureComponent<T>(componentFactory, lifecycle);
+	        return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
         }
 		  
         /// <summary>

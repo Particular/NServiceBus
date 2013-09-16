@@ -22,8 +22,7 @@ namespace NServiceBus.Hosting.Helpers
         bool recurse;
         bool includeExeInScan;
 
-        public AssemblyScanner()
-            : this(AppDomain.CurrentDomain.BaseDirectory)
+        public AssemblyScanner(): this(AppDomain.CurrentDomain.BaseDirectory)
         {
         }
 

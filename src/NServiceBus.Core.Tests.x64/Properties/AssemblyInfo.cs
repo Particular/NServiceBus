@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NServiceBus.Core.Tests.x32")]
+[assembly: AssemblyTitle("NServiceBus.Core.Tests.x64")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NServiceBus.Core.Tests.x32")]
+[assembly: AssemblyProduct("NServiceBus.Core.Tests.x64")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("16db9bcb-adb4-418d-92ec-e700b2156c83")]
+[assembly: Guid("d6d26c9b-43f6-4f27-8ec1-b822d803879e")]
 
 // Version information for an assembly consists of the following four values:
 //
