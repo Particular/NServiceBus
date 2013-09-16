@@ -287,7 +287,7 @@ namespace NServiceBus
             return instance;
         }
 
-        static IEnumerable<Type> GetMessageTypes(IEnumerable<Type> types)
+        static IEnumerable<Type> GetMessageTypes(IList<Type> types)
         {
             return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
         }

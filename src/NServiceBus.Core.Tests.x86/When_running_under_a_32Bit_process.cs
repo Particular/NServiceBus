@@ -23,7 +23,7 @@
         [Test]
         public void Should_skip_x64_assemblies_automagically()
         {
-            var x64SkippedDll = skippedFiles.FirstOrDefault(s => s.FilePath.Contains("NServiceBus.Core.Tests.dll"));
+            var x64SkippedDll = skippedFiles.FirstOrDefault(s => s.FilePath.Contains("ConventionBasedHandler.Tests.dll"));
 
             Assert.That(x64SkippedDll, Is.Not.Null);
             Assert.That(x64SkippedDll.SkipReason, Contains.Substring("x64 .NET assembly can't be loaded by a 32Bit process"));

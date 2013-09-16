@@ -74,11 +74,12 @@
         /// <returns></returns>
         internal static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
-            return from t in type.GetInterfaces().Where(t => t.IsGenericType)
-                let potentialMessageType = t.GetGenericArguments().SingleOrDefault()
-                where potentialMessageType != null
-                where MessageConventionExtensions.IsMessageType(potentialMessageType) ||
-                      typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+            return from t in type.GetInterfaces()
+                where t.IsGenericType
+                let potentialMessageType = t.GetGenericArguments()[0]
+                where
+                    MessageConventionExtensions.IsMessageType(potentialMessageType) ||
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
                 select potentialMessageType;
         }
 

@@ -214,66 +214,22 @@ namespace NServiceBus.Hosting.Helpers
             return referencedAssemblies
                 .Any(a => a.Name == nameOfAssemblyDefiningHandlersInterface);
         }
-
-        static readonly IEnumerable<string> DefaultAssemblyInclusionOverrides = new[] { "nservicebus." };
-
-        static readonly IEnumerable<string> DefaultAssemblyExclusions
-            = new[]
-              {
-
-                  "system.", 
-                  "mscorlib.", 
-                  
-                  // NSB Build-Dependencies
-                  "nunit.", "pnunit.", "rhino.mocks.","XsdGenerator.",
-                 
-                  // NSB OSS Dependencies
-                  "rhino.licensing.", "bouncycastle.crypto",
-                  "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                  "common.logging.", "topshelf.",
-                  "Autofac.", "log4net.","nhibernate.", 
-
-                  // Raven
-                  "raven.server", "raven.client", "raven.munin.",
-                  "raven.storage.", "raven.abstractions.", "raven.database",
-                  "esent.interop", "asyncctplibrary.", "lucene.net.", 
-                  "icsharpcode.nrefactory", "spatial4n.core",
-
-                  // Azure host process, which is typically referenced for ease of deployment but should not be scanned
-                  "NServiceBus.Hosting.Azure.HostProcess.exe",
-
-                  // And other windows azure stuff
-                  "Microsoft.WindowsAzure.",
-
-                  // SQLite unmanaged DLLs that cause BadImageFormatException's
-                  "sqlite3.dll", "SQLite.Interop.dll"
-              };
-
-        static readonly IEnumerable<string> DefaultTypeExclusions
-            = new string[]
-              {
-                  // defaultAssemblyExclusions will merged inn; specify additional ones here 
-              };
-
+        
         /// <summary>
         /// Determines whether the specified assembly name or file name can be included, given the set up include/exclude
         /// patterns and default include/exclude patterns
         /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
-            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
             var isExplicitlyExcluded = assembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
 
-            if (isExcludedByDefault || isExplicitlyExcluded)
+            if (isExplicitlyExcluded)
                 return false;
 
             var noAssembliesWereExplicitlyIncluded = !assembliesToInclude.Any();
-            var isAlwaysIncludedByDefault = DefaultAssemblyInclusionOverrides.Any(o => IsMatch(o, assemblyNameOrFileName));
             var isExplicitlyIncluded = assembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
 
-            return noAssembliesWereExplicitlyIncluded
-                   || isAlwaysIncludedByDefault
-                   || isExplicitlyIncluded;
+            return noAssembliesWereExplicitlyIncluded || isExplicitlyIncluded;
         }
 
         static bool IsMatch(string expression, string scopedNameOrFileName)
@@ -289,9 +245,7 @@ namespace NServiceBus.Hosting.Helpers
 
         public static bool IsAllowedType(Type type)
         {
-            return !type.IsValueType
-                   && DefaultTypeExclusions.Union(DefaultAssemblyExclusions)
-                                           .Any(exclusion => IsMatch(exclusion, type.FullName));
+            return !type.IsValueType;
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)

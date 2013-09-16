@@ -52,15 +52,6 @@ namespace NServiceBus.Core.Tests.Config
         }
 
         [Test]
-        public void Should_include_NServiceBus_by_default()
-        {
-            var found = AllAssemblies
-                .Matching("foo.bar").ToArray();
-
-            Assert.True(found.Any(a => a.GetName().Name.StartsWith("NServiceBus.")));
-        }
-
-        [Test]
         public void Should_include_fsharp_using_And()
         {
             var found = AllAssemblies
