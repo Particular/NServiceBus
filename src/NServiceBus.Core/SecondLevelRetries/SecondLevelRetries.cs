@@ -72,7 +72,7 @@ namespace NServiceBus.Features
             if (useRemoteRetryProcessor)
             {
                 Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
-            }
+            } 
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)
