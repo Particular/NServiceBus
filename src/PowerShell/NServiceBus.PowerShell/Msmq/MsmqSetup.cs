@@ -18,20 +18,29 @@
         /// Checks that MSMQ is installed, configured correctly, and started, and if not
         /// takes the necessary corrective actions to make it so.
         /// </summary>
-        public static bool StartMsmqIfNecessary(bool allowReinstall = false)
+        public static bool StartMsmqIfNecessary()
         {
             if(!InstallMsmqIfNecessary())
             {
                 return false;
             }
 
-            var controller = new ServiceController { ServiceName = "MSMQ", MachineName = "." };
-
-            if (IsStopped(controller))
+            try
             {
-                ProcessUtil.ChangeServiceStatus(controller, ServiceControllerStatus.Running, controller.Start);
+                using (var controller = new ServiceController("MSMQ"))
+                {
+                    if (IsStopped(controller))
+                    {
+                        ProcessUtil.ChangeServiceStatus(controller, ServiceControllerStatus.Running, controller.Start);
+                    }
+                }
             }
-
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("MSMQ windows service not found! You may need to reboot after MSMQ has been installed.");
+                return false;
+            }
+            
             return true;
         }
 
@@ -54,7 +63,9 @@
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
             if (msmqSetup == null)
+            {
                 return false;
+            }
 
             var installedComponents = new List<string>(msmqSetup.GetValueNames());
             msmqSetup.Close();
@@ -110,7 +121,7 @@
 
                 default:
                     Console.WriteLine("OS not supported.");
-                    break;
+                    return false;
             }
 
             Console.WriteLine("Installation of MSMQ successful.");
@@ -273,7 +284,7 @@
         /// Return Type: HMODULE->HINSTANCE->HINSTANCE__*
         ///lpLibFileName: LPCWSTR->WCHAR*
         [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW")]
-        static extern IntPtr LoadLibraryW([In()] [MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
+        static extern IntPtr LoadLibraryW([In] [MarshalAs(UnmanagedType.LPWStr)] string lpLibFileName);
 
 
         [DllImport("Kernel32", CharSet = CharSet.Auto)]
