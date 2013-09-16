@@ -103,7 +103,6 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 	}
     
 	$projectFiles = ls -path $srcDir -include *.csproj -recurse  
-	$v1Projects = @("NServiceBus.Transports.SQLServer.csproj", "NServiceBus.Notifications.csproj")
 	
 	foreach($projectFile in $projectFiles) {
 
@@ -128,27 +127,16 @@ task GenerateAssemblyInfo -description "Generates assembly info for all the proj
 		$projectFileName = [System.IO.Path]::GetFileName($projectFile)
 		Write-Output "Project Name: $projectFileName"
 		
-		if([System.Array]::IndexOf($v1Projects, $projectFileName) -eq -1){
-			$asmVersion =  $ProductVersion + ".0.0"
+		$asmVersion =  $ProductVersion + ".0.0"
 
-			if($PreRelease -eq "") {
-				$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
-				$infoVersion = $ProductVersion + "." + $PatchVersion
-			} else {
-				$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
-				$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
-			}
+		if($PreRelease -eq "") {
+			$fileVersion = $ProductVersion + "." + $PatchVersion + ".0" 
+			$infoVersion = $ProductVersion + "." + $PatchVersion
 		} else {
-			$asmVersion =  "1.0.0.0"
-
-			if($PreRelease -eq "") {
-				$fileVersion = "1.0.0.0" 
-				$infoVersion = "1.0.0"
-			} else {
-				$fileVersion = "1.0.0." + $BuildNumber 
-				$infoVersion = "1.0.0." + "-" + $PreRelease + $BuildNumber 	
-			}
+			$fileVersion = $ProductVersion + "." + $PatchVersion + "." + $BuildNumber 
+			$infoVersion = $ProductVersion + "." + $PatchVersion + "-" + $PreRelease + $BuildNumber 	
 		}
+		
 				
 		$assemblyDescription = gc $asmInfo | select-string -pattern "AssemblyDescription" 
 		if($assemblyDescription -ne $null){
@@ -225,11 +213,9 @@ task CopyBinaries -depends Merge {
 	Copy-Item $outDir\NServiceBus.??? $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.PowerShell.??? $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Azure.* $binariesDir -Force -Exclude **.Tests.*
-	Copy-Item $outDir\NServiceBus.Transports.SqlServer.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Hosting.Azure.??? $binariesDir -Force -Exclude **.Tests.*, *.config
 	Copy-Item $outDir\NServiceBus.NHibernate.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Testing.* $binariesDir -Force -Exclude **.Tests.*
-	Copy-Item $outDir\NServiceBus.Notifications.* $binariesDir -Force -Exclude **.Tests.*
 	Copy-Item $outDir\NServiceBus.Timeout.Hosting.Azure.* $binariesDir -Force -Exclude **.Tests.*
 	
 	Create-Directory "$binariesDir\containers\autofac"

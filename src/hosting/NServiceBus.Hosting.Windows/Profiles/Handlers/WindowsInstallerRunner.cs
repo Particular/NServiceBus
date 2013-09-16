@@ -13,6 +13,8 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
         /// </summary>
         public static bool RunInstallers { get; set; }
 
+        internal static string RunAs { get; set; }
+
         /// <summary>
         /// Runs the installers if necessary.
         /// </summary>
@@ -27,7 +29,7 @@ namespace NServiceBus.Hosting.Windows.Profiles.Handlers
             if (RunInstallers)
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
 
-            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>().Install();
+            Configure.Instance.ForInstallationOn<Installation.Environments.Windows>(RunAs).Install();
         }
     }
 }
