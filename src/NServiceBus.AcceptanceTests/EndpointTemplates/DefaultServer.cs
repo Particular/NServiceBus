@@ -55,7 +55,7 @@
 
         static IEnumerable<Type> GetTypesToUse(EndpointConfiguration endpointConfiguration)
         {
-            var assemblies = AssemblyScanner.GetScannableAssemblies();
+            var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
             var types = assemblies.Assemblies
                                     //exclude all test types by default
