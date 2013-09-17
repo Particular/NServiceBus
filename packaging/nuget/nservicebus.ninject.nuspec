@@ -1,5 +1,6 @@
-<package>
-  <metadata>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.Ninject</id>
     <title>NServiceBus Ninject</title>
     <version>4.0.0-alpha0</version>
@@ -10,20 +11,19 @@
     <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The Ninject Container for the nservicebus</description>
-    <releaseNotes>
-    </releaseNotes>
+    <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="Ninject.Extensions.ContextPreservation" version="3.0.0.8" />
-      <dependency id="Ninject.Extensions.NamedScope" version="3.0.0.5" />
-      <dependency id="Ninject" version="[3.0.0.15,4)" />
-      <dependency id="NServiceBus" version="[%VERSION%]" />
+      <dependency id="Ninject" version="[3.0.1.10, 4.0.0.0)" />
+      <dependency id="Ninject.Extensions.ContextPreservation" version="[3.0.0.8, 4.0.0.0)" />
+      <dependency id="Ninject.Extensions.NamedScope" version="[3.0.0.5, 4.0.0.0)" />
+      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>
     <file src="..\..\binaries\containers\Ninject\NServiceBus.ObjectBuilder.Ninject.???" target="lib\net40" />
-	<file src="tools\install.ps1" target="tools" />
-    <file src="..\..\src\NServiceBus.Ninject\*.cs" target="src" />
+    <file src="tools\install.ps1" target="tools" />
+    <file src="..\..\src\ObjectBuilder.Ninject\**\*.cs" target="src" />
   </files>
 </package>

@@ -1,5 +1,6 @@
-<package>
-  <metadata>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>NServiceBus.PowerShell</id>
     <title>NServiceBus PowerShell</title>
     <version>4.0.0-alpha0</version>
@@ -12,9 +13,12 @@
     <description>PowerShell Cmdlets for NServiceBus</description>
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe powershell</tags>
+    <dependencies>
+      <dependency id="T4Scaffolding.Core" version="[1.0.0.0, 2.0.0.0)" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="lib\net40\" />
-	<file src="..\..\src\NServiceBus.PowerShell\*.cs" target="src" />
+    <file src="..\..\src\NServiceBus.PowerShell\**\*.cs" target="src" />
   </files>
 </package>
