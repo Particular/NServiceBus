@@ -29,9 +29,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <FodyPath>..\..\packages\Fody.1.16.2.0</FodyPath>
+    <FodyPath>..\packages\Fody.1.16.2.0</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -60,9 +58,8 @@
   <ItemGroup>
     <None Include="Fody.targets" />
     <None Include="packages.config" />
-    <Reference Include="Obsolete, Version=2.3.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Obsolete.Fody.2.3.0\Lib\NET35\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete">
+      <HintPath>..\packages\Obsolete.Fody.2.3.0\Lib\NET35\Obsolete.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -142,9 +139,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\build\"</notused>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+  <Import Project="$(SolutionDir)..\Tools\Pepita\PepitaGet.targets" />
   <Import Project="Fody.targets" />
 </Project>
