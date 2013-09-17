@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -175,43 +175,43 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">
-      <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}</Project>
       <Name>ObjectBuilder.Autofac</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj">
-      <Project>{9a9a0bd5-ac37-4b90-b90f-fd1c1395febd}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{9a9a0bd5-ac37-4b90-b90f-fd1c1395febd}</Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Ninject\ObjectBuilder.Ninject.csproj">
-      <Project>{c35ae1c7-c785-4629-a73d-977e0325d8b0}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{c35ae1c7-c785-4629-a73d-977e0325d8b0}</Project>
       <Name>ObjectBuilder.Ninject</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
-      <Project>{734d30cf-4376-488a-a6b4-1033fed93660}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{734d30cf-4376-488a-a6b4-1033fed93660}</Project>
       <Name>ObjectBuilder.Spring</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
-      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}</Project>
       <Name>ObjectBuilder.StructureMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Unity\ObjectBuilder.Unity.csproj">
-      <Project>{343b2e7a-e228-4b31-abb5-f5437b2e7a4c}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{343b2e7a-e228-4b31-abb5-f5437b2e7a4c}</Project>
       <Name>ObjectBuilder.Unity</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.NHibernate\NServiceBus.NHibernate.csproj">
-      <Project>{281646e3-32e0-4f4d-bcf6-1dc5efc6c268}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{281646e3-32e0-4f4d-bcf6-1dc5efc6c268}</Project>
       <Name>NServiceBus.NHibernate</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
-      <Project>{758357f6-cd31-4337-80c4-ba377fc257af}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
       <Name>NServiceBus.AcceptanceTesting</Name>
     </ProjectReference>
   </ItemGroup>

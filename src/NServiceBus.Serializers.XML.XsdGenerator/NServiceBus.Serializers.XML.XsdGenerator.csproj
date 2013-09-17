@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -90,11 +90,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
   </ItemGroup>
