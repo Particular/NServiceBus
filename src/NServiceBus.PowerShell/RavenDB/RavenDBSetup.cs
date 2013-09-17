@@ -46,7 +46,7 @@
         }
 
 
-        private static bool IsRavenDBv2RunningOn(int port)
+        static bool IsRavenDBv2RunningOn(int port)
         {
             var webRequest = WebRequest.Create(String.Format("http://localhost:{0}", port));
             webRequest.Timeout = 2000;
@@ -78,8 +78,11 @@
 
         public static void Install(int port = 0, string installPath = null)
         {
+            const string DefaultDirectoryName = "NServiceBus.Persistence.v4";
             if (string.IsNullOrEmpty(installPath))
+            {
                 installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).Replace(" (x86)", String.Empty), DefaultDirectoryName);
+            }
 
             if (Directory.Exists(installPath))
             {
@@ -221,7 +224,7 @@
             }
         }
 
-        private static void SavePortToBeUsedForRavenInRegistry(int availablePort)
+        static void SavePortToBeUsedForRavenInRegistry(int availablePort)
         {
             if (Environment.Is64BitOperatingSystem)
             {
@@ -249,14 +252,17 @@
             }
 
             if (portValue == null)
+            {
                 return 0;
+            }
 
             return (int)portValue;
         }
 
         static void WriteRegistry(int availablePort, RegistryView view)
         {
-            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
+            using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
+            using (var key = baseKey.CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
                 key.SetValue("RavenPort", availablePort, RegistryValueKind.DWord);
             }
@@ -264,12 +270,12 @@
 
         static object ReadRegistry(RegistryView view)
         {
-            using (var key = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view).CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
+            using (var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, view))
+            using (var key = baseKey.CreateSubKey(@"SOFTWARE\ParticularSoftware\ServiceBus"))
             {
                 return key.GetValue("RavenPort");
             }
         }
-        
-        const string DefaultDirectoryName = "NServiceBus.Persistence.v4";
+
     }
 }
