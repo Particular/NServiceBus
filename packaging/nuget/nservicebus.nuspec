@@ -1,0 +1,32 @@
+<package>
+  <metadata>
+    <id>NServiceBus</id>
+    <title>NServiceBus</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The most popular open-source service bus for .net</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="net40" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
+    </frameworkAssemblies>
+    <dependencies>
+      <dependency id="NServiceBus.Interfaces" version="[%VERSION%]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net40" />
+    <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="tools" />
+    <file src="..\..\binaries\about_NServiceBus.help.txt" target="tools" />
+	<file src="tools\init.ps1" target="tools" />
+    <file src="..\..\src\NServiceBus.Core\*.cs" target="src" />
+  </files>
+</package>

@@ -1,0 +1,28 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Host32</id>
+    <title>NServiceBus Host32</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The hosting template for the nservicebus, The most popular open-source service bus for .net</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies>
+	  <dependency id="T4Scaffolding.Core" />
+      <dependency id="NServiceBus" version="[%VERSION%]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\NServiceBus.Host32.???" target="lib\net40" />
+	<file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
+	<file src="nservicebus.host32\install.ps1" target="tools" />
+    <file src="..\..\src\NServiceBus.Host\*.cs" target="src" />
+  </files>
+</package>

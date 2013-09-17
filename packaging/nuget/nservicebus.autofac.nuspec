@@ -1,0 +1,27 @@
+<package>
+  <metadata>
+    <id>NServiceBus.Autofac</id>
+    <title>NServiceBus Autofac</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The Autofac Container for the nservicebus</description>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies>
+      <dependency id="Autofac" version="[3.0.1,4)" />
+      <dependency id="NServiceBus" version="[%VERSION%]" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.???" target="lib\net40" />
+	<file src="tools\install.ps1" target="tools" />
+    <file src="..\..\src\NServiceBus.Autofac\*.cs" target="src" />
+  </files>
+</package>

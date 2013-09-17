@@ -14,7 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody.1.16.2.0</FodyPath>
+    <FodyPath>..\packages\Fody</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,23 +39,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Janitor">
-      <HintPath>..\packages\Janitor.Fody.0.3.0\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\packages\Janitor.Fody\Lib\portable-net4+sl4+wp7+win8+MonoAndroid16+MonoTouch40\Janitor.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ninject.3.0.1.10\lib\net40\Ninject.dll</HintPath>
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject\lib\net40\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="Ninject.Extensions.ContextPreservation">
-      <HintPath>..\packages\Ninject.Extensions.ContextPreservation.3.0.0.8\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
+      <HintPath>..\packages\Ninject.Extensions.ContextPreservation\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject.Extensions.NamedScope, Version=3.0.0.0, Culture=neutral, PublicKeyToken=c7192dc5380945e7, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.0.0.5\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
+    <Reference Include="Ninject.Extensions.NamedScope">
+      <HintPath>..\packages\Ninject.Extensions.NamedScope\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.Core" />
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
@@ -70,7 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Fody.targets" />
-    <None Include="packages.config" />
+    <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
