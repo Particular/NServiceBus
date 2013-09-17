@@ -311,26 +311,21 @@ task Merge -depends Build {
 }
 
 task CompileSamples {
-	$excludeFromBuild = @("AsyncPagesMVC3.sln")
+	
 	$solutions = ls -path $baseDir\Samples -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
-				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
-					$solutionFile = $_.FullName
-					exec { &$script:msBuild  $solutionFile /t:"Clean,Build" /m /nodeReuse:false }
-				}
+				$solutionFile = $_.FullName
+				exec { &$script:msBuild  $solutionFile /t:"Clean,Build" /m /nodeReuse:false }
 		}
 }
 
 task CompileIntegrationProjects -depends CompileSamples {
-	$excludeFromBuild = @("AsyncPagesMVC3.sln")
 	$solutions = ls -path $baseDir\IntegrationTests -include *.sln -recurse  
 		$solutions | % {
 			$solutionName =  [System.IO.Path]::GetFileName($_.FullName)
-				if([System.Array]::IndexOf($excludeFromBuild, $solutionName) -eq -1){
-					$solutionFile = $_.FullName
-					exec { &$script:msBuild $solutionFile /t:"Clean,Build" /m /nodeReuse:false  }
-				}
+				$solutionFile = $_.FullName
+				exec { &$script:msBuild $solutionFile /t:"Clean,Build" /m /nodeReuse:false  }
 		}
 }
 	
@@ -352,5 +347,4 @@ task ZipOutput {
 
 task CreateMSI {
 	Invoke-psake .\Setup.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
-	#Invoke-psake .\MSI.ps1 -properties @{PreRelease=$PreRelease;BuildNumber=$BuildNumber;ProductVersion=$ProductVersion;PatchVersion=$PatchVersion}
 }
