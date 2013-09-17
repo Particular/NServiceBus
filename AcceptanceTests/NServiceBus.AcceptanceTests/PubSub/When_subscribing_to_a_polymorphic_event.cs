@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest

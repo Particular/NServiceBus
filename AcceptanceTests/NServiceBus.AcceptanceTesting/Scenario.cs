@@ -85,7 +85,7 @@
             var sw = new Stopwatch();
 
             sw.Start();
-            ScenarioRunner.Run(runDescriptors, this.behaviours, shoulds, this.done, limitTestParallelismTo, reports);
+            ScenarioRunner.Run(runDescriptors, behaviours, shoulds, done, limitTestParallelismTo, reports);
 
             sw.Stop();
 

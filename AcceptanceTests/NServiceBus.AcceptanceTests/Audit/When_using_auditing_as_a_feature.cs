@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests.Audit
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using ScenarioDescriptors;
     using NUnit.Framework;
 
     public class When_using_auditing_as_a_feature : NServiceBusAcceptanceTest

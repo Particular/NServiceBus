@@ -49,7 +49,7 @@
 
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {
-            this.configuration.EndpointMappings.Add(typeof(T),endpoint);
+            configuration.EndpointMappings.Add(typeof(T),endpoint);
 
             return this;
         }
@@ -58,7 +58,7 @@
         {
             configuration.BuilderType = GetType();
 
-            return this.configuration;
+            return configuration;
         }
 
         public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate
