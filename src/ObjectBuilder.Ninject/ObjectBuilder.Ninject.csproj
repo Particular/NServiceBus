@@ -97,9 +97,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</notused>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)..\Tools\Pepita\PepitaGet.targets" />
   <Import Project="Fody.targets" />
 </Project>

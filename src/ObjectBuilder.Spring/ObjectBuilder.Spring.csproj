@@ -85,9 +85,5 @@
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <notused>copy /Y "$(ProjectDir)$(OutDir)*.*" "$(ProjectDir)..\..\..\..\build\"</notused>
-  </PropertyGroup>
-  <Import Project="$(SolutionDir)..\Tools\Pepita\PepitaGet.targets" />
   <Import Project="Fody.targets" />
 </Project>

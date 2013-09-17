@@ -139,6 +139,5 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)..\Tools\Pepita\PepitaGet.targets" />
   <Import Project="Fody.targets" />
 </Project>
