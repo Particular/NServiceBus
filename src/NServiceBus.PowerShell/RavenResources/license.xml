@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<license id="3399cf37-468e-4614-a627-05a365364909" expiration="2018-08-28T00:00:00.0000000" type="Subscription" version="2.0" maxRamUtilization="12884901888" maxParallelism="6" allowWindowsClustering="false" OEM="true" numberOfDatabases="unlimited" periodicBackup="true" encryption="false" compression="false" quotas="true" authorization="true" documentExpiration="true" replication="true" versioning="true" maxSizeInMb="unlimited" updatesExpiration="2017-Aug-01">
+  <name>NServiceBus</name>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <DigestValue>H9uJDi+FNZ0Dvw4O/24h2dDQOGA=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>IUtLNzbw3ysjLLYBrIDGwM+SisyaV7bvx/Ut/vncNIG7SwCiblmCK3lqgpK5YXatbW9i7lEzmOzX9X7wQv6pbyA9YlquYy7opffLCrSWD128x6OG9//Sp2mX7JtHDqu69kY+xaQXwkvtjCaQTseWxo59/aXI9zf5fXhgXDxqbV8=</SignatureValue>
+  </Signature>
+</license>
