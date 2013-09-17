@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">
-      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
+      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>MyMessages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -83,4 +83,4 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

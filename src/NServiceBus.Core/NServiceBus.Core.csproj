@@ -575,10 +575,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

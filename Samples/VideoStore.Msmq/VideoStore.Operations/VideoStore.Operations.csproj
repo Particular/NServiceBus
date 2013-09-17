@@ -74,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VideoStore.Messages\VideoStore.Messages.csproj">
-      <Project>{59f2ba7e-4da5-49f8-9dbc-520fa99f4679}</Project>
+      <Project>{59f2ba7e-4da5-49f8-9dbc-520fa99f4679}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>VideoStore.Messages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -87,4 +87,4 @@
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets">
   </Import>
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

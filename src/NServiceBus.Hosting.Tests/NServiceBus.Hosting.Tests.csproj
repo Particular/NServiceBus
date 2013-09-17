@@ -73,15 +73,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Hosting.Windows\NServiceBus.Hosting.Windows.csproj">
-      <Project>{85E813C0-4A94-4946-8B1F-DE1E39AA7D11}</Project>
+      <Project>{85E813C0-4A94-4946-8B1F-DE1E39AA7D11}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>NServiceBus.Hosting.Windows</Name>
     </ProjectReference>
   </ItemGroup>
@@ -102,4 +102,4 @@
   </Target>
   -->
   <Import Project="Fody.targets" />
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

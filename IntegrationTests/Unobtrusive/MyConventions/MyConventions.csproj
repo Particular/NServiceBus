@@ -56,4 +56,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

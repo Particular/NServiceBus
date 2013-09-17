@@ -103,31 +103,31 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}</Project>
+      <Project>{DD48B2D0-E996-412D-9157-821ED8B17A9D}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">
-      <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}</Project>
+      <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.Autofac</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj">
-      <Project>{9a9a0bd5-ac37-4b90-b90f-fd1c1395febd}</Project>
+      <Project>{9a9a0bd5-ac37-4b90-b90f-fd1c1395febd}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.CastleWindsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Ninject\ObjectBuilder.Ninject.csproj">
-      <Project>{c35ae1c7-c785-4629-a73d-977e0325d8b0}</Project>
+      <Project>{c35ae1c7-c785-4629-a73d-977e0325d8b0}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.Ninject</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Spring\ObjectBuilder.Spring.csproj">
-      <Project>{734d30cf-4376-488a-a6b4-1033fed93660}</Project>
+      <Project>{734d30cf-4376-488a-a6b4-1033fed93660}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.Spring</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.StructureMap\ObjectBuilder.StructureMap.csproj">
-      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}</Project>
+      <Project>{c05e5b87-eb74-4a3f-b4fc-afdd28570850}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.StructureMap</Name>
     </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Unity\ObjectBuilder.Unity.csproj">
-      <Project>{343b2e7a-e228-4b31-abb5-f5437b2e7a4c}</Project>
+      <Project>{343b2e7a-e228-4b31-abb5-f5437b2e7a4c}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>ObjectBuilder.Unity</Name>
     </ProjectReference>
   </ItemGroup>
@@ -145,4 +145,4 @@
   </Target>
   -->
   <Import Project="Fody.targets" />
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
