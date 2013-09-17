@@ -265,8 +265,8 @@ task CreateReleaseFolder {
 }
 
 task Build -depends Clean, Init {
-	exec { &$script:msBuild $baseDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="Any CPU" /p:Configuration=Release /p:OutDir="$outDir\" /m /nodeReuse:false }
-	exec { &$script:msBuild $baseDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="x86" /p:Configuration=Release /p:OutDir="$outDir32\" /m /nodeReuse:false}
+	exec { &$script:msBuild $srcDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="Any CPU" /p:Configuration=Release /p:OutDir="$outDir\" /m /nodeReuse:false }
+	exec { &$script:msBuild $srcDir\NServiceBus.sln /t:"Clean,Build" /p:Platform="x86" /p:Configuration=Release /p:OutDir="$outDir32\" /m /nodeReuse:false}
 
 	del $binariesDir\*.xml -Recurse
 }

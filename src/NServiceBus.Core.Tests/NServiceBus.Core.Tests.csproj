@@ -211,6 +211,7 @@
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
+    <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
     <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
