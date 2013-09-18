@@ -98,7 +98,9 @@
     <None Include="Examples\Install-Msmq.ps1" />
     <None Include="Examples\Install-RavenDB.ps1" />
     <None Include="Fody.targets" />
-    <None Include="ripple.dependencies.config" />
+    <None Include="ripple.dependencies.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="about_NServiceBus.help.txt">

@@ -57,7 +57,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Fody.targets" />
-    <None Include="ripple.dependencies.config" />
+    <None Include="ripple.dependencies.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
