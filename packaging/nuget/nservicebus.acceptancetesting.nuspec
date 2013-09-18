@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>NServiceBus.AcceptanceTests</id>
+    <id>NServiceBus.AcceptanceTesting</id>
     <title>NServiceBus Acceptance Tests</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
@@ -15,10 +15,10 @@
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
-      <dependency id="NServiceBus.AcceptanceTesting" version="4.1.0" />
+      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs" target="content\net40\AcceptanceTests" />
+    <file src="..\..\binaries\NServiceBus.AcceptanceTesting.???" target="lib\net40" />
   </files>
 </package>
