@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{174344DB-E395-4B4E-8385-4F14926E8948}</Project>
+      <Project>{174344DB-E395-4B4E-8385-4F14926E8948}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -64,4 +64,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

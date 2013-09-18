@@ -74,11 +74,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MessageMutator\MessageMutators.csproj">
-      <Project>{B5B3A66C-7CAD-40A3-ACBC-B82619E62355}</Project>
+      <Project>{B5B3A66C-7CAD-40A3-ACBC-B82619E62355}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>MessageMutators</Name>
     </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{E62F2DF8-9E8F-4512-9FD9-C97C97AEC15A}</Project>
+      <Project>{E62F2DF8-9E8F-4512-9FD9-C97C97AEC15A}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Messages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -114,4 +114,4 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

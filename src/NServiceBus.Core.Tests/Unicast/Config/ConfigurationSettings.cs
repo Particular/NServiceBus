@@ -45,7 +45,7 @@
         [Test]
         public void Specific_generic_type_definition_handler_should_not_be_classified_as_a_handler()
         {
-            Assert.IsFalse(ConfigUnicastBus.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
+            Assert.IsTrue(ConfigUnicastBus.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
         }
 
         [Test]

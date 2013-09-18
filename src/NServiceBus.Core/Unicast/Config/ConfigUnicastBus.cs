@@ -392,13 +392,17 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
-        /// <param name="t"></param>
-        internal static bool IsMessageHandler(Type t)
+        /// <param name="type"></param>
+        internal static bool IsMessageHandler(Type type)
         {
-            if (t.IsAbstract || t.IsGenericType)
+            if (type.IsAbstract || type.IsGenericTypeDefinition)
+            {
                 return false;
+            }
 
-            return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);
+            return type.GetInterfaces()
+                .Select(GetMessageTypeFromMessageHandler)
+                .Any(messageType => messageType != null);
         }
 
         static bool TypeSpecifiesMessageHandlerOrdering(Type t)

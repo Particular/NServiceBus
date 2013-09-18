@@ -83,19 +83,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Commands\Commands.csproj">
-      <Project>{5AD5EAEF-AF56-49B7-A15D-C0F71780049F}</Project>
+      <Project>{5AD5EAEF-AF56-49B7-A15D-C0F71780049F}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Commands</Name>
     </ProjectReference>
     <ProjectReference Include="..\Events\Events.csproj">
-      <Project>{6F35A2BC-639A-429D-8A40-35784600E956}</Project>
+      <Project>{6F35A2BC-639A-429D-8A40-35784600E956}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Events</Name>
     </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
+      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\MyConventions\MyConventions.csproj">
-      <Project>{fa4a7645-09b1-47a7-962d-6d3da27f0bce}</Project>
+      <Project>{fa4a7645-09b1-47a7-962d-6d3da27f0bce}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>MyConventions</Name>
     </ProjectReference>
   </ItemGroup>
@@ -106,4 +106,4 @@
     <StartArguments>NServiceBus.Integration</StartArguments>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Orders.Messages\Orders.Messages.csproj">
-      <Project>{162BEDCA-6C44-43B3-B2C1-83994BFFC094}</Project>
+      <Project>{162BEDCA-6C44-43B3-B2C1-83994BFFC094}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
       <Name>Orders.Messages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -79,4 +79,4 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-</Project>
+<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>

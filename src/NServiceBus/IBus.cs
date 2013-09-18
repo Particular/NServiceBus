@@ -65,6 +65,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">The type of message to subscribe to.</typeparam>
         /// <param name="condition">The condition with which to evaluate messages.</param>
+        [ObsoleteEx(RemoveInVersion = "5", Message = "Since the Predicate is executed at the subscriber side it is not efficient. Also this is a confusing API since consumer often, incorrectly, believe it is publisher side filtering. Instead create a Handler that does this filtering logic and then, optionally, calls `DoNotContinueDispatchingCurrentMessageToHandlers`. This Handler should be ordered to run first ie before other handlers", Replacement = "Custom Handler combined with DoNotContinueDispatchingCurrentMessageToHandlers")]
         void Subscribe<T>(Predicate<T> condition);
 
         /// <summary>
