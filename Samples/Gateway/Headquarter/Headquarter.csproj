@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Headquarter.Messages\Headquarter.Messages.csproj">
-      <Project>{5849DBD1-CBA9-4792-90AA-80F9476E526F}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{5849DBD1-CBA9-4792-90AA-80F9476E526F}</Project>
       <Name>Headquarter.Messages</Name>
     </ProjectReference>
   </ItemGroup>
@@ -73,4 +73,4 @@
     <StartArguments>NServiceBus.Lite NServiceBus.MultiSite</StartArguments>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>

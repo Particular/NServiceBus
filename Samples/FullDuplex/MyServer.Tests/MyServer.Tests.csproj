@@ -64,11 +64,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyMessages\MyMessages.csproj">
-      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{20F613ED-C871-477C-B1E4-48B96CACF794}</Project>
       <Name>MyMessages</Name>
     </ProjectReference>
     <ProjectReference Include="..\MyServer\MyServer.csproj">
-      <Project>{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{CA4DB5DB-88E3-45C2-92EC-ED1865FB83B6}</Project>
       <Name>MyServer</Name>
     </ProjectReference>
   </ItemGroup>
@@ -85,4 +85,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>
