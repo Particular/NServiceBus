@@ -583,4 +583,16 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+  <Target Name="AfterBuild"  Condition=" '$(Configuration)' == 'Release' ">
+    <PropertyGroup>
+        <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
+    </PropertyGroup>
+    <Delete Files="$(MergeTemp)"/>
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)"/>
+    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Interop.MSMQ.dll" "$(TargetDir)AutoFac.dll" "$(TargetDir)Newtonsoft.Json.dll" /target:library /targetplatform:v4' />
+    <Delete Files="$(MergeTemp)"/>
+  </Target>
+</Project>
+
+
