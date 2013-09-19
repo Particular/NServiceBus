@@ -12,7 +12,6 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using AutomaticSubscriptions;
     using Impersonation;
     using Licensing;
     using Logging;
@@ -691,12 +690,6 @@ namespace NServiceBus.Unicast
         List<Type> GetFullTypes(IEnumerable<object> messages)
         {
             var types = new List<Type>();
-            var subscribePlainMessages = false;
-
-            if (Configure.HasComponent<DefaultAutoSubscriptionStrategy>())
-            {
-                subscribePlainMessages = Builder.Build<DefaultAutoSubscriptionStrategy>().SubscribePlainMessages;
-            }
 
             foreach (var m in messages)
             {
@@ -709,7 +702,7 @@ namespace NServiceBus.Unicast
 
                 types.Add(s);
 
-                foreach (var t in GetParentTypes(messageType, subscribePlainMessages)
+                foreach (var t in GetParentTypes(messageType)
                     .Where(MessageConventionExtensions.IsMessageType)
                     .Where(t => !types.Contains(t)))
                 {
@@ -720,16 +713,11 @@ namespace NServiceBus.Unicast
             return types;
         }
 
-        static IEnumerable<Type> GetParentTypes(Type type, bool returnBaseTypes)
+        static IEnumerable<Type> GetParentTypes(Type type)
         {
             foreach (var i in type.GetInterfaces())
             {
                 yield return i;
-            }
-
-            if (!returnBaseTypes)
-            {
-                yield break;
             }
 
             // return all inherited types
