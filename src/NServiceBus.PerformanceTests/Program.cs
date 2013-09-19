@@ -63,6 +63,11 @@ namespace Runner
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
 
+            Configure.Features.Disable<Audit>();
+
+            //Configure.Instance.UnicastBus().IsolationLevel(IsolationLevel.Snapshot);
+            //Console.Out.WriteLine("Snapshot");
+
             if (saga)
             {
                 Configure.Features.Enable<Sagas>();
