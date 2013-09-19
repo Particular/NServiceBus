@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyServer.Common\MyServer.Common.csproj">
-      <Project>{50D81C5C-2ED8-47DD-AD8B-F22856ACEA24}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{50D81C5C-2ED8-47DD-AD8B-F22856ACEA24}</Project>
       <Name>MyServer.Common</Name>
     </ProjectReference>
   </ItemGroup>
@@ -80,4 +80,4 @@
     <StartArguments>NServiceBus.Integration</StartArguments>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+</Project>
