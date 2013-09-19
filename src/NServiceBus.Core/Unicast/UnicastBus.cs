@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using AutomaticSubscriptions;
     using Impersonation;
     using Licensing;
     using Logging;
@@ -687,27 +688,58 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-
-
         List<Type> GetFullTypes(IEnumerable<object> messages)
         {
             var types = new List<Type>();
+            var subscribePlainMessages = false;
+
+            if (Configure.HasComponent<DefaultAutoSubscriptionStrategy>())
+            {
+                subscribePlainMessages = Builder.Build<DefaultAutoSubscriptionStrategy>().SubscribePlainMessages;
+            }
 
             foreach (var m in messages)
             {
-                var s = MessageMapper.GetMappedTypeFor(m.GetType());
+                var messageType = m.GetType();
+                var s = MessageMapper.GetMappedTypeFor(messageType);
                 if (types.Contains(s))
+                {
                     continue;
+                }
 
                 types.Add(s);
 
-                foreach (var t in m.GetType().GetInterfaces())
-                    if (MessageConventionExtensions.IsMessageType(t))
-                        if (!types.Contains(t))
-                            types.Add(t);
+                foreach (var t in GetParentTypes(messageType, subscribePlainMessages)
+                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(t => !types.Contains(t)))
+                {
+                    types.Add(t);
+                }
             }
 
             return types;
+        }
+
+        static IEnumerable<Type> GetParentTypes(Type type, bool returnBaseTypes)
+        {
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            if (!returnBaseTypes)
+            {
+                yield break;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            var objectType = typeof(Object);
+            while (currentBaseType != null && currentBaseType != objectType)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
         }
 
         /// <summary>
