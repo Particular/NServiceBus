@@ -66,8 +66,10 @@ namespace NServiceBus.Serializers.Json
         {
             var settings = serializerSettings;
 
-            var dynamicTypeToSerializeTo = messageTypes != null ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
-            if (dynamicTypeToSerializeTo != null)
+            var mostConcreteType = messageTypes != null ? messageTypes.FirstOrDefault() : null;
+            var requiresDynamicDeserialization = mostConcreteType != null && mostConcreteType.IsInterface;
+
+            if (requiresDynamicDeserialization)
             {
                 settings = new JsonSerializerSettings{
                         TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
@@ -86,9 +88,9 @@ namespace NServiceBus.Serializers.Json
 
             if (firstTokenType == JsonToken.StartArray)
             {
-                if (dynamicTypeToSerializeTo != null)
+                if (requiresDynamicDeserialization)
                 {
-                    return (object[]) jsonSerializer.Deserialize(reader, dynamicTypeToSerializeTo.MakeArrayType());
+                    return (object[])jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
                 }
                 return jsonSerializer.Deserialize<object[]>(reader);
             }

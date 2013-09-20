@@ -1,9 +1,11 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
+    using System;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
-
+    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
 
     [TestFixture]
@@ -87,6 +89,73 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
+        public void Serialize_message_without_concrete_implementation()
+        {
+            var mapper = new MessageMapper();
+            mapper.Initialize(new []{ typeof(ISuperMessageWithoutConcreteImpl)});
+            
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                Serializer.Serialize(new object[] { mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>() }, stream);
+
+                stream.Position = 0;
+                var result = new StreamReader(stream).ReadToEnd();
+
+                Assert.That(!result.Contains("$type"), result);
+                Assert.That(result.Contains("SomeProperty"), result);
+            }
+        }
+
+        [Test]
+        public void Deserialize_message_without_concrete_implementation()
+        {
+            var mapper = new MessageMapper();
+            mapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                var msg = mapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
+                msg.SomeProperty = "test";
+
+                Serializer.Serialize(new object[] { msg }, stream);
+
+                stream.Position = 0;
+
+                var result = (ISuperMessageWithoutConcreteImpl)Serializer.Deserialize(stream, new[] { typeof(ISuperMessageWithoutConcreteImpl) })[0];
+
+                Assert.AreEqual("test", result.SomeProperty);
+            }
+        }
+
+        [Test]
+        public void Deserialize_message_with_concrete_implementation_and_interface()
+        {
+            var map = new[] {typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl)};
+            var mapper = new MessageMapper();
+            mapper.Initialize(map);
+
+            using (var stream = new MemoryStream())
+            {
+                var msg = new SuperMessageWithConcreteImpl();
+                msg.SomeProperty = "test";
+
+                Serializer.Serialize(new object[] { msg }, stream);
+
+                stream.Position = 0;
+
+                var result = (ISuperMessageWithConcreteImpl)Serializer.Deserialize(stream, map)[0];
+
+                Assert.IsInstanceOf<SuperMessageWithConcreteImpl>(result);
+                Assert.AreEqual("test", result.SomeProperty);
+            }
+        }
+        
+
+        [Test]
         public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
         {
             const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
@@ -151,5 +220,20 @@ namespace NServiceBus.Serializers.Json.Tests
     public class MessageWithXElement
     {
         public XElement Document { get; set; }
+    }
+
+    public interface ISuperMessageWithoutConcreteImpl : IMyEvent
+    {
+        string SomeProperty { get; set; }
+    }
+
+    public interface ISuperMessageWithConcreteImpl : IMyEvent
+    {
+        string SomeProperty { get; set; }
+    }
+
+    public class SuperMessageWithConcreteImpl : ISuperMessageWithConcreteImpl
+    {
+        public string SomeProperty { get; set; }
     }
 }
