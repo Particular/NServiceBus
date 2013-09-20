@@ -64,7 +64,11 @@ namespace NServiceBus.Gateway.HeaderManagement
             to[NServiceBus + CorrelationId] = GetCorrelationForBackwardsCompatibility(from);
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
-            to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
+
+            if (from.ReplyToAddress != null) //Handles SendOnly endpoints, where ReplyToAddress is not set
+            {
+                to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
+            }
 
             SetBackwardsCompatibilityHeaders(to);
 
