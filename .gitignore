@@ -32,3 +32,4 @@ csx
 *.ncrunchsolution
 _NCrunch_NServiceBus/*
 logs
+run-git.cmd
