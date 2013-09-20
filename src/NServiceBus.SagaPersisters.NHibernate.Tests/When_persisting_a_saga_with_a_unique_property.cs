@@ -12,9 +12,14 @@
         public void The_database_should_enforce_the_uniqueness()
         {
             UnitOfWork.Begin();
+            
+            var id = Guid.NewGuid();
+
+            ((ISagaPersister)SagaPersister).Get<SagaWithUniqueProperty>("UniqueString","whatever");
+
             SagaPersister.Save(new SagaWithUniqueProperty
                                    {
-                                       Id = Guid.NewGuid(),
+                                       Id = id,
                                        UniqueString = "whatever"
                                    });
 
@@ -28,6 +33,7 @@
         }
     }
 
+    [LockMode(LockModes.None)]
     public class SagaWithUniqueProperty : IContainSagaData
     {
         public virtual Guid Id { get; set; }
@@ -39,4 +45,6 @@
         [Unique]
         public virtual string UniqueString { get; set; }
     }
+
+    
 }
