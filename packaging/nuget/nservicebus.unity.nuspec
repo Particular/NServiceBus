@@ -17,7 +17,6 @@
     <dependencies>
       <dependency id="Unity" version="[2.1.505.2, 3.0.0.0)" />
       <dependency id="Unity.Interception" version="[2.1.505.2, 3.0.0.0)" />
-      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>

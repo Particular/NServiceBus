@@ -18,7 +18,6 @@
       <dependency id="Ninject" version="[3.0.1.10, 4.0.0.0)" />
       <dependency id="Ninject.Extensions.ContextPreservation" version="[3.0.0.8, 4.0.0.0)" />
       <dependency id="Ninject.Extensions.NamedScope" version="[3.0.0.5, 4.0.0.0)" />
-      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>
