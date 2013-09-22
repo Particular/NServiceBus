@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Saga;
 
-    public class TestSaga : IContainSagaData
+   public class TestSaga : IContainSagaData
     {
         public virtual Guid Id { get; set; }
 
@@ -52,7 +52,7 @@
             return equals(item, x);
         }
     }
-    
+
     public class PolymorphicProperty : PolymorphicPropertyBase
     {
         public virtual int SomeInt { get; set; }

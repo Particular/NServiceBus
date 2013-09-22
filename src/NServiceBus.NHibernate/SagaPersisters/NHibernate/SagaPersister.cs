@@ -1,6 +1,8 @@
 namespace NServiceBus.SagaPersisters.NHibernate
 {
     using System;
+    using System.Linq;
+    using global::NHibernate;
     using global::NHibernate.Criterion;
     using Saga;
     using UnitOfWork.NHibernate;
@@ -38,13 +40,15 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// <returns>The saga entity if found, otherwise null.</returns>
         public T Get<T>(Guid sagaId) where T : IContainSagaData
         {
-            return UnitOfWorkManager.GetCurrentSession().Get<T>(sagaId);
+            return UnitOfWorkManager.GetCurrentSession()
+                .Get<T>(sagaId, GetLockModeForSaga<T>());
         }
 
         T ISagaPersister.Get<T>(string property, object value)
         {
             return UnitOfWorkManager.GetCurrentSession().CreateCriteria(typeof(T))
-                .Add(Restrictions.Eq(property, value))
+                 .SetLockMode(GetLockModeForSaga<T>())
+                 .Add(Restrictions.Eq(property, value))
                 .UniqueResult<T>();
         }
 
@@ -62,5 +66,36 @@ namespace NServiceBus.SagaPersisters.NHibernate
         /// Injected unit of work manager.
         /// </summary>
         public UnitOfWorkManager UnitOfWorkManager { get; set; }
+
+
+        LockMode GetLockModeForSaga<T>()
+        {
+            var explicitLockModeAttribute = typeof(T).GetCustomAttributes(typeof(LockModeAttribute), false).SingleOrDefault();
+
+            if (explicitLockModeAttribute == null)
+                return LockMode.Upgrade;//our new default in v4.1.0
+
+            var explicitLockMode = ((LockModeAttribute)explicitLockModeAttribute).RequestedLockMode;
+
+            switch (explicitLockMode)
+            {
+                case LockModes.Force:
+                    return LockMode.Force;
+                case LockModes.None:
+                    return LockMode.None;
+                case LockModes.Read:
+                    return LockMode.Read;
+                case LockModes.Upgrade:
+                    return LockMode.Upgrade;
+                case LockModes.UpgradeNoWait:
+                    return LockMode.UpgradeNoWait;
+                case LockModes.Write:
+                    return LockMode.Write;
+
+                default:
+                    throw new InvalidOperationException("Unknown lock mode requested: " + explicitLockMode);
+
+            }
+        }
     }
 }
