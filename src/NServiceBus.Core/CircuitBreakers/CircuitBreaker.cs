@@ -6,11 +6,11 @@ namespace NServiceBus.CircuitBreakers
     /// <summary>
     /// A circuit breaker implementation.
     /// </summary>
-    public class CircuitBreaker
+    public class CircuitBreaker : IDisposable
     {
         private readonly int threshold;
         private int firedTimes;
-        private Timer timer;
+        private readonly Timer timer;
         private int failureCount;
 
         /// <summary>
@@ -37,6 +37,11 @@ namespace NServiceBus.CircuitBreakers
                     trigger();
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            timer.Dispose();
         }
     }
 }
