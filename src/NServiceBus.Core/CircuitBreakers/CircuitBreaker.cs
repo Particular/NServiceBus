@@ -41,7 +41,7 @@ namespace NServiceBus.CircuitBreakers
 
         public void Dispose()
         {
-            timer.Dispose();
+            //Injected
         }
     }
 }

@@ -109,9 +109,7 @@ namespace NServiceBus.Transports.Msmq
 
         public void Dispose()
         {
-            circuitBreaker.Dispose();
-            peekResetEvent.Dispose();
-            stopResetEvent.Dispose();
+            // Injected
         }
 
         void DrainStopSemaphore()
