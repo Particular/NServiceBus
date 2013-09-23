@@ -29,7 +29,7 @@
 
         void Create()
         {
-            var allCountersExist = PerformanceCounterSetup.DoAllCountersExist();
+            var allCountersExist = PerformanceCounterSetup.CheckCounters();
             if (allCountersExist)
             {
                 Host.UI.WriteLine("Did not create counters since they already exist");

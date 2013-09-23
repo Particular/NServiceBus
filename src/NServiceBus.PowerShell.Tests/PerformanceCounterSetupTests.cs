@@ -33,7 +33,7 @@
         [Test]
         public void DoAllCountersExist_returns_false_when_category_missing()
         {
-            Assert.IsFalse(PerformanceCounterSetup.DoAllCountersExist());
+            Assert.IsFalse(PerformanceCounterSetup.CheckCounters());
         }
 
         [Explicit]
@@ -42,7 +42,7 @@
         {
             PerformanceCounterSetup.SetupCounters();
             PerformanceCounter.CloseSharedResources();
-            Assert.IsTrue(PerformanceCounterSetup.DoAllCountersExist());
+            Assert.IsTrue(PerformanceCounterSetup.CheckCounters());
         }
 
         [Explicit]
@@ -55,7 +55,7 @@
                            };
             PerformanceCounterCategory.Create("NServiceBus", "NServiceBus statistics", PerformanceCounterCategoryType.MultiInstance, counters);
             PerformanceCounter.CloseSharedResources();
-            Assert.IsFalse(PerformanceCounterSetup.DoAllCountersExist());
+            Assert.IsFalse(PerformanceCounterSetup.CheckCounters());
         }
 
         [Explicit]

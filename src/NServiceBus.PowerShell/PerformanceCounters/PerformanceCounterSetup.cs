@@ -8,12 +8,13 @@
     {
         const string categoryName = "NServiceBus";
 
-        public static bool DoAllCountersExist()
+        public static bool CheckCounters()
         {
             return 
                 PerformanceCounterCategory.Exists(categoryName) && 
                 Counters.All(counter => PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName));
         }
+
         public static bool DoesCategoryExist()
         {
             return PerformanceCounterCategory.Exists(categoryName);

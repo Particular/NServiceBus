@@ -8,7 +8,7 @@
     {
         protected override void ProcessRecord()
         {
-            var countersAreGood = PerformanceCounterSetup.DoAllCountersExist();
+            var countersAreGood = PerformanceCounterSetup.CheckCounters();
 
             WriteVerbose(countersAreGood
                 ? "NServiceBus Performance Counters are setup and ready for use with NServiceBus."
