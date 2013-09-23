@@ -96,7 +96,10 @@ To quickly add the AuditConfig section to your app.config, in Package Manager Co
 
                 // Throw an exception when running within the debugger, to ask user to use the new config section
                 if (Debugger.IsAttached)
-                    throw new ConfigurationException(msg);
+                {
+                    throw new ConfigurationErrorsException(msg);
+                }
+
                 Logger.Warn(msg);
             }
         }
