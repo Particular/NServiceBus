@@ -7,27 +7,60 @@
     [Cmdlet(VerbsLifecycle.Install, "NServiceBusPerformanceCounters", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Medium)]
     public class InstallPerformanceCounters : CmdletBase
     {
+
+        [Parameter(Mandatory = false, HelpMessage = "Force re-creation of performance counters if they already exist.")]
+        public SwitchParameter Force { get; set; }
+
         protected override void ProcessRecord()
         {
-            if (ShouldProcess(Environment.MachineName))
+            if (!ShouldProcess(Environment.MachineName))
             {
-                PerformanceCounterSetup.SetupCounters();
+                return;
+            }
+            if (Force)
+            {
+                ForceCreate();
+            }
+            else
+            {
+                Create();   
             }
         }
-    }
 
-    [Cmdlet(VerbsDiagnostic.Test, "NServiceBusPerformanceCountersInstallation")]
-    public class ValidatePerformanceCounters : CmdletBase
-    {
-        protected override void ProcessRecord()
+        void Create()
         {
-            var countersAreGood = PerformanceCounterSetup.CheckCounters();
+            var allCountersExist = PerformanceCounterSetup.CheckCounters();
+            if (allCountersExist)
+            {
+                Host.UI.WriteLine("Did not create counters since they already exist");
+                return;
+            }
 
-            WriteVerbose(countersAreGood
-                             ? "NServiceBus Performance Counters are setup and ready for use with NServiceBus."
-                             : "NServiceBus Performance Counters are not properly configured.");
+            if (PerformanceCounterSetup.DoesCategoryExist())
+            {
+                var exception = new Exception("Existing category is not configured correctly. Use the -Force option to delete and re-create");
+                var errorRecord = new ErrorRecord(exception, "FailedToCreateCategory", ErrorCategory.NotSpecified, null);
+                ThrowTerminatingError(errorRecord);
+            }
 
-            WriteObject(countersAreGood);
+            Host.UI.WriteLine("Creating counters");
+            PerformanceCounterSetup.SetupCounters();
+        }
+
+        void ForceCreate()
+        {
+            try
+            {
+                Host.UI.WriteLine("Deleting counters");
+                PerformanceCounterSetup.DeleteCategory();
+            }
+            catch (Exception exception)
+            {
+                var errorRecord = new ErrorRecord(exception, "FailedToDeleteCategory", ErrorCategory.NotSpecified, null);
+                ThrowTerminatingError(errorRecord);
+            }
+            Host.UI.WriteLine("Creating counters");
+            PerformanceCounterSetup.SetupCounters();
         }
     }
 }
