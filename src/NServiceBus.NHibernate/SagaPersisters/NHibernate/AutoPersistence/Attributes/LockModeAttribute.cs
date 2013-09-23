@@ -2,8 +2,8 @@ namespace NServiceBus.SagaPersisters.NHibernate
 {
     using System;
 
-    [AttributeUsage(AttributeTargets.Class,AllowMultiple = false,Inherited=true)]
-    public class LockModeAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public sealed class LockModeAttribute : Attribute
     {
         public LockModes RequestedLockMode { get; private set; }
 
@@ -12,7 +12,6 @@ namespace NServiceBus.SagaPersisters.NHibernate
             RequestedLockMode = lockModeToUse;
         }
     }
-
 
     public enum LockModes
     {
