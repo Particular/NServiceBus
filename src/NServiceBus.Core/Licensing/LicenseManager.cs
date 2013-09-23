@@ -192,9 +192,9 @@ namespace NServiceBus.Licensing
                 {
                     validator.AssertValidLicense();
 
-                    Logger.InfoFormat((string) "Found a {0} license.", (object) validator.LicenseType);
-                    Logger.InfoFormat((string) "Registered to {0}", (object) validator.Name);
-                    Logger.InfoFormat((string) "Expires on {0}", (object) validator.ExpirationDate);
+                    Logger.InfoFormat("Found a {0} license.", (object) validator.LicenseType);
+                    Logger.InfoFormat("Registered to {0}", (object) validator.Name);
+                    Logger.InfoFormat("Expires on {0}", (object) validator.ExpirationDate);
                     if ((validator.LicenseAttributes != null) && (validator.LicenseAttributes.Count > 0))
                         foreach (var licenseAttribute in validator.LicenseAttributes)
                             Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
@@ -379,7 +379,14 @@ namespace NServiceBus.Licensing
         private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
         {
             if (validator.LicenseType == Rhino.Licensing.LicenseType.None)
+            {
                 return;
+            }
+
+            if (validator.LicenseType == Rhino.Licensing.LicenseType.Trial)
+            {
+                return;
+            }
 
             if (validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
             {

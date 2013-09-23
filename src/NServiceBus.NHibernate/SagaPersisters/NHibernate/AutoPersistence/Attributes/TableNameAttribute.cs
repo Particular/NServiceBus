@@ -3,7 +3,7 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes
     using System;
 
     [AttributeUsage(AttributeTargets.Class)]
-  public class TableNameAttribute : Attribute
+    public class TableNameAttribute : Attribute
     {
         public string TableName { get; private set; }
 
@@ -18,6 +18,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.AutoPersistence.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class RowVersionAttribute : Attribute
     {
-      
+
     }
 }

@@ -17,7 +17,6 @@
     <dependencies>
       <dependency id="Castle.Core" version="[3.2.0.0, 4.0.0.0)" />
       <dependency id="Castle.Windsor" version="[3.2.0.0, 4.0.0.0)" />
-      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>

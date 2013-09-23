@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -86,6 +86,7 @@
     <Compile Include="Persistence\NHibernate\ConfigureNHibernate.cs" />
     <Compile Include="Persistence\NHibernate\NHibernateSettingRetriever.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SagaPersisters\NHibernate\AutoPersistence\Attributes\LockModeAttribute.cs" />
     <Compile Include="SagaPersisters\NHibernate\AutoPersistence\Attributes\TableNameAttribute.cs" />
     <Compile Include="SagaPersisters\NHibernate\AutoPersistence\SagaModelMapper.cs" />
     <Compile Include="SagaPersisters\NHibernate\Config\Installer\Installer.cs" />
@@ -120,4 +121,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+</Project>

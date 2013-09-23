@@ -23,7 +23,7 @@
         {
             if (ex == null)
             {
-                this.session.SaveChanges();
+                session.SaveChanges();
             }
         }
     }

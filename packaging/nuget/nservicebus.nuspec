@@ -19,7 +19,6 @@
       <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
     </frameworkAssemblies>
     <dependencies>
-      <dependency id="NServiceBus.Interfaces" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>

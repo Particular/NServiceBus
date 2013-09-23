@@ -63,6 +63,11 @@ namespace Runner
                     throw new InvalidOperationException("Illegal serialization format " + args[2]);
             }
 
+            Configure.Features.Disable<Audit>();
+
+            //Configure.Instance.UnicastBus().IsolationLevel(IsolationLevel.Snapshot);
+            //Console.Out.WriteLine("Snapshot");
+
             if (saga)
             {
                 Configure.Features.Enable<Sagas>();
@@ -102,7 +107,7 @@ namespace Runner
                     config.UseTransport<Msmq>();
                     break;
 
-                    //todo: dynamically load the transports or autodetect like we do in the acceptance tests
+                //todo: dynamically load the transports or autodetect like we do in the acceptance tests
                 //case "sqlserver":
                 //    config.UseTransport<SqlServer>( () => SqlServerConnectionString);
                 //    break;
@@ -128,10 +133,10 @@ namespace Runner
                 }
                 else
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages/2, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
+                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
                     Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, saga, true);
                 }
-                
+
                 Statistics.StartTime = DateTime.Now;
 
                 startableBus.Start();
@@ -139,11 +144,11 @@ namespace Runner
                 while (Interlocked.Read(ref Statistics.NumberOfMessages) < numberOfMessages)
                     Thread.Sleep(1000);
 
-            
+
                 DumpSetting(args);
                 Statistics.Dump();
 
-              
+
 
             }
         }
@@ -161,7 +166,7 @@ namespace Runner
         {
             var bus = Configure.Instance.Builder.Build<IBus>();
 
-            for (int i = 0; i < numberOfMessages/concurrency; i++)
+            for (int i = 0; i < numberOfMessages / concurrency; i++)
             {
 
                 for (int j = 0; j < concurrency; j++)
@@ -172,7 +177,7 @@ namespace Runner
                     });
                 }
             }
-            
+
         }
 
         static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool saga, bool startSaga)
@@ -226,6 +231,6 @@ namespace Runner
 
         static string SqlServerConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
 
-       
+
     }
 }

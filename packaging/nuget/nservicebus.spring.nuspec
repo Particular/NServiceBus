@@ -16,7 +16,6 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="Spring.Core" version="[1.3.2.0, 2.0.0.0)" />
-      <dependency id="NServiceBus" version="4.1.0" />
     </dependencies>
   </metadata>
   <files>
