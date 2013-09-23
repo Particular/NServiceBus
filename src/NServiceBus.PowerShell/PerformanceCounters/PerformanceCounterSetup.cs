@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Setup.Windows.PerformanceCounters
 {
-    using System;
-    using System.ComponentModel;
+    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
 
     public class PerformanceCounterSetup
     {
@@ -10,50 +10,29 @@
 
         public static bool CheckCounters()
         {
-            if (PerformanceCounterCategory.Exists(categoryName))
-            {
-                var needToRecreateCategory = false;
+            return 
+                PerformanceCounterCategory.Exists(categoryName) && 
+                Counters.All(counter => PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName));
+        }
 
-                foreach (CounterCreationData counter in Counters)
-                {
-                    if (!PerformanceCounterCategory.CounterExists(counter.CounterName, categoryName))
-                    {
-                        needToRecreateCategory = true;
-                    }
+        public static bool DoesCategoryExist()
+        {
+            return PerformanceCounterCategory.Exists(categoryName);
+        }
 
-                }
-
-                if (!needToRecreateCategory)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+        public static void DeleteCategory()
+        {
+            PerformanceCounterCategory.Delete(categoryName);
         }
 
         public static void SetupCounters()
         {
-            try
-            {
-                PerformanceCounterCategory.Delete(categoryName);
-            }
-            catch (Win32Exception)
-            {
-                //Making sure this won't stop the process.
-            }
-            catch (Exception)
-            {
-                //Ignore exception.
-                //We need to ensure that we attempt to delete category before recreating it. 
-            }
-
-            PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics",
-                                              PerformanceCounterCategoryType.MultiInstance, Counters);
+            var counterCreationCollection = new CounterCreationDataCollection(Counters.ToArray());
+            PerformanceCounterCategory.Create(categoryName, "NServiceBus statistics", PerformanceCounterCategoryType.MultiInstance, counterCreationCollection);
             PerformanceCounter.CloseSharedResources(); // http://blog.dezfowler.com/2007/08/net-performance-counter-problems.html
         }
 
-        static readonly CounterCreationDataCollection Counters = new CounterCreationDataCollection
+       internal static List<CounterCreationData> Counters = new List<CounterCreationData>
                     {
                         new CounterCreationData("Critical Time", 
                                                 "Age of the oldest message in the queue.",
