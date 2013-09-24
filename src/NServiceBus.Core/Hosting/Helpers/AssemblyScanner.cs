@@ -13,7 +13,7 @@ namespace NServiceBus.Hosting.Helpers
     /// <summary>
     /// Helpers for assembly scanning operations
     /// </summary>
-    public class AssemblyScanner
+    class AssemblyScanner
     {
         readonly List<string> assembliesToSkip = new List<string>();
         readonly List<string> assembliesToInclude = new List<string>();

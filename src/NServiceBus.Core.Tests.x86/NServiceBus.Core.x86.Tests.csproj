@@ -7,10 +7,12 @@
     <ProjectGuid>{389628F6-2FB4-4AFF-BACC-16726C44FFA4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.Core.Tests.x32</RootNamespace>
-    <AssemblyName>NServiceBus.Core.Tests.x32</AssemblyName>
+    <RootNamespace>NServiceBus.Core.x86.Tests</RootNamespace>
+    <AssemblyName>NServiceBus.Core.x86.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

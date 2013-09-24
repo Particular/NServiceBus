@@ -17,7 +17,7 @@ namespace NServiceBus
         /// <returns></returns>
         public static Configure DefaultBuilder(this Configure config)
         {
-            ConfigureCommon.With(config, new AutofacObjectBuilder());
+            ConfigureCommon.With(config, new BuiltInObjectBuilder());
 
             return config;
         }
