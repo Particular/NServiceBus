@@ -4,14 +4,16 @@ namespace NServiceBus.CircuitBreakers
     using System.Threading;
     using Logging;
 
-    public class RepeatedFailuresOverTimeCircuitBreaker : ICircuitBreaker
+    public class RepeatedFailuresOverTimeCircuitBreaker : ICircuitBreaker, IDisposable
     {
-        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction)
+        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
+            Action<Exception> triggerAction)
             : this(name, timeToWaitBeforeTriggering, triggerAction, TimeSpan.FromSeconds(1))
         {
         }
 
-        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering, Action<Exception> triggerAction, TimeSpan delayAfterFailure)
+        public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
+            Action<Exception> triggerAction, TimeSpan delayAfterFailure)
         {
             this.name = name;
             this.delayAfterFailure = delayAfterFailure;
@@ -26,13 +28,16 @@ namespace NServiceBus.CircuitBreakers
             var newValue = Interlocked.Exchange(ref failureCount, 0);
 
             if (newValue == 0)
+            {
                 return false;
+            }
 
             timer.Change(Timeout.Infinite, Timeout.Infinite);
             Logger.InfoFormat("The circuit breaker for {0} is now disarmed", name);
 
             return true;
         }
+
         public void Failure(Exception exception)
         {
             lastException = exception;
@@ -48,6 +53,11 @@ namespace NServiceBus.CircuitBreakers
             Thread.Sleep(delayAfterFailure);
         }
 
+        public void Dispose()
+        {
+            //Injected
+        }
+
         void CircuitBreakerTriggered(object state)
         {
             if (Interlocked.Read(ref failureCount) > 0)
@@ -57,14 +67,15 @@ namespace NServiceBus.CircuitBreakers
             }
         }
 
-        readonly Action<Exception> triggerAction;
-        readonly string name;
-        readonly TimeSpan delayAfterFailure;
-        readonly TimeSpan timeToWaitBeforeTriggering;
-        readonly Timer timer;
-        long failureCount;
-        Exception lastException;
         static readonly TimeSpan NoPeriodicTriggering = TimeSpan.FromMilliseconds(-1);
         static readonly ILog Logger = LogManager.GetLogger(typeof(RepeatedFailuresOverTimeCircuitBreaker));
+
+        readonly TimeSpan delayAfterFailure;
+        readonly string name;
+        readonly TimeSpan timeToWaitBeforeTriggering;
+        readonly Timer timer;
+        readonly Action<Exception> triggerAction;
+        long failureCount;
+        Exception lastException;
     }
 }
