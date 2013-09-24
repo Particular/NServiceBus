@@ -169,24 +169,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool PropagateReturnAddressOnSend { get; set; }
 
-
-        /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the address to which all messages received on this bus will be 
-        /// forwarded to (not including subscription messages). 
-        /// This is primarily useful for smart client scenarios 
-        /// where both client and server software are installed on the mobile
-        /// device. The server software will have this field set to the address
-        /// of the real server.
-        /// </summary>
-        public Address ForwardReceivedMessagesTo { get; set; }
-
-        /// <summary>
-        /// The TTR to set on forwarded messages. 
-        /// </summary>
-        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-
-
         public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
