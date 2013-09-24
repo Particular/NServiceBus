@@ -8,6 +8,10 @@ namespace NServiceBus.ObjectBuilder.Autofac
     using global::Autofac.Builder;
     using global::Autofac.Core;
 
+    // I apologize in advance for the crazy compilation conditionals, but it turned
+    // out that having two classes with the same name in the same namespace in two
+    // different assemblies could you be handled in an elegant way.
+
     ///<summary>
     /// Autofac implementation of <see cref="Common.IContainer"/>.
     ///</summary>
@@ -23,7 +27,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// Instantiates the class utilizing the given container.
         ///</summary>
 #if MAKE_AutofacObjectBuilder_INTERNAL
-        internal BuiltInObjectBuilder(ILifetimeScope container)
+        BuiltInObjectBuilder(ILifetimeScope container)
 #else
         public AutofacObjectBuilder(ILifetimeScope container)
 #endif
