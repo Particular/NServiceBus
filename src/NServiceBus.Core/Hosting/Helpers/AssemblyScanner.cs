@@ -2,6 +2,7 @@ namespace NServiceBus.Hosting.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
@@ -13,6 +14,7 @@ namespace NServiceBus.Hosting.Helpers
     /// <summary>
     /// Helpers for assembly scanning operations
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScanner
     {
         readonly List<string> assembliesToSkip = new List<string>();
@@ -35,7 +37,9 @@ namespace NServiceBus.Hosting.Helpers
             SetCompatibilityMode();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", Message = "AssemblyScanner now defaults to work in 'compatibility mode', i.e. it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in instead of opt-out")]
+        [ObsoleteEx(RemoveInVersion = "5.0", Message = @"The AssemblyScanner now defaults to work in 'compatibility mode', i.e. 
+it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in 
+instead of opt-out (which probably means that this method should actually stay, it's only the default that should change)")]
         void SetCompatibilityMode()
         {
             bool compatibilityMode;
