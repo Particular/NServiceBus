@@ -116,8 +116,7 @@ instead of opt-out (which probably means that this method should actually stay, 
             {
                 var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
                                                            .GetAssemblies()
-                                                           .Where(assembly => IsIncluded(assembly.GetName().Name))
-                                                           .ToArray();
+                                                           .Where(assembly => IsIncluded(assembly.GetName().Name));
 
                 results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
             }
