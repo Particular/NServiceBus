@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Core.x86.Tests
+﻿namespace NServiceBus.Core.Tests.x32
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Hosting.Helpers;
+    using Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]

@@ -12,7 +12,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
     /// Autofac implementation of <see cref="Common.IContainer"/>.
     ///</summary>
 #if MAKE_AutofacObjectBuilder_INTERNAL
-    class BuiltInObjectBuilder : Common.IContainer
+    internal class AutofacObjectBuilder : Common.IContainer
 #else
     public class AutofacObjectBuilder : Common.IContainer
 #endif
@@ -22,11 +22,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Instantiates the class utilizing the given container.
         ///</summary>
-#if MAKE_AutofacObjectBuilder_INTERNAL
-        internal BuiltInObjectBuilder(ILifetimeScope container)
-#else
         public AutofacObjectBuilder(ILifetimeScope container)
-#endif
         {
             this.container = container ?? new ContainerBuilder().Build();
         }
@@ -34,11 +30,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Instantiates the class with an empty Autofac container.
         ///</summary>
-#if MAKE_AutofacObjectBuilder_INTERNAL
-        internal BuiltInObjectBuilder()
-#else
         public AutofacObjectBuilder()
-#endif
             : this(null)
         {
         }
@@ -54,11 +46,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
         /// </summary>
         public Common.IContainer BuildChildContainer()
         {
-#if MAKE_AutofacObjectBuilder_INTERNAL
-            return new BuiltInObjectBuilder(container.BeginLifetimeScope());
-#else
             return new AutofacObjectBuilder(container.BeginLifetimeScope());
-#endif
         }
 
         ///<summary>
