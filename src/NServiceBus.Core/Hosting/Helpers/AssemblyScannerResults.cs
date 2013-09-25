@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Text;
@@ -10,6 +11,7 @@
     /// Holds GetScannableAssemblies results.
     /// Contains list of errors and list of scan-able assemblies.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScannerResults 
     {
         /// <summary>

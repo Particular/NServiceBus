@@ -21,7 +21,13 @@ namespace NServiceBus
         /// <returns></returns>
         public static IExcludesBuilder Except(string assemblyExpression)
         {
-            return new AllAssemblies {assembliesToExclude = {assemblyExpression}};
+            return new AllAssemblies
+                   {
+                       assembliesToExclude =
+                       {
+                           assemblyExpression
+                       }
+                   };
         }
 
         /// <summary>
@@ -33,7 +39,13 @@ namespace NServiceBus
         /// <returns></returns>
         public static IIncludesBuilder Matching(string assemblyExpression)
         {
-            return new AllAssemblies {assembliesToInclude = {assemblyExpression}};
+            return new AllAssemblies
+                   {
+                       assembliesToInclude =
+                       {
+                           assemblyExpression
+                       }
+                   };
         }
 
         IExcludesBuilder IExcludesBuilder.And(string assemblyExpression)
@@ -73,9 +85,11 @@ namespace NServiceBus
         public IEnumerator<Assembly> GetEnumerator()
         {
             return new AssemblyScanner(directory)
-                .IncludeAppDomainAssemblies()
-                .ExcludeAssemblies(assembliesToExclude)
-                .IncludeAssemblies(assembliesToInclude)
+                   {
+                       IncludeAppDomainAssemblies = true,
+                       AssembliesToInclude = assembliesToInclude,
+                       AssembliesToSkip = assembliesToExclude
+                   }
                 .GetScannableAssemblies()
                 .Assemblies
                 .GetEnumerator();
@@ -99,8 +113,8 @@ namespace NServiceBus
                             : AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        readonly string directory;
-        readonly List<string> assembliesToExclude = new List<string>();
-        readonly List<string> assembliesToInclude = new List<string>();
+        string directory;
+        List<string> assembliesToExclude = new List<string>();
+        List<string> assembliesToInclude = new List<string>();
     }
 }

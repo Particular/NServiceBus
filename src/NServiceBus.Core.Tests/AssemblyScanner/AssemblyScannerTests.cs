@@ -42,8 +42,10 @@
                 File.WriteAllText(dllFilePath, "This is not a proper DLL");
 
                 results = new AssemblyScanner(BaseDirectoryToScan)
-                    .IncludeAppDomainAssemblies()
-                    .ScanSubdirectories(false)
+                          {
+                              IncludeAppDomainAssemblies = true,
+                              ScanNestedDirectories = false
+                          }
                     .GetScannableAssemblies();
             }
 
@@ -83,8 +85,10 @@
                 File.WriteAllText(dllFilePath, "This is not a proper EXE");
 
                 results = new AssemblyScanner(BaseDirectoryToScan)
-                    .IncludeAppDomainAssemblies()
-                    .ScanExeFiles(false)
+                          {
+                              IncludeAppDomainAssemblies = true,
+                              IncludeExesInScan = false,
+                          }
                     .GetScannableAssemblies();
             }
 
@@ -122,7 +126,9 @@
                 Directory.CreateDirectory(someDir);
 
                 results = new AssemblyScanner(someDir)
-                    .IncludeAppDomainAssemblies()
+                          {
+                              IncludeAppDomainAssemblies = true,
+                          }
                     .GetScannableAssemblies();
             }
 
@@ -151,8 +157,14 @@
             [SetUp]
             public void Context()
             {
-                results = new AssemblyScanner(TestDllDirectory)
-                    .IncludeAssemblies(new[] {"NServiceBus.Core.Tests.dll"})
+                var assemblyScanner = new AssemblyScanner(TestDllDirectory)
+                                      {
+                                          AssembliesToInclude = new List<string>
+                                                                {
+                                                                    "NServiceBus.Core.Tests.dll"
+                                                                }
+                                      };
+                results = assemblyScanner
                     .GetScannableAssemblies();
 
                 skippedFiles = results.SkippedFiles;
@@ -179,7 +191,9 @@
             public void Context()
             {
                 results = new AssemblyScanner(TestDllDirectory)
-                .ExcludeAssemblies(new[] { "Rebus.dll" })
+                          {
+                              AssembliesToSkip = new List<string> { "Rebus.dll" }
+                          }
                     .GetScannableAssemblies();
 
                 skippedFiles = results.SkippedFiles;
@@ -205,6 +219,9 @@
             public void Context()
             {
                 results = new AssemblyScanner(TestDllDirectory)
+                          {
+                              IncludeAppDomainAssemblies = false
+                          }
                     .GetScannableAssemblies();
 
                 skippedFiles = results.SkippedFiles;
@@ -216,10 +233,11 @@
                 foreach (var notProperDll in NotProperDotNetDlls)
                 {
                     var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(notProperDll));
-                    
+
                     if (skippedFile == null)
-                        throw new AssertionException(string.Format("Could not find skipped file matching {0}",
-                                                                   notProperDll));
+                    {
+                        throw new AssertionException(string.Format("Could not find skipped file matching {0}", notProperDll));
+                    }
                     
                     Assert.That(skippedFile.SkipReason, Contains.Substring("not a .NET assembly"));
                 }
@@ -233,8 +251,9 @@
                     var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains(cannotContainMessageHandler));
                     
                     if (skippedFile == null)
-                        throw new AssertionException(string.Format("Could not find skipped file matching {0}",
-                                                                   cannotContainMessageHandler));
+                    {
+                        throw new AssertionException(string.Format("Could not find skipped file matching {0}",cannotContainMessageHandler));
+                    }
                     Assert.That(skippedFile.SkipReason,
                                 Contains.Substring("Assembly does not reference NServiceBus and thus cannot contain any handlers"));
                 }
@@ -252,8 +271,8 @@
                                           .FirstOrDefault(a => a.GetName().Name.Contains(containsHandlers));
 
                     if (assembly == null)
-                        throw new AssertionException(string.Format("Could not find loaded assembly matching {0}",
-                                                                   containsHandlers));
+                    {
+                        throw new AssertionException(string.Format("Could not find loaded assembly matching {0}", containsHandlers));}
                 }
             }
         }

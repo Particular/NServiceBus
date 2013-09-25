@@ -17,13 +17,16 @@ namespace NServiceBus.Hosting.Helpers
     [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScanner
     {
-        readonly List<string> assembliesToSkip = new List<string>();
-        readonly List<string> assembliesToInclude = new List<string>();
-        readonly string baseDirectoryToScan;
-
-        bool includeAppDomainAssemblies;
-        bool recurse;
-        bool includeExeInScan;
+        public List<string> AssembliesToSkip;
+        public List<string> AssembliesToInclude;
+        string baseDirectoryToScan;
+        public bool IncludeAppDomainAssemblies;
+        
+        // default (should be changed in 5.0)
+        public bool ScanNestedDirectories = true;
+        
+        // default (should be changed in 5.0)
+        public bool IncludeExesInScan = true;
 
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
@@ -32,87 +35,50 @@ namespace NServiceBus.Hosting.Helpers
 
         public AssemblyScanner(string baseDirectoryToScan)
         {
+            AssembliesToInclude = new List<string>();
+            AssembliesToSkip = new List<string>();
             this.baseDirectoryToScan = baseDirectoryToScan;
-
-            SetCompatibilityMode();
+            SetScanNestedDirectories();
+            SetIncludeExesInScan();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", Message = @"The AssemblyScanner now defaults to work in 'compatibility mode', i.e. 
-it includes subdirs in the scan and picks up .exe files as well. In the future, 'compatibility mode' should be opt-in 
-instead of opt-out (which probably means that this method should actually stay, it's only the default that should change)")]
-        void SetCompatibilityMode()
+        [ObsoleteEx(
+            RemoveInVersion = "5.0",
+            Message = @"Defaults to scan sub-directories. In the future, 'ScanNestedDirectories' will be opt-in.")]
+        void SetScanNestedDirectories()
         {
-            bool compatibilityMode;
-            if (!bool.TryParse(ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/CompatibilityMode"],
-                               out compatibilityMode))
+            bool scanNestedDirectories;
+            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/ScanNestedDirectories"];
+            if (bool.TryParse(appSetting, out scanNestedDirectories))
             {
-                // default (should be changed in 5.0)
-                ScanExeFiles(true);
-                ScanSubdirectories(true);
-                return;
-            }
-        
-            // adjust behavior depending on mode
-            if (compatibilityMode)
-            {
-                ScanExeFiles(true);
-                ScanSubdirectories(true);
-            }
-            else
-            {
-                ScanExeFiles(false);
-                ScanSubdirectories(false);
+                ScanNestedDirectories = scanNestedDirectories;
             }
         }
 
-        public AssemblyScanner IncludeAppDomainAssemblies()
+        [ObsoleteEx(
+            RemoveInVersion = "5.0",
+            Message = @"Defaults to pick up .exe files. In the future, 'IncludeExesInScan' will be opt-in.")]
+        void SetIncludeExesInScan()
         {
-            includeAppDomainAssemblies = true;
-            return this;
-        }
-
-        public AssemblyScanner ScanSubdirectories(bool shouldRecurse)
-        {
-            recurse = shouldRecurse;
-            return this;
-        }
-
-        public AssemblyScanner ScanExeFiles(bool shouldScanForExeFiles)
-        {
-            includeExeInScan = shouldScanForExeFiles;
-            return this;
-        }
-
-        public AssemblyScanner IncludeAssemblies(IEnumerable<string> assembliesToAddToListOfIncludedAssemblies)
-        {
-            if (assembliesToAddToListOfIncludedAssemblies != null)
+            bool includeExesInScan;
+            var appSetting = ConfigurationManager.AppSettings["NServiceBus/AssemblyScanning/IncludeExesInScan"];
+            if (bool.TryParse(appSetting, out includeExesInScan))
             {
-                assembliesToInclude.AddRange(assembliesToAddToListOfIncludedAssemblies);
+                IncludeExesInScan = includeExesInScan;
             }
-            return this;
-        }
-
-        public AssemblyScanner ExcludeAssemblies(IEnumerable<string> assembliesToAddToListOfSkippedAssemblies)
-        {
-            if (assembliesToAddToListOfSkippedAssemblies != null)
-            {
-                assembliesToSkip.AddRange(assembliesToAddToListOfSkippedAssemblies);
-            }
-            return this;
         }
 
         /// <summary>
-        /// Traverses the specified base directory including all subdirectories, generating a list of assemblies that can be
+        /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
         /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
         /// Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET assembly
         /// reveals that it does not reference NServiceBus.
         /// </summary>
-        [DebuggerNonUserCode]
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
 
-            if (includeAppDomainAssemblies)
+            if (IncludeAppDomainAssemblies)
             {
                 var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
                                                            .GetAssemblies()
@@ -158,8 +124,7 @@ instead of opt-out (which probably means that this method should actually stay, 
                 }
                 catch (BadImageFormatException badImageFormatException)
                 {
-                    var errorMessage = string.Format("Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))'" +
-                                                     " to tell NServiceBus not to load this file.", assemblyFile.FullName, assemblyFile.Name);
+                    var errorMessage = string.Format("Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))' to tell NServiceBus not to load this file.", assemblyFile.FullName, assemblyFile.Name);
                     var error = new ErrorWhileScanningAssemblies(badImageFormatException, errorMessage);
                     results.Errors.Add(error);
                     continue;
@@ -196,19 +161,17 @@ instead of opt-out (which probably means that this method should actually stay, 
         IEnumerable<FileInfo> ScanDirectoryForAssemblyFiles()
         {
             var baseDir = new DirectoryInfo(baseDirectoryToScan);
-            var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            var assemblyFiles = GetFileSearchPatternsToUse()
+            var searchOption = ScanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            return GetFileSearchPatternsToUse()
                 .SelectMany(extension => baseDir.GetFiles(extension, searchOption))
                 .ToList();
-
-            return assemblyFiles;
         }
 
         IEnumerable<string> GetFileSearchPatternsToUse()
         {
             yield return "*.dll";
 
-            if (includeExeInScan)
+            if (IncludeExesInScan)
             {
                 yield return "*.exe";
             }
@@ -232,13 +195,15 @@ instead of opt-out (which probably means that this method should actually stay, 
         /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
-            var isExplicitlyExcluded = assembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
+            var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
 
             if (isExplicitlyExcluded)
+            {
                 return false;
+            }
 
-            var noAssembliesWereExplicitlyIncluded = !assembliesToInclude.Any();
-            var isExplicitlyIncluded = assembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
+            var noAssembliesWereExplicitlyIncluded = !AssembliesToInclude.Any();
+            var isExplicitlyIncluded = AssembliesToInclude.Any(included => IsMatch(included, assemblyNameOrFileName));
 
             return noAssembliesWereExplicitlyIncluded || isExplicitlyIncluded;
         }
@@ -246,10 +211,14 @@ instead of opt-out (which probably means that this method should actually stay, 
         static bool IsMatch(string expression, string scopedNameOrFileName)
         {
             if (DistillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
+            {
                 return true;
+            }
 
             if (DistillLowerAssemblyName(expression).TrimEnd('.') == DistillLowerAssemblyName(scopedNameOrFileName))
+            {
                 return true;
+            }
 
             return false;
         }

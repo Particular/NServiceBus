@@ -407,8 +407,10 @@ namespace NServiceBus
         /// <returns></returns>
         public static T GetConfigSection<T>() where T : class,new()
         {
-            if(TypesToScan == null)
+            if (TypesToScan == null)
+            {
                 return ConfigurationSource.GetConfiguration<T>();
+            }
 
             var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
 
@@ -429,8 +431,12 @@ namespace NServiceBus
         /// <param name="assembliesToSkip">The exclude must either be the full assembly name or a prefix-pattern</param>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            return new AssemblyScanner(path)
-                .ExcludeAssemblies(assembliesToSkip)
+            var assemblyScanner = new AssemblyScanner(path);
+            if (assembliesToSkip != null)
+            {
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
+            }
+            return assemblyScanner
                 .GetScannableAssemblies()
                 .Assemblies
                 .ToList();
