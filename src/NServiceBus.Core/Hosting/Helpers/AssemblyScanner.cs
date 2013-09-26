@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Helpers
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Configuration;
     using System.IO;
     using System.Linq;
@@ -11,22 +10,10 @@ namespace NServiceBus.Hosting.Helpers
     using System.Text;
 
     /// <summary>
-    /// Helpers for assembly scanning operations
+    ///     Helpers for assembly scanning operations
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScanner
     {
-        public List<string> AssembliesToSkip;
-        public List<string> AssembliesToInclude;
-        string baseDirectoryToScan;
-        public bool IncludeAppDomainAssemblies;
-        
-        // default (should be changed in 5.0)
-        public bool ScanNestedDirectories = true;
-        
-        // default (should be changed in 5.0)
-        public bool IncludeExesInScan = true;
-
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)
         {
@@ -68,10 +55,11 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
-        /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
-        /// Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET assembly
-        /// reveals that it does not reference NServiceBus.
+        ///     Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
+        ///     scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
+        ///     Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET
+        ///     assembly
+        ///     reveals that it does not reference NServiceBus.
         /// </summary>
         public AssemblyScannerResults GetScannableAssemblies()
         {
@@ -80,8 +68,8 @@ namespace NServiceBus.Hosting.Helpers
             if (IncludeAppDomainAssemblies)
             {
                 var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
-                                                           .GetAssemblies()
-                                                           .Where(assembly => IsIncluded(assembly.GetName().Name));
+                    .GetAssemblies()
+                    .Where(assembly => IsIncluded(assembly.GetName().Name));
 
                 results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
             }
@@ -94,7 +82,8 @@ namespace NServiceBus.Hosting.Helpers
 
                 if (!IsIncluded(assemblyFile.Name))
                 {
-                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File was explicitly excluded from scanning"));
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
+                        "File was explicitly excluded from scanning"));
                     continue;
                 }
 
@@ -107,7 +96,8 @@ namespace NServiceBus.Hosting.Helpers
 
                 if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
                 {
-                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "x64 .NET assembly can't be loaded by a 32Bit process"));
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
+                        "x64 .NET assembly can't be loaded by a 32Bit process"));
                     continue;
                 }
 
@@ -115,7 +105,8 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     if (!AssemblyReferencesNServiceBus(assemblyFile))
                     {
-                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "Assembly does not reference NServiceBus and thus cannot contain any handlers"));
+                        results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
+                            "Assembly does not reference NServiceBus and thus cannot contain any handlers"));
                         continue;
                     }
 
@@ -123,7 +114,10 @@ namespace NServiceBus.Hosting.Helpers
                 }
                 catch (BadImageFormatException badImageFormatException)
                 {
-                    var errorMessage = string.Format("Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))' to tell NServiceBus not to load this file.", assemblyFile.FullName, assemblyFile.Name);
+                    var errorMessage =
+                        string.Format(
+                            "Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))' to tell NServiceBus not to load this file.",
+                            assemblyFile.FullName, assemblyFile.Name);
                     var error = new ErrorWhileScanningAssemblies(badImageFormatException, errorMessage);
                     results.Errors.Add(error);
                     continue;
@@ -196,8 +190,8 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        /// Determines whether the specified assembly name or file name can be included, given the set up include/exclude
-        /// patterns and default include/exclude patterns
+        ///     Determines whether the specified assembly name or file name can be included, given the set up include/exclude
+        ///     patterns and default include/exclude patterns
         /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
@@ -231,7 +225,8 @@ namespace NServiceBus.Hosting.Helpers
 
         public static bool IsAllowedType(Type type)
         {
-            return !type.IsValueType && !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
+            return !type.IsValueType &&
+                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)
@@ -243,5 +238,12 @@ namespace NServiceBus.Hosting.Helpers
             }
             return lowerAssemblyName;
         }
+
+        readonly string baseDirectoryToScan;
+        public List<string> AssembliesToInclude;
+        public List<string> AssembliesToSkip;
+        public bool IncludeAppDomainAssemblies;
+        public bool IncludeExesInScan = true;
+        public bool ScanNestedDirectories = true;
     }
 }
