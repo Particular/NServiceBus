@@ -4,7 +4,6 @@ namespace NServiceBus.Hosting.Helpers
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Configuration;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -137,17 +136,8 @@ namespace NServiceBus.Hosting.Helpers
                 }
                 catch (ReflectionTypeLoadException e)
                 {
-                    var sb = new StringBuilder();
-                    sb.AppendFormat("Could not scan assembly: {0}. Exception message {1}.", assemblyFile.FullName, e);
-                    if (e.LoaderExceptions.Any())
-                    {
-                        sb.Append(Environment.NewLine + "Scanned type errors: ");
-                        foreach (var ex in e.LoaderExceptions)
-                        {
-                            sb.Append(Environment.NewLine + ex.Message);
-                        }
-                    }
-                    var error = new ErrorWhileScanningAssemblies(e, sb.ToString());
+                    var errorMessage = FormatReflectionTypeLoadException(assemblyFile.FullName, e);
+                    var error = new ErrorWhileScanningAssemblies(e, errorMessage);
                     results.Errors.Add(error);
                     continue;
                 }
@@ -156,6 +146,22 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             return results;
+        }
+
+        public static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Could not scan assembly: {0}. Exception message {1}.", fileName, e);
+            if (e.LoaderExceptions.Any())
+            {
+                sb.Append(Environment.NewLine + "Scanned type errors: ");
+                foreach (var ex in e.LoaderExceptions)
+                {
+                    sb.Append(Environment.NewLine + ex.Message);
+                }
+            }
+
+            return sb.ToString();
         }
 
         IEnumerable<FileInfo> ScanDirectoryForAssemblyFiles()

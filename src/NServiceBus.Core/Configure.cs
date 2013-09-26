@@ -546,15 +546,8 @@ namespace NServiceBus
                     }
                     catch (ReflectionTypeLoadException e)
                     {
-                        var sb = new StringBuilder();
-                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
-                        if (e.LoaderExceptions.Any())
-                        {
-                            sb.Append(Environment.NewLine + "Scanned type errors: ");
-                            foreach (var ex in e.LoaderExceptions)
-                                sb.Append(Environment.NewLine + ex.Message);
-                        }
-                        LogManager.GetLogger(typeof(Configure)).Warn(sb.ToString());
+                        var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, e);
+                        LogManager.GetLogger(typeof(Configure)).Warn(errorMessage);
                         //intentionally swallow exception
                     }
                 });
