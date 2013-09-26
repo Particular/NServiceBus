@@ -21,6 +21,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Queuing;
     using Routing;
+    using Satellites;
     using Serialization;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
@@ -810,7 +811,9 @@ namespace NServiceBus.Unicast
                 ValidateConfiguration();
 
                 if (startupAction != null)
+                {
                     startupAction();
+                }
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -819,31 +822,36 @@ namespace NServiceBus.Unicast
                 {
                     transport.Start(InputAddress);
                 }
-
+                
                 started = true;
             }
 
             if (Started != null)
+            {
                 Started(this, null);
+            }
+
+            satelliteLauncher = new SatelliteLauncher();
+            satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
 
             thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-                                        {
-                                            var name = toRun.GetType().AssemblyQualifiedName;
+            {
+                var name = toRun.GetType().AssemblyQualifiedName;
 
-                                            try
-                                            {
-                                                Log.DebugFormat("Starting {0}.", name);
-                                                toRun.Start();
-                                                Log.DebugFormat("Started {0}.", name);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                Log.ErrorFormat("{0} could not be started.", ex, name);
-                                                //don't rethrow so that thread doesn't die before log message is shown.
-                                            }
-                                        }, TaskCreationOptions.LongRunning)).ToArray();
+                try
+                {
+                    Log.DebugFormat("Starting {0}.", name);
+                    toRun.Start();
+                    Log.DebugFormat("Started {0}.", name);
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorFormat("{0} could not be started.", ex, name);
+                    //don't rethrow so that thread doesn't die before log message is shown.
+                }
+            }, TaskCreationOptions.LongRunning)).ToArray();
 
             return this;
         }
@@ -993,6 +1001,8 @@ namespace NServiceBus.Unicast
             Log.Info("Initiating shutdown.");
 
             ExecuteIWantToRunAtStartupStopMethods();
+
+            satelliteLauncher.Stop();
 
             transport.Stop();
             transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
@@ -1562,5 +1572,6 @@ namespace NServiceBus.Unicast
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
+        SatelliteLauncher satelliteLauncher;
     }
 }

@@ -6,13 +6,10 @@ namespace NServiceBus.Satellites
     using System.Threading.Tasks;
     using Config;
     using Logging;
-    using ObjectBuilder;
     using Unicast.Transport;
 
-    public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
+    public class SatelliteLauncher
     {
-        public IBuilder Builder { get; set; }
-
         public void Start()
         {
             var satellitesList = Configure.Instance.Builder
@@ -37,7 +34,7 @@ namespace NServiceBus.Satellites
 
                     if (satellite.InputAddress != null)
                     {
-                        satelliteContext.Transport = Builder.Build<TransportReceiver>();
+                        satelliteContext.Transport = Configure.Instance.Builder.Build<TransportReceiver>();
 
                         var advancedSatellite = satellite as IAdvancedSatellite;
                         if (advancedSatellite != null)
