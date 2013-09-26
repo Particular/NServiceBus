@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
-    using Customization;
 
     [Serializable]
     public class EndpointBehaviour : MarshalByRefObject
@@ -12,22 +11,18 @@
         public EndpointBehaviour(Type builderType)
         {
             EndpointBuilderType = builderType;
-            EndpointName = Conventions.EndpointNamingConvention(builderType);
             CustomConfig = new List<Action<Configure>>();
         }
 
-        public string EndpointName { get; private set; }
-
         public Type EndpointBuilderType { get; private set; }
-
-
 
         public List<IGivenDefinition> Givens { get; set; }
         public List<IWhenDefinition> Whens { get; set; }
 
         public List<Action<Configure>> CustomConfig { get; set; }
-    }
 
+        public string AppConfig { get; set; }
+    }
 
     [Serializable]
     public class GivenDefinition<TContext> : IGivenDefinition where TContext : ScenarioContext

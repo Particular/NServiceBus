@@ -57,13 +57,19 @@
             return this;
         }
 
+        public EndpointBehaviorBuilder<TContext> AppConfig(string appConfigPath)
+        {
+            behaviour.AppConfig = appConfigPath;
+
+            return this;
+        }
+
+
         public EndpointBehaviour Build()
         {
             return behaviour;
         }
 
         readonly EndpointBehaviour behaviour;
-
-
     }
 }

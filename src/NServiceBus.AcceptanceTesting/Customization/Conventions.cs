@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTesting.Customization
     {
         static Conventions()
         {
-            EndpointNamingConvention = (t) => t.Name;
+            EndpointNamingConvention = t => t.Name;
         }
 
         public static Func<RunDescriptor> DefaultRunDescriptor = () => new RunDescriptor {Key = "Default"};
