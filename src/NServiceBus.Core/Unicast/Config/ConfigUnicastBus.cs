@@ -306,6 +306,7 @@ namespace NServiceBus.Unicast.Config
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Audit configuration has been moved to AuditConfig instead of UnicastBusConfig.")]
         public ConfigUnicastBus ForwardReceivedMessagesTo(string value)
         {
             busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);

@@ -179,11 +179,13 @@ namespace NServiceBus.Unicast
         /// device. The server software will have this field set to the address
         /// of the real server.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Use MessageAuditer.AuditQueue instead. Audit configuration has been moved to AuditConfig instead of UnicastBusConfig.")]
         public Address ForwardReceivedMessagesTo { get; set; }
 
         /// <summary>
         /// The TTR to set on forwarded messages. 
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0", Replacement = "Use MessageAuditer.TimeToBeReceivedOnForwardedMessages instead. Audit configuration has been moved to AuditConfig instead of UnicastBusConfig.")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
 
