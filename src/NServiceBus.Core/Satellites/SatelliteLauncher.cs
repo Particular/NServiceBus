@@ -105,13 +105,9 @@ namespace NServiceBus.Satellites
             }
             catch (Exception ex)
             {
-                Logger.Error(
-                    string.Format("Satellite {0} failed to start.", context.Instance.GetType().AssemblyQualifiedName), ex);
+                Logger.Fatal(string.Format("Satellite {0} failed to start.", context.Instance.GetType().AssemblyQualifiedName), ex);
 
-                if (context.Transport != null)
-                {
-                    context.Transport.ChangeMaximumConcurrencyLevel(0);
-                }
+                throw;
             }
         }
 
