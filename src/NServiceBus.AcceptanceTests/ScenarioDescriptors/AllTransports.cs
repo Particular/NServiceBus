@@ -84,9 +84,7 @@
             {
                 if (assemblies == null)
                 {
-                    var result = AssemblyScanner.GetScannableAssemblies();
-
-
+                    var result = new AssemblyScanner().GetScannableAssemblies();
 
                     if (result.Errors.Any())
                     {
@@ -97,8 +95,6 @@
 
                         throw new InvalidOperationException("Assembly scanning failed");
                     }
-
-                    
 
                     assemblies = result.Assemblies;
                 }

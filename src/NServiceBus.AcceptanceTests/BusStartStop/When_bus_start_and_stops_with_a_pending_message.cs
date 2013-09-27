@@ -17,7 +17,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => SendMessages(b))
-                    .Run(TimeSpan.FromMilliseconds(10));
+                    .Run(TimeSpan.FromMilliseconds(100));
 
             Thread.Sleep(100);
         }

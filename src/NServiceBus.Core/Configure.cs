@@ -12,11 +12,13 @@ namespace NServiceBus
     using Config.ConfigurationSource;
     using Config.Conventions;
     using Features;
+    using Hosting.Helpers;
     using Installation;
     using Installation.Environments;
     using Logging;
     using ObjectBuilder;
     using Settings;
+    using Unicast;
 
     /// <summary>
     /// Central configuration entry point for NServiceBus.
@@ -88,10 +90,9 @@ namespace NServiceBus
             return builder != null && configurer != null;
         }
 
-
         IBuilder builder;
 
-        static bool initialized { get; set; }
+        static bool initialized;
 
         /// <summary>
         /// Gets/sets the configuration source to be used by NServiceBus.
@@ -200,7 +201,7 @@ namespace NServiceBus
         public static Configure With()
         {
             if (HttpRuntime.AppDomainAppId != null)
-                return With((string)HttpRuntime.BinDirectory);
+                return With(HttpRuntime.BinDirectory);
 
             return With(AppDomain.CurrentDomain.BaseDirectory);
         }
@@ -275,13 +276,20 @@ namespace NServiceBus
                 }
             }
 
-            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count());
+            TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
+
+            Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count);
 
             EndpointHelper.StackTraceToExamine = new StackTrace();
 
             instance.InvokeISetDefaultSettings();
 
             return instance;
+        }
+
+        static IEnumerable<Type> GetMessageTypes(IList<Type> types)
+        {
+            return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
         }
 
         /// <summary>
@@ -399,85 +407,39 @@ namespace NServiceBus
         /// <returns></returns>
         public static T GetConfigSection<T>() where T : class,new()
         {
-            if(TypesToScan == null)
+            if (TypesToScan == null)
+            {
                 return ConfigurationSource.GetConfiguration<T>();
+            }
 
             var sectionOverrideType = TypesToScan.FirstOrDefault(t => typeof (IProvideConfiguration<T>).IsAssignableFrom(t));
 
             if (sectionOverrideType == null)
+            {
                 return ConfigurationSource.GetConfiguration<T>();
+            }
 
-            var sectionOverride = Activator.CreateInstance(sectionOverrideType) as IProvideConfiguration<T>;
+            var sectionOverride = (IProvideConfiguration<T>)Activator.CreateInstance(sectionOverrideType);
 
             return sectionOverride.GetConfiguration();
-
-            
         }
 
         /// <summary>
         /// Load and return all assemblies in the given directory except the given ones to exclude
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="assembliesToSkip">The exclude must either be the full</param>
-        /// <returns></returns>
+        /// <param name="path">Path to scan</param>
+        /// <param name="assembliesToSkip">The exclude must either be the full assembly name or a prefix-pattern</param>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
-            Predicate<string> exclude =
-                f => assembliesToSkip.Any(skip => distillLowerAssemblyName(skip) == f);
-
-            return FindAssemblies(path, false, null, exclude);
-        }
-
-        static string distillLowerAssemblyName(string assemblyOrFileName)
-        {
-            var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
-            if (lowerAssemblyName.EndsWith(".dll"))
-                lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
-            return lowerAssemblyName;
-        }
-
-
-        /// <summary>
-        /// Find and return all assemblies in the given directory and the current <see cref="AppDomain"/> 
-        /// filtered to <paramref name="includeAssemblyNames"/>, if given, 
-        /// but except <paramref name="excludeAssemblyNames"/>
-        /// </summary>
-        /// <param name="path">Directory to search in.</param>
-        /// <param name="includeAppDomainAssemblies">Shortcut Assembly.Load by instead using yet loaded assemblies.</param>
-        /// <param name="includeAssemblyNames">All, if <c>null</c></param>
-        /// <param name="excludeAssemblyNames">None, if <c>null</c></param>
-        /// <returns></returns>
-        public static IEnumerable<Assembly> FindAssemblies(string path, bool includeAppDomainAssemblies, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
-        {
-            var possiblyChangedExcludePredicate = excludeAssemblyNames;
-            if (includeAppDomainAssemblies)
+            var assemblyScanner = new AssemblyScanner(path);
+            if (assembliesToSkip != null)
             {
-                var yetLoadedMatchingAssemblies =
-                    (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                     where IsIncluded(assembly.GetName().Name, includeAssemblyNames, excludeAssemblyNames)
-                     select assembly).ToArray();
-
-                foreach (var a in yetLoadedMatchingAssemblies)
-                {
-                    yield return a;
-                }
-
-                Predicate<string> additionalExclude =
-                    name => yetLoadedMatchingAssemblies.Any(
-                        a => IsMatch(a.GetName().Name, name));
-
-                if (possiblyChangedExcludePredicate != null)
-                    possiblyChangedExcludePredicate = name => additionalExclude(name) || excludeAssemblyNames(name);
-                else
-                {
-                    possiblyChangedExcludePredicate = additionalExclude;
-                }
+                assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
             }
-
-            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.exe", includeAssemblyNames, possiblyChangedExcludePredicate))
-                yield return a;
-            foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll", includeAssemblyNames, possiblyChangedExcludePredicate))
-                yield return a;
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies
+                .ToList();
         }
 
         /// <summary>
@@ -513,7 +475,7 @@ namespace NServiceBus
             if (Instance == null)
                 throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
 
-            return Instance.Configurer.ConfigureComponent<T>(componentFactory, lifecycle);
+            return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
         }
 
         /// <summary>
@@ -524,7 +486,7 @@ namespace NServiceBus
 	        if (Instance == null)
 		        throw new InvalidOperationException("You need to call Configure.With() before calling Configure.Component<T>()");
 
-	        return Instance.Configurer.ConfigureComponent<T>(componentFactory, lifecycle);
+	        return Instance.Configurer.ConfigureComponent(componentFactory, lifecycle);
         }
 		  
         /// <summary>
@@ -580,22 +542,12 @@ namespace NServiceBus
                     try
                     {
                         types.AddRange(a.GetTypes()
-                                           .Where(t => !t.IsValueType &&
-                                                       (t.FullName == null ||
-                                                        !defaultTypeExclusions.Union(defaultAssemblyExclusions).Any(
-                                                            exclusion => IsMatch(exclusion, t.FullName)))));
+                                        .Where(AssemblyScanner.IsAllowedType));
                     }
                     catch (ReflectionTypeLoadException e)
                     {
-                        var sb = new StringBuilder();
-                        sb.Append(string.Format("Could not scan assembly: {0}. Exception message {1}.", a.FullName, e));
-                        if (e.LoaderExceptions.Any())
-                        {
-                            sb.Append(Environment.NewLine + "Scanned type errors: ");
-                            foreach (var ex in e.LoaderExceptions)
-                                sb.Append(Environment.NewLine + ex.Message);
-                        }
-                        LogManager.GetLogger(typeof(Configure)).Warn(sb.ToString());
+                        var errorMessage = AssemblyScanner.FormatReflectionTypeLoadException(a.FullName, e);
+                        LogManager.GetLogger(typeof(Configure)).Warn(errorMessage);
                         //intentionally swallow exception
                     }
                 });
@@ -657,77 +609,6 @@ namespace NServiceBus
             }
         }
 
-
-        static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
-        {
-            var result = new List<Assembly>();
-
-            foreach (var file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
-            {
-                try
-                {
-                    if (IsIncluded(file.Name, includeAssemblyNames, excludeAssemblyNames))
-                    {
-                        var loadAssembly = LoadAssembly(file);
-                        if (loadAssembly != null)
-                        {
-                            result.Add(loadAssembly);
-                        }
-                    }
-                }
-                catch (BadImageFormatException badImageFormatException)
-                {
-                    if (badImageFormatException.FileName.ToLower().Contains("system.data.sqlite.dll"))
-                        throw new BadImageFormatException(
-                            "You've installed the wrong version of System.Data.SQLite.dll on this machine. If this machine is x86, this dll should be roughly 800KB. If this machine is x64, this dll should be roughly 1MB. You can find the x86 file under /binaries and the x64 version under /binaries/x64. *If you're running the samples, a quick fix would be to copy the file from /binaries/x64 over the file in /binaries - you should 'clean' your solution and rebuild after.",
-                            badImageFormatException.FileName, badImageFormatException);
-
-                    throw new InvalidOperationException(
-                        "Could not load " + file.FullName +
-                        ". Consider using 'Configure.With(AllAssemblies.Except(\"" + file.Name + "\"))' to tell NServiceBus not to load this file.",
-                        badImageFormatException);
-                }
-            }
-
-            return result;
-        }
-
-        static bool IsIncluded(string assemblyNameOrFileName, Predicate<string> includeAssemblyNames, Predicate<string> excludeAssemblyNames)
-        {
-
-            if (includeAssemblyNames != null
-                && !includeAssemblyNames(assemblyNameOrFileName)
-                && !defaultAssemblyInclusionOverrides.Any(s => IsMatch(s, assemblyNameOrFileName)))
-                return false;
-
-            if (defaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName)))
-                return false;
-
-            if (excludeAssemblyNames != null && excludeAssemblyNames(assemblyNameOrFileName))
-                return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Check, if an assembly name matches the given expression.
-        /// </summary>
-        /// <param name="expression">
-        ///  <c>Wildcard.</c> matches 'Wildcard' and Assemblies starting with 'Wildcard.';
-        ///  <c>Exact</c> matches only "Exact". Casing is generally ignored.
-        /// </param>
-        /// <param name="scopedNameOrFileName">The name or file name of the assembly, a full type name or namespace.</param>
-        /// <returns></returns>
-        public static bool IsMatch(string expression, string scopedNameOrFileName)
-        {
-            if (distillLowerAssemblyName(scopedNameOrFileName).StartsWith(expression.ToLower()))
-                return true;
-            if (distillLowerAssemblyName(expression).TrimEnd('.') == distillLowerAssemblyName(scopedNameOrFileName))
-                return true;
-
-            return false;
-        }
-
         static bool IsGenericConfigSource(Type t)
         {
             if (!t.IsGenericType)
@@ -749,47 +630,5 @@ namespace NServiceBus
                 return LogManager.GetLogger(typeof(Configure));
             }
         }
-
-        static readonly IEnumerable<string> defaultAssemblyInclusionOverrides = new[] { "nservicebus." };
-
-        // TODO: rename to defaultAssemblyAndNamespaceExclusions
-        static readonly IEnumerable<string> defaultAssemblyExclusions
-            = new[]
-              {
-
-                  "system.", 
-                  "mscorlib.", 
-                  
-                  // NSB Build-Dependencies
-                  "nunit.", "pnunit.", "rhino.mocks.","XsdGenerator.",
-                 
-                  // NSB OSS Dependencies
-                  "rhino.licensing.", "bouncycastle.crypto",
-                  "magnum.", "interop.", "nlog.", "newtonsoft.json.",
-                  "common.logging.", "topshelf.",
-                  "Autofac.", "log4net.","nhibernate.", 
-
-                  // Raven
-                  "raven.server", "raven.client", "raven.munin.",
-                  "raven.storage.", "raven.abstractions.", "raven.database",
-                  "esent.interop", "asyncctplibrary.", "lucene.net.", 
-                  "icsharpcode.nrefactory", "spatial4n.core",
-
-                  // Azure host process, which is typically referenced for ease of deployment but should not be scanned
-                  "NServiceBus.Hosting.Azure.HostProcess.exe",
-
-                  // And other windows azure stuff
-                  "Microsoft.WindowsAzure.",
-
-                  // SQLite unmanaged DLLs that cause BadImageFormatException's
-                  "sqlite3.dll", "SQLite.Interop.dll"
-              };
-
-        // TODO: rename to additionalTypeExclusions 
-        private static readonly IEnumerable<string> defaultTypeExclusions
-            = new string[]
-              {
-                  // defaultAssemblyExclusions will merged inn; specify additional ones here 
-              };
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -98,6 +98,9 @@
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
+    <Compile Include="Hosting\Helpers\ErrorWhileScanningAssemblies.cs" />
+    <Compile Include="Hosting\Helpers\Image.cs" />
+    <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
@@ -584,15 +587,13 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
-  <Target Name="AfterBuild"  Condition=" '$(Configuration)' == 'Release' ">
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <PropertyGroup>
-        <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
+      <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
     </PropertyGroup>
-    <Delete Files="$(MergeTemp)"/>
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)"/>
-    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Interop.MSMQ.dll" "$(TargetDir)AutoFac.dll" "$(TargetDir)Newtonsoft.Json.dll" /target:library /targetplatform:v4' />
-    <Delete Files="$(MergeTemp)"/>
+    <Delete Files="$(MergeTemp)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:v4" />
+    <Delete Files="$(MergeTemp)" />
   </Target>
 </Project>
-
-
