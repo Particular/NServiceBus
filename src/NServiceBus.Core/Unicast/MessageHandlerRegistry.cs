@@ -18,10 +18,9 @@
         /// <returns></returns>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
-            return
-                handlerList.Keys.Where(
-                    handlerType =>
-                        handlerList[handlerType].Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType)));
+            return from keyValue in handlerList
+                   where keyValue.Value.Any(msgTypeHandled => msgTypeHandled.IsAssignableFrom(messageType))
+                   select keyValue.Key;
         }
 
         /// <summary>
@@ -30,10 +29,10 @@
         /// <returns></returns>
         public IEnumerable<Type> GetMessageTypes()
         {
-            return from handlerType in handlerList.Keys
-                from typeHandled in handlerList[handlerType]
-                where MessageConventionExtensions.IsMessageType(typeHandled)
-                select typeHandled;
+            return from handlers in handlerList.Values
+                   from typeHandled in handlers
+                   where MessageConventionExtensions.IsMessageType(typeHandled)
+                   select typeHandled;
         }
 
         /// <summary>
