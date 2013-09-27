@@ -28,7 +28,7 @@ namespace NServiceBus.Hosting.Tests
             [TestFixtureSetUp]
             public void TestFixtureSetup()
             {
-                AssemblyScannerResults = AssemblyScanner.GetScannableAssemblies();
+                AssemblyScannerResults = new AssemblyScanner().GetScannableAssemblies();
             }
 
             [Test]
@@ -108,7 +108,7 @@ namespace NServiceBus.Hosting.Tests
             [Test]
             public void when_endpoint_type_is_provided_via_configuration_it_should_have_first_priority()
             {
-                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(new AssemblyScanner().GetScannableAssemblies(),
                                                  () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
 
                 RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
@@ -122,7 +122,7 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void when_invalid_endpoint_type_is_provided_via_configuration_it_should_blow_up()
             {
-                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(),
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(new AssemblyScanner().GetScannableAssemblies(),
                                                  () => "I am an invalid type name");
 
                 RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
@@ -134,7 +134,7 @@ namespace NServiceBus.Hosting.Tests
                 MatchType = MessageMatch.StartsWith)]
             public void when_multiple_endpoint_types_found_via_assembly_scanning_it_should_blow_up()
             {
-                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner.GetScannableAssemblies(), () => null);
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(new AssemblyScanner().GetScannableAssemblies(), () => null);
 
                 RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
             }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Text;
@@ -10,6 +11,7 @@
     /// Holds GetScannableAssemblies results.
     /// Contains list of errors and list of scan-able assemblies.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScannerResults 
     {
         /// <summary>
@@ -19,6 +21,7 @@
         {
             Errors = new List<ErrorWhileScanningAssemblies>();
             Assemblies = new List<Assembly>();
+            SkippedFiles = new List<SkippedFile>();
         }
         /// <summary>
         /// Dump error to console.
@@ -30,7 +33,7 @@
             
             foreach (var error in Errors)
             {
-                sb.Append(error.ToString());
+                sb.Append(error);
                 if (error.Exception is ReflectionTypeLoadException)
                 {
                     var e = error.Exception as ReflectionTypeLoadException;
@@ -45,45 +48,22 @@
             
             return sb.ToString();
         }
+        
         /// <summary>
-        /// List of errors that occurred during 
+        /// List of errors that occurred while attempting to load an assembly
         /// </summary>
-        public List<ErrorWhileScanningAssemblies> Errors { get; set; }
+        public List<ErrorWhileScanningAssemblies> Errors { get; private set; }
+        
         /// <summary>
-        /// 
+        /// List of successfully found and loaded assemblies
         /// </summary>
-        public List<Assembly> Assemblies { get; set; }
-    }
-    /// <summary>
-    /// Error information that occurred while scanning assemblies.
-    /// </summary>
-    public class ErrorWhileScanningAssemblies
-    {
+        public List<Assembly> Assemblies { get; private set; }
+        
         /// <summary>
-        /// Adding an error
+        /// List of files that were skipped while scanning because they were a) explicitly excluded
+        /// by the user, b) not a .NET DLL, or c) not referencing NSB and thus not capable of implementing
+        /// <see cref="IHandleMessages{T}"/>
         /// </summary>
-        /// <param name="ex"></param>
-        /// <param name="errorMessage"></param>
-        internal ErrorWhileScanningAssemblies(Exception ex, string errorMessage) 
-        {
-            Exception = ex;
-            ErrorMessage = errorMessage;
-        }
-        /// <summary>
-        /// Convert to string errors while scanning assemblies
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return ErrorMessage + Environment.NewLine + Exception;
-        }
-        /// <summary>
-        /// Exception message.
-        /// </summary>
-        internal string ErrorMessage { get; private set; }
-        /// <summary>
-        /// Exception that occurred.
-        /// </summary>
-        internal Exception Exception { get; private set; }
+        public List<SkippedFile> SkippedFiles { get; private set; }
     }
 }

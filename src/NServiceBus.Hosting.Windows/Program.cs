@@ -28,7 +28,7 @@
                 return;
             }
             
-            assemblyScannerResults = AssemblyScanner.GetScannableAssemblies();
+            assemblyScannerResults = new AssemblyScanner().GetScannableAssemblies();
 
             var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
             var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);
