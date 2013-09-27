@@ -14,8 +14,7 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <dependencies>
-    </dependencies>
+    <dependencies/>
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.Testing.???" target="lib\net40" />

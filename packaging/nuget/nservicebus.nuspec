@@ -18,8 +18,7 @@
       <frameworkAssembly assemblyName="System" targetFramework="net40" />
       <frameworkAssembly assemblyName="System.Core" targetFramework="net40" />
     </frameworkAssemblies>
-    <dependencies>
-    </dependencies>
+    <dependencies/>
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net40" />

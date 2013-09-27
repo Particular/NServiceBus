@@ -14,9 +14,7 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
-    <dependencies>
-      <dependency id="structuremap" version="[2.6.4.1, 3.0.0.0)" />
-    </dependencies>
+    <dependencies/>
   </metadata>
   <files>
     <file src="..\..\binaries\containers\StructureMap\NServiceBus.ObjectBuilder.StructureMap.???" target="lib\net40" />
