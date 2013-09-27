@@ -37,15 +37,6 @@
 
             return this;
         }
-        
-
-        public EndpointConfigurationBuilder AppConfig(string path)
-        {
-            configuration.AppConfigPath = path;
-
-            return this;
-        }
-
 
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {

@@ -303,7 +303,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
                 var endpointName = GetEndpointNameForRun(runDescriptor, behaviorDescriptor);
-                var runner = PrepareRunner(endpointName, behaviorDescriptor);
+                var runner = PrepareRunner(endpointName, behaviorDescriptor.AppConfig);
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
                 // Extend the lease to the timeout value specified.
@@ -331,7 +331,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             return endpointName;
         }
 
-        static ActiveRunner PrepareRunner(string endpointName, EndpointBehaviour endpointBehaviour)
+        static ActiveRunner PrepareRunner(string endpointName, string appConfigPath)
         {
             var domainSetup = new AppDomainSetup
                 {
@@ -339,10 +339,10 @@ namespace NServiceBus.AcceptanceTesting.Support
                     LoaderOptimization = LoaderOptimization.SingleDomain
                 };
 
-            var endpoint = ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehaviour.EndpointBuilderType)).Get();
-           
-            if (endpoint.AppConfigPath != null)
-                domainSetup.ConfigurationFile = endpoint.AppConfigPath;
+            if (appConfigPath != null)
+            {
+                domainSetup.ConfigurationFile = appConfigPath;
+            }
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
             
