@@ -1284,7 +1284,7 @@ namespace NServiceBus.Unicast
 
                 // Will forward the message to the configured audit queue if the auditing feature is enabled.
                 MessageAuditer.ForwardMessageToAuditQueue(msg);
-                
+                ForwardMessageIfNecessary(msg);
             }
             catch (Exception ex)
             {
@@ -1375,12 +1375,22 @@ namespace NServiceBus.Unicast
             message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
         }
 
+        void ForwardMessageIfNecessary(TransportMessage transportMessage)
+        {
+            if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
+            {
+                return;
+            }
+
+            MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
+        }
+
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
         /// Invokes message mutators.
         /// </summary>
         /// <param name="rawMessages">The messages to wrap.</param>
-        /// /// <param name="result">The envelope in which the messages are placed.</param>
+        /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
         void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {

@@ -94,22 +94,15 @@ namespace NServiceBus.Unicast.Config
 
             Configurer.RegisterSingleton<IRouteMessages>(router);
 
-            Address forwardAddress = null;
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-            }
-            
-            if (forwardAddress != null)
-            {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
             if (unicastConfig == null)
             {
                 return;
             }
-
+            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+            {
+                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+            }
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
