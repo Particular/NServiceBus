@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Config
     using NServiceBus.Config;
     using ObjectBuilder;
     using Routing;
+    using Satellites;
     using Settings;
 
     /// <summary>
@@ -36,9 +37,7 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-
             RegisterMessageOwnersAndBusAddress(knownMessages);
-
           
             ConfigureMessageRegistry(knownMessages);
         }
