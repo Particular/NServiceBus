@@ -21,7 +21,7 @@ namespace NServiceBus
     using Unicast;
 
     /// <summary>
-    /// Central configuration entry point for NServiceBus.
+    /// Central configuration entry point.
     /// </summary>
     public class Configure
     {
@@ -43,29 +43,32 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// True if any of the Configure.With() has been called
+        /// True if any of the <see cref="With()"/> has been called.
         /// </summary>
-        /// <returns></returns>
         public static bool WithHasBeenCalled()
         {
             return instance != null;
         }
 
         /// <summary>
-        /// Event raised when configuration is complete
+        /// Event raised when configuration is complete.
         /// </summary>
         public static event Action ConfigurationComplete;
 
         /// <summary>
         /// Gets/sets the builder.
-        /// Setting the builder should only be done by NServiceBus framework code.
         /// </summary>
+        /// <remarks>
+        /// Setting the builder should only be done by NServiceBus framework code.
+        /// </remarks>
         public IBuilder Builder
         {
             get
             {
                 if (builder == null)
+                {
                     throw new InvalidOperationException("You can't access Configure.Instance.Builder before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
+                }
 
                 return builder;
 
@@ -74,9 +77,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// True if a builder has been defined
+        /// True if a builder has been defined.
         /// </summary>
-        /// <returns></returns>
         public static bool BuilderIsConfigured()
         {
             if (!WithHasBeenCalled())
@@ -95,15 +97,13 @@ namespace NServiceBus
         static bool initialized;
 
         /// <summary>
-        /// Gets/sets the configuration source to be used by NServiceBus.
+        /// Gets/sets the configuration source to be used.
         /// </summary>
         public static IConfigurationSource ConfigurationSource { get; set; }
 
         /// <summary>
-        /// Sets the current configuration source
+        /// Sets the current configuration source.
         /// </summary>
-        /// <param name="configurationSource"></param>
-        /// <returns></returns>
         public Configure CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             ConfigurationSource = configurationSource;
@@ -119,7 +119,9 @@ namespace NServiceBus
             get
             {
                 if (configurer == null)
+                {
                     throw new InvalidOperationException("You can't access Configure.Instance.Configurer before calling specifying a builder. Please add a call to Configure.DefaultBuilder() or any of the other supported builders to set one up");
+                }
 
                 return configurer;
             }
@@ -131,8 +133,8 @@ namespace NServiceBus
             }
         }
 
-        private IConfigureComponents configurer;
-        private static bool configSectionOverridesInitialized;
+        IConfigureComponents configurer;
+        static bool configSectionOverridesInitialized;
 
         void WireUpConfigSectionOverrides()
         {
@@ -155,49 +157,43 @@ namespace NServiceBus
         {
         }
 
-        // ------------  Configuration extensions, please C# give us extension properties to avoid all this ---
-        private static Endpoint endpoint;
+        static Endpoint endpoint;
 
         public static Endpoint Endpoint { get { return endpoint ?? (endpoint = new Endpoint()); } }
 
-        private static TransactionSettings transactionSetting;
+        static TransactionSettings transactionSetting;
 
         public static TransactionSettings Transactions { get { return transactionSetting ?? (transactionSetting = new TransactionSettings()); } }
 
         public static TransportSettings Transports { get { return transports ?? (transports = new TransportSettings()); } }
 
-        private static TransportSettings transports;
+        static TransportSettings transports;
 
         public static FeatureSettings Features { get { return features ?? (features = new FeatureSettings()); } }
 
-        private static FeatureSettings features;
+        static FeatureSettings features;
 
         public static SerializationSettings Serialization { get { return serialization ?? (serialization = new SerializationSettings()); } }
 
-        private static SerializationSettings serialization;
+        static SerializationSettings serialization;
 
-        // ------------  End Configuration extensions ---
-       
         /// <summary>
-        /// Allows the user to control how the current endpoint behaves when scaled out
+        /// Allows the user to control how the current endpoint behaves when scaled out.
         /// </summary>
-        /// <param name="customScaleOutSettings"></param>
         public static void ScaleOut(Action<ScaleOutSettings> customScaleOutSettings)
         {
             customScaleOutSettings(new ScaleOutSettings());
         }
 
         /// <summary>
-        /// True if this endpoint is operating in send only mode
+        /// True if this endpoint is operating in send only mode.
         /// </summary>
         [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
-        /// Creates a new configuration object scanning assemblies
-        /// in the regular runtime directory.
+        /// Creates a new configuration object scanning assemblies in the regular runtime directory.
         /// </summary>
-        /// <returns></returns>
         public static Configure With()
         {
             if (HttpRuntime.AppDomainAppId != null)
@@ -207,11 +203,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures NServiceBus to scan for assemblies 
-        /// in the relevant web directory instead of regular
-        /// runtime directory.
+        /// Configures NServiceBus to scan for assemblies in the relevant web directory instead of regular runtime directory.
         /// </summary>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "With()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure WithWeb()
         {
@@ -219,12 +212,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures NServiceBus to scan for assemblies
-        /// in the given directory rather than the regular
-        /// runtime directory.
+        /// Configure to scan for assemblies in the given directory rather than the regular runtime directory.
         /// </summary>
-        /// <param name="probeDirectory"></param>
-        /// <returns></returns>
         public static Configure With(string probeDirectory)
         {
             lastProbeDirectory = probeDirectory;
@@ -232,20 +221,16 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures NServiceBus to use the types found in the given assemblies.
+        /// Configure to use the types found in the given assemblies.
         /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
         public static Configure With(IEnumerable<Assembly> assemblies)
         {
             return With(assemblies.ToArray());
         }
 
         /// <summary>
-        /// Configures nServiceBus to scan the given assemblies only.
+        /// Configure to scan the given assemblies only.
         /// </summary>
-        /// <param name="assemblies"></param>
-        /// <returns></returns>
         public static Configure With(params Assembly[] assemblies)
         {
             var types = GetAllowedTypes(assemblies);
@@ -254,10 +239,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures nServiceBus to scan the given types.
+        /// Configure to scan the given types.
         /// </summary>
-        /// <param name="typesToScan"></param>
-        /// <returns></returns>
         public static Configure With(IEnumerable<Type> typesToScan)
         {
             if (instance == null)
@@ -269,7 +252,8 @@ namespace NServiceBus
 
             if (HttpRuntime.AppDomainAppId == null)
             {
-                var hostPath = Path.Combine(lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "NServiceBus.Host.exe");
+                var baseDirectory = lastProbeDirectory ?? AppDomain.CurrentDomain.BaseDirectory;
+                var hostPath = Path.Combine(baseDirectory, "NServiceBus.Host.exe");
                 if (File.Exists(hostPath))
                 {
                     TypesToScan = TypesToScan.Union(GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
@@ -295,8 +279,6 @@ namespace NServiceBus
         /// <summary>
         /// Run a custom action at configuration time - useful for performing additional configuration not exposed by the fluent interface.
         /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
         public Configure RunCustomAction(Action action)
         {
             action();
@@ -307,7 +289,6 @@ namespace NServiceBus
         /// <summary>
         /// Provides an instance to a startable bus.
         /// </summary>
-        /// <returns></returns>
         public IStartableBus CreateBus()
         {
             Initialize();
@@ -320,10 +301,10 @@ namespace NServiceBus
             return Builder.Build<IStartableBus>();
         }
 
-        private static bool beforeConfigurationInitializersCalled;
-        private bool invokeISetDefaultSettingsCalled;
+        static bool beforeConfigurationInitializersCalled;
+        bool invokeISetDefaultSettingsCalled;
 
-        private void InvokeISetDefaultSettings()
+        void InvokeISetDefaultSettings()
         {
             if (invokeISetDefaultSettingsCalled)
             {
@@ -335,7 +316,7 @@ namespace NServiceBus
             invokeISetDefaultSettingsCalled = true;
         }
 
-        private void InvokeBeforeConfigurationInitializers()
+        void InvokeBeforeConfigurationInitializers()
         {
             if (beforeConfigurationInitializersCalled)
             {
@@ -353,7 +334,9 @@ namespace NServiceBus
         public void Initialize()
         {
             if (initialized)
+            {
                 return;
+            }
 
             ForAllTypes<IWantToRunWhenConfigurationIsComplete>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
@@ -377,18 +360,19 @@ namespace NServiceBus
             initialized = true;
 
             if (ConfigurationComplete != null)
+            {
                 ConfigurationComplete();
+            }
 
             Builder.BuildAll<IWantToRunWhenConfigurationIsComplete>()
-                .ToList().ForEach(o => o.Run());
+                .ToList()
+                .ForEach(o => o.Run());
         }
 
 
         /// <summary>
-        /// Applies the given action to all the scanned types that can be assigned to T 
+        /// Applies the given action to all the scanned types that can be assigned to <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="action"></param>
         public void ForAllTypes<T>(Action<Type> action) where T : class
         {
             TypesToScan.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface))
@@ -401,10 +385,8 @@ namespace NServiceBus
         public static IList<Type> TypesToScan { get; private set; }
 
         /// <summary>
-        /// Returns the requested config section using the current configuration source
+        /// Returns the requested config section using the current configuration source.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static T GetConfigSection<T>() where T : class,new()
         {
             if (TypesToScan == null)
@@ -425,10 +407,10 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Load and return all assemblies in the given directory except the given ones to exclude
+        /// Load and return all assemblies in the given directory except the given ones to exclude.
         /// </summary>
         /// <param name="path">Path to scan</param>
-        /// <param name="assembliesToSkip">The exclude must either be the full assembly name or a prefix-pattern</param>
+        /// <param name="assembliesToSkip">The exclude must either be the full assembly name or a prefix-pattern.</param>
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             var assemblyScanner = new AssemblyScanner(path);
@@ -443,11 +425,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the given type with the given lifecycle
+        /// Configures the given type with the given <see cref="DependencyLifecycle"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="lifecycle"></param>
-        /// <returns></returns>
         public static IComponentConfig<T> Component<T>(DependencyLifecycle lifecycle)
         {
             if (Instance == null)
@@ -457,7 +436,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the given type with the given lifecycle
+        /// Configures the given type with the given lifecycle <see cref="DependencyLifecycle"/>.
         /// </summary>
         public static IComponentConfig Component(Type type, DependencyLifecycle lifecycle)
         {
@@ -468,7 +447,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the given type with the given lifecycle
+        /// Configures the given type with the given <see cref="DependencyLifecycle"/>.
         /// </summary>
         public static IComponentConfig<T> Component<T>(Func<T> componentFactory, DependencyLifecycle lifecycle)
         {
@@ -479,7 +458,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the given type with the given lifecycle
+        /// Configures the given type with the given <see cref="DependencyLifecycle"/>
         /// </summary>
         public static IComponentConfig<T> Component<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle lifecycle)
         {
@@ -490,10 +469,8 @@ namespace NServiceBus
         }
 		  
         /// <summary>
-        /// Returns true if the given component exists in the container
+        /// Returns true if a component of type <typeparamref name="T"/> exists in the container.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static bool HasComponent<T>()
         {
             return HasComponent(typeof(T));
@@ -501,10 +478,8 @@ namespace NServiceBus
 
 
         /// <summary>
-        /// Returns true if the given component exists in the container
+        /// Returns true if a component of type <paramref name="componentType"/> exists in the container.
         /// </summary>
-        /// <param name="componentType"></param>
-        /// <returns></returns>
         public static bool HasComponent(Type componentType)
         {
             if (Instance == null)
@@ -515,7 +490,7 @@ namespace NServiceBus
 
 
         /// <summary>
-        /// The name of this endpoint
+        /// The name of this endpoint.
         /// </summary>
         public static string EndpointName
         {
@@ -523,16 +498,16 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The function used to get the name of this endpoint
+        /// The function used to get the name of this endpoint.
         /// </summary>
         public static Func<string> GetEndpointNameAction = () => EndpointHelper.GetDefaultEndpointName();
 
         /// <summary>
-        /// The function used to get the version of this endpoint
+        /// The function used to get the version of this endpoint.
         /// </summary>
         public static Func<string> DefineEndpointVersionRetriever = () => EndpointHelper.GetEndpointVersion();
 
-        private static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
+        static IEnumerable<Type> GetAllowedTypes(params Assembly[] assemblies)
         {
             var types = new List<Type>();
             Array.ForEach(
@@ -555,7 +530,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The function used to get the name of this endpoint
+        /// The function used to get the name of this endpoint.
         /// </summary>
         public static Func<FileInfo, Assembly> LoadAssembly = s => Assembly.LoadFrom(s.FullName);
 
@@ -612,11 +587,15 @@ namespace NServiceBus
         static bool IsGenericConfigSource(Type t)
         {
             if (!t.IsGenericType)
+            {
                 return false;
+            }
 
             var args = t.GetGenericArguments();
             if (args.Length != 1)
+            {
                 return false;
+            }
 
             return typeof(IProvideConfiguration<>).MakeGenericType(args).IsAssignableFrom(t);
         }
