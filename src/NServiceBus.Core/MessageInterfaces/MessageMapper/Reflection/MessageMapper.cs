@@ -19,13 +19,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Scans the given types generating concrete classes for interfaces.
         /// </summary>
-        /// <param name="types"></param>
         public void Initialize(IEnumerable<Type> types)
         {
             var typesToList = types.ToList();
 
             if (types == null || !typesToList.Any())
+            {
                 return;
+            }
 
             var name = typesToList.First().Namespace + SUFFIX;
 
@@ -37,21 +38,25 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name);
 
             foreach (var t in typesToList)
+            {
                 InitType(t, moduleBuilder);
+            }
         }
 
         /// <summary>
         /// Generates a concrete implementation of the given type if it is an interface.
         /// </summary>
-        /// <param name="t"></param>
-        /// <param name="moduleBuilder"></param>
         public void InitType(Type t, ModuleBuilder moduleBuilder)
         {
             if (t == null)
+            {
                 return;
+            }
 
             if (t.IsSimpleType())
+            {
                 return;
+            }
 
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
@@ -75,22 +80,30 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             //already handled this type, prevent infinite recursion
             if (nameToType.ContainsKey(typeName))
+            {
                 return;
+            }
 
             if (t.IsInterface)
             {
                 GenerateImplementationFor(t, moduleBuilder);
             }
             else
+            {
                 typeToConstructor[t] = t.GetConstructor(Type.EmptyTypes);
+            }
 
             nameToType[typeName] = t;
 
             foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+            {
                 InitType(field.FieldType, moduleBuilder);
+            }
 
             foreach (var prop in t.GetProperties())
+            {
                 InitType(prop.PropertyType, moduleBuilder);
+            }
         }
 
         void GenerateImplementationFor(Type interfaceType, ModuleBuilder moduleBuilder)
@@ -106,12 +119,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             typeToConstructor[mapped] = mapped.GetConstructor(Type.EmptyTypes);
         }
 
-        private static string GetTypeName(Type t)
+        static string GetTypeName(Type t)
         {
             var args = t.GetGenericArguments();
             if (args.Length == 2)
+            {
                 if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                {
                     return t.SerializationFriendlyName();
+                }
+            }
 
             return t.FullName;
         }
@@ -119,8 +136,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// <summary>
         /// Generates a new full name for a type to be generated for the given type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public string GetNewTypeName(Type t)
         {
             return t.FullName + SUFFIX;
@@ -130,9 +145,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// Generates the concrete implementation of the given type.
         /// Only properties on the given type are generated in the concrete implementation.
         /// </summary>
-        /// <param name="t"></param>
-        /// <param name="moduleBuilder"></param>
-        /// <returns></returns>
         public Type CreateTypeFrom(Type t, ModuleBuilder moduleBuilder)
         {
             var typeBuilder = moduleBuilder.DefineType(
@@ -208,16 +220,16 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// Given a custom attribute and property builder, adds an instance of custom attribute
         /// to the property builder
         /// </summary>
-        /// <param name="customAttribute"></param>
-        /// <param name="propBuilder"></param>
-        private void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
+        void AddCustomAttributeToProperty(object customAttribute, PropertyBuilder propBuilder)
         {
             var customAttributeBuilder = BuildCustomAttribute(customAttribute);
             if (customAttributeBuilder != null)
+            {
                 propBuilder.SetCustomAttribute(customAttributeBuilder);
+            }
         }
 
-        private static CustomAttributeBuilder BuildCustomAttribute(object customAttribute)
+        static CustomAttributeBuilder BuildCustomAttribute(object customAttribute)
         {
             ConstructorInfo longestCtor = null;
             // Get constructor with the largest number of parameters
@@ -226,7 +238,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 longestCtor = cInfo;
 
             if (longestCtor == null)
+            {
                 return null;
+            }
 
             // For each constructor parameter, get corresponding (by name similarity) property and get its value
             var args = new object[longestCtor.GetParameters().Length];
@@ -235,7 +249,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 var attrPropInfo = customAttribute.GetType().GetProperty(consParamInfo.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (attrPropInfo != null)
+                {
                     args[position] = attrPropInfo.GetValue(customAttribute, null);
+                }
                 else
                 {
                     args[position] = null;
@@ -243,10 +259,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                     if (attrFieldInfo == null)
                     {
                         if (consParamInfo.ParameterType.IsValueType)
+                        {
                             args[position] = Activator.CreateInstance(consParamInfo.ParameterType);
+                        }
                     }
                     else
+                    {
                         args[position] = attrFieldInfo.GetValue(customAttribute);
+                    }
                 }
                 ++position;
             }
@@ -256,7 +276,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             foreach (var attrPropInfo in customAttribute.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (!attrPropInfo.CanWrite)
+                {
                     continue;
+                }
                 object defaultValue = null;
                 var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
                 if (defaultAttributes.Length > 0)
@@ -265,34 +287,44 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)
+                {
                     continue;
+                }
                 propList.Add(attrPropInfo);
                 propValueList.Add(value);
             }
             return new CustomAttributeBuilder(longestCtor, args, propList.ToArray(), propValueList.ToArray());
         }
+
         /// <summary>
-        /// Returns all properties on the given type, going up the inheritance
-        /// hierarchy.
+        /// Returns all properties on the given type, going up the inheritance hierarchy.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        private static IEnumerable<PropertyInfo> GetAllProperties(Type t)
+        static IEnumerable<PropertyInfo> GetAllProperties(Type t)
         {
             var props = new List<PropertyInfo>(t.GetProperties());
             foreach (var interfaceType in t.GetInterfaces())
+            {
                 props.AddRange(GetAllProperties(interfaceType));
+            }
 
             var names = new List<string>(props.Count);
             var dups = new List<PropertyInfo>(props.Count);
             foreach (var p in props)
+            {
                 if (names.Contains(p.Name))
+                {
                     dups.Add(p);
+                }
                 else
+                {
                     names.Add(p.Name);
+                }
+            }
 
             foreach (var d in dups)
+            {
                 props.Remove(d);
+            }
 
             return props;
         }
@@ -301,8 +333,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// If the given type is concrete, returns the interface it was generated to support.
         /// If the given type is an interface, returns the concrete class generated to implement it.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public Type GetMappedTypeFor(Type t)
         {
             if (t.IsClass)
@@ -310,22 +340,21 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 Type result;
                 concreteToInterfaceTypeMapping.TryGetValue(t, out result);
                 if (result != null)
+                {
                     return result;
+                }
 
                 return t;
             }
 
-            Type toReturn = null;
+            Type toReturn;
             interfaceToConcreteTypeMapping.TryGetValue(t, out toReturn);
-
             return toReturn;
         }
 
         /// <summary>
         /// Returns the type mapped to the given name.
         /// </summary>
-        /// <param name="typeName"></param>
-        /// <returns></returns>
         public Type GetMappedTypeFor(string typeName)
         {
             var name = typeName;
@@ -335,45 +364,39 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             }
 
             if (nameToType.ContainsKey(name))
+            {
                 return nameToType[name];
+            }
 
             return Type.GetType(name);
         }
 
         /// <summary>
-        /// Calls the generic CreateInstance and performs the given
-        /// action on the result.
+        /// Calls the generic CreateInstance and performs the given action on the result.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="action"></param>
-        /// <returns></returns>
         public T CreateInstance<T>(Action<T> action)
         {
             var result = CreateInstance<T>();
 
             if (action != null)
+            {
                 action(result);
+            }
 
             return result;
         }
 
         /// <summary>
-        /// Calls the non-generic CreateInstance and returns its result
-        /// cast to T.
+        /// Calls the <see cref="CreateInstance(Type)"/> and returns its result cast to <typeparamref name="T"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public T CreateInstance<T>()
         {
             return (T)CreateInstance(typeof(T));
         }
 
         /// <summary>
-        /// If the given type is an interface, finds its generated concrete
-        /// implementation, instantiates it, and returns the result.
+        /// If the given type is an interface, finds its generated concrete implementation, instantiates it, and returns the result.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public object CreateInstance(Type t)
         {
             var mapped = t;
@@ -381,22 +404,26 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 mapped = GetMappedTypeFor(t);
                 if (mapped == null)
+                {
                     throw new ArgumentException("Could not find a concrete type mapped to " + t.FullName);
+                }
             }
 
             ConstructorInfo constructor = null;
             typeToConstructor.TryGetValue(mapped, out constructor);
             if (constructor != null)
+            {
                 return constructor.Invoke(null);
+            }
 
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        private static readonly string SUFFIX = "__impl";
-        private static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
-        private static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
-        private static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
-        private static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
-        private static ILog Logger = LogManager.GetLogger(typeof(MessageMapper));
+        static readonly string SUFFIX = "__impl";
+        static readonly Dictionary<Type, Type> interfaceToConcreteTypeMapping = new Dictionary<Type, Type>();
+        static readonly Dictionary<Type, Type> concreteToInterfaceTypeMapping = new Dictionary<Type, Type>();
+        static readonly Dictionary<string, Type> nameToType = new Dictionary<string, Type>();
+        static readonly Dictionary<Type, ConstructorInfo> typeToConstructor = new Dictionary<Type, ConstructorInfo>();
+        static ILog Logger = LogManager.GetLogger(typeof(MessageMapper));
     }
 }
