@@ -142,6 +142,13 @@
     <Compile Include="Serializers\XML\Config\XmlSerialization.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializationSettings.cs" />
     <Compile Include="Serializers\XML\Config\XmlSerializerConfigurationExtensions.cs" />
+    <Compile Include="Serializers\XML\FieldMetaData.cs" />
+    <Compile Include="Serializers\XML\PropertyMetaData.cs" />
+    <Compile Include="Serializers\XML\PropertyTypeVerifier.cs" />
+    <Compile Include="Serializers\XML\StringEscaper.cs" />
+    <Compile Include="Serializers\XML\TypeMetaData.cs" />
+    <Compile Include="Serializers\XML\XmlConverter.cs" />
+    <Compile Include="Serializers\XML\XmlSerializerExtensions.cs" />
     <Compile Include="Settings\SerializationSettings.cs" />
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />

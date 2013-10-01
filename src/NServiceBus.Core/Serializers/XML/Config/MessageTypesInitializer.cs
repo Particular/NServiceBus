@@ -10,8 +10,6 @@ namespace NServiceBus.Serializers.XML.Config
     public class MessageTypesInitializer : IWantToRunWhenConfigurationIsComplete
     {
         public MessageMapper Mapper { get; set; }
-        public XmlMessageSerializer Serializer { get; set; }
-
         public void Run()
         {
             if (Mapper == null)
@@ -23,10 +21,6 @@ namespace NServiceBus.Serializers.XML.Config
 
             Mapper.Initialize(messageTypes);
 
-            if (Serializer != null)
-            {
-                Serializer.Initialize(messageTypes);
-            }
         }
     }
 }

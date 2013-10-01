@@ -319,6 +319,21 @@ namespace NServiceBus.Serializers.XML.Test
 
             Assert.AreEqual("a property", result.GenericProperty.WhatEver);
         }
+        [Test]
+        public void Multiple_generic_properties_should_be_supported()
+        {
+            var result = ExecuteSerializer.ForMessage<MessageWithMultiGenericProperty>(m =>
+                                                                         {
+                                                                             m.GenericProperty =
+                                                                                 new GenericProperty<string,int>
+                                                                                 { 
+                                                                                     KProperty = 6,
+                                                                                     TProperty   = "foo"};
+                                                                         });
+
+            Assert.AreEqual(6, result.GenericProperty.KProperty);
+            Assert.AreEqual("foo", result.GenericProperty.TProperty);
+        }
 
 
         [Test]
@@ -706,16 +721,14 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void When_Using_A_Dictionary_With_An_object_As_Key_should_throw()
         {
-            Assert.Throws<NotSupportedException>(() => SerializerFactory.Create<MessageWithDictionaryWithAnObjectAsKey>());
+            Assert.Throws<NotSupportedException>(() => ExecuteSerializer.ForMessage<MessageWithDictionaryWithAnObjectAsKey>(m => { }));
         }
 
         [Test]
         public void When_Using_A_Dictionary_With_An_Object_As_Value_should_throw()
         {
-            Assert.Throws<NotSupportedException>(() => SerializerFactory.Create<MessageWithDictionaryWithAnObjectAsValue>());
+            Assert.Throws<NotSupportedException>(() => ExecuteSerializer.ForMessage<MessageWithDictionaryWithAnObjectAsValue>(m =>{}));
         }
-
-
 
         [Test, Ignore("We're not supporting this type")]
         public void System_classes_with_non_default_constructors_should_be_supported()
@@ -834,6 +847,11 @@ namespace NServiceBus.Serializers.XML.Test
         public GenericProperty<string> GenericPropertyThatIsNull { get; set; }
 
     }
+    public class MessageWithMultiGenericProperty
+    {
+        public GenericProperty<string,int> GenericProperty { get; set; }
+
+    }
 
     public class MessageWithNestedObject
     {
@@ -870,6 +888,11 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         public string WhatEver { get; set; }
+    }
+    public class GenericProperty<T,K>
+    {
+        public T TProperty { get; set; }
+        public K KProperty { get; set; }
     }
 
     public class MessageWithDictionaryWithAnObjectAsKey
