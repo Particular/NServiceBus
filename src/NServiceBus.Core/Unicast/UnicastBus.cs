@@ -759,27 +759,47 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-
-
         List<Type> GetFullTypes(IEnumerable<object> messages)
         {
             var types = new List<Type>();
 
             foreach (var m in messages)
             {
-                var s = MessageMapper.GetMappedTypeFor(m.GetType());
+                var messageType = m.GetType();
+                var s = MessageMapper.GetMappedTypeFor(messageType);
                 if (types.Contains(s))
+                {
                     continue;
+                }
 
                 types.Add(s);
 
-                foreach (var t in m.GetType().GetInterfaces())
-                    if (MessageConventionExtensions.IsMessageType(t))
-                        if (!types.Contains(t))
-                            types.Add(t);
+                foreach (var t in GetParentTypes(messageType)
+                    .Where(MessageConventionExtensions.IsMessageType)
+                    .Where(t => !types.Contains(t)))
+                {
+                    types.Add(t);
+                }
             }
 
             return types;
+        }
+
+        static IEnumerable<Type> GetParentTypes(Type type)
+        {
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            var objectType = typeof(Object);
+            while (currentBaseType != null && currentBaseType != objectType)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
         }
 
         /// <summary>
