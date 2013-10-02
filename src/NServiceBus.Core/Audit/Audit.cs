@@ -16,9 +16,17 @@
         public override void Initialize()
         {
             base.Initialize();
-                
+
+            // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
+            // Log a warning when running in the debugger to remind user to make sure the 
+            // production machine will need to have the required registry setting.
+            if (Debugger.IsAttached && GetAuditQueueAddressFromAuditConfig() == Address.Undefined)
+            {
+                Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
+            }
+   
             // Setup the audit queue and the TTR in the MessageAuditer component. This component has
-            // already been registered with the bus (ConfigureAudit gets called first, before the feature
+            // already been registered with the bus (InitMessageAuditer gets called first, before the feature
             // initialization happens, so we already have an instance of the MessageAuditer)
             Configure.Instance.Configurer
                 .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue())
@@ -29,8 +37,9 @@
         {
             get
             {
-                // Check to see if this entry is specified either in the app.config 
-                // (in the new config section or existing unicastBus config section or the registry)
+                // Check to see if this entry is specified either in the AuditConfig section in app.config 
+                // or configured in the the registry. If neither place has the value set, then turn off auditing
+                // to be backwards compatible.
                 return GetConfiguredAuditQueue() != Address.Undefined;
             }
         }
@@ -54,17 +63,8 @@
             if (string.IsNullOrWhiteSpace(forwardQueue))
             {
                 return Address.Undefined;
-            }
-            
-            var forwardAddress = Address.Parse(forwardQueue);
-
-            // Log a warning when running in the debugger to remind user to make sure the 
-            // production machine will need to have the required registry setting.
-            if (Debugger.IsAttached)
-            {
-                Logger.Warn("Endpoint auditing is configured using the registry on this machine, please ensure that you either run Set-NServiceBusLocalMachineSettings cmdlet on the target deployment machine or specify the QueueName attribute in the AuditConfig section in your app.config file. To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig.");
-            }
-            return forwardAddress;
+            }            
+            return Address.Parse(forwardQueue);
         }
 
         Address  GetAuditQueueAddressFromAuditConfig()
