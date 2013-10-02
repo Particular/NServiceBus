@@ -27,16 +27,12 @@
         public void Start(int maximumConcurrencyLevel)
         {
             IsStarted = true;
-            NumberOfTimesStarted++;
         }
 
         public void Stop()
         {
            
         }
-
-        public int NumberOfTimesStarted { get; set; }
-
 
         Func<TransportMessage, bool> TryProcessMessage;
         public int NumberOfMessagesReceived;

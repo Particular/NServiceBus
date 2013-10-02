@@ -1,12 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Satellite
 {
-    using System;
     using NUnit.Framework;
     using Satellites;
 
     public class FakeSatellite : ISatellite
     {
-        public bool IsMessageHandled = false;
         public bool Handle(TransportMessage message)
         {
             IsMessageHandled = true;
@@ -17,9 +15,6 @@
         public Address InputAddress { get; set; }
         public bool Disabled { get; set; }
 
-        public bool IsStarted = false;
-        public bool IsStopped = false;
-
         public virtual void Start()
         {
             IsStarted = true;
@@ -27,8 +22,10 @@
 
         public void Stop()
         {
-            IsStopped = true;
         }
+
+        public bool IsMessageHandled;
+        public bool IsStarted;
     }
 
     public class SatelliteWithQueue : FakeSatellite
@@ -43,6 +40,7 @@
     public class TransportEventTests : SatelliteLauncherContext
     {
         readonly SatelliteWithQueue _sat = new SatelliteWithQueue();
+
         public override void BeforeRun()
         {
         }
@@ -90,46 +88,13 @@
     }
 
     [TestFixture]
-    public class SatelliteRestartTests : SatelliteLauncherContext
-    {
-        readonly SatelliteWithQueueThatThrowException _satellite = new SatelliteWithQueueThatThrowException();
-   
-        public override void BeforeRun()
-        {
-        }
-
-        public override void RegisterTypes()
-        {
-            Builder.Register<ISatellite>(() => _satellite);
-        }
-
-        [Test]
-        public void Number_of_worker_threads_should_be_set_to_0()
-        {
-            Assert.That(Transport.NumberOfWorkerThreads, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void TheTransport_should_have_been_restarted()
-        {
-            Assert.That(FakeReceiver.NumberOfTimesStarted, Is.GreaterThan(0));
-        }
-    }
-
-    public class SatelliteWithQueueThatThrowException : SatelliteWithQueue
-    {
-        public override void Start()
-        {
-            throw new Exception("This endpoint should not start!");
-        }
-    }
-
-    [TestFixture]
     public class DefaultsTests : SatelliteLauncherContext
     {
         readonly FakeSatellite _fakeSatellite = new FakeSatellite();
 
-        public override void BeforeRun() { }
+        public override void BeforeRun()
+        {
+        }
 
         public override void RegisterTypes()
         {
