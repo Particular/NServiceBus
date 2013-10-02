@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Configuration;
     using System.Diagnostics;
+    using System.Messaging;
+    using System.Text.RegularExpressions;
     using Config;
     using log4net;
     using NServiceBus.Audit;
@@ -11,41 +12,40 @@
     public class Audit : Feature
     {
         static ILog Logger = LogManager.GetLogger(typeof(Audit));
-
+        
         public override void Initialize()
         {
             base.Initialize();
                 
-            // Check to see if this entry is specified either in the app.config 
-            // (in the new config section or existing unicastBus config section or the registry)
-            Address forwardAddress = null;
-            var timeToBeReceivedOnForwardedMessages = new TimeSpan();
-
-            // Check the AuditConfig section
-            UseSettingsFromAuditConfigIfDefined(ref forwardAddress, ref timeToBeReceivedOnForwardedMessages);
-
-            if (forwardAddress == null)
-            {
-                // If the audit queue has not been specified either config sections, check the registry
-                forwardAddress = ReadAuditQueueNameFromRegistry();
-            }
-
-            ThrowIfForwardAddressIsStillUndefined(forwardAddress);
-
             // Setup the audit queue and the TTR in the MessageAuditer component. This component has
             // already been registered with the bus (ConfigureAudit gets called first, before the feature
             // initialization happens, so we already have an instance of the MessageAuditer)
             Configure.Instance.Configurer
-                .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, forwardAddress)
-                .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, timeToBeReceivedOnForwardedMessages);
+                .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue())
+                .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig());
         }
 
         public override bool IsEnabledByDefault
         {
             get
             {
-                return true;
+                // Check to see if this entry is specified either in the app.config 
+                // (in the new config section or existing unicastBus config section or the registry)
+                return GetConfiguredAuditQueue() != Address.Undefined;
             }
+        }
+
+        Address GetConfiguredAuditQueue()
+        {
+            var auditAddress = GetAuditQueueAddressFromAuditConfig();
+            
+            if (auditAddress == Address.Undefined)
+            {
+                // Check to see if the audit queue has been specified either in the registry as a global setting
+                auditAddress = ReadAuditQueueNameFromRegistry();
+            }
+            return auditAddress;
+
         }
 
         Address ReadAuditQueueNameFromRegistry()
@@ -67,32 +67,25 @@
             return forwardAddress;
         }
 
-        void ThrowIfForwardAddressIsStillUndefined(Address forwardAddress)
+        Address  GetAuditQueueAddressFromAuditConfig()
         {
-            // If the forwardAddress is still null, then it hasn't been specified either in the config or registry
-            // and the user hasn't turned off the auditing feature -- throw exception in that case.
-            if (forwardAddress == Address.Undefined)
-            {
-                var msg = @"The audit queue has not been configured either in the registry or the app.config file. Either disable auditing feature or configure auditing. 
-To disable auditing, add initialization:  Configure.Features.Disable<Audit>(). To configure it in app.config, add the AuditConfig ConfigSection first and then set the QueueName attribute as shown below:
-   <AuditConfig QueueName=""audit""/>
-To quickly add the AuditConfig section to your app.config, in Package Manager Console type: add-NServiceBusAuditConfig. 
-To configure it in registry, run the Set-NServiceBusLocalMachineSettings Powershell cmdlet";
-                throw new ConfigurationErrorsException(msg);
-            }
-        }
-
-        void UseSettingsFromAuditConfigIfDefined(ref Address forwardAddress, ref TimeSpan timeToBeReceivedOnForwardedMessages )
-        {
-            // Get the auditing configuration - This could be specified either in the new MessageAuditingConfig or still in UnicastBusConfig
-            // Check the message auditing config section first for the auditing configuration
             var messageAuditingConfig = Configure.GetConfigSection<AuditConfig>();
             if (messageAuditingConfig != null && !string.IsNullOrWhiteSpace(messageAuditingConfig.QueueName))
             {
-                forwardAddress = Address.Parse(messageAuditingConfig.QueueName);
-                timeToBeReceivedOnForwardedMessages = messageAuditingConfig.OverrideTimeToBeReceived;
+                return Address.Parse(messageAuditingConfig.QueueName);
             }
+            return Address.Undefined;
         }
 
+
+        TimeSpan GetTimeToBeReceivedFromAuditConfig()
+        {
+            var messageAuditingConfig = Configure.GetConfigSection<AuditConfig>();
+            if (messageAuditingConfig != null)
+            {   
+                return messageAuditingConfig.OverrideTimeToBeReceived;
+            }
+            return new TimeSpan();
+        }
     }
 }
