@@ -26,12 +26,23 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                 var q = new MessageQueue(path);
 
                 if ((!ClusteredQueue) && (!q.Transactional))
+                {
                     throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
+                }
 
                 queue = q;
 
-                var messageReadPropertyFilter = new MessagePropertyFilter();
-                messageReadPropertyFilter.SetAll();
+                var messageReadPropertyFilter = new MessagePropertyFilter
+                {
+                    Body = true,
+                    TimeToBeReceived = true,
+                    Recoverable = true,
+                    Id = true,
+                    ResponseQueue = true,
+                    CorrelationId = true,
+                    Extension = true,
+                    AppSpecific = true,
+                };
 
                 queue.MessageReadPropertyFilter = messageReadPropertyFilter;
             }
@@ -40,7 +51,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         public void ReturnAll()
         {
             foreach (var m in queue.GetAllMessages())
+            {
                 ReturnMessageToSourceQueue(m.Id);
+            }
         }
 
         /// <summary>
@@ -56,16 +69,12 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
 
                     var tm = MsmqUtilities.Convert(message);
-                    string failedQ;
+                    string failedQ = null;
                     if (tm.Headers.ContainsKey(Faults.FaultsHeaderKeys.FailedQ))
-                        failedQ = tm.Headers[Faults.FaultsHeaderKeys.FailedQ];
-                    else // try to bring failedQ from label, v2.6 style.
                     {
-                        failedQ = GetFailedQueueFromLabel(message);
-                        if (!string.IsNullOrEmpty(failedQ))
-                            message.Label = GetLabelWithoutFailedQueue(message);
+                        failedQ = tm.Headers[Faults.FaultsHeaderKeys.FailedQ];
                     }
-
+                    
                     if (string.IsNullOrEmpty(failedQ))
                     {
                         Console.WriteLine("ERROR: Message does not have a header (or label) indicating from which queue it came. Cannot be automatically returned to queue.");
@@ -73,7 +82,9 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     }
 
                     using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQ))))
+                    {
                         q.Send(message, MessageQueueTransactionType.Automatic);
+                    }
 
                     Console.WriteLine("Success.");
                     scope.Complete();
@@ -125,47 +136,6 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// For compatibility with V2.6:
-        /// Gets the label of the message stripping out the failed queue.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
-        public static string GetLabelWithoutFailedQueue(Message m)
-        {
-            if (string.IsNullOrEmpty(m.Label))
-                return string.Empty;
-
-            if (!m.Label.Contains(FailedQueue))
-                return m.Label;
-
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FailedQueue));
-            var endIndex = m.Label.IndexOf(string.Format("</{0}>", FailedQueue));
-            endIndex += FailedQueue.Length + 3;
-
-            return m.Label.Remove(startIndex, endIndex - startIndex);
-        }
-        /// <summary>
-        /// For compatibility with V2.6:
-        /// Returns the queue whose process failed processing the given message
-        /// by accessing the label of the message.
-        /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
-        public static string GetFailedQueueFromLabel(Message m)
-        {
-            if (m.Label == null)
-                return null;
-
-            if (!m.Label.Contains(FailedQueue))
-                return null;
-
-            var startIndex = m.Label.IndexOf(string.Format("<{0}>", FailedQueue)) + FailedQueue.Length + 2;
-            var count = m.Label.IndexOf(string.Format("</{0}>", FailedQueue)) - startIndex;
-
-            return m.Label.Substring(startIndex, count);
         }
     }
 }

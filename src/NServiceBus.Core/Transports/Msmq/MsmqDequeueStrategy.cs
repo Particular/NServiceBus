@@ -70,8 +70,17 @@ namespace NServiceBus.Transports.Msmq
                     "Queue must be transactional if you configure your endpoint to be transactional (" + address + ").");
             }
 
-            var messageReadPropertyFilter = new MessagePropertyFilter();
-            messageReadPropertyFilter.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter
+            {
+                Body = true,
+                TimeToBeReceived = true,
+                Recoverable = true,
+                Id = true,
+                ResponseQueue = true,
+                CorrelationId = true,
+                Extension = true,
+                AppSpecific = true
+            };
 
             queue.MessageReadPropertyFilter = messageReadPropertyFilter;
 

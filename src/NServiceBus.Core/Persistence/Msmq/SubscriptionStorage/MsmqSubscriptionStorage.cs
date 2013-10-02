@@ -35,8 +35,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             if (!transactional && SettingsHolder.Get<bool>("Transactions.Enabled"))
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
-            var messageReadPropertyFilter = new MessagePropertyFilter();
-            messageReadPropertyFilter.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter {Id = true, Body = true, Label = true};
 
             q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
 
