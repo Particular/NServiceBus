@@ -98,7 +98,6 @@
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
-    <Compile Include="Hosting\Helpers\ErrorWhileScanningAssemblies.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />

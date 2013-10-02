@@ -414,14 +414,14 @@ namespace NServiceBus
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path, params string[] assembliesToSkip)
         {
             var assemblyScanner = new AssemblyScanner(path);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
             if (assembliesToSkip != null)
             {
                 assemblyScanner.AssembliesToSkip = assembliesToSkip.ToList();
             }
             return assemblyScanner
                 .GetScannableAssemblies()
-                .Assemblies
-                .ToList();
+                .Assemblies;
         }
 
         /// <summary>

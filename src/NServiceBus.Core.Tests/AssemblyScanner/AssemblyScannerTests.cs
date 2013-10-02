@@ -218,10 +218,13 @@
             [SetUp]
             public void Context()
             {
-                results = new AssemblyScanner(TestDllDirectory)
-                          {
-                              IncludeAppDomainAssemblies = false
-                          }
+                var assemblyScanner = new AssemblyScanner(TestDllDirectory)
+                {
+                    IncludeAppDomainAssemblies = false
+                };
+                assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+
+                results = assemblyScanner
                     .GetScannableAssemblies();
 
                 skippedFiles = results.SkippedFiles;
@@ -255,7 +258,7 @@
                         throw new AssertionException(string.Format("Could not find skipped file matching {0}",cannotContainMessageHandler));
                     }
                     Assert.That(skippedFile.SkipReason,
-                                Contains.Substring("Assembly does not reference NServiceBus and thus cannot contain any handlers"));
+                                Contains.Substring("Assembly does not reference at least one of the must referenced assemblies"));
                 }
             }
 

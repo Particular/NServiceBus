@@ -23,9 +23,15 @@ namespace NServiceBus.Hosting.Helpers
         {
             AssembliesToInclude = new List<string>();
             AssembliesToSkip = new List<string>();
+            mustReferenceAtLeastOneAssembly = new List<Assembly>();
             this.baseDirectoryToScan = baseDirectoryToScan;
             SetScanNestedDirectories();
             SetIncludeExesInScan();
+        }
+
+        public List<Assembly> MustReferenceAtLeastOneAssembly
+        {
+            get { return mustReferenceAtLeastOneAssembly; }
         }
 
         [ObsoleteEx(
@@ -83,43 +89,41 @@ namespace NServiceBus.Hosting.Helpers
                 if (!IsIncluded(assemblyFile.Name))
                 {
                     results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
-                        "File was explicitly excluded from scanning"));
+                        "File was explicitly excluded from scanning."));
                     continue;
                 }
 
                 var compilationMode = Image.GetCompilationMode(assemblyFile.FullName);
                 if (compilationMode == Image.CompilationMode.NativeOrInvalid)
                 {
-                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly"));
+                    results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly."));
                     continue;
                 }
 
                 if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
                 {
                     results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
-                        "x64 .NET assembly can't be loaded by a 32Bit process"));
+                        "x64 .NET assembly can't be loaded by a 32Bit process."));
                     continue;
                 }
 
                 try
                 {
-                    if (!AssemblyReferencesNServiceBus(assemblyFile))
+                    if (MustReferenceAtLeastOneAssembly.Count > 0 && !AssemblyPassesReferencesTest(assemblyFile))
                     {
                         results.SkippedFiles.Add(new SkippedFile(assemblyFile.FullName,
-                            "Assembly does not reference NServiceBus and thus cannot contain any handlers"));
+                            "Assembly does not reference at least one of the must referenced assemblies."));
                         continue;
                     }
 
                     assembly = Assembly.LoadFrom(assemblyFile.FullName);
                 }
-                catch (BadImageFormatException badImageFormatException)
+                catch (BadImageFormatException)
                 {
                     var errorMessage =
-                        string.Format(
-                            "Could not load {0}. Consider using 'Configure.With(AllAssemblies.Except(\"{1}\"))' to tell NServiceBus not to load this file.",
-                            assemblyFile.FullName, assemblyFile.Name);
-                    var error = new ErrorWhileScanningAssemblies(badImageFormatException, errorMessage);
-                    results.Errors.Add(error);
+                        String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.",
+                            assemblyFile.FullName);
+                    results.Errors.Add(errorMessage);
                     continue;
                 }
 
@@ -131,8 +135,7 @@ namespace NServiceBus.Hosting.Helpers
                 catch (ReflectionTypeLoadException e)
                 {
                     var errorMessage = FormatReflectionTypeLoadException(assemblyFile.FullName, e);
-                    var error = new ErrorWhileScanningAssemblies(e, errorMessage);
-                    results.Errors.Add(error);
+                    results.Errors.Add(errorMessage);
                     continue;
                 }
 
@@ -145,14 +148,18 @@ namespace NServiceBus.Hosting.Helpers
         public static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("Could not scan assembly: {0}. Exception message {1}.", fileName, e);
-            if (e.LoaderExceptions.Any())
+
+            sb.AppendLine(string.Format("Could not enumerate all types for '{0}'. Exception message: {1}.", fileName, e));
+
+            if (!e.LoaderExceptions.Any())
             {
-                sb.Append(Environment.NewLine + "Scanned type errors: ");
-                foreach (var ex in e.LoaderExceptions)
-                {
-                    sb.Append(Environment.NewLine + ex.Message);
-                }
+                return sb.ToString();
+            }
+
+            sb.AppendLine("Scanned type errors:");
+            foreach (var ex in e.LoaderExceptions)
+            {
+                sb.AppendLine(ex.ToString());
             }
 
             return sb.ToString();
@@ -177,16 +184,14 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        bool AssemblyReferencesNServiceBus(FileSystemInfo assemblyFile)
+        bool AssemblyPassesReferencesTest(FileSystemInfo assemblyFile)
         {
             var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyFile.FullName);
             var referencedAssemblies = lightLoad.GetReferencedAssemblies();
 
-            var nameOfAssemblyDefiningHandlersInterface =
-                typeof(IHandleMessages<>).Assembly.GetName().Name;
-
-            return referencedAssemblies
-                .Any(a => a.Name == nameOfAssemblyDefiningHandlersInterface);
+            return MustReferenceAtLeastOneAssembly
+                .Select(reference => reference.GetName().Name)
+                .Any(name => referencedAssemblies.Any(a => a.Name == name));
         }
 
         /// <summary>
@@ -240,8 +245,10 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         readonly string baseDirectoryToScan;
+        readonly List<Assembly> mustReferenceAtLeastOneAssembly;
         public List<string> AssembliesToInclude;
         public List<string> AssembliesToSkip;
+
         public bool IncludeAppDomainAssemblies;
         public bool IncludeExesInScan = true;
         public bool ScanNestedDirectories = true;

@@ -84,12 +84,15 @@ namespace NServiceBus
         /// <returns></returns>
         public IEnumerator<Assembly> GetEnumerator()
         {
-            return new AssemblyScanner(directory)
-                   {
-                       IncludeAppDomainAssemblies = true,
-                       AssembliesToInclude = assembliesToInclude,
-                       AssembliesToSkip = assembliesToExclude
-                   }
+            var assemblyScanner = new AssemblyScanner(directory)
+            {
+                IncludeAppDomainAssemblies = true,
+                AssembliesToInclude = assembliesToInclude,
+                AssembliesToSkip = assembliesToExclude
+            };
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+
+            return assemblyScanner
                 .GetScannableAssemblies()
                 .Assemblies
                 .GetEnumerator();

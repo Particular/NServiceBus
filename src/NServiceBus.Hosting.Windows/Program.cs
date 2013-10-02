@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics;
     using System.Linq;
     using Arguments;
     using Helpers;
@@ -21,9 +20,6 @@
 
         static void Main(string[] args)
         {
-            // just as a workaround for assembly scanner issue, to enforce the dependency on nservicesbus.dll
-            Trace.WriteLineIf(false, typeof(IMessage).Name);
-
             var arguments = new HostArguments(args);
 
             if (arguments.Help)
@@ -31,8 +27,12 @@
                 arguments.PrintUsage();
                 return;
             }
-            
-            assemblyScannerResults = new AssemblyScanner().GetScannableAssemblies();
+
+            var assemblyScanner = new AssemblyScanner();
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IConfigureThisEndpoint).Assembly);
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(Program).Assembly);
+            assemblyScannerResults = assemblyScanner.GetScannableAssemblies();
 
             var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
             var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);

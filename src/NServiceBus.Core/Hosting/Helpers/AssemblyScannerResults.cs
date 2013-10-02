@@ -1,9 +1,6 @@
 ﻿namespace NServiceBus.Hosting.Helpers
 {
-    using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
     using System.Reflection;
     using System.Text;
 
@@ -11,7 +8,6 @@
     /// Holds GetScannableAssemblies results.
     /// Contains list of errors and list of scan-able assemblies.
     /// </summary>
-    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public class AssemblyScannerResults 
     {
         /// <summary>
@@ -19,31 +15,26 @@
         /// </summary>
         public AssemblyScannerResults()
         {
-            Errors = new List<ErrorWhileScanningAssemblies>();
+            Errors = new List<string>();
             Assemblies = new List<Assembly>();
             SkippedFiles = new List<SkippedFile>();
         }
+
         /// <summary>
-        /// Dump error to console.
+        /// Format errors.
         /// </summary>
-        public override string ToString()
+        public string FormattedErrors()
         {
-            if ((Errors == null) || (Errors.Count < 1)) return string.Empty;
+            if ((Errors == null) || (Errors.Count < 1))
+            {
+                return string.Empty;
+            }
+
             var sb = new StringBuilder();
             
             foreach (var error in Errors)
             {
                 sb.Append(error);
-                if (error.Exception is ReflectionTypeLoadException)
-                {
-                    var e = error.Exception as ReflectionTypeLoadException;
-                    if (e.LoaderExceptions.Any())
-                    {
-                        sb.Append(Environment.NewLine + "Scanned type errors: ");
-                        foreach (var ex in e.LoaderExceptions)
-                            sb.Append(Environment.NewLine + ex.Message);
-                    }
-                }
             }
             
             return sb.ToString();
@@ -52,7 +43,7 @@
         /// <summary>
         /// List of errors that occurred while attempting to load an assembly
         /// </summary>
-        public List<ErrorWhileScanningAssemblies> Errors { get; private set; }
+        public List<string> Errors { get; private set; }
         
         /// <summary>
         /// List of successfully found and loaded assemblies

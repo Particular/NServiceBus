@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast.Config
     using NServiceBus.Config;
     using ObjectBuilder;
     using Routing;
-    using Satellites;
     using Settings;
 
     /// <summary>
