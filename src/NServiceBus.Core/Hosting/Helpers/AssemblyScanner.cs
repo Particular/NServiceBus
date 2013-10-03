@@ -120,6 +120,10 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                if (results.Assemblies.Contains(assembly))
+                {
+                    return;
+                }
             }
             catch (BadImageFormatException)
             {
