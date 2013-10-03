@@ -37,7 +37,7 @@
                 return;
             }
 
-            var transportMessage = context.Get<TransportMessage>();
+            var transportMessage = context.TransportMessage;
             try
             {
                 var logicalMessages = Extract(transportMessage);

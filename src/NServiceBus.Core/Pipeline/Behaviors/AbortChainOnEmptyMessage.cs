@@ -13,7 +13,7 @@
         
         public void Invoke(IBehaviorContext context)
         {
-            var transportMessage = context.Get<TransportMessage>();
+            var transportMessage = context.TransportMessage;
 
             if (!transportMessage.IsControlMessage() && LogicalMessageCount(context) == 0)
             {

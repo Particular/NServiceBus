@@ -28,11 +28,11 @@
         [Test]
         public void JustDoit()
         {
-            funcBuilder.Register<RavenDbUnitOfWorkBehavior>(() => new RavenDbUnitOfWorkBehavior(funcBuilder));
-            funcBuilder.Register<OrdinaryMessageHandlerDispatcherBehavior>(() => new OrdinaryMessageHandlerDispatcherBehavior());
             documentStore = MockRepository.GenerateMock<IDocumentStore>();
             documentStore.Stub(s => s.OpenSession()).Return(MockRepository.GenerateMock<IDocumentSession>());
-            funcBuilder.Register<IDocumentStore>(() => documentStore);
+
+            funcBuilder.Register<RavenDbUnitOfWorkBehavior>(() => new RavenDbUnitOfWorkBehavior(documentStore));
+            funcBuilder.Register<OrdinaryMessageHandlerDispatcherBehavior>(() => new OrdinaryMessageHandlerDispatcherBehavior());
 
             var pipeline =
                 new BehaviorChain
@@ -49,19 +49,17 @@
 
         public class RavenDbUnitOfWorkBehavior : IBehavior
         {
-            readonly IBuilder builder;
+            readonly IDocumentStore documentStore;
 
-            public RavenDbUnitOfWorkBehavior(IBuilder builder)
+            public RavenDbUnitOfWorkBehavior(IDocumentStore documentStore)
             {
-                this.builder = builder;
+                this.documentStore = documentStore;
             }
 
             public IBehavior Next { get; set; }
 
             public void Invoke(IBehaviorContext context)
             {
-                var documentStore = builder.Build<IDocumentStore>();
-
                 using (var session = documentStore.OpenSession())
                 {
                     context.Set(session);
