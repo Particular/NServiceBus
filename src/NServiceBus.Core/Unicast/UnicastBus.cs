@@ -767,7 +767,7 @@ namespace NServiceBus.Unicast
 
             foreach (var m in messages)
             {
-                var s = MessageMapper.GetMappedTypeFor(m.GetType());
+                var s = MessageMapper.GetMessageType(m.GetType());
                 if (types.Contains(s))
                     continue;
 
@@ -1415,7 +1415,7 @@ namespace NServiceBus.Unicast
             var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
 
 
-            var messageDefinitions = rawMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
+            var messageDefinitions = rawMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(MessageMapper.GetMessageType(m.GetType()))).ToList();
 
             result.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
             result.Recoverable = messageDefinitions.Any(md => md.Recoverable);
@@ -1423,13 +1423,6 @@ namespace NServiceBus.Unicast
             SerializeMessages(result, messages);
 
             InvokeOutgoingTransportMessagesMutators(messages, result);
-        }
-
-        Type GetMessageType(object message)
-        {
-            var messageType = message.GetType();
-
-            return MessageMapper.GetMappedTypeFor(messageType);
         }
 
         void SerializeMessages(TransportMessage result, object[] messages)
@@ -1449,7 +1442,7 @@ namespace NServiceBus.Unicast
 
         string SerializeEnclosedMessageTypes(IEnumerable<object> messages)
         {
-            var types = messages.Select(m => MessageMapper.GetMappedTypeFor(m.GetType())).ToList();
+            var types = messages.Select(m => MessageMapper.GetMessageType(m.GetType())).ToList();
 
             var interfaces = types.SelectMany(t => t.GetInterfaces())
                 .Where(MessageConventionExtensions.IsMessageType);
@@ -1515,7 +1508,7 @@ namespace NServiceBus.Unicast
 
             if (messageMapper != null && !messageType.IsInterface)
             {
-                var t = messageMapper.GetMappedTypeFor(messageType);
+                var t = messageMapper.GetMessageType(messageType);
                 if (t != null && t != messageType)
                     return GetAddressForMessageType(t);
             }

@@ -2,8 +2,9 @@ namespace NServiceBus.Serializers.XML.Test
 {
     using System;
     using System.IO;
+    using Serialization;
 
-    public class ExecuteSerializer
+    public static class ExecuteSerializer
     {
         public static T ForMessage<T>(Action<T> a) where T : class,new()
         {
@@ -23,6 +24,17 @@ namespace NServiceBus.Serializers.XML.Test
                 var msgArray = SerializerFactory.Create<T>().Deserialize(stream, new[]{message.GetType()});
                 return (T)msgArray[0];
 
+            }
+        }
+
+        public static T Transition<T>(this IMessageSerializer messageSerializer, T message)
+        {
+            using (var stream = new MemoryStream())
+            {
+                messageSerializer.Serialize(new object[] { message }, stream);
+                stream.Position = 0;
+                var msgArray = messageSerializer.Deserialize(stream, new[] { message.GetType() });
+                return (T)msgArray[0];
             }
         }
 

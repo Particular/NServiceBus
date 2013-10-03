@@ -15,7 +15,16 @@ namespace NServiceBus.Serializers.Json.Internal
 
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            var mappedType = _messageMapper.GetMappedTypeFor(serializedType) ?? serializedType;
+            Type mappedType;
+            //TODO: should not need null check
+            if (_messageMapper.GetMessageType(serializedType) != null)
+            {
+                mappedType = _messageMapper.GetMessageType(serializedType);
+            }
+            else
+            {
+                mappedType = serializedType;
+            }
 
             assemblyName = null;
             typeName = mappedType.AssemblyQualifiedName;
@@ -24,8 +33,6 @@ namespace NServiceBus.Serializers.Json.Internal
         public override Type BindToType(string assemblyName, string typeName)
         {
           throw new NotImplementedException();
-          //string resolvedTypeName = typeName + ", " + assemblyName;
-          //return Type.GetType(resolvedTypeName, true);
         }
     }
 }

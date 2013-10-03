@@ -103,6 +103,9 @@
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
+    <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteTypeBuilder.cs" />
+    <Compile Include="MessageInterfaces\MessageMapper\Reflection\MetaData.cs" />
+    <Compile Include="MessageInterfaces\MessageMapper\Reflection\TypeNameExtensions.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />

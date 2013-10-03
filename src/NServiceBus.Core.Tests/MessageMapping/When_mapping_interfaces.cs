@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] { typeof(InterfaceWithProperties) });
 
-            Assert.NotNull(mapper.GetMappedTypeFor(typeof(InterfaceWithProperties)));
+            Assert.NotNull(mapper.GetMessageType(typeof(InterfaceWithProperties)));
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace NServiceBus.Core.Tests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] {typeof(InterfaceWithMethods)});
 
-            Assert.Null(mapper.GetMappedTypeFor(typeof(InterfaceWithMethods)));
+            Assert.Null(mapper.GetMessageType(typeof(InterfaceWithMethods)));
         }
         
         [Test]

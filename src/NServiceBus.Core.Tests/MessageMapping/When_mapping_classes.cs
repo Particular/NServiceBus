@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] {typeof(ClassWithProperties)});
 
-            Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassWithProperties)));
+            Assert.NotNull(mapper.GetMessageType(typeof(ClassWithProperties)));
             var result = mapper.CreateInstance<ClassWithProperties>(null);
             Assert.IsInstanceOf<ClassWithProperties>(result);
         }
@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests
             var mapper = new MessageMapper();
             mapper.Initialize(new[] {typeof(ClassWithMethods)});
 
-            Assert.AreEqual(typeof(ClassWithMethods), mapper.GetMappedTypeFor(typeof(ClassWithMethods)));
+            Assert.AreEqual(typeof(ClassWithMethods), mapper.GetMessageType(typeof(ClassWithMethods)));
             var result = mapper.CreateInstance<ClassWithMethods>(null);
             Assert.IsInstanceOf<ClassWithMethods>(result);
         }

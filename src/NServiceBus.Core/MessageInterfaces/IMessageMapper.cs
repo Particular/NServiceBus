@@ -15,10 +15,14 @@ namespace NServiceBus.MessageInterfaces
         void Initialize(IEnumerable<Type> types);
 
         /// <summary>
-        /// If the given type is an interface, returns the generated concrete type.
-        /// If the given type is concrete, returns the interface it was generated from.
+        /// Returns the message implementation for a given concrete type
         /// </summary>
-        Type GetMappedTypeFor(Type t);
+        Type GetMessageType(Type concreteType);
+
+        /// <summary>
+        /// Get the concrete type for a given message type.
+        /// </summary>
+        Type GetConcreteType(Type messageType);
 
         /// <summary>
         /// Looks up the type mapped for the given name.

@@ -14,6 +14,7 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml;
     using System.Xml.Linq;
     using A;
+    using AlternateNamespace;
     using B;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -29,9 +30,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeInvalidCharacters()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithInvalidCharacter>();
-            var msg = mapper.CreateInstance<MessageWithInvalidCharacter>();
+            var msg = new MessageWithInvalidCharacter();
 
             var sb = new StringBuilder();
             sb.Append("Hello");
@@ -49,6 +49,7 @@ namespace NServiceBus.Serializers.XML.Test
                 Assert.AreEqual(sb.ToString(), m.Special);
             }
         }
+
 
         [Test, Ignore("ArrayList is not supported")]
         public void Should_deserialize_arrayList()
@@ -81,12 +82,14 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void Should_deserialize_multiple_messages_from_different_namespaces()
         {
+            var serializer = SerializerFactory.Create<Command1>();
+
             using (var stream = new MemoryStream())
             {
-                SerializerFactory.Create(typeof(Command1), typeof(Command2)).Serialize(new object[] { new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid()) }, stream);
+                serializer.Serialize(new object[] {new Command1(Guid.NewGuid()), new Command2(Guid.NewGuid())}, stream);
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create(typeof(Command1), typeof(Command2)).Deserialize(stream);
+                var msgArray = serializer.Deserialize(stream);
 
                 Assert.AreEqual(typeof(Command1), msgArray[0].GetType());
                 Assert.AreEqual(typeof(Command2), msgArray[1].GetType());
@@ -103,7 +106,7 @@ namespace NServiceBus.Serializers.XML.Test
                 writer.Flush();
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
+                var msgArray = SerializerFactory.Create<MessageWithDouble>().Deserialize(stream);
 
                 Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
 
@@ -119,31 +122,60 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
-        public void Should_be_able_to_serialize_single_message_without_wrapping_xml_raw_data()
+        public void Should_be_able_to_serialize_single_message_without_wrapping_xmlElement_raw_data()
         {
-            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
-            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+            var xmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
 
-            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
-            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
-
-            Serializer.ForMessage<MessageWithXDocument>(messageWithXDocument, s =>
-            { s.SkipWrappingRawXml = true; })
-                .AssertResultingXml(d => d.DocumentElement.ChildNodes[0].FirstChild.Name != "Document", "Property name should not be available");
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(xmlElement)) };
 
             Serializer.ForMessage<MessageWithXElement>(messageWithXElement, s =>
             { s.SkipWrappingRawXml = true; })
                 .AssertResultingXml(d => d.DocumentElement.ChildNodes[0].FirstChild.Name != "Document", "Property name should not be available");
         }
+        [Test]
+        public void Should_be_able_to_serialize_single_message_without_wrapping_xmlDocument_raw_data()
+        {
+            var xmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>" ;
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(xmlDocument)) };
+
+            Serializer.ForMessage<MessageWithXDocument>(messageWithXDocument, s =>
+            { s.SkipWrappingRawXml = true; })
+                .AssertResultingXml(d => d.DocumentElement.ChildNodes[0].FirstChild.Name != "Document", "Property name should not be available");
+
+        }
 
         [Test]
-        public void Should_be_able_to_deserialize_messages_which_xml_raw_data_root_element_matches_property_name()
+        public void Should_be_able_to_deserialize_messages_which_xml_element_matches_property_name()
         {
-            const string XmlElement = "<Document xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></Document>";
-            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+            var xmlElement = "<Document xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></Document>";
 
-            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
-            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+            var messageWithXElement = new MessageWithXElement
+                                      {
+                                          Document = XElement.Load(new StringReader(xmlElement))
+                                      };
+
+            var serializer = SerializerFactory.Create<MessageWithXDocument>();
+            serializer.SkipWrappingRawXml = true;
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new object[] { messageWithXElement }, stream);
+                stream.Position = 0;
+
+                var msg = serializer.Deserialize(stream).Cast<MessageWithXElement>().Single();
+
+                Assert.NotNull(msg.Document);
+                Assert.AreEqual("Document", msg.Document.Name.LocalName);
+            }
+        }
+
+        [Test]
+        public void Should_be_able_to_deserialize_messages_which_xml_document_matches_property_name()
+        {
+            var xmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><Document xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></Document>";
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(xmlDocument)) };
 
             var serializer = SerializerFactory.Create<MessageWithXDocument>();
             serializer.SkipWrappingRawXml = true;
@@ -152,10 +184,6 @@ namespace NServiceBus.Serializers.XML.Test
             {
                 serializer.Serialize(new object[] { messageWithXDocument }, stream);
                 stream.Position = 0;
-
-                serializer = SerializerFactory.Create(typeof (MessageWithXDocument));
-                serializer.SkipWrappingRawXml = true;
-
                 var msg = serializer.Deserialize(stream).Cast<MessageWithXDocument>().Single();
 
                 Assert.NotNull(msg.Document);
@@ -165,19 +193,6 @@ namespace NServiceBus.Serializers.XML.Test
             serializer = SerializerFactory.Create<MessageWithXElement>();
             serializer.SkipWrappingRawXml = true;
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(new object[] { messageWithXElement }, stream);
-                stream.Position = 0;
-
-                serializer = SerializerFactory.Create(typeof (MessageWithXElement));
-                serializer.SkipWrappingRawXml = true;
-
-                var msg = serializer.Deserialize(stream).Cast<MessageWithXElement>().Single();
-
-                Assert.NotNull(msg.Document);
-                Assert.AreEqual("Document", msg.Document.Name.LocalName);
-            }
         }
 
         [Test]
@@ -192,7 +207,7 @@ namespace NServiceBus.Serializers.XML.Test
                 serializer.Serialize(new object[] { msg }, stream);
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream);
+                var msgArray = serializer.Deserialize(stream);
 
                 Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
             }
@@ -258,7 +273,7 @@ namespace NServiceBus.Serializers.XML.Test
                 writer.Flush();
                 stream.Position = 0;
 
-                var msgArray = SerializerFactory.Create(typeof(MessageWithDouble)).Deserialize(stream, new[] { typeof(MessageWithDouble) });
+                var msgArray = SerializerFactory.Create<MessageWithDouble>().Deserialize(stream, new[] { typeof(MessageWithDouble) });
 
                 Assert.AreEqual(typeof(MessageWithDouble), msgArray[0].GetType());
 
@@ -288,7 +303,10 @@ namespace NServiceBus.Serializers.XML.Test
         public void TestMultipleInterfacesDuplicatedProperty()
         {
             IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IThird>();
+            var types = new List<Type> {typeof (IThird)};
+            mapper.Initialize(types);
+            var serializer = new XmlMessageSerializer(mapper);
+            serializer.Initialize(types);
             var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
 
             var count = 0;
@@ -300,17 +318,19 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = XmlReader.Create(stream);
 
                 while (reader.Read())
+                {
                     if ((reader.NodeType == XmlNodeType.Element) && (reader.Name == "FirstName"))
+                    {
                         count++;
+                    }
+                }
             }
             Assert.AreEqual(count, 1);
         }
 
-
         [Test]
         public void Generic_properties_should_be_supported()
         {
-
             var result = ExecuteSerializer.ForMessage<MessageWithGenericProperty>(m =>
                                                                          {
                                                                              m.GenericProperty =
@@ -319,6 +339,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             Assert.AreEqual("a property", result.GenericProperty.WhatEver);
         }
+
         [Test]
         public void Multiple_generic_properties_should_be_supported()
         {
@@ -369,9 +390,12 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestInterfaces()
         {
-            IMessageMapper mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IM2>();
+            var types = new List<Type> {typeof (IM2)};
+            var mapper = new MessageMapper();
+            mapper.Initialize(types);
+            var serializer = new XmlMessageSerializer(mapper);
 
+            serializer.Initialize(types);
 
             var o = mapper.CreateInstance<IM2>();
 
@@ -451,10 +475,13 @@ namespace NServiceBus.Serializers.XML.Test
                                     };
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, stream);
+                }
+            }
 
-            sw.Stop();
             Debug.WriteLine("serialization " + sw.Elapsed);
 
             sw.Reset();
@@ -463,29 +490,40 @@ namespace NServiceBus.Serializers.XML.Test
             using (var fs = File.Open("a.xml", FileMode.OpenOrCreate))
                 DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, fs);
 
-            var s = new MemoryStream();
-            DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, s);
-            var buffer = s.GetBuffer();
-            s.Dispose();
+            byte[] buffer;
+            using (var s = new MemoryStream())
+            {
+                DataContractSerialize(xmlWriterSettings, dataContractSerializer, messages, s);
+                buffer = s.GetBuffer();
+            }
 
             sw.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var reader = XmlReader.Create(new MemoryStream(buffer), xmlReaderSettings))
+                {
                     dataContractSerializer.ReadObject(reader);
+                }
+            }
 
-            sw.Stop();
             Debug.WriteLine("deserializing: " + sw.Elapsed);
         }
 
         [Test]
         public void SerializeLists()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
-            var msg = mapper.CreateInstance<MessageWithList>();
-
-            msg.Items = new List<MessageWithListItem> { new MessageWithListItem { Data = "Hello" } };
+            var msg = new MessageWithList
+                      {
+                          Items = new List<MessageWithListItem>
+                                  {
+                                      new MessageWithListItem
+                                      {
+                                          Data = "Hello"
+                                      }
+                                  }
+                      };
 
             using (var stream = new MemoryStream())
             {
@@ -501,13 +539,19 @@ namespace NServiceBus.Serializers.XML.Test
 		[Test]
 		public void SerializeClosedGenericListsInAlternateNamespace()
 		{
-			IMessageMapper mapper = new MessageMapper();
 			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
+            var msg = new MessageWithClosedListInAlternateNamespace
+                      {
+                          Items = new AlternateItemList
+                                  {
+                                      new MessageWithListItemAlternate
+                                      {
+                                          Data = "Hello"
+                                      }
+                                  }
+                      };
 
-			msg.Items = new AlternateNamespace.AlternateItemList { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
-
-			using (var stream = new MemoryStream())
+		    using (var stream = new MemoryStream())
 			{
 				serializer.Serialize(new object[] { msg }, stream);
 				stream.Position = 0;
@@ -521,53 +565,71 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
 		public void SerializeClosedGenericListsInAlternateNamespaceMultipleIEnumerableImplementations()
 		{
-			IMessageMapper mapper = new MessageMapper();
 			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
+            var msg = new MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations
+                      {
+                          Items = new AlternateItemListMultipleIEnumerableImplementations
+                                  {
+                                      new MessageWithListItemAlternate
+                                      {
+                                          Data = "Hello"
+                                      }
+                                  }
+                      };
 
-			msg.Items = new AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
-
-			using (var stream = new MemoryStream())
+            using (var stream = new MemoryStream())
 			{
 				serializer.Serialize(new object[] { msg }, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
 				var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
+				Assert.AreEqual("Hello", m.Items.First<MessageWithListItemAlternate>().Data);
 			}
 		}
 
         [Test]
 		public void SerializeClosedGenericListsInAlternateNamespaceMultipleIListImplementations()
 		{
-			IMessageMapper mapper = new MessageMapper();
 			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
+			var msg = new MessageWithClosedListInAlternateNamespaceMultipleIListImplementations
+			          {
+			              Items = new AlternateItemListMultipleIListImplementations
+			                      {
+			                          new MessageWithListItemAlternate
+			                          {
+			                              Data = "Hello"
+			                          }
+			                      }
+			          };
 
-			msg.Items = new AlternateNamespace.AlternateItemListMultipleIListImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
-
-			using (var stream = new MemoryStream())
+            using (var stream = new MemoryStream())
 			{
 				serializer.Serialize(new object[] { msg }, stream);
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
 				var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
+				Assert.AreEqual("Hello", m.Items.First<MessageWithListItemAlternate>().Data);
 			}
 		}
 
 		[Test]
 		public void SerializeClosedGenericListsInSameNamespace()
 		{
-			IMessageMapper mapper = new MessageMapper();
 			var serializer = SerializerFactory.Create<MessageWithClosedList>();
-			var msg = mapper.CreateInstance<MessageWithClosedList>();
+			var msg = new MessageWithClosedList
+			          {
+			              Items = new ItemList
+			                      {
+			                          new MessageWithListItem
+			                          {
+			                              Data = "Hello"
+			                          }
+			                      }
+			          };
 
-			msg.Items = new ItemList { new MessageWithListItem { Data = "Hello" } };
-
-			using (var stream = new MemoryStream())
+		    using (var stream = new MemoryStream())
 			{
 				serializer.Serialize(new object[] { msg }, stream);
 				stream.Position = 0;
@@ -581,11 +643,11 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeEmptyLists()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
-            var msg = mapper.CreateInstance<MessageWithList>();
-
-            msg.Items = new List<MessageWithListItem>();
+            var msg = new MessageWithList
+                      {
+                          Items = new List<MessageWithListItem>()
+                      };
 
             using (var stream = new MemoryStream())
             {
@@ -599,7 +661,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
 
-        private void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
+        void DataContractSerialize(XmlWriterSettings xmlWriterSettings, DataContractSerializer dataContractSerializer, IMessage[] messages, Stream stream)
         {
             var o = new ArrayList(messages);
             using (var xmlWriter = XmlWriter.Create(stream, xmlWriterSettings))
@@ -610,7 +672,7 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        private M2 CreateM2()
+        M2 CreateM2()
         {
             var o = new M2
                     {
@@ -658,27 +720,31 @@ namespace NServiceBus.Serializers.XML.Test
             return o;
         }
 
-        private void Time(object[] messages, IMessageSerializer serializer)
+        void Time(object[] messages, IMessageSerializer serializer)
         {
             var watch = new Stopwatch();
             watch.Start();
 
             for (var i = 0; i < numberOfIterations; i++)
+            {
                 using (var stream = new MemoryStream())
+                {
                     serializer.Serialize(messages, stream);
+                }
+            }
 
-            watch.Stop();
             Debug.WriteLine("Serializing: " + watch.Elapsed);
 
             watch.Reset();
 
-            var s = new MemoryStream();
-            serializer.Serialize(messages, s);
-            var buffer = s.GetBuffer();
-            s.Dispose();
+            byte[] buffer;
+            using (var s = new MemoryStream())
+            {
+                serializer.Serialize(messages, s);
+                buffer = s.GetBuffer();
+            }
 
             watch.Start();
-
 
             for (var i = 0; i < numberOfIterations; i++)
             {
@@ -688,7 +754,6 @@ namespace NServiceBus.Serializers.XML.Test
                 }
             }
 
-            watch.Stop();
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
         }
 
@@ -770,19 +835,26 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
-        public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
+        public void When_Using_Property_WithXContainerAssignable_should_preserve_xmlElement()
         {
-            const string XmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
-            const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
+            var xmlElement = "<SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
 
-            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(XmlDocument)) };
-            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(XmlElement)) };
+            var messageWithXElement = new MessageWithXElement { Document = XElement.Load(new StringReader(xmlElement)) };
 
-            var resultXDocument = ExecuteSerializer.ForMessage<MessageWithXDocument>(messageWithXDocument);
             var resultXElement = ExecuteSerializer.ForMessage<MessageWithXElement>(messageWithXElement);
 
-            Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());
             Assert.AreEqual(messageWithXElement.Document.ToString(), resultXElement.Document.ToString());
+        }
+
+        [Test]
+        public void When_Using_Property_WithXContainerAssignable_should_preserve_xmlDocument()
+        {
+            var xmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><SomeClass xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></SomeClass>";
+
+            var messageWithXDocument = new MessageWithXDocument { Document = XDocument.Load(new StringReader(xmlDocument)) };
+
+            var resultXDocument = ExecuteSerializer.ForMessage<MessageWithXDocument>(messageWithXDocument);
+            Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());
         }
 
         [Test]
@@ -908,10 +980,6 @@ namespace NServiceBus.Serializers.XML.Test
         public string Data { get; set; }
     }
 
-    public class MessageWithInvalidCharacter : IMessage
-    {
-        public string Special { get; set; }
-    }
 
     public class MessageWithList : IMessage
     {
@@ -932,17 +1000,17 @@ namespace NServiceBus.Serializers.XML.Test
 
 	public class MessageWithClosedListInAlternateNamespace : IMessage
 	{
-		public AlternateNamespace.AlternateItemList Items { get; set; }
+		public AlternateItemList Items { get; set; }
 	}
 
 	public class MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations : IMessage
 	{
-		public AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations Items { get; set; }
+		public AlternateItemListMultipleIEnumerableImplementations Items { get; set; }
 	}
 
 	public class MessageWithClosedListInAlternateNamespaceMultipleIListImplementations : IMessage
 	{
-		public AlternateNamespace.AlternateItemListMultipleIListImplementations Items { get; set; }
+		public AlternateItemListMultipleIListImplementations Items { get; set; }
 	}
 
 	public class MessageWithClosedList : IMessage
@@ -1039,4 +1107,9 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 			set { stringList[index] = value; }
 		}
 	}
+
+    public class MessageWithInvalidCharacter : IMessage
+    {
+        public string Special { get; set; }
+    }
 }

@@ -3,6 +3,8 @@ namespace NServiceBus.Serializers.XML.Test
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.IO;
+    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
 
     [TestFixture]
@@ -102,7 +104,14 @@ namespace NServiceBus.Serializers.XML.Test
 
                                };
 
-            var result = ExecuteSerializer.ForMessage<MessageWithDictionaries>(expected);
+                var types = new List<Type> {typeof (MessageWithDictionaries)};
+                var mapper = new MessageMapper();
+                mapper.Initialize(types);
+                var serializer = new XmlMessageSerializer(mapper);
+
+                serializer.Initialize(types);
+
+            var result = serializer.Transition(expected);
 
             CollectionAssert.AreEqual(expected.Bools, result.Bools);
             CollectionAssert.AreEqual(expected.Chars, result.Chars);

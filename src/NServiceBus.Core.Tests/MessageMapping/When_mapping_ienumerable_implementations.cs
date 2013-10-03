@@ -15,7 +15,7 @@
 		    var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerable<string>) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<string>)));
+            Assert.NotNull(mapper.GetMessageType(typeof(ClassImplementingIEnumerable<string>)));
 		}
 
 		[Test]
@@ -24,7 +24,7 @@
             var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerableAndIReturnMyself<string>) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerableAndIReturnMyself<string>)));
+            Assert.NotNull(mapper.GetMessageType(typeof(ClassImplementingIEnumerableAndIReturnMyself<string>)));
 		}
 
 		[Test]
@@ -33,7 +33,7 @@
             var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(ClassImplementingIEnumerable<ReturnMyself>) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(ClassImplementingIEnumerable<ReturnMyself>)));
+            Assert.NotNull(mapper.GetMessageType(typeof(ClassImplementingIEnumerable<ReturnMyself>)));
 		}
 
 		[Test]
@@ -42,7 +42,7 @@
             var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionObject) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionObject)));
+            Assert.NotNull(mapper.GetMessageType(typeof(DerivedReturnMyselfCollectionObject)));
 		}
 
 		[Test]
@@ -51,7 +51,7 @@
             var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself)));
+            Assert.NotNull(mapper.GetMessageType(typeof(DerivedReturnMyselfCollectionImplementingIReturnMyself)));
 		}
 
 		[Test]
@@ -60,7 +60,7 @@
             var mapper = new MessageMapper();
 			mapper.Initialize(new[] { typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself) });
 
-			Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)));
+			Assert.NotNull(mapper.GetMessageType(typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)));
 		}
 
 		internal class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>

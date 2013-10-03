@@ -9,21 +9,23 @@ namespace NServiceBus.Serializers.Binary
     /// </summary>
     public class SimpleMessageMapper : IMessageMapper
     {
-        T IMessageCreator.CreateInstance<T>()
+        public T CreateInstance<T>()
         {
-            return ((IMessageCreator) this).CreateInstance<T>(null);
+            return CreateInstance<T>(null);
         }
 
-        T IMessageCreator.CreateInstance<T>(Action<T> action)
+        public T CreateInstance<T>(Action<T> action)
         {
-            var result = (T)((IMessageCreator)this).CreateInstance(typeof(T));
+            var result = (T)CreateInstance(typeof(T));
             if (action != null)
+            {
                 action(result);
+            }
 
             return result;
         }
 
-        object IMessageCreator.CreateInstance(Type messageType)
+        public object CreateInstance(Type messageType)
         {
             if (messageType.IsInterface || messageType.IsAbstract)
                 throw new NotSupportedException("The binary serializer does not support interface types. Please use the XML serializer if you need this functionality.");
@@ -31,16 +33,26 @@ namespace NServiceBus.Serializers.Binary
             return Activator.CreateInstance(messageType);
         }
 
-        void IMessageMapper.Initialize(IEnumerable<Type> types)
+        public void Initialize(IEnumerable<Type> types)
         {
         }
 
-        Type IMessageMapper.GetMappedTypeFor(Type t)
+        public Type GetMessageType(Type concreteType)
+        {
+            return concreteType;
+        }
+
+        public Type GetConcreteType(Type messageType)
+        {
+            return messageType;
+        }
+
+        Type GetMappedTypeFor(Type t)
         {
             return t;
         }
 
-        Type IMessageMapper.GetMappedTypeFor(string typeName)
+        public Type GetMappedTypeFor(string typeName)
         {
             return Type.GetType(typeName);
         }

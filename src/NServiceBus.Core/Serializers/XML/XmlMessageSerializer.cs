@@ -788,7 +788,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var m in messages)
             {
-                var t = mapper.GetMappedTypeFor(m.GetType());
+                var t = mapper.GetMessageType(m.GetType());
 
                 WriteObject(t.Name, t, m, messageBuilder, SkipWrappingElementForSingleMessages && messages.Length == 1);
             }
@@ -1023,7 +1023,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var m in messages)
             {
-                var ns = mapper.GetMappedTypeFor(m.GetType()).Namespace;
+                var ns = mapper.GetMessageType(m.GetType()).Namespace;
                 if (!result.Contains(ns))
                 {
                     result.Add(ns);
@@ -1039,7 +1039,7 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var m in messages)
             {
-                var t = mapper.GetMappedTypeFor(m.GetType());
+                var t = mapper.GetMessageType(m.GetType());
 
                 var baseType = t.BaseType;
                 while (baseType != typeof(object) && baseType != null)
