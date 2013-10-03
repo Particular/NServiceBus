@@ -56,7 +56,14 @@
 
         public T Build<T>()
         {
-            return (T)Build(typeof(T));
+            try
+            {
+                return (T) Build(typeof(T));
+            }
+            catch (Exception exception)
+            {
+                throw new ApplicationException(string.Format("Could not build {0}", typeof(T)), exception);
+            }
         }
 
         public IEnumerable<T> BuildAll<T>()
