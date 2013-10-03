@@ -18,13 +18,12 @@
         {
             var head = GenerateBehaviorChain();
 
-            var context = new SimpleContext();
-            context.Set(incomingTransportMessage);
+            var context = new SimpleContext(incomingTransportMessage);
 
             try
             {
                 Console.WriteLine(@"Invoking chain:
-{0}", string.Join(Environment.NewLine, behaviorTypes.Select((type, idx) => new string(' ', idx * 2) + " -> " + type.Name)));
+{0}", ToString());
 
                 head.Invoke(context);
             }
@@ -34,6 +33,12 @@
                     string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
                                   string.Join(" -> ", behaviorTypes.Select(t => t.Name))), exception);
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Join(Environment.NewLine,
+                               behaviorTypes.Select((type, idx) => new string(' ', idx*2) + " -> " + type.Name));
         }
 
         IBehavior GenerateBehaviorChain()
@@ -56,6 +61,16 @@
 
         class SimpleContext : IBehaviorContext
         {
+            public SimpleContext(TransportMessage transportMessage)
+            {
+                Set(transportMessage);
+            }
+
+            public TransportMessage TransportMessage
+            {
+                get { return Get<TransportMessage>(); }
+            }
+
             readonly Dictionary<Type, object> stash = new Dictionary<Type, object>();
 
             public T Get<T>()
