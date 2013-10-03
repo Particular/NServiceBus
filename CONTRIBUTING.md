@@ -7,7 +7,7 @@ top of things.
 ## Getting Started
 
 * Make sure you have a [GitHub account](https://github.com/signup/free)
-* [Create a new issue](https://github.com/NServiceBus/NServiceBus/issues/new), assuming one does not already exist.
+* [Create a new issue](https://github.com/Particular/NServiceBus/issues/new), assuming one does not already exist.
   * Clearly describe the issue including steps to reproduce when it is a bug.
   * If it is a bug make sure you tell us what version you have encountered this bug on.
 * Fork the repository on GitHub
