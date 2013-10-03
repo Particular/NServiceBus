@@ -19,6 +19,8 @@ namespace NServiceBus.Unicast
     using MessageMutator;
     using Messages;
     using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Behaviors;
     using Queuing;
     using Routing;
     using Satellites;
@@ -34,7 +36,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -1055,6 +1056,15 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public void HandleMessage(IBuilder builder, TransportMessage m)
         {
+            // construct behavior chain - look at configuration and possibly the incoming transport message
+            var chain = new BehaviorChain
+                            {
+                                typeof(MessageExtractor),
+                                typeof(AbortChainOnEmptyMessage),
+                            };
+
+            chain.Invoke(m);
+
             var messages = new object[0];
 
             if (!m.IsControlMessage() && !SkipDeserialization)
