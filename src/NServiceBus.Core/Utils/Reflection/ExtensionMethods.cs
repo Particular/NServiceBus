@@ -124,16 +124,16 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        private static readonly IDictionary<Type, bool> AssemblyNameCache = new ConcurrentDictionary<Type, bool>();
+        private static readonly IDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
 
         public static bool IsSystemType(this Type type)
         {
             bool result = false;
 
-            if (!AssemblyNameCache.TryGetValue(type, out result))
+            if (!IsSystemTypeCache.TryGetValue(type, out result))
             {
                 var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
-                AssemblyNameCache[type] = result = IsClrType(nameOfContainingAssembly);
+                IsSystemTypeCache[type] = result = IsClrType(nameOfContainingAssembly);
             }
 
             return result;
