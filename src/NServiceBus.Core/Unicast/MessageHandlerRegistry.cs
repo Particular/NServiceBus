@@ -69,9 +69,7 @@
         /// <summary>
         ///     If the type is a message handler, returns all the message types that it handles
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        internal static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
+        static IEnumerable<Type> GetMessageTypesIfIsMessageHandler(Type type)
         {
             return from t in type.GetInterfaces()
                 where t.IsGenericType

@@ -232,22 +232,24 @@
        /// </summary>
         public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
-        static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> EventsConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> ExpressConventionCache = new ConventionCache<Type>();
+        static readonly ConventionCache MessagesConventionCache = new ConventionCache();
+        static readonly ConventionCache CommandsConventionCache = new ConventionCache();
+        static readonly ConventionCache EventsConventionCache = new ConventionCache();
+        static readonly ConventionCache ExpressConventionCache = new ConventionCache();
     }
 
-    internal class ConventionCache<T>
+    internal class ConventionCache
     {
-        private readonly IDictionary<T, bool> cache = new ConcurrentDictionary<T, bool>();
+        private readonly IDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();
 
-        public bool ApplyConvention(T type, Func<T, bool> action)
+        public bool ApplyConvention(Type type, Func<Type, bool> action)
         {
             bool result;
 
             if (cache.TryGetValue(type, out result))
+            {
                 return result;
+            }
 
             result = action(type);
 

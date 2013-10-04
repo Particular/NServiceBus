@@ -16,7 +16,7 @@
     /// </summary>
     public class Program
     {
-        private static AssemblyScannerResults assemblyScannerResults;
+        static AssemblyScannerResults assemblyScannerResults;
 
         static void Main(string[] args)
         {
@@ -29,9 +29,10 @@
             }
 
             var assemblyScanner = new AssemblyScanner();
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IConfigureThisEndpoint).Assembly);
-            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(Program).Assembly);
+            //TODO: re-enable when we make message scanning lazy
+            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
+            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IConfigureThisEndpoint).Assembly);
+            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(Program).Assembly);
             assemblyScannerResults = assemblyScanner.GetScannableAssemblies();
 
             var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);

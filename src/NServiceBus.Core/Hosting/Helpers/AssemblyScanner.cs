@@ -10,7 +10,7 @@ namespace NServiceBus.Hosting.Helpers
     using System.Text;
 
     /// <summary>
-    ///     Helpers for assembly scanning operations
+    ///   Helpers for assembly scanning operations
     /// </summary>
     public class AssemblyScanner
     {
@@ -70,56 +70,63 @@ namespace NServiceBus.Hosting.Helpers
             if (IncludeAppDomainAssemblies)
             {
                 var matchingAssembliesFromAppDomain = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .Where(assembly => IsIncluded(assembly.GetName().Name));
+                                                               .GetAssemblies()
+                                                               .Where(assembly => IsIncluded(assembly.GetName().Name));
 
                 results.Assemblies.AddRange(matchingAssembliesFromAppDomain);
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
             {
-                ScanAssembly(assemblyFile, results);
+                ScanAssembly(assemblyFile.FullName, results);
             }
 
             return results;
         }
 
-        void ScanAssembly(FileInfo assemblyFile, AssemblyScannerResults results)
+        void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
         {
             Assembly assembly;
 
-            if (!IsIncluded(assemblyFile.Name))
+            if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
-                var skippedFile = new SkippedFile(assemblyFile.FullName, "File was explicitly excluded from scanning.");
+                var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
                 return;
             }
 
-            var compilationMode = Image.GetCompilationMode(assemblyFile.FullName);
+            var compilationMode = Image.GetCompilationMode(assemblyPath);
             if (compilationMode == Image.CompilationMode.NativeOrInvalid)
             {
-                var skippedFile = new SkippedFile(assemblyFile.FullName, "File is not a .NET assembly.");
+                var skippedFile = new SkippedFile(assemblyPath, "File is not a .NET assembly.");
                 results.SkippedFiles.Add(skippedFile);
                 return;
             }
 
             if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
             {
-                var skippedFile = new SkippedFile(assemblyFile.FullName, "x64 .NET assembly can't be loaded by a 32Bit process.");
+                var skippedFile = new SkippedFile(assemblyPath, "x64 .NET assembly can't be loaded by a 32Bit process.");
                 results.SkippedFiles.Add(skippedFile);
                 return;
             }
 
             try
             {
-                if (MustReferenceAtLeastOneAssembly.Count > 0 && !AssemblyPassesReferencesTest(assemblyFile))
+                //TODO: re-enable when we make message scanning lazy #1617
+                //if (!AssemblyPassesReferencesTest(assemblyPath))
+                //{
+                //    var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
+                //    results.SkippedFiles.Add(skippedFile);
+                //    return;
+                //}
+                if (IsRuntimeAssembly(assemblyPath))
                 {
-                    var skippedFile = new SkippedFile(assemblyFile.FullName, "Assembly does not reference at least one of the must referenced assemblies.");
+                    var skippedFile = new SkippedFile(assemblyPath, "Assembly .net runtime assembly.");
                     results.SkippedFiles.Add(skippedFile);
                     return;
                 }
 
-                assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                assembly = Assembly.LoadFrom(assemblyPath);
                 if (results.Assemblies.Contains(assembly))
                 {
                     return;
@@ -127,7 +134,7 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (BadImageFormatException)
             {
-                var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyFile.FullName);
+                var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
                 results.Errors.Add(errorMessage);
                 return;
             }
@@ -139,7 +146,7 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (ReflectionTypeLoadException e)
             {
-                var errorMessage = FormatReflectionTypeLoadException(assemblyFile.FullName, e);
+                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
                 results.Errors.Add(errorMessage);
                 return;
             }
@@ -147,7 +154,33 @@ namespace NServiceBus.Hosting.Helpers
             results.Assemblies.Add(assembly);
         }
 
-        public static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+
+        bool IsRuntimeAssembly(string assemblyPath)
+        {
+            var publicKeyToken = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
+            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", "").ToLowerInvariant();
+            //System
+            if (lowerInvariant == "b77a5c561934e089")
+            {
+                return true;
+            }
+
+            //Web
+            if (lowerInvariant == "b03f5f7f11d50a3a")
+            {
+                return true;
+            }
+            
+            //patterns and practices
+            if (lowerInvariant == "31bf3856ad364e35")
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
+        internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
         {
             var sb = new StringBuilder();
 
@@ -185,9 +218,13 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        bool AssemblyPassesReferencesTest(FileSystemInfo assemblyFile)
+        bool AssemblyPassesReferencesTest(string assemblyPath)
         {
-            var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyFile.FullName);
+            if (MustReferenceAtLeastOneAssembly.Count == 0)
+            {
+                return true;
+            }
+            var lightLoad = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
             var referencedAssemblies = lightLoad.GetReferencedAssemblies();
 
             return MustReferenceAtLeastOneAssembly
@@ -196,14 +233,19 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         /// <summary>
-        ///     Determines whether the specified assembly name or file name can be included, given the set up include/exclude
-        ///     patterns and default include/exclude patterns
+        ///  Determines whether the specified assembly name or file name can be included, given the set up include/exclude
+        ///  patterns and default include/exclude patterns
         /// </summary>
         bool IsIncluded(string assemblyNameOrFileName)
         {
             var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
-
             if (isExplicitlyExcluded)
+            {
+                return false;
+            }
+
+            var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
+            if (isExcludedByDefault)
             {
                 return false;
             }
@@ -229,7 +271,7 @@ namespace NServiceBus.Hosting.Helpers
             return false;
         }
 
-        public static bool IsAllowedType(Type type)
+        internal static bool IsAllowedType(Type type)
         {
             return !type.IsValueType &&
                    !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0);
@@ -246,11 +288,44 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         string baseDirectoryToScan;
-        public List<string> AssembliesToInclude;
-        public List<string> AssembliesToSkip;
+        internal List<string> AssembliesToInclude;
+        internal List<string> AssembliesToSkip;
 
-        public bool IncludeAppDomainAssemblies;
-        public bool IncludeExesInScan = true;
-        public bool ScanNestedDirectories = true;
+        internal bool IncludeAppDomainAssemblies;
+        internal bool IncludeExesInScan = true;
+        internal bool ScanNestedDirectories = true;
+
+
+
+        //TODO: delete when we make message scanning lazy #1617
+        static string[] DefaultAssemblyExclusions =
+                                {
+
+                                    "system.",
+                                    "mscorlib.", 
+                  
+                                    // NSB Build-Dependencies
+                                    "nunit.", "pnunit.", "rhino.mocks.", "XsdGenerator.",
+                 
+                                    // NSB OSS Dependencies
+                                    "rhino.licensing.", "bouncycastle.crypto",
+                                    "magnum.", "interop.", "nlog.", "newtonsoft.json.",
+                                    "common.logging.", "topshelf.",
+                                    "Autofac.", "log4net.", "nhibernate.", 
+                                    "castle.",
+
+                                    // Raven
+                                    "raven.server", "raven.client", "raven.munin.",
+                                    "raven.storage.", "raven.abstractions.", "raven.database",
+                                    "esent.interop", "asyncctplibrary.", "lucene.net.",
+                                    "icsharpcode.nrefactory", "spatial4n.core",
+
+                                    // Azure host process, which is typically referenced for ease of deployment but should not be scanned
+                                    "NServiceBus.Hosting.Azure.HostProcess.exe",
+
+                                    // And other windows azure stuff
+                                    "Microsoft.WindowsAzure.",
+
+                                };
     }
 }
