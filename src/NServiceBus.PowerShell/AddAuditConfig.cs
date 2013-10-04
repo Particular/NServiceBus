@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.PowerShell
 {
+    using System.Collections;
+    using System.Linq;
     using System.Management.Automation;
     using System.Xml.Linq;
     using System.Xml.XPath;
@@ -13,27 +15,32 @@
 
         public override void ModifyConfig(XDocument doc)
         {
-            var sectionElement = doc.XPathSelectElement("/configuration/configSections/section[@name='AuditConfig' and @type='NServiceBus.Config.AuditConfig, NServiceBus.Core']");
+            // Add the new audit config section, if the ForwardReceivedMessagesTo attribute has not been set in the UnicastBusConfig.
+            var frmAttributeEnumerator = (IEnumerable)doc.XPathEvaluate("/configuration/UnicastBusConfig/@ForwardReceivedMessagesTo");
+            bool isForwardReceivedMessagesAttributeDefined = frmAttributeEnumerator.Cast<XAttribute>().Any();
+
+            // Then add the audit config
+            var sectionElement =
+                doc.XPathSelectElement(
+                    "/configuration/configSections/section[@name='AuditConfig' and @type='NServiceBus.Config.AuditConfig, NServiceBus.Core']");
             if (sectionElement == null)
             {
-
                 doc.XPathSelectElement("/configuration/configSections").Add(new XElement("section",
-                                                                                         new XAttribute("name",
-                                                                                                        "AuditConfig"),
-                                                                                         new XAttribute("type",
-                                                                                                        "NServiceBus.Config.AuditConfig, NServiceBus.Core")));
-
+                    new XAttribute("name",
+                        "AuditConfig"),
+                    new XAttribute("type",
+                        "NServiceBus.Config.AuditConfig, NServiceBus.Core")));
             }
 
             var forwardingElement = doc.XPathSelectElement("/configuration/AuditConfig");
             if (forwardingElement == null)
             {
-                doc.Root.LastNode.AddAfterSelf(
-                                                new XComment(Instructions),
-                                                new XElement("AuditConfig",
-                                                new XAttribute("QueueName", "audit")
-                                                ));
+                doc.Root.LastNode.AddAfterSelf(new XComment(Instructions),
+                    isForwardReceivedMessagesAttributeDefined ? (object) new XComment(@"Since we detected that you already have forwarding setup we haven't enabled the audit feature.
+Please remove the ForwardReceivedMessagesTo attribute from the UnicastBusConfig and uncomment this section
+<AuditConfig QueueName=""audit"" />") : new XElement("AuditConfig", new XAttribute("QueueName", "audit")));
             }
+
         }
     }
 }
