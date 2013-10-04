@@ -88,7 +88,7 @@
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
-    <Compile Include="Audit\ConfigureAudit.cs" />
+    <Compile Include="Audit\InitMessageAuditer.cs" />
     <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Audit
 {
-    class ConfigureAudit : INeedInitialization
+    class InitMessageAuditer : INeedInitialization
     {
         public void Init()
         {
