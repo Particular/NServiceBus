@@ -2,6 +2,7 @@ namespace NServiceBus.Utils.Reflection
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     /// <summary>
@@ -123,13 +124,20 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
+        private static readonly IDictionary<Type, bool> AssemblyNameCache = new ConcurrentDictionary<Type, bool>();
+
         public static bool IsSystemType(this Type type)
         {
-            var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+            bool result = false;
 
-            return IsClrType(nameOfContainingAssembly);
+            if (!AssemblyNameCache.TryGetValue(type, out result))
+            {
+                var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+                AssemblyNameCache[type] = result = IsClrType(nameOfContainingAssembly);
+            }
+
+            return result;
         }
-
 
         public static bool IsNServiceBusMarkerInterface(this Type type)
         {
