@@ -36,7 +36,7 @@
             if (forwardingElement == null)
             {
                 doc.Root.LastNode.AddAfterSelf(new XComment(Instructions),
-                    isForwardReceivedMessagesAttributeDefined ? (object) new XComment(@"Since we detected that you're already have forwarding setup we haven't enabled the audit feature.
+                    isForwardReceivedMessagesAttributeDefined ? (object) new XComment(@"Since we detected that you already have forwarding setup we haven't enabled the audit feature.
 Please remove the ForwardReceivedMessagesTo attribute from the UnicastBusConfig and uncomment this section
 <AuditConfig QueueName=""audit"" />") : new XElement("AuditConfig", new XAttribute("QueueName", "audit")));
             }
