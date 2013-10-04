@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using System;
     using System.Reflection;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -26,13 +27,19 @@
         }
 
         [Test]
-        public void JustDoit()
+        public void Sample_unit_of_work_behavior_that_leans_on_the_container_to_transfer_objects_around()
         {
             documentStore = MockRepository.GenerateMock<IDocumentStore>();
             documentStore.Stub(s => s.OpenSession()).Return(MockRepository.GenerateMock<IDocumentSession>());
 
-            funcBuilder.Register<RavenDbUnitOfWorkBehavior>(() => new RavenDbUnitOfWorkBehavior(documentStore));
-            funcBuilder.Register<OrdinaryMessageHandlerDispatcherBehavior>(() => new OrdinaryMessageHandlerDispatcherBehavior());
+            //in real life this would be a Configure.Component<IDocumentSession>(b=>b.Build<IDocumentStore>().OpenSession())
+            var stubSession = MockRepository.GenerateMock<IDocumentSession>();
+
+            
+            funcBuilder.Register<RavenDbUnitOfWorkBehavior>(() => new RavenDbUnitOfWorkBehavior{Builder = funcBuilder});
+            funcBuilder.Register<OrdinaryMessageHandlerDispatcherBehavior>(() => new OrdinaryMessageHandlerDispatcherBehavior{Builder = funcBuilder});
+            funcBuilder.Register<IDocumentSession>(() => stubSession);
+            funcBuilder.Register<MyMessageThatStoresDataInRavenHandler>(() => new MyMessageThatStoresDataInRavenHandler());
 
             var pipeline =
                 new BehaviorChain
@@ -47,26 +54,46 @@
         }
 
 
+
+        //this is a behaviour that "might" be created be a end user
         public class RavenDbUnitOfWorkBehavior : IBehavior
         {
-            readonly IDocumentStore documentStore;
-
-            public RavenDbUnitOfWorkBehavior(IDocumentStore documentStore)
-            {
-                this.documentStore = documentStore;
-            }
+            public IBuilder Builder { get; set; }
 
             public IBehavior Next { get; set; }
 
             public void Invoke(IBehaviorContext context)
             {
-                using (var session = documentStore.OpenSession())
+                using (var session = Builder.Build<IDocumentSession>())
                 {
-                    context.Set(session);
+                    Console.Out.WriteLine("Session: " + session.GetHashCode());
+
+                    //context.Set(session);  Not needed since any one (is this case users) would just take a dep on IDocumentSession
+                    // this works for other behaviours as well but I'd argue that we should stay away from the container as much as possible
+                    //for our internal stuff
                     Next.Invoke(context);
                     session.SaveChanges();
                 }
             }
+        }
+
+        public class MyMessageThatStoresDataInRavenHandler: IHandleMessages<MyMessageThatStoresDataInRaven>
+        {
+            public IDocumentSession Session { get; set; }
+
+            public void Handle(MyMessageThatStoresDataInRaven message)
+            {
+                Console.Out.WriteLine("Session: "+Session.GetHashCode());
+                Session.Store(new SomeDocument());
+            }
+        }
+
+        public class SomeDocument
+        {
+        }
+
+        public  class MyMessageThatStoresDataInRaven
+        {
         }
 
 
@@ -74,9 +101,17 @@
         {
             public IBehavior Next { get; set; }
 
+            public IBuilder Builder { get; set; }
+
             public void Invoke(IBehaviorContext context)
             {
+                //hardcoded
+                var handler = Builder.Build<MyMessageThatStoresDataInRavenHandler>();
+
+                //handler.Handle((MyMessageThatStoresDataInRaven)context.Message);
+                handler.Handle(null); //just for now
             }
         }
     }
+
 }

@@ -8,5 +8,6 @@
         T Get<T>();
         void Set<T>(T t);
         TransportMessage TransportMessage { get; }
+        object Message { get;  }
     }
 }
