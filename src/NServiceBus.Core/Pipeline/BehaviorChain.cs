@@ -18,7 +18,10 @@
         {
             var head = GenerateBehaviorChain();
 
+            
+
             var context = new SimpleContext(incomingTransportMessage);
+
 
             try
             {
@@ -71,18 +74,23 @@
                 get { return Get<TransportMessage>(); }
             }
 
-            readonly Dictionary<Type, object> stash = new Dictionary<Type, object>();
+            public object Message
+            {
+                get { return stash["NServiceBus.Message"]; }
+            }
+
+            readonly Dictionary<string, object> stash = new Dictionary<string, object>();
 
             public T Get<T>()
             {
-                return stash.ContainsKey(typeof(T))
-                           ? (T)stash[typeof(T)]
+                return stash.ContainsKey(typeof(T).FullName)
+                           ? (T)stash[typeof(T).FullName]
                            : default(T);
             }
 
             public void Set<T>(T t)
             {
-                stash[typeof(T)] = t;
+                stash[typeof(T).FullName] = t;
             }
         }
 
