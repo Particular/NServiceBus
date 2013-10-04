@@ -155,7 +155,7 @@ namespace NServiceBus.Hosting.Helpers
         }
 
 
-        bool IsRuntimeAssembly(string assemblyPath)
+        internal static bool IsRuntimeAssembly(string assemblyPath)
         {
             var publicKeyToken = AssemblyName.GetAssemblyName(assemblyPath).GetPublicKeyToken();
             var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", "").ToLowerInvariant();
