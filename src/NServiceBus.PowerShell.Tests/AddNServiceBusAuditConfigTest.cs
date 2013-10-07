@@ -56,7 +56,7 @@
             const string expectedConfigurationChange = @"<configuration>
   <configSections>
     <section name=""UnicastBusConfig"" type=""NServiceBus.Config.UnicastBusConfig, NServiceBus.Core"" />
-    <section name=""AuditConfig"" type=""NServiceBus.Config.AuditConfig, NServiceBus.Core"" />
+    <!--<section name=""AuditConfig"" type=""NServiceBus.Config.AuditConfig, NServiceBus.Core"" />-->
   </configSections>
   <UnicastBusConfig ForwardReceivedMessagesTo=""audit"">
     <MessageEndpointMappings />
@@ -64,8 +64,8 @@
   <!--<AuditConfig 
     QueueName=""The address to which messages received will be forwarded.""
     OverrideTimeToBeReceived=""The time to be received set on forwarded messages, specified as a timespan see http://msdn.microsoft.com/en-us/library/vstudio/se73z7b9.aspx""  />-->
-  <!--Since we detected that you're already have forwarding setup we haven't enabled the audit feature.
-Please remove the ForwardReceivedMessagesTo attribute from the UnicastBusConfig and uncomment this section
+  <!--Since we detected that you already have forwarding setup we haven't enabled the audit feature.
+Please remove the ForwardReceivedMessagesTo attribute from the UnicastBusConfig and uncomment the AuditConfig section. 
 <AuditConfig QueueName=""audit"" />-->
 </configuration>";
 
@@ -78,4 +78,5 @@ Please remove the ForwardReceivedMessagesTo attribute from the UnicastBusConfig 
             Assert.AreEqual(expectedConfigurationChange, generatedXml, string.Format("Generated Xml: {0}", generatedXml));
         }
     }
+
 }
