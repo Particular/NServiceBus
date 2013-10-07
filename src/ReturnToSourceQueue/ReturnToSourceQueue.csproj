@@ -10,8 +10,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ReturnToSourceQueue</RootNamespace>
     <AssemblyName>ReturnToSourceQueue</AssemblyName>
-    <FileUpgradeFlags></FileUpgradeFlags>
-    <UpgradeBackupLocation></UpgradeBackupLocation>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -35,7 +37,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\binaries\Tools\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -89,14 +91,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-      <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
-        <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
-        <Name>NServiceBus.Core</Name>
-      </ProjectReference>
-      <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
-        <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-        <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
-      </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
+      <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
+      <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
+      <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
+      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
@@ -114,4 +116,5 @@
   </Target>
   -->
   <Import Project="Fody.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+</Project>

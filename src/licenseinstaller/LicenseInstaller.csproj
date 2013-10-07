@@ -19,7 +19,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\binaries\Tools\LicenseInstaller\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -65,4 +65,5 @@
   </Target>
   -->
   <Import Project="Fody.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+</Project>
