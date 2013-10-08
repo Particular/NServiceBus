@@ -160,4 +160,5 @@
     <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Microsoft.Practices.ServiceLocation.dll" "$(TargetDir)Topshelf.dll" /targetplatform:v4' />
     <Delete Files="$(MergeTemp)"/>
   </Target>
+  <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
 </Project>

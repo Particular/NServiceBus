@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,7 +14,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -96,7 +95,6 @@
     <Compile Include="When_registering_components.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fody.targets" />
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
@@ -131,18 +129,6 @@
       <Name>ObjectBuilder.Unity</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="FodyWeavers.xml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <Import Project="Fody.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
+</Project>
