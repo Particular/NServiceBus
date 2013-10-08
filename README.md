@@ -1,8 +1,9 @@
 ## Building
 
-To build NServiceBus from source files you can either:
-* Build using VS2012, open `NServiceBus.sln`
-* Or build using Powershell by executing `build.bat`
+To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
+
+Note that the debug build doesn't ilmerge and if you plan to use the binaries in test/production
+you need to do a release build.
 
 You'll find the built assemblies in /binaries.
 
