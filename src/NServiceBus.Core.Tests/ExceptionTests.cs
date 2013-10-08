@@ -11,7 +11,7 @@
     [TestFixture]
     public class ExceptionTests
     {
-        [Test,Ignore("Fails on the build server - http://builds.particular.net/viewLog.html?buildId=24968&tab=buildResultsDiv&buildTypeId=NServiceBusCore_Build#testNameId3699571671064821291")]
+        [Test]
         public void VerifyExceptionConventions()
         {
             var exceptionTypes = new List<Type>();
@@ -38,7 +38,7 @@
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (typeof(Exception).IsAssignableFrom(type))
+                if (typeof(Exception).IsAssignableFrom(type) && type.Namespace.StartsWith("NServiceBus"))
                 {
                     yield return type;
                 }
