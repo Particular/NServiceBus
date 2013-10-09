@@ -18,6 +18,7 @@
   </metadata>
   <files>
     <file src="..\..\binaries\Tools\NServiceBus.*.???" target="" />
+	    <file src="..\..\binaries\Tools\NServiceBus.???" target="" />
 	<file src="..\..\binaries\Tools\ReturnToSourceQueue.???" target="" />
 	<file src="..\..\binaries\Tools\XsdGenerator.???" target="" />
 	<file src="..\..\binaries\Tools\LicenseInstaller\LicenseInstaller.???" target="LicenseInstaller" />
