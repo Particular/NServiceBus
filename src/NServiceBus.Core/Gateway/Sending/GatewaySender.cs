@@ -14,12 +14,10 @@ namespace NServiceBus.Gateway.Sending
     using Satellites;
     using Settings;
     using Transports;
-    using Unicast;
     using Unicast.Transport;
 
     public class GatewaySender : IAdvancedSatellite
     {
-        public UnicastBus UnicastBus { get; set; }
         public IBuilder Builder { get; set; }
         public IManageReceiveChannels ChannelManager { get; set; }
         public IMessageNotifier Notifier { get; set; }
