@@ -34,6 +34,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     CorrelationId = true,
                     Extension = true,
                     AppSpecific = true,
+                    LookupId = true,
                 };
 
                 queue.MessageReadPropertyFilter = messageReadPropertyFilter;
