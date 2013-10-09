@@ -20,7 +20,6 @@ namespace NServiceBus.Gateway.Routing.Sites
             {
                 var siteKeys = messageToDispatch.Headers[Headers.DestinationSites].Split(',');
 
-
                 foreach (var siteKey in siteKeys)
                 {
                     if (sites.ContainsKey(siteKey))

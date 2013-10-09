@@ -2,8 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Messaging;
-    using System.Text.RegularExpressions;
     using Config;
     using log4net;
     using NServiceBus.Audit;
