@@ -110,6 +110,7 @@
     <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
+    <Compile Include="Pipeline\Behaviors\ImpersonateSender.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\IBehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />

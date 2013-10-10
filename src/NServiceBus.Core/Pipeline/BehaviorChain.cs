@@ -17,11 +17,7 @@
         public void Invoke(TransportMessage incomingTransportMessage)
         {
             var head = GenerateBehaviorChain();
-
-            
-
             var context = new SimpleContext(incomingTransportMessage);
-
 
             try
             {
