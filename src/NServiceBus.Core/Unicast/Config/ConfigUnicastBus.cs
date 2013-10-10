@@ -47,6 +47,7 @@ namespace NServiceBus.Unicast.Config
         void ConfigureBehaviors()
         {
             Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<AbortChainOnEmptyMessage>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ImpersonateSender>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<PerformCustomActions>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);

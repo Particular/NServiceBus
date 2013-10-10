@@ -15,7 +15,7 @@
         public void Invoke(IBehaviorContext context)
         {
             var msg = context.TransportMessage;
-            Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
+            Log.DebugFormat("Received message with ID {0} from sender {1}", msg.Id, msg.ReplyToAddress);
 
             Next.Invoke(context);
 
