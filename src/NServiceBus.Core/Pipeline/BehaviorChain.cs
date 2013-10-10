@@ -4,9 +4,17 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using ObjectBuilder;
 
     public class BehaviorChain : IEnumerable<Type>
     {
+        readonly Func<IBuilder> getBuilder;
+
+        public BehaviorChain(Func<IBuilder> getBuilder)
+        {
+            this.getBuilder = getBuilder;
+        }
+
         readonly List<Type> behaviorTypes = new List<Type>();
 
         public void Add(Type type)
@@ -95,7 +103,7 @@
             try
             {
                 var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                var instance = Activator.CreateInstance(wrapperType, new object[] { Configure.Instance.Builder });
+                var instance = Activator.CreateInstance(wrapperType, new object[] { getBuilder() });
                 return (IBehavior)instance;
             }
             catch (Exception exception)

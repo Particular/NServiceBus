@@ -22,8 +22,6 @@
                      .DefaultBuilder();
             
             funcBuilder = new FuncBuilder();
-            
-            Configure.Instance.Builder = funcBuilder;
         }
 
         [Test]
@@ -42,7 +40,7 @@
             funcBuilder.Register<MyMessageThatStoresDataInRavenHandler>(() => new MyMessageThatStoresDataInRavenHandler());
 
             var pipeline =
-                new BehaviorChain
+                new BehaviorChain(() => funcBuilder)
                     {
                         typeof(RavenDbUnitOfWorkBehavior),
                         typeof(OrdinaryMessageHandlerDispatcherBehavior)
