@@ -26,7 +26,9 @@
 
         static int LogicalMessageCount(IBehaviorContext context)
         {
-            return context.Get<object[]>().Length;
+            return context.Messages == null
+                       ? 0
+                       : context.Messages.Length;
         }
     }
 }
