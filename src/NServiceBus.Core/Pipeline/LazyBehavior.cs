@@ -25,7 +25,12 @@
             var behaviorInstance = BuildBehaviorInstance();
             InitializeInstance(behaviorInstance);
             behaviorInstance.Next = Next;
-            behaviorInstance.Invoke(context);
+
+            context.Trace("<{0}>", typeof(TBehavior));
+            using (context.TraceContextFor<TBehavior>())
+            {
+                behaviorInstance.Invoke(context);
+            }
         }
 
         TBehavior BuildBehaviorInstance()

@@ -3,47 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
+    using Janitor;
+    using Logging;
     using ObjectBuilder;
 
     public class BehaviorChain
     {
+        static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         readonly Func<IBuilder> getBuilder;
-        readonly List<BehaviorPipelineItem> behaviorTypes = new List<BehaviorPipelineItem>();
-
-        class BehaviorPipelineItem
-        {
-            readonly Type behaviorType;
-            readonly Func<IBuilder> getBuilder;
-            readonly Delegate initializationMethod;
-
-            public BehaviorPipelineItem(Type behaviorType, Func<IBuilder> getBuilder, Delegate initializationMethod = null)
-            {
-                this.behaviorType = behaviorType;
-                this.getBuilder = getBuilder;
-                this.initializationMethod = initializationMethod;
-            }
-
-            public IBehavior GetInstance()
-            {
-                try
-                {
-                    var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                    var instance = Activator.CreateInstance(wrapperType, new object[] { getBuilder(), initializationMethod });
-                    return (IBehavior)instance;
-                }
-                catch (Exception exception)
-                {
-                    throw new ApplicationException(
-                        string.Format("An error occurred while attempting to create an instance of {0} closed with {1}",
-                                      typeof(LazyBehavior<>), behaviorType), exception);
-                }
-            }
-
-            public override string ToString()
-            {
-                return behaviorType.Name;
-            }
-        }
+        readonly List<BehaviorChainItemDescriptor> items = new List<BehaviorChainItemDescriptor>();
 
         public BehaviorChain(Func<IBuilder> getBuilder)
         {
@@ -55,7 +25,7 @@
         /// </summary>
         public void Add<TBehavior>() where TBehavior : IBehavior
         {
-            behaviorTypes.Add(new BehaviorPipelineItem(typeof(TBehavior), getBuilder));
+            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), getBuilder));
         }
 
         /// <summary>
@@ -63,7 +33,7 @@
         /// </summary>
         public void Add<TBehavior>(Action<TBehavior> init) where TBehavior : IBehavior
         {
-            behaviorTypes.Add(new BehaviorPipelineItem(typeof(TBehavior), getBuilder, init));
+            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), getBuilder, init));
         }
 
         public void Invoke(TransportMessage incomingTransportMessage)
@@ -77,24 +47,29 @@
 {0}", ToString());
 
                 head.Invoke(context);
+
+                if (Log.IsDebugEnabled)
+                {
+                    Log.Debug(context.GetTrace());
+                }
             }
             catch (Exception exception)
             {
                 throw new ApplicationException(
                     string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
-                                  string.Join(" -> ", behaviorTypes)), exception);
+                                  string.Join(" -> ", items)), exception);
             }
         }
 
         public override string ToString()
         {
             return string.Join(Environment.NewLine,
-                               behaviorTypes.Select((type, idx) => new string(' ', idx * 2) + " -> " + type));
+                               items.Select((type, idx) => new string(' ', idx * 2) + " -> " + type));
         }
 
         IBehavior GenerateBehaviorChain()
         {
-            var clonedList = behaviorTypes.ToList();
+            var clonedList = items.ToList();
             clonedList.Reverse();
 
             // start with the end
@@ -112,6 +87,34 @@
 
         class SimpleContext : IBehaviorContext
         {
+            int traceIndentLevel = 0;
+
+            [SkipWeaving]
+            class DisposeAction : IDisposable
+            {
+                Action whenDisposed;
+
+                public DisposeAction(Action whenDisposed)
+                {
+                    this.whenDisposed = whenDisposed;
+                }
+
+                public void Dispose()
+                {
+                    if (whenDisposed == null) return;
+
+                    try
+                    {
+                        whenDisposed();
+                    }
+                    finally
+                    {
+                        whenDisposed = null;
+                    }
+                }
+            }
+            readonly List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
+
             public SimpleContext(TransportMessage transportMessage)
             {
                 Set(transportMessage);
@@ -127,6 +130,17 @@
                 get { return stash["NServiceBus.Message"]; }
             }
 
+            public IDisposable TraceContextFor<T>()
+            {
+                traceIndentLevel++;
+                return new DisposeAction(() => traceIndentLevel--);
+            }
+
+            public void Trace(string message, params object[] objs)
+            {
+                executionTrace.Add(Tuple.Create(traceIndentLevel, message, objs));
+            }
+
             readonly Dictionary<string, object> stash = new Dictionary<string, object>();
 
             public T Get<T>()
@@ -139,6 +153,14 @@
             public void Set<T>(T t)
             {
                 stash[typeof(T).FullName] = t;
+            }
+
+            public string GetTrace()
+            {
+                const int spacesPerLevel = 4;
+                
+                return string.Join(Environment.NewLine,
+                                   executionTrace.Select(t => new string(' ', spacesPerLevel * t.Item1) + string.Format(t.Item2, t.Item3)));
             }
         }
 
@@ -156,6 +178,46 @@
             public void Invoke(IBehaviorContext context)
             {
                 // noop :)
+            }
+        }
+
+        /// <summary>
+        /// Chain item descriptor that will help create a behavior instance. The actual creation of the instance
+        /// will be deferred by wrapping it in a <see cref="LazyBehavior{TBehavior}"/> which will use the builder
+        /// to build the behavior when it is invoked.
+        /// </summary>
+        class BehaviorChainItemDescriptor
+        {
+            readonly Type behaviorType;
+            readonly Func<IBuilder> getBuilder;
+            readonly Delegate initializationMethod;
+
+            public BehaviorChainItemDescriptor(Type behaviorType, Func<IBuilder> getBuilder, Delegate initializationMethod = null)
+            {
+                this.behaviorType = behaviorType;
+                this.getBuilder = getBuilder;
+                this.initializationMethod = initializationMethod;
+            }
+
+            public IBehavior GetInstance()
+            {
+                try
+                {
+                    var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
+                    var instance = Activator.CreateInstance(wrapperType, new object[] {getBuilder(), initializationMethod});
+                    return (IBehavior) instance;
+                }
+                catch (Exception exception)
+                {
+                    throw new ApplicationException(
+                        string.Format("An error occurred while attempting to create an instance of {0} closed with {1}",
+                                      typeof(LazyBehavior<>), behaviorType), exception);
+                }
+            }
+
+            public override string ToString()
+            {
+                return behaviorType.Name;
             }
         }
     }

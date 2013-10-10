@@ -114,6 +114,8 @@
     <Compile Include="Pipeline\Behaviors\ImpersonateSender.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\PerformCustomActions.cs" />
+    <Compile Include="Pipeline\Behaviors\SagaPersistenceBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\SagaStateAuditingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\IBehaviorContext.cs" />

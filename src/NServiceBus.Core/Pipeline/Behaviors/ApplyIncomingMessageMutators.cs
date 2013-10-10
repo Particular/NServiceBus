@@ -19,6 +19,7 @@
 
             foreach (var mutator in mutators)
             {
+                context.Trace("Applying transport message mutator {0}", mutator);
                 mutator.MutateIncoming(context.TransportMessage);
             }
 
