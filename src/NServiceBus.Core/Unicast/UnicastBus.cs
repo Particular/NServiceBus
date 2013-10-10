@@ -46,7 +46,6 @@ namespace NServiceBus.Unicast
             _messageBeingHandled = null;
         }
 
-
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.

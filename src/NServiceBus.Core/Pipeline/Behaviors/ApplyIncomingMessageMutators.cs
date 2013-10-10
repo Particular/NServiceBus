@@ -1,19 +1,22 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using MessageMutator;
+    using ObjectBuilder;
 
     public class ApplyIncomingMessageMutators : IBehavior
     {
-        readonly IMutateIncomingTransportMessages[] mutators;
+        readonly IBuilder builder;
         public IBehavior Next { get; set; }
 
-        public ApplyIncomingMessageMutators(IMutateIncomingTransportMessages[] mutators)
+        public ApplyIncomingMessageMutators(IBuilder builder)
         {
-            this.mutators = mutators;
+            this.builder = builder;
         }
 
         public void Invoke(IBehaviorContext context)
         {
+            var mutators = builder.BuildAll<IMutateIncomingTransportMessages>();
+
             foreach (var mutator in mutators)
             {
                 mutator.MutateIncoming(context.TransportMessage);
