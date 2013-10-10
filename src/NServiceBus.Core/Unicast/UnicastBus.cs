@@ -1057,16 +1057,16 @@ namespace NServiceBus.Unicast
         {
             var messages = new object[0];
 
-            if (!m.IsControlMessage() && !SkipDeserialization)
-            {
-                messages = Extract(m);
+            //if (!m.IsControlMessage() && !SkipDeserialization)
+            //{
+            //    messages = Extract(m);
 
-                if (messages == null || messages.Length == 0)
-                {
-                    Log.Warn("Received an empty message - ignoring.");
-                    return;
-                }
-            }
+            //    if (messages == null || messages.Length == 0)
+            //    {
+            //        Log.Warn("Received an empty message - ignoring.");
+            //        return;
+            //    }
+            //}
 
             //apply mutators
             messages = messages.Select(msg =>
@@ -1297,29 +1297,38 @@ namespace NServiceBus.Unicast
             chain.Add<UnitOfWorkBehavior>();
             chain.Add<ApplyIncomingMessageMutators>();
 
-            //typeof(MessageExtractor),
-            //typeof(AbortChainOnEmptyMessage),
+            Action resetHandleCurrentMessagelaterFlag = () => _handleCurrentMessageLaterWasCalled = false;
 
-            Action theRestOfWhatNeedsToBeDone =
+            chain.Add<PerformCustomActions>(c =>
+                                                {
+                                                    c.Before = resetHandleCurrentMessagelaterFlag;
+                                                });
+
+            Action raiseMessageReceivedEvent =
                 () =>
                     {
-                        _handleCurrentMessageLaterWasCalled = false;
-
                         if (MessageReceived != null)
+                        {
                             MessageReceived(msg);
-
-                        if (!disableMessageHandling)
-                            HandleMessage(childBuilder, msg);
-
-                        //unitOfWorkRunner.End();
-
-                        // Will forward the message to the configured audit queue if the auditing feature is enabled.
+                        }
                     };
 
             chain.Add<PerformCustomActions>(c =>
                                                 {
-                                                    c.Before = theRestOfWhatNeedsToBeDone;
+                                                    c.Before = raiseMessageReceivedEvent;
                                                 });
+
+            if (!disableMessageHandling)
+            {
+                chain.Add<AbortChainOnEmptyMessage>();
+
+                Action handleMessage = () => HandleMessage(childBuilder, msg);
+
+                chain.Add<PerformCustomActions>(c =>
+                                                    {
+                                                        c.Before = handleMessage;
+                                                    });
+            }
 
             chain.Invoke(msg);
 

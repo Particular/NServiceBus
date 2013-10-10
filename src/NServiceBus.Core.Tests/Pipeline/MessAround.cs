@@ -59,12 +59,15 @@
             {
                 using (var session = Builder.Build<IDocumentSession>())
                 {
+                    context.Trace("Session #{0}", session.GetHashCode());
                     Console.Out.WriteLine("Session: " + session.GetHashCode());
 
                     //context.Set(session);  Not needed since any one (is this case users) would just take a dep on IDocumentSession
                     // this works for other behaviours as well but I'd argue that we should stay away from the container as much as possible
                     //for our internal stuff
                     Next.Invoke(context);
+                    
+                    context.Trace("Saving changes");
                     session.SaveChanges();
                 }
             }
@@ -76,7 +79,7 @@
 
             public void Handle(MyMessageThatStoresDataInRaven message)
             {
-                Console.Out.WriteLine("Session: "+Session.GetHashCode());
+                Console.Out.WriteLine("Session: " + Session.GetHashCode());
                 Session.Store(new SomeDocument());
             }
         }
@@ -98,9 +101,11 @@
 
             public void Invoke(IBehaviorContext context)
             {
+                context.Trace("Resolving handler");
                 //hardcoded
                 var handler = Builder.Build<MyMessageThatStoresDataInRavenHandler>();
 
+                context.Trace("Dispatching to {0}", handler);
                 //handler.Handle((MyMessageThatStoresDataInRaven)context.Message);
                 handler.Handle(null); //just for now
             }

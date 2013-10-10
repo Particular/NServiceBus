@@ -27,9 +27,16 @@
             behaviorInstance.Next = Next;
 
             context.Trace("<{0}>", typeof(TBehavior));
-            using (context.TraceContextFor<TBehavior>())
+            try
             {
-                behaviorInstance.Invoke(context);
+                using (context.TraceContextFor<TBehavior>())
+                {
+                    behaviorInstance.Invoke(context);
+                }
+            }
+            finally
+            {
+                context.Trace("</{0}>", typeof(TBehavior));
             }
         }
 

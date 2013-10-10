@@ -15,7 +15,24 @@
 
         public void Invoke(IBehaviorContext context)
         {
-            var message = context.Message;
+            var activeSagaInstances = GetOrCreateActiveSagaInstances(context);
+            var messages = context.Messages;
+
+            foreach (var message in messages)
+            {
+                LoadSagaInstancesForMessage(message, activeSagaInstances);
+            }
+
+            Next.Invoke(context);
+
+            foreach (var sagaInstanceContainer in activeSagaInstances.Instances)
+            {
+                //SagaPersister.Update(theInstances);
+            }
+        }
+
+        void LoadSagaInstancesForMessage(object message, ActiveSagaInstances activeSagaInstances)
+        {
             var messageType = message.GetType();
 
             // this would be how we discovered WhateverSagaData
@@ -23,11 +40,10 @@
             // note: add an acceptance test for this scenario
             var sagaDataTypes = SagaMetaDataRegistry.GetSagaDataTypesFor(messageType);
 
-            var activeSagaInstances = GetOrCreateActiveSagaInstances(context);
-
-            foreach(var sagaDataType in sagaDataTypes)
+            foreach (var sagaDataType in sagaDataTypes)
             {
-                var correlationPropertyName = SagaMetaDataRegistry.GetCorrelationPropertyName(sagaDataType, messageType);
+                var correlationPropertyName = SagaMetaDataRegistry.GetCorrelationPropertyName(sagaDataType,
+                                                                                              messageType);
 
                 // this one is probably Func<TMessage, object>
                 var messageFieldExtractor = SagaMetaDataRegistry.GetPropertyValueMethod(sagaDataType, messageType);
@@ -50,13 +66,6 @@
                                                                 ? SagaInstanceStateChangeDescriptor.New
                                                                 : SagaInstanceStateChangeDescriptor.Existing
                                                     });
-            }
-            
-            Next.Invoke(context);
-
-            foreach (var sagaInstanceContainer in activeSagaInstances.Instances)
-            {
-                //SagaPersister.Update(theInstances);
             }
         }
 

@@ -48,9 +48,12 @@
 
                 head.Invoke(context);
 
+                var trace = context.GetTrace();
+                Console.WriteLine(trace);
+
                 if (Log.IsDebugEnabled)
                 {
-                    Log.Debug(context.GetTrace());
+                    Log.Debug(trace);
                 }
             }
             catch (Exception exception)
@@ -125,9 +128,14 @@
                 get { return Get<TransportMessage>(); }
             }
 
-            public object Message
+            public object[] Messages
             {
-                get { return stash["NServiceBus.Message"]; }
+                get { return Get<object[]>("NServiceBus.Messages"); }
+            }
+
+            public void SetMessages(object[] messages)
+            {
+                Set("NServiceBus.Messages", messages);
             }
 
             public IDisposable TraceContextFor<T>()
@@ -145,14 +153,24 @@
 
             public T Get<T>()
             {
-                return stash.ContainsKey(typeof(T).FullName)
-                           ? (T)stash[typeof(T).FullName]
+                return Get<T>(typeof(T).FullName);
+            }
+
+            public T Get<T>(string key)
+            {
+                return stash.ContainsKey(key)
+                           ? (T) stash[key]
                            : default(T);
             }
 
             public void Set<T>(T t)
             {
-                stash[typeof(T).FullName] = t;
+                Set(typeof(T).FullName, t);
+            }
+
+            public void Set<T>(string key, T t)
+            {
+                stash[key] = t;
             }
 
             public string GetTrace()
