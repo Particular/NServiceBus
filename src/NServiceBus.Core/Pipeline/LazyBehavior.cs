@@ -28,6 +28,19 @@
             behaviorInstance.Invoke(context);
         }
 
+        TBehavior BuildBehaviorInstance()
+        {
+            try
+            {
+                return builder.Build<TBehavior>();
+            }
+            catch (Exception exception)
+            {
+                throw new ApplicationException(
+                    string.Format("Could not build behavior instance of type {0}", typeof(TBehavior)), exception);
+            }
+        }
+
         void InitializeInstance(TBehavior behaviorInstance)
         {
             if (initializationMethod == null) return;
@@ -39,19 +52,6 @@
             {
                 throw new ApplicationException(
                     string.Format("An error occured when initializing behavior {0}", behaviorInstance), exception);
-            }
-        }
-
-        TBehavior BuildBehaviorInstance()
-        {
-            try
-            {
-                return builder.Build<TBehavior>();
-            }
-            catch (Exception exception)
-            {
-                throw new ApplicationException(
-                    string.Format("Could not build behavior instance of type {0}", typeof(TBehavior)), exception);
             }
         }
     }

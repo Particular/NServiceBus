@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Pipeline.Behaviors;
     using Routing;
     using Settings;
 
@@ -39,6 +40,17 @@ namespace NServiceBus.Unicast.Config
             RegisterMessageOwnersAndBusAddress(knownMessages);
           
             ConfigureMessageRegistry(knownMessages);
+
+            ConfigureBehaviors();
+        }
+
+        void ConfigureBehaviors()
+        {
+            Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ImpersonateSender>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<PerformCustomActions>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ApplyIncomingMessageMutators>(DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)
