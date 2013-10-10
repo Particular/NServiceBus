@@ -32,26 +32,21 @@
 
             //in real life this would be a Configure.Component<IDocumentSession>(b=>b.Build<IDocumentStore>().OpenSession())
             var stubSession = MockRepository.GenerateMock<IDocumentSession>();
-
             
             funcBuilder.Register<RavenDbUnitOfWorkBehavior>(() => new RavenDbUnitOfWorkBehavior{Builder = funcBuilder});
             funcBuilder.Register<OrdinaryMessageHandlerDispatcherBehavior>(() => new OrdinaryMessageHandlerDispatcherBehavior{Builder = funcBuilder});
             funcBuilder.Register<IDocumentSession>(() => stubSession);
             funcBuilder.Register<MyMessageThatStoresDataInRavenHandler>(() => new MyMessageThatStoresDataInRavenHandler());
 
-            var pipeline =
-                new BehaviorChain(() => funcBuilder)
-                    {
-                        typeof(RavenDbUnitOfWorkBehavior),
-                        typeof(OrdinaryMessageHandlerDispatcherBehavior)
-                    };
+            var pipeline = new BehaviorChain(() => funcBuilder);
+
+            pipeline.Add<RavenDbUnitOfWorkBehavior>();
+            pipeline.Add<OrdinaryMessageHandlerDispatcherBehavior>();
 
             var incomingTransportMessage = new TransportMessage();
 
             pipeline.Invoke(incomingTransportMessage);
         }
-
-
 
         //this is a behaviour that "might" be created be a end user
         public class RavenDbUnitOfWorkBehavior : IBehavior

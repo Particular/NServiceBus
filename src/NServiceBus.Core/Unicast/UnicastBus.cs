@@ -1276,60 +1276,93 @@ namespace NServiceBus.Unicast
 
         private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
-            Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
+            //Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             // construct behavior chain - look at configuration and possibly the incoming transport message
             var chain = new BehaviorChain(() => childBuilder);
+            chain.Add<MessageHandlingLoggingBehavior>();
 
             if (ConfigureImpersonation.Impersonate)
             {
-                chain.Add(typeof(ImpersonateSender));
+                chain.Add<ImpersonateSender>();
             }
 
-                                //typeof(MessageExtractor),
-                                //typeof(AbortChainOnEmptyMessage),
-            
+            chain.Add<PerformCustomActions>(c =>
+                                                {
+                                                    c.After = () =>
+                                                                   {
+                                                                       MessageAuditer.ForwardMessageToAuditQueue(msg);
+                                                                       ForwardMessageIfNecessary(msg);
+                                                                   };
+                                                });
+            chain.Add<UnitOfWorkBehavior>();
+            chain.Add<ApplyIncomingMessageMutators>();
+
+            //typeof(MessageExtractor),
+            //typeof(AbortChainOnEmptyMessage),
+
+            Action theRestOfWhatNeedsToBeDone =
+                () =>
+                    {
+                        _handleCurrentMessageLaterWasCalled = false;
+
+                        if (MessageReceived != null)
+                            MessageReceived(msg);
+
+                        if (!disableMessageHandling)
+                            HandleMessage(childBuilder, msg);
+
+                        //unitOfWorkRunner.End();
+
+                        // Will forward the message to the configured audit queue if the auditing feature is enabled.
+                    };
+
+            chain.Add<PerformCustomActions>(c =>
+                                                {
+                                                    c.Before = theRestOfWhatNeedsToBeDone;
+                                                });
+
             chain.Invoke(msg);
 
 
-            SetupImpersonation(childBuilder, msg);
+            //SetupImpersonation(childBuilder, msg);
 
 
-            var unitOfWorkRunner = new UnitOfWorkRunner
-                                  {
-                                      Builder = childBuilder
-                                  };
+            //var unitOfWorkRunner = new UnitOfWorkRunner
+            //                      {
+            //                          Builder = childBuilder
+            //                      };
 
             try
             {
-                unitOfWorkRunner.Begin();
+                //unitOfWorkRunner.Begin();
 
-                var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
+                //var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
 
-                if (transportMutators != null)
-                    foreach (var mutator in transportMutators)
-                        mutator.MutateIncoming(msg);
+                //if (transportMutators != null)
+                //    foreach (var mutator in transportMutators)
+                //        mutator.MutateIncoming(msg);
 
-                _handleCurrentMessageLaterWasCalled = false;
+                //_handleCurrentMessageLaterWasCalled = false;
 
-                if (MessageReceived != null)
-                    MessageReceived(msg);
+                //if (MessageReceived != null)
+                //    MessageReceived(msg);
 
-                if (!disableMessageHandling)
-                    HandleMessage(childBuilder, msg);
+                //if (!disableMessageHandling)
+                //    HandleMessage(childBuilder, msg);
 
-                unitOfWorkRunner.End();
+                ////unitOfWorkRunner.End();
 
-                // Will forward the message to the configured audit queue if the auditing feature is enabled.
-                MessageAuditer.ForwardMessageToAuditQueue(msg);
-                ForwardMessageIfNecessary(msg);
+                //// Will forward the message to the configured audit queue if the auditing feature is enabled.
+                //MessageAuditer.ForwardMessageToAuditQueue(msg);
+                //ForwardMessageIfNecessary(msg);
             }
             catch (Exception exception)
             {
-                unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
+                //unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
             }
 
-            Log.Debug("Finished handling message.");
+            //Log.Debug("Finished handling message.");
         }
 
         static void SetupImpersonation(IBuilder childBuilder, TransportMessage message)

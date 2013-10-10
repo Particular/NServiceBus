@@ -1,25 +1,69 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using ObjectBuilder;
 
-    public class BehaviorChain : IEnumerable<Type>
+    public class BehaviorChain
     {
         readonly Func<IBuilder> getBuilder;
+        readonly List<BehaviorPipelineItem> behaviorTypes = new List<BehaviorPipelineItem>();
+
+        class BehaviorPipelineItem
+        {
+            readonly Type behaviorType;
+            readonly Func<IBuilder> getBuilder;
+            readonly Delegate initializationMethod;
+
+            public BehaviorPipelineItem(Type behaviorType, Func<IBuilder> getBuilder, Delegate initializationMethod = null)
+            {
+                this.behaviorType = behaviorType;
+                this.getBuilder = getBuilder;
+                this.initializationMethod = initializationMethod;
+            }
+
+            public IBehavior GetInstance()
+            {
+                try
+                {
+                    var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
+                    var instance = Activator.CreateInstance(wrapperType, new object[] { getBuilder(), initializationMethod });
+                    return (IBehavior)instance;
+                }
+                catch (Exception exception)
+                {
+                    throw new ApplicationException(
+                        string.Format("An error occurred while attempting to create an instance of {0} closed with {1}",
+                                      typeof(LazyBehavior<>), behaviorType), exception);
+                }
+            }
+
+            public override string ToString()
+            {
+                return behaviorType.Name;
+            }
+        }
 
         public BehaviorChain(Func<IBuilder> getBuilder)
         {
             this.getBuilder = getBuilder;
         }
 
-        readonly List<Type> behaviorTypes = new List<Type>();
-
-        public void Add(Type type)
+        /// <summary>
+        /// Adds the given behavior to the chain
+        /// </summary>
+        public void Add<TBehavior>() where TBehavior : IBehavior
         {
-            behaviorTypes.Add(type);
+            behaviorTypes.Add(new BehaviorPipelineItem(typeof(TBehavior), getBuilder));
+        }
+
+        /// <summary>
+        /// Adds the given behavior to the chain, allowing the caller to initialize it before it is invoked
+        /// </summary>
+        public void Add<TBehavior>(Action<TBehavior> init) where TBehavior : IBehavior
+        {
+            behaviorTypes.Add(new BehaviorPipelineItem(typeof(TBehavior), getBuilder, init));
         }
 
         public void Invoke(TransportMessage incomingTransportMessage)
@@ -38,14 +82,14 @@
             {
                 throw new ApplicationException(
                     string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
-                                  string.Join(" -> ", behaviorTypes.Select(t => t.Name))), exception);
+                                  string.Join(" -> ", behaviorTypes)), exception);
             }
         }
 
         public override string ToString()
         {
             return string.Join(Environment.NewLine,
-                               behaviorTypes.Select((type, idx) => new string(' ', idx*2) + " -> " + type.Name));
+                               behaviorTypes.Select((type, idx) => new string(' ', idx * 2) + " -> " + type));
         }
 
         IBehavior GenerateBehaviorChain()
@@ -60,7 +104,7 @@
             foreach (var type in clonedList)
             {
                 var next = behavior;
-                behavior = CreateLazyFor(type);
+                behavior = type.GetInstance();
                 behavior.Next = next;
             }
             return behavior;
@@ -98,22 +142,9 @@
             }
         }
 
-        IBehavior CreateLazyFor(Type behaviorType)
-        {
-            try
-            {
-                var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                var instance = Activator.CreateInstance(wrapperType, new object[] { getBuilder() });
-                return (IBehavior)instance;
-            }
-            catch (Exception exception)
-            {
-                throw new ApplicationException(
-                    string.Format("An error occurred while attempting to create an instance of {0} closed with {1}",
-                                  typeof(LazyBehavior<>), behaviorType), exception);
-            }
-        }
-
+        /// <summary>
+        /// Special terminator behavior that eliminates the need for null checks all the way through the pipeline
+        /// </summary>
         class Terminator : IBehavior
         {
             public IBehavior Next
@@ -124,17 +155,8 @@
 
             public void Invoke(IBehaviorContext context)
             {
+                // noop :)
             }
-        }
-
-        public IEnumerator<Type> GetEnumerator()
-        {
-            return behaviorTypes.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
