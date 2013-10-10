@@ -7,7 +7,8 @@ namespace NServiceBus.Core.Tests.Config
     public class When_using_convention_based_messages
     {
         [Test]
-        public void Should_include_messages()
+        [Explicit("//TODO: re-enable when we make message scanning lazy #1617")]
+        public void Should_include_messages_of_a_handler()
         {
             Configure.With(new[] { typeof(x64.ConventionBasedHandler) });
 

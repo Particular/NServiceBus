@@ -13,7 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <FodyPath>..\packages\Fody</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -124,6 +123,7 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
@@ -163,6 +163,8 @@
     <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
+    <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
@@ -280,7 +282,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Fody.targets" />
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
@@ -301,7 +302,6 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FodyWeavers.xml" />
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -322,6 +322,5 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="Fody.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
 </Project>

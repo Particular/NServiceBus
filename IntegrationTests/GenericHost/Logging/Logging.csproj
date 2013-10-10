@@ -48,15 +48,9 @@
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      
-    </Reference>
+    <Reference Include="System.Core"/>
+    <Reference Include="System.Xml.Linq"/>
+    <Reference Include="System.Data.DataSetExtensions"/>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -73,4 +67,5 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
     <StartArguments>Logging.MyProductionProfile</StartArguments>
   </PropertyGroup>
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" />
+</Project>

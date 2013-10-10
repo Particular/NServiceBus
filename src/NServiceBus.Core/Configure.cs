@@ -18,7 +18,6 @@ namespace NServiceBus
     using Logging;
     using ObjectBuilder;
     using Settings;
-    using Unicast;
 
     /// <summary>
     /// Central configuration entry point.
@@ -260,7 +259,8 @@ namespace NServiceBus
                 }
             }
 
-            TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
+            //TODO: re-enable when we make message scanning lazy #1617
+            //TypesToScan = TypesToScan.Union(GetMessageTypes(TypesToScan)).ToList();
 
             Logger.DebugFormat("Number of types to scan: {0}", TypesToScan.Count);
 
@@ -271,10 +271,11 @@ namespace NServiceBus
             return instance;
         }
 
-        static IEnumerable<Type> GetMessageTypes(IList<Type> types)
-        {
-            return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
-        }
+        //TODO: re-enable when we make message scanning lazy #1617
+        //static IEnumerable<Type> GetMessageTypes(IList<Type> types)
+        //{
+        //    return types.SelectMany(MessageHandlerRegistry.GetMessageTypesIfIsMessageHandler);
+        //}
 
         /// <summary>
         /// Run a custom action at configuration time - useful for performing additional configuration not exposed by the fluent interface.

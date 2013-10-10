@@ -18,5 +18,6 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.AcceptanceTesting.???" target="lib\net40" />
+    <file src="..\..\src\NServiceBus.AcceptanceTesting\**\*.cs" target="src" />
   </files>
 </package>

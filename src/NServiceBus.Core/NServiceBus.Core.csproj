@@ -88,7 +88,7 @@
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
-    <Compile Include="Audit\ConfigureAudit.cs" />
+    <Compile Include="Audit\InitMessageAuditer.cs" />
     <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
@@ -604,4 +604,5 @@
     <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:v4" />
     <Delete Files="$(MergeTemp)" />
   </Target>
+  <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
 </Project>
