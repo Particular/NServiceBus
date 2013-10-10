@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System.Collections;
     using ObjectBuilder;
 
     /// <summary>

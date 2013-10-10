@@ -278,7 +278,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>(T message)
         {
-            Publish(new []{message});
+            Publish(new[] { message });
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>()
         {
-            Publish(new object[]{});
+            Publish(new object[] { });
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages as object[], eventMessage);
 
-            if(MessagePublisher == null)
+            if (MessagePublisher == null)
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
 
             var subscribersExisted = MessagePublisher.Publish(eventMessage, fullTypes);
@@ -427,7 +427,7 @@ namespace NServiceBus.Unicast
 
         public void Reply(object message)
         {
-            Reply(new[]{message});
+            Reply(new[] { message });
         }
 
         public void Reply<T>(Action<T> messageConstructor)
@@ -483,7 +483,7 @@ namespace NServiceBus.Unicast
 
         public ICallback SendLocal(object message)
         {
-            return SendLocal(new[] {message});
+            return SendLocal(new[] { message });
         }
 
         public ICallback SendLocal(params object[] messages)
@@ -504,7 +504,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(object message)
         {
-            return Send(new[] {message});
+            return Send(new[] { message });
         }
 
         public ICallback Send(params object[] messages)
@@ -526,7 +526,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, new[]{message});
+            return SendMessage(destination, null, MessageIntentEnum.Send, new[] { message });
         }
 
         public ICallback Send(string destination, params object[] messages)
@@ -541,7 +541,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, new[]{message});
+            return SendMessage(address, null, MessageIntentEnum.Send, new[] { message });
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -556,7 +556,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(string destination, string correlationId, object message)
         {
-            return Send(destination, correlationId, new[] {message});
+            return Send(destination, correlationId, new[] { message });
         }
 
         public ICallback Send(string destination, string correlationId, params object[] messages)
@@ -571,12 +571,12 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(Address address, string correlationId, object message)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[]{message});
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[] { message });
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            return SendToSites(siteKeys, new[] {message});
+            return SendToSites(siteKeys, new[] { message });
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
@@ -606,7 +606,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, object message)
         {
-            return Defer(processAt, new [] { message });
+            return Defer(processAt, new[] { message });
         }
 
         /// <summary>
@@ -842,7 +842,7 @@ namespace NServiceBus.Unicast
                 {
                     transport.Start(InputAddress);
                 }
-                
+
                 started = true;
             }
 
@@ -1056,15 +1056,6 @@ namespace NServiceBus.Unicast
         /// </remarks>
         public void HandleMessage(IBuilder builder, TransportMessage m)
         {
-            // construct behavior chain - look at configuration and possibly the incoming transport message
-            var chain = new BehaviorChain
-                            {
-                                typeof(MessageExtractor),
-                                typeof(AbortChainOnEmptyMessage),
-                            };
-
-            chain.Invoke(m);
-
             var messages = new object[0];
 
             if (!m.IsControlMessage() && !SkipDeserialization)
@@ -1286,6 +1277,20 @@ namespace NServiceBus.Unicast
         private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
+
+            // construct behavior chain - look at configuration and possibly the incoming transport message
+            var chain = new BehaviorChain();
+
+            if (ConfigureImpersonation.Impersonate)
+            {
+                chain.Add(typeof(ImpersonateSender));
+            }
+
+                                //typeof(MessageExtractor),
+                                //typeof(AbortChainOnEmptyMessage),
+            
+            chain.Invoke(msg);
+
 
             SetupImpersonation(childBuilder, msg);
 

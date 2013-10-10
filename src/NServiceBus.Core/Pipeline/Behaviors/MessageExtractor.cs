@@ -4,9 +4,9 @@
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
-    using NServiceBus.Unicast.Messages;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Serialization;
+    using Unicast.Messages;
+    using Pipeline;
+    using Serialization;
 
     public class MessageExtractor : IBehavior
     {
