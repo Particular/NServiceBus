@@ -1279,7 +1279,7 @@ namespace NServiceBus.Unicast
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
             // construct behavior chain - look at configuration and possibly the incoming transport message
-            var chain = new BehaviorChain();
+            var chain = new BehaviorChain(() => childBuilder);
 
             if (ConfigureImpersonation.Impersonate)
             {
