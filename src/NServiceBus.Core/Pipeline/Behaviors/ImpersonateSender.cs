@@ -21,15 +21,17 @@
             if (principal == null)
                 return;
 
-            var currentPrincipal = Thread.CurrentPrincipal;
+            var previousPrincipal = Thread.CurrentPrincipal;
             try
             {
+                context.Trace("Impersonating {0}", principal);
                 Thread.CurrentPrincipal = principal;
                 Next.Invoke(context);
             }
             finally
             {
-                Thread.CurrentPrincipal = currentPrincipal;
+                context.Trace("Reverting back to {0}", previousPrincipal);
+                Thread.CurrentPrincipal = previousPrincipal;
             }
         }
     }

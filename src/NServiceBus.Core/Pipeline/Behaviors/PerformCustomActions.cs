@@ -12,11 +12,19 @@
 
         public void Invoke(IBehaviorContext context)
         {
-            if (Before != null) Before();
+            if (Before != null)
+            {
+                context.Trace("Executing custom -Before- action");
+                Before();
+            }
 
             Next.Invoke(context);
 
-            if (After != null) After();
+            if (After != null)
+            {
+                context.Trace("Executing custom -After- action");
+                After();
+            }
         }
     }
 }

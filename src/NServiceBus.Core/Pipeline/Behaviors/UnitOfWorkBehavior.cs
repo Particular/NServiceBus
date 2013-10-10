@@ -20,14 +20,17 @@
 
             try
             {
+                context.Trace("Starting uow");
                 unitOfWorkRunner.Begin();
 
                 Next.Invoke(context);
 
+                context.Trace("Ending uow");
                 unitOfWorkRunner.End();
             }
             catch (Exception exception)
             {
+                context.Trace("Appending exception: {0}", exception);
                 unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
             }
         }
