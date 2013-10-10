@@ -5,18 +5,13 @@
 
     public class ImpersonateSender : IBehavior
     {
-        readonly ExtractIncomingPrincipal extractIncomingPrincipal;
-
-        public ImpersonateSender(ExtractIncomingPrincipal extractIncomingPrincipal)
-        {
-            this.extractIncomingPrincipal = extractIncomingPrincipal;
-        }
+        public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 
         public IBehavior Next { get; set; }
 
         public void Invoke(IBehaviorContext context)
         {
-            var principal = extractIncomingPrincipal.GetPrincipal(context.TransportMessage);
+            var principal = ExtractIncomingPrincipal.GetPrincipal(context.TransportMessage);
 
             if (principal == null)
                 return;

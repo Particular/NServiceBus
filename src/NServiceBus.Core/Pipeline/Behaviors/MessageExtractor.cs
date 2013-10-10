@@ -10,15 +10,11 @@
 
     public class MessageExtractor : IBehavior
     {
-        readonly IMessageSerializer messageSerializer;
-        readonly MessageMetadataRegistry messageMetadataRegistry;
         public IBehavior Next { get; set; }
 
-        public MessageExtractor(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)
-        {
-            this.messageSerializer = messageSerializer;
-            this.messageMetadataRegistry = messageMetadataRegistry;
-        }
+        public IMessageSerializer MessageSerializer { get; set; }
+
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public bool SkipDeserialization { get; set; }
 
@@ -64,11 +60,11 @@
             try
             {
 
-                var messageMetadata = messageMetadataRegistry.GetMessageTypes(m);
+                var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
                 using (var stream = new MemoryStream(m.Body))
                 {
-                    return messageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
+                    return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
                 }
             }
             catch (Exception e)

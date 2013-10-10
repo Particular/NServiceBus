@@ -6,17 +6,13 @@
 
     public class UnitOfWorkBehavior : IBehavior
     {
-        readonly IBuilder builder;
         public IBehavior Next { get; set; }
 
-        public UnitOfWorkBehavior(IBuilder builder)
-        {
-            this.builder = builder;
-        }
+        public IBuilder Builder { get; set; }
 
         public void Invoke(IBehaviorContext context)
         {
-            var unitOfWorkRunner = new UnitOfWorkRunner {Builder = builder};
+            var unitOfWorkRunner = new UnitOfWorkRunner {Builder = Builder};
 
             try
             {
