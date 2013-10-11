@@ -63,7 +63,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException);
+            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException.InnerException);
         }
     }
 
