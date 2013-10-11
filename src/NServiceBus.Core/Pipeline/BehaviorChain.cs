@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Janitor;
     using Logging;
     using ObjectBuilder;
 
@@ -39,29 +38,28 @@
         public void Invoke(TransportMessage incomingTransportMessage)
         {
             var head = GenerateBehaviorChain();
-            var context = new SimpleContext(incomingTransportMessage);
-
-            try
+            
+            using (var context = new BehaviorContext(incomingTransportMessage))
             {
-                Console.WriteLine(@"Invoking chain:
-{0}", ToString());
-
-                head.Invoke(context);
-            }
-            catch (Exception exception)
-            {
-                throw new ApplicationException(
-                    string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
-                                  string.Join(" -> ", items)), exception);
-            }
-            finally
-            {
-                var trace = context.GetTrace();
-                Console.WriteLine(trace);
-
-                if (Log.IsDebugEnabled)
+                try
                 {
-                    Log.Debug(trace);
+                    head.Invoke(context);
+                }
+                catch (Exception exception)
+                {
+                    throw new ApplicationException(
+                        string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
+                                      string.Join(" -> ", items)), exception);
+                }
+                finally
+                {
+                    // todo mhg: remove
+                    Console.WriteLine(context.GetTrace());
+
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.Debug(context.GetTrace());
+                    }
                 }
             }
         }
@@ -88,96 +86,6 @@
                 behavior.Next = next;
             }
             return behavior;
-        }
-
-        class SimpleContext : IBehaviorContext
-        {
-            int traceIndentLevel = 0;
-
-            [SkipWeaving]
-            class DisposeAction : IDisposable
-            {
-                Action whenDisposed;
-
-                public DisposeAction(Action whenDisposed)
-                {
-                    this.whenDisposed = whenDisposed;
-                }
-
-                public void Dispose()
-                {
-                    if (whenDisposed == null) return;
-
-                    try
-                    {
-                        whenDisposed();
-                    }
-                    finally
-                    {
-                        whenDisposed = null;
-                    }
-                }
-            }
-            readonly List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
-
-            public SimpleContext(TransportMessage transportMessage)
-            {
-                Set(transportMessage);
-            }
-
-            public TransportMessage TransportMessage
-            {
-                get { return Get<TransportMessage>(); }
-            }
-
-            public object[] Messages
-            {
-                get { return Get<object[]>("NServiceBus.Messages"); }
-                set { Set("NServiceBus.Messages", value); }
-            }
-
-            public IDisposable TraceContextFor<T>()
-            {
-                traceIndentLevel++;
-                return new DisposeAction(() => traceIndentLevel--);
-            }
-
-            public void Trace(string message, params object[] objs)
-            {
-                executionTrace.Add(Tuple.Create(traceIndentLevel, message, objs));
-            }
-
-            readonly Dictionary<string, object> stash = new Dictionary<string, object>();
-
-            public T Get<T>()
-            {
-                return Get<T>(typeof(T).FullName);
-            }
-
-            public T Get<T>(string key)
-            {
-                return stash.ContainsKey(key)
-                           ? (T) stash[key]
-                           : default(T);
-            }
-
-            public void Set<T>(T t)
-            {
-                Set(typeof(T).FullName, t);
-            }
-
-            public void Set<T>(string key, T t)
-            {
-                stash[key] = t;
-            }
-
-            public string GetTrace()
-            {
-                const int spacesPerLevel = 4;
-                
-                return string.Join(Environment.NewLine,
-                                   executionTrace.Select(t => new string(' ', spacesPerLevel * t.Item1) + string.Format(t.Item2, t.Item3)));
-            }
         }
 
         /// <summary>

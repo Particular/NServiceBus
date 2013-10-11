@@ -850,7 +850,7 @@ namespace NServiceBus.Unicast
                 Started(this, null);
             }
 
-            satelliteLauncher = new SatelliteLauncher {Builder = Builder};
+            satelliteLauncher = new SatelliteLauncher { Builder = Builder };
             satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
@@ -980,9 +980,16 @@ namespace NServiceBus.Unicast
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            _doNotContinueDispatchingCurrentMessageToHandlers = true;
-        }
+            var context = BehaviorContext.Current;
 
+            //todo mhg: this is the old behavior - remove it
+            _doNotContinueDispatchingCurrentMessageToHandlers = true;
+
+            // todo mhg: let it pass for now, probably throw pedagogically sound error in the future
+            if (context == null) return;
+
+            context.DoNotContinueDispatchingMessageToHandlers = true;
+        }
 
         public IDictionary<string, string> OutgoingHeaders
         {
@@ -1291,10 +1298,10 @@ namespace NServiceBus.Unicast
                                                         {
                                                             c.After =
                                                                 ctx =>
-                                                                    {
-                                                                        MessageAuditer.ForwardMessageToAuditQueue(msg);
-                                                                        ForwardMessageIfNecessary(msg);
-                                                                    };
+                                                                {
+                                                                    MessageAuditer.ForwardMessageToAuditQueue(msg);
+                                                                    ForwardMessageIfNecessary(msg);
+                                                                };
                                                             c.Label = "Message auditing";
                                                         });
             chain.Add<UnitOfWorkBehavior>();
@@ -1311,12 +1318,12 @@ namespace NServiceBus.Unicast
 
             Action<IBehaviorContext> raiseMessageReceivedEvent =
                 c =>
+                {
+                    if (MessageReceived != null)
                     {
-                        if (MessageReceived != null)
-                        {
-                            MessageReceived(msg);
-                        }
-                    };
+                        MessageReceived(msg);
+                    }
+                };
 
             chain.Add<PerformCustomActionsBehavior>(c =>
                                                 {

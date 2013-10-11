@@ -21,5 +21,7 @@
         /// Logs a trace message using the current nesting level
         /// </summary>
         void Trace(string message, params object[] objs);
+
+        bool DoNotContinueDispatchingMessageToHandlers { get; set; }
     }
 }
