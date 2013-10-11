@@ -8,7 +8,7 @@
     using Pipeline;
     using Serialization;
 
-    public class MessageExtractor : IBehavior
+    public class ExtractLogicalMessagesBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 
@@ -29,7 +29,7 @@
         {
             if (SkipDeserialization)
             {
-                context.Set(new object[0]);
+                context.Messages = new object[0];
                 return;
             }
 
@@ -38,7 +38,7 @@
             {
                 var logicalMessages = Extract(transportMessage);
 
-                context.Set(logicalMessages);
+                context.Messages = logicalMessages;
             }
             catch (Exception exception)
             {

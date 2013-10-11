@@ -13,6 +13,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
+    using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
@@ -104,7 +105,22 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
-     
+
+            FuncBuilder.Register<UnitOfWorkBehavior>(() => new UnitOfWorkBehavior {Builder = FuncBuilder});
+            FuncBuilder.Register<MessageHandlingLoggingBehavior>(() => new MessageHandlingLoggingBehavior());
+            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+                                                             {
+                                                                 MessageSerializer = MessageSerializer,
+                                                                 MessageMetadataRegistry = MessageMetadataRegistry,
+                                                             });
+            FuncBuilder.Register<AbortChainOnEmptyMessageBehavior>(() => new AbortChainOnEmptyMessageBehavior());
+            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
+                {
+                    ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
+                });
+            FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
+            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior {Builder = FuncBuilder});
+
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,

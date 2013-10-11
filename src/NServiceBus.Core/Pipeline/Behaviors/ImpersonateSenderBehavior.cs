@@ -3,7 +3,7 @@
     using System.Threading;
     using Impersonation;
 
-    public class ImpersonateSender : IBehavior
+    public class ImpersonateSenderBehavior : IBehavior
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 
@@ -14,7 +14,10 @@
             var principal = ExtractIncomingPrincipal.GetPrincipal(context.TransportMessage);
 
             if (principal == null)
+            {
+                Next.Invoke(context);
                 return;
+            }
 
             var previousPrincipal = Thread.CurrentPrincipal;
             try

@@ -47,7 +47,15 @@
 {0}", ToString());
 
                 head.Invoke(context);
-
+            }
+            catch (Exception exception)
+            {
+                throw new ApplicationException(
+                    string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
+                                  string.Join(" -> ", items)), exception);
+            }
+            finally
+            {
                 var trace = context.GetTrace();
                 Console.WriteLine(trace);
 
@@ -55,12 +63,6 @@
                 {
                     Log.Debug(trace);
                 }
-            }
-            catch (Exception exception)
-            {
-                throw new ApplicationException(
-                    string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
-                                  string.Join(" -> ", items)), exception);
             }
         }
 
@@ -131,11 +133,7 @@
             public object[] Messages
             {
                 get { return Get<object[]>("NServiceBus.Messages"); }
-            }
-
-            public void SetMessages(object[] messages)
-            {
-                Set("NServiceBus.Messages", messages);
+                set { Set("NServiceBus.Messages", value); }
             }
 
             public IDisposable TraceContextFor<T>()

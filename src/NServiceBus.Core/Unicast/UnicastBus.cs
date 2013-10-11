@@ -850,7 +850,7 @@ namespace NServiceBus.Unicast
                 Started(this, null);
             }
 
-            satelliteLauncher = new SatelliteLauncher();
+            satelliteLauncher = new SatelliteLauncher {Builder = Builder};
             satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
@@ -1049,13 +1049,14 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="builder">The builder used to construct the objects necessary to handle the message.</param>
         /// <param name="m">The received message.</param>
+        /// <param name="behaviorContext"></param>
         /// <remarks>
         /// run by multiple threads so must be thread safe
         /// public for testing
         /// </remarks>
-        public void HandleMessage(IBuilder builder, TransportMessage m)
+        public void HandleMessage(IBuilder builder, TransportMessage m, IBehaviorContext behaviorContext)
         {
-            var messages = new object[0];
+            var messages = behaviorContext.Messages;
 
             //if (!m.IsControlMessage() && !SkipDeserialization)
             //{
@@ -1283,29 +1284,33 @@ namespace NServiceBus.Unicast
 
             if (ConfigureImpersonation.Impersonate)
             {
-                chain.Add<ImpersonateSender>();
+                chain.Add<ImpersonateSenderBehavior>();
             }
 
-            chain.Add<PerformCustomActions>(c =>
-                                                {
-                                                    c.After = () =>
-                                                                   {
-                                                                       MessageAuditer.ForwardMessageToAuditQueue(msg);
-                                                                       ForwardMessageIfNecessary(msg);
-                                                                   };
-                                                });
+            chain.Add<PerformCustomActionsBehavior>(c =>
+                                                        {
+                                                            c.After =
+                                                                ctx =>
+                                                                    {
+                                                                        MessageAuditer.ForwardMessageToAuditQueue(msg);
+                                                                        ForwardMessageIfNecessary(msg);
+                                                                    };
+                                                            c.Label = "Message auditing";
+                                                        });
             chain.Add<UnitOfWorkBehavior>();
-            chain.Add<ApplyIncomingMessageMutators>();
+            chain.Add<ApplyIncomingMessageMutatorsBehavior>();
 
-            Action resetHandleCurrentMessagelaterFlag = () => _handleCurrentMessageLaterWasCalled = false;
+            Action<IBehaviorContext> resetHandleCurrentMessagelaterFlag =
+                c => _handleCurrentMessageLaterWasCalled = false;
 
-            chain.Add<PerformCustomActions>(c =>
+            chain.Add<PerformCustomActionsBehavior>(c =>
                                                 {
                                                     c.Before = resetHandleCurrentMessagelaterFlag;
+                                                    c.Label = "Reset _handleCurrentMessageLaterWasCalled flag";
                                                 });
 
-            Action raiseMessageReceivedEvent =
-                () =>
+            Action<IBehaviorContext> raiseMessageReceivedEvent =
+                c =>
                     {
                         if (MessageReceived != null)
                         {
@@ -1313,20 +1318,23 @@ namespace NServiceBus.Unicast
                         }
                     };
 
-            chain.Add<PerformCustomActions>(c =>
+            chain.Add<PerformCustomActionsBehavior>(c =>
                                                 {
                                                     c.Before = raiseMessageReceivedEvent;
+                                                    c.Label = "Raise MessageReceived event";
                                                 });
 
             if (!disableMessageHandling)
             {
-                chain.Add<AbortChainOnEmptyMessage>();
+                chain.Add<ExtractLogicalMessagesBehavior>();
+                chain.Add<AbortChainOnEmptyMessageBehavior>();
 
-                Action handleMessage = () => HandleMessage(childBuilder, msg);
+                Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
 
-                chain.Add<PerformCustomActions>(c =>
+                chain.Add<PerformCustomActionsBehavior>(c =>
                                                     {
                                                         c.Before = handleMessage;
+                                                        c.Label = "Execute message handlers";
                                                     });
             }
 

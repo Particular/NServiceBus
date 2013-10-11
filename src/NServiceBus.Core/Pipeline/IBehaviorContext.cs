@@ -10,7 +10,7 @@
         T Get<T>();
         void Set<T>(T t);
         TransportMessage TransportMessage { get; }
-        object[] Messages { get; }
+        object[] Messages { get; set; }
 
         /// <summary>
         /// Enters a new "trace context" which is a logically indented context that models the behavior call stack

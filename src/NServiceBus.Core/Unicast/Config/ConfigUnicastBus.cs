@@ -46,12 +46,13 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
+            Configurer.ConfigureComponent<ExtractLogicalMessagesBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<AbortChainOnEmptyMessage>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ImpersonateSender>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<PerformCustomActions>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<AbortChainOnEmptyMessageBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<PerformCustomActionsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ApplyIncomingMessageMutators>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)

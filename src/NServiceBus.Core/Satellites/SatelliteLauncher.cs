@@ -6,17 +6,27 @@ namespace NServiceBus.Satellites
     using System.Threading.Tasks;
     using Config;
     using Logging;
+    using ObjectBuilder;
     using Unicast.Transport;
 
     public class SatelliteLauncher
     {
+        public SatelliteLauncher()
+        {
+            if (Configure.Instance != null)
+            {
+                Builder = Configure.Instance.Builder;
+            }
+        }
+
+        public IBuilder Builder { get; set; }
+
         public void Start()
         {
-            var satellitesList = Configure.Instance.Builder
-                                          .BuildAll<ISatellite>()
-                                          .ToList()
-                                          .Where(s => !s.Disabled)
-                                          .ToList();
+            var satellitesList = Builder.BuildAll<ISatellite>()
+                                        .ToList()
+                                        .Where(s => !s.Disabled)
+                                        .ToList();
 
             var satelliteContexts = new SatelliteContext[satellitesList.Count];
 

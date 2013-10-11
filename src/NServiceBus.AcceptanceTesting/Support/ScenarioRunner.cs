@@ -85,7 +85,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             if (failedRuns.Any())
                 throw new AggregateException("Test run failed due to one or more exception", failedRuns.Select(f => f.Result.Exception));
 
-
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
             {
                 DisplayRunResult(runSummary, totalRuns);

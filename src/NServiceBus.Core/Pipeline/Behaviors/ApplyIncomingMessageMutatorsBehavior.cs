@@ -3,19 +3,15 @@
     using MessageMutator;
     using ObjectBuilder;
 
-    public class ApplyIncomingMessageMutators : IBehavior
+    public class ApplyIncomingMessageMutatorsBehavior : IBehavior
     {
-        readonly IBuilder builder;
         public IBehavior Next { get; set; }
 
-        public ApplyIncomingMessageMutators(IBuilder builder)
-        {
-            this.builder = builder;
-        }
+        public IBuilder Builder { get; set; }
 
         public void Invoke(IBehaviorContext context)
         {
-            var mutators = builder.BuildAll<IMutateIncomingTransportMessages>();
+            var mutators = Builder.BuildAll<IMutateIncomingTransportMessages>();
 
             foreach (var mutator in mutators)
             {

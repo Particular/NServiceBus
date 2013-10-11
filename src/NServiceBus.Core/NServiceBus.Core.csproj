@@ -110,10 +110,10 @@
     <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
-    <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutators.cs" />
-    <Compile Include="Pipeline\Behaviors\ImpersonateSender.cs" />
+    <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutatorsBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
-    <Compile Include="Pipeline\Behaviors\PerformCustomActions.cs" />
+    <Compile Include="Pipeline\Behaviors\PerformCustomActionsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\SagaPersistenceBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\SagaStateAuditingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\UnitOfWorkBehavior.cs" />
@@ -156,8 +156,8 @@
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
-    <Compile Include="Pipeline\Behaviors\AbortChainOnEmptyMessage.cs" />
-    <Compile Include="Pipeline\Behaviors\MessageExtractor.cs" />
+    <Compile Include="Pipeline\Behaviors\AbortChainOnEmptyMessageBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ExtractLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
