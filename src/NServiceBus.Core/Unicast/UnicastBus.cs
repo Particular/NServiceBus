@@ -1070,13 +1070,13 @@ namespace NServiceBus.Unicast
             //}
 
             //apply mutators
-            messages = messages.Select(msg =>
-                                           {
-                                               //message mutators may need to assume that this has been set (eg. for the purposes of headers).
-                                               ExtensionMethods.CurrentMessageBeingHandled = msg;
+            //messages = messages.Select(msg =>
+            //                               {
+            //                                   //message mutators may need to assume that this has been set (eg. for the purposes of headers).
+            //                                   ExtensionMethods.CurrentMessageBeingHandled = msg;
 
-                                               return ApplyIncomingMessageMutatorsTo(builder, msg);
-                                           }).ToArray();
+            //                                   return ApplyIncomingMessageMutatorsTo(builder, msg);
+            //                               }).ToArray();
 
             if (_doNotContinueDispatchingCurrentMessageToHandlers)
             {
@@ -1105,18 +1105,18 @@ namespace NServiceBus.Unicast
         }
 
 
-        static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
-        {
-            var mutators = builder.BuildAll<IMutateIncomingMessages>().ToList();
+        //static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
+        //{
+        //    var mutators = builder.BuildAll<IMutateIncomingMessages>().ToList();
 
-            var mutatedMessage = originalMessage;
-            mutators.ForEach(m =>
-            {
-                mutatedMessage = m.MutateIncoming(mutatedMessage);
-            });
+        //    var mutatedMessage = originalMessage;
+        //    mutators.ForEach(m =>
+        //    {
+        //        mutatedMessage = m.MutateIncoming(mutatedMessage);
+        //    });
 
-            return mutatedMessage;
-        }
+        //    return mutatedMessage;
+        //}
 
         private object[] Extract(TransportMessage m)
         {
@@ -1298,7 +1298,7 @@ namespace NServiceBus.Unicast
                                                             c.Label = "Message auditing";
                                                         });
             chain.Add<UnitOfWorkBehavior>();
-            chain.Add<ApplyIncomingMessageMutatorsBehavior>();
+            chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
 
             Action<IBehaviorContext> resetHandleCurrentMessagelaterFlag =
                 c => _handleCurrentMessageLaterWasCalled = false;
@@ -1328,6 +1328,8 @@ namespace NServiceBus.Unicast
             {
                 chain.Add<ExtractLogicalMessagesBehavior>(e => { e.SkipDeserialization = SkipDeserialization; });
                 chain.Add<AbortChainOnEmptyMessageBehavior>();
+
+                chain.Add<ApplyIncomingMessageMutatorsBehavior>();
 
                 Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
 

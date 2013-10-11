@@ -111,6 +111,7 @@
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
     <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutatorsBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\PerformCustomActionsBehavior.cs" />

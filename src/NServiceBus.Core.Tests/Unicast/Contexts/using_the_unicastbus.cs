@@ -114,12 +114,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
             FuncBuilder.Register<AbortChainOnEmptyMessageBehavior>(() => new AbortChainOnEmptyMessageBehavior());
+            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior{Builder=FuncBuilder});
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
-            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior {Builder = FuncBuilder});
+            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});
 
             unicastBus = new UnicastBus
             {
