@@ -51,9 +51,9 @@
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
             RegisterMessageType<EventMessage>();
             ReceiveMessage(receivedMessage);
-            Assert.IsTrue(ResultingException != null, "When no handlers are found and a message ends up in the endpoint, an exception should be thrown");
-            Assert.IsTrue(ResultingException.InnerException.GetType() == typeof(InvalidOperationException), "The inner exception must contain an InvalidOperationException");
-            Assert.IsTrue(ResultingException.InnerException.Message.Contains(typeof(EventMessage).ToString()), "The exception message should be meaningful and should inform the user the message type for which a handler could not be found.");
+            Assert.IsNotNull(ResultingException, "When no handlers are found and a message ends up in the endpoint, an exception should be thrown");
+            Assert.AreEqual(typeof(InvalidOperationException), ResultingException.InnerException.InnerException.GetType(), "The inner exception must contain an InvalidOperationException");
+            Assert.That(ResultingException.InnerException.InnerException.Message, Contains.Substring(typeof(EventMessage).ToString()), "The exception message should be meaningful and should inform the user the message type for which a handler could not be found.");
         }
         [Test]
         public void Should_invoke_the_registered_catch_all_handler_using_a_dynamic_parameter()
