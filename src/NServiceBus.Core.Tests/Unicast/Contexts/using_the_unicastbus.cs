@@ -113,6 +113,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
+            FuncBuilder.Register<AbortChainIfMessageDispatchIsDisabled>(() => new AbortChainIfMessageDispatchIsDisabled());
             FuncBuilder.Register<AbortChainOnEmptyMessageBehavior>(() => new AbortChainOnEmptyMessageBehavior());
             FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior{Builder=FuncBuilder});
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
@@ -120,6 +121,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
+            FuncBuilder.Register<DispatchToHandlers>(() => new DispatchToHandlers());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});
 
             unicastBus = new UnicastBus

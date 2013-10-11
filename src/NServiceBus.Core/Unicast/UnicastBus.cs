@@ -41,7 +41,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public UnicastBus()
         {
-            _doNotContinueDispatchingCurrentMessageToHandlers = false;
             _handleCurrentMessageLaterWasCalled = false;
             _messageBeingHandled = null;
         }
@@ -982,9 +981,6 @@ namespace NServiceBus.Unicast
         {
             var context = BehaviorContext.Current;
 
-            //todo mhg: this is the old behavior - remove it
-            _doNotContinueDispatchingCurrentMessageToHandlers = true;
-
             // todo mhg: let it pass for now, probably throw pedagogically sound error in the future
             if (context == null) return;
 
@@ -1084,12 +1080,6 @@ namespace NServiceBus.Unicast
 
             //                                   return ApplyIncomingMessageMutatorsTo(builder, msg);
             //                               }).ToArray();
-
-            if (_doNotContinueDispatchingCurrentMessageToHandlers)
-            {
-                _doNotContinueDispatchingCurrentMessageToHandlers = false;
-                return;
-            }
 
             var callbackInvoked = HandleCorrelatedMessage(m, messages);
 
@@ -1191,11 +1181,6 @@ namespace NServiceBus.Unicast
                     });
 
                 invokedHandlers.Add(handlerTypeToInvoke);
-                if (_doNotContinueDispatchingCurrentMessageToHandlers)
-                {
-                    _doNotContinueDispatchingCurrentMessageToHandlers = false;
-                    break;
-                }
             }
 
             return invokedHandlers;
@@ -1337,6 +1322,8 @@ namespace NServiceBus.Unicast
                 chain.Add<AbortChainOnEmptyMessageBehavior>();
 
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
+                
+                chain.Add<AbortChainIfMessageDispatchIsDisabled>();
 
                 Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
 
@@ -1345,6 +1332,8 @@ namespace NServiceBus.Unicast
                                                         c.Before = handleMessage;
                                                         c.Label = "Execute message handlers";
                                                     });
+
+                chain.Add<DispatchToHandlers>();
             }
 
             chain.Invoke(msg);
@@ -1641,8 +1630,6 @@ namespace NServiceBus.Unicast
 
         private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 
-        [ThreadStatic]
-        private static bool _doNotContinueDispatchingCurrentMessageToHandlers;
         /// <summary>
         /// ThreadStatic variable indicating if the current message was already
         /// marked to be handled later so we don't do this more than once.
