@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Sagas
 {
+    using System.Linq;
     using NUnit.Framework;
     using Unicast.Routing;
 
@@ -8,17 +9,17 @@ namespace NServiceBus.Core.Tests.Sagas
     {
 
         [Test]
-        public void When_initialized_known_message_returns_undefined()
+        public void When_initialized_known_message_returns_empty()
         {
             var router = new StaticMessageRouter(new[] { typeof(Message1) });
-            Assert.AreEqual(Address.Undefined, router.GetDestinationFor(typeof(Message1)));
+            Assert.IsEmpty(router.GetDestinationFor(typeof(Message1)));
         }
 
         [Test]
-        public void When_initialized_unknown_message_returns_undefined()
+        public void When_initialized_unknown_message_returns_empty()
         {
             var router = new StaticMessageRouter(new[] { typeof(Message1) });
-            Assert.AreEqual(Address.Undefined, router.GetDestinationFor(typeof(Message2)));
+            Assert.IsEmpty(router.GetDestinationFor(typeof(Message2)));
         }
 
         [Test]
@@ -27,7 +28,7 @@ namespace NServiceBus.Core.Tests.Sagas
             var router = new StaticMessageRouter(new[] { typeof(Message1) });
             var address = new Address("a","b");
             router.RegisterRoute(typeof(Message1), address);
-            Assert.AreSame(address, router.GetDestinationFor(typeof(Message1)));
+            Assert.AreSame(address, router.GetDestinationFor(typeof(Message1)).Single());
         }
 
         [Test]
@@ -41,8 +42,9 @@ namespace NServiceBus.Core.Tests.Sagas
             router.RegisterRoute(baseType, baseAddress);
             var inheritedAddress = new Address("inheritedAddress", "b");
             router.RegisterRoute(inheritedType, inheritedAddress);
-            Assert.AreSame(baseAddress, router.GetDestinationFor(baseType));
-            Assert.AreSame(inheritedAddress, router.GetDestinationFor(inheritedType));
+            Assert.Contains(baseAddress, router.GetDestinationFor(baseType));
+            Assert.Contains(inheritedAddress, router.GetDestinationFor(baseType));
+            Assert.AreSame(inheritedAddress, router.GetDestinationFor(inheritedType).Single());
         }
 
         [Test]
@@ -55,8 +57,9 @@ namespace NServiceBus.Core.Tests.Sagas
             router.RegisterRoute(inheritedType, inheritedAddress);
             var baseAddress = new Address("baseAddress", "b");
             router.RegisterRoute(baseType, baseAddress);
-            Assert.AreSame(baseAddress, router.GetDestinationFor(baseType));
-            Assert.AreSame(inheritedAddress, router.GetDestinationFor(inheritedType));
+            Assert.Contains(baseAddress, router.GetDestinationFor(baseType));
+            Assert.Contains(inheritedAddress, router.GetDestinationFor(baseType));
+            Assert.AreSame(inheritedAddress, router.GetDestinationFor(inheritedType).Single());
         }
 
         public class Message1

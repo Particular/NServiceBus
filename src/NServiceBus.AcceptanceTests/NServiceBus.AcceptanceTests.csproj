@@ -126,6 +126,7 @@
     <Compile Include="Performance\NServiceBusPerformanceTest.cs" />
     <Compile Include="Performance\Receive\Receive_performance.cs" />
     <Compile Include="Performance\Sagas\Saga_performance.cs" />
+    <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
     <Compile Include="PubSub\PubSubAcceptanceTest.cs" />

@@ -360,18 +360,25 @@ namespace NServiceBus.Unicast
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
-            if (Address.Self == destination)
-                throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
-
-
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Subscribe(messageType, destination);
+            foreach (var destination in GetAddressForMessageType(messageType))
+            {
+                if (Address.Self == destination)
+                {
+                    throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
+                }
 
-            if (SubscriptionPredicatesEvaluator != null)
-                SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+                SubscriptionManager.Subscribe(messageType, destination);
+
+                if (SubscriptionPredicatesEvaluator != null)
+                {
+                    SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+                }
+            }
         }
 
         /// <summary>
@@ -390,16 +397,23 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
+            }
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
 
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Unsubscribe(messageType, destination);
+            foreach (var destination in GetAddressForMessageType(messageType))
+            {
+                SubscriptionManager.Unsubscribe(messageType, destination);    
+            }
+
         }
 
 
@@ -979,28 +993,20 @@ namespace NServiceBus.Unicast
 
 
 
-        /// <summary>
-        /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
-        /// </summary>
-        Address GetAddressForMessages(object[] messages)
-        {
-            if (messages == null || messages.Length == 0)
-                return Address.Undefined;
-
-            return GetAddressForMessageType(messages[0].GetType());
-        }
 
         /// <summary>
         /// Gets the destination address For a message type.
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        Address GetAddressForMessageType(Type messageType)
+        List<Address> GetAddressForMessageType(Type messageType)
         {
             var destination = MessageRouter.GetDestinationFor(messageType);
 
-            if (destination != Address.Undefined)
+            if (destination.Any())
+            {
                 return destination;
+            }
 
 
             if (messageMapper != null && !messageType.IsInterface)
