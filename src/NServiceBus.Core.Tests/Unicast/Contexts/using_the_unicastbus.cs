@@ -122,6 +122,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
             FuncBuilder.Register<DispatchToHandlers>(() => new DispatchToHandlers());
+            FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});
 
             unicastBus = new UnicastBus

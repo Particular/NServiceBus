@@ -51,7 +51,6 @@
 
         object[] Extract(TransportMessage m)
         {
-
             if (m.Body == null || m.Body.Length == 0)
             {
                 return null;
@@ -59,7 +58,6 @@
 
             try
             {
-
                 var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
                 using (var stream = new MemoryStream(m.Body))

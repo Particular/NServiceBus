@@ -56,6 +56,7 @@ namespace NServiceBus.Unicast.Config
             Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<DispatchToHandlers>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)

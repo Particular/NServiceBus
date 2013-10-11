@@ -114,6 +114,7 @@
     <Compile Include="Pipeline\Behaviors\AbortChainIfMessageDispatchIsDisabled.cs" />
     <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\DispatchToHandlers.cs" />
     <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />

@@ -1081,14 +1081,17 @@ namespace NServiceBus.Unicast
             //                                   return ApplyIncomingMessageMutatorsTo(builder, msg);
             //                               }).ToArray();
 
-            var callbackInvoked = HandleCorrelatedMessage(m, messages);
+            //var callbackInvoked = HandleCorrelatedMessage(m, messages);
+
+            // for now we cheat and pull it from the behavior context:
+            var callbackInvoked = BehaviorContext.Current.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
 
             foreach (var messageToHandle in messages)
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
                 var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
-
+                
                 if (!callbackInvoked && !handlers.Any())
                 {
                     var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
@@ -1115,30 +1118,30 @@ namespace NServiceBus.Unicast
         //    return mutatedMessage;
         //}
 
-        private object[] Extract(TransportMessage m)
-        {
+        //private object[] Extract(TransportMessage m)
+        //{
 
-            if (m.Body == null || m.Body.Length == 0)
-            {
-                return null;
-            }
+        //    if (m.Body == null || m.Body.Length == 0)
+        //    {
+        //        return null;
+        //    }
 
-            try
-            {
+        //    try
+        //    {
 
-                var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
+        //        var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
 
-                using (var stream = new MemoryStream(m.Body))
-                {
-                    return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
-                }
-            }
-            catch (Exception e)
-            {
-                throw new SerializationException("Could not deserialize message.", e);
-            }
-        }
+        //        using (var stream = new MemoryStream(m.Body))
+        //        {
+        //            return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw new SerializationException("Could not deserialize message.", e);
+        //    }
+        //}
 
         /// <summary>
         /// Finds the message handlers associated with the message type and dispatches
@@ -1324,6 +1327,9 @@ namespace NServiceBus.Unicast
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
                 
                 chain.Add<AbortChainIfMessageDispatchIsDisabled>();
+
+                // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
+                chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
 
                 Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
 

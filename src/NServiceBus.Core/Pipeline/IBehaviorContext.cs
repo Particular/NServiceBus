@@ -23,5 +23,7 @@
         void Trace(string message, params object[] objs);
 
         bool DoNotContinueDispatchingMessageToHandlers { get; set; }
+        T Get<T>(string key);
+        void Set<T>(string key, T t);
     }
 }
