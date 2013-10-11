@@ -43,7 +43,7 @@
                 //get all potential messages
                 .Where(t => !MessageConventionExtensions.IsCommandType(t) && (SubscribePlainMessages || MessageConventionExtensions.IsEventType(t)))
                 //get messages that has routing if required
-                .Where(t => DoNotRequireExplicitRouting || MessageRouter.GetDestinationFor(t) != Address.Undefined)
+                .Where(t => DoNotRequireExplicitRouting || MessageRouter.GetDestinationFor(t).Any())
                 //get messages with other handlers than sagas if needed
                 .Where(t => !DoNotAutoSubscribeSagas || HandlerRegistry.GetHandlerTypes(t).Any(handler => !typeof(ISaga).IsAssignableFrom(handler)))
                 .ToList();
