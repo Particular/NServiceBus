@@ -1326,7 +1326,7 @@ namespace NServiceBus.Unicast
 
             if (!disableMessageHandling)
             {
-                chain.Add<ExtractLogicalMessagesBehavior>();
+                chain.Add<ExtractLogicalMessagesBehavior>(e => { e.SkipDeserialization = SkipDeserialization; });
                 chain.Add<AbortChainOnEmptyMessageBehavior>();
 
                 Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
