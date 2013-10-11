@@ -24,6 +24,20 @@ namespace NServiceBus.Core.Tests.Sagas
             Assert.Throws<InvalidOperationException>(()=>router.RegisterRoute(typeof(Message1), Address.Undefined));
         }
 
+        [Test]
+        public void Test_that_expose_the_issue_with_the_current_codebase_assuming_that_routes_can_be_updated()
+        {
+            var router = new StaticMessageRouter(new Type[0]);
+
+            var overrideAddress = Address.Parse("override");
+
+            router.RegisterRoute(typeof(Message1), Address.Parse("first"));
+            router.RegisterRoute(typeof(Message1), overrideAddress);
+
+            Assert.AreEqual(overrideAddress, router.GetDestinationFor(typeof(Message1)).Single());
+
+        }
+
 
         [Test]
         public void When_initialized_unknown_message_returns_empty()
