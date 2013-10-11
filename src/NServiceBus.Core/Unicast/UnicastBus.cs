@@ -180,7 +180,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>
         /// </summary>
-        public IRouteMessages MessageRouter { get; set; }
+        public StaticMessageRouter MessageRouter { get; set; }
 
         /// <summary>
         /// Event raised when no subscribers found for the published message.

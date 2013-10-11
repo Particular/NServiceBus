@@ -60,7 +60,7 @@ namespace NServiceBus.Unicast.Tests
 
             Configure.Instance.UnicastBus();
 
-            var messageOwners = Configure.Instance.Builder.Build<IRouteMessages>();
+            var messageOwners = Configure.Instance.Builder.Build<StaticMessageRouter>();
 
             Assert.AreEqual("Type", messageOwners.GetDestinationFor(typeof(MessageA)).Queue);
             Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageB)).Queue);

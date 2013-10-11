@@ -20,7 +20,7 @@
         /// <summary>
         /// The message routing
         /// </summary>
-        public IRouteMessages MessageRouter { get; set; }
+        public StaticMessageRouter MessageRouter { get; set; }
 
         /// <summary>
         /// If set to true the endpoint will subscribe to it self even if no endpoint mappings exists

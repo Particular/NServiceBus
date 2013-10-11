@@ -111,7 +111,7 @@ namespace NServiceBus.Unicast.Config
             var unicastConfig = GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
 
-            Configurer.RegisterSingleton<IRouteMessages>(router);
+            Configurer.RegisterSingleton<StaticMessageRouter>(router);
 
             if (unicastConfig == null)
             {

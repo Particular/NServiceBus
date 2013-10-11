@@ -8,7 +8,7 @@
     /// <summary>
     /// The default message router
     /// </summary>
-    public class StaticMessageRouter : IRouteMessages
+    public class StaticMessageRouter 
     {
         /// <summary>
         /// Initializes the router with all known messages
