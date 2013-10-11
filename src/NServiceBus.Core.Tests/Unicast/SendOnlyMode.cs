@@ -50,7 +50,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException);
+            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException.InnerException);
         }
     }
     [TestFixture]
