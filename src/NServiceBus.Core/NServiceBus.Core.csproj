@@ -506,7 +506,6 @@
     <Compile Include="Transports\Msmq\Config\CheckMachineNameForComplianceWithDTCLimitation.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
-    <Compile Include="Unicast\Routing\IRouteMessages.cs" />
     <Compile Include="Unicast\Routing\StaticMessageRouter.cs" />
     <Compile Include="Unicast\IMessageHandlerRegistry.cs" />
     <Compile Include="Unicast\MessageHandlerRegistry.cs" />
