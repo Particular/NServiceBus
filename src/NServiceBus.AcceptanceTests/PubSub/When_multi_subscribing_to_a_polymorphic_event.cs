@@ -15,9 +15,31 @@
             var rootContext = new Context();
 
             Scenario.Define(rootContext)
-                    .WithEndpoint<Publisher1>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
+                    .WithEndpoint<Publisher1>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
+                {
+                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                    {
+                        context.SubscribedToIMyEvent = true;
+                    }
+
+                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    {
+                        context.SubscribedToMyEvent2 = true;
+                    }
+                }))
                     .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent1())))
-                    .WithEndpoint<Publisher2>(b => b.Given((bus, context) => EnableNotificationsOnSubscribe(context))
+                    .WithEndpoint<Publisher2>(b => b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(args =>
+                {
+                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
+                    {
+                        context.SubscribedToIMyEvent = true;
+                    }
+
+                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
+                    {
+                        context.SubscribedToMyEvent2 = true;
+                    }
+                }))
                     .When(c => c.SubscribedToIMyEvent && c.SubscribedToMyEvent2, bus => bus.Publish(new MyEvent2())))
                     .WithEndpoint<Subscriber1>(b => b.Given((bus, context) =>
                     {
@@ -82,23 +104,7 @@
             }
         }
 
-        void EnableNotificationsOnSubscribe(Context context)
-        {
-            Configure.Instance.Builder.Build<MessageDrivenSubscriptionManager>().ClientSubscribed +=
-                (sender, args) =>
-                {
-                    if (args.MessageType.Contains(typeof(IMyEvent).Name))
-                    {
-                        context.SubscribedToIMyEvent = true;
-                    }
-
-                    if (args.MessageType.Contains(typeof(MyEvent2).Name))
-                    {
-                        context.SubscribedToMyEvent2 = true;
-                    }
-                };
-        }
-
+        
         [Serializable]
         public class MyEvent1 : IMyEvent
         {
