@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests.Sagas
 {
+    using System;
     using System.Linq;
     using NUnit.Framework;
     using Unicast.Routing;
@@ -14,6 +15,15 @@ namespace NServiceBus.Core.Tests.Sagas
             var router = new StaticMessageRouter(new[] { typeof(Message1) });
             Assert.IsEmpty(router.GetDestinationFor(typeof(Message1)));
         }
+
+        [Test]
+        public void When_route_with_undefined_address_is_registered_exception_is_thrown()
+        {
+            var router = new StaticMessageRouter(new Type[0]);
+
+            Assert.Throws<InvalidOperationException>(()=>router.RegisterRoute(typeof(Message1), Address.Undefined));
+        }
+
 
         [Test]
         public void When_initialized_unknown_message_returns_empty()

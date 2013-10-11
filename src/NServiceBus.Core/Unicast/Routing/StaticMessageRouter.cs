@@ -37,6 +37,9 @@
 
         public void RegisterRoute(Type messageType, Address endpointAddress)
         {
+            if(endpointAddress == null || endpointAddress == Address.Undefined)
+                throw new InvalidOperationException("Undefined routes are not allowed, MessageType: " + messageType.FullName);
+
             List<Address> currentAddress;
 
             if (!routes.TryGetValue(messageType, out currentAddress))

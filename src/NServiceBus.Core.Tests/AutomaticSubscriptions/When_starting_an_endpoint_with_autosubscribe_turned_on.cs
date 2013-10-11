@@ -1,7 +1,10 @@
 namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using Unicast.Routing;
     using Unicast.Tests.Contexts;
 
     [TestFixture]
@@ -47,20 +50,10 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
 
         [Test]
-        public void Should_not_autoSubscribe_messages_with_no_explicit_routing()
-        {
-            RegisterMessageType<EventMessage>(Address.Undefined);
-            RegisterMessageHandlerType<EventMessageHandler>();
-
-
-            Assert.False(autoSubscriptionStrategy.GetEventsToSubscribe().Any(), "Events without routing should not be auto subscribed by default");
-        }
-
-
-        [Test]
         public void Should_autoSubscribe_messages_without_routing_if_configured_to_do_so()
         {
-            RegisterMessageType<EventMessage>(Address.Undefined);
+            autoSubscriptionStrategy.MessageRouter = new StaticMessageRouter(new[] { typeof(EventMessage) });
+
             RegisterMessageHandlerType<EventMessageHandler>();
 
             autoSubscriptionStrategy.DoNotRequireExplicitRouting = true;
