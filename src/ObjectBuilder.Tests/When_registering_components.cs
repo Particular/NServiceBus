@@ -4,14 +4,9 @@ namespace ObjectBuilder.Tests
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Ninject;
-    using Ninject.Extensions.ContextPreservation;
-    using Ninject.Extensions.NamedScope;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
 
     [TestFixture]
