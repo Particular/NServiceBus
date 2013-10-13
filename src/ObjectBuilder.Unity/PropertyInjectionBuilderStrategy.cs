@@ -23,6 +23,11 @@ namespace NServiceBus.ObjectBuilder.Unity
                 configuredProperties.Add(type,new List<Tuple<string, object>>());
             }
 
+            var propertySetting = configuredProperties[type].FirstOrDefault(i => i.Item1 == name);
+            if(propertySetting != null)
+            {
+                configuredProperties[type].Remove(propertySetting);
+            }
             configuredProperties[type].Add(new Tuple<string, object>(name,value));
         }
 

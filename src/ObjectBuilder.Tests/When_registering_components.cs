@@ -4,9 +4,14 @@ namespace ObjectBuilder.Tests
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using Ninject;
+    using Ninject.Extensions.ContextPreservation;
+    using Ninject.Extensions.NamedScope;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.CastleWindsor;
+    using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
+    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
 
     [TestFixture]
@@ -100,6 +105,20 @@ namespace ObjectBuilder.Tests
                 Assert.True(component.SomeProperty);
 
                 Assert.True(component.AnotherProperty);
+            });
+        }
+
+        [Test]
+        public void Properties_configured_multiple_times_should_retain_only_the_last_configuration() {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", false);
+                builder.ConfigureProperty(typeof(DuplicateClass), "SomeProperty", true); // this should remove/override the previous property setting
+
+                var component = (DuplicateClass)builder.Build(typeof(DuplicateClass));
+
+                Assert.True(component.SomeProperty);
             });
         }
 
