@@ -1,62 +1,91 @@
 namespace NServiceBus.Unicast.Transport
 {
+    using System;
     using System.Threading;
 
     /// <summary>
-    /// Support for throughput limitation of the transport
+    ///     Support for throughput limitation of the transport
     /// </summary>
     internal class ThroughputLimiter
     {
         public void Start(int limit)
         {
             if (limit <= 0)
+            {
                 return;
+            }
 
+            numberOfMessagesProcessed = 0;
             throughputSemaphore = new SemaphoreSlim(limit, limit);
+            cancellationTokenSource = new CancellationTokenSource();
             timer = new Timer(ResetLimit, null, 0, 1000);
+            started = true;
         }
 
         public void Stop()
         {
-            if (throughputSemaphore == null)
+            if (!started)
             {
                 return;
             }
 
-            timer.Dispose();
+            started = false;
 
-            stopResetEvent.WaitOne();
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                timer.Dispose(waitHandle);
+
+                waitHandle.WaitOne();
+            }
+
+            cancellationTokenSource.Cancel();
+
+            while (numberOfMessagesProcessing > 0)
+            {
+                Thread.SpinWait(5);                
+            }
 
             throughputSemaphore.Dispose();
-            throughputSemaphore = null;
+            cancellationTokenSource.Dispose();
         }
 
         public void MessageProcessed()
         {
-            if (throughputSemaphore == null)
+            if (!started)
+            {
                 return;
+            }
 
-            throughputSemaphore.Wait();
-            Interlocked.Increment(ref numberOfMessagesProcessed);
+            try
+            {
+                Interlocked.Increment(ref numberOfMessagesProcessing);
+                throughputSemaphore.Wait(cancellationTokenSource.Token);
+                Interlocked.Increment(ref numberOfMessagesProcessed);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            finally
+            {
+                Interlocked.Decrement(ref numberOfMessagesProcessing);
+            }
         }
 
         void ResetLimit(object state)
         {
-            stopResetEvent.Reset();
-
             var numberOfMessagesProcessedSnapshot = Interlocked.Exchange(ref numberOfMessagesProcessed, 0);
 
             if (numberOfMessagesProcessedSnapshot > 0)
             {
-                throughputSemaphore.Release((int) numberOfMessagesProcessedSnapshot);
+                throughputSemaphore.Release(numberOfMessagesProcessedSnapshot);
             }
-
-            stopResetEvent.Set();
         }
 
-        readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
-        Timer timer;
-        long numberOfMessagesProcessed;
+        CancellationTokenSource cancellationTokenSource;
+        int numberOfMessagesProcessed;
+        int numberOfMessagesProcessing;
+        bool started;
         SemaphoreSlim throughputSemaphore;
+        Timer timer;
     }
 }
