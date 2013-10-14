@@ -4,6 +4,7 @@
     using Unicast.Routing;
 
     [TestFixture]
+    [Explicit]
     public class StaticMessageRouterTests
     {
 
