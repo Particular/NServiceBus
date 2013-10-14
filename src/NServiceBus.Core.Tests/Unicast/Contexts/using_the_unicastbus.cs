@@ -55,7 +55,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
-            Configure.With(Assembly.GetExecutingAssembly());
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();
