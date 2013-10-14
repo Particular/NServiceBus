@@ -291,6 +291,8 @@
         static extern Boolean GetVersionEx([Out][In]OSVersionInfo versionInformation);
 
 
+        // ReSharper disable UnusedField.Compiler
+        // ReSharper disable NotAccessedField.Local
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfoEx : OSVersionInfo
         {
@@ -304,8 +306,7 @@
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfo
         {
-            public UInt32 OSVersionInfoSize =
-               (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
+            public UInt32 OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
             public UInt32 MajorVersion = 0;
             public UInt32 MinorVersion = 0;
             public UInt32 BuildNumber = 0;
@@ -314,6 +315,8 @@
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public String CSDVersion = null;
         }
+        // ReSharper restore NotAccessedField.Local
+        // ReSharper restore UnusedField.Compiler
 
         const byte VER_NT_WORKSTATION = 1;
         const byte VER_NT_SERVER = 3;
