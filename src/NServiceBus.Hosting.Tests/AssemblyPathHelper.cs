@@ -16,11 +16,9 @@ namespace NServiceBus.Hosting.Tests
             var directoryName = Path.GetDirectoryName(path);
             var files = Directory.EnumerateFiles(directoryName, "*.dll").ToList();
 
-            var allAssemblies = files
+            return files
                 .Select(Assembly.LoadFrom)
                 .ToList();
-
-            return allAssemblies;
         }
     }
 }
