@@ -11,21 +11,17 @@ namespace NServiceBus.Config.ConfigurationSource
         /// <summary>
         /// Returns configuration data based on the given type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         T GetConfiguration<T>() where T : class, new();
     }
 
     /// <summary>
     /// Abstraction of a configuration source for a given piece of configuration data. 
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IProvideConfiguration<T>
     {
         /// <summary>
         /// Returns configuration data for the given type.
         /// </summary>
-        /// <returns></returns>
         T GetConfiguration();
     }
 }

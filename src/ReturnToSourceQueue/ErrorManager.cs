@@ -51,7 +51,6 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         /// <summary>
         ///     May throw a timeout exception if a message with the given id cannot be found.
         /// </summary>
-        /// <param name="messageId"></param>
         public void ReturnMessageToSourceQueue(string messageId)
         {
             using (var scope = new TransactionScope())

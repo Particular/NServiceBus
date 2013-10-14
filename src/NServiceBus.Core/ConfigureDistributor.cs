@@ -21,8 +21,6 @@ namespace NServiceBus
         /// <summary>
         /// Return whether this endpoint contains a worker
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static bool WorkerRunsOnThisEndpoint(this Configure config)
         {
             return workerRunsOnThisEndpoint;
@@ -31,9 +29,7 @@ namespace NServiceBus
         /// <summary>
         /// Configure the distributor to run on this endpoint
         /// </summary>
-        /// <param name="config"></param>
         /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
-        /// <returns></returns>
         public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {
             distributorEnabled = true;
@@ -53,8 +49,6 @@ namespace NServiceBus
         /// <summary>
         /// Starting the Distributor without a worker running on its endpoint
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
         {
             config.RunDistributor(false);
@@ -65,8 +59,6 @@ namespace NServiceBus
         /// <summary>
         /// Enlist Worker with Master node defined in the config.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure EnlistWithDistributor(this Configure config)
         {
             workerRunsOnThisEndpoint = true;

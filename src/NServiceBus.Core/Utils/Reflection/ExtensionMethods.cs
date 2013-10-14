@@ -12,10 +12,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="openGenericType"></param>
-        /// <param name="genericArg"></param>
-        /// <returns></returns>
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
             var result = false;
@@ -27,10 +23,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="openGenericType"></param>
-        /// <param name="genericArg"></param>
-        /// <returns></returns>
         public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
         {
             Type result = null;
@@ -58,8 +50,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Returns true if the type can be serialized as is.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static bool IsSimpleType(this Type type)
         {
             return (type == typeof(string) ||
@@ -76,8 +66,6 @@ namespace NServiceBus.Utils.Reflection
         /// Takes the name of the given type and makes it friendly for serialization
         /// by removing problematic characters.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static string SerializationFriendlyName(this Type t)
         {
             lock(TypeToNameLookup)

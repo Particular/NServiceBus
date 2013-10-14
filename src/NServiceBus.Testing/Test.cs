@@ -124,8 +124,6 @@
         /// <summary>
         /// Begin the test script for a saga of type T.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static Saga<T> Saga<T>() where T : ISaga, new()
         {
             return Saga<T>(Guid.NewGuid());
@@ -134,8 +132,6 @@
         /// <summary>
         /// Begin the test script for a saga of type T while specifying the saga id.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static Saga<T> Saga<T>(Guid sagaId) where T : ISaga, new()
         {
             var saga = (T)Activator.CreateInstance(typeof(T));
@@ -154,9 +150,6 @@
         /// Begin the test script for the passed in saga instance.
         /// Callers need to instantiate the saga's data class as well as give it an ID.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="saga"></param>
-        /// <returns></returns>
         public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
         {
             bus = new StubBus(messageCreator);
@@ -170,8 +163,6 @@
         /// <summary>
         /// Specify a test for a message handler of type T for a given message of type TMessage.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static Handler<T> Handler<T>() where T : new()
         {
             var handler = (T)Activator.CreateInstance(typeof(T));
@@ -183,8 +174,6 @@
         /// Specify a test for a message handler while supplying the instance to
         /// test - injects the bus into a public property (if it exists).
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static Handler<T> Handler<T>(T handler)
         {
             Func<IBus, T> handlerCreator = b => handler;
@@ -204,9 +193,6 @@
         /// the handler and getting an instance of the bus passed in.
         /// Useful for handlers based on constructor injection.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="handlerCreationCallback"></param>
-        /// <returns></returns>
         public static Handler<T> Handler<T>(Func<IBus, T> handlerCreationCallback)
         {
             bus = new StubBus(messageCreator);
@@ -232,8 +218,6 @@
         /// <summary>
         /// Instantiate a new message of type TMessage.
         /// </summary>
-        /// <typeparam name="TMessage"></typeparam>
-        /// <returns></returns>
         public static TMessage CreateInstance<TMessage>()
         {
             return messageCreator.CreateInstance<TMessage>();
@@ -243,9 +227,6 @@
         /// Instantiate a new message of type TMessage performing the given action
         /// on the created message.
         /// </summary>
-        /// <typeparam name="TMessage"></typeparam>
-        /// <param name="action"></param>
-        /// <returns></returns>
         public static TMessage CreateInstance<TMessage>(Action<TMessage> action)
         {
             return messageCreator.CreateInstance(action);
@@ -266,8 +247,6 @@
         /// <summary>
         /// Returns null for all types of T.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public T GetConfiguration<T>() where T : class, new()
         {
             return null;

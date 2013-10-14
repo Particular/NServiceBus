@@ -11,7 +11,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         /// <summary>
         /// SQLite Configuration In Memory
         /// </summary>
-        /// <returns></returns>
         public static IDictionary<string, string> InMemory()
         {
             var cfg = Base();
@@ -25,7 +24,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Tests
         /// SQLite Configuration In File
         /// </summary>
         /// <param name="filename">File Name</param>
-        /// <returns></returns>
         public static IDictionary<string, string> UsingFile(string filename)
         {
             var cfg = Base();

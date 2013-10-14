@@ -91,7 +91,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new empty property
         /// </summary>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new ChannelConfig();
@@ -100,8 +99,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the key for the given element
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
             return ((ChannelConfig) element).Address;
@@ -115,7 +112,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd.
         /// </summary>
-        /// <param name="channel"></param>
         public void Add(ChannelConfig channel)
         {
             BaseAdd(channel);
@@ -124,7 +120,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd with true as the additional parameter.
         /// </summary>
-        /// <param name="element"></param>
         protected override void BaseAdd(ConfigurationElement element)
         {
             BaseAdd(element, true);
@@ -207,7 +202,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new empty property
         /// </summary>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new SiteConfig();
@@ -216,8 +210,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the key for the given element
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
             return ((SiteConfig) element).Key;
@@ -231,7 +223,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd.
         /// </summary>
-        /// <param name="mapping"></param>
         public void Add(SiteConfig site)
         {
             BaseAdd(site);
@@ -240,7 +231,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd with true as the additional parameter.
         /// </summary>
-        /// <param name="element"></param>
         protected override void BaseAdd(ConfigurationElement element)
         {
             BaseAdd(element, true);

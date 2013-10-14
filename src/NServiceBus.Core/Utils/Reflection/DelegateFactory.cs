@@ -20,35 +20,30 @@ namespace NServiceBus.Utils.Reflection
     /// </summary>
     /// <param name="target">Target object</param>
     /// <param name="arguments">Arguments</param>
-    /// <returns></returns>
     public delegate object LateBoundMethod(object target, object[] arguments);
 
     /// <summary>
     /// Late Bound Property
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <returns></returns>
     public delegate object LateBoundProperty(object target);
 
     /// <summary>
     /// Late Bound Field
     /// </summary>
     /// <param name="target">Target Objects </param>
-    /// <returns></returns>
     public delegate object LateBoundField(object target);
 
     /// <summary>
     /// Late Bound Field Set
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <param name="value"></param>
     public delegate void LateBoundFieldSet(object target, object value);
 
     /// <summary>
     /// Late Bound Property Set
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <param name="value"></param>
     public delegate void LateBoundPropertySet(object target, object value);
 
     /// <summary>
@@ -82,8 +77,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Creates LateBoundProperty
         /// </summary>
-        /// <param name="property">PropertyInfo</param>
-        /// <returns>LateBoundProperty</returns>
         public static LateBoundProperty Create(PropertyInfo property)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "target");
@@ -97,12 +90,7 @@ namespace NServiceBus.Utils.Reflection
 
             return lambda.Compile();
         }
-
-        /// <summary>
-        /// LateBoundField
-        /// </summary>
-        /// <param name="field">FieldInfo</param>
-        /// <returns></returns>
+        
         public static LateBoundField Create(FieldInfo field)
         {
             var instanceParameter = Expression.Parameter(typeof(object), "target");
@@ -120,8 +108,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Create filed set 
         /// </summary>
-        /// <param name="field">FieldInfo</param>
-        /// <returns>LateBoundFieldSet</returns>
         public static LateBoundFieldSet CreateSet(FieldInfo field)
         {
             var sourceType = field.DeclaringType;

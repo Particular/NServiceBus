@@ -12,7 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new object storing the given state.
         /// </summary>
-        /// <param name="state"></param>
         public ServiceAsyncResult(object state)
         {
             this.state = state;

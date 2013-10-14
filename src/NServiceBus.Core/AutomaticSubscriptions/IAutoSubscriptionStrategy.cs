@@ -11,7 +11,6 @@ namespace NServiceBus.AutomaticSubscriptions
         /// <summary>
         /// Returns the list of events to auto-subscribe
         /// </summary>
-        /// <returns></returns>
         IEnumerable<Type> GetEventsToSubscribe();
     }
 }

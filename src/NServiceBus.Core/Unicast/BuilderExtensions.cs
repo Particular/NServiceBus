@@ -12,9 +12,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Applies the action on the instances of T
         /// </summary>
-        /// <param name="builder"></param>
-        /// <param name="action"></param>
-        /// <typeparam name="T"></typeparam>
         public static void ForEach<T>(this IBuilder builder, Action<T> action)
         {
             var list = builder.BuildAll<T>().ToList();

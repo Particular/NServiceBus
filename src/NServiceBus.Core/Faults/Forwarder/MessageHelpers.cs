@@ -11,8 +11,6 @@ namespace NServiceBus.Faults.Forwarder
         /// For compatibility with V2.6:
         /// Gets the label of the message stripping out the failed queue.
         /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
         public static string GetLabelWithoutFailedQueue(Message m)
         {
             if (string.IsNullOrEmpty(m.Label))
@@ -32,8 +30,6 @@ namespace NServiceBus.Faults.Forwarder
         /// Returns the queue whose process failed processing the given message
         /// by accessing the label of the message.
         /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
         public static string GetFailedQueueFromLabel(Message m)
         {
             if (m.Label == null)

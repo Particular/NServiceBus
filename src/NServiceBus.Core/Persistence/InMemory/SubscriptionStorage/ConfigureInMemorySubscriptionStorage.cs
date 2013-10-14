@@ -11,8 +11,6 @@ namespace NServiceBus
         /// Stores subscription data in memory.
         /// This storage are for development scenarios only
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure InMemorySubscriptionStorage(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemorySubscriptionStorage>(DependencyLifecycle.SingleInstance);

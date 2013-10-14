@@ -6,7 +6,6 @@ namespace NServiceBus.Sagas.Finders
     /// <summary>
     /// Finds sagas based on the sagaid header
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class HeaderSagaIdFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
     {
 
@@ -18,8 +17,6 @@ namespace NServiceBus.Sagas.Finders
         /// <summary>
         /// Returns the saga 
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public T FindBy(object message)
         {
             if (SagaPersister == null)

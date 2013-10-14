@@ -12,7 +12,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Stores the original saga id and type of the incoming message
         /// </summary>
-        /// <param name="transportMessage"></param>
         public void MutateIncoming(TransportMessage transportMessage)
         {
             originatingSagaId = null;
@@ -40,8 +39,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Promotes the id and type of the originating saga if it is a reply
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (transportMessage.MessageIntent != MessageIntentEnum.Reply)

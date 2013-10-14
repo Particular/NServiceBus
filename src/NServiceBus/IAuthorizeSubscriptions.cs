@@ -15,19 +15,11 @@
         /// Return true if the client endpoint is to be allowed to subscribe to the given message type.
         /// Implementors can access the impersonated user via <see cref="WindowsIdentity.GetCurrent()"/>
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="clientEndpoint"></param>
-        /// <param name="headers"></param>
-        /// <returns></returns>
         bool AuthorizeSubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
 
         /// <summary>
         /// Return true if the client endpoint is to be allowed to unsubscribe to the given message type.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="clientEndpoint"></param>
-        /// <param name="headers"></param>
-        /// <returns></returns>
         bool AuthorizeUnsubscribe(string messageType, string clientEndpoint, IDictionary<string, string> headers);
     }
 }

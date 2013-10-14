@@ -151,7 +151,6 @@
         /// <summary>
         /// Loads license data from validated license file.
         /// </summary>
-        /// <returns></returns>
         public bool TryLoadingLicenseValuesFromValidatedXml()
         {
             try
