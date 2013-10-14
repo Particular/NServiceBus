@@ -180,7 +180,6 @@
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
-    <Compile Include="Config\FtpQueueConfig.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
