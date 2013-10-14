@@ -240,6 +240,10 @@
         /// <summary>
         /// The <see cref="IMessageCreator"/> used by the extension methods to instantiate types.
         /// </summary>
+        [ObsoleteEx(
+            Message = "No longer required since the IBus batch operations have been trimmed",
+            TreatAsErrorFromVersion = "4.3",
+            RemoveInVersion = "5.0")]
         public static IMessageCreator MessageCreator { get; set; }
 
         /// <summary>
