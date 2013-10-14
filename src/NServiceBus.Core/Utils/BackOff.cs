@@ -6,6 +6,10 @@
     /// <summary>
     /// A utility class that does a sleep on very call up to a limit based on a condition.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Only used by SQLTransport and hence moved to that repo", 
+        TreatAsErrorFromVersion = "4.2", 
+        RemoveInVersion = "5.0")]
     public class BackOff
     {
         private readonly int maximum;
