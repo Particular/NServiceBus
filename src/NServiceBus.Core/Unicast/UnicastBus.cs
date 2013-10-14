@@ -9,10 +9,8 @@ namespace NServiceBus.Unicast
     using System.Runtime.Serialization;
     using System.Security.Principal;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using Audit;
-    using Impersonation;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -1288,7 +1286,7 @@ namespace NServiceBus.Unicast
         {
             Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
-            SetupImpersonation(childBuilder, msg);
+            ConfigureImpersonation.SetupImpersonation(childBuilder, msg);
 
 
             var unitOfWorkRunner = new UnitOfWorkRunner
@@ -1328,22 +1326,7 @@ namespace NServiceBus.Unicast
             Log.Debug("Finished handling message.");
         }
 
-        static void SetupImpersonation(IBuilder childBuilder, TransportMessage message)
-        {
-            if (!ConfigureImpersonation.Impersonate)
-                return;
-            var impersonator = childBuilder.Build<ExtractIncomingPrincipal>();
 
-            if (impersonator == null)
-                throw new InvalidOperationException("Run handler under incoming principal is configured for this endpoint but no implementation of ExtractIncomingPrincipal has been found. Please register one.");
-
-            var principal = impersonator.GetPrincipal(message);
-
-            if (principal == null)
-                return;
-
-            Thread.CurrentPrincipal = principal;
-        }
 
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
