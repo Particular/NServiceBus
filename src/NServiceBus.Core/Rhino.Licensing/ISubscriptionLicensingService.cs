@@ -11,8 +11,6 @@
         /// <summary>
         /// Issues a leased license
         /// </summary>
-        /// <param name="previousLicense"></param>
-        /// <returns></returns>
         [OperationContract]
         string LeaseLicense(string previousLicense);
     }

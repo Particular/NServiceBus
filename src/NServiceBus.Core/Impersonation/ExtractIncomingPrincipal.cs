@@ -16,7 +16,6 @@
         /// <summary>
         /// Gets the principal of the client to be used when handling the message
         /// </summary>
-        /// <returns></returns>
         IPrincipal GetPrincipal(TransportMessage message);
     }
 }

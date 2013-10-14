@@ -53,7 +53,6 @@ namespace NServiceBus
         /// The return code is cast to the given enumerated type - T.
         /// </summary>
         /// <typeparam name="T">An enumeration type or an integer.</typeparam>
-        /// <param name="callback"></param>
         void Register<T>(Action<T> callback);
 
         /// <summary>
@@ -61,9 +60,6 @@ namespace NServiceBus
         /// The return code is cast to the given enumerated type - T.
         /// Pass either a System.Web.UI.Page or a System.Web.Mvc.AsyncController as the synchronizer.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="callback"></param>
-        /// <param name="synchronizer"></param>
         void Register<T>(Action<T> callback, object synchronizer);
     }
 }

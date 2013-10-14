@@ -15,8 +15,6 @@
         /// <summary>
         /// Constructs the manager with the given user configuration and the list of assemblies that should be scanned
         /// </summary>
-        /// <param name="assembliesToScan"></param>
-        /// <param name="specifier"></param>
         public ConfigManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier)
         {
             this.specifier = specifier;

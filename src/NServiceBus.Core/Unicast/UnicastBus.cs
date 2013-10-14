@@ -274,8 +274,6 @@ namespace NServiceBus.Unicast
         /// performing the given action on the created message,
         /// and then publishing it.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageConstructor"></param>
         public void Publish<T>(Action<T> messageConstructor)
         {
             Publish(CreateInstance(messageConstructor));
@@ -330,7 +328,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Subscribes to the given type - T.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public void Subscribe<T>()
         {
             Subscribe(typeof(T));
@@ -349,8 +346,6 @@ namespace NServiceBus.Unicast
         /// Subscribes to the given type T, registering a condition that all received
         /// messages of that type should comply with, otherwise discarding them.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="condition"></param>
         public void Subscribe<T>(Predicate<T> condition)
         {
             var p = new Predicate<object>(m =>
@@ -397,7 +392,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Unsubscribes from the given type of message - T.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public void Unsubscribe<T>()
         {
             Unsubscribe(typeof(T));
@@ -406,7 +400,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Unsubscribes from receiving published messages of the specified type.
         /// </summary>
-        /// <param name="messageType"></param>
         public virtual void Unsubscribe(Type messageType)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
@@ -597,11 +590,6 @@ namespace NServiceBus.Unicast
             return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
         }
 
-        /// <summary>
-        /// Defer
-        /// </summary>
-        /// <param name="delay">Delay</param>
-        /// <param name="messages">Messages</param>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return Defer(DateTime.UtcNow + delay, messages);
@@ -617,12 +605,6 @@ namespace NServiceBus.Unicast
             return Defer(processAt, new [] { message });
         }
 
-        /// <summary>
-        /// Defer
-        /// </summary>
-        /// <param name="processAt">processAt</param>
-        /// <param name="messages">messages</param>
-        /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
@@ -810,9 +792,6 @@ namespace NServiceBus.Unicast
             }
         }
 
-        /// <summary>
-        /// Implementation of IStartableBus.Started event.
-        /// </summary>
         public event EventHandler Started;
 
         public IBus Start()
@@ -1157,7 +1136,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="builder">The builder used to construct the handlers.</param>
         /// <param name="toHandle">The message to dispatch to the handlers.</param>
-        /// <returns></returns>
         /// <remarks>
         /// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
         /// this prevents the message from being further dispatched.
@@ -1482,8 +1460,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
         /// </summary>
-        /// <param name="messages"></param>
-        /// <returns></returns>
         Address GetAddressForMessages(object[] messages)
         {
             if (messages == null || messages.Length == 0)

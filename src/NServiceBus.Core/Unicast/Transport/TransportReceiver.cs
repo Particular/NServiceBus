@@ -160,7 +160,6 @@ namespace NServiceBus.Unicast.Transport
         /// Changes the number of worker threads to the given target,
         /// stopping or starting worker threads as needed.
         /// </summary>
-        /// <param name="targetNumberOfWorkerThreads"></param>
         public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
         {
             ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);

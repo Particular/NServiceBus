@@ -27,9 +27,6 @@
         /// <summary>
         /// Publishes the given message to all subscribers
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="eventTypes"></param>
-        /// <returns></returns>
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
             if (SubscriptionStorage == null)

@@ -11,8 +11,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Publishes the given messages to all known subscribers
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="eventTypes"></param>
         bool Publish(TransportMessage message, IEnumerable<Type> eventTypes);
     }
 }

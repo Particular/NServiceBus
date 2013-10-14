@@ -17,8 +17,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Creates a new object storing the given callback and state.
         /// </summary>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
         public BusAsyncResult(AsyncCallback callback, object state)
         {
             this.callback = callback;
@@ -32,8 +30,6 @@ namespace NServiceBus.Unicast
         /// releases any blocked threads,
         /// and invokes the previously given callback.
         /// </summary>
-        /// <param name="errorCode"></param>
-        /// <param name="messages"></param>
         public void Complete(int errorCode, params object[] messages)
         {
             result.ErrorCode = errorCode;

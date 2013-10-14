@@ -20,7 +20,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Enables the given infrastructure service by registering it in the container
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public static void Enable<T>()
         {
             var serviceType = typeof(T);
@@ -54,8 +53,6 @@ namespace NServiceBus.Config
         /// Set the default for the infrastructure service to the action passed in.
         /// If the service is enabled and no explicit override is found this action will be used to configure the service.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="configAction"></param>
         public static void SetDefaultFor<T>(Action configAction)
         {
             var serviceType = typeof(T);
@@ -70,9 +67,6 @@ namespace NServiceBus.Config
         /// Sets the default provider for the service to the give type. If the service is enabled the type will be registered
         /// in the container with the specified lifecycle
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="providerType"></param>
-        /// <param name="dependencyLifecycle"></param>
         public static void SetDefaultFor<T>(Type providerType, DependencyLifecycle dependencyLifecycle)
         {
             var serviceType = typeof(T);
@@ -85,8 +79,6 @@ namespace NServiceBus.Config
         /// <summary>
         ///  Register a explicit service provider
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="configAction"></param>
         public static void RegisterServiceFor<T>(Action configAction)
         {
             var serviceType = typeof(T);
@@ -98,9 +90,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Register a explicit service provider
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="providerType"></param>
-        /// <param name="dependencyLifecycle"></param>
         public static void RegisterServiceFor<T>(Type providerType, DependencyLifecycle dependencyLifecycle)
         {
             var serviceType = typeof(T);
@@ -113,8 +102,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns true if the requested service is available and can be enabled on demand
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static bool IsAvailable<T>()
         {
             return SettingsHolder.HasSetting<T>();

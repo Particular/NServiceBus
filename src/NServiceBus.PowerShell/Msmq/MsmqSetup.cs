@@ -58,7 +58,6 @@
         /// <summary>
         /// Determines if the msmq installation on the current machine is ok
         /// </summary>
-        /// <returns></returns>
         public static bool IsInstallationGood()
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");

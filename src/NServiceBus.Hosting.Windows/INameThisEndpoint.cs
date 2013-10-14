@@ -9,7 +9,6 @@ namespace NServiceBus
         /// <summary>
         /// Returns the name to be used for this endpoint
         /// </summary>
-        /// <returns></returns>
         string GetName();
     }
 }

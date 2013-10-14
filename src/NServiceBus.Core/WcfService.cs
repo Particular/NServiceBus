@@ -7,8 +7,6 @@ namespace NServiceBus
     /// <summary>
     /// Generic WCF service for exposing a messaging endpoint.
     /// </summary>
-    /// <typeparam name="TRequest"></typeparam>
-    /// <typeparam name="TResponse"></typeparam>
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, 
                      ConcurrencyMode = ConcurrencyMode.Multiple)]
     public abstract class WcfService<TRequest, TResponse> : IWcfService<TRequest, TResponse>

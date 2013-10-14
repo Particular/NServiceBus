@@ -13,7 +13,6 @@
         /// <summary>
         /// Initializes the router with all known messages
         /// </summary>
-        /// <param name="knownMessages"></param>
         public StaticMessageRouter(IEnumerable<Type> knownMessages)
         {
             routes = new ConcurrentDictionary<Type, Address>();

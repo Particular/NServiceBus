@@ -15,8 +15,6 @@ namespace NServiceBus
         /// you should not choose this option - prefer the DbSubscriptionStorage
         /// in that case.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure MsmqSubscriptionStorage(this Configure config)
         {
             return MsmqSubscriptionStorage(config, Configure.EndpointName);
@@ -28,9 +26,6 @@ namespace NServiceBus
         /// you should not choose this option - prefer the DbSubscriptionStorage
         /// in that case.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="endpointName"></param>
-        /// <returns></returns>
         public static Configure MsmqSubscriptionStorage(this Configure config, string endpointName)
         {
             var cfg = Configure.GetConfigSection<MsmqSubscriptionStorageConfig>();

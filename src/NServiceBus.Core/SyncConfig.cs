@@ -21,8 +21,6 @@ namespace NServiceBus
         /// Use this for multi-threaded rich clients. Specifies that message processing
         /// will occur within a synchronization domain (make sure that you only have one).
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure Synchronization(this Configure config)
         {
             if (configured)

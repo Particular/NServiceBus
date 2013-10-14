@@ -96,7 +96,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Uses the configuration properties to configure the endpoint mapping
         /// </summary>
-        /// <param name="mapTypeToEndpoint"></param>
         public void Configure(Action<Type, Address> mapTypeToEndpoint)
         {
             if (!string.IsNullOrWhiteSpace(Messages))

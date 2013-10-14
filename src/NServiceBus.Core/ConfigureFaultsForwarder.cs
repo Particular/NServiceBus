@@ -16,8 +16,6 @@ namespace NServiceBus
 		/// <summary>
 		/// Forward messages that have repeatedly failed to another endpoint.
 		/// </summary>
-		/// <param name="config"></param>
-		/// <returns></returns>
 		public static Configure MessageForwardingInCaseOfFault(this Configure config)
 		{
 			if (ErrorQueue != null)

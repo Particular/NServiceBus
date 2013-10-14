@@ -71,7 +71,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// Checks if configuration is wrong - endpoint isn't transactional and
         /// object isn't configured to handle own transactions.
         /// </summary>
-        /// <returns></returns>
         private bool ConfigurationIsWrong()
         {
             return (Transaction.Current == null && !DontUseExternalTransaction);                
@@ -151,7 +150,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// Returns the transaction type (automatic or single) that should be used
         /// based on the configuration of enlisting into external transactions.
         /// </summary>
-        /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
             if (!SettingsHolder.Get<bool>("Transactions.Enabled"))

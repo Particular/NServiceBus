@@ -10,8 +10,6 @@ namespace NServiceBus
         /// <summary>
         /// Use the in memory timeout persister implementation.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseInMemoryTimeoutPersister(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryTimeoutPersistence>(DependencyLifecycle.SingleInstance);
@@ -21,8 +19,6 @@ namespace NServiceBus
         /// <summary>
         /// Use the Raven timeout persister implementation.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseRavenTimeoutPersister(this Configure config)
         {
             if (!config.Configurer.HasComponent<StoreAccessor>())
@@ -37,8 +33,6 @@ namespace NServiceBus
         /// <summary>
         /// As Timeout manager is turned on by default for server roles, use DisableTimeoutManager method to turn off Timeout manager
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure DisableTimeoutManager(this Configure config)
         {
             Feature.Disable<TimeoutManager>();
@@ -56,8 +50,6 @@ namespace NServiceBus
         /// <summary>
         /// Sets the default persistence to InMemory.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "UseInMemoryTimeoutPersister()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure RunTimeoutManagerWithInMemoryPersistence(this Configure config)
         {
@@ -69,8 +61,6 @@ namespace NServiceBus
         /// <summary>
         /// Sets the default persistence to InMemory.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "UseInMemoryTimeoutPersister()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public static Configure DefaultToInMemoryTimeoutPersistence(this Configure config)
         {

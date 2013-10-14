@@ -11,9 +11,6 @@ namespace NServiceBus
         /// Setting this to true may make sense for certain smart-client applications, 
         /// but rarely for server applications.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static Configure PurgeOnStartup(this Configure config, bool value)
         {
             PurgeRequested = value;
