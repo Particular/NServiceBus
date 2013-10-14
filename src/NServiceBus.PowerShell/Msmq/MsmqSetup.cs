@@ -20,6 +20,8 @@
         /// </summary>
         public static bool StartMsmqIfNecessary()
         {
+            Console.WriteLine("Entering StartMsmqIfNecessary in NServiceBus.Setup.Windows.Msmq.MsmqSetup");
+
             if(!InstallMsmqIfNecessary())
             {
                 return false;
