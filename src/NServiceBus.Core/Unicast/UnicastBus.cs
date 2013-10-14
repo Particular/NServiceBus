@@ -850,7 +850,7 @@ namespace NServiceBus.Unicast
                 Started(this, null);
             }
 
-            satelliteLauncher = new SatelliteLauncher();
+            satelliteLauncher = new SatelliteLauncher(Builder);
             satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
