@@ -11,7 +11,7 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 ## Running
 
-To run NServiceBus, please download and install the setup file from http://www.nservicebus.com/Downloads.aspx
+To run NServiceBus, please download and install the setup file from http://particular.net/downloads
 
 ## Licenses
 
@@ -124,5 +124,9 @@ ActiveMQ is licensed under the Apache 2.0 licence  as described [here](http://ac
 
 The ActiveMQ client is referenced by NServiceBus
 
+
+### RijndaelEncryptionService
+
+Taken from [rhino-esb](https://github.com/hibernating-rhinos/rhino-esb/blob/master/Rhino.ServiceBus/Impl/RijndaelEncryptionService.cs) under [this license](https://github.com/hibernating-rhinos/rhino-esb/blob/master/license.txt)  
 
 
