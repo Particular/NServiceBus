@@ -1,10 +1,9 @@
-﻿namespace NServiceBus.Core.Tests.Sagas
+namespace NServiceBus.Core.Tests.Sagas
 {
     using NUnit.Framework;
     using Unicast.Routing;
 
     [TestFixture]
-    [Explicit]
     public class StaticMessageRouterTests
     {
 
@@ -32,6 +31,7 @@
         }
 
         [Test]
+        [Ignore("Will pass when we add support for this in v 4.2")]
         public void When_inherited_registered_after_base_correct_address_is_returned_for_both()
         {
             var baseType = typeof(BaseMessage);
