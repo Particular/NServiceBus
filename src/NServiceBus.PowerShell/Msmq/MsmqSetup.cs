@@ -293,6 +293,7 @@
 
         // ReSharper disable UnusedField.Compiler
         // ReSharper disable NotAccessedField.Local
+        // ReSharper disable UnassignedField.Compiler
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfoEx : OSVersionInfo
         {
@@ -315,6 +316,7 @@
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public String CSDVersion = null;
         }
+        // ReSharper restore UnassignedField.Compiler
         // ReSharper restore NotAccessedField.Local
         // ReSharper restore UnusedField.Compiler
 
