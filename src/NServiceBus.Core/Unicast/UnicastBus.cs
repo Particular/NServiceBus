@@ -230,6 +230,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <typeparam name="T">The type to instantiate.</typeparam>
         /// <returns>An instance of the specified type.</returns>
+        [ObsoleteEx(
+            Message = "No longer required since the IBus batch operations have been trimmed",
+            TreatAsErrorFromVersion = "4.3",
+            RemoveInVersion = "5.0")]
         public T CreateInstance<T>()
         {
             return messageMapper.CreateInstance<T>();
@@ -241,7 +245,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <typeparam name="T">The type to instantiate.</typeparam>
         /// <param name="action">An action to perform on the result</param>
-        /// <returns></returns>
+        [ObsoleteEx(
+            Message = "No longer required since the IBus batch operations have been trimmed",
+            TreatAsErrorFromVersion = "4.3",
+            RemoveInVersion = "5.0")]
         public T CreateInstance<T>(Action<T> action)
         {
             return messageMapper.CreateInstance(action);
@@ -253,6 +260,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="messageType">The type to instantiate.</param>
         /// <returns>An instance of the specified type.</returns>
+        [ObsoleteEx(
+            Message = "No longer required since the IBus batch operations have been trimmed",
+            TreatAsErrorFromVersion = "4.3",
+            RemoveInVersion = "5.0")]
         public object CreateInstance(Type messageType)
         {
             return messageMapper.CreateInstance(messageType);
