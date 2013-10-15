@@ -12,8 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// The Gateway is turned on by default for the Master role. Call DisableGateway method to turn the Gateway off.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure DisableGateway(this Configure config)
         {
             Feature.Disable<Features.Gateway>();
@@ -23,8 +21,6 @@ namespace NServiceBus
         /// <summary>
         /// Configuring to run the Gateway. By default Gateway will use RavenPersistence (see GatewayDefaults class).
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure RunGateway(this Configure config)
         {
             Feature.Enable<Features.Gateway>();
@@ -52,8 +48,6 @@ namespace NServiceBus
         /// <summary>
         /// Use the in memory messages persistence by the gateway.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseInMemoryGatewayPersister(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryPersistence>(DependencyLifecycle.SingleInstance);
@@ -63,8 +57,6 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory message deduplication for the gateway.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseInMemoryGatewayDeduplication(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemoryDeduplication>(DependencyLifecycle.SingleInstance);
@@ -75,8 +67,6 @@ namespace NServiceBus
         /// <summary>
         /// Use RavenDB messages persistence by the gateway.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseRavenGatewayPersister(this Configure config)
         {
             if (!config.Configurer.HasComponent<StoreAccessor>())
@@ -89,8 +79,6 @@ namespace NServiceBus
         /// <summary>
         /// Use RavenDB for message deduplication by the gateway.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure UseRavenGatewayDeduplication(this Configure config)
         {
             if (!config.Configurer.HasComponent<StoreAccessor>())

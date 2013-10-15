@@ -38,7 +38,7 @@
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (typeof(Exception).IsAssignableFrom(type))
+                if (typeof(Exception).IsAssignableFrom(type) && type.Namespace.StartsWith("NServiceBus"))
                 {
                     yield return type;
                 }

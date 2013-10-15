@@ -12,7 +12,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Stores the original saga id and type of the incoming message
         /// </summary>
-        /// <param name="transportMessage"></param>
         public void MutateIncoming(TransportMessage transportMessage)
         {
             originatingSagaId = null;
@@ -21,15 +20,8 @@ namespace NServiceBus.Sagas
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             if (transportMessage.MessageIntent == MessageIntentEnum.Publish)
             {
-                if (transportMessage.Headers.ContainsKey(Headers.SagaId))
-                {
-                    transportMessage.Headers.Remove(Headers.SagaId);
-                }
-
-                if (transportMessage.Headers.ContainsKey(Headers.SagaType))
-                {
-                    transportMessage.Headers.Remove(Headers.SagaType);
-                }
+                transportMessage.Headers.Remove(Headers.SagaId);
+                transportMessage.Headers.Remove(Headers.SagaType);
             }
 
             if (transportMessage.Headers.ContainsKey(Headers.OriginatingSagaId))
@@ -47,8 +39,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Promotes the id and type of the originating saga if it is a reply
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (transportMessage.MessageIntent != MessageIntentEnum.Reply)

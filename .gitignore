@@ -1,8 +1,10 @@
+nugets
 build
 build32
 binaries
 obj
 bin
+*.vshost.*
 .nu
 _ReSharper.*
 _UpgradeReport.*

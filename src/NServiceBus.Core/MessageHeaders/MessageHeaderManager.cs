@@ -34,7 +34,6 @@ namespace NServiceBus.MessageHeaders
         /// </summary>
         /// <param name="message">message for which Headers to be find</param>
         /// <param name="key">Key</param>
-        /// <returns></returns>
         public string GetHeader(object message, string key)
         {
             if (message == ExtensionMethods.CurrentMessageBeingHandled)
@@ -58,9 +57,6 @@ namespace NServiceBus.MessageHeaders
         /// <summary>
         /// Sets the Header for the Message
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
         public void SetHeader(object message, string key, string value)
         {
             if (message == null)
@@ -81,7 +77,6 @@ namespace NServiceBus.MessageHeaders
         /// <summary>
         /// Gets Static Outgoing Headers
         /// </summary>
-        /// <returns></returns>
         public IDictionary<string, string> GetStaticOutgoingHeaders()
         {
             return staticOutgoingHeaders;

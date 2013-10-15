@@ -23,7 +23,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new MessageEndpointMapping.
         /// </summary>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new MessageEndpointMapping();
@@ -32,8 +31,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new MessageEndpointMapping, setting its Message property to the given name.
         /// </summary>
-        /// <param name="elementName"></param>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement(string elementName)
         {
             var result = new MessageEndpointMapping {Messages = elementName};
@@ -44,8 +41,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the Messages property of the given MessageEndpointMapping element.
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         protected override Object GetElementKey(ConfigurationElement element)
         {
             var messageEndpointMapping = (MessageEndpointMapping) element;
@@ -99,8 +94,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets/sets the MessageEndpointMapping at the given index.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
         public MessageEndpointMapping this[int index]
         {
             get
@@ -120,8 +113,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the MessageEndpointMapping for the given name.
         /// </summary>
-        /// <param name="Name"></param>
-        /// <returns></returns>
         new public MessageEndpointMapping this[string Name]
         {
             get
@@ -133,8 +124,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseIndexOf on the given mapping.
         /// </summary>
-        /// <param name="mapping"></param>
-        /// <returns></returns>
         public int IndexOf(MessageEndpointMapping mapping)
         {
             return BaseIndexOf(mapping);
@@ -143,7 +132,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd.
         /// </summary>
-        /// <param name="mapping"></param>
         public void Add(MessageEndpointMapping mapping)
         {
             BaseAdd(mapping);
@@ -152,7 +140,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd with true as the additional parameter.
         /// </summary>
-        /// <param name="element"></param>
         protected override void BaseAdd(ConfigurationElement element)
         {
             BaseAdd(element, true);
@@ -161,7 +148,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// If the mapping exists, calls BaseRemove on it.
         /// </summary>
-        /// <param name="mapping"></param>
         public void Remove(MessageEndpointMapping mapping)
         {
             if (BaseIndexOf(mapping) >= 0)
@@ -171,7 +157,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseRemoveAt.
         /// </summary>
-        /// <param name="index"></param>
         public void RemoveAt(int index)
         {
             BaseRemoveAt(index);
@@ -180,7 +165,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseRemove.
         /// </summary>
-        /// <param name="name"></param>
         public void Remove(string name)
         {
             BaseRemove(name);

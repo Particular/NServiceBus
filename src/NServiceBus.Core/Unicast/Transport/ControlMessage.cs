@@ -30,8 +30,6 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// True if the transport message is a control message
         /// </summary>
-        /// <param name="transportMessage"></param>
-        /// <returns></returns>
         public static bool IsControlMessage(this TransportMessage transportMessage)
         {
             return transportMessage.Headers != null &&

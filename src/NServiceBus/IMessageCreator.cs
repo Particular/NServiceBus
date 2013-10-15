@@ -5,6 +5,10 @@ namespace NServiceBus
     /// <summary>
     /// The abstraction for creating interface-based messages.
     /// </summary>
+    [ObsoleteEx(
+        Message = "No longer required since the IBus batch operations have been trimmed",
+        TreatAsErrorFromVersion = "4.3",
+        RemoveInVersion = "5.0")]
     public interface IMessageCreator
     {
         /// <summary>

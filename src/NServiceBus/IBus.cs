@@ -280,8 +280,6 @@ namespace NServiceBus
         /// Returns a completion message with the specified error code to the sender
         /// of the message being handled. The type T can only be an enum or an integer.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="errorEnum"></param>
         void Return<T>(T errorEnum);
 
         /// <summary>
@@ -294,7 +292,6 @@ namespace NServiceBus
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.
         /// </summary>
-        /// <param name="destination"></param>
         void ForwardCurrentMessageTo(string destination);
 
         /// <summary>

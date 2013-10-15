@@ -74,7 +74,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures endpoint with messages guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
-            /// <returns></returns>
             public EndpointAdvancedSettings EnableDurableMessages()
             {
                 SettingsHolder.Set("Endpoint.DurableMessages", true);
@@ -84,7 +83,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures endpoint with messages that are not guaranteed to be delivered in the event of a computer failure or network problem.
             /// </summary>
-            /// <returns></returns>
             public EndpointAdvancedSettings DisableDurableMessages()
             {
                 SettingsHolder.Set("Endpoint.DurableMessages", false);

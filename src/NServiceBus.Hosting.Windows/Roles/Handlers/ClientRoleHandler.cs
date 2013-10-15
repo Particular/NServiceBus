@@ -11,8 +11,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <summary>
         /// Configures the UnicastBus with typical settings for a client
         /// </summary>
-        /// <param name="specifier"></param>
-        /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             Configure.Transactions.Disable();

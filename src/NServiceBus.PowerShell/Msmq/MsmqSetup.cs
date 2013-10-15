@@ -20,6 +20,8 @@
         /// </summary>
         public static bool StartMsmqIfNecessary()
         {
+            Console.WriteLine("Entering StartMsmqIfNecessary in NServiceBus.Setup.Windows.Msmq.MsmqSetup");
+
             if(!InstallMsmqIfNecessary())
             {
                 return false;
@@ -58,7 +60,6 @@
         /// <summary>
         /// Determines if the msmq installation on the current machine is ok
         /// </summary>
-        /// <returns></returns>
         public static bool IsInstallationGood()
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
@@ -291,6 +292,9 @@
         static extern Boolean GetVersionEx([Out][In]OSVersionInfo versionInformation);
 
 
+        // ReSharper disable UnusedField.Compiler
+        // ReSharper disable NotAccessedField.Local
+        // ReSharper disable UnassignedField.Compiler
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfoEx : OSVersionInfo
         {
@@ -304,8 +308,7 @@
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfo
         {
-            public UInt32 OSVersionInfoSize =
-               (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
+            public UInt32 OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
             public UInt32 MajorVersion = 0;
             public UInt32 MinorVersion = 0;
             public UInt32 BuildNumber = 0;
@@ -314,6 +317,9 @@
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public String CSDVersion = null;
         }
+        // ReSharper restore UnassignedField.Compiler
+        // ReSharper restore NotAccessedField.Local
+        // ReSharper restore UnusedField.Compiler
 
         const byte VER_NT_WORKSTATION = 1;
         const byte VER_NT_SERVER = 3;

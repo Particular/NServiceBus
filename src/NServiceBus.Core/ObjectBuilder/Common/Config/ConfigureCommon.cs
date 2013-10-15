@@ -10,8 +10,6 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         /// Then, the given builder object is inserted in the relevant place of the builder chain.
         /// Finally, the given actions are performed on the instance of CommonObjectBuilder.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="container"></param>
         public static void With(Configure config, IContainer container)
         {
             var b = new CommonObjectBuilder { Container = container, Synchronized = SyncConfig.Synchronize };

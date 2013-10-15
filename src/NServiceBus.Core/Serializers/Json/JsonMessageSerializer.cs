@@ -14,7 +14,6 @@ namespace NServiceBus.Serializers.Json
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="messageMapper"></param>
         public JsonMessageSerializer(IMessageMapper messageMapper)
             : base(messageMapper)
         {

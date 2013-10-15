@@ -20,8 +20,6 @@ namespace NServiceBus.Transports.Msmq
         /// Turns a '@' separated value into a full path.
         /// Format is 'queue@machine', or 'queue@ipaddress'
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public static string GetFullPath(Address value)
         {
             IPAddress ipAddress;
@@ -36,9 +34,6 @@ namespace NServiceBus.Transports.Msmq
         /// If the target includes a machine name, uses the local machine name in the returned value
         /// otherwise uses the local IP address in the returned value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
         public static string GetReturnAddress(string value, string target)
         {
             return GetReturnAddress(Address.Parse(value), Address.Parse(target));
@@ -49,9 +44,6 @@ namespace NServiceBus.Transports.Msmq
         /// If the target includes a machine name, uses the local machine name in the returned value
         /// otherwise uses the local IP address in the returned value.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="target"></param>
-        /// <returns></returns>
         public static string GetReturnAddress(Address value, Address target)
         {
             var machine = target.Machine;
@@ -101,8 +93,6 @@ namespace NServiceBus.Transports.Msmq
         /// Gets an independent address for the queue in the form:
         /// queue@machine.
         /// </summary>
-        /// <param name="q"></param>
-        /// <returns></returns>
         public static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
@@ -135,8 +125,6 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Converts an MSMQ message to a TransportMessage.
         /// </summary>
-        /// <param name="m"></param>
-        /// <returns></returns>
         public static TransportMessage Convert(Message m)
         {
             var headers = DeserializeMessageHeaders(m);
@@ -211,8 +199,6 @@ namespace NServiceBus.Transports.Msmq
         /// Converts a TransportMessage to an Msmq message.
         /// Doesn't set the ResponseQueue of the result.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static Message Convert(TransportMessage message)
         {
             var result = new Message();

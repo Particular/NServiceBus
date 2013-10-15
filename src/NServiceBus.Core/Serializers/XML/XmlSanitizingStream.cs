@@ -29,7 +29,6 @@ namespace NServiceBus.Serializers.XML {
         /// The version number as a string. Use "1.0" for XML 1.0 character
         /// validation, and use "1.1" for XML 1.1 character validation.
         /// </param>
-		/// <param name="character"></param>
 		/// <returns><c>true</c> if is a legal xml character.</returns>
 		public static bool IsLegalXmlChar(string xmlVersion, int character)
 		{

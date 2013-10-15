@@ -107,9 +107,6 @@
         /// <summary>
         /// Get the header with the given key. Cannot be used to change its value.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "bus.GetMessageHeader(object msg, string key) or Headers.GetMessageHeader(object msg, string key)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public static string GetHeader(this object msg, string key)
         {
@@ -120,8 +117,6 @@
         /// If the source of this message was an Http endpoint, returns its address
         /// otherwise returns null.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.HttpFrom)")]
         public static string GetHttpFromHeader(this object msg)
         {
@@ -132,8 +127,6 @@
         /// If the target destination of this message is an Http endpoint,
         /// return the address of that target, otherwise null.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.HttpTo)")]
         public static string GetHttpToHeader(this object msg)
         {
@@ -143,8 +136,6 @@
         /// <summary>
         /// Returns the list of destination sites for this message
         /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.DestinationSites)")]
         public static string GetDestinationSitesHeader(this object msg)
         {
@@ -154,8 +145,6 @@
         /// <summary>
         /// Returns the site key for the site for which this message originated, null if this message wasn't sent via the gateway
         /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.GetMessageHeader(msg, NServiceBus.Headers.OriginatingSite)")]
         public static string GetOriginatingSiteHeader(this object msg)
         {
@@ -165,9 +154,6 @@
         /// <summary>
         /// Sets the value of the header for the given key.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
         [ObsoleteEx(Replacement = "bus.SetMessageHeader(object msg, string key, string value) or Headers.SetMessageHeader(object msg, string key, string value)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public static void SetHeader(this object msg, string key, string value)
         {
@@ -178,8 +164,6 @@
         /// Sets the list of sites to where this message should be routed
         /// This method is reserved for the NServiceBus Gateway.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.DestinationSites, value)")]
         public static void SetDestinationSitesHeader(this object msg, string value)
         {
@@ -191,8 +175,6 @@
         /// Sets the originating site header
         /// This method is reserved for the NServiceBus Gateway.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.OriginatingSite, value)")]
         public static void SetOriginatingSiteHeader(this object msg, string value)
         {
@@ -203,8 +185,6 @@
         /// Sets the Http address from which this message was received.
         /// This method is reserved for the NServiceBus Gateway.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.HttpFrom, value)")]
         public static void SetHttpFromHeader(this object msg, string value)
         {
@@ -215,8 +195,6 @@
         /// Sets the Http address to which this message should be sent.
         /// Requires the use of the NServiceBus Gateway.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="value"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, NServiceBus.Headers.HttpTo, value)")]
         public static void SetHttpToHeader(this object msg, string value)
         {
@@ -226,8 +204,6 @@
         /// <summary>
         /// Gets the value of the header with the given key and sets it for this message.
         /// </summary>
-        /// <param name="msg"></param>
-        /// <param name="key"></param>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Headers.SetMessageHeader(msg, key, Bus.CurrentMessageContext.Headers[key])")]
         public static void CopyHeaderFromRequest(this object msg, string key)
         {
@@ -240,6 +216,10 @@
         /// <summary>
         /// The <see cref="IMessageCreator"/> used by the extension methods to instantiate types.
         /// </summary>
+        [ObsoleteEx(
+            Message = "No longer required since the IBus batch operations have been trimmed",
+            TreatAsErrorFromVersion = "4.3",
+            RemoveInVersion = "5.0")]
         public static IMessageCreator MessageCreator { get; set; }
 
         /// <summary>

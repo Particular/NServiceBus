@@ -18,10 +18,6 @@ namespace NServiceBus.Hosting.Windows
         /// Accepts the type which will specify the users custom configuration.
         /// This type should implement <see cref="IConfigureThisEndpoint"/>.
         /// </summary>
-        /// <param name="endpointType"></param>
-        /// <param name="args"></param>
-        /// <param name="endpointName"></param>
-        /// <param name="runOtherInstallers"></param>
         /// <param name="scannableAssembliesFullName">Name of scan-able assemblies</param>
         public WindowsHost(Type endpointType, string[] args, string endpointName, bool runOtherInstallers, IEnumerable<string> scannableAssembliesFullName)
         {

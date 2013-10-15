@@ -19,7 +19,6 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Starts the transport listening for messages on the given local address.
 		/// </summary>
-		/// <param name="localAddress"></param>
 		void Start(Address localAddress);
 
 		/// <summary>

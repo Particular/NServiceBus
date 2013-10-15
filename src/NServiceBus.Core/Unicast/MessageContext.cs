@@ -13,7 +13,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Initializes message context from the transport message.
         /// </summary>
-        /// <param name="transportMessage"></param>
         public MessageContext(TransportMessage transportMessage)
         {
             this.transportMessage = transportMessage;

@@ -17,7 +17,6 @@ namespace NServiceBus.Transports
     /// <summary>
     /// The generic counterpart to IConfigureTransports
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IConfigureTransport<T> : IConfigureTransport where T : TransportDefinition { }
 
     public abstract class ConfigureTransport<T> : Feature, IConfigureTransport<T> where T : TransportDefinition

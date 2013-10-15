@@ -12,9 +12,6 @@ namespace NServiceBus
         /// Indicate that the given assembly expression should also be excluded.
         /// You can call this method multiple times.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
-        /// <seealso cref="Configure.IsMatch"/>
-        /// <returns></returns>
         IExcludesBuilder And(string assemblyExpression);
     }
 }

@@ -113,8 +113,6 @@
         /// Be aware that this implementation deletes sagas that complete so as not to have the database fill up.
         /// SagaData classes are automatically mapped using Fluent NHibernate Conventions.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "UseNHibernateSagaPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                                
         public static Configure NHibernateSagaPersister(this Configure config)
         {
@@ -126,8 +124,6 @@
         /// SagaData classes are automatically mapped using Fluent NHibernate conventions
         /// and there persistence schema is also automatically generated.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "UseNHibernateSagaPersister()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                                
         public static Configure NHibernateSagaPersisterWithSQLiteAndAutomaticSchemaGeneration(this Configure config)
         {
@@ -145,10 +141,6 @@
         /// SagaData classes are automatically mapped using Fluent NHibernate conventions
         /// and there persistence schema is automatically generated if requested.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="nhibernateProperties"></param>
-        /// <param name="autoUpdateSchema"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "UseNHibernateSagaPersister(Configuration)", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                        
         public static Configure NHibernateSagaPersister(this Configure config, IDictionary<string,string> nhibernateProperties,
             bool autoUpdateSchema)

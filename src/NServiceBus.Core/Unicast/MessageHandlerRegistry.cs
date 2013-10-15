@@ -14,8 +14,6 @@
         ///     Gets the list of <see cref="IMessageHandler{T}" /> <see cref="Type" />s for the given
         ///     <paramref name="messageType" />
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <returns></returns>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
         {
             return from keyValue in handlerList
@@ -26,7 +24,6 @@
         /// <summary>
         ///     Lists all message type for which we have handlers
         /// </summary>
-        /// <returns></returns>
         public IEnumerable<Type> GetMessageTypes()
         {
             return from handlers in handlerList.Values
@@ -38,7 +35,6 @@
         /// <summary>
         ///     Registers the given message handler type
         /// </summary>
-        /// <param name="handlerType"></param>
         public void RegisterHandler(Type handlerType)
         {
             if (handlerType.IsAbstract)

@@ -14,8 +14,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message right after it has been deseralized
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         object MutateIncoming(object message);
     }
 
@@ -27,8 +25,6 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Mutates the given message just before it's serialized
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         object MutateOutgoing(object message);
     }
 }

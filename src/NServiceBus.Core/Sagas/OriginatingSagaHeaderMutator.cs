@@ -10,8 +10,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Set the header if we run in the context of a saga
         /// </summary>
-        /// <param name="messages"></param>
-        /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (SagaContext.Current == null)
