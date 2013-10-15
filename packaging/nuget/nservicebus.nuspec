@@ -25,6 +25,6 @@
     <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="tools" />
     <file src="..\..\binaries\about_NServiceBus.help.txt" target="tools" />
     <file src="tools\init.ps1" target="tools" />
-    <file src="..\..\src\NServiceBus.Core\**\*.cs" target="src" />
+    <!--<file src="..\..\src\NServiceBus.Core\**\*.cs" target="src" />-->
   </files>
 </package>

@@ -16,7 +16,7 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="lib\net40\" />
-    <file src="..\..\src\NServiceBus.PowerShell\**\*.cs" target="src" />
+    <file src="..\..\binaries\NServiceBus.PowerShell.???" target="lib\net40\" />
+    <!--<file src="..\..\src\NServiceBus.PowerShell\**\*.cs" target="src" />-->
   </files>
 </package>

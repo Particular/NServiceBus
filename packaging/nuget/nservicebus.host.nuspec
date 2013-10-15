@@ -20,7 +20,7 @@
     <file src="..\..\binaries\NServiceBus.Host.???" target="lib\net40" />
     <file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
     <file src="nservicebus.host\install.ps1" target="tools" />
-	<file src="nservicebus.host.common\*.*" target="tools" />
-    <file src="..\..\src\NServiceBus.Hosting.Windows\**\*.cs" target="src" />
+	  <file src="nservicebus.host.common\*.*" target="tools" />
+    <!--<file src="..\..\src\NServiceBus.Hosting.Windows\**\*.cs" target="src" />-->
   </files>
 </package>

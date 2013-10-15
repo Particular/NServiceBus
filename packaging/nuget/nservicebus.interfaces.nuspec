@@ -18,6 +18,6 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.???" target="lib\net40\" />
-    <file src="..\..\src\NServiceBus\**\*.cs" target="src" />
+    <!--<file src="..\..\src\NServiceBus\**\*.cs" target="src" />-->
   </files>
 </package>

@@ -19,6 +19,6 @@
   <files>
     <file src="..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.???" target="lib\net40" />
     <file src="tools\install.ps1" target="tools" />
-    <file src="..\..\src\ObjectBuilder.CastleWindsor\**\*.cs" target="src" />
+    <!--<file src="..\..\src\ObjectBuilder.CastleWindsor\**\*.cs" target="src" />-->
   </files>
 </package>
