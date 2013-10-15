@@ -253,9 +253,10 @@ namespace NServiceBus.Encryption
 
         public static object GetValue(this MemberInfo member, object source)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                var fieldInfo = member as FieldInfo;
                 LateBoundField field;
                 if (!FieldInfoToLateBoundField.TryGetValue(member as FieldInfo, out field))
                 {
@@ -291,9 +292,10 @@ namespace NServiceBus.Encryption
 
         public static void SetValue(this MemberInfo member, object target, object value)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                var fieldInfo = member as FieldInfo;
                 LateBoundFieldSet fieldSet;
                 if (!FieldInfoToLateBoundFieldSet.TryGetValue(fieldInfo, out fieldSet))
                 {
