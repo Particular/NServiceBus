@@ -8,8 +8,6 @@
     /// This one would be a plugin somehow
     /// </summary>
     class SagaStateAuditingBehavior : IBehavior,
-        ExecuteAfter<SagaPersistenceBehavior>,
-        ExecuteBefore<InvokeHandlersBehavior>,
         RequireContextItemOfType<ActiveSagaInstances>
     {
         public IBehavior Next { get; set; }

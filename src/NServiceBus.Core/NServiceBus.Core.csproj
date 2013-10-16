@@ -117,8 +117,6 @@
     <Compile Include="Pipeline\Behaviors\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\DispatchToHandlers.cs" />
-    <Compile Include="Pipeline\Behaviors\ExecuteAfter.cs" />
-    <Compile Include="Pipeline\Behaviors\ExecuteBefore.cs" />
     <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />

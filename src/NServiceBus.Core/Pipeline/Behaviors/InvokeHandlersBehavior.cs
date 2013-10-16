@@ -5,7 +5,7 @@
     /// <summary>
     /// invoke handler'n'stuff
     /// </summary>
-    public class InvokeHandlersBehavior : IBehavior
+    class InvokeHandlersBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
         public void Invoke(IBehaviorContext context)

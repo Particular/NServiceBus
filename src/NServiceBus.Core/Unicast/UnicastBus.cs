@@ -1053,11 +1053,7 @@ namespace NServiceBus.Unicast
         /// <param name="builder">The builder used to construct the objects necessary to handle the message.</param>
         /// <param name="m">The received message.</param>
         /// <param name="behaviorContext"></param>
-        /// <remarks>
-        /// run by multiple threads so must be thread safe
-        /// public for testing
-        /// </remarks>
-        public void HandleMessage(IBuilder builder, TransportMessage m, IBehaviorContext behaviorContext)
+        void HandleMessage(IBuilder builder, TransportMessage m, IBehaviorContext behaviorContext)
         {
             var messages = behaviorContext.Messages;
 
