@@ -25,31 +25,6 @@
 
         int traceIndentLevel;
 
-        [SkipWeaving]
-        class DisposeAction : IDisposable
-        {
-            Action whenDisposed;
-
-            public DisposeAction(Action whenDisposed)
-            {
-                this.whenDisposed = whenDisposed;
-            }
-
-            public void Dispose()
-            {
-                if (whenDisposed == null) return;
-
-                try
-                {
-                    whenDisposed();
-                }
-                finally
-                {
-                    whenDisposed = null;
-                }
-            }
-        }
-
         List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
 
         public BehaviorContext(TransportMessage transportMessage)
@@ -76,10 +51,10 @@
             set { Set("NServiceBus.Messages", value); }
         }
 
-        public IDisposable TraceContextFor<T>()
+        public Action TraceContextFor<T>()
         {
             traceIndentLevel++;
-            return new DisposeAction(() => traceIndentLevel--);
+            return () => traceIndentLevel--;
         }
 
         public void Trace(string message, params object[] objs)

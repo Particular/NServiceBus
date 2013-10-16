@@ -27,15 +27,14 @@
             behaviorInstance.Next = Next;
 
             context.Trace("<{0}>", typeof(TBehavior));
+            var cleanupAction = context.TraceContextFor<TBehavior>();
             try
             {
-                using (context.TraceContextFor<TBehavior>())
-                {
-                    behaviorInstance.Invoke(context);
-                }
+                behaviorInstance.Invoke(context);
             }
             finally
             {
+                cleanupAction();
                 context.Trace("</{0}>", typeof(TBehavior));
             }
         }
