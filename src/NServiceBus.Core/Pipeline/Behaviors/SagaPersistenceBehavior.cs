@@ -85,7 +85,7 @@
         IContainSagaData CreateNew<T>() where T : IContainSagaData
         {
             // assign new ID and probably some more stuff
-            return (IContainSagaData)null;
+            return null;
         }
     }
 

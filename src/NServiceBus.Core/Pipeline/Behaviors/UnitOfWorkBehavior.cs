@@ -12,7 +12,10 @@
 
         public void Invoke(IBehaviorContext context)
         {
-            var unitOfWorkRunner = new UnitOfWorkRunner {Builder = Builder};
+            var unitOfWorkRunner = new UnitOfWorkRunner
+            {
+                Builder = Builder
+            };
 
             try
             {

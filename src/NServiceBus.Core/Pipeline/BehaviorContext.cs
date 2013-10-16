@@ -50,7 +50,7 @@
             }
         }
 
-        readonly List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
+        List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
 
         public BehaviorContext(TransportMessage transportMessage)
         {
@@ -89,7 +89,7 @@
 
         public bool DoNotContinueDispatchingMessageToHandlers { get; set; }
 
-        readonly Dictionary<string, object> stash = new Dictionary<string, object>();
+        Dictionary<string, object> stash = new Dictionary<string, object>();
 
         public T Get<T>()
         {
@@ -115,7 +115,7 @@
 
         public string GetTrace()
         {
-            const int spacesPerLevel = 4;
+            var spacesPerLevel = 4;
                 
             return String.Join(Environment.NewLine,
                                executionTrace.Select(t => new string(' ', spacesPerLevel * t.Item1) + String.Format(t.Item2, t.Item3)));

@@ -42,10 +42,8 @@
             }
             catch (Exception exception)
             {
-                throw new ApplicationException(
-                    string.Format(
-                        "An error occurred while attempting to extract logical messages from transport message {0}",
-                        transportMessage), exception);
+                var error = string.Format("An error occurred while attempting to extract logical messages from transport message {0}",transportMessage);
+                throw new Exception(error, exception);
             }
         }
 

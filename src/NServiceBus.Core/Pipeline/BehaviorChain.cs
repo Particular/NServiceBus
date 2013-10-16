@@ -9,10 +9,10 @@
 
     class BehaviorChain
     {
-        static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        readonly Func<IBuilder> getBuilder;
-        readonly List<BehaviorChainItemDescriptor> items = new List<BehaviorChainItemDescriptor>();
+        Func<IBuilder> getBuilder;
+        List<BehaviorChainItemDescriptor> items = new List<BehaviorChainItemDescriptor>();
 
         public BehaviorChain(Func<IBuilder> getBuilder)
         {
@@ -47,18 +47,14 @@
                 }
                 catch (Exception exception)
                 {
-                    throw new ApplicationException(
-                        string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",
-                                      string.Join(" -> ", items)), exception);
+                    var error = string.Format("An error occurred while attempting to invoke the following behavior chain: {0}",string.Join(" -> ", items));
+                    throw new Exception(error, exception);
                 }
                 finally
                 {
-                    // todo mhg: remove
-                    Console.WriteLine(context.GetTrace());
-
-                    if (Log.IsDebugEnabled)
+                    if (log.IsDebugEnabled)
                     {
-                        Log.Debug(context.GetTrace());
+                        log.Debug(context.GetTrace());
                     }
                 }
             }
@@ -67,7 +63,7 @@
         public override string ToString()
         {
             return string.Join(Environment.NewLine,
-                               items.Select((type, idx) => new string(' ', idx * 2) + " -> " + type));
+                               items.Select((type, index) => new string(' ', index * 2) + " -> " + type));
         }
 
         IBehavior GenerateBehaviorChain()
@@ -88,61 +84,6 @@
             return behavior;
         }
 
-        /// <summary>
-        /// Special terminator behavior that eliminates the need for null checks all the way through the pipeline
-        /// </summary>
-        class Terminator : IBehavior
-        {
-            public IBehavior Next
-            {
-                get { throw new InvalidOperationException("Can't get next on a terminator - this behavior terminates the pipeline"); }
-                set { throw new InvalidOperationException("Can't set next on a terminator - this behavior terminates the pipeline"); }
-            }
 
-            public void Invoke(IBehaviorContext context)
-            {
-                // noop :)
-            }
-        }
-
-        /// <summary>
-        /// Chain item descriptor that will help create a behavior instance. The actual creation of the instance
-        /// will be deferred by wrapping it in a <see cref="LazyBehavior{TBehavior}"/> which will use the builder
-        /// to build the behavior when it is invoked.
-        /// </summary>
-        class BehaviorChainItemDescriptor
-        {
-            readonly Type behaviorType;
-            readonly Func<IBuilder> getBuilder;
-            readonly Delegate initializationMethod;
-
-            public BehaviorChainItemDescriptor(Type behaviorType, Func<IBuilder> getBuilder, Delegate initializationMethod = null)
-            {
-                this.behaviorType = behaviorType;
-                this.getBuilder = getBuilder;
-                this.initializationMethod = initializationMethod;
-            }
-
-            public IBehavior GetInstance()
-            {
-                try
-                {
-                    var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                    var instance = Activator.CreateInstance(wrapperType, new object[] {getBuilder(), initializationMethod});
-                    return (IBehavior) instance;
-                }
-                catch (Exception exception)
-                {
-                    throw new ApplicationException(
-                        string.Format("An error occurred while attempting to create an instance of {0} closed with {1}",
-                                      typeof(LazyBehavior<>), behaviorType), exception);
-                }
-            }
-
-            public override string ToString()
-            {
-                return behaviorType.Name;
-            }
-        }
     }
 }

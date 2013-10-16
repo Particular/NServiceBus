@@ -10,7 +10,7 @@
 
         public IBehavior Next { get; set; }
 
-        public IDictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
+        public Dictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
 
         public void Invoke(IBehaviorContext context)
         {
@@ -21,29 +21,41 @@
             Next.Invoke(context);
         }
 
-        bool HandleCorrelatedMessage(TransportMessage msg, object[] messages)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, object[] messages)
         {
-            if (msg.CorrelationId == null)
+            if (transportMessage.CorrelationId == null)
+            {
                 return false;
+            }
 
-            if (msg.CorrelationId == msg.Id) //to make sure that we don't fire callbacks when doing send locals
+            if (transportMessage.CorrelationId == transportMessage.Id) //to make sure that we don't fire callbacks when doing send locals
+            {
                 return false;
+            }
 
             BusAsyncResult busAsyncResult;
 
             lock (MessageIdToAsyncResultLookup)
             {
-                MessageIdToAsyncResultLookup.TryGetValue(msg.CorrelationId, out busAsyncResult);
-                MessageIdToAsyncResultLookup.Remove(msg.CorrelationId);
+                MessageIdToAsyncResultLookup.TryGetValue(transportMessage.CorrelationId, out busAsyncResult);
+                MessageIdToAsyncResultLookup.Remove(transportMessage.CorrelationId);
             }
 
             if (busAsyncResult == null)
+            {
                 return false;
+            }
 
             var statusCode = int.MinValue;
 
-            if (msg.IsControlMessage() && msg.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
-                statusCode = int.Parse(msg.Headers[Headers.ReturnMessageErrorCodeHeader]);
+            if (transportMessage.IsControlMessage())
+            {
+                string errorCode;
+                if (transportMessage.Headers.TryGetValue(Headers.ReturnMessageErrorCodeHeader, out errorCode))
+                {
+                    statusCode = int.Parse(errorCode);
+                }
+            }
 
             busAsyncResult.Complete(statusCode, messages);
 

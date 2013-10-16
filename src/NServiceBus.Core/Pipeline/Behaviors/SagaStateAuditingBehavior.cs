@@ -82,42 +82,4 @@
             throw new NotImplementedException();
         }
     }
-
-    class Snapshot
-    {
-        public Guid SagaId { get; set; }
-    }
-
-    /// <summary>
-    /// invoke handler'n'stuff
-    /// </summary>
-    public class InvokeHandlersBehavior : IBehavior
-    {
-        public IBehavior Next { get; set; }
-        public void Invoke(IBehaviorContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    /// <summary>
-    /// could we declaratively state context state requirements like this? (and maybe in some cases remove the need for ExecuteAfter<..>?)
-    /// </summary>
-    public interface RequireContextItemOfType<T>
-    {
-    }
-
-    /// <summary>
-    /// Could be state behavior chain position requirements like this?
-    /// </summary>
-    public interface ExecuteBefore<T>
-    {
-    }
-
-    /// <summary>
-    /// Could be state behavior chain position requirements like this?
-    /// </summary>
-    public interface ExecuteAfter<T>
-    {
-    }
 }

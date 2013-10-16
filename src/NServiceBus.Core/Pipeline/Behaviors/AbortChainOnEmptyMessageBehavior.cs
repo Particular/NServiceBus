@@ -7,7 +7,7 @@
 
     class AbortChainOnEmptyMessageBehavior : IBehavior
     {
-        static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public IBehavior Next { get; set; }
         
@@ -18,7 +18,7 @@
             if (!transportMessage.IsControlMessage() && LogicalMessageCount(context) == 0)
             {
                 context.Trace("Ignoring empty message with ID {0}", transportMessage.Id);
-                Log.Warn("Received an empty message - ignoring.");
+                log.Warn("Received an empty message - ignoring.");
                 return;
             }
 

@@ -27,15 +27,8 @@
 
         object ApplyIncomingMessageMutatorsTo(object originalMessage)
         {
-            var mutators = Builder.BuildAll<IMutateIncomingMessages>().ToList();
-
-            var mutatedMessage = originalMessage;
-            mutators.ForEach(m =>
-                                 {
-                                     mutatedMessage = m.MutateIncoming(mutatedMessage);
-                                 });
-
-            return mutatedMessage;
+            return Builder.BuildAll<IMutateIncomingMessages>()
+                .Aggregate(originalMessage, (current, mutator) => mutator.MutateIncoming(current));
         }
     }
 }

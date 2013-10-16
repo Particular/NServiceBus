@@ -10,13 +10,16 @@
         {
             if (context.Messages == null)
             {
-                throw new ArgumentException(string.Format("Messages has not been set on the current behavior context: {0} - DispatchToHandlers must be executed AFTER" +
-                                                          "having extracted the messages", context));
+                var error = string.Format("Messages has not been set on the current behavior context: {0} - DispatchToHandlers must be executed AFTER having extracted the messages", context);
+                throw new ArgumentException(error);
             }
 
             foreach (var message in context.Messages)
             {
-                if (context.DoNotContinueDispatchingMessageToHandlers) break;
+                if (context.DoNotContinueDispatchingMessageToHandlers)
+                {
+                    break;
+                }
 
                 Dispatch(message);
             }
