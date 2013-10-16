@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using Unicast;
     using Unicast.Transport;
 
@@ -10,7 +10,7 @@
 
         public IBehavior Next { get; set; }
 
-        public Dictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
+        public ConcurrentDictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
 
         public void Invoke(IBehaviorContext context)
         {
@@ -35,13 +35,7 @@
 
             BusAsyncResult busAsyncResult;
 
-            lock (MessageIdToAsyncResultLookup)
-            {
-                MessageIdToAsyncResultLookup.TryGetValue(transportMessage.CorrelationId, out busAsyncResult);
-                MessageIdToAsyncResultLookup.Remove(transportMessage.CorrelationId);
-            }
-
-            if (busAsyncResult == null)
+            if (!MessageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
             {
                 return false;
             }

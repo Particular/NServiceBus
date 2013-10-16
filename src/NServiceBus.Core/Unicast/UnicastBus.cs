@@ -663,8 +663,8 @@ namespace NServiceBus.Unicast
             var result = new Callback(transportMessageId);
             result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
                 {
-                    lock (messageIdToAsyncResultLookup)
-                        messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+                    //TODO: what should we do if the key already exists?
+                    messageIdToAsyncResultLookup[args.MessageId] = args.Result;
                 };
 
             return result;
@@ -1232,14 +1232,10 @@ namespace NServiceBus.Unicast
 
             BusAsyncResult busAsyncResult;
 
-            lock (messageIdToAsyncResultLookup)
+            if (!messageIdToAsyncResultLookup.TryRemove(msg.CorrelationId, out busAsyncResult))
             {
-                messageIdToAsyncResultLookup.TryGetValue(msg.CorrelationId, out busAsyncResult);
-                messageIdToAsyncResultLookup.Remove(msg.CorrelationId);
-            }
-
-            if (busAsyncResult == null)
                 return false;
+            }
 
             var statusCode = int.MinValue;
 
@@ -1620,7 +1616,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
-        protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
+        ConcurrentDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, BusAsyncResult>();
 
         /// <remarks>
         /// ThreadStatic
