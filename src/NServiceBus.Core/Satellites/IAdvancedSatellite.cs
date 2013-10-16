@@ -4,7 +4,7 @@ namespace NServiceBus.Satellites
     using Unicast.Transport;
 
     /// <summary>
-    /// Interface for satellites that needs more control over how the receiver is beeing setup
+    /// Interface for satellites that needs more control over how the receiver is being setup
     /// </summary>
     public interface IAdvancedSatellite : ISatellite
     {

@@ -1,9 +1,7 @@
-using NUnit.Framework;
-
 namespace NServiceBus.Gateway.Tests.Idempotency.Raven
 {
     using System.Linq;
-
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_storing_a_new_message : in_the_raven_storage

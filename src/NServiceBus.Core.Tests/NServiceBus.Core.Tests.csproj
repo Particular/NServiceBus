@@ -13,8 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,33 +31,68 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.0.8.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="AWS.Extensions">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\AWS.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Esent.Interop">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="GeoAPI">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\GeoAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Jint.Raven">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Jint.Raven.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="Lucene.Net.Contrib.Spatial.NTS">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Lucene.Net.Contrib.Spatial.NTS.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\NetTopologySuite.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Abstractions.dll</HintPath>
+    <Reference Include="PowerCollections">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\PowerCollections.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Embedded, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Embedded.2.0.2375\lib\net40\Raven.Client.Embedded.dll</HintPath>
+    <Reference Include="Raven.Abstractions">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Client.2.0.2375\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    <Reference Include="Raven.Client.Embedded">
+      <HintPath>..\packages\RavenDB.Embedded\lib\net40\Raven.Client.Embedded.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Database, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\RavenDB.Database.2.0.2375\lib\net40\Raven.Database.dll</HintPath>
+    <Reference Include="Raven.Client.Lightweight">
+      <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="Raven.Database">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks">
-      <HintPath>..\..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\packages\RhinoMocks\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Spatial4n.Core.NTS">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\Spatial4n.Core.NTS.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -69,13 +103,14 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="TestAssembly">
       <HintPath>Lib\TestAssembly.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionContext.cs" />
     <Compile Include="AutomaticSubscriptions\When_autosubscribing_a_saga_that_handles_a_superclass_event.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
@@ -86,7 +121,9 @@
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
+    <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
@@ -122,11 +159,12 @@
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
-    <Compile Include="Gateway\via_the_gateway.cs" />
-    <Compile Include="Gateway\When_a_message_is_sent.cs" />
-    <Compile Include="Gateway\When_a_message_with_a_databus_property_is_sent.cs" />
+    <Compile Include="Installers\GatewayHttpListenerInstallerTests.cs" />
     <Compile Include="Installers\RavenUserInstallerTests.cs" />
     <Compile Include="Installers\PerformanceMonitorUsersInstallerTests.cs" />
+    <Compile Include="ExceptionTests.cs" />
+    <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
+    <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
@@ -162,6 +200,10 @@
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Routing\StaticMessageRouterTests.cs" />
+    <Compile Include="Sagas\UniqueAttributeTests.cs" />
+    <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
+    <Compile Include="Sagas\When_resolving_started_by_interfaces_for_a_saga.cs" />
     <Compile Include="Satellite\SatelliteLauncherContext.cs" />
     <Compile Include="Satellite\SatelliteLauncherTests.cs" />
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
@@ -173,6 +215,8 @@
     <Compile Include="Serializers\Json\BsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTestBase.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Mixed_Namespace.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Nested_Class.cs" />
     <Compile Include="Serializers\XML\Command1.cs" />
     <Compile Include="Serializers\XML\Command2.cs" />
     <Compile Include="Serializers\XML\ConcurrencySerializerTests.cs" />
@@ -191,6 +235,7 @@
     <Compile Include="Serializers\XML\SerializingArrayTests.cs" />
     <Compile Include="Serializers\XML\SerializingEnumerableTests.cs" />
     <Compile Include="Serializers\XML\SomeEnum.cs" />
+    <Compile Include="Serializers\XML\Using_Infer_Type_With_Non_Nested_Class.cs" />
     <Compile Include="Timeout\FakeMessageSender.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Timeout\When_pooling_timeouts.cs" />
@@ -201,14 +246,16 @@
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
-    <Compile Include="AutomaticSubscriptions\AutoSubscriptions.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
+    <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
     <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
+    <Compile Include="Unicast\UnitOfWorkRunnerTests.cs" />
+    <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\DeferedMessages.cs" />
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
@@ -229,12 +276,19 @@
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Unicast\Impersonation.cs" />
+    <Compile Include="Utils\Reflection\ReflectTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core.Tests.x64\ConventionBasedHandler.Tests.csproj">
+      <Project>{0bd67228-1286-4732-a589-5248f774c3d8}</Project>
+      <Name>ConventionBasedHandler.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
@@ -247,6 +301,26 @@
   <ItemGroup>
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\NServiceBus.Core.Tests.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\Rebus.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\some_random.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\some_random.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TestDlls\Tail.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)Tools\Pepita\PepitaGet.targets" />
+  <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
 </Project>

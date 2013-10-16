@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast.Transport.Config
 
         static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
         {
-            int workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
+            var workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
 
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }

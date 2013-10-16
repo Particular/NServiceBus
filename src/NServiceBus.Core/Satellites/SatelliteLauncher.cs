@@ -1,22 +1,26 @@
 namespace NServiceBus.Satellites
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Config;
     using Logging;
     using ObjectBuilder;
     using Unicast.Transport;
 
-    public class SatelliteLauncher : IWantToRunWhenBusStartsAndStops
+    public class SatelliteLauncher
     {
-        public IBuilder Builder { get; set; }
+        readonly IBuilder builder;
+
+        public SatelliteLauncher(IBuilder builder)
+        {
+            this.builder = builder;
+        }
 
         public void Start()
         {
-            var satellitesList = Configure.Instance.Builder
-                                          .BuildAll<ISatellite>()
+            var satellitesList = builder.BuildAll<ISatellite>()
                                           .ToList()
                                           .Where(s => !s.Disabled)
                                           .ToList();
@@ -30,27 +34,27 @@ namespace NServiceBus.Satellites
                     Logger.DebugFormat("Starting {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
                                        index + 1, satellitesList.Count);
 
-                    var ctx = new SatelliteContext
+                    var satelliteContext = new SatelliteContext
                         {
                             Instance = satellite
                         };
 
                     if (satellite.InputAddress != null)
                     {
-                        ctx.Transport = Builder.Build<TransportReceiver>();
+                        satelliteContext.Transport = Configure.Instance.Builder.Build<TransportReceiver>();
 
                         var advancedSatellite = satellite as IAdvancedSatellite;
                         if (advancedSatellite != null)
                         {
                             var receiverCustomization = advancedSatellite.GetReceiverCustomization();
 
-                            receiverCustomization(ctx.Transport);
+                            receiverCustomization(satelliteContext.Transport);
                         }
                     }
 
-                    StartSatellite(ctx);
+                    StartSatellite(satelliteContext);
 
-                    satelliteContexts[index] = ctx;
+                    satelliteContexts[index] = satelliteContext;
 
                     Logger.InfoFormat("Started {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
                                        index + 1, satellitesList.Count);
@@ -62,19 +66,19 @@ namespace NServiceBus.Satellites
 
         public void Stop()
         {
-            Parallel.ForEach(satellites, (ctx, state, index) =>
+            Parallel.ForEach(satellites, (context, state, index) =>
                 {
-                    Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
+                    Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", context.Instance.GetType().AssemblyQualifiedName,
                                        index + 1, satellites.Count);
 
-                    if (ctx.Transport != null)
+                    if (context.Transport != null)
                     {
-                        ctx.Transport.Stop();
+                        context.Transport.Stop();
                     }
 
-                    ctx.Instance.Stop();
+                    context.Instance.Stop();
 
-                    Logger.InfoFormat("Stopped {1}/{2} '{0}' satellite", ctx.Instance.GetType().AssemblyQualifiedName,
+                    Logger.InfoFormat("Stopped {1}/{2} '{0}' satellite", context.Instance.GetType().AssemblyQualifiedName,
                                        index + 1, satellites.Count);
                 });
         }
@@ -87,34 +91,30 @@ namespace NServiceBus.Satellites
             }
         }
 
-        void StartSatellite(SatelliteContext ctx)
+        void StartSatellite(SatelliteContext context)
         {
-            Logger.DebugFormat("Starting satellite {0} for {1}.", ctx.Instance.GetType().AssemblyQualifiedName,
-                               ctx.Instance.InputAddress);
+            Logger.DebugFormat("Starting satellite {0} for {1}.", context.Instance.GetType().AssemblyQualifiedName,
+                               context.Instance.InputAddress);
 
             try
             {
-                if (ctx.Transport != null)
+                if (context.Transport != null)
                 {
-                    ctx.Transport.TransportMessageReceived += (o, e) => HandleMessageReceived(o, e, ctx.Instance);
-                    ctx.Transport.Start(ctx.Instance.InputAddress);
+                    context.Transport.TransportMessageReceived += (o, e) => HandleMessageReceived(o, e, context.Instance);
+                    context.Transport.Start(context.Instance.InputAddress);
                 }
                 else
                 {
-                    Logger.DebugFormat("No input queue configured for {0}", ctx.Instance.GetType().AssemblyQualifiedName);
+                    Logger.DebugFormat("No input queue configured for {0}", context.Instance.GetType().AssemblyQualifiedName);
                 }
 
-                ctx.Instance.Start();
+                context.Instance.Start();
             }
             catch (Exception ex)
             {
-                Logger.Error(
-                    string.Format("Satellite {0} failed to start.", ctx.Instance.GetType().AssemblyQualifiedName), ex);
+                Logger.Fatal(string.Format("Satellite {0} failed to start.", context.Instance.GetType().AssemblyQualifiedName), ex);
 
-                if (ctx.Transport != null)
-                {
-                    ctx.Transport.ChangeMaximumConcurrencyLevel(0);
-                }
+                throw;
             }
         }
 

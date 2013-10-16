@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
@@ -10,13 +10,13 @@ namespace NServiceBus
     public class WireEncryptedString : ISerializable
     {
         /// <summary>
-        /// Default contstructor
+        /// Default constructor
         /// </summary>
         public WireEncryptedString()
         {}
 
         /// <summary>
-        /// Deseralizing contructor
+        /// Deserializing constructor
         /// </summary>
         /// <param name="info"></param>
         /// <param name="context"></param>
@@ -63,12 +63,12 @@ namespace NServiceBus
         //**** we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string EncryptedBase64Value { get; set; }
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string Base64Iv { get; set; }
         

@@ -3,7 +3,7 @@
     using System;
     using MessageMutator;
 
-    [ObsoleteEx(Message = "Remove this in v5",RemoveInVersion ="5.0",TreatAsErrorFromVersion = "5.0")]
+    [ObsoleteEx(RemoveInVersion ="5.0")]
     public class CorrelationIdMutatorForBackwardsCompatibilityWithV3 : IMutateOutgoingTransportMessages
     {
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)

@@ -10,15 +10,25 @@ namespace NServiceBus.Unicast.Monitoring
     public class CriticalTimeCalculator : IDisposable
     {
         PerformanceCounter counter;
-        bool disposed;
         TimeSpan maxDelta = TimeSpan.FromSeconds(2);
         DateTime timeOfLastCounter;
         Timer timer;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
+            if (counter != null)
+            {
+                counter.Dispose();
+            }
+            if (timer != null)
+            {
+                timer.Dispose();
+            }
         }
 
         /// <summary>
@@ -36,27 +46,6 @@ namespace NServiceBus.Unicast.Monitoring
             maxDelta = (processingEnded - processingStarted).Add(TimeSpan.FromSeconds(1));
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                if (counter != null)
-                {
-                    counter.Dispose();
-                }
-            }
-            disposed = true;
-        }
-
-        ~CriticalTimeCalculator()
-        {
-            Dispose(false);
-        }
 
         /// <summary>
         ///     Verified that the counter exists
@@ -64,15 +53,13 @@ namespace NServiceBus.Unicast.Monitoring
         public void Initialize(PerformanceCounter cnt)
         {
             counter = cnt;
-
-
             timer = new Timer(ClearPerfCounter, null, 0, 2000);
         }
 
 
         void ClearPerfCounter(object state)
         {
-            TimeSpan delta = DateTime.UtcNow - timeOfLastCounter;
+            var delta = DateTime.UtcNow - timeOfLastCounter;
 
             if (delta > maxDelta)
             {

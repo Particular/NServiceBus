@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Security.Principal;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System.Collections.Generic;
+    using System.Security.Principal;
+
     /// <summary>
     /// Implementer will be called by the infrastructure in order to authorize
     /// subscribe and unsubscribe requests from other endpoints.

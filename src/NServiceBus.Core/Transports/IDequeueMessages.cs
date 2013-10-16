@@ -2,7 +2,6 @@
 {
     using System;
     using Unicast.Transport;
-    using Unicast.Transport.Transactional;
 
     /// <summary>
     /// Interface to implement when developing custom dequeuing strategies.

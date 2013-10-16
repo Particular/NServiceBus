@@ -1,7 +1,6 @@
-using NServiceBus.Unicast.Config;
-
 namespace NServiceBus.Hosting.Roles
 {
+    using Unicast.Config;
 
     /// <summary>
     /// Interface that enables configuration based on specified role

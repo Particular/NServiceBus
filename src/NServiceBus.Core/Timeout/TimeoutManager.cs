@@ -20,7 +20,7 @@
 
         public override bool ShouldBeEnabled()
         {
-            //has the user already specified a custom deferal method
+            //has the user already specified a custom deferral method
             if (Configure.HasComponent<IDeferMessages>())
                 return false;
 

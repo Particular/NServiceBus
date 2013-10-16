@@ -3,14 +3,13 @@ namespace NServiceBus.Sagas
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using Finders;
-    using NServiceBus.IdGeneration;
-    using NServiceBus.Logging;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Saga;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
+    using IdGeneration;
+    using Logging;
+    using ObjectBuilder;
+    using Saga;
+    using Transports;
+    using Unicast;
 
     /// <summary>
     /// Dispatch factory that can dispatch messages to sagas
@@ -31,8 +30,8 @@ namespace NServiceBus.Sagas
 
             foreach (var finder in GetFindersFor(message, builder))
             {
-                bool sagaEntityIsPersistent = true;
-                IContainSagaData sagaEntity = UseFinderToFindSaga(finder, message);
+                var sagaEntityIsPersistent = true;
+                var sagaEntity = UseFinderToFindSaga(finder, message);
                 Type sagaType;
 
                 if (sagaEntity == null)
@@ -178,8 +177,10 @@ namespace NServiceBus.Sagas
 
         static Type GetSagaEntityType(object message)
         {
+#pragma warning disable 0618
             //we keep this for backwards compatibility with versions < 3.0.4
             var sagaEntityType = Headers.GetMessageHeader(message, Headers.SagaEntityType);
+#pragma warning restore 0618
 
             if (!string.IsNullOrEmpty(sagaEntityType))
                 return Type.GetType(sagaEntityType);
@@ -199,7 +200,7 @@ namespace NServiceBus.Sagas
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
         {
-            MethodInfo method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+            var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
                 return method.Invoke(finder, new [] { message }) as IContainSagaData;

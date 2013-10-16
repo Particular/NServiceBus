@@ -3,12 +3,14 @@ namespace NServiceBus.Persistence.Raven
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Installation;
-    using NServiceBus.Installation.Environments;
-    using NServiceBus.Logging;
+    using System.Reflection;
     using global::Raven.Abstractions.Extensions;
+    using global::Raven.Client.Connection;
     using global::Raven.Client.Document;
     using global::Raven.Json.Linq;
+    using Installation;
+    using Installation.Environments;
+    using Logging;
 
     /// <summary>
     /// Add the identity to the Raven users group 
@@ -71,7 +73,47 @@ namespace NServiceBus.Persistence.Raven
 
             var ravenJObject = RavenJObject.FromObject(windowsAuthDocument);
 
-            systemCommands.Put("Raven/Authorization/WindowsSettings", null, ravenJObject, new RavenJObject());
+            InvokePut(systemCommands, ravenJObject);
+        }
+
+        static void InvokePut(IDatabaseCommands systemCommands, RavenJObject ravenJObject)
+        {
+            //in the move to raven 2.5 a breaking change was made to IDatabaseCommands.Put
+            //in 2.0 
+            //PutResult Put(string key, Guid? etag, RavenJObject document, RavenJObject metadata);
+            //in 2.5  
+            //PutResult Put(string key, Etag etag, RavenJObject document, RavenJObject metadata);
+            var databaseCommandsType = typeof(IDatabaseCommands);
+            var putMethod = databaseCommandsType.GetMethod("Put", BindingFlags.Instance | BindingFlags.Public, null, new[] { typeof(string), typeof(Guid?), typeof(RavenJObject), typeof(RavenJObject) }, null);
+            if (putMethod == null)
+            {
+                var ravenAbstractionAssembly = typeof(RavenJObject).Assembly;
+                //Cant use Etag in a strong typed way because the namespace of Etag changed
+                var etagType = ravenAbstractionAssembly.GetType("Raven.Abstractions.Data.Etag");
+                if (etagType == null)
+                {
+                    var message = string.Format("Could not find `Raven.Abstractions.Data.Etag` in `{0}` there has possibly been a breaking change in RavenDB.", ravenAbstractionAssembly.FullName);
+                    throw new Exception(message);
+                }
+                putMethod = databaseCommandsType.GetMethod("Put", BindingFlags.Instance | BindingFlags.Public, null, new[] { typeof(string), etagType, typeof(RavenJObject), typeof(RavenJObject) }, null);
+                if (putMethod == null)
+                {
+                    throw new Exception("Could not extract `IDatabaseCommands.Put` from the current version of RavenDB.");
+                }
+            }
+            try
+            {
+                putMethod.Invoke(systemCommands, new object[] { "Raven/Authorization/WindowsSettings", null, ravenJObject, new RavenJObject() });
+            }
+            catch (TargetInvocationException exception)
+            {
+                //need to catch OperationVetoedException here but cant do it in a strong typed way since the namespace of OperationVetoedException changed in 2.5  but cant because in 
+                if (exception.InnerException.Message.Contains("Cannot setup Windows Authentication without a valid commercial license."))
+                {
+                    throw new Exception("RavenDB requires a Commercial license to configure windows authentication. Please either install your RavenDB license or contact support@particular.net if you need a copy of the RavenDB license.");
+                }
+                throw;
+            }
         }
 
         static void AddOrUpdateAuthUser(WindowsAuthDocument windowsAuthDocument, string identity, string tenantId)

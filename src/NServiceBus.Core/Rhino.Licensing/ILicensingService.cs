@@ -1,8 +1,8 @@
-using System;
-using System.ServiceModel;
-
 namespace Rhino.Licensing
 {
+    using System;
+    using System.ServiceModel;
+
     /// <summary>
     /// Service contract of the licensing server.
     /// </summary>

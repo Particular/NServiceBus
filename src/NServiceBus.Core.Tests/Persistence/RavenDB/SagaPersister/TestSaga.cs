@@ -2,8 +2,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Saga;
     using Raven.Imports.Newtonsoft.Json;
+    using Saga;
 
     [JsonObject(IsReference = true)]
     public class TestSaga : IContainSagaData
@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 
         public virtual TestComponent TestComponent { get; set; }
 
-        public virtual PolymorpicPropertyBase PolymorpicRelatedProperty { get; set; }
+        public virtual PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -37,7 +37,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
     }
 
-    public class PolymorpicProperty : PolymorpicPropertyBase
+    public class PolymorphicProperty : PolymorphicPropertyBase
     {
         public virtual int SomeInt { get; set; }
 
@@ -52,7 +52,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
     }
 
-    public class PolymorpicPropertyBase
+    public class PolymorphicPropertyBase
     {
         public virtual Guid Id { get; set; }
     }

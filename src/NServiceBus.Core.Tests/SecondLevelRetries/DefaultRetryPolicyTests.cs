@@ -20,7 +20,7 @@
         [Test]
         public void The_time_span_should_increase_with_10_sec_for_every_retry()
         {            
-            for (int i=0; i<3; i++)
+            for (var i=0; i<3; i++)
             {                
                 var timeSpan = DefaultRetryPolicy.RetryPolicy(_message);
                 

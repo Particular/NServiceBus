@@ -2,6 +2,7 @@ namespace NServiceBus.ObjectBuilder.Common
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using Utils.Reflection;
 
@@ -25,7 +26,7 @@ namespace NServiceBus.ObjectBuilder.Common
             }
         }
 
-        private bool synchronized;
+        bool synchronized;
 
         /// <summary>
         /// Used for multi-threaded rich clients to build and dispatch
@@ -43,172 +44,151 @@ namespace NServiceBus.ObjectBuilder.Common
                     if (sync == null)
                         sync = new SynchronizedInvoker();
 
-                    sync.Container = Container;
+                    sync.Container = container;
                 }
             }
         }
 
-        #region IConfigureComponents Members
-        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
+        public IComponentConfig ConfigureComponent(Type concreteComponent, DependencyLifecycle instanceLifecycle)
         {
-            Container.Configure(concreteComponent, instanceLifecycle);
+            container.Configure(concreteComponent, instanceLifecycle);
 
-            return new ComponentConfig(concreteComponent, Container);
+            return new ComponentConfig(concreteComponent, container);
         }
 
-        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(DependencyLifecycle instanceLifecycle)
+        public IComponentConfig<T> ConfigureComponent<T>(DependencyLifecycle instanceLifecycle)
         {
-            Container.Configure(typeof(T), instanceLifecycle);
+            container.Configure(typeof(T), instanceLifecycle);
 
-            return new ComponentConfig<T>(Container);
+            return new ComponentConfig<T>(container);
         }
 
-        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle)
+        public IComponentConfig<T> ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            Container.Configure(componentFactory, instanceLifecycle);
+            container.Configure(componentFactory, instanceLifecycle);
 
-            return new ComponentConfig<T>(Container);
+            return new ComponentConfig<T>(container);
         }
 
-        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle instanceLifecycle)
+        public IComponentConfig<T> ConfigureComponent<T>(Func<IBuilder,T> componentFactory, DependencyLifecycle instanceLifecycle)
         {
-            Container.Configure(() => componentFactory(this), instanceLifecycle);
+            container.Configure(() => componentFactory(this), instanceLifecycle);
 
-            return new ComponentConfig<T>(Container);
+            return new ComponentConfig<T>(container);
         }
 
-        IComponentConfig IConfigureComponents.ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
+        {
+            var lifecycle = MapToDependencyLifecycle(callModel);
+
+            container.Configure(concreteComponent, lifecycle);
+
+            return new ComponentConfig(concreteComponent, container);
+        }
+
+
+        public IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel)
         {
             var lifecycle = MapToDependencyLifecycle(callModel);
 
-            Container.Configure(concreteComponent, lifecycle);
+            container.Configure(typeof(T), lifecycle);
 
-            return new ComponentConfig(concreteComponent, Container);
+            return new ComponentConfig<T>(container);
         }
 
-
-        IComponentConfig<T> IConfigureComponents.ConfigureComponent<T>(ComponentCallModelEnum callModel)
-        {
-            var lifecycle = MapToDependencyLifecycle(callModel);
-            
-            Container.Configure(typeof(T), lifecycle);
-
-            return new ComponentConfig<T>(Container);
-        }
-
-        IConfigureComponents IConfigureComponents.ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
+        public IConfigureComponents ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
             
             return ((IConfigureComponents)this).ConfigureProperty<T>(prop.Name,value);
         }
 
-        IConfigureComponents IConfigureComponents.ConfigureProperty<T>(string propertyName, object value)
+        public IConfigureComponents ConfigureProperty<T>(string propertyName, object value)
         {
-            Container.ConfigureProperty(typeof(T), propertyName, value);
+            container.ConfigureProperty(typeof(T), propertyName, value);
 
             return this;
         }
 
         IConfigureComponents IConfigureComponents.RegisterSingleton(Type lookupType, object instance)
         {
-            Container.RegisterSingleton(lookupType, instance);
+            container.RegisterSingleton(lookupType, instance);
             return this;
         }
 
-        IConfigureComponents IConfigureComponents.RegisterSingleton<T>(object instance)
+        public IConfigureComponents RegisterSingleton<T>(object instance)
         {
-            Container.RegisterSingleton(typeof(T), instance);
+            container.RegisterSingleton(typeof(T), instance);
             return this;
         }
 
-        bool IConfigureComponents.HasComponent<T>()
+        public bool HasComponent<T>()
         {
-            return Container.HasComponent(typeof(T));
+            return container.HasComponent(typeof(T));
         }
 
-        bool IConfigureComponents.HasComponent(Type componentType)
+        public bool HasComponent(Type componentType)
         {
-            return Container.HasComponent(componentType);
+            return container.HasComponent(componentType);
         }
 
-        #endregion
 
-        #region IBuilder Members
-
-        IBuilder IBuilder.CreateChildBuilder()
+        public IBuilder CreateChildBuilder()
         {
             return new CommonObjectBuilder
             {
-                Container = Container.BuildChildContainer()
+                Container = container.BuildChildContainer()
             };
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
+            if (container != null)
             {
-                return;
+                container.Dispose();
             }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-                Container.Dispose();
-            }
-
-            disposed = true;
         }
 
-        ~CommonObjectBuilder()
+        public T Build<T>()
         {
-            Dispose(false);
+            return (T)container.Build(typeof(T));
         }
 
-        T IBuilder.Build<T>()
+        public object Build(Type typeToBuild)
         {
-            return (T)Container.Build(typeof(T));
-        }
-
-        object IBuilder.Build(Type typeToBuild)
-        {
-            return Container.Build(typeToBuild);
+            return container.Build(typeToBuild);
         }
 
         IEnumerable<object> IBuilder.BuildAll(Type typeToBuild)
         {
-            return Container.BuildAll(typeToBuild);
+            return container.BuildAll(typeToBuild);
         }
 
         void IBuilder.Release(object instance)
         {
-            Container.Release(instance);
+            container.Release(instance);
         }
 
-        IEnumerable<T> IBuilder.BuildAll<T>()
+        public IEnumerable<T> BuildAll<T>()
         {
-            foreach (T element in Container.BuildAll(typeof(T)))
-                yield return element;
+            return container.BuildAll(typeof(T)).Cast<T>();
         }
 
-        void IBuilder.BuildAndDispatch(Type typeToBuild, Action<object> action)
+        public void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
             if (sync != null)
                 sync.BuildAndDispatch(typeToBuild, action);
             else
             {
-                var o = Container.Build(typeToBuild);
+                var o = container.Build(typeToBuild);
                 action(o);
             }
         }
-
-        #endregion
 
         static DependencyLifecycle MapToDependencyLifecycle(ComponentCallModelEnum callModel)
         {
@@ -225,8 +205,7 @@ namespace NServiceBus.ObjectBuilder.Common
             throw new ArgumentException("Unhandled component call model: " + callModel);
         }
 
-        private bool disposed;
-        private static SynchronizedInvoker sync;
-        private IContainer container;
+        static SynchronizedInvoker sync;
+        IContainer container;
     }
 }

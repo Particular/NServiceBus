@@ -25,7 +25,7 @@ namespace NServiceBus
         /// </summary>
         public void Complete(CompletionResult result)
         {
-            this.Result = result;
+            Result = result;
             completed = true;
             sync.Set();
         }
@@ -35,7 +35,7 @@ namespace NServiceBus
         /// </summary>
         public object AsyncState
         {
-            get { return this.state; }
+            get { return state; }
         }
 
         /// <summary>

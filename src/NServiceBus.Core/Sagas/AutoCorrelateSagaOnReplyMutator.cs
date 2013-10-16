@@ -1,7 +1,7 @@
 namespace NServiceBus.Sagas
 {
     using System;
-    using NServiceBus.MessageMutator;
+    using MessageMutator;
 
     /// <summary>
     /// Promotes the saga id and type headers on replies(bus.Reply|bus.Return) so that the saga can be 
@@ -56,7 +56,7 @@ namespace NServiceBus.Sagas
                 return;
             }
 
-            //for now we rewert back to send since this would be a breaking change. We'll fix this in v4.1
+            //for now we revert back to send since this would be a breaking change. We'll fix this in v4.1
             //https://github.com/NServiceBus/NServiceBus/issues/1409
             transportMessage.MessageIntent = MessageIntentEnum.Send;
             
@@ -77,7 +77,7 @@ namespace NServiceBus.Sagas
 
         public void Init()
         {
-            NServiceBus.Configure.Instance.Configurer
+            Configure.Instance.Configurer
                 .ConfigureComponent<AutoCorrelateSagaOnReplyMutator>(DependencyLifecycle.InstancePerCall);
         }
 

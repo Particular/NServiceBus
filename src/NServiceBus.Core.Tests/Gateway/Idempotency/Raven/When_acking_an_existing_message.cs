@@ -51,7 +51,8 @@
             Assert.True(GetStoredMessage(message.ClientId).Acknowledged);
         }
 
-        [Test, Category("Integration")]
+        [Test]
+        [Explicit]
         public void Raven_dtc_bug()
         {
             new MessageQueue(QueueAddress, QueueAccessMode.ReceiveAndAdmin)
@@ -74,7 +75,7 @@
                     q.Send(toSend, MessageQueueTransactionType.Automatic);
                 }
 
-                //when we complete raven commits it tx but the DTC tx is never commited and eventually times out
+                //when we complete raven commits it tx but the DTC tx is never committed and eventually times out
                 tx.Complete();
             }
             Thread.Sleep(1000);

@@ -6,10 +6,9 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-    using Raven;
-    using Saga;
     using global::Raven.Abstractions.Commands;
     using global::Raven.Client;
+    using Saga;
 
     public class RavenSagaPersister : ISagaPersister
     {
@@ -48,14 +47,14 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
                 return;
             }
 
-            var storedvalue = metadata[UniqueValueMetadataKey].ToString();
+            var storedValue = metadata[UniqueValueMetadataKey].ToString();
 
             var currentValue = uniqueProperty.Value.ToString();
 
-            if (currentValue == storedvalue)
+            if (currentValue == storedValue)
                 return;
 
-            DeleteUniqueProperty(saga, new KeyValuePair<string, object>(uniqueProperty.Key,storedvalue));
+            DeleteUniqueProperty(saga, new KeyValuePair<string, object>(uniqueProperty.Key,storedValue));
             StoreUniqueProperty(saga);
 
         }
@@ -105,7 +104,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
             var lookupId = SagaUniqueIdentity.FormatId(typeof(T), new KeyValuePair<string, object>(property, value));
 
             var lookup = Session
-                .Include("SagaDocId") //tell raven to pull the saga doc as well to save us a roundtrip
+                .Include("SagaDocId") //tell raven to pull the saga doc as well to save us a round-trip
                 .Load<SagaUniqueIdentity>(lookupId);
 
             if (lookup != null)
@@ -181,7 +180,7 @@ namespace NServiceBus.Persistence.Raven.SagaPersister
             using (var provider = new MD5CryptoServiceProvider())
             {
                 var inputBytes = Encoding.Default.GetBytes(uniqueProperty.Value.ToString());
-                byte[] hashBytes = provider.ComputeHash(inputBytes);
+                var hashBytes = provider.ComputeHash(inputBytes);
 
                 // generate a guid from the hash:
                 var value = new Guid(hashBytes);

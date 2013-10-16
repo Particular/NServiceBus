@@ -62,7 +62,7 @@
         }
 
         /// <summary>
-        /// Tells the serializer to sanatize the input data from illegal characters
+        /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
         /// <returns></returns>
         public XmlSerializationSettings SanitizeInput()

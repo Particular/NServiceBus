@@ -4,7 +4,6 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using Persistence;
     using Saga;
     using Serializers.Json;
 

@@ -18,7 +18,7 @@ namespace NServiceBus.Utils.Reflection
         /// <returns></returns>
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
-            bool result = false;
+            var result = false;
             LoopAndAct(type, openGenericType, genericArg, t => result = true);
 
             return result;
@@ -87,11 +87,11 @@ namespace NServiceBus.Utils.Reflection
             var args = t.GetGenericArguments();
             if (args != null)
             {
-                int index = t.Name.IndexOf('`');
+                var index = t.Name.IndexOf('`');
                 if (index >= 0)
                 {
-                    string result = t.Name.Substring(0, index) + "Of";
-                    for (int i = 0; i < args.Length; i++)
+                    var result = t.Name.Substring(0, index) + "Of";
+                    for (var i = 0; i < args.Length; i++)
                     {
                         result += args[i].SerializationFriendlyName();
                         if (i != args.Length - 1)
@@ -119,8 +119,8 @@ namespace NServiceBus.Utils.Reflection
 
         static bool IsClrType(byte[] a1)
         {
-            IStructuralEquatable eqa1 = a1;
-            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+            IStructuralEquatable structuralEquatable = a1;
+            return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
         public static bool IsSystemType(this Type type)

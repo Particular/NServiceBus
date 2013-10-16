@@ -3,7 +3,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Reflection;
     using System.Threading;
+    using Audit;
     using Core.Tests;
     using Helpers;
     using Impersonation;
@@ -24,9 +26,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastbus
+    public class using_a_configured_unicastBus
     {
-        protected IBus bus;
+        protected UnicastBus bus;
 
         protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
@@ -47,6 +49,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+        protected FakeMessageAuditer fakeMessageAuditer;
 
      
         [SetUp]
@@ -84,7 +87,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-
+            fakeMessageAuditer = new FakeMessageAuditer(); 
             subscriptionManager = new MessageDrivenSubscriptionManager
                 {
                     Builder = FuncBuilder,
@@ -102,7 +105,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
-
+     
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
@@ -125,8 +128,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 HandlerRegistry = handlerRegistry,
-                MessageRouter = router
-
+                MessageRouter = router,
+                MessageAuditer = fakeMessageAuditer
             };
             bus = unicastBus;
 
@@ -235,7 +238,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class using_the_unicastbus : using_a_configured_unicastbus
+    public class FakeMessageAuditer : MessageAuditer
+    {
+        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
+        {
+        }
+    }
+
+    public class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()
@@ -249,7 +259,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                Transport.FakeMessageBeeingProcessed(transportMessage);
+                Transport.FakeMessageBeingProcessed(transportMessage);
             }
             catch (Exception ex)
             {
@@ -257,11 +267,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void SimulateMessageBeeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
+        protected void SimulateMessageBeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
         {
             try
             {
-                Transport.FakeMessageBeeingPassedToTheFaultManager(transportMessage);
+                Transport.FakeMessageBeingPassedToTheFaultManager(transportMessage);
             }
             catch (Exception ex)
             {

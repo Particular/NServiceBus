@@ -1,8 +1,8 @@
-using System;
-using System.Threading.Tasks;
-
 namespace NServiceBus
 {
+    using System;
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Objects of this interface are returned from calling IBus.Send.
     /// The interface allows the caller to register for a callback when a response

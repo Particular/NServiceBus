@@ -1,8 +1,8 @@
 namespace NServiceBus.Unicast.Transport
 {
-	using System;
+    using System;
 
-	/// <summary>
+    /// <summary>
 	/// Defines the basic functionality of a transport to be used by NServiceBus.
 	/// </summary>
 	public interface ITransport
@@ -11,7 +11,7 @@ namespace NServiceBus.Unicast.Transport
 		/// Starts the transport.
 		/// </summary>
 		/// <param name="inputqueue">
-		/// The adress of a local queue that should be used as input channel for this transport
+		/// The address of a local queue that should be used as input channel for this transport
 		/// </param>
 		[ObsoleteEx(Replacement = "Start(Address localAddress)", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]		
 		void Start(string inputqueue);
@@ -81,7 +81,7 @@ namespace NServiceBus.Unicast.Transport
 		/// <summary>
 		/// Raised after message processing was completed, even in case of an exception in message processing.
 		/// </summary>
-		event EventHandler FinishedMessageProcessing;
+        event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
 
 		/// <summary>
 		/// Raised if an exception was encountered at any point in the processing - including

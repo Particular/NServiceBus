@@ -32,7 +32,7 @@ namespace NServiceBus.ObjectBuilder
         T Build<T>();
 
         /// <summary>
-        /// For each type that is compatible with T, an instance is created with all dependencies injected, and yeilded to the caller.
+        /// For each type that is compatible with T, an instance is created with all dependencies injected, and yielded to the caller.
         /// </summary>
         /// <typeparam name="T">Type to be resolved.</typeparam>
         /// <returns>Instances of <typeparamref name="T"/></returns>

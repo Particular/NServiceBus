@@ -14,8 +14,6 @@
         /// <summary>
         /// Returns true if the given object is a message.
         /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
         public static bool IsMessage(object o)
         {
             return IsMessageType(o.GetType());
@@ -24,8 +22,6 @@
         /// <summary>
         /// Returns true if the given type is a message type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static bool IsMessageType(Type t)
         {
             try
@@ -45,8 +41,6 @@
         /// <summary>
         /// Returns true is message is a system message type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static bool IsInSystemConventionList(Type t)
         {
             return IsSystemMessageActions.Any(isSystemMessageAction => isSystemMessageAction(t));
@@ -67,8 +61,6 @@
         /// <summary>
         /// Returns true if the given object is a command.
         /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
         public static bool IsCommand(object o)
         {
                 return IsCommandType(o.GetType());
@@ -77,8 +69,6 @@
         /// <summary>
         /// Returns true if the given type is a command type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static bool IsCommandType(Type t)
         {
             try
@@ -94,8 +84,6 @@
         /// <summary>
         /// Returns true if the given message should not be written to disk when sent.
         /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
         public static bool IsExpressMessage(object o)
         {
             return IsExpressMessageType(o.GetType());
@@ -104,8 +92,6 @@
         /// <summary>
         /// Returns true if the given type should not be written to disk when sent.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static bool IsExpressMessageType(Type t)
         {
             try
@@ -121,8 +107,6 @@
         /// <summary>
         /// Returns true if the given property should be encrypted
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
         public static bool IsEncryptedProperty(PropertyInfo property)
         {
             try
@@ -140,8 +124,6 @@
         /// <summary>
         /// Returns true if the given property should be send via the DataBus
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
         public static bool IsDataBusProperty(PropertyInfo property)
         {
             try
@@ -210,7 +192,7 @@
         public static Func<PropertyInfo, bool> IsDataBusPropertyAction = property => typeof(IDataBusProperty).IsAssignableFrom(property.PropertyType) && typeof(IDataBusProperty) != property.PropertyType;
 
         /// <summary>
-        /// The function to evaluate wheather the message has a time to be received or not (<value>TimeSpan.MaxValue</value>).
+        /// The function to evaluate whether the message has a time to be received or not ( <see cref="TimeSpan.MaxValue"/>).
         /// </summary>
         public static Func<Type, TimeSpan> TimeToBeReceivedAction = t =>
                                                                                   {
@@ -232,28 +214,31 @@
        /// </summary>
         public static List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
 
-        static readonly ConventionCache<Type> MessagesConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> CommandsConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> EventsConventionCache = new ConventionCache<Type>();
-        static readonly ConventionCache<Type> ExpressConventionCache = new ConventionCache<Type>();
-    }
+        static readonly ConventionCache MessagesConventionCache = new ConventionCache();
+        static readonly ConventionCache CommandsConventionCache = new ConventionCache();
+        static readonly ConventionCache EventsConventionCache = new ConventionCache();
+        static readonly ConventionCache ExpressConventionCache = new ConventionCache();
 
-    internal class ConventionCache<T>
-    {
-        private readonly IDictionary<T, bool> cache = new ConcurrentDictionary<T, bool>();
-
-        public bool ApplyConvention(T type, Func<T, bool> action)
+        class ConventionCache
         {
-            bool result;
+            IDictionary<Type, bool> cache = new ConcurrentDictionary<Type, bool>();
 
-            if (cache.TryGetValue(type, out result))
+            public bool ApplyConvention(Type type, Func<Type, bool> action)
+            {
+                bool result;
+
+                if (cache.TryGetValue(type, out result))
+                {
+                    return result;
+                }
+
+                result = action(type);
+
+                cache[type] = result;
+
                 return result;
-
-            result = action(type);
-
-            cache[type] = result;
-
-            return result;
+            }
         }
     }
+
 }

@@ -1,7 +1,7 @@
 namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 {
     using System;
-    using NServiceBus.Saga;
+    using Saga;
 
     public class SagaWithoutUniqueProperties : IContainSagaData
     {

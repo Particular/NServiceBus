@@ -1,10 +1,9 @@
-using NUnit.Framework;
-
 namespace NServiceBus.Gateway.Tests.Routing
 {
     using System.Collections.Generic;
     using System.Linq;
     using Channels;
+    using NUnit.Framework;
     using Receiving;
 
     [TestFixture]
@@ -24,7 +23,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         }
 
         [Test]
-        public void Should_read_the_channels_from_the_configsource()
+        public void Should_read_the_channels_from_the_configSource()
         {
             Assert.AreEqual(activeChannels.Count(), 3);
         }

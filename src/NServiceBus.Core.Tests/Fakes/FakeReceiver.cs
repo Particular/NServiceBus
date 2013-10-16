@@ -14,7 +14,7 @@
         public void FakeMessageReceived(TransportMessage message)
         {
             if (TryProcessMessage(message))
-                NumMessagesReceived++;
+                NumberOfMessagesReceived++;
         }
 
 
@@ -27,7 +27,6 @@
         public void Start(int maximumConcurrencyLevel)
         {
             IsStarted = true;
-            NumberOfTimesStarted++;
         }
 
         public void Stop()
@@ -35,11 +34,8 @@
            
         }
 
-        public int NumberOfTimesStarted { get; set; }
-
-
         Func<TransportMessage, bool> TryProcessMessage;
-        public int NumMessagesReceived;
+        public int NumberOfMessagesReceived;
 
         public bool IsStarted { get; set; }
 

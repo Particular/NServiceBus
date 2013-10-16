@@ -2,13 +2,10 @@
 {
     using System;
     using System.IO;
-    using System.Xml.Linq;
-
-    using NServiceBus.Serializers.Binary;
-
-    using NUnit.Framework;
-
     using System.Linq;
+    using System.Xml.Linq;
+    using NServiceBus.Serializers.Binary;
+    using NUnit.Framework;
 
     [TestFixture]
     public class BinarySerializerTest
@@ -37,7 +34,7 @@
 
                 stream.Position = 0;
 
-                resultXDocument = this.serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument) }).OfType<MessageWithXDocument>().Single();
+                resultXDocument = serializer.Deserialize(stream, new[] { typeof(MessageWithXDocument) }).OfType<MessageWithXDocument>().Single();
             }
 
             MessageWithXElement resultXElement;
@@ -47,7 +44,7 @@
 
                 stream.Position = 0;
 
-                resultXElement = this.serializer.Deserialize(stream, new[] { typeof(MessageWithXElement) }).OfType<MessageWithXElement>().Single();
+                resultXElement = serializer.Deserialize(stream, new[] { typeof(MessageWithXElement) }).OfType<MessageWithXElement>().Single();
             }
 
             Assert.AreEqual(messageWithXDocument.Document.ToString(), resultXDocument.Document.ToString());

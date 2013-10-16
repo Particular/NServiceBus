@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using NServiceBus.Hosting.Profiles;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+    using Hosting.Profiles;
+
     /// <summary>
     /// If you want to specify your own container or serializer,
     /// implement this interface on the class which implements <see cref="IConfigureThisEndpoint"/>.
@@ -61,7 +61,7 @@ namespace NServiceBus
         IConfigureThisEndpoint Config { get; set; }
     }
     /// <summary>
-    /// Implementors will recieve the list of active Profiles from the <see cref="ProfileManager" />. 
+    /// Implementors will receive the list of active Profiles from the <see cref="ProfileManager" />. 
     /// Implementors must implement <see cref="IHandleProfile"/>.
     /// </summary>
     public interface IWantTheListOfActiveProfiles

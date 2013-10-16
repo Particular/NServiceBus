@@ -8,7 +8,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports.Msmq;
     using Unicast.Transport;
 
-
     public class TimeoutMessageProcessor : IAdvancedSatellite
     {
         public ISendMessages MessageSender { get; set; }
@@ -121,7 +120,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
         }
 
-        [ObsoleteEx(Message = "No need for this in v5",RemoveInVersion ="5.0" ,TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion ="5.0")]
         string GetCorrelationIdToStore(TransportMessage message)
         {
             var correlationIdToStore = message.CorrelationId;

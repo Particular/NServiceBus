@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using NUnit.Framework;
     using Core.Tests.Fakes;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ScheduledTaskMessageHandlerTests

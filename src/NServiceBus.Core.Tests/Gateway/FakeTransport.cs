@@ -13,9 +13,9 @@
         {
         }
 
-        public void Start(string inputqueue)
+        public void Start(string inputQueue)
         {
-            Start(Address.Parse(inputqueue));
+            Start(Address.Parse(inputQueue));
         }
 
         public bool IsStarted { get; set; }
@@ -66,7 +66,7 @@
 
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
         public event EventHandler<StartedMessageProcessingEventArgs> StartedMessageProcessing;
-        public event EventHandler FinishedMessageProcessing;
+        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
     }
 }

@@ -5,7 +5,6 @@ namespace NServiceBus.Config.Conventions
     using System.Linq;
     using System.Reflection;
     using System.Web;
-    using Hosting.Helpers;
     using Utils;
 
     /// <summary>
@@ -14,7 +13,7 @@ namespace NServiceBus.Config.Conventions
     public static class EndpointHelper
     {
         private static Type entryType;
-        private static bool intialized;
+        private static bool initialized;
 
         /// <summary>
         /// Gets the name of this endpoint
@@ -64,7 +63,7 @@ namespace NServiceBus.Config.Conventions
 
         static void Initialize()
         {
-            if (intialized)
+            if (initialized)
                 return;
             try
             {
@@ -77,7 +76,7 @@ namespace NServiceBus.Config.Conventions
 
                 StackFrame targetFrame = null;
 
-                StackFrame[] stackFrames = new StackTrace().GetFrames();
+                var stackFrames = new StackTrace().GetFrames();
                 if (stackFrames != null)
                 {
                     targetFrame =
@@ -98,7 +97,7 @@ namespace NServiceBus.Config.Conventions
                     {
                         targetFrame =
                             stackFrames.FirstOrDefault(
-                                f => f.GetMethod().DeclaringType != typeof(NServiceBus.Configure));
+                                f => f.GetMethod().DeclaringType != typeof(Configure));
 
                       
                     }
@@ -106,7 +105,7 @@ namespace NServiceBus.Config.Conventions
 
                 if (targetFrame == null)
                     targetFrame = stackFrames.FirstOrDefault(
-                       f => f.GetMethod().DeclaringType.Assembly != typeof(NServiceBus.Configure).Assembly);
+                       f => f.GetMethod().DeclaringType.Assembly != typeof(Configure).Assembly);
 
                 if (targetFrame != null)
                 {
@@ -116,7 +115,7 @@ namespace NServiceBus.Config.Conventions
             }
             finally
             {
-                intialized = true;
+                initialized = true;
             }
         }
     }

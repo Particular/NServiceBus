@@ -63,15 +63,15 @@ namespace NServiceBus.Utils.Reflection
         /// <returns>LateBoundMethod</returns>
 		public static LateBoundMethod Create(MethodInfo method)
 		{
-			ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
-			ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
+			var instanceParameter = Expression.Parameter(typeof(object), "target");
+			var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 
-			MethodCallExpression call = Expression.Call(
+			var call = Expression.Call(
 				Expression.Convert(instanceParameter, method.DeclaringType),
 				method,
 				CreateParameterExpressions(method, argumentsParameter));
 
-			Expression<LateBoundMethod> lambda = Expression.Lambda<LateBoundMethod>(
+			var lambda = Expression.Lambda<LateBoundMethod>(
 				Expression.Convert(call, typeof(object)),
 				instanceParameter,
 				argumentsParameter);
@@ -86,11 +86,11 @@ namespace NServiceBus.Utils.Reflection
         /// <returns>LateBoundProperty</returns>
         public static LateBoundProperty Create(PropertyInfo property)
         {
-            ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
+            var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            MemberExpression member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
+            var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
 
-            Expression<LateBoundProperty> lambda = Expression.Lambda<LateBoundProperty>(
+            var lambda = Expression.Lambda<LateBoundProperty>(
                 Expression.Convert(member, typeof(object)),
                 instanceParameter
                 );
@@ -105,11 +105,11 @@ namespace NServiceBus.Utils.Reflection
         /// <returns></returns>
         public static LateBoundField Create(FieldInfo field)
         {
-            ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
+            var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            MemberExpression member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
+            var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
 
-            Expression<LateBoundField> lambda = Expression.Lambda<LateBoundField>(
+            var lambda = Expression.Lambda<LateBoundField>(
                 Expression.Convert(member, typeof(object)),
                 instanceParameter
                 );

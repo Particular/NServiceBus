@@ -12,24 +12,20 @@ namespace NServiceBus.Gateway.Channels.Http
     using System.Web;
     using HeaderManagement;
     using Logging;
-    using Utils;
+    using Receiving;
 
     public class HttpChannelReceiver : IChannelReceiver
     {
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        private MTATaskScheduler scheduler;
-        private bool disposed;
-        CancellationTokenSource tokenSource;
-
-        public void Start(string address, int numWorkerThreads)
+        public void Start(string address, int numberOfWorkerThreads)
         {
             tokenSource = new CancellationTokenSource();
             listener = new HttpListener();
-        
+
             listener.Prefixes.Add(address);
 
-            scheduler = new MTATaskScheduler(numWorkerThreads, String.Format("NServiceBus Gateway Channel Receiver Thread for [{0}]", address));
+            scheduler = new MTATaskScheduler(numberOfWorkerThreads, String.Format("NServiceBus Gateway Channel Receiver Thread for [{0}]", address));
 
             try
             {
@@ -37,7 +33,8 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Failed to start listener for {0} make sure that you have admin privileges", address), ex);
+                var message = string.Format("Failed to start listener for {0} make sure that you have admin privileges", address);
+                throw new Exception(message,ex);
             }
 
             var token = tokenSource.Token;
@@ -46,78 +43,70 @@ namespace NServiceBus.Gateway.Channels.Http
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
+            if (tokenSource != null)
             {
                 tokenSource.Cancel();
-
+            }
+            if (listener != null)
+            {
                 listener.Close();
-                
+            }
+            if (scheduler != null)
+            {
                 scheduler.Dispose();
             }
-
-            disposed = true;
         }
 
-        ~HttpChannelReceiver()
-        {
-            Dispose(false);
-        }
-   
-        public void Handle(HttpListenerContext ctx)
+        public void Handle(HttpListenerContext context)
         {
             try
             {
-                if(!IsGatewayRequest(ctx.Request))
+                if (!IsGatewayRequest(context.Request))
                 {
                     //there will always be a responder
-                    Configure.Instance.Builder.Build<IHttpResponder>().Handle(ctx);
+                    Configure.Instance.Builder.Build<IHttpResponder>().Handle(context);
                     return;
                 }
 
                 DataReceived(this, new DataReceivedOnChannelArgs
-                                       {
-                                           Headers = GetHeaders(ctx),
-                                           Data = GetMessageStream(ctx)
-                                       });
-                ReportSuccess(ctx);
+                {
+                    Headers = GetHeaders(context),
+                    Data = GetMessageStream(context)
+                });
+                ReportSuccess(context);
 
                 Logger.Debug("Http request processing complete.");
             }
-            catch (HttpChannelException ex)
+            catch (ChannelException ex)
             {
-                CloseResponseAndWarn(ctx, ex.Message, ex.StatusCode);
+                CloseResponseAndWarn(context, ex.Message, ex.StatusCode);
             }
             catch (Exception ex)
             {
                 Logger.Error("Unexpected error", ex);
-                CloseResponseAndWarn(ctx, "Unexpected server error", 502);
+                CloseResponseAndWarn(context, "Unexpected server error", 502);
             }
         }
 
-        static MemoryStream GetMessageStream(HttpListenerContext ctx)
+        static MemoryStream GetMessageStream(HttpListenerContext context)
         {
-            if(ctx.Request.QueryString.AllKeys.Contains("Message"))
+            if (context.Request.QueryString.AllKeys.Contains("Message"))
             {
-                var message = HttpUtility.UrlDecode(ctx.Request.QueryString["Message"]);
+                var message = HttpUtility.UrlDecode(context.Request.QueryString["Message"]);
 
                 return new MemoryStream(Encoding.UTF8.GetBytes(message));
             }
-                
+
             var streamToReturn = new MemoryStream();
 
-            ctx.Request.InputStream.CopyTo_net35(streamToReturn, MaximumBytesToRead);
+            context.Request.InputStream.CopyTo(streamToReturn, MaximumBytesToRead);
             streamToReturn.Position = 0;
+
             return streamToReturn;
         }
 
@@ -129,15 +118,19 @@ namespace NServiceBus.Gateway.Channels.Http
         }
 
 
-        static IDictionary<string,string> GetHeaders(HttpListenerContext ctx)
+        static IDictionary<string, string> GetHeaders(HttpListenerContext context)
         {
-            var headers = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
+            var headers = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
-            foreach (string header in ctx.Request.Headers.Keys)
-                headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(ctx.Request.Headers[header]));
-            
-            foreach (string header in ctx.Request.QueryString.Keys)
-                headers[HttpUtility.UrlDecode(header)] = HttpUtility.UrlDecode(ctx.Request.QueryString[header]);
+            foreach (string header in context.Request.Headers.Keys)
+            {
+                headers.Add(HttpUtility.UrlDecode(header), HttpUtility.UrlDecode(context.Request.Headers[header]));
+            }
+
+            foreach (string header in context.Request.QueryString.Keys)
+            {
+                headers[HttpUtility.UrlDecode(header)] = HttpUtility.UrlDecode(context.Request.QueryString[header]);
+            }
 
             return headers;
         }
@@ -145,14 +138,14 @@ namespace NServiceBus.Gateway.Channels.Http
 
         void HttpServer(object o)
         {
-            var cancellationToken = (CancellationToken)o;
+            var cancellationToken = (CancellationToken) o;
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    var ctx = listener.GetContext();
-                    new Task(() => Handle(ctx)).Start(scheduler);
+                    var context = listener.GetContext();
+                    new Task(() => Handle(context)).Start(scheduler);
                 }
                 catch (HttpListenerException ex)
                 {
@@ -171,43 +164,42 @@ namespace NServiceBus.Gateway.Channels.Http
             }
         }
 
-        static void ReportSuccess(HttpListenerContext ctx)
+        static void ReportSuccess(HttpListenerContext context)
         {
             Logger.Debug("Sending HTTP 200 response.");
 
-            ctx.Response.StatusCode = 200;
-            ctx.Response.StatusDescription = "OK";
+            context.Response.StatusCode = 200;
+            context.Response.StatusDescription = "OK";
 
-          
-            WriteData(ctx,"OK");
+            WriteData(context, "OK");
         }
 
-        static void WriteData(HttpListenerContext ctx,string status)
+        static void WriteData(HttpListenerContext context, string status)
         {
-            var str = status;
+            var newStatus = status;
 
-            var jsonp = ctx.Request.QueryString["callback"];
+            var jsonp = context.Request.QueryString["callback"];
             if (string.IsNullOrEmpty(jsonp) == false)
             {
-                str = jsonp + "({ status: '" + str + "'})";
-                ctx.Response.AddHeader("Content-Type", "application/javascript; charset=utf-8");
+                newStatus = jsonp + "({ status: '" + newStatus + "'})";
+                context.Response.AddHeader("Content-Type", "application/javascript; charset=utf-8");
             }
             else
             {
-                ctx.Response.AddHeader("Content-Type", "application/json; charset=utf-8");
+                context.Response.AddHeader("Content-Type", "application/json; charset=utf-8");
             }
-            ctx.Response.Close(Encoding.ASCII.GetBytes(str), false);
+            context.Response.Close(Encoding.ASCII.GetBytes(newStatus), false);
         }
-        
-        static void CloseResponseAndWarn(HttpListenerContext ctx, string warning, int statusCode)
+
+        static void CloseResponseAndWarn(HttpListenerContext context, string warning, int statusCode)
         {
             try
             {
-                Logger.WarnFormat("Cannot process HTTP request from {0}. Reason: {1}.", ctx.Request.RemoteEndPoint, warning);
-                ctx.Response.StatusCode = statusCode;
-                ctx.Response.StatusDescription = warning;
+                Logger.WarnFormat("Cannot process HTTP request from {0}. Reason: {1}.", context.Request.RemoteEndPoint, warning);
+                context.Response.StatusCode = statusCode;
+                context.Response.StatusDescription = warning;
 
-                WriteData(ctx, warning);
+                WriteData(context, warning);
             }
             catch (Exception e)
             {
@@ -215,10 +207,11 @@ namespace NServiceBus.Gateway.Channels.Http
             }
         }
 
-        HttpListener listener;
-        
         const int MaximumBytesToRead = 100000;
-        
+
         static readonly ILog Logger = LogManager.GetLogger(typeof(HttpChannelReceiver));
+        HttpListener listener;
+        MTATaskScheduler scheduler;
+        CancellationTokenSource tokenSource;
     }
 }

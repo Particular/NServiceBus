@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using NServiceBus.Persistence.Raven;
-    using Persistence;
-    using Persistence.Raven;
     using global::Raven.Client;
-    using NUnit.Framework;
     using global::Raven.Client.Document;
     using global::Raven.Client.Embedded;
+    using NServiceBus.Persistence.Raven;
+    using NUnit.Framework;
+    using Persistence;
+    using Persistence.Raven;
 
     public class in_the_raven_storage
     {

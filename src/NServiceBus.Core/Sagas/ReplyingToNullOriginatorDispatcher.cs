@@ -1,8 +1,8 @@
 namespace NServiceBus.Sagas
 {
     using System;
-    using NServiceBus.Logging;
-    using NServiceBus.Saga;
+    using Logging;
+    using Saga;
 
     /// <summary>
     /// Class used to bridge the dependency between Saga{T} in NServiceBus.dll and

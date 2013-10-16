@@ -27,4 +27,30 @@ namespace NServiceBus.Unicast.Transport
             get { return message; }
         }
     }
+
+    /// <summary>
+    /// Defines the arguments passed to the event handler of the
+    /// <see cref="ITransport.FinishedMessageProcessing"/> event.
+    /// </summary>
+    public class FinishedMessageProcessingEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Initializes a new FinishedMessageProcessingEventArgs.
+        /// </summary>
+        /// <param name="m">The message that was received.</param>
+        public FinishedMessageProcessingEventArgs(TransportMessage m)
+        {
+            message = m;
+        }
+
+        readonly TransportMessage message;
+
+        /// <summary>
+        /// Gets the message received.
+        /// </summary>
+        public TransportMessage Message
+        {
+            get { return message; }
+        }
+    }
 }

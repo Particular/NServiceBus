@@ -17,17 +17,17 @@ namespace NServiceBus.Serializers.XML.Test
                                    String = "<node>it's my \"node\" & i like it<node>",
                                };
 
-            var serialiser = SerializerFactory.Create<RequestDataMessage>();
+            var serializer = SerializerFactory.Create<RequestDataMessage>();
 
             Parallel.For(1, 1000, i =>
                                       {
                                           RequestDataMessage result;
                                           using (var stream = new MemoryStream())
                                           {
-                                              serialiser.Serialize(new object[] {expected}, stream);
+                                              serializer.Serialize(new object[] {expected}, stream);
                                               stream.Position = 0;
 
-                                              var msgArray = serialiser.Deserialize(stream);
+                                              var msgArray = serializer.Deserialize(stream);
                                               result = (RequestDataMessage) msgArray[0];
                                           }
 

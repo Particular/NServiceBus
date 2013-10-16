@@ -1,9 +1,8 @@
-﻿using System;
-using System.Net;
-using System.Runtime.Serialization;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Net;
+    using System.Runtime.Serialization;
     using Support;
 
     ///<summary>

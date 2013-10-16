@@ -6,13 +6,13 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     {
         public override void SetupEntity(TestSaga saga)
         {
-            entity.PolymorpicRelatedProperty = new PolymorpicProperty {SomeInt = 9};
+            entity.PolymorphicRelatedProperty = new PolymorphicProperty {SomeInt = 9};
         }
 
         [Test]
         public void Inherited_property_classes_should_be_persisted()
         {
-            Assert.AreEqual(entity.PolymorpicRelatedProperty, savedEntity.PolymorpicRelatedProperty);
+            Assert.AreEqual(entity.PolymorphicRelatedProperty, savedEntity.PolymorphicRelatedProperty);
         }
     }
 }

@@ -3,34 +3,33 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Rhino.Mocks;
     using Timeout;
 
     [TestFixture]
-    public class When_defering_a_message_with_no_timeoutmanager_address_specified : using_the_unicastbus
+    public class When_deferring_a_message_with_no_timeoutManager_address_specified : using_the_unicastBus
     {
         [Test]
         public void Should_use_a_convention_to_set_the_address()
         {
             var conventionBasedAddressToTimeoutManager = MasterNodeAddress.SubScope("Timeouts");
 
-            RegisterMessageType<DeferedMessage>();
-            bus.Defer(TimeSpan.FromDays(1),new DeferedMessage());
+            RegisterMessageType<DeferredMessage>();
+            bus.Defer(TimeSpan.FromDays(1),new DeferredMessage());
 
             VerifyThatMessageWasSentTo(conventionBasedAddressToTimeoutManager);
         }
     }
 
     [TestFixture]
-    public class When_defering_a_message_with_a_set_delay : using_the_unicastbus
+    public class When_deferring_a_message_with_a_set_delay : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time()
         {
-            RegisterMessageType<DeferedMessage>();
+            RegisterMessageType<DeferredMessage>();
             var delay = TimeSpan.FromDays(1);
 
-            bus.Defer(delay, new DeferedMessage());
+            bus.Defer(delay, new DeferredMessage());
 
             VerifyThatMessageWasSentWithHeaders(h=>
                                                     {
@@ -42,22 +41,22 @@
     }
 
     [TestFixture]
-    public class When_defering_a_message_with_a_absoulte_time : using_the_unicastbus
+    public class When_deferring_a_message_with_a_absolute_time : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_expiry_header_to_a_absolute_utc_time()
         {
-            RegisterMessageType<DeferedMessage>();
+            RegisterMessageType<DeferredMessage>();
             var time = DateTime.Now + TimeSpan.FromDays(1);
 
-            bus.Defer(time, new DeferedMessage());
+            bus.Defer(time, new DeferredMessage());
 
             VerifyThatMessageWasSentWithHeaders(h => h[TimeoutManagerHeaders.Expire] == DateTimeExtensions.ToWireFormattedString(time));
         }
     }
 
 
-    public class DeferedMessage:IMessage
+    public class DeferredMessage:IMessage
     {
     }
 }

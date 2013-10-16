@@ -28,8 +28,8 @@ namespace NServiceBus.Core.Tests.DataBus
         public void Time_to_live_should_be_passed_on_the_databus()
         {
 
-            var message = new MessageWithExplicitTimeToLive()
-                              {
+            var message = new MessageWithExplicitTimeToLive
+                          {
                                   DataBusProperty = new DataBusProperty<string>("test")
                               };
 

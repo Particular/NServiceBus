@@ -9,7 +9,7 @@ namespace NServiceBus.Serializers.XML {
 	public class XmlSanitizingStream : StreamReader
 	{
 		/// <summary>
-		/// The charactet that denotes the end of a file has been reached.
+		/// The character that denotes the end of a file has been reached.
 		/// </summary>
 		private const int EOF = -1;
 	
@@ -30,7 +30,7 @@ namespace NServiceBus.Serializers.XML {
         /// validation, and use "1.1" for XML 1.1 character validation.
         /// </param>
 		/// <param name="character"></param>
-		/// <returns><c>true</c> if is a legal xml chracter.</returns>
+		/// <returns><c>true</c> if is a legal xml character.</returns>
 		public static bool IsLegalXmlChar(string xmlVersion, int character)
 		{
 			switch (xmlVersion)
@@ -63,7 +63,7 @@ namespace NServiceBus.Serializers.XML {
 				default:
 				{
 					throw new ArgumentOutOfRangeException
-						("xmlVersion", string.Format("'{0}' is not a valid XML version."));
+                        ("xmlVersion", string.Format("'{0}' is not a valid XML version.", xmlVersion));
 				}
 			}
 		}
@@ -74,7 +74,7 @@ namespace NServiceBus.Serializers.XML {
 		/// </summary>
 		public static bool IsLegalXmlChar(int character) 
 		{
-			return XmlSanitizingStream.IsLegalXmlChar("1.0", character);
+			return IsLegalXmlChar("1.0", character);
 		}
 	
 		public override int Read()
@@ -97,14 +97,14 @@ namespace NServiceBus.Serializers.XML {
 	
 			// Skip the character if it's prohibited, and try the next
 	
-			while (!XmlSanitizingStream.IsLegalXmlChar(nextCharacter));
+			while (!IsLegalXmlChar(nextCharacter));
 	
 			return nextCharacter;
 		}
 	
 		public override int Peek()
 		{
-			// Return the next legl XML character without reading it 
+			// Return the next legal XML character without reading it 
 	
 			int nextCharacter;
 	
@@ -119,7 +119,7 @@ namespace NServiceBus.Serializers.XML {
 				// If it's prohibited XML, skip over the character in the stream
 				// and try the next.
 	
-				!XmlSanitizingStream.IsLegalXmlChar(nextCharacter) &&
+				!IsLegalXmlChar(nextCharacter) &&
 				(nextCharacter = base.Read()) != EOF
 			);
 	
@@ -130,7 +130,7 @@ namespace NServiceBus.Serializers.XML {
 		#region Read*() method overrides
 		
 		// The following methods are exact copies of the methods in TextReader, 
-		// extracting by disassembling it in Refelctor
+		// extracting by disassembling it in Reflector
 	
 		public override int Read(char[] buffer, int index, int count)
 		{
@@ -150,39 +150,39 @@ namespace NServiceBus.Serializers.XML {
 			{
 				throw new ArgumentException();
 			}
-			int num = 0;
+			var number = 0;
 			do
 			{
-				int num2 = this.Read();
-				if (num2 == -1)
+				var nextNumber = Read();
+				if (nextNumber == -1)
 				{
-					return num;
+					return number;
 				}
-				buffer[index + num++] = (char)num2;
+				buffer[index + number++] = (char)nextNumber;
 			}
-			while (num < count);
-			return num;
+			while (number < count);
+			return number;
 		}
 	
 		public override int ReadBlock(char[] buffer, int index, int count)
 		{
-			int num;
-			int num2 = 0;
+			int number;
+			var nextNumber = 0;
 			do
 			{
-				num2 += num = this.Read(buffer, index + num2, count - num2);
+				nextNumber += number = Read(buffer, index + nextNumber, count - nextNumber);
 			}
-			while ((num > 0) && (num2 < count));
-			return num2;
+			while ((number > 0) && (nextNumber < count));
+			return nextNumber;
 		}
 	
 		public override string ReadLine()
 		{
-			StringBuilder builder = new StringBuilder();
+			var builder = new StringBuilder();
 			while (true)
 			{
-				int num = this.Read();
-				switch (num)
+				var number = Read();
+				switch (number)
 				{
 					case -1:
 						if (builder.Length > 0)
@@ -193,24 +193,24 @@ namespace NServiceBus.Serializers.XML {
 	
 					case 13:
 					case 10:
-						if ((num == 13) && (this.Peek() == 10))
+						if ((number == 13) && (Peek() == 10))
 						{
-							this.Read();
+							Read();
 						}
 						return builder.ToString();
 				}
-				builder.Append((char)num);
+				builder.Append((char)number);
 			}
 		}
 	
 		public override string ReadToEnd()
 		{
-			int num;
-			char[] buffer = new char[0x1000];
-			StringBuilder builder = new StringBuilder(0x1000);
-			while ((num = this.Read(buffer, 0, buffer.Length)) != 0)
+			int number;
+			var buffer = new char[0x1000];
+			var builder = new StringBuilder(0x1000);
+			while ((number = Read(buffer, 0, buffer.Length)) != 0)
 			{
-				builder.Append(buffer, 0, num);
+				builder.Append(buffer, 0, number);
 			}
 			return builder.ToString();
 		}

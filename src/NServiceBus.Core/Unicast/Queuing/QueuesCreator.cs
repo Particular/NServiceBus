@@ -7,7 +7,6 @@ namespace NServiceBus.Unicast.Queuing
     using Logging;
     using Settings;
     using Transports;
-    using INeedInitialization = NServiceBus.INeedInitialization;
 
     /// <summary>
     /// Iterating over all implementers of IWantQueueCreated and creating queue for each.

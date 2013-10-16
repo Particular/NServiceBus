@@ -9,9 +9,8 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
-    using Settings;
     using Routing;
-    using Utils;
+    using Settings;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -37,9 +36,7 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
-
             RegisterMessageOwnersAndBusAddress(knownMessages);
-
           
             ConfigureMessageRegistry(knownMessages);
         }
@@ -69,6 +66,7 @@ namespace NServiceBus.Unicast.Config
             Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
         }
 
+#pragma warning disable 0618
         void RegisterMessageModules()
         {
             TypesToScan
@@ -76,6 +74,7 @@ namespace NServiceBus.Unicast.Config
                 .ToList()
                 .ForEach(type => Configurer.ConfigureComponent(type, DependencyLifecycle.InstancePerCall));
         }
+#pragma warning restore 0618
 
         void ConfigureSubscriptionAuthorization()
         {
@@ -93,30 +92,15 @@ namespace NServiceBus.Unicast.Config
 
             Configurer.RegisterSingleton<IRouteMessages>(router);
 
-            Address forwardAddress = null;
-            if (unicastConfig != null && !string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-            }
-            else
-            {
-                var forwardQueue = RegistryReader<string>.Read("AuditQueue");
-                if (!string.IsNullOrWhiteSpace(forwardQueue))
-                {
-                    forwardAddress = Address.Parse(forwardQueue);
-                }
-            }
-
-            if (forwardAddress != null)
-            {
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-
             if (unicastConfig == null)
             {
                 return;
             }
-
+            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
+            {
+                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
+                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+            }
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
@@ -183,7 +167,7 @@ namespace NServiceBus.Unicast.Config
         /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<TFirst>()
         {
-            Type[] args = typeof(TFirst).GetGenericArguments();
+            var args = typeof(TFirst).GetGenericArguments();
             if (args.Length == 1)
             {
                 if (typeof(First<>).MakeGenericType(args[0]).IsAssignableFrom(typeof(TFirst)))
@@ -213,7 +197,7 @@ namespace NServiceBus.Unicast.Config
             LoadMessageHandlersCalled = true;
             var types = new List<Type>(TypesToScan);
 
-            foreach (Type t in orderedTypes)
+            foreach (var t in orderedTypes)
                 types.Remove(t);
 
             types.InsertRange(0, orderedTypes);
@@ -233,7 +217,7 @@ namespace NServiceBus.Unicast.Config
             var handlerRegistry = new MessageHandlerRegistry();
             var handlers = new List<Type>();
 
-            foreach (Type t in types.Where(IsMessageHandler))
+            foreach (var t in types.Where(IsMessageHandler))
             {
                 Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
@@ -399,14 +383,17 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        static bool IsMessageHandler(Type t)
+        /// <param name="type"></param>
+        internal static bool IsMessageHandler(Type type)
         {
-            if (t.IsAbstract || t.IsGenericType)
+            if (type.IsAbstract || type.IsGenericTypeDefinition)
+            {
                 return false;
+            }
 
-            return t.GetInterfaces().Select(GetMessageTypeFromMessageHandler).Any(messageType => messageType != null);
+            return type.GetInterfaces()
+                .Select(GetMessageTypeFromMessageHandler)
+                .Any(messageType => messageType != null);
         }
 
         static bool TypeSpecifiesMessageHandlerOrdering(Type t)
@@ -423,11 +410,11 @@ namespace NServiceBus.Unicast.Config
         {
             if (t.IsGenericType)
             {
-                Type[] args = t.GetGenericArguments();
+                var args = t.GetGenericArguments();
                 if (args.Length != 1)
                     return null;
 
-                Type handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
+                var handlerType = typeof(IHandleMessages<>).MakeGenericType(args[0]);
                 if (handlerType.IsAssignableFrom(t))
                     return args[0];
             }

@@ -14,7 +14,7 @@ namespace NServiceBus.Saga
         readonly Expression<Func<TMessage, object>> messageProperty;
 
         /// <summary>
-        /// Constucts the expression
+        /// Constructs the expression
         /// </summary>
         /// <param name="sagaMessageFindingConfiguration"></param>
         /// <param name="messageProperty"></param>

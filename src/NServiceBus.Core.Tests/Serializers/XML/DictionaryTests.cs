@@ -20,7 +20,7 @@ namespace NServiceBus.Serializers.XML.Test
                                                },
                                    Chars = new Dictionary<char, char>
                                                {
-                                                   //{char.MinValue, char.MaxValue}, // doesn't work becayse we use UTF8
+                                                   //{char.MinValue, char.MaxValue}, // doesn't work because we use UTF8
                                                    {'a', 'b'},
                                                    {'c', 'd'},
                                                    {'e', 'f'}

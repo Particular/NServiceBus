@@ -1,7 +1,7 @@
-using System;
-
 namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// The abstraction for creating interface-based messages.
     /// </summary>

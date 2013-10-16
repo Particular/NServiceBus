@@ -100,7 +100,7 @@
 	}
     
 	[TestFixture]
-	public class When_invoking_a_cached_timout_handler
+	public class When_invoking_a_cached_timeout_handler
 	{
 		[Test]
 		public void Should_invoke_timeout_method()

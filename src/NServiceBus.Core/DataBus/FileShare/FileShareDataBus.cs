@@ -37,7 +37,7 @@ namespace NServiceBus.DataBus.FileShare
 
             logger.DebugFormat("Opening stream from '{0}'.", filePath);
 
-            return new FileStream(filePath, FileMode.Open);
+            return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 		}
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace NServiceBus.DataBus.FileShare
 
 			Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
-			using (var output = new FileStream(filePath, FileMode.CreateNew))
+			using (var output = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read))
 			{
 				var buffer = new byte[32 * 1024];
 				int read;

@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_windows_impersonation_is_enabled : using_the_unicastbus
+    public class When_windows_impersonation_is_enabled : using_the_unicastBus
     {
         [Test]
         public void Should_impersonate_the_client()

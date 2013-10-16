@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
-    using NServiceBus.Unicast.Queuing;
     using Transports;
 
     public class FakeMessageSender : ISendMessages

@@ -3,7 +3,6 @@
     using System.Linq;
     using Features;
     using Logging;
-    using Unicast.Subscriptions;
 
     public class AutoSubscriber:IWantToRunWhenBusStartsAndStops
     {
@@ -18,11 +17,11 @@
 
 
             foreach (var eventType in AutoSubscriptionStrategy.GetEventsToSubscribe()
-                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never autosubscribe system messages
+                .Where(t => !MessageConventionExtensions.IsInSystemConventionList(t))) //never auto-subscribe system messages
             {
                 Bus.Subscribe(eventType);
 
-                Logger.DebugFormat("Autosubscribed to event {0}", eventType);
+                Logger.DebugFormat("Auto subscribed to event {0}", eventType);
             }
         }
 

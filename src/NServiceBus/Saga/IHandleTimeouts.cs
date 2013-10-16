@@ -7,7 +7,7 @@ namespace NServiceBus.Saga
     public interface IHandleTimeouts<T>
     {
         /// <summary>
-        /// Called when the timout has expired
+        /// Called when the timeout has expired
         /// </summary>
         /// <param name="state"></param>
         void Timeout(T state);

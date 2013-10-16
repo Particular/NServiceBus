@@ -22,9 +22,9 @@ namespace NServiceBus.Unicast
         public BusAsyncResult(AsyncCallback callback, object state)
         {
             this.callback = callback;
-            this.result = new CompletionResult();
-            this.result.State = state;
-            this.sync = new ManualResetEvent(false);
+            result = new CompletionResult();
+            result.State = state;
+            sync = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -36,21 +36,21 @@ namespace NServiceBus.Unicast
         /// <param name="messages"></param>
         public void Complete(int errorCode, params object[] messages)
         {
-            this.result.ErrorCode = errorCode;
-            this.result.Messages = messages;
-            this.completed = true;
+            result.ErrorCode = errorCode;
+            result.Messages = messages;
+            completed = true;
 
-            if (this.callback != null)
+            if (callback != null)
                 try
                 {
-                    this.callback(this);
+                    callback(this);
                 }
                 catch (Exception e)
                 {
-                    log.Error(this.callback.ToString(), e);
+                    log.Error(callback.ToString(), e);
                 }
 
-            this.sync.Set();
+            sync.Set();
         }
 
         private readonly static ILog log = LogManager.GetLogger(typeof(UnicastBus));
@@ -62,7 +62,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public object AsyncState
         {
-            get { return this.result; }
+            get { return result; }
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public WaitHandle AsyncWaitHandle
         {
-            get { return this.sync; }
+            get { return sync; }
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public bool IsCompleted
         {
-            get { return this.completed; }
+            get { return completed; }
         }
 
         #endregion

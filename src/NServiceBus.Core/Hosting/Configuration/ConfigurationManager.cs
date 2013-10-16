@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Logging;
-
-namespace NServiceBus.Hosting.Configuration
+﻿namespace NServiceBus.Hosting.Configuration
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Helpers;
+    using Logging;
+
     /// <summary>
     /// Configures the host upon startup
     /// </summary>
     public class ConfigManager
     {
         /// <summary>
-        /// Contructs the manager with the given user configuration and the list of assemblies that should be scanned
+        /// Constructs the manager with the given user configuration and the list of assemblies that should be scanned
         /// </summary>
         /// <param name="assembliesToScan"></param>
         /// <param name="specifier"></param>
@@ -63,7 +63,7 @@ namespace NServiceBus.Hosting.Configuration
             foreach (var thing in thingsToRunAtStartup)
             {
                 var toRun = thing;
-                Action onstart = () =>
+                Action onStart = () =>
                                      {
                                          var logger = LogManager.GetLogger(toRun.GetType());
                                          try
@@ -80,12 +80,12 @@ namespace NServiceBus.Hosting.Configuration
 
                                      };
 
-                onstart.BeginInvoke(null, null);
+                onStart.BeginInvoke(null, null);
             }
         }
 
         /// <summary>
-        /// Shutsdown the user classes started earlier
+        /// Shuts down the user classes started earlier
         /// </summary>
         public void Shutdown()
         {

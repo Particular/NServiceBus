@@ -4,7 +4,6 @@ namespace NServiceBus.Distributor
     using System.Linq;
     using Licensing;
     using Logging;
-    using Configure = NServiceBus.Configure;
 
     /// <summary>
     /// Limit number of workers in accordance with Licensing policy

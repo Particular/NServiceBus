@@ -5,6 +5,6 @@ namespace NServiceBus.Gateway.Channels
 
     public interface IChannelSender
     {
-        void Send(string remoteAddress,IDictionary<string,string> headers,Stream data);
+        void Send(string remoteAddress, IDictionary<string, string> headers, Stream data);
     }
 }

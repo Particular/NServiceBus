@@ -5,6 +5,7 @@ namespace NServiceBus.Config.Advanced
     /// <summary>
     /// Allow overriding local address name.
     /// </summary>
+    [ObsoleteEx(Message = "Moved to NServiceBus namespace.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
     public static class ConfigureSettingLocalAddressNameAction
     {
         /// <summary>

@@ -68,7 +68,7 @@
         public bool DontUseDistributedTransactions { get; set; }
 
         /// <summary>
-        /// Controls if the message handlers should be wrapped in a transactionscope
+        /// Controls if the message handlers should be wrapped in a <see cref="TransactionScope"/>
         /// </summary>
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
     }

@@ -11,7 +11,8 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-    [TestFixture, Category("Integration")]
+    [TestFixture]
+    [Explicit]
     public class When_fetching_timeouts_from_storage_with_raven : When_fetching_timeouts_from_storage
     {
         private IDocumentStore store;
@@ -68,7 +69,7 @@ namespace NServiceBus.Core.Tests.Timeout
     }
 
     [TestFixture]
-    public class When_fetching_timeouts_from_storage_with_inmemory : When_fetching_timeouts_from_storage
+    public class When_fetching_timeouts_from_storage_with_inMemory : When_fetching_timeouts_from_storage
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {

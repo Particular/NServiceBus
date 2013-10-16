@@ -3,10 +3,10 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using NUnit.Framework;
     using System.Threading.Tasks;
     using Core.Tests;
     using Core.Tests.Fakes;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ScheduleTests
@@ -43,7 +43,7 @@
         }
 
         [Test]
-        public void Schedule_tasks_using_mutiple_threads()
+        public void Schedule_tasks_using_multiple_threads()
         {
             Parallel.For(0, 20, i => Schedule.Every(TimeSpan.FromSeconds(1)).Action(() => { }));
             

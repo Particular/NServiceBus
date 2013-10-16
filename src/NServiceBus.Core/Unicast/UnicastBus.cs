@@ -4,7 +4,6 @@ namespace NServiceBus.Unicast
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization;
@@ -12,6 +11,7 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using Audit;
     using Impersonation;
     using Licensing;
     using Logging;
@@ -21,13 +21,13 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using Queuing;
     using Routing;
+    using Satellites;
     using Serialization;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
     using Transport;
     using Transports;
-    using UnitOfWork;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -186,14 +186,17 @@ namespace NServiceBus.Unicast
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
+
+        public MessageAuditer MessageAuditer { get; set; }
+
         /// <summary>
-        /// The router for this unicastbus
+        /// The router for this <see cref="UnicastBus"/>
         /// </summary>
         public IRouteMessages MessageRouter { get; set; }
 
 
         /// <summary>
-        /// The handler registry for this unicastbus
+        /// The handler registry for this <see cref="UnicastBus"/>
         /// </summary>
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -270,9 +273,24 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>(T message)
+        {
+            Publish(new []{message});
+        }
+
+        /// <summary>
+        /// Publishes the message to all subscribers of the message type.
+        /// </summary>
+        public virtual void Publish<T>()
+        {
+            Publish(new object[]{});
+        }
+
+        /// <summary>
         /// Publishes the messages to all subscribers of the first message's type.
         /// </summary>
-        /// <param name="messages"></param>
         public virtual void Publish<T>(params T[] messages)
         {
 
@@ -349,7 +367,7 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
-                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to be a subscriber");
+                throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
 
             AssertHasLocalAddress();
 
@@ -385,7 +403,7 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
-                throw new InvalidOperationException("It's not allowed for a sendonly endpoint to unsubscribe");
+                throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
 
             AssertHasLocalAddress();
 
@@ -398,7 +416,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void IBus.Reply(params object[] messages)
+        public void Reply(params object[] messages)
         {
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
             if (_messageBeingHandled.ReplyToAddress == null)
@@ -406,12 +424,17 @@ namespace NServiceBus.Unicast
             SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Reply, messages);
         }
 
-        void IBus.Reply<T>(Action<T> messageConstructor)
+        public void Reply(object message)
         {
-            ((IBus)this).Reply(CreateInstance(messageConstructor));
+            Reply(new[]{message});
         }
 
-        void IBus.Return<T>(T errorCode)
+        public void Reply<T>(Action<T> messageConstructor)
+        {
+            Reply(CreateInstance(messageConstructor));
+        }
+
+        public void Return<T>(T errorCode)
         {
             if (_messageBeingHandled.ReplyToAddress == null)
                 throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
@@ -427,7 +450,7 @@ namespace NServiceBus.Unicast
             MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
         }
 
-        void IBus.HandleCurrentMessageLater()
+        public void HandleCurrentMessageLater()
         {
             if (_handleCurrentMessageLaterWasCalled)
             {
@@ -447,80 +470,115 @@ namespace NServiceBus.Unicast
             _handleCurrentMessageLaterWasCalled = true;
         }
 
-        void IBus.ForwardCurrentMessageTo(string destination)
+        public void ForwardCurrentMessageTo(string destination)
         {
             MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
         }
 
-        ICallback IBus.SendLocal<T>(Action<T> messageConstructor)
+        public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
-            return ((IBus)this).SendLocal(CreateInstance(messageConstructor));
+            return SendLocal(CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.SendLocal(params object[] messages)
+        public ICallback SendLocal(object message)
+        {
+            return SendLocal(new[] {message});
+        }
+
+        public ICallback SendLocal(params object[] messages)
         {
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return ((IBus)this).Send(MasterNodeAddress, messages);
+                return Send(MasterNodeAddress, messages);
             }
 
-            return ((IBus)this).Send(Address.Local, messages);
+            return Send(Address.Local, messages);
         }
 
-        ICallback IBus.Send<T>(Action<T> messageConstructor)
+        public ICallback Send<T>(Action<T> messageConstructor)
         {
-            return ((IBus)this).Send(CreateInstance(messageConstructor));
+            return Send(CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(params object[] messages)
+        public ICallback Send(object message)
+        {
+            return Send(new[] {message});
+        }
+
+        public ICallback Send(params object[] messages)
         {
             var destination = GetAddressForMessages(messages);
 
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send<T>(string destination, Action<T> messageConstructor)
+        public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send<T>(Address address, Action<T> messageConstructor)
+        public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
             return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(string destination, params object[] messages)
+        public ICallback Send(string destination, object message)
+        {
+            return SendMessage(destination, null, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback Send(string destination, params object[] messages)
         {
             return SendMessage(destination, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send(Address address, params object[] messages)
+        public ICallback Send(Address address, params object[] messages)
         {
             return SendMessage(address, null, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send<T>(string destination, string correlationId, Action<T> messageConstructor)
+        public ICallback Send(Address address, object message)
+        {
+            return SendMessage(address, null, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send<T>(Address address, string correlationId, Action<T> messageConstructor)
+        public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
             return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
         }
 
-        ICallback IBus.Send(string destination, string correlationId, params object[] messages)
+        public ICallback Send(string destination, string correlationId, object message)
+        {
+            return Send(destination, correlationId, new[] {message});
+        }
+
+        public ICallback Send(string destination, string correlationId, params object[] messages)
         {
             return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.Send(Address address, string correlationId, params object[] messages)
+        public ICallback Send(Address address, string correlationId, params object[] messages)
         {
             return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
         }
 
-        ICallback IBus.SendToSites(IEnumerable<string> siteKeys, params object[] messages)
+        public ICallback Send(Address address, string correlationId, object message)
+        {
+            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[]{message});
+        }
+
+        public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+        {
+            return SendToSites(siteKeys, new[] {message});
+        }
+
+        public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
@@ -535,10 +593,19 @@ namespace NServiceBus.Unicast
         /// </summary>
         /// <param name="delay">Delay</param>
         /// <param name="messages">Messages</param>
-        /// <returns></returns>
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return Defer(DateTime.UtcNow + delay, messages);
+        }
+
+        public ICallback Defer(TimeSpan delay, object message)
+        {
+            return Defer(DateTime.UtcNow + delay, message);
+        }
+
+        public ICallback Defer(DateTime processAt, object message)
+        {
+            return Defer(processAt, new [] { message });
         }
 
         /// <summary>
@@ -549,9 +616,13 @@ namespace NServiceBus.Unicast
         /// <returns></returns>
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
+            if (messages == null || messages.Length == 0)
+            {
+                throw new InvalidOperationException("Cannot Defer an empty set of messages.");
+            }
             if (processAt.ToUniversalTime() <= DateTime.UtcNow)
             {
-                return ((IBus)this).SendLocal(messages);
+                return SendLocal(messages);
             }
 
             var toSend = new TransportMessage();
@@ -759,7 +830,9 @@ namespace NServiceBus.Unicast
                 ValidateConfiguration();
 
                 if (startupAction != null)
+                {
                     startupAction();
+                }
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
@@ -768,31 +841,36 @@ namespace NServiceBus.Unicast
                 {
                     transport.Start(InputAddress);
                 }
-
+                
                 started = true;
             }
 
             if (Started != null)
+            {
                 Started(this, null);
+            }
+
+            satelliteLauncher = new SatelliteLauncher(Builder);
+            satelliteLauncher.Start();
 
             thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
 
             thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-                                        {
-                                            var name = toRun.GetType().AssemblyQualifiedName;
+            {
+                var name = toRun.GetType().AssemblyQualifiedName;
 
-                                            try
-                                            {
-                                                Log.DebugFormat("Starting {0}.", name);
-                                                toRun.Start();
-                                                Log.DebugFormat("Started {0}.", name);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                Log.ErrorFormat("{0} could not be started.", ex, name);
-                                                //don't rethrow so that thread doesn't die before log message is shown.
-                                            }
-                                        }, TaskCreationOptions.LongRunning)).ToArray();
+                try
+                {
+                    Log.DebugFormat("Starting {0}.", name);
+                    toRun.Start();
+                    Log.DebugFormat("Started {0}.", name);
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorFormat("{0} could not be started.", ex, name);
+                    //don't rethrow so that thread doesn't die before log message is shown.
+                }
+            }, TaskCreationOptions.LongRunning)).ToArray();
 
             return this;
         }
@@ -889,45 +967,24 @@ namespace NServiceBus.Unicast
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        /// <summary>
-        /// Tells the transport to dispose.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
+            InnerShutdown();
 
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // free managed resources
-
-                Shutdown();
-
-                Configure.Instance.Builder.Dispose();
-            }
-
-            disposed = true;
+            Configure.Instance.Builder.Dispose();
         }
 
-        ~UnicastBus()
-        {
-            Dispose(false);
-        }
 
-        void IBus.DoNotContinueDispatchingCurrentMessageToHandlers()
+        public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
             _doNotContinueDispatchingCurrentMessageToHandlers = true;
         }
 
 
-        IDictionary<string, string> IBus.OutgoingHeaders
+        public IDictionary<string, string> OutgoingHeaders
         {
             get
             {
@@ -950,6 +1007,11 @@ namespace NServiceBus.Unicast
 
         public void Shutdown()
         {
+            InnerShutdown();
+        }
+
+        void InnerShutdown()
+        {
             if (!started)
             {
                 return;
@@ -958,6 +1020,8 @@ namespace NServiceBus.Unicast
             Log.Info("Initiating shutdown.");
 
             ExecuteIWantToRunAtStartupStopMethods();
+
+            satelliteLauncher.Stop();
 
             transport.Stop();
             transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
@@ -970,14 +1034,14 @@ namespace NServiceBus.Unicast
             started = false;
         }
 
-        void IInMemoryOperations.Raise<T>(T @event)
+        public void Raise<T>(T @event)
         {
             DispatchMessageToHandlersBasedOnType(Builder, @event);
         }
 
-        void IInMemoryOperations.Raise<T>(Action<T> messageConstructor)
+        public void Raise<T>(Action<T> messageConstructor)
         {
-            ((IInMemoryOperations)this).Raise(CreateInstance(messageConstructor));
+            Raise(CreateInstance(messageConstructor));
         }
 
         /// <summary>
@@ -1029,12 +1093,8 @@ namespace NServiceBus.Unicast
 
                 if (!callbackInvoked && !handlers.Any())
                 {
-                    var warning = string.Format("No handlers could be found for message type: {0}", messageToHandle);
-
-                    if (Debugger.IsAttached)
-                        throw new InvalidOperationException(warning);
-
-                    Log.WarnFormat(warning);
+                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
+                    throw new InvalidOperationException(error);
                 }
 
                 LogPipelineInfo(messageToHandle, handlers);
@@ -1140,7 +1200,7 @@ namespace NServiceBus.Unicast
             MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
-                throw new InvalidOperationException("No dispatcher factory type configured for messagehandler " + messageHandlerTypeToInvoke);
+                throw new InvalidOperationException("No dispatcher factory type configured for messageHandler " + messageHandlerTypeToInvoke);
 
             var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
 
@@ -1219,17 +1279,15 @@ namespace NServiceBus.Unicast
 
             SetupImpersonation(childBuilder, msg);
 
-            var unitsOfWork = childBuilder.BuildAll<IManageUnitsOfWork>().ToList();
-            var unitsOfWorkStarted = new List<IManageUnitsOfWork>();
-            var lastUnitOfWorkThatEndWasInvokedOnIndex = 0;
+
+            var unitOfWorkRunner = new UnitOfWorkRunner
+                                  {
+                                      Builder = childBuilder
+                                  };
 
             try
             {
-                foreach (var uow in unitsOfWork)
-                {
-                    unitsOfWorkStarted.Add(uow);
-                    uow.Begin();
-                }
+                unitOfWorkRunner.Begin();
 
                 var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
 
@@ -1245,32 +1303,15 @@ namespace NServiceBus.Unicast
                 if (!disableMessageHandling)
                     HandleMessage(childBuilder, msg);
 
-                for (lastUnitOfWorkThatEndWasInvokedOnIndex = 0; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; )
-                {
-                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex++];
-                    uow.End();
-                }
+                unitOfWorkRunner.End();
 
+                // Will forward the message to the configured audit queue if the auditing feature is enabled.
+                MessageAuditer.ForwardMessageToAuditQueue(msg);
                 ForwardMessageIfNecessary(msg);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                var exceptionsToThrow = new List<Exception> { ex };
-
-                for (; lastUnitOfWorkThatEndWasInvokedOnIndex < unitsOfWorkStarted.Count; lastUnitOfWorkThatEndWasInvokedOnIndex++)
-                {
-                    var uow = unitsOfWorkStarted[unitsOfWorkStarted.Count - 1 - lastUnitOfWorkThatEndWasInvokedOnIndex];
-                    try
-                    {
-                        uow.End(ex);
-                    }
-                    catch (Exception anotherException)
-                    {
-                        exceptionsToThrow.Add(anotherException);
-                    }
-                }
-
-                throw new AggregateException(exceptionsToThrow);
+                unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
             }
 
             Log.Debug("Finished handling message.");
@@ -1294,7 +1335,7 @@ namespace NServiceBus.Unicast
         }
 
 
-        void TransportFinishedMessageProcessing(object sender, EventArgs e)
+        void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
             modules.ForEach(module =>
             {
@@ -1323,7 +1364,9 @@ namespace NServiceBus.Unicast
 
             AddProcessingInformationHeaders(_messageBeingHandled);
 
+#pragma warning disable 0618
             modules = Builder.BuildAll<IMessageModule>().ToList();
+#pragma warning restore 0618
 
             modules.ForEach(module =>
             {
@@ -1340,32 +1383,14 @@ namespace NServiceBus.Unicast
             message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
         }
 
-
-        /// <summary>
-        /// Sends the Msg to the address found in the field <see cref="ForwardReceivedMessagesTo"/>
-        /// if it isn't null.
-        /// </summary>
-        /// <param name="m">The message to forward</param>
-        private void ForwardMessageIfNecessary(TransportMessage m)
+        void ForwardMessageIfNecessary(TransportMessage transportMessage)
         {
             if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
+            {
                 return;
+            }
 
-            m.RevertToOriginalBodyIfNeeded();
-
-            var toSend = new TransportMessage(m.Id,m.Headers)
-                             {
-                                 Body = m.Body,
-                                 CorrelationId = m.CorrelationId,
-                                 MessageIntent = m.MessageIntent,
-                                 Recoverable = m.Recoverable,
-                                 ReplyToAddress = Address.Local,
-                                 TimeToBeReceived = TimeToBeReceivedOnForwardedMessages == TimeSpan.Zero ? m.TimeToBeReceived : TimeToBeReceivedOnForwardedMessages
-                             };
-            if (m.ReplyToAddress != null)
-                toSend.Headers[Headers.OriginatingAddress] = m.ReplyToAddress.ToString();
-
-            MessageSender.Send(toSend, ForwardReceivedMessagesTo);
+            MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
         }
 
         /// <summary>
@@ -1373,7 +1398,7 @@ namespace NServiceBus.Unicast
         /// Invokes message mutators.
         /// </summary>
         /// <param name="rawMessages">The messages to wrap.</param>
-        /// /// <param name="result">The envelope in which the messages are placed.</param>
+        /// <param name="result">The envelope in which the messages are placed.</param>
         /// <returns>The envelope containing the messages.</returns>
         void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
         {
@@ -1474,7 +1499,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Gets the destination address for a message type.
+        /// Gets the destination address For a message type.
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
@@ -1516,14 +1541,16 @@ namespace NServiceBus.Unicast
         Address inputAddress;
 
 
+#pragma warning disable 0618
         /// <summary>
         /// Thread-static list of message modules, needs to be initialized for every transport message
         /// </summary>
         [ThreadStatic]
         static List<IMessageModule> modules;
+#pragma warning restore 0618
 
         /// <summary>
-        /// Map of message IDs to Async Results - useful for cleanup in case of timeouts.
+        /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
         protected readonly IDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new Dictionary<string, BusAsyncResult>();
 
@@ -1549,12 +1576,10 @@ namespace NServiceBus.Unicast
         /// </summary>
         [ThreadStatic]
         static bool _handleCurrentMessageLaterWasCalled;
-        IEnumerable<Type> messageHandlerTypes;
         protected ITransport transport;
-        bool autoSubscribe = true;
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
-        bool disposed;
+        SatelliteLauncher satelliteLauncher;
     }
 }

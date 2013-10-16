@@ -11,7 +11,7 @@
     using Timeout;
 
     [TestFixture]
-    public class When_receiving_a_regular_message : using_the_unicastbus
+    public class When_receiving_a_regular_message : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_registered_message_handlers()
@@ -31,7 +31,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_any_message : using_the_unicastbus
+    public class When_receiving_any_message : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_registered_catch_all_handler_using_a_object_parameter()
@@ -44,6 +44,16 @@
             ReceiveMessage(receivedMessage);
 
             Assert.True(CatchAllHandler_object.Called);
+        }
+        [Test]
+        public void Should_throw_when_there_are_no_registered_message_handlers()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
+            RegisterMessageType<EventMessage>();
+            ReceiveMessage(receivedMessage);
+            Assert.IsTrue(ResultingException != null, "When no handlers are found and a message ends up in the endpoint, an exception should be thrown");
+            Assert.IsTrue(ResultingException.InnerException.GetType() == typeof(InvalidOperationException), "The inner exception must contain an InvalidOperationException");
+            Assert.IsTrue(ResultingException.InnerException.Message.Contains(typeof(EventMessage).ToString()), "The exception message should be meaningful and should inform the user the message type for which a handler could not be found.");
         }
         [Test]
         public void Should_invoke_the_registered_catch_all_handler_using_a_dynamic_parameter()
@@ -60,7 +70,7 @@
 
 
         [Test]
-        public void Should_invoke_the_registered_catch_all_handler_using_a_imessage_parameter()
+        public void Should_invoke_the_registered_catch_all_handler_using_a_iMessage_parameter()
         {
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
 
@@ -74,7 +84,7 @@
     }
   
     [TestFixture]
-    public class When_sending_messages_from_a_messagehandler : using_the_unicastbus
+    public class When_sending_messages_from_a_messageHandler : using_the_unicastBus
     {
         [Test]
         public void Should_set_the_related_to_header_with_the_id_of_the_current_message()
@@ -92,7 +102,7 @@
     }
 
     [TestFixture]
-    public class When_replying_with_a_command : using_the_unicastbus
+    public class When_replying_with_a_command : using_the_unicastBus
     {
         [Test]
         public void Should_not_be_allowed()
@@ -110,7 +120,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_a_subscription_request : using_the_unicastbus
+    public class When_receiving_a_subscription_request : using_the_unicastBus
     {
         [Test]
         public void Should_register_the_subscriber()
@@ -143,7 +153,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_a_message_with_the_deserialization_turned_off : using_the_unicastbus
+    public class When_receiving_a_message_with_the_deserialization_turned_off : using_the_unicastBus
     {
         [Test]
         public void Handlers_should_not_be_invoked()
@@ -163,7 +173,7 @@
     }
 
     [TestFixture]
-    public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastbus
+    public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastBus
     {
         [Test]
         public void Should_not_invoke_the_handlers()
@@ -183,10 +193,10 @@
     }
 
     [TestFixture]
-    public class When_receiving_a_v3_saga_timeout_message : using_the_unicastbus
+    public class When_receiving_a_v3_saga_timeout_message : using_the_unicastBus
     {
         [Test]
-        public void Should_set_the_newv4_flag()
+        public void Should_set_the_newV4_flag()
         {
             var timeoutMessage = Helpers.Helpers.Serialize(new SomeTimeout());
             var mutator = new SetIsSagaMessageHeaderForV3XMessages
@@ -240,6 +250,16 @@
                 throw new NotImplementedException();
             }
 
+            public void Publish<T>(T message)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Publish<T>()
+            {
+                throw new NotImplementedException();
+            }
+
             public void Publish<T>(Action<T> messageConstructor)
             {
                 throw new NotImplementedException();
@@ -280,12 +300,22 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback SendLocal(object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback SendLocal<T>(Action<T> messageConstructor)
             {
                 throw new NotImplementedException();
             }
 
             public ICallback Send(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(object message)
             {
                 throw new NotImplementedException();
             }
@@ -300,7 +330,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Send(string destination, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Send(Address address, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, object message)
             {
                 throw new NotImplementedException();
             }
@@ -320,7 +360,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Send(string destination, string correlationId, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Send(Address address, string correlationId, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Send(Address address, string correlationId, object message)
             {
                 throw new NotImplementedException();
             }
@@ -340,7 +390,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public ICallback Defer(TimeSpan delay, params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ICallback Defer(TimeSpan delay, object message)
             {
                 throw new NotImplementedException();
             }
@@ -350,7 +410,17 @@
                 throw new NotImplementedException();
             }
 
+            public ICallback Defer(DateTime processAt, object message)
+            {
+                throw new NotImplementedException();
+            }
+
             public void Reply(params object[] messages)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Reply(object message)
             {
                 throw new NotImplementedException();
             }
@@ -409,7 +479,7 @@
         }
     }
 
-    class CheckMesageIdHandler : IHandleMessages<EventMessage>
+    class CheckMessageIdHandler : IHandleMessages<EventMessage>
     {
         public static bool Called;
 

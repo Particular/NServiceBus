@@ -20,6 +20,9 @@ namespace NServiceBus.Unicast.Monitoring
         /// <param name="transportMessage"></param>
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
+            if (transportMessage.Headers.ContainsKey(Headers.ConversationId))
+                return;
+
             var conversationId = CombGuid.Generate().ToString();
 
             if (Bus.CurrentMessageContext != null)

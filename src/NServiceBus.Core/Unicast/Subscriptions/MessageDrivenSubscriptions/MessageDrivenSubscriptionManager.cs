@@ -56,7 +56,7 @@
 
         public void MutateIncoming(TransportMessage transportMessage)
         {
-           string messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
+           var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;
 
@@ -77,7 +77,7 @@
 
             if (SubscriptionStorage == null)
             {
-                var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the As_aPublisher role.", subscriberAddress);
+                var warning = string.Format("Subscription message from {0} arrived at this endpoint, yet this endpoint is not configured to be a publisher. To avoid this warning make this endpoint a publisher by configuring a subscription storage or using the AsA_Publisher role.", subscriberAddress);
                 Logger.WarnFormat(warning);
 
                 if (Debugger.IsAttached) // only under debug, so that we don't expose ourselves to a denial of service

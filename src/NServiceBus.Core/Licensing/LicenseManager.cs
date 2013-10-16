@@ -121,7 +121,7 @@ namespace NServiceBus.Licensing
 
                                 try
                                 {
-                                    string selectedLicenseText = ReadAllTextWithoutLocking(s);
+                                    var selectedLicenseText = ReadAllTextWithoutLocking(s);
                                     licenseValidator = new StringLicenseValidator(LicenseDescriptor.PublicKey,
                                                                                   selectedLicenseText);
                                     licenseValidator.AssertValidLicense();
@@ -192,9 +192,9 @@ namespace NServiceBus.Licensing
                 {
                     validator.AssertValidLicense();
 
-                    Logger.InfoFormat((string) "Found a {0} license.", (object) validator.LicenseType);
-                    Logger.InfoFormat((string) "Registered to {0}", (object) validator.Name);
-                    Logger.InfoFormat((string) "Expires on {0}", (object) validator.ExpirationDate);
+                    Logger.InfoFormat("Found a {0} license.", (object) validator.LicenseType);
+                    Logger.InfoFormat("Registered to {0}", (object) validator.Name);
+                    Logger.InfoFormat("Expires on {0}", (object) validator.ExpirationDate);
                     if ((validator.LicenseAttributes != null) && (validator.LicenseAttributes.Count > 0))
                         foreach (var licenseAttribute in validator.LicenseAttributes)
                             Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
@@ -379,14 +379,21 @@ namespace NServiceBus.Licensing
         private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
         {
             if (validator.LicenseType == Rhino.Licensing.LicenseType.None)
+            {
                 return;
+            }
+
+            if (validator.LicenseType == Rhino.Licensing.LicenseType.Trial)
+            {
+                return;
+            }
 
             if (validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
             {
                 try
                 {
-                    Version semver = GetNServiceBusVersion();
-                    Version licenseVersion = Version.Parse(validator.LicenseAttributes[LicenseVersionKey]);
+                    var semver = GetNServiceBusVersion();
+                    var licenseVersion = Version.Parse(validator.LicenseAttributes[LicenseVersionKey]);
                     if (licenseVersion >= semver)
                         return;
                 }
@@ -404,13 +411,13 @@ namespace NServiceBus.Licensing
 
         private static Version GetNServiceBusVersion()
         {
-            Version assembyVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-            return new Version(assembyVersion.Major, assembyVersion.Minor);
+            return new Version(assemblyVersion.Major, assemblyVersion.Minor);
         }
 
         /// <summary>
-        ///     Set NSeriviceBus license information.
+        ///     Set NServiceBus license information.
         /// </summary>
         private void ConfigureNServiceBusLicense()
         {
@@ -455,7 +462,7 @@ namespace NServiceBus.Licensing
 
             if (attributes.ContainsKey(AllowedNumberOfWorkerNodesLicenseKey))
             {
-                string allowedNumberOfWorkerNodes = attributes[AllowedNumberOfWorkerNodesLicenseKey];
+                var allowedNumberOfWorkerNodes = attributes[AllowedNumberOfWorkerNodesLicenseKey];
                 if (allowedNumberOfWorkerNodes == UnlimitedNumberOfWorkerNodes)
                 {
                     return int.MaxValue;
@@ -480,7 +487,7 @@ namespace NServiceBus.Licensing
 
             if (attributes.ContainsKey(WorkerThreadsLicenseKey))
             {
-                string workerThreadsInLicenseFile = attributes[WorkerThreadsLicenseKey];
+                var workerThreadsInLicenseFile = attributes[WorkerThreadsLicenseKey];
 
                 if (string.IsNullOrWhiteSpace(workerThreadsInLicenseFile))
                 {
@@ -512,7 +519,7 @@ namespace NServiceBus.Licensing
 
             if (attributes.ContainsKey(MaxMessageThroughputPerSecondLicenseKey))
             {
-                string maxMessageThroughputPerSecond = attributes[MaxMessageThroughputPerSecondLicenseKey];
+                var maxMessageThroughputPerSecond = attributes[MaxMessageThroughputPerSecondLicenseKey];
                 if (maxMessageThroughputPerSecond == MaxMessageThroughputPerSecond)
                 {
                     return 0;

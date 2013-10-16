@@ -11,7 +11,7 @@ namespace NServiceBus
         /// <summary>
         /// Used to define the SLA for this endpoint
         /// </summary>
-        /// <param name="sla">A timespan</param>
+        /// <param name="sla">A <see cref="string"/> representing a <see cref="TimeSpan"/></param>
         public EndpointSLAAttribute(string sla)
         {
             SLA = sla;
@@ -23,7 +23,7 @@ namespace NServiceBus
         public string SLA { get; set; }
     }
 
-    class SLAInitalizer : IWantCustomInitialization,IWantTheEndpointConfig
+    class SLAInitializer : IWantCustomInitialization,IWantTheEndpointConfig
     {
         public void Init()
         {

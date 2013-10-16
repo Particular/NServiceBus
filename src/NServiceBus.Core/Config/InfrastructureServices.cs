@@ -36,7 +36,7 @@ namespace NServiceBus.Config
 
             if (!SettingsHolder.HasSetting<T>())
             {
-                throw new ConfigurationErrorsException(string.Format("No explicit settings or default found for service {0}, please configure one explicity", serviceType.FullName));
+                throw new ConfigurationErrorsException(string.Format("No explicit settings or default found for service {0}, please configure one explicitly", serviceType.FullName));
             }
 
             var configAction = SettingsHolder.Get<Action>(serviceType.FullName);
@@ -51,8 +51,8 @@ namespace NServiceBus.Config
     
 
         /// <summary>
-        /// Set the default for the infastructure service to the action passed in.
-        /// If the service is enabled and no explict override is found this action will be used to configure the service.
+        /// Set the default for the infrastructure service to the action passed in.
+        /// If the service is enabled and no explicit override is found this action will be used to configure the service.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="configAction"></param>
@@ -83,7 +83,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        ///  Register a explict service provider
+        ///  Register a explicit service provider
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="configAction"></param>
@@ -96,7 +96,7 @@ namespace NServiceBus.Config
         }
 
         /// <summary>
-        /// Register a explict service provider
+        /// Register a explicit service provider
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="providerType"></param>

@@ -1,7 +1,5 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
-    using System;
-    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
@@ -73,7 +71,7 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
-        public void Serialize_message_without_typeinfo()
+        public void Serialize_message_without_typeInfo()
         {
             using (var stream = new MemoryStream())
             {

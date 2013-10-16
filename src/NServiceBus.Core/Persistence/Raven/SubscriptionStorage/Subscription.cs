@@ -4,8 +4,8 @@ namespace NServiceBus.Persistence.Raven.SubscriptionStorage
     using System.Collections.Generic;
     using System.Security.Cryptography;
     using System.Text;
-    using Unicast.Subscriptions;
     using global::Raven.Imports.Newtonsoft.Json;
+    using Unicast.Subscriptions;
 
     public class Subscription
     {

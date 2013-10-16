@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Contains out-of-band information on the logical message.

@@ -2,10 +2,10 @@ namespace NServiceBus.Unicast.Transport
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.Serialization;
     using System.Transactions;
     using Faults;
     using Logging;
-    using System.Runtime.Serialization;
     using Monitoring;
     using Transports;
 
@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Event which indicates that message processing has completed.
         /// </summary>
-        public event EventHandler FinishedMessageProcessing;
+        public event EventHandler<FinishedMessageProcessingEventArgs> FinishedMessageProcessing;
 
         /// <summary>
         /// Event which indicates that message processing failed for some reason.
@@ -286,7 +286,7 @@ namespace NServiceBus.Unicast.Transport
                 firstLevelRetries.IncrementFailuresForMessage(message, ex);
             }
 
-            OnFailedMessageProcessing(ex);
+            OnFailedMessageProcessing(message, ex);
             
             Logger.Info("Failed to process message", ex);
         }
@@ -308,8 +308,7 @@ namespace NServiceBus.Unicast.Transport
             {
                 if (firstLevelRetries.HasMaxRetriesForMessageBeenReached(message))
                 {
-                    OnFinishedMessageProcessing();
-
+                    OnFinishedMessageProcessing(message);
                     return;
                 }
             }
@@ -321,7 +320,7 @@ namespace NServiceBus.Unicast.Transport
             var exceptionFromMessageHandling = OnTransportMessageReceived(message);
 
             //and here
-            var exceptionFromMessageModules = OnFinishedMessageProcessing();
+            var exceptionFromMessageModules = OnFinishedMessageProcessing(message);
 
             //but need to abort takes precedence - failures aren't counted here,
             //so messages aren't moved to the error queue.
@@ -375,6 +374,11 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public void Stop()
         {
+            InnerStop();
+        }
+
+        void InnerStop()
+        {
             if (!isStarted)
             {
                 return;
@@ -401,12 +405,12 @@ namespace NServiceBus.Unicast.Transport
             return null;
         }
 
-        private Exception OnFinishedMessageProcessing()
+        private Exception OnFinishedMessageProcessing(TransportMessage msg)
         {
             try
             {
                 if (FinishedMessageProcessing != null)
-                    FinishedMessageProcessing(this, null);
+                    FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(msg));
             }
             catch (Exception e)
             {
@@ -432,12 +436,12 @@ namespace NServiceBus.Unicast.Transport
             return null;
         }
 
-        private void OnFailedMessageProcessing(Exception originalException)
+        private void OnFailedMessageProcessing(TransportMessage message, Exception originalException)
         {
             try
             {
                 if (FailedMessageProcessing != null)
-                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(originalException));
+                    FailedMessageProcessing(this, new FailedMessageProcessingEventArgs(message, originalException));
             }
             catch (Exception e)
             {
@@ -447,40 +451,24 @@ namespace NServiceBus.Unicast.Transport
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
+            InnerStop();
+
+            if (currentReceivePerformanceDiagnostics != null)
             {
-                return;
+                currentReceivePerformanceDiagnostics.Dispose();
             }
-
-            if (disposing)
-            {
-                Stop();
-
-                if (currentReceivePerformanceDiagnostics != null)
-                {
-                    currentReceivePerformanceDiagnostics.Dispose();
-                }
-            }
-
-            disposed = true;
         }
 
-        ~TransportReceiver()
-        {
-            Dispose(false);
-        }
 
         Address receiveAddress;
         bool isStarted;
         ThroughputLimiter throughputLimiter;
         FirstLevelRetries firstLevelRetries;
-        bool disposed;
 
         [ThreadStatic]
         static volatile bool needToAbort;

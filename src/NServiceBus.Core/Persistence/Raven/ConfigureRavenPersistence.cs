@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.Net;
     using System.Text;
     using Config;
+    using Gateway.Deduplication;
     using Gateway.Persistence;
     using Logging;
     using Newtonsoft.Json;
@@ -71,7 +72,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
@@ -83,7 +84,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -96,7 +97,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
@@ -108,7 +109,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
@@ -160,6 +161,7 @@ namespace NServiceBus
             InfrastructureServices.SetDefaultFor<ISagaPersister>(() => Configure.Instance.RavenSagaPersister());
             InfrastructureServices.SetDefaultFor<IPersistTimeouts>(() => Configure.Instance.UseRavenTimeoutPersister());
             InfrastructureServices.SetDefaultFor<IPersistMessages>(() => Configure.Instance.UseRavenGatewayPersister());
+            InfrastructureServices.SetDefaultFor<IDeduplicateMessages>(() => Configure.Instance.UseRavenGatewayDeduplication());
             InfrastructureServices.SetDefaultFor<ISubscriptionStorage>(() => Configure.Instance.RavenSubscriptionStorage());
         }
 
@@ -259,7 +261,7 @@ namespace NServiceBus
         static void VerifyConnectionToRavenDBServer(IDocumentStore store)
         {
             RavenBuildInfo ravenBuildInfo = null;
-            bool connectionSuccessful = false;
+            var connectionSuccessful = false;
             Exception exception = null;
             try
             {

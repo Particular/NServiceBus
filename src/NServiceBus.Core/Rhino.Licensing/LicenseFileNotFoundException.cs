@@ -1,8 +1,8 @@
-using System;
-using System.Runtime.Serialization;
-
 namespace Rhino.Licensing
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// Thrown when a valid license file can not be
     /// found on the client machine.

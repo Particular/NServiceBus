@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace NServiceBus.Gateway.Channels
+﻿namespace NServiceBus.Gateway.Channels
 {
+    using System;
+
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public class ChannelTypeAttribute : Attribute
     {

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Security.Cryptography;
-using System.Security.Cryptography.Xml;
-using System.Threading;
-using System.Xml;
-
-namespace Rhino.Licensing
+﻿namespace Rhino.Licensing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Security.Cryptography;
+    using System.Security.Cryptography.Xml;
+    using System.Threading;
+    using System.Xml;
     using NServiceBus.Logging;
     using NServiceBus.Logging.Loggers;
 
@@ -19,6 +18,7 @@ namespace Rhino.Licensing
         /// <summary>
         /// License validator logger
         /// </summary>
+        // intentionally suppress logging with a NullLogger to make it easier to upgrade in the future
         protected readonly ILog Log = new NullLogger();
 
         private readonly string publicKey;
@@ -131,7 +131,7 @@ namespace Rhino.Licensing
                 }
                 Log.InfoFormat("License expiration date is {0}", ExpirationDate);
 
-                bool result = DateTime.UtcNow < ExpirationDate;
+                var result = DateTime.UtcNow < ExpirationDate;
 
                 if (!result)
                     throw new LicenseExpiredException("Expiration Date : " + ExpirationDate);
@@ -196,7 +196,7 @@ namespace Rhino.Licensing
 
         internal bool ValidateXmlDocumentLicense(XmlDocument doc)
         {
-            XmlNode id = doc.SelectSingleNode("/license/@id");
+            var id = doc.SelectSingleNode("/license/@id");
             if (id == null)
             {
                 Log.WarnFormat("Could not find id attribute in license:\r\n{0}", License);
@@ -205,7 +205,7 @@ namespace Rhino.Licensing
 
             UserId = new Guid(id.Value);
 
-            XmlNode date = doc.SelectSingleNode("/license/@expiration");
+            var date = doc.SelectSingleNode("/license/@expiration");
             if (date == null)
             {
                 Log.WarnFormat("Could not find expiration in license:\r\n{0}", License);
@@ -214,7 +214,7 @@ namespace Rhino.Licensing
 
             ExpirationDate = DateTime.ParseExact(date.Value, "yyyy-MM-ddTHH:mm:ss.fffffff", CultureInfo.InvariantCulture);
 
-            XmlNode licenseType = doc.SelectSingleNode("/license/@type");
+            var licenseType = doc.SelectSingleNode("/license/@type");
             if (licenseType == null)
             {
                 Log.WarnFormat("Could not find license type in {0}", licenseType);
@@ -223,7 +223,7 @@ namespace Rhino.Licensing
 
             LicenseType = (LicenseType)Enum.Parse(typeof(LicenseType), licenseType.Value);
 
-            XmlNode name = doc.SelectSingleNode("/license/name/text()");
+            var name = doc.SelectSingleNode("/license/name/text()");
             if (name == null)
             {
                 Log.WarnFormat("Could not find licensee's name in license:\r\n{0}", License);
@@ -233,12 +233,12 @@ namespace Rhino.Licensing
             Name = name.Value;
 
             var license = doc.SelectSingleNode("/license");
-            foreach (XmlAttribute attrib in license.Attributes)
+            foreach (XmlAttribute attribute in license.Attributes)
             {
-                if (attrib.Name == "type" || attrib.Name == "expiration" || attrib.Name == "id")
+                if (attribute.Name == "type" || attribute.Name == "expiration" || attribute.Name == "id")
                     continue;
 
-                LicenseAttributes[attrib.Name] = attrib.Value;
+                LicenseAttributes[attribute.Name] = attribute.Value;
             }
 
             return true;
@@ -253,13 +253,13 @@ namespace Rhino.Licensing
             nsMgr.AddNamespace("sig", "http://www.w3.org/2000/09/xmldsig#");
 
             var signedXml = new SignedXml(doc);
-            var sig = (XmlElement)doc.SelectSingleNode("//sig:Signature", nsMgr);
-            if (sig == null)
+            var signature = (XmlElement)doc.SelectSingleNode("//sig:Signature", nsMgr);
+            if (signature == null)
             {
                 Log.WarnFormat("Could not find this signature node on license:\r\n{0}", License);
                 return false;
             }
-            signedXml.LoadXml(sig);
+            signedXml.LoadXml(signature);
 
             return signedXml.CheckSignature(rsa);
         }

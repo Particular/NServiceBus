@@ -7,4 +7,5 @@
     </IncludeAssemblies>
   </Costura>
   <Obsolete />
+  <Janitor />
 </Weavers>

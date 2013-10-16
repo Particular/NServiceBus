@@ -22,8 +22,6 @@ namespace NServiceBus.Features
     using NServiceBus.SecondLevelRetries;
     using Settings;
 
-    
-
     public class SecondLevelRetries : Feature
     {
         public override bool ShouldBeEnabled()
@@ -74,7 +72,7 @@ namespace NServiceBus.Features
             if (useRemoteRetryProcessor)
             {
                 Configure.Instance.Configurer.ConfigureProperty<SecondLevelRetriesProcessor>(rs => rs.Disabled, true);
-            }
+            } 
         }
 
         static void SetUpRetryPolicy(SecondLevelRetriesConfig retriesConfig)

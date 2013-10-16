@@ -9,35 +9,56 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             returnInfo = null;
 
-            if (!transportMessage.Headers.ContainsKey(Headers.HttpFrom) && 
+            if (!transportMessage.Headers.ContainsKey(Headers.HttpFrom) &&
                 !transportMessage.Headers.ContainsKey(Headers.OriginatingSite))
+            {
                 return;
+            }
 
             returnInfo = new HttpReturnInfo
             {
-                //we preserve the httfrom to be backwards compatible with NServiceBus 2.X 
-                HttpFrom = transportMessage.Headers.ContainsKey(Headers.HttpFrom) ? transportMessage.Headers[Headers.HttpFrom] : null,
-                OriginatingSite = transportMessage.Headers.ContainsKey(Headers.OriginatingSite) ? transportMessage.Headers[Headers.OriginatingSite] : null,
-                ReplyToAddress = transportMessage.ReplyToAddress
+                //we preserve the httpFrom to be backwards compatible with NServiceBus 2.X 
+                HttpFrom =
+                    transportMessage.Headers.ContainsKey(Headers.HttpFrom)
+                        ? transportMessage.Headers[Headers.HttpFrom]
+                        : null,
+                OriginatingSite =
+                    transportMessage.Headers.ContainsKey(Headers.OriginatingSite)
+                        ? transportMessage.Headers[Headers.OriginatingSite]
+                        : null,
+                ReplyToAddress = transportMessage.ReplyToAddress,
+                LegacyMode = transportMessage.IsLegacyGatewayMessage()
             };
         }
 
         public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
             if (returnInfo == null)
+            {
                 return;
+            }
 
             if (string.IsNullOrEmpty(transportMessage.CorrelationId))
+            {
                 return;
+            }
 
-            if (transportMessage.Headers.ContainsKey(Headers.HttpTo) || transportMessage.Headers.ContainsKey(Headers.DestinationSites))
+            if (transportMessage.Headers.ContainsKey(Headers.HttpTo) ||
+                transportMessage.Headers.ContainsKey(Headers.DestinationSites))
+            {
                 return;
+            }
 
             transportMessage.Headers[Headers.HttpTo] = returnInfo.HttpFrom;
             transportMessage.Headers[Headers.OriginatingSite] = returnInfo.OriginatingSite;
 
             if (!transportMessage.Headers.ContainsKey(Headers.RouteTo))
+            {
                 transportMessage.Headers[Headers.RouteTo] = returnInfo.ReplyToAddress.ToString();
+            }
+
+            // send to be backwards compatible with Gateway 3.X
+            transportMessage.Headers[GatewayHeaders.LegacyMode] = returnInfo.LegacyMode.ToString();
         }
 
         public void Init()
@@ -46,14 +67,14 @@ namespace NServiceBus.Gateway.HeaderManagement
                 DependencyLifecycle.InstancePerCall);
         }
 
-        [ThreadStatic]
-        static HttpReturnInfo returnInfo;
+        [ThreadStatic] static HttpReturnInfo returnInfo;
 
         class HttpReturnInfo
         {
             public string HttpFrom { get; set; }
             public string OriginatingSite { get; set; }
             public Address ReplyToAddress { get; set; }
+            public bool LegacyMode { get; set; }
         }
     }
 }

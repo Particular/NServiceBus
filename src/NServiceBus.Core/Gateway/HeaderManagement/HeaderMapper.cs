@@ -11,7 +11,13 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             if (!from.ContainsKey(GatewayHeaders.IsGatewayMessage))
             {
-                return new TransportMessage();
+                var message = new TransportMessage();
+                foreach (var header in from)
+                {
+                    message.Headers[header.Key] = header.Value;
+                }
+
+                return message;
             }
 
             var headers = ExtractHeaders(from);
@@ -58,7 +64,11 @@ namespace NServiceBus.Gateway.HeaderManagement
             to[NServiceBus + CorrelationId] = GetCorrelationForBackwardsCompatibility(from);
             to[NServiceBus + Recoverable] = from.Recoverable.ToString();
             to[NServiceBus + TimeToBeReceived] = from.TimeToBeReceived.ToString();
-            to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
+
+            if (from.ReplyToAddress != null) //Handles SendOnly endpoints, where ReplyToAddress is not set
+            {
+                to[NServiceBus + ReplyToAddress] = from.ReplyToAddress.ToString();
+            }
 
             SetBackwardsCompatibilityHeaders(to);
 
@@ -71,7 +81,7 @@ namespace NServiceBus.Gateway.HeaderManagement
                 .ForEach(header => to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         static string StripSlashZeroFromCorrelationId(string corrId)
         {
             if (corrId == null)
@@ -90,7 +100,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             return corrId;
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.1", TreatAsErrorFromVersion = "5.0")]
         static void SetBackwardsCompatibilityHeaders(IDictionary<string, string> to)
         {
             if (Configure.HasComponent<MsmqMessageSender>())
@@ -99,7 +109,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             }
         }
 
-        [ObsoleteEx(Message = "No need for this in v5", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
         {
             var correlationIdToStore = message.CorrelationId;
@@ -121,6 +131,8 @@ namespace NServiceBus.Gateway.HeaderManagement
         public const string NServiceBus = "NServiceBus.";
         public const string Id = "Id";
         public const string CallType = "CallType";
+        public const string DATABUS_PREFIX = "NServiceBus.DataBus.";
+
         const string CorrelationId = "CorrelationId";
         const string Recoverable = "Recoverable";
         const string ReplyToAddress = "ReplyToAddress";

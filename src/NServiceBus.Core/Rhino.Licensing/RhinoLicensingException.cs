@@ -1,8 +1,8 @@
-using System;
-using System.Runtime.Serialization;
-
 namespace Rhino.Licensing
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// Base class for all licensing exceptions.
     /// </summary>

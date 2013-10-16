@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.Logging.Loggers.NLogAdapter;
-
 namespace NServiceBus
 {
     using System;
+    using System.Linq;
     using Logging;
+    using Logging.Loggers.NLogAdapter;
 
     /// <summary>
     /// Class containing extension method to allow users to use Log4Net for logging

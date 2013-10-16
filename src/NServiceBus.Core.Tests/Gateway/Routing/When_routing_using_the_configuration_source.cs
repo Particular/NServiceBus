@@ -1,5 +1,3 @@
-using NUnit.Framework;
-
 namespace NServiceBus.Gateway.Tests.Routing
 {
     using System.Linq;
@@ -7,6 +5,7 @@ namespace NServiceBus.Gateway.Tests.Routing
     using Channels;
     using Gateway.Routing;
     using Gateway.Routing.Sites;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_routing_using_the_configuration_source
@@ -21,7 +20,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         }
 
         [Test]
-        public void Should_read_sites_and_their_keys_from_the_configsource()
+        public void Should_read_sites_and_their_keys_from_the_configSource()
         {
              
             var message = new TransportMessage();

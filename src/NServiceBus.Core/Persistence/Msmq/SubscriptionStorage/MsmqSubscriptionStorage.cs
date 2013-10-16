@@ -4,10 +4,9 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports.Msmq;
-    using Unicast.Subscriptions;
+    using Logging;
+    using Settings;
+    using Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -19,7 +18,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     {
         void ISubscriptionStorage.Init()
         {
-            string path = MsmqUtilities.GetFullPath(Queue);
+            var path = MsmqUtilities.GetFullPath(Queue);
 
             q = new MessageQueue(path);
 
@@ -36,12 +35,11 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             if (!transactional && SettingsHolder.Get<bool>("Transactions.Enabled"))
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
-            var mpf = new MessagePropertyFilter();
-            mpf.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter {Id = true, Body = true, Label = true};
 
             q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
 
-            q.MessageReadPropertyFilter = mpf;
+            q.MessageReadPropertyFilter = messageReadPropertyFilter;
 
             foreach (var m in q.GetAllMessages())
             {
@@ -86,7 +84,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             {
                 foreach (var messageType in messageTypes)
                 {
-                    bool found = false;
+                    var found = false;
                     foreach (var e in entries)
                         if (e.MessageType == messageType && e.Subscriber == address)
                         {

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Extension method on message handler.
@@ -153,7 +152,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the sitekey for the site for which this message originated, null if this message wasn't sent via the gateway
+        /// Returns the site key for the site for which this message originated, null if this message wasn't sent via the gateway
         /// </summary>
         /// <param name="msg"></param>
         /// <returns></returns>
@@ -239,7 +238,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// The <see cref="IMessageCreator"/> used by the extention methods to instantiate types.
+        /// The <see cref="IMessageCreator"/> used by the extension methods to instantiate types.
         /// </summary>
         public static IMessageCreator MessageCreator { get; set; }
 
@@ -261,7 +260,7 @@ namespace NServiceBus
         /// </summary>
         public static Action<object, string, string> SetHeaderAction = (x, y, z) =>
                                                                            {
-                                                                               //default to no-op to avoid getting in the way of unittesting
+                                                                               //default to no-op to avoid getting in the way of unit testing
                                                                            };
 
         /// <summary>
