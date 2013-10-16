@@ -5,7 +5,7 @@
     using Pipeline;
     using Unicast.Transport;
 
-    public class AbortChainOnEmptyMessageBehavior : IBehavior
+    class AbortChainOnEmptyMessageBehavior : IBehavior
     {
         static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

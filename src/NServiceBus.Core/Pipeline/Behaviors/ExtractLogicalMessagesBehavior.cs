@@ -8,7 +8,7 @@
     using Pipeline;
     using Serialization;
 
-    public class ExtractLogicalMessagesBehavior : IBehavior
+    class ExtractLogicalMessagesBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 

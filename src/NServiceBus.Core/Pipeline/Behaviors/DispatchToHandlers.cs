@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class DispatchToHandlers : IBehavior
+    class DispatchToHandlers : IBehavior
     {
         public IBehavior Next { get; set; }
 

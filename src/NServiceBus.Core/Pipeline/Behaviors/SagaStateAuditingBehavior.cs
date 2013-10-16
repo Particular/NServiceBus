@@ -3,12 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Saga;
 
     /// <summary>
     /// This one would be a plugin somehow
     /// </summary>
-    public class SagaStateAuditingBehavior : IBehavior,
+    class SagaStateAuditingBehavior : IBehavior,
         ExecuteAfter<SagaPersistenceBehavior>,
         ExecuteBefore<InvokeHandlersBehavior>,
         RequireContextItemOfType<ActiveSagaInstances>

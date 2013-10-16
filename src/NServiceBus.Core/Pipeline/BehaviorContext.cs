@@ -10,7 +10,7 @@
     /// yeah, we should probably see if we can come up with better names :)
     /// </summary>
     [SkipWeaving]
-    public class BehaviorContext : IBehaviorContext, IDisposable
+    class BehaviorContext : IBehaviorContext, IDisposable
     {
         [ThreadStatic]
         static IBehaviorContext current;

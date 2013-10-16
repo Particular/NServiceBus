@@ -6,7 +6,7 @@
     /// <summary>
     /// Behavior implementation that can wrap another behavior, lizily resolving it from the builder when it is time
     /// </summary>
-    public class LazyBehavior<TBehavior> : IBehavior
+    class LazyBehavior<TBehavior> : IBehavior
         where TBehavior : IBehavior
     {
         readonly IBuilder builder;

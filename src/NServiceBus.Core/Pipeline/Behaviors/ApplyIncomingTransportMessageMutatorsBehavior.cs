@@ -3,7 +3,7 @@
     using MessageMutator;
     using ObjectBuilder;
 
-    public class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior
+    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 

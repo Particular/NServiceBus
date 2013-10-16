@@ -6,7 +6,7 @@
     /// <summary>
     /// Arguably not the most interesting behavior, but let's just handle logging like this too
     /// </summary>
-    public class MessageHandlingLoggingBehavior : IBehavior
+    class MessageHandlingLoggingBehavior : IBehavior
     {
         static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         

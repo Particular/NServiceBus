@@ -3,7 +3,7 @@
     using System.Threading;
     using Impersonation;
 
-    public class ImpersonateSenderBehavior : IBehavior
+    class ImpersonateSenderBehavior : IBehavior
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 

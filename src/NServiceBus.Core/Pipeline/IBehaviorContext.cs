@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// This bad boy is passed down into the behavior chain
     /// </summary>
+    // hide for now until we have confirmed the API
+    [EditorBrowsable(EditorBrowsableState.Advanced)]
     public interface IBehaviorContext
     {
         T Get<T>();

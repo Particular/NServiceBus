@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class PerformCustomActionsBehavior : IBehavior
+    class PerformCustomActionsBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 

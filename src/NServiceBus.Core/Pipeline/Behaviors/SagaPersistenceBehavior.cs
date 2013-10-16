@@ -5,7 +5,7 @@
     using System.Collections.Generic;
     using Saga;
 
-    public class SagaPersistenceBehavior : IBehavior
+    class SagaPersistenceBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 

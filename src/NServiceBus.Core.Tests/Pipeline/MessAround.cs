@@ -48,7 +48,7 @@
             pipeline.Invoke(incomingTransportMessage);
         }
 
-        //this is a behaviour that "might" be created be a end user
+        //this is a behavior that "might" be created be a end user
         public class RavenDbUnitOfWorkBehavior : IBehavior
         {
             public IBuilder Builder { get; set; }
@@ -93,7 +93,7 @@
         }
 
 
-        public class OrdinaryMessageHandlerDispatcherBehavior : IBehavior
+        class OrdinaryMessageHandlerDispatcherBehavior : IBehavior
         {
             public IBehavior Next { get; set; }
 

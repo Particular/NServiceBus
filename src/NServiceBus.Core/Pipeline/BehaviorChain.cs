@@ -7,7 +7,7 @@
     using Logging;
     using ObjectBuilder;
 
-    public class BehaviorChain
+    class BehaviorChain
     {
         static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

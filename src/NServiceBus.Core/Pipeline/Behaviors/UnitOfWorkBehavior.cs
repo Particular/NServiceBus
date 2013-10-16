@@ -4,7 +4,7 @@
     using ObjectBuilder;
     using Unicast;
 
-    public class UnitOfWorkBehavior : IBehavior
+    class UnitOfWorkBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 

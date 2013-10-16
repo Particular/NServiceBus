@@ -4,7 +4,7 @@
     using Unicast;
     using Unicast.Transport;
 
-    public class CallbackInvocationBehavior : IBehavior
+    class CallbackInvocationBehavior : IBehavior
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 

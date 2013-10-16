@@ -4,7 +4,7 @@
     using MessageMutator;
     using ObjectBuilder;
 
-    public class ApplyIncomingMessageMutatorsBehavior : IBehavior
+    class ApplyIncomingMessageMutatorsBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
 
