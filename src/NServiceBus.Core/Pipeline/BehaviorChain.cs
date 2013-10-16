@@ -11,12 +11,12 @@
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        Func<IBuilder> getBuilder;
+        IBuilder builder;
         List<BehaviorChainItemDescriptor> items = new List<BehaviorChainItemDescriptor>();
 
-        public BehaviorChain(Func<IBuilder> getBuilder)
+        public BehaviorChain(IBuilder builder)
         {
-            this.getBuilder = getBuilder;
+            this.builder = builder;
         }
 
         /// <summary>
@@ -24,7 +24,7 @@
         /// </summary>
         public void Add<TBehavior>() where TBehavior : IBehavior
         {
-            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), getBuilder));
+            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), builder));
         }
 
         /// <summary>
@@ -32,7 +32,7 @@
         /// </summary>
         public void Add<TBehavior>(Action<TBehavior> init) where TBehavior : IBehavior
         {
-            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), getBuilder, init));
+            items.Add(new BehaviorChainItemDescriptor(typeof(TBehavior), builder, init));
         }
 
         public void Invoke(TransportMessage incomingTransportMessage)

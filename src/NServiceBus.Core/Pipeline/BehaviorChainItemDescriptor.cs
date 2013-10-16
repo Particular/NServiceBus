@@ -11,13 +11,13 @@
     class BehaviorChainItemDescriptor
     {
         Type behaviorType;
-        Func<IBuilder> getBuilder;
+        IBuilder builder;
         Delegate initializationMethod;
 
-        public BehaviorChainItemDescriptor(Type behaviorType, Func<IBuilder> getBuilder, Delegate initializationMethod = null)
+        public BehaviorChainItemDescriptor(Type behaviorType, IBuilder builder, Delegate initializationMethod = null)
         {
             this.behaviorType = behaviorType;
-            this.getBuilder = getBuilder;
+            this.builder = builder;
             this.initializationMethod = initializationMethod;
         }
 
@@ -26,7 +26,7 @@
             try
             {
                 var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                var instance = Activator.CreateInstance(wrapperType, new object[] { getBuilder(), initializationMethod });
+                var instance = Activator.CreateInstance(wrapperType, new object[] { builder, initializationMethod });
                 return (IBehavior)instance;
             }
             catch (Exception exception)
