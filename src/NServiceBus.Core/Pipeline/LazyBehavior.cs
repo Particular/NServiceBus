@@ -20,7 +20,7 @@
 
         public IBehavior Next { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             var behaviorInstance = BuildBehaviorInstance();
             InitializeInstance(behaviorInstance);

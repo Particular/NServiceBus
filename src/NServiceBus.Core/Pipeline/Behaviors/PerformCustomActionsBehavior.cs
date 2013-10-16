@@ -8,11 +8,11 @@
 
         public string Label { get; set; }
 
-        public Action<IBehaviorContext> Before { get; set; }
+        public Action<BehaviorContext> Before { get; set; }
 
-        public Action<IBehaviorContext> After { get; set; }
+        public Action<BehaviorContext> After { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             if (Before != null)
             {

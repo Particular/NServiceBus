@@ -9,7 +9,7 @@
 
         public IBuilder Builder { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             var mutators = Builder.BuildAll<IMutateIncomingTransportMessages>();
 

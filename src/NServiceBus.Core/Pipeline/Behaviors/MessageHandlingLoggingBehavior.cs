@@ -11,8 +11,8 @@
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         
         public IBehavior Next { get; set; }
-        
-        public void Invoke(IBehaviorContext context)
+
+        public void Invoke(BehaviorContext context)
         {
             var msg = context.TransportMessage;
             log.DebugFormat("Received message with ID {0} from sender {1}", msg.Id, msg.ReplyToAddress);

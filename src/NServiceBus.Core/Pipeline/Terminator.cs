@@ -13,7 +13,7 @@
             set { throw new InvalidOperationException("Can't set next on a terminator - this behavior terminates the pipeline"); }
         }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             // noop :)
         }

@@ -12,7 +12,7 @@
     {
         public IBehavior Next { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             // let's just start out by handling one single saga instance
             var snapshotsBefore = context.Get<ActiveSagaInstances>()

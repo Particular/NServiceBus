@@ -6,7 +6,7 @@
     {
         public IBehavior Next { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             if (context.Messages == null)
             {

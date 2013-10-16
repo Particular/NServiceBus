@@ -10,7 +10,7 @@
 
         public IBuilder Builder { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             var unitOfWorkRunner = new UnitOfWorkRunner
             {

@@ -12,7 +12,7 @@
 
         public ConcurrentDictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             var messageWasHandled = HandleCorrelatedMessage(context.TransportMessage, context.Messages);
 

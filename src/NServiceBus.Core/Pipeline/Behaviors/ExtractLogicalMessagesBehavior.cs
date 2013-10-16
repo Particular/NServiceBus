@@ -18,14 +18,14 @@
 
         public bool SkipDeserialization { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             PerformInvocation(context);
             
             Next.Invoke(context);
         }
 
-        void PerformInvocation(IBehaviorContext context)
+        void PerformInvocation(BehaviorContext context)
         {
             if (SkipDeserialization)
             {

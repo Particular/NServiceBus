@@ -10,15 +10,15 @@
     /// yeah, we should probably see if we can come up with better names :)
     /// </summary>
     [SkipWeaving]
-    class BehaviorContext : IBehaviorContext, IDisposable
+    class BehaviorContext : IDisposable
     {
         [ThreadStatic]
-        static IBehaviorContext current;
+        static BehaviorContext current;
 
         /// <summary>
         /// Accesses the ambient current <see cref="IBehaviorContext"/> if any
         /// </summary>
-        public static IBehaviorContext Current
+        public static BehaviorContext Current
         {
             get { return current; }
         }

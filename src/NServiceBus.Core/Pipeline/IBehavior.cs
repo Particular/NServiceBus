@@ -3,6 +3,6 @@
     interface IBehavior
     {
         IBehavior Next { get; set; }
-        void Invoke(IBehaviorContext context);
+        void Invoke(BehaviorContext context);
     }
 }

@@ -1053,7 +1053,7 @@ namespace NServiceBus.Unicast
         /// <param name="builder">The builder used to construct the objects necessary to handle the message.</param>
         /// <param name="m">The received message.</param>
         /// <param name="behaviorContext"></param>
-        void HandleMessage(IBuilder builder, TransportMessage m, IBehaviorContext behaviorContext)
+        void HandleMessage(IBuilder builder, TransportMessage m, BehaviorContext behaviorContext)
         {
             var messages = behaviorContext.Messages;
 
@@ -1287,16 +1287,16 @@ namespace NServiceBus.Unicast
             chain.Add<UnitOfWorkBehavior>();
             chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
 
-            Action<IBehaviorContext> resetHandleCurrentMessagelaterFlag =
+            Action<BehaviorContext> resetHandleCurrentMessageLaterFlag =
                 c => _handleCurrentMessageLaterWasCalled = false;
 
             chain.Add<PerformCustomActionsBehavior>(c =>
                                                 {
-                                                    c.Before = resetHandleCurrentMessagelaterFlag;
+                                                    c.Before = resetHandleCurrentMessageLaterFlag;
                                                     c.Label = "Reset _handleCurrentMessageLaterWasCalled flag";
                                                 });
 
-            Action<IBehaviorContext> raiseMessageReceivedEvent =
+            Action<BehaviorContext> raiseMessageReceivedEvent =
                 c =>
                 {
                     if (MessageReceived != null)
@@ -1323,7 +1323,7 @@ namespace NServiceBus.Unicast
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
 
-                Action<IBehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
+                Action<BehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
 
                 chain.Add<PerformCustomActionsBehavior>(c =>
                                                     {
@@ -1377,22 +1377,7 @@ namespace NServiceBus.Unicast
             //Log.Debug("Finished handling message.");
         }
 
-        static void SetupImpersonation(IBuilder childBuilder, TransportMessage message)
-        {
-            if (!ConfigureImpersonation.Impersonate)
-                return;
-            var impersonator = childBuilder.Build<ExtractIncomingPrincipal>();
-
-            if (impersonator == null)
-                throw new InvalidOperationException("Run handler under incoming principal is configured for this endpoint but no implementation of ExtractIncomingPrincipal has been found. Please register one.");
-
-            var principal = impersonator.GetPrincipal(message);
-
-            if (principal == null)
-                return;
-
-            Thread.CurrentPrincipal = principal;
-        }
+    
 
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)

@@ -127,7 +127,6 @@
     <Compile Include="Pipeline\Behaviors\Snapshot.cs" />
     <Compile Include="Pipeline\Behaviors\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
-    <Compile Include="Pipeline\IBehaviorContext.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Pipeline\LazyBehavior.cs" />
     <Compile Include="Pipeline\Terminator.cs" />

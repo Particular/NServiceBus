@@ -13,7 +13,7 @@
 
         public SagaMetaDataRegistry SagaMetaDataRegistry { get; set; }
 
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             var activeSagaInstances = GetOrCreateActiveSagaInstances(context);
             var messages = context.Messages;
@@ -69,7 +69,7 @@
             }
         }
 
-        static ActiveSagaInstances GetOrCreateActiveSagaInstances(IBehaviorContext context)
+        static ActiveSagaInstances GetOrCreateActiveSagaInstances(BehaviorContext context)
         {
             var activeSagaInstances = context.Get<ActiveSagaInstances>();
             if (activeSagaInstances != null)

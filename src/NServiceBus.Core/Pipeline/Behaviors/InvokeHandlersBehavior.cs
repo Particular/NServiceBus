@@ -8,7 +8,7 @@
     class InvokeHandlersBehavior : IBehavior
     {
         public IBehavior Next { get; set; }
-        public void Invoke(IBehaviorContext context)
+        public void Invoke(BehaviorContext context)
         {
             throw new NotImplementedException();
         }

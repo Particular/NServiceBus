@@ -7,8 +7,8 @@
     class AbortChainIfMessageDispatchIsDisabled : IBehavior
     {
         public IBehavior Next { get; set; }
-        
-        public void Invoke(IBehaviorContext context)
+
+        public void Invoke(BehaviorContext context)
         {
             // this one might have been set by any behavior earlier on in the chain like mutators and whatnot
             if (context.DoNotContinueDispatchingMessageToHandlers)

@@ -10,8 +10,8 @@
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public IBehavior Next { get; set; }
-        
-        public void Invoke(IBehaviorContext context)
+
+        public void Invoke(BehaviorContext context)
         {
             var transportMessage = context.TransportMessage;
 
@@ -25,7 +25,7 @@
             Next.Invoke(context);
         }
 
-        static int LogicalMessageCount(IBehaviorContext context)
+        static int LogicalMessageCount(BehaviorContext context)
         {
             return context.Messages == null
                        ? 0
