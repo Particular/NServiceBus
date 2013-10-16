@@ -13,8 +13,6 @@ namespace NServiceBus
         /// <summary>
         /// Use 256 bit AES encryption based on the Rijndael cipher. 
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure RijndaelEncryptionService(this Configure config)
         {
             var section = Configure.GetConfigSection<RijndaelEncryptionServiceConfig>();

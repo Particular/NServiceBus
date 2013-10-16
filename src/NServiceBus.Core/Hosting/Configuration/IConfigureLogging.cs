@@ -21,6 +21,5 @@
     /// If an implementation isn't found for a given profile, then the search continues
     /// recursively up that profile's inheritance hierarchy.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IConfigureLoggingForProfile<T> : IConfigureLogging where T : IProfile {}
 }

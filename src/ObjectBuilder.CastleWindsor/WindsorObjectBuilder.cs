@@ -30,7 +30,6 @@
         /// <summary>
         /// Instantiates the class saving the given container.
         /// </summary>
-        /// <param name="container"></param>
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             if (container == null)

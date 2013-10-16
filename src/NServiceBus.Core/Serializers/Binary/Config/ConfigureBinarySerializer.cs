@@ -9,8 +9,6 @@ namespace NServiceBus
         /// Use binary serialization.
         /// Note that this does not support interface-based messages.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "Configure.Serialization.Binary()", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static Configure BinarySerializer(this Configure config)
         {

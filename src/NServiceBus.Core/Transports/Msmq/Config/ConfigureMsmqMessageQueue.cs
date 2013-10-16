@@ -8,8 +8,6 @@ namespace NServiceBus
         /// <summary>
         /// Use MSMQ for your queuing infrastructure.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Message = "Please use UsingTransport<Msmq> on your IConfigureThisEndpoint class or the other option is using the fluent API .UseTransport<Msmq>()")]
         public static Configure MsmqTransport(this Configure config)
         {

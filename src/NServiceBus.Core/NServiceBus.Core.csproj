@@ -98,8 +98,10 @@
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
+    <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
+    <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
@@ -201,7 +203,6 @@
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
-    <Compile Include="Config\FtpQueueConfig.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
@@ -498,6 +499,7 @@
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Transports\MessageForwarder.cs" />
+    <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\Queuing\Installers\ForwardReceivedMessagesToQueueCreator.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\EnableMessageDrivenPublisherIfStorageIsFound.cs" />
     <Compile Include="Unicast\Subscriptions\MessageDrivenSubscriptions\StorageDrivenPublisher.cs" />

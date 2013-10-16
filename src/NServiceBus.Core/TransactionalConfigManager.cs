@@ -13,9 +13,6 @@ namespace NServiceBus
         /// If true, the endpoint will not lose messages when exceptions occur.
         /// If false, the endpoint may lose messages when exceptions occur.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "Configure.Transactions.Enable() or Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
         public static Configure IsTransactional(this Configure config, bool value)
         {
@@ -37,8 +34,6 @@ namespace NServiceBus
         /// 
         /// Is equivalent to IsTransactional(true);
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
         public static Configure DontUseTransactions(this Configure config)
         {
@@ -56,9 +51,6 @@ namespace NServiceBus
         /// 
         /// If you wish to run sagas on this endpoint, RepeatableRead is the suggested value.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="isolationLevel"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]        
         public static Configure IsolationLevel(this Configure config, IsolationLevel isolationLevel)
         {
@@ -72,9 +64,6 @@ namespace NServiceBus
         /// 
         /// Most endpoints should leave it at the default.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="transactionTimeout"></param>
-        /// <returns></returns>
         [ObsoleteEx(Replacement = "Configure.Transactions.Advanced()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
         public static Configure TransactionTimeout(this Configure config, TimeSpan transactionTimeout)
         {

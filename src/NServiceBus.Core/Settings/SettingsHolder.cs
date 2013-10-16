@@ -29,8 +29,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Gets the setting value.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static object Get(string key)
         {
             object result;
@@ -75,9 +73,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the value of the given property
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
         public static void SetProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
@@ -89,9 +84,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the default value of the given property
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
         public static void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);

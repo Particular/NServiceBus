@@ -20,8 +20,6 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         /// Initialized the event arg with the actual exception
         /// </summary>
-        /// <param name="m"></param>
-        /// <param name="ex"></param>
         public FailedMessageProcessingEventArgs(TransportMessage m, Exception ex)
         {
             Message = m;

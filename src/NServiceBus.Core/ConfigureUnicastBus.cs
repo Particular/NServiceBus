@@ -11,8 +11,6 @@ namespace NServiceBus
         /// <summary>
         /// Use unicast messaging (your best option on nServiceBus right now).
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static ConfigUnicastBus UnicastBus(this Configure config)
         {
             if (Instance == null)
@@ -27,8 +25,6 @@ namespace NServiceBus
         /// <summary>
         /// Return Timeout Manager Address. Uses "TimeoutManagerAddress" parameter form config file if defined, if not, uses "EndpointName.Timeouts".
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Address GetTimeoutManagerAddress(this Configure config)
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();

@@ -120,8 +120,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Register a singleton instance of a dependency within Autofac.
         ///</summary>
-        ///<param name="lookupType"></param>
-        ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();

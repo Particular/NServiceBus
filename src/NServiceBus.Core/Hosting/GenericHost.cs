@@ -22,10 +22,6 @@ namespace NServiceBus.Hosting
         ///     Accepts the type which will specify the users custom configuration.
         ///     This type should implement <see cref="IConfigureThisEndpoint" />.
         /// </summary>
-        /// <param name="specifier"></param>
-        /// <param name="args"></param>
-        /// <param name="defaultProfiles"></param>
-        /// <param name="endpointName"></param>
         /// <param name="scannableAssembliesFullName">Assemblies full name that were scanned.</param>
         public GenericHost(IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles,
             string endpointName, IEnumerable<string> scannableAssembliesFullName = null)
@@ -100,7 +96,6 @@ namespace NServiceBus.Hosting
         /// <summary>
         ///     When installing as windows service (/install), run infrastructure installers
         /// </summary>
-        /// <typeparam name="TEnvironment"></typeparam>
         public void Install<TEnvironment>(string username) where TEnvironment : IEnvironment
         {
             PerformConfiguration();

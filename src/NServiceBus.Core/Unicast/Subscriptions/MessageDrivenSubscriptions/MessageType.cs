@@ -11,7 +11,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Initializes the message type from the given type
         /// </summary>
-        /// <param name="type"></param>
         public MessageType(Type type)
         {
             Version = type.Assembly.GetName().Version;
@@ -21,7 +20,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Initializes the message type from the given string. 
         /// </summary>
-        /// <param name="messageTypeString"></param>
         public MessageType(string messageTypeString)
         {
             var parts = messageTypeString.Split(',');
@@ -34,8 +32,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Initializes the message type from the given string. 
         /// </summary>
-        /// <param name="typeName"></param>
-        /// <param name="versionString"></param>
         public MessageType(string typeName, string versionString)
         {
             Version = ParseVersion(versionString);
@@ -45,8 +41,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Initializes the message type from the given string. 
         /// </summary>
-        /// <param name="typeName"></param>
-        /// <param name="version"></param>
         public MessageType(string typeName,Version version)
         {
             Version = version;
@@ -78,7 +72,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Overridden to append Version along with Type Name
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             return TypeName + ", Version=" + Version;
@@ -87,8 +80,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Equality, only major version is used
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
         public bool Equals(MessageType other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -99,8 +90,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Equality, only Type is same
         /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -112,7 +101,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Gets Hash Code
         /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked
@@ -124,9 +112,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Equality
         /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
         public static bool operator ==(MessageType left, MessageType right)
         {
             return Equals(left, right);
@@ -135,9 +120,6 @@ namespace NServiceBus.Unicast.Subscriptions
         /// <summary>
         /// Equality
         /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
         public static bool operator !=(MessageType left, MessageType right)
         {
             return !Equals(left, right);

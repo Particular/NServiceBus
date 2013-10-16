@@ -19,6 +19,6 @@
   <files>
     <file src="..\..\binaries\containers\Ninject\NServiceBus.ObjectBuilder.Ninject.???" target="lib\net40" />
     <file src="tools\install.ps1" target="tools" />
-    <file src="..\..\src\ObjectBuilder.Ninject\**\*.cs" target="src" />
+    <!--<file src="..\..\src\ObjectBuilder.Ninject\**\*.cs" target="src" />-->
   </files>
 </package>

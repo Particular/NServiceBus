@@ -6,7 +6,6 @@ namespace NServiceBus.Saga
     /// received, if a saga cannot be found by an <see cref="IFindSagas{T}"/>
     /// the saga will be created.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     [ObsoleteEx(Replacement = "IAmStartedByMessages<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
     public interface ISagaStartedBy<T> : IAmStartedByMessages<T>
     {
@@ -17,7 +16,6 @@ namespace NServiceBus.Saga
     /// received, if a saga cannot be found by an <see cref="IFindSagas{T}"/>
     /// the saga will be created.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IAmStartedByMessages<T> : IHandleMessages<T>
     {
     }

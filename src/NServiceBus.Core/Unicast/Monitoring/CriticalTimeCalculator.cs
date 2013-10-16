@@ -34,9 +34,6 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         ///     Updates the counter based on the passed times
         /// </summary>
-        /// <param name="sent"> </param>
-        /// <param name="processingStarted"></param>
-        /// <param name="processingEnded"></param>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             counter.RawValue = Convert.ToInt32((processingEnded - sent).TotalSeconds);

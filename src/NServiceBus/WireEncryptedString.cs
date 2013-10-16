@@ -18,8 +18,6 @@
         /// <summary>
         /// Deserializing constructor
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         public WireEncryptedString(SerializationInfo info, StreamingContext context)
         {
             EncryptedValue = info.GetValue("EncryptedValue", typeof (EncryptedValue)) as EncryptedValue;
@@ -77,8 +75,6 @@
         /// <summary>
         /// Gets the string value from the WireEncryptedString.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static implicit operator string(WireEncryptedString s)
         {
             return s == null ? null : s.Value;
@@ -87,8 +83,6 @@
         /// <summary>
         /// Creates a new WireEncryptedString from the given string.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static implicit operator WireEncryptedString(string s)
         {
             return new WireEncryptedString { Value = s };
@@ -97,8 +91,6 @@
         /// <summary>
         /// Method for making default XML serialization work properly for this type.
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("EncryptedValue", EncryptedValue);

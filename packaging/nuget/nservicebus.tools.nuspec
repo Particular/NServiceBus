@@ -17,12 +17,10 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\Tools\NServiceBus.*.???" target="" />
+    <file src="..\..\binaries\Tools\NServiceBus.Core.???" target="" />
+	<file src="..\..\binaries\Tools\NServiceBus.???" target="" />
 	<file src="..\..\binaries\Tools\ReturnToSourceQueue.???" target="" />
 	<file src="..\..\binaries\Tools\XsdGenerator.???" target="" />
-	<file src="..\..\binaries\Tools\LicenseInstaller\LicenseInstaller.???" target="LicenseInstaller" />
-	<file src="..\..\binaries\Tools\LicenseInstaller\**" target="LicenseInstaller" />
-    <file src="..\..\src\ReturnToSourceQueue\**\*.cs" target="src\ReturnToSourceQueue" />
-    <file src="..\..\src\licenseinstaller\**\*.cs" target="src\licenseinstaller" />
+	<file src="..\..\binaries\Tools\LicenseInstaller\**" target="" />
   </files>
 </package>

@@ -11,8 +11,6 @@
         /// <summary>
         /// Run installers (infrastructure and per endpoint) and handles profiles.
         /// </summary>
-        /// <param name="args"></param>
-        /// <param name="configFile"></param>
         public static void Install(string[] args, string configFile)
         {
             // Create the new appDomain with the new config.

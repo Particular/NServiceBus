@@ -10,7 +10,6 @@ namespace NServiceBus.Saga
         /// Indicates to the saga that a timeout has occurred, 
         /// passing in the state object previously received from the saga.
         /// </summary>
-        /// <param name="state"></param>
         void Timeout(object state);
     }
 }

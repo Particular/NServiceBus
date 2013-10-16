@@ -58,7 +58,6 @@ namespace NServiceBus.Licensing
         /// <summary>
         /// Initializes the licensing system with the given license
         /// </summary>
-        /// <param name="licenseText"></param>
         public static void Parse(string licenseText)
         {
             instance = new LicenseManager(licenseText);

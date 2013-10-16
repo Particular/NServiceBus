@@ -139,8 +139,6 @@
         /// <summary>
         /// Returns true if the given object is a event.
         /// </summary>
-        /// <param name="o"></param>
-        /// <returns></returns>
         public static bool IsEvent(object o)
         {
             return IsEventType(o.GetType());
@@ -149,8 +147,6 @@
         /// <summary>
         /// Returns true if the given type is a event type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static bool IsEventType(Type t)
         {
             try

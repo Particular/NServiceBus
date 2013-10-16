@@ -10,11 +10,7 @@ namespace NServiceBus.Impersonation.Windows
     {
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-
-            if (transportMessage.Headers.ContainsKey(Headers.WindowsIdentityName))
-                transportMessage.Headers.Remove(Headers.WindowsIdentityName);
-
-            transportMessage.Headers.Add(Headers.WindowsIdentityName, Thread.CurrentPrincipal.Identity.Name);
+            transportMessage.Headers[Headers.WindowsIdentityName] = Thread.CurrentPrincipal.Identity.Name;
         }
     }
 }

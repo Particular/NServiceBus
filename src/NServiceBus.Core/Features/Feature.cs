@@ -15,13 +15,11 @@
         /// </summary>
         public virtual void Initialize()
         {
-
         }
 
         /// <summary>
         /// Returns true if the feature should be enable. This method wont be called if the feature is explicitly disabled
         /// </summary>
-        /// <returns></returns>
         public virtual bool ShouldBeEnabled()
         {
             return true;
@@ -55,7 +53,6 @@
         /// <summary>
         /// Enables the give feature
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public static void Enable<T>() where T : Feature
         {
             Enable(typeof (T));
@@ -90,7 +87,6 @@
         /// <summary>
         /// Turns the given feature off
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public static void Disable<T>() where T : Feature
         {
             Disable(typeof (T));
@@ -115,8 +111,6 @@
         /// <summary>
         /// Returns true if the given feature is enabled
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public static bool IsEnabled<T>() where T : Feature
         {
             return IsEnabled(typeof (T));
@@ -126,8 +120,6 @@
         /// <summary>
         /// Returns true if the given feature is enabled
         /// </summary>
-        /// <param name="feature"></param>
-        /// <returns></returns>
         public static bool IsEnabled(Type feature)
         {
             return SettingsHolder.GetOrDefault<bool>(feature.FullName);
@@ -144,8 +136,6 @@
         /// <summary>
         /// Gets all features for the given category
         /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
         public static IEnumerable<Feature> ByCategory(FeatureCategory category)
         {
             var result = new List<Feature>();

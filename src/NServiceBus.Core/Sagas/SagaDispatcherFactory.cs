@@ -222,8 +222,6 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// True if this is a timeout message
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         static bool IsTimeoutMessage(object message)
         {
             return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));

@@ -195,7 +195,7 @@
         {
             get { return _deferDelay; }
         }
-        private object[] _deferMessages = null;
+        private object[] _deferMessages;
         public object[] DeferMessages
         {
             get { return _deferMessages; }

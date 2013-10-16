@@ -28,6 +28,7 @@ namespace NServiceBus.Satellites
                                         .Where(s => !s.Disabled)
                                         .ToList();
 
+
             var satelliteContexts = new SatelliteContext[satellitesList.Count];
 
             Parallel.For(0, satellitesList.Count, index =>

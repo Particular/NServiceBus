@@ -20,6 +20,8 @@
         /// </summary>
         public static bool StartMsmqIfNecessary()
         {
+            Console.WriteLine("Entering StartMsmqIfNecessary in NServiceBus.Setup.Windows.Msmq.MsmqSetup");
+
             if(!InstallMsmqIfNecessary())
             {
                 return false;
@@ -58,7 +60,6 @@
         /// <summary>
         /// Determines if the msmq installation on the current machine is ok
         /// </summary>
-        /// <returns></returns>
         public static bool IsInstallationGood()
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
@@ -129,6 +130,12 @@
             return true;
         }
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool Wow64DisableWow64FsRedirection(ref IntPtr ptr);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool Wow64RevertWow64FsRedirection(IntPtr ptr);
+
         public static void RunExe(string filename, string args)
         {
             var startInfo = new ProcessStartInfo(filename, args)
@@ -142,36 +149,54 @@
 
             Console.Out.WriteLine("Executing {0} {1}", startInfo.FileName, startInfo.Arguments);
 
-            using (var process = new Process())
+            var ptr = new IntPtr();
+            bool fileSystemRedirectionDisabled = false;
+            
+            if (Environment.Is64BitOperatingSystem)
             {
-                var output = new StringBuilder();
-                var error = new StringBuilder();
+                fileSystemRedirectionDisabled = Wow64DisableWow64FsRedirection(ref ptr);
+            }
 
-                process.StartInfo = startInfo;
-
-                process.OutputDataReceived += (sender, e) =>
+            try
+            {
+                using (var process = new Process())
                 {
-                    if (e.Data != null)
+                    var output = new StringBuilder();
+                    var error = new StringBuilder();
+
+                    process.StartInfo = startInfo;
+
+                    process.OutputDataReceived += (sender, e) =>
                     {
-                        output.AppendLine(e.Data);
-                    }
-                };
-                process.ErrorDataReceived += (sender, e) =>
+                        if (e.Data != null)
+                        {
+                            output.AppendLine(e.Data);
+                        }
+                    };
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            error.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    process.WaitForExit();
+
+                    Console.Out.WriteLine(output.ToString());
+                    Console.Out.WriteLine(error.ToString());
+                }
+            }
+            finally
+            {
+                if (fileSystemRedirectionDisabled)
                 {
-                    if (e.Data != null)
-                    {
-                        error.AppendLine(e.Data);
-                    }
-                };
-
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-
-                process.WaitForExit();
-
-                Console.Out.WriteLine(output.ToString());
-                Console.Out.WriteLine(error.ToString());
+                    Wow64RevertWow64FsRedirection(ptr);
+                }
             }
         }
 
@@ -291,6 +316,9 @@
         static extern Boolean GetVersionEx([Out][In]OSVersionInfo versionInformation);
 
 
+        // ReSharper disable UnusedField.Compiler
+        // ReSharper disable NotAccessedField.Local
+        // ReSharper disable UnassignedField.Compiler
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfoEx : OSVersionInfo
         {
@@ -304,8 +332,7 @@
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         class OSVersionInfo
         {
-            public UInt32 OSVersionInfoSize =
-               (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
+            public UInt32 OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfo));
             public UInt32 MajorVersion = 0;
             public UInt32 MinorVersion = 0;
             public UInt32 BuildNumber = 0;
@@ -314,6 +341,9 @@
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public String CSDVersion = null;
         }
+        // ReSharper restore UnassignedField.Compiler
+        // ReSharper restore NotAccessedField.Local
+        // ReSharper restore UnusedField.Compiler
 
         const byte VER_NT_WORKSTATION = 1;
         const byte VER_NT_SERVER = 3;
@@ -325,7 +355,7 @@
         enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008, Windows7, Windows8, Server2012 }
 
         const string OcSetup = "OCSETUP";
-        const string DISM = "dism";
+        static string DISM = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dism.exe");
         const string OcSetupInstallCommand = "MSMQ-Server /passive";
         const string OcSetupVistaInstallCommand = "MSMQ-Container;MSMQ-Server /passive";
         const string DISMInstallCommand = @"/Online /NoRestart /English /Enable-Feature /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server";

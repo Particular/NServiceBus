@@ -3,7 +3,6 @@
     /// <summary>
     /// Generic abstraction for code which will be called when the given profile is active.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IHandleProfile<T> : IHandleProfile where T : IProfile {}
 
     /// <summary>
