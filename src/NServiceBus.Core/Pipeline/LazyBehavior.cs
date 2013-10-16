@@ -48,7 +48,7 @@
             catch (Exception exception)
             {
                 var error = string.Format("Could not build behavior instance of type {0}", typeof(TBehavior));
-                throw new ApplicationException(error, exception);
+                throw new Exception(error, exception);
             }
         }
 
@@ -62,7 +62,7 @@
             catch (Exception exception)
             {
                 var error = string.Format("An error occurred when initializing behavior {0}", behaviorInstance);
-                throw new ApplicationException(error, exception);
+                throw new Exception(error, exception);
             }
         }
     }
