@@ -22,9 +22,10 @@ $nservicebusVersion = Get-NServiceBusVersion
 $nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
 
 #Figure out if this machine is properly setup
-$a = Get-ItemProperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
-$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
-$dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
+$nsbVersionDetails = Get-ItemProperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
+if (($nsbVersionDetails -ne $null) -and ($nsbVersionDetails.Length -ne 0)){
+$preparedInVersion  = $nsbVersionDetails.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
+$dontCheckMachineSetup  = $nsbVersionDetails.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
 
 if($preparedInVersion.value){
 	$machinePrepared = $true
@@ -33,6 +34,7 @@ if($preparedInVersion.value){
 if($machinePrepared -or $dontCheckMachineSetup.value)
 {
 	exit
+}
 }
 
 $perfCountersInstalled = $false
@@ -72,8 +74,10 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 	Write-Host "Required infrastructure is all setup correctly."
 }
 
-New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
+if (($nsbVersionDetails -ne $null) -and ($nsbVersionDetails.Length -ne 0)){
+New-Item -Path $nserviceBusVersionPath | Out-Null
 New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
+}
 
 $url = "http://particular.net/articles/preparing-your-machine-to-run-nservicebus?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled + "&installer=NServiceBus&method=nuget&version=" + $package.Version
 $url = $url.ToLowerInvariant(); 
