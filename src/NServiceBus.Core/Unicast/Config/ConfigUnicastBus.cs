@@ -56,6 +56,7 @@ namespace NServiceBus.Unicast.Config
             Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<SagaPersistenceBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
         }
 

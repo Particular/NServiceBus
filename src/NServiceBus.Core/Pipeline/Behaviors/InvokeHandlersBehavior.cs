@@ -6,6 +6,8 @@
     using System.Reflection;
     using Logging;
     using ObjectBuilder;
+    using Saga;
+    using Sagas;
     using Unicast;
     using Unicast.Transport;
 
@@ -63,33 +65,46 @@
 
             foreach (var handler in handlers)
             {
-                var handlerTypeToInvoke = handler.GetType();
-
-                //for backwards compatibility (users can have registered their own factory
-                var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
-
-                if (factory != null)
+                try
                 {
-                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
-
-                    dispatchers.ForEach(dispatch =>
+                    //until we have a outgoing pipeline that inherits context from the main one
+                    if (handler is ISaga)
                     {
-                        log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
-                        try
-                        {
-                            dispatch();
-                        }
-                        catch (Exception e)
-                        {
-                            log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
+                        SagaContext.Current = (ISaga) handler;
+                    }
+                    var handlerTypeToInvoke = handler.GetType();
 
-                            throw new TransportMessageHandlingFailedException(e);
-                        }
-                    });                    
+                    //for backwards compatibility (users can have registered their own factory
+                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
+
+                    if (factory != null)
+                    {
+                        var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
+
+                        dispatchers.ForEach(dispatch =>
+                        {
+                            log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
+                            try
+                            {
+                                dispatch();
+                            }
+                            catch (Exception e)
+                            {
+                                log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
+
+                                throw new TransportMessageHandlingFailedException(e);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        HandlerInvocationCache.InvokeHandle(handler, toHandle);
+                    }
+
                 }
-                else
+                finally
                 {
-                    HandlerInvocationCache.InvokeHandle(handler, toHandle);
+                    SagaContext.Current = null;
                 }
             }
         }

@@ -432,7 +432,6 @@
     <Compile Include="Sagas\OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Sagas\SagaContext.cs" />
-    <Compile Include="Sagas\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />

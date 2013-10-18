@@ -50,7 +50,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.InnerException.InnerException);
         }
     }
     [TestFixture]
@@ -63,7 +63,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.InnerException.InnerException);
         }
     }
 

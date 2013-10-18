@@ -32,21 +32,21 @@
 
             foreach (var pair in pairs)
             {
-                switch (pair.ChangeDescriptor)
-                {
-                    case SagaInstanceStateChangeDescriptor.New:
-                        //ReportToServiceControl(new SagaInstanceCreated(id, type, after));
-                        break;
-                    case SagaInstanceStateChangeDescriptor.Existing:
-                        //ReportToServiceControl(new SagaInstanceUpdated(id, type, diff));
-                        break;
-                    case SagaInstanceStateChangeDescriptor.Completed:
-                        //ReportToServiceControl(new SagaInstanceCompleted(id, type, diff));
-                        //< diff? persister might just "archive" the data or something
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                //switch (pair.ChangeDescriptor)
+                //{
+                //    case SagaInstanceStateChangeDescriptor.New:
+                //        //ReportToServiceControl(new SagaInstanceCreated(id, type, after));
+                //        break;
+                //    case SagaInstanceStateChangeDescriptor.Existing:
+                //        //ReportToServiceControl(new SagaInstanceUpdated(id, type, diff));
+                //        break;
+                //    case SagaInstanceStateChangeDescriptor.Completed:
+                //        //ReportToServiceControl(new SagaInstanceCompleted(id, type, diff));
+                //        //< diff? persister might just "archive" the data or something
+                //        break;
+                //    default:
+                //        throw new ArgumentOutOfRangeException();
+                //}
             }
         }
 
@@ -69,10 +69,7 @@
             public Snapshot Before { get; set; }
             public Snapshot After { get; set; }
 
-            public SagaInstanceStateChangeDescriptor ChangeDescriptor
-            {
-                get { return SagaInstanceStateChangeDescriptor.Existing; }
-            }
+           
         }
 
         Snapshot AsNewSnapshot(SagaInstanceContainer container)

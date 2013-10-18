@@ -1168,6 +1168,7 @@ namespace NServiceBus.Unicast
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
 
                 chain.Add<LoadHandlersBehavior>();
+                chain.Add<SagaPersistenceBehavior>();
                 chain.Add<InvokeHandlersBehavior>();
             }
 

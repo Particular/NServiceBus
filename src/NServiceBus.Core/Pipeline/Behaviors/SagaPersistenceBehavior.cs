@@ -3,7 +3,13 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
+    using IdGeneration;
+    using Logging;
+    using ObjectBuilder;
     using Saga;
+    using Sagas.Finders;
+    using Transports;
 
     class SagaPersistenceBehavior : IBehavior
     {
@@ -11,85 +17,159 @@
 
         public ISagaPersister SagaPersister { get; set; }
 
-        public SagaMetaDataRegistry SagaMetaDataRegistry { get; set; }
+        public IBuilder Builder { get; set; }
+
+        public IDeferMessages MessageDeferrer { get; set; }
 
         public void Invoke(BehaviorContext context)
         {
-            var activeSagaInstances = GetOrCreateActiveSagaInstances(context);
+            currentContext = context;
             var messages = context.Messages;
+            var loadedMessageHandlers = context.Get<LoadedMessageHandlers>();
+
 
             foreach (var message in messages)
             {
-                LoadSagaInstancesForMessage(message, activeSagaInstances);
+                foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.GetType()))
+                {
+                    var sagaMessageHandler = messageHandler as ISaga;
+
+                    if(sagaMessageHandler != null)
+                        LoadAndAttachSagaEntity(sagaMessageHandler,message);
+                }                
             }
 
             Next.Invoke(context);
 
-            foreach (var sagaInstanceContainer in activeSagaInstances.Instances)
+            foreach (var sagaInstanceState in activeSagaInstances.Instances)
             {
-                //SagaPersister.Update(theInstances);
-            }
-        }
+                var saga = sagaInstanceState.Saga;
 
-        void LoadSagaInstancesForMessage(object message, ActiveSagaInstances activeSagaInstances)
-        {
-            var messageType = message.GetType();
-
-            // this would be how we discovered WhateverSagaData
-            // this one would return multiple types because a message may have multiple (saga)handlers
-            // note: add an acceptance test for this scenario
-            var sagaDataTypes = SagaMetaDataRegistry.GetSagaDataTypesFor(messageType);
-
-            foreach (var sagaDataType in sagaDataTypes)
-            {
-                var correlationPropertyName = SagaMetaDataRegistry.GetCorrelationPropertyName(sagaDataType,
-                                                                                              messageType);
-
-                // this one is probably Func<TMessage, object>
-                var messageFieldExtractor = SagaMetaDataRegistry.GetPropertyValueMethod(sagaDataType, messageType);
-
-                IContainSagaData sagaEntity = SagaPersister.Get<WhateverSagaData>(correlationPropertyName,
-                                                                                  messageFieldExtractor(message));
-
-                var isNew = false;
-                if (sagaEntity == null)
+                if (saga.Completed)
                 {
-                    sagaEntity = CreateNew<WhateverSagaData>();
-                    isNew = true;
+                    if (!sagaInstanceState.IsNew)
+                    {
+                         SagaPersister.Complete(saga.Entity);
+                    }
+
+                    if (saga.Entity.Id != Guid.Empty)
+                    {
+                        NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                    }
+                }
+                else
+                {
+                    if (sagaInstanceState.IsNew)
+                    {
+                        SagaPersister.Save(saga.Entity);
+                    }
+                    else
+                    {
+                        SagaPersister.Update(saga.Entity);
+                    }
+
                 }
 
-                activeSagaInstances.AddInstance(new SagaInstanceContainer
-                                                    {
-                                                        ContainSagaData = sagaEntity,
-                                                        SagaInstanceStateChangeDescriptor =
-                                                            isNew
-                                                                ? SagaInstanceStateChangeDescriptor.New
-                                                                : SagaInstanceStateChangeDescriptor.Existing
-                                                    });
+                if (saga.Completed)
+                    logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
             }
         }
 
-        static ActiveSagaInstances GetOrCreateActiveSagaInstances(BehaviorContext context)
+        void LoadAndAttachSagaEntity(ISaga saga,object message)
         {
-            var activeSagaInstances = context.Get<ActiveSagaInstances>();
-            if (activeSagaInstances != null)
+            var sagaType = saga.GetType();
+
+            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+
+            var finders = GetFindersFor(message, Builder, sagaEntityType);
+            IContainSagaData sagaEntity = null;
+
+            foreach (var finder in finders)
             {
-                return activeSagaInstances;
+                sagaEntity = UseFinderToFindSaga(finder,message);
+
+                if (sagaEntity != null)
+                    break;
             }
 
-            activeSagaInstances = new ActiveSagaInstances();
-            context.Set(activeSagaInstances);
-            return activeSagaInstances;
+            var isNew = false;
+            
+            if (sagaEntity == null)
+            {
+                sagaEntity = CreateNewSagaEntity(sagaType);
+                isNew = true;
+            }
+            saga.Entity = sagaEntity;
+
+            activeSagaInstances.AddInstance(new SagaInstanceContainer
+            {
+                Saga = saga,
+                IsNew = isNew
+            });
+
+         
         }
 
-        IContainSagaData CreateNew<T>() where T : IContainSagaData
+        void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            // assign new ID and probably some more stuff
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
+        }
+
+        static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
+        {
+            var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
+
+            if (method != null)
+                return method.Invoke(finder, new[] { message }) as IContainSagaData;
+
             return null;
         }
+
+
+        IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder,Type sagaEntityType)
+        {
+            var sagaId = Headers.GetMessageHeader(message, Headers.SagaId);
+         
+            if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
+            {
+                var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+
+                if (logger.IsDebugEnabled)
+                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
+
+                return finders;
+            }
+
+            logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
+
+            return new List<IFinder> { builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
+        }
+
+        IContainSagaData CreateNewSagaEntity(Type sagaType)
+        {
+            var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
+
+            if (sagaEntityType == null)
+                throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
+
+            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
+
+            sagaEntity.Id = CombGuid.Generate();
+
+            if (currentContext.TransportMessage.ReplyToAddress != null)
+                sagaEntity.Originator = currentContext.TransportMessage.ReplyToAddress.ToString();
+            sagaEntity.OriginalMessageId = currentContext.TransportMessage.Id;
+
+            return sagaEntity;
+        }
+
+        ActiveSagaInstances activeSagaInstances = new ActiveSagaInstances();
+
+        readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
+        BehaviorContext currentContext;
     }
 
-    public class ActiveSagaInstances
+    class ActiveSagaInstances
     {
         public ActiveSagaInstances()
         {
@@ -105,73 +185,9 @@
         }
     }
 
-    public enum SagaInstanceStateChangeDescriptor
+    class SagaInstanceContainer
     {
-        New, Existing, Completed
-    }
-
-    public class SagaInstanceContainer
-    {
-        public IContainSagaData ContainSagaData { get; set; }
-        public SagaInstanceStateChangeDescriptor SagaInstanceStateChangeDescriptor { get; set; }
-    }
-
-    public class WhateverSagaData : IContainSagaData
-    {
-        public virtual Guid Id { get; set; }
-        public virtual string Originator { get; set; }
-        public virtual string OriginalMessageId { get; set; }
-    }
-
-    /// <summary>
-    /// Registry for metadata about sagas
-    /// </summary>
-    public class SagaMetaDataRegistry
-    {
-        readonly ConcurrentDictionary<Type, Type[]> sagaDataTypesByIncomingMessageType 
-            = new ConcurrentDictionary<Type, Type[]>();
-        
-        readonly ConcurrentDictionary<Type, ConcurrentDictionary<Type, Correlator>> correlationPropertyBySagaDataTypeAndMessageType
-            = new ConcurrentDictionary<Type, ConcurrentDictionary<Type, Correlator>>();
-
-        public Type[] GetSagaDataTypesFor(Type messageType)
-        {
-            Type[] types;
-            return sagaDataTypesByIncomingMessageType.TryGetValue(messageType, out types)
-                       ? types
-                       : new Type[0];
-        }
-
-        public string GetCorrelationPropertyName(Type sagaDataType, Type messageType)
-        {
-            ConcurrentDictionary<Type, Correlator> secondIndex;
-            Correlator correlator;
-
-            return correlationPropertyBySagaDataTypeAndMessageType
-                       .TryGetValue(sagaDataType, out secondIndex)
-                       ? secondIndex.TryGetValue(messageType, out correlator)
-                             ? correlator.PropertyName
-                             : null
-                       : null;
-        }
-
-        public Func<object, object> GetPropertyValueMethod(Type sagaDataType, Type messageType)
-        {
-            ConcurrentDictionary<Type, Correlator> secondIndex;
-            Correlator correlator;
-
-            return correlationPropertyBySagaDataTypeAndMessageType
-                       .TryGetValue(sagaDataType, out secondIndex)
-                       ? secondIndex.TryGetValue(messageType, out correlator)
-                             ? correlator.MessageFieldExtractor
-                             : null
-                       : null;
-        }
-
-        class Correlator
-        {
-            public string PropertyName { get; set; }
-            public Func<object, object> MessageFieldExtractor { get; set; }
-        }
+        public ISaga Saga{ get; set; }
+        public bool IsNew{ get; set; }
     }
 }

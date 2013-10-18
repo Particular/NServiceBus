@@ -107,7 +107,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
-            FuncBuilder.Register<SagaDispatcherFactory>(() => new SagaDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
@@ -128,7 +127,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
             FuncBuilder.Register<LoadHandlersBehavior>(() => new LoadHandlersBehavior { Builder = FuncBuilder });
+            FuncBuilder.Register<SagaPersistenceBehavior>(() => new SagaPersistenceBehavior { Builder = FuncBuilder });
             FuncBuilder.Register<InvokeHandlersBehavior>(() => new InvokeHandlersBehavior { Builder = FuncBuilder });
+
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});
 
@@ -192,17 +193,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             handlerRegistry.RegisterHandler(typeof(T));
 
             if (unicastBus.MessageDispatcherMappings == null)
-                unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
-
-            if (typeof(ISaga).IsAssignableFrom(typeof(T)))
-            {
-                unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(SagaDispatcherFactory);
-            }
-            else
-            {
-                unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);    
-            }
-            
+                unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();            
         }
         protected void RegisterOwnedMessageType<T>()
         {
