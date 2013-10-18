@@ -152,7 +152,9 @@ namespace NServiceBus.Sagas
         /// <returns>returns true if can be dispatched</returns>
         public bool CanDispatch(Type handler)
         {
-            return typeof(ISaga).IsAssignableFrom(handler);
+            //until we can remove the whole concept of dispatcher factories
+            //return typeof(ISaga).IsAssignableFrom(handler);
+            return false;
         }
 
         IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder)

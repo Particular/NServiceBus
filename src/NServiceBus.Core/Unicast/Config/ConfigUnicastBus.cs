@@ -270,7 +270,9 @@ namespace NServiceBus.Unicast.Config
                 if (factory != null)
                     factoryTypeToUse = factory.GetType();
 
-                result.Add(handler, factoryTypeToUse);
+                //until we can remove the dispatcher factory concept
+                if (factoryTypeToUse != typeof(DefaultDispatcherFactory))
+                    result.Add(handler, factoryTypeToUse);
             }
             return result;
         }
