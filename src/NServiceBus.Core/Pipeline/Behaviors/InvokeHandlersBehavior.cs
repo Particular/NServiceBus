@@ -18,26 +18,26 @@
 
         public IBuilder Builder { get; set; }
 
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
-
+  
         public void Invoke(BehaviorContext context)
         {
             var messages = context.Messages;
 
-            // for now we cheat and pull it from the behavior context:
-            var callbackInvoked = BehaviorContext.Current.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
+            if (context.Messages == null)
+            {
+                var error = string.Format("Messages has not been set on the current behavior context: {0} - DispatchToHandlers must be executed AFTER having extracted the messages", context);
+                throw new ArgumentException(error);
+            }
+
+            var messageHandlers = context.Get<LoadedMessageHandlers>();
 
             foreach (var messageToHandle in messages)
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
-                var handlers = DispatchMessageToHandlersBasedOnType(Builder, messageToHandle).ToList();
+                var handlersToInvoke = messageHandlers.GetHandlersFor(messageToHandle.GetType());
 
-                if (!callbackInvoked && !handlers.Any())
-                {
-                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
-                    throw new InvalidOperationException(error);
-                }
+                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, handlersToInvoke);
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
@@ -56,38 +56,42 @@
         /// this prevents the message from being further dispatched.
         /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
         /// </remarks>
-        IEnumerable<Type> DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle,IEnumerable<object> handlers)
         {
-            var invokedHandlers = new List<Type>();
             var messageType = toHandle.GetType();
 
-            foreach (var handlerType in HandlerRegistry.GetHandlerTypes(messageType))
-            {
-                var handlerTypeToInvoke = handlerType;
 
+            foreach (var handler in handlers)
+            {
+                var handlerTypeToInvoke = handler.GetType();
+
+                //for backwards compatibility (users can have registered their own factory
                 var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
 
-                var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
-
-                dispatchers.ForEach(dispatch =>
+                if (factory != null)
                 {
-                    log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
-                    try
-                    {
-                        dispatch();
-                    }
-                    catch (Exception e)
-                    {
-                        log.Warn(handlerType.Name + " failed handling message.", e);
+                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
 
-                        throw new TransportMessageHandlingFailedException(e);
-                    }
-                });
+                    dispatchers.ForEach(dispatch =>
+                    {
+                        log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
+                        try
+                        {
+                            dispatch();
+                        }
+                        catch (Exception e)
+                        {
+                            log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
 
-                invokedHandlers.Add(handlerTypeToInvoke);
+                            throw new TransportMessageHandlingFailedException(e);
+                        }
+                    });                    
+                }
+                else
+                {
+                    HandlerInvocationCache.InvokeHandle(handler, toHandle);
+                }
             }
-
-            return invokedHandlers;
         }
 
         IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
@@ -98,7 +102,7 @@
             Builder.Build<UnicastBus>(). MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
-                throw new InvalidOperationException("No dispatcher factory type configured for messageHandler " + messageHandlerTypeToInvoke);
+                return null;
 
             var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
 

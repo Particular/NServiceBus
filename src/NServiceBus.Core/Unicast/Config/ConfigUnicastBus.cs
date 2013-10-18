@@ -53,9 +53,9 @@ namespace NServiceBus.Unicast.Config
             Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<PerformCustomActionsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<DispatchToHandlers>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
         }
 

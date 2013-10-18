@@ -127,7 +127,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
-            FuncBuilder.Register<DispatchToHandlers>(() => new DispatchToHandlers());
+            FuncBuilder.Register<LoadHandlersBehavior>(() => new LoadHandlersBehavior { Builder = FuncBuilder });
             FuncBuilder.Register<InvokeHandlersBehavior>(() => new InvokeHandlersBehavior { Builder = FuncBuilder });
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});

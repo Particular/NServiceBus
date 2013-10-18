@@ -1020,14 +1020,17 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            var handlerBehaviour = Builder.Build<InvokeHandlersBehavior>();
+            //all this seems very clunky, we need to find a better way to reuse the "invoke handlers" part of the pipeline
+            var handlersBehavior = Builder.Build<LoadHandlersBehavior>();
 
+            var invokeHandlersBehavior = Builder.Build<InvokeHandlersBehavior>();
 
-            handlerBehaviour.Next = new Terminator();
+            handlersBehavior.Next = invokeHandlersBehavior;
+            invokeHandlersBehavior.Next = new Terminator();
 
             using (var context = new BehaviorContext(new TransportMessage()){Messages = new object[] {@event}})
             {
-                handlerBehaviour.Invoke(context);    
+                handlersBehavior.Invoke(context);    
             }
 
             
@@ -1164,9 +1167,8 @@ namespace NServiceBus.Unicast
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
 
+                chain.Add<LoadHandlersBehavior>();
                 chain.Add<InvokeHandlersBehavior>();
-
-                chain.Add<DispatchToHandlers>();
             }
 
             chain.Invoke(msg);
