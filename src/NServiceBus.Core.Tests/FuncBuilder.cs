@@ -14,7 +14,15 @@
         {
 
         }
+        public void Register<T>()
+        {
+            Register(typeof(T), ()=>Activator.CreateInstance<T>());
+        }
 
+        public void Register(Type t)
+        {
+            Register(t, () => Activator.CreateInstance(t));
+        }
         public void Register<T>(Func<object> func)
         {
             Register(typeof(T), func);

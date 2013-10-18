@@ -34,9 +34,9 @@
                 {
                     var sagaMessageHandler = messageHandler as ISaga;
 
-                    if(sagaMessageHandler != null)
-                        LoadAndAttachSagaEntity(sagaMessageHandler,message);
-                }                
+                    if (sagaMessageHandler != null)
+                        LoadAndAttachSagaEntity(sagaMessageHandler, message);
+                }
             }
 
             Next.Invoke(context);
@@ -49,7 +49,7 @@
                 {
                     if (!sagaInstanceState.IsNew)
                     {
-                         SagaPersister.Complete(saga.Entity);
+                        SagaPersister.Complete(saga.Entity);
                     }
 
                     if (saga.Entity.Id != Guid.Empty)
@@ -75,25 +75,25 @@
             }
         }
 
-        void LoadAndAttachSagaEntity(ISaga saga,object message)
+        void LoadAndAttachSagaEntity(ISaga saga, object message)
         {
             var sagaType = saga.GetType();
 
             var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
-            var finders = GetFindersFor(message, Builder, sagaEntityType);
+            var finders = GetFindersFor(message, sagaEntityType);
             IContainSagaData sagaEntity = null;
 
             foreach (var finder in finders)
             {
-                sagaEntity = UseFinderToFindSaga(finder,message);
+                sagaEntity = UseFinderToFindSaga(finder, message);
 
                 if (sagaEntity != null)
                     break;
             }
 
             var isNew = false;
-            
+
             if (sagaEntity == null)
             {
                 sagaEntity = CreateNewSagaEntity(sagaType);
@@ -107,7 +107,7 @@
                 IsNew = isNew
             });
 
-         
+
         }
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
@@ -126,13 +126,15 @@
         }
 
 
-        IEnumerable<IFinder> GetFindersFor(object message, IBuilder builder,Type sagaEntityType)
+        IEnumerable<IFinder> GetFindersFor(object message, Type sagaEntityType)
         {
-            var sagaId = Headers.GetMessageHeader(message, Headers.SagaId);
-         
+            string sagaId = null;
+
+            currentContext.TransportMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
+
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersFor(message).Select(t => builder.Build(t) as IFinder).ToList();
+                var finders = Features.Sagas.GetFindersFor(message).Select(t => Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
                     logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
@@ -142,7 +144,7 @@
 
             logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
 
-            return new List<IFinder> { builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
+            return new List<IFinder> { Builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
         }
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)
@@ -158,6 +160,7 @@
 
             if (currentContext.TransportMessage.ReplyToAddress != null)
                 sagaEntity.Originator = currentContext.TransportMessage.ReplyToAddress.ToString();
+
             sagaEntity.OriginalMessageId = currentContext.TransportMessage.Id;
 
             return sagaEntity;
@@ -173,7 +176,6 @@
     {
         public ActiveSagaInstances()
         {
-            // Tuple<IContainSagaData, bool> = (data, whetherIsIsNew)
             Instances = new List<SagaInstanceContainer>();
         }
 
@@ -187,7 +189,7 @@
 
     class SagaInstanceContainer
     {
-        public ISaga Saga{ get; set; }
-        public bool IsNew{ get; set; }
+        public ISaga Saga { get; set; }
+        public bool IsNew { get; set; }
     }
 }

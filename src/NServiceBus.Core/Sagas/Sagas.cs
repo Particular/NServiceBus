@@ -249,7 +249,7 @@
             return source.IsAssignableFrom(t) && t != source && !t.IsAbstract && !t.IsInterface && !t.IsGenericType;
         }
 
-        static void ConfigureSaga(Type t)
+        public static void ConfigureSaga(Type t)
         {
             foreach (var messageType in GetMessageTypesHandledBySaga(t))
                 MapMessageTypeToSagaType(messageType, t);
