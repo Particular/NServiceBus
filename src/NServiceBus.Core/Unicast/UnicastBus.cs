@@ -190,12 +190,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IRouteMessages MessageRouter { get; set; }
 
-
-        /// <summary>
-        /// The handler registry for this <see cref="UnicastBus"/>
-        /// </summary>
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
-
         /// <summary>
         /// Event raised when no subscribers found for the published message.
         /// </summary>
@@ -1026,7 +1020,17 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            DispatchMessageToHandlersBasedOnType(Builder, @event);
+            var handlerBehaviour = Builder.Build<InvokeHandlersBehavior>();
+
+
+            handlerBehaviour.Next = new Terminator();
+
+            using (var context = new BehaviorContext(new TransportMessage()){Messages = new object[] {@event}})
+            {
+                handlerBehaviour.Invoke(context);    
+            }
+
+            
         }
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -1034,159 +1038,10 @@ namespace NServiceBus.Unicast
             Raise(CreateInstance(messageConstructor));
         }
 
-        /// <summary>
-        /// Handles a received message.
-        /// </summary>
-        /// <param name="builder">The builder used to construct the objects necessary to handle the message.</param>
-        /// <param name="m">The received message.</param>
-        /// <param name="behaviorContext"></param>
-        void HandleMessage(IBuilder builder, TransportMessage m, BehaviorContext behaviorContext)
-        {
-            var messages = behaviorContext.Messages;
-
-            //if (!m.IsControlMessage() && !SkipDeserialization)
-            //{
-            //    messages = Extract(m);
-
-            //    if (messages == null || messages.Length == 0)
-            //    {
-            //        Log.Warn("Received an empty message - ignoring.");
-            //        return;
-            //    }
-            //}
-
-            //apply mutators
-            //messages = messages.Select(msg =>
-            //                               {
-            //                                   //message mutators may need to assume that this has been set (eg. for the purposes of headers).
-            //                                   ExtensionMethods.CurrentMessageBeingHandled = msg;
-
-            //                                   return ApplyIncomingMessageMutatorsTo(builder, msg);
-            //                               }).ToArray();
-
-            //var callbackInvoked = HandleCorrelatedMessage(m, messages);
-
-            // for now we cheat and pull it from the behavior context:
-            var callbackInvoked = BehaviorContext.Current.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
-
-            foreach (var messageToHandle in messages)
-            {
-                ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
-
-                var handlers = DispatchMessageToHandlersBasedOnType(builder, messageToHandle).ToList();
-                
-                if (!callbackInvoked && !handlers.Any())
-                {
-                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
-                    throw new InvalidOperationException(error);
-                }
-
-                LogPipelineInfo(messageToHandle, handlers);
-            }
-
-            ExtensionMethods.CurrentMessageBeingHandled = null;
-        }
 
 
-        //static object ApplyIncomingMessageMutatorsTo(IBuilder builder, object originalMessage)
-        //{
-        //    var mutators = builder.BuildAll<IMutateIncomingMessages>().ToList();
-
-        //    var mutatedMessage = originalMessage;
-        //    mutators.ForEach(m =>
-        //    {
-        //        mutatedMessage = m.MutateIncoming(mutatedMessage);
-        //    });
-
-        //    return mutatedMessage;
-        //}
-
-        //private object[] Extract(TransportMessage m)
-        //{
-
-        //    if (m.Body == null || m.Body.Length == 0)
-        //    {
-        //        return null;
-        //    }
-
-        //    try
-        //    {
-
-        //        var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
 
-        //        using (var stream = new MemoryStream(m.Body))
-        //        {
-        //            return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw new SerializationException("Could not deserialize message.", e);
-        //    }
-        //}
-
-        /// <summary>
-        /// Finds the message handlers associated with the message type and dispatches
-        /// the message to the found handlers.
-        /// </summary>
-        /// <param name="builder">The builder used to construct the handlers.</param>
-        /// <param name="toHandle">The message to dispatch to the handlers.</param>
-        /// <remarks>
-        /// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
-        /// this prevents the message from being further dispatched.
-        /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
-        /// </remarks>
-        IEnumerable<Type> DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle)
-        {
-            var invokedHandlers = new List<Type>();
-            var messageType = toHandle.GetType();
-
-            foreach (var handlerType in HandlerRegistry.GetHandlerTypes(messageType))
-            {
-                var handlerTypeToInvoke = handlerType;
-
-                var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
-
-                var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
-
-                dispatchers.ForEach(dispatch =>
-                    {
-                        Log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
-                        try
-                        {
-                            dispatch();
-                        }
-                        catch (Exception e)
-                        {
-                            Log.Warn(handlerType.Name + " failed handling message.", e);
-
-                            throw new TransportMessageHandlingFailedException(e);
-                        }
-                    });
-
-                invokedHandlers.Add(handlerTypeToInvoke);
-            }
-
-            return invokedHandlers;
-        }
-
-        IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
-        {
-            Type factoryType;
-
-            MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
-
-            if (factoryType == null)
-                throw new InvalidOperationException("No dispatcher factory type configured for messageHandler " + messageHandlerTypeToInvoke);
-
-            var factory = builder.Build(factoryType) as IMessageDispatcherFactory;
-
-            if (factory == null)
-                throw new InvalidOperationException(string.Format("Registered dispatcher factory {0} for type {1} does not implement IMessageDispatcherFactory", factoryType, messageHandlerTypeToInvoke));
-
-            return factory;
-        }
 
         /// <summary>
         /// The list of message dispatcher factories to use
@@ -1303,67 +1158,21 @@ namespace NServiceBus.Unicast
                 chain.Add<AbortChainOnEmptyMessageBehavior>();
 
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
-                
+
                 chain.Add<AbortChainIfMessageDispatchIsDisabled>();
 
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
 
-                Action<BehaviorContext> handleMessage = c => HandleMessage(childBuilder, msg, c);
-
-                chain.Add<PerformCustomActionsBehavior>(c =>
-                                                    {
-                                                        c.Before = handleMessage;
-                                                        c.Label = "Execute message handlers";
-                                                    });
+                chain.Add<InvokeHandlersBehavior>();
 
                 chain.Add<DispatchToHandlers>();
             }
 
             chain.Invoke(msg);
-
-
-            //SetupImpersonation(childBuilder, msg);
-
-
-            //var unitOfWorkRunner = new UnitOfWorkRunner
-            //                      {
-            //                          Builder = childBuilder
-            //                      };
-
-            try
-            {
-                //unitOfWorkRunner.Begin();
-
-                //var transportMutators = childBuilder.BuildAll<IMutateIncomingTransportMessages>();
-
-                //if (transportMutators != null)
-                //    foreach (var mutator in transportMutators)
-                //        mutator.MutateIncoming(msg);
-
-                //_handleCurrentMessageLaterWasCalled = false;
-
-                //if (MessageReceived != null)
-                //    MessageReceived(msg);
-
-                //if (!disableMessageHandling)
-                //    HandleMessage(childBuilder, msg);
-
-                ////unitOfWorkRunner.End();
-
-                //// Will forward the message to the configured audit queue if the auditing feature is enabled.
-                //MessageAuditer.ForwardMessageToAuditQueue(msg);
-                //ForwardMessageIfNecessary(msg);
-            }
-            catch (Exception exception)
-            {
-                //unitOfWorkRunner.AppendEndExceptionsAndRethrow(exception);
-            }
-
-            //Log.Debug("Finished handling message.");
         }
 
-    
+
 
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
@@ -1560,12 +1369,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
 
-        void LogPipelineInfo(object messageToHandle, IEnumerable<Type> handlers)
-        {
-            var messageType = messageToHandle.GetType();
 
-            _messageBeingHandled.Headers["NServiceBus.PipelineInfo." + messageType.FullName] = string.Join(";", handlers.Select(t => t.AssemblyQualifiedName));
-        }
 
         Address inputAddress;
 

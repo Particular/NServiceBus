@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using ObjectBuilder;
+    using Unicast.Transport;
 
     public class FuncBuilder : IBuilder
     {
@@ -26,27 +27,36 @@
 
         public object Build(Type typeToBuild)
         {
-            var fn = funcs.FirstOrDefault(f => f.Item1 == typeToBuild);
-            
-            if (fn == null)
+            try
             {
-                var @interface = typeToBuild.GetInterfaces().FirstOrDefault();
-                if (@interface != null)
+                var fn = funcs.FirstOrDefault(f => f.Item1 == typeToBuild);
+
+                if (fn == null)
                 {
-                    fn = funcs.FirstOrDefault(f => f.Item1 == @interface);
+                    var @interface = typeToBuild.GetInterfaces().FirstOrDefault();
+                    if (@interface != null)
+                    {
+                        fn = funcs.FirstOrDefault(f => f.Item1 == @interface);
+                    }
                 }
+
+                var obj = fn.Item2();
+
+                //enable property injection
+                obj.GetType().GetProperties()
+                    .Select(p => p.PropertyType)
+                    .Intersect(funcs.Select(f => f.Item1)).ToList()
+                    .ForEach(propertyTypeToSet => obj.GetType().GetProperties().First(p => p.PropertyType == propertyTypeToSet)
+                                                      .SetValue(obj, Build(propertyTypeToSet), null));
+
+                return obj;
+
             }
-
-            var obj = fn.Item2();
-
-            //enable property injection
-            obj.GetType().GetProperties()
-                .Select(p => p.PropertyType)
-                .Intersect(funcs.Select(f => f.Item1)).ToList()
-                .ForEach(propertyTypeToSet => obj.GetType().GetProperties().First(p => p.PropertyType == propertyTypeToSet)
-                                                  .SetValue(obj, Build(propertyTypeToSet), null));
-
-            return obj;
+            catch (Exception ex)
+            {
+                
+                throw new Exception("Failed to build type: " + typeToBuild,ex);
+            }
         }
 
         public IBuilder CreateChildBuilder()

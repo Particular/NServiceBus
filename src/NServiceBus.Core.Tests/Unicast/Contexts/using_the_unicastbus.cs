@@ -13,11 +13,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Pipeline;
     using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
+    using Saga;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -104,7 +107,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
+            FuncBuilder.Register<SagaDispatcherFactory>(() => new SagaDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
+            FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
 
             FuncBuilder.Register<UnitOfWorkBehavior>(() => new UnitOfWorkBehavior {Builder = FuncBuilder});
@@ -123,6 +128,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
             FuncBuilder.Register<DispatchToHandlers>(() => new DispatchToHandlers());
+            FuncBuilder.Register<InvokeHandlersBehavior>(() => new InvokeHandlersBehavior { Builder = FuncBuilder });
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior {Builder = FuncBuilder});
 
@@ -147,7 +153,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionManager = subscriptionManager,
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
-                HandlerRegistry = handlerRegistry,
                 MessageRouter = router,
                 MessageAuditer = fakeMessageAuditer
             };
@@ -155,7 +160,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
-
+            FuncBuilder.Register<UnicastBus>(() => unicastBus);
+           
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }
 
@@ -188,7 +194,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
             if (unicastBus.MessageDispatcherMappings == null)
                 unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
 
-            unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);
+            if (typeof(ISaga).IsAssignableFrom(typeof(T)))
+            {
+                unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(SagaDispatcherFactory);
+            }
+            else
+            {
+                unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);    
+            }
+            
         }
         protected void RegisterOwnedMessageType<T>()
         {
@@ -283,6 +297,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
             catch (Exception ex)
             {
+                Console.Out.WriteLine("Fake message processing failed: "+ ex);
                 ResultingException = ex;
             }
         }
