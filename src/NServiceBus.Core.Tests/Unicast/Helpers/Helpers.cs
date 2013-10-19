@@ -47,6 +47,9 @@ namespace NServiceBus.Unicast.Tests.Helpers
                 m.Body = stream.ToArray();
             }
 
+            m.Headers[Headers.EnclosedMessageTypes] = typeof(T).FullName;
+
+
             return m;
         }
     }
