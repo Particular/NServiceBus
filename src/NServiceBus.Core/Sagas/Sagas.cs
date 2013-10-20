@@ -419,5 +419,19 @@
         static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(ReplyingToNullOriginatorDispatcher));
+
+        /// <summary>
+        /// Until we get rid of those statics
+        /// </summary>
+        public static void Clear()
+        {
+            MessageTypeToSagaTypesLookup.Clear();
+            SagaEntityTypeToSagaTypeLookup.Clear();
+            SagaTypeToSagaEntityTypeLookup.Clear();
+            FinderTypeToSagaEntityTypeLookup.Clear();
+            FinderTypeToMessageToMethodInfoLookup.Clear();
+
+            SagaTypeToMessageTypesRequiringSagaStartLookup.Clear();
+        }
     }
 }

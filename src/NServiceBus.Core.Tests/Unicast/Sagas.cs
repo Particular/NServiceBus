@@ -47,8 +47,28 @@
             Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
+      
+        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
+        {
+            public void Handle(MessageThatHitsExistingSaga message)
+            {
+                Data.SomeValue = "Test";
+            }
+        }
+
+        class MySagaData : ContainSagaData
+        {
+            public string SomeValue { get; set; }
+        }
+
+        class MessageThatHitsExistingSaga : IMessage { }
+    }
+
+    [TestFixture]
+    public class When_receiving_a_timeout_message : with_sagas
+    {
         [Test]
-        public void Should_invoke_timeout_method_if_message_is_a_saga_timeout()
+        public void Should_invoke_timeout_method_even_if_there_is_a_message_handler_as_well()
         {
             var sagaId = Guid.NewGuid();
 
@@ -67,34 +87,31 @@
         }
 
 
-        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>, IHandleTimeouts<MyTimeout>
+        class MySaga : Saga<MySagaData>,IHandleTimeouts<MyTimeout>,IHandleMessages<MyTimeout>
         {
-            public void Handle(MessageThatHitsExistingSaga message)
-            {
-                Data.SomeValue = "Test";
-            }
-
             public void Timeout(MyTimeout timeout)
             {
                 Data.TimeoutCalled = true;
+            }
+
+            public void Handle(MyTimeout message)
+            {
+                Assert.Fail("Regular handler should not be invoked");
             }
         }
 
         class MySagaData : ContainSagaData
         {
-            public string SomeValue { get; set; }
             public bool TimeoutCalled { get; set; }
         }
 
-        class MessageThatHitsExistingSaga : IMessage { }
-
-        class MyTimeout :IMessage { }
+        class MyTimeout : IMessage { }
     }
 
     [TestFixture]
     public class When_receiving_a_message_that_is_not_set_to_start_a_saga : with_sagas
     {
-        [Test, Ignore("Until we add the check in saga persitence behavior to Disable invocation if message are not allowed to start a new saga")]
+        [Test]
         public void Should_invoke_saga_not_found_handlers_if_no_saga_instance_is_found()
         {
             RegisterSaga<MySaga>();
@@ -131,7 +148,6 @@
 
         class MySagaData : ContainSagaData
         {
-            public string SomeValue { get; set; }
         }
 
         class MessageThatMissesSaga : IMessage { }

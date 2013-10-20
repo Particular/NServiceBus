@@ -18,6 +18,7 @@
             persister = new InMemorySagaPersister();
             FuncBuilder.Register<ISagaPersister>(() => persister);
 
+            Features.Sagas.Clear();
         }
 
         protected void RegisterExistingSagaEntity(IContainSagaData sagaEntity)
