@@ -42,15 +42,23 @@
 
             ReceiveMessage(new MessageThatHitsExistingSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
 
-            Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
+            Assert.AreEqual(1,persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+            Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
         class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
-            public void Handle(MessageThatHitsExistingSaga message) { }
+            public void Handle(MessageThatHitsExistingSaga message)
+            {
+                Data.SomeValue = "Test";
+            }
         }
 
-        class MySagaData : ContainSagaData { }
+        class MySagaData : ContainSagaData 
+        {
+            public string SomeValue { get; set; }
+        }
 
         class MessageThatHitsExistingSaga : IMessage { }
     }
