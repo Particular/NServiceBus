@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using IdGeneration;
@@ -25,34 +24,52 @@
         public void Invoke(BehaviorContext context)
         {
             currentContext = context;
-            var messages = context.Messages;
-            var loadedMessageHandlers = context.Get<LoadedMessageHandlers>();
 
+            activeSagaInstances = DetectSagas(context).ToList();
 
-            foreach (var message in messages)
+            foreach (var sagaInstanceState in activeSagaInstances)
             {
-                foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.GetType()))
+                var saga = sagaInstanceState.Instance;
+
+                var loadedEntity = TryLoadSagaEntity(saga, sagaInstanceState.MessageToProcess);
+
+                
+                if (loadedEntity == null)
                 {
-                    var sagaMessageHandler = messageHandler.Instance as ISaga;
-
-                    if (sagaMessageHandler == null)
-                        continue;
-
-                    TryLoadAndAttachSagaEntity(sagaMessageHandler, message);
-
-
-                    if (IsTimeoutMessage(message))
+                    //if this message are not allowed to start the saga
+                    if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType,
+                        sagaInstanceState.MessageToProcess))
                     {
-                        messageHandler.Invocation =HandlerInvocationCache.InvokeTimeout;
+                        sagaInstanceState.MarkAsNotFound();
+
+                        InvokeSagaNotFoundHandlers(sagaInstanceState);
+                        continue;
                     }
+
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaInstanceState.SagaType));
+                }
+                else
+                {
+                    sagaInstanceState.AttachExistingEntity(loadedEntity);
+                }
+
+                if (IsTimeoutMessage(sagaInstanceState.MessageToProcess))
+                {
+                    sagaInstanceState.Handler.Invocation = HandlerInvocationCache.InvokeTimeout;
                 }
             }
 
+            //so that other behaviors can access the sagas
+            context.Set(new ActiveSagaInstances(activeSagaInstances));
+
             Next.Invoke(context);
 
-            foreach (var sagaInstanceState in activeSagaInstances.Instances)
+            foreach (var sagaInstanceState in activeSagaInstances)
             {
-                var saga = sagaInstanceState.Saga;
+                if (sagaInstanceState.NotFound)
+                    continue;
+
+                var saga = sagaInstanceState.Instance;
 
                 if (saga.Completed)
                 {
@@ -65,6 +82,8 @@
                     {
                         NotifyTimeoutManagerThatSagaHasCompleted(saga);
                     }
+
+                    logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
                 }
                 else
                 {
@@ -76,11 +95,36 @@
                     {
                         SagaPersister.Update(saga.Entity);
                     }
-
                 }
+            }
+        }
 
-                if (saga.Completed)
-                    logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
+        void InvokeSagaNotFoundHandlers(ActiveSagaInstance sagaInstance)
+        {
+            logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", sagaInstance.MessageToProcess.GetType().FullName, currentContext.TransportMessage.Id);
+
+            foreach (var handler in Builder.BuildAll<IHandleSagaNotFound>())
+            {
+                logger.DebugFormat("Invoking SagaNotFoundHandler: {0}",handler.GetType().FullName);
+                handler.Handle(sagaInstance.MessageToProcess);
+            }
+        }
+
+        IEnumerable<ActiveSagaInstance> DetectSagas(BehaviorContext context)
+        {
+            var loadedMessageHandlers = context.Get<LoadedMessageHandlers>();
+
+            foreach (var message in context.Messages)
+            {
+                foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.GetType()))
+                {
+                    var saga = messageHandler.Instance as ISaga;
+
+                    if (saga != null)
+                    {
+                        yield return new ActiveSagaInstance(saga, messageHandler, message);
+                    }
+                }
             }
         }
 
@@ -92,39 +136,23 @@
             return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
         }
 
-        void TryLoadAndAttachSagaEntity(ISaga saga, object message)
+        IContainSagaData TryLoadSagaEntity(ISaga saga, object message)
         {
             var sagaType = saga.GetType();
 
             var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
             var finders = GetFindersFor(message, sagaEntityType);
-            IContainSagaData sagaEntity = null;
-
+           
             foreach (var finder in finders)
             {
-                sagaEntity = UseFinderToFindSaga(finder, message);
+                var sagaEntity = UseFinderToFindSaga(finder, message);
 
                 if (sagaEntity != null)
-                    break;
+                    return sagaEntity;
             }
 
-            var isNew = false;
-
-            if (sagaEntity == null)
-            {
-                sagaEntity = CreateNewSagaEntity(sagaType);
-                isNew = true;
-            }
-            saga.Entity = sagaEntity;
-
-            activeSagaInstances.AddInstance(new SagaInstanceContainer
-            {
-                Saga = saga,
-                IsNew = isNew
-            });
-
-
+            return null;
         }
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
@@ -183,7 +211,7 @@
             return sagaEntity;
         }
 
-        ActiveSagaInstances activeSagaInstances = new ActiveSagaInstances();
+        List<ActiveSagaInstance> activeSagaInstances;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
         BehaviorContext currentContext;
@@ -191,22 +219,62 @@
 
     class ActiveSagaInstances
     {
-        public ActiveSagaInstances()
+        public ActiveSagaInstances( List<ActiveSagaInstance> instances)
         {
-            Instances = new List<SagaInstanceContainer>();
+            Instances = instances;
         }
 
-        public List<SagaInstanceContainer> Instances { get; set; }
-
-        public void AddInstance(SagaInstanceContainer instanceContainer)
-        {
-            Instances.Add(instanceContainer);
-        }
+        public List<ActiveSagaInstance> Instances { get; private set; }
     }
 
-    class SagaInstanceContainer
+    class ActiveSagaInstance
     {
-        public ISaga Saga { get; set; }
-        public bool IsNew { get; set; }
+        public ActiveSagaInstance(ISaga saga, LoadedMessageHandlers.LoadedHandler messageHandler, object message)
+        {
+            Instance = saga;
+            SagaType = saga.GetType();
+            MessageToProcess = message;
+            Handler = messageHandler;
+
+            //default the invocation to disabled until we have a entity attached
+            Handler.InvocationDisabled = true;
+        }
+
+        public Type SagaType { get; private set; }
+        
+        public bool Found { get; private set; }
+        
+        public ISaga Instance { get; private set; }
+        
+        public bool IsNew { get; private set; }
+        
+        public object MessageToProcess { get; private set; }
+        
+        public LoadedMessageHandlers.LoadedHandler Handler { get; private set; }
+        
+        public bool NotFound { get; private set; }
+
+        public void AttachNewEntity(IContainSagaData sagaEntity)
+        {
+            IsNew = true;
+            AttachEntity(sagaEntity);
+        }
+
+        
+        public void AttachExistingEntity(IContainSagaData loadedEntity)
+        {
+            AttachEntity(loadedEntity);
+        }
+
+        void AttachEntity(IContainSagaData sagaEntity)
+        {
+            Instance.Entity = sagaEntity;
+            Handler.InvocationDisabled = false;
+        }
+
+        public void MarkAsNotFound()
+        {
+            NotFound = true;
+        }
     }
 }

@@ -72,7 +72,7 @@
            
         }
 
-        Snapshot AsNewSnapshot(SagaInstanceContainer container)
+        Snapshot AsNewSnapshot(ActiveSagaInstance container)
         {
             throw new NotImplementedException();
         }

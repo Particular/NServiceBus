@@ -38,7 +38,7 @@
         {
             public object Instance{ get; set; }
             public Action<object,object> Invocation { get; set; }
-            public bool Disabled { get; set; }
+            public bool InvocationDisabled { get; set; }
         }
     }
 }

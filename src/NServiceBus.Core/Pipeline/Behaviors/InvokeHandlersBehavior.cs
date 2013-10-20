@@ -51,7 +51,7 @@
 
             foreach (var loadedHandler in loadedHandlers.GetHandlersFor(messageType))
             {
-                if (loadedHandler.Disabled)
+                if (loadedHandler.InvocationDisabled)
                     continue;
 
                 var handlerInstance = loadedHandler.Instance;
