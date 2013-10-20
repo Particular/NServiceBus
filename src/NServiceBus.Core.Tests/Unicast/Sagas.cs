@@ -21,12 +21,12 @@
 
         class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>
         {
-            public void Handle(StartMessage message){}
+            public void Handle(StartMessage message) { }
         }
 
-        class MySagaData : ContainSagaData{}
+        class MySagaData : ContainSagaData { }
 
-        class StartMessage : IMessage{}
+        class StartMessage : IMessage { }
     }
 
     [TestFixture]
@@ -38,41 +38,69 @@
             var sagaId = Guid.NewGuid();
 
             RegisterSaga<MySaga>();
-            RegisterExistingSagaEntity(new MySagaData{ Id = sagaId});
+            RegisterExistingSagaEntity(new MySagaData { Id = sagaId });
 
             ReceiveMessage(new MessageThatHitsExistingSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
 
-            Assert.AreEqual(1,persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 
             Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
-        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
+        [Test]
+        public void Should_invoke_timeout_method_if_message_is_a_saga_timeout()
+        {
+            var sagaId = Guid.NewGuid();
+
+            RegisterSaga<MySaga>();
+            RegisterExistingSagaEntity(new MySagaData { Id = sagaId });
+
+            ReceiveMessage(new MyTimeout(), new Dictionary<string, string>
+            {
+                { Headers.SagaId, sagaId.ToString() },
+                {Headers.IsSagaTimeoutMessage, true.ToString() }
+            });
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+            Assert.True(((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).TimeoutCalled, "Timeout method should be invoked");
+        }
+
+
+        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>, IHandleTimeouts<MyTimeout>
         {
             public void Handle(MessageThatHitsExistingSaga message)
             {
                 Data.SomeValue = "Test";
             }
+
+            public void Timeout(MyTimeout timeout)
+            {
+                Data.TimeoutCalled = true;
+            }
         }
 
-        class MySagaData : ContainSagaData 
+        class MySagaData : ContainSagaData
         {
             public string SomeValue { get; set; }
+            public bool TimeoutCalled { get; set; }
         }
 
         class MessageThatHitsExistingSaga : IMessage { }
+
+        class MyTimeout :IMessage { }
     }
 
     [TestFixture]
     public class When_receiving_a_message_that_is_not_set_to_start_a_saga : with_sagas
     {
-        [Test,Ignore("Until we add the check in saga persitence behavior to Disable invocation if message are not allowed to start a new saga"))]
+        [Test, Ignore("Until we add the check in saga persitence behavior to Disable invocation if message are not allowed to start a new saga")]
         public void Should_invoke_saga_not_found_handlers_if_no_saga_instance_is_found()
         {
             RegisterSaga<MySaga>();
-            
+
             var invoked = false;
-            
+
             FuncBuilder.Register<IHandleSagaNotFound>(() =>
             {
                 invoked = true;
@@ -82,7 +110,7 @@
             ReceiveMessage(new MessageThatMissesSaga());
 
             Assert.True(invoked, "Not found handler should be invoked");
-    
+
             Assert.AreEqual(0, persister.CurrentSagaEntities.Count(), "No saga should be stored");
         }
 
@@ -94,7 +122,7 @@
             }
         }
 
-        class SagaNotFoundHandler:IHandleSagaNotFound
+        class SagaNotFoundHandler : IHandleSagaNotFound
         {
             public void Handle(object message)
             {

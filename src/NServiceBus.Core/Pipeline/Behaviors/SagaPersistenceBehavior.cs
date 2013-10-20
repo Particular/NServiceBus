@@ -10,6 +10,7 @@
     using Saga;
     using Sagas.Finders;
     using Transports;
+    using Unicast;
 
     class SagaPersistenceBehavior : IBehavior
     {
@@ -38,6 +39,12 @@
                         continue;
 
                     TryLoadAndAttachSagaEntity(sagaMessageHandler, message);
+
+
+                    if (IsTimeoutMessage(message))
+                    {
+                        messageHandler.Invocation =HandlerInvocationCache.InvokeTimeout;
+                    }
                 }
             }
 
@@ -75,6 +82,14 @@
                 if (saga.Completed)
                     logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
             }
+        }
+
+        /// <summary>
+        /// True if this is a timeout message
+        /// </summary>
+        static bool IsTimeoutMessage(object message)
+        {
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
         }
 
         void TryLoadAndAttachSagaEntity(ISaga saga, object message)
