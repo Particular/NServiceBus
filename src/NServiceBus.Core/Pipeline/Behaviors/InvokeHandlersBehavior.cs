@@ -37,9 +37,7 @@
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
-                var handlersToInvoke = messageHandlers.GetHandlersFor(messageToHandle.GetType());
-
-                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, handlersToInvoke);
+                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, messageHandlers);
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
@@ -47,32 +45,25 @@
             Next.Invoke(context);
         }
 
-        /// <summary>
-        /// Finds the message handlers associated with the message type and dispatches
-        /// the message to the found handlers.
-        /// </summary>
-        /// <param name="builder">The builder used to construct the handlers.</param>
-        /// <param name="toHandle">The message to dispatch to the handlers.</param>
-        /// <remarks>
-        /// If during the dispatch, a message handler calls the DoNotContinueDispatchingCurrentMessageToHandlers method,
-        /// this prevents the message from being further dispatched.
-        /// This includes generic message handlers (of IMessage), and handlers for the specific messageType.
-        /// </remarks>
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle,IEnumerable<object> handlers)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle,LoadedMessageHandlers loadedHandlers)
         {
             var messageType = toHandle.GetType();
 
-
-            foreach (var handler in handlers)
+            foreach (var loadedHandler in loadedHandlers.GetHandlersFor(messageType))
             {
+                if (loadedHandler.Disabled)
+                    continue;
+
+                var handlerInstance = loadedHandler.Instance;
                 try
                 {
                     //until we have a outgoing pipeline that inherits context from the main one
-                    if (handler is ISaga)
+                    if (handlerInstance is ISaga)
                     {
-                        SagaContext.Current = (ISaga) handler;
+                        SagaContext.Current = (ISaga) handlerInstance;
                     }
-                    var handlerTypeToInvoke = handler.GetType();
+                    
+                    var handlerTypeToInvoke = handlerInstance.GetType();
 
                     //for backwards compatibility (users can have registered their own factory
                     var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
@@ -98,7 +89,7 @@
                     }
                     else
                     {
-                        HandlerInvocationCache.InvokeHandle(handler, toHandle);
+                        loadedHandler.Invocation(handlerInstance, toHandle);
                     }
 
                 }

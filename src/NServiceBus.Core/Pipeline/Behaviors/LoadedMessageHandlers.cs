@@ -2,28 +2,43 @@
 {
     using System;
     using System.Collections.Generic;
+    using Unicast;
 
     internal class LoadedMessageHandlers
     {
-        public IEnumerable<object> GetHandlersFor(Type messageType)
+        public IEnumerable<LoadedHandler> GetHandlersFor(Type messageType)
         {
             return messageHandlers[messageType];
         }
 
-        Dictionary<Type, List<object>> messageHandlers = new Dictionary<Type, List<object>>();
-
+       
         public void AddHandler(Type messageType, object handler)
         {
-            List<object> handlersForMessage;
+            List<LoadedHandler> handlersForMessage;
+
+            var loadedHandler = new LoadedHandler
+            {
+                Instance = handler,
+                Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+            };
 
             if (!messageHandlers.TryGetValue(messageType, out handlersForMessage))
             {
-                messageHandlers[messageType] = new List<object>{handler};
+                messageHandlers[messageType] = new List<LoadedHandler> { loadedHandler };
             }
             else
             {
-                handlersForMessage.Add(handler);
+                handlersForMessage.Add(loadedHandler);
             }
+        }
+
+        Dictionary<Type, List<LoadedHandler>> messageHandlers = new Dictionary<Type, List<LoadedHandler>>();
+
+        internal class LoadedHandler
+        {
+            public object Instance{ get; set; }
+            public Action<object,object> Invocation { get; set; }
+            public bool Disabled { get; set; }
         }
     }
 }

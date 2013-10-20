@@ -32,10 +32,12 @@
             {
                 foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.GetType()))
                 {
-                    var sagaMessageHandler = messageHandler as ISaga;
+                    var sagaMessageHandler = messageHandler.Instance as ISaga;
 
-                    if (sagaMessageHandler != null)
-                        LoadAndAttachSagaEntity(sagaMessageHandler, message);
+                    if (sagaMessageHandler == null)
+                        continue;
+
+                    TryLoadAndAttachSagaEntity(sagaMessageHandler, message);
                 }
             }
 
@@ -75,7 +77,7 @@
             }
         }
 
-        void LoadAndAttachSagaEntity(ISaga saga, object message)
+        void TryLoadAndAttachSagaEntity(ISaga saga, object message)
         {
             var sagaType = saga.GetType();
 
