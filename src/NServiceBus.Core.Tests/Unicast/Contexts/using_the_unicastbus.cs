@@ -284,6 +284,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
+                ExtensionMethods.GetHeaderAction = (o, s) =>
+                {
+                    string v;
+                    transportMessage.Headers.TryGetValue(s, out v);
+                    return v;
+                };
+
+                ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
+
                 Transport.FakeMessageBeingProcessed(transportMessage);
             }
             catch (Exception ex)
@@ -307,6 +316,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
 
 
+        
             ReceiveMessage(messageToReceive);
         }
 

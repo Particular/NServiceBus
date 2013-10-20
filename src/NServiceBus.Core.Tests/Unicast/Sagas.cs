@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
-    using Persistence.InMemory.SagaPersister;
     using Saga;
 
     [TestFixture]
@@ -17,7 +16,7 @@
 
             ReceiveMessage(new StartMessage());
 
-            Assert.AreEqual(1, persister.CurrentSagaEntities().Keys.Count());
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
 
         class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>
@@ -33,28 +32,27 @@
     [TestFixture]
     public class When_receiving_a_message_that_is_handled_by_a_saga : with_sagas
     {
-        [Test, Ignore("Need to configure the finder first")]
+        [Test]
         public void Should_find_existing_instance_by_id_if_saga_header_is_found()
         {
             var sagaId = Guid.NewGuid();
 
-            persister.CurrentSagaEntities()[sagaId] = new InMemorySagaPersister.VersionedSagaEntity();
-
             RegisterSaga<MySaga>();
+            RegisterExistingSagaEntity(new MySagaData{ Id = sagaId});
 
-            ReceiveMessage(new StartMessage(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
+            ReceiveMessage(new MessageThatHitsExistingSaga(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
 
-            Assert.AreEqual(1, persister.CurrentSagaEntities().Keys.Count());
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
 
-        class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>
+        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
-            public void Handle(StartMessage message) { }
+            public void Handle(MessageThatHitsExistingSaga message) { }
         }
 
         class MySagaData : ContainSagaData { }
 
-        class StartMessage : IMessage { }
+        class MessageThatHitsExistingSaga : IMessage { }
     }
 
 

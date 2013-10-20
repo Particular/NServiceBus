@@ -20,6 +20,12 @@
 
         }
 
+        protected void RegisterExistingSagaEntity(IContainSagaData sagaEntity)
+        {
+            persister.CurrentSagaEntities[sagaEntity.Id] = new InMemorySagaPersister.VersionedSagaEntity { SagaEntity = sagaEntity };
+
+        }
+
         protected void RegisterSaga<T>() where T : new()
         {
             var sagaType = typeof(T);
@@ -34,8 +40,13 @@
                     sagaEntityType = type;
 
             }
+            
+            var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType); 
+            FuncBuilder.Register(sagaHeaderIdFinder);
+
             Features.Sagas.ConfigureSaga(sagaType);
-            FuncBuilder.Register(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType));
+            Features.Sagas.ConfigureFinder(sagaHeaderIdFinder);
+
             RegisterMessageHandlerType<T>();
 
         }

@@ -278,7 +278,7 @@
         }
 
 
-        static void ConfigureFinder(Type t)
+        public static void ConfigureFinder(Type t)
         {
             foreach (var interfaceType in t.GetInterfaces())
             {

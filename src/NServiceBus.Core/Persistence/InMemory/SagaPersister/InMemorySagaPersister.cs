@@ -125,9 +125,12 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
         }
 
-        public IDictionary<Guid, VersionedSagaEntity> CurrentSagaEntities()
+        public IDictionary<Guid, VersionedSagaEntity> CurrentSagaEntities
         {
-            return data;
+            get
+            {
+                return data;             
+            }
         }
 
         private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
