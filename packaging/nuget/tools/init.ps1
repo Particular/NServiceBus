@@ -23,37 +23,37 @@ $nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Majo
 
 #Figure out if this machine is properly setup
 try {
-$doesNsbKeyExist = Test-Path $nserviceBusKeyPath
-if (!$doesNsbKeyExist) {
-New-Item -Path HKCU:SOFTWARE -Name NServiceBus | Out-Null
-}
-$doesVersionKeyExist = Test-Path $nserviceBusVersionPath
-if (!$doesVersionKeyExist){
-$versionToAdd = $nservicebusVersion.Major.ToString() + "." + $nservicebusVersion.Minor.ToString()
-New-Item -Path $nserviceBusKeyPath -Name $versionToAdd | Out-Null
-New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "false" | Out-Null
-}
-else
-{
-$a = Get-ItemProperty -path $nserviceBusVersionPath
-$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
-$dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
+	if (!(Test-Path $nserviceBusKeyPath)) {
+		New-Item -Path HKCU:SOFTWARE -Name NServiceBus | Out-Null
+	}
 
-if($preparedInVersion.value -eq $true){
-	$machinePrepared = $true
-}
-  
-if($machinePrepared -or $dontCheckMachineSetup.value)
-{
-	exit
-}
-}
+	if (!(Test-Path $nserviceBusVersionPath)){
+		$versionToAdd = $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
+		New-Item -Path $nserviceBusKeyPath -Name $versionToAdd | Out-Null
+		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "false" | Out-Null
+	}
+	else
+	{
+		$a = Get-ItemProperty -path $nserviceBusVersionPath
+		$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
+		$dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
+
+		if($preparedInVersion.value -eq $true){
+			$machinePrepared = $true
+		}
+	  
+		if($machinePrepared -or $dontCheckMachineSetup.value)
+		{
+			exit
+		}
+	}
 } Catch [Exception] {}
 
 $perfCountersInstalled = $false
 $msmqInstalled = $false
 $dtcInstalled = $false
 $ravenDBInstalled = $false
+
 try {
 	$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
 } Catch [System.Security.SecurityException] { }
@@ -88,7 +88,7 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 }
 
 try {
-Set-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -Value "true" | Out-Null
+	Set-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -Value "true" | Out-Null
 } Catch [Exception] { }
 
 
