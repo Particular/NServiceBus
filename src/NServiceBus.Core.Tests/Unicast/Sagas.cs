@@ -19,6 +19,19 @@
             Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
 
+        [Test]
+        public void Should_hit_existing_saga_if_one_is_found()
+        {
+            var sagaId = Guid.NewGuid();
+
+            RegisterSaga<MySaga>();
+            RegisterExistingSagaEntity(new MySagaData { Id = sagaId });
+
+            ReceiveMessage(new StartMessage(), new Dictionary<string, string> { { Headers.SagaId, sagaId.ToString() } });
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
+        }
+        
         class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>
         {
             public void Handle(StartMessage message) { }
