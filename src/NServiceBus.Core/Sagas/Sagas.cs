@@ -80,7 +80,7 @@
             messageToProperties[messageType] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
         }
 
-        private static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
+        public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
         /// <summary>
         /// Creates an <see cref="NullSagaFinder{T}" /> for each saga type that doesn't have a finder configured.

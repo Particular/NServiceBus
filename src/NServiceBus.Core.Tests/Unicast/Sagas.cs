@@ -47,6 +47,22 @@
             Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
+        [Test]
+        public void Should_find_existing_instance_by_property()
+        {
+            var sagaId = Guid.NewGuid();
+            var correlationId = Guid.NewGuid();
+
+            RegisterSaga<MySaga>();
+            RegisterExistingSagaEntity(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
+
+            ReceiveMessage(new MessageThatHitsExistingSaga{PropertyThatCorrelatesToSaga = correlationId});
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+            Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
+        }
+
       
         class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
@@ -54,14 +70,24 @@
             {
                 Data.SomeValue = "Test";
             }
+
+            public override void ConfigureHowToFindSaga()
+            {
+                ConfigureMapping<MessageThatHitsExistingSaga>(m=>m.PropertyThatCorrelatesToSaga)
+                    .ToSaga(s=>s.PropertyThatCorrelatesToMessage);
+            }
         }
 
         class MySagaData : ContainSagaData
         {
             public string SomeValue { get; set; }
+            public Guid PropertyThatCorrelatesToMessage { get; set; }
         }
 
-        class MessageThatHitsExistingSaga : IMessage { }
+        class MessageThatHitsExistingSaga : IMessage 
+        {
+            public Guid PropertyThatCorrelatesToSaga { get; set; }
+        }
     }
 
     [TestFixture]
