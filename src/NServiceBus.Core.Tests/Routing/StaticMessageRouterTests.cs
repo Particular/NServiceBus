@@ -2,12 +2,19 @@ namespace NServiceBus.Core.Tests.Sagas
 {
     using System;
     using System.Linq;
+    using NServiceBus.AutomaticSubscriptions;
     using NUnit.Framework;
+    using Settings;
     using Unicast.Routing;
 
     [TestFixture]
     public class StaticMessageRouterTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            SettingsHolder.Reset();
+        }
 
         [Test]
         public void When_initialized_known_message_returns_empty()
@@ -35,9 +42,7 @@ namespace NServiceBus.Core.Tests.Sagas
             router.RegisterRoute(typeof(Message1), overrideAddress);
 
             Assert.AreEqual(overrideAddress, router.GetDestinationFor(typeof(Message1)).Single());
-
         }
-
 
         [Test]
         public void When_initialized_unknown_message_returns_empty()
@@ -86,6 +91,33 @@ namespace NServiceBus.Core.Tests.Sagas
             Assert.AreSame(inheritedAddress, router.GetDestinationFor(inheritedType).Single());
         }
 
+        [Test]
+        public void When_registered_registering_multiple_addresses_for_same_type_same_number_of_addresses_are_returned()
+        {
+            var baseType = typeof(BaseMessage);
+            var router = new StaticMessageRouter(Enumerable.Empty<Type>());
+            var addressA = new Address("BaseMessage", "A");
+            router.RegisterRoute(baseType, addressA);
+            var addressB = new Address("BaseMessage", "b");
+            router.RegisterRoute(baseType, addressB);
+
+            Assert.AreEqual(2, router.GetDestinationFor(baseType).Count);
+        }
+
+        [Test]
+        public void When_registered_registering_multiple_addresses_for_same_type_and_using_plainmessages_last_one_wins()
+        {
+            SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(s=> s.SubscribePlainMessages, true);
+            var baseType = typeof(BaseMessage);
+            var router = new StaticMessageRouter(Enumerable.Empty<Type>());
+            var addressA = new Address("BaseMessage", "A");
+            router.RegisterRoute(baseType, addressA);
+            var addressB = new Address("BaseMessage", "b");
+            router.RegisterRoute(baseType, addressB);
+
+            Assert.AreEqual(1, router.GetDestinationFor(baseType).Count);
+        }
+
         public class Message1
         {
             
@@ -95,7 +127,7 @@ namespace NServiceBus.Core.Tests.Sagas
             
         }
 
-        public class BaseMessage
+        public class BaseMessage : IEvent
         {
             
         }

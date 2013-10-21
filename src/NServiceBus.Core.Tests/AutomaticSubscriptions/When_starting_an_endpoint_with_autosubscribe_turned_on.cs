@@ -1,7 +1,5 @@
 namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
     using Unicast.Routing;

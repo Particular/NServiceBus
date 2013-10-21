@@ -4,7 +4,9 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using AutomaticSubscriptions;
     using Logging;
+    using Settings;
 
     /// <summary>
     /// The default message router
@@ -37,8 +39,10 @@
 
         public void RegisterRoute(Type messageType, Address endpointAddress)
         {
-            if(endpointAddress == null || endpointAddress == Address.Undefined)
+            if (endpointAddress == null || endpointAddress == Address.Undefined)
+            {
                 throw new InvalidOperationException("Undefined routes are not allowed, MessageType: " + messageType.FullName);
+            }
 
             List<Address> currentAddress;
 
@@ -49,14 +53,31 @@
 
             if (currentAddress.Any())
             {
-                Logger.InfoFormat("Routing for message: {0} appending {1}", messageType, endpointAddress);
+                var subscribePlainMessages = false;
+                var key = typeof(DefaultAutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
+                
+                if (SettingsHolder.HasSetting(key))
+                {
+                    subscribePlainMessages = SettingsHolder.Get<bool>(key);
+                }
+
+                if (!subscribePlainMessages && MessageConventionExtensions.IsEventType(messageType))
+                {
+                    Logger.DebugFormat("Routing for message: {0} appending {1}", messageType, endpointAddress);
+                    currentAddress.Add(endpointAddress);
+                }
+                else
+                {
+                    Logger.DebugFormat("Routing for message: {0} set to {1}", messageType, endpointAddress);
+                    currentAddress.Clear();
+                    currentAddress.Add(endpointAddress);
+                }
             }
             else
             {
+                currentAddress.Add(endpointAddress);
                 Logger.DebugFormat("Routing for message: {0} set to {1}", messageType, endpointAddress);
             }
-
-            currentAddress.Add(endpointAddress);
 
             //go through the existing routes and see if this means that we can route any of those
             foreach (var route in routes)
@@ -78,7 +99,7 @@
 
         }
 
-        ConcurrentDictionary<Type, List<Address>> routes;
-        static ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
+        readonly ConcurrentDictionary<Type, List<Address>> routes;
+        static readonly ILog Logger = LogManager.GetLogger(typeof(StaticMessageRouter));
     }
 }

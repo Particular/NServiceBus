@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
