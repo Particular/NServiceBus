@@ -597,7 +597,7 @@
     </PropertyGroup>
     <Delete Files="$(MergeTemp)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:$(SolutionDir)NServiceBus.snk /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:v4" />
+    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Interop.MSMQ.dll" "$(TargetDir)AutoFac.dll" "$(TargetDir)Newtonsoft.Json.dll" /target:library /targetplatform:"v4,$(FrameworkPathOverride)"' />
     <Delete Files="$(MergeTemp)" />
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
