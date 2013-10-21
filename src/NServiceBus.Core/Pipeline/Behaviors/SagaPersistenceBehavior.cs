@@ -128,9 +128,6 @@
             }
         }
 
-        /// <summary>
-        /// True if this is a timeout message
-        /// </summary>
         static bool IsTimeoutMessage(object message)
         {
             return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
@@ -142,7 +139,7 @@
 
             var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
-            var finders = GetFindersFor(message, sagaEntityType);
+            var finders = GetFindersFor(message.GetType(), sagaEntityType);
            
             foreach (var finder in finders)
             {
@@ -171,7 +168,7 @@
         }
 
 
-        IEnumerable<IFinder> GetFindersFor(object message, Type sagaEntityType)
+        IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
             string sagaId = null;
 
@@ -179,10 +176,10 @@
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersFor(message).Select(t => Builder.Build(t) as IFinder).ToList();
+                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
-                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), message.GetType());
+                    logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), messageType);
 
                 return finders;
             }

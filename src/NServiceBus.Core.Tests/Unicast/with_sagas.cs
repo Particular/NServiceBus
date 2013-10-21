@@ -23,13 +23,8 @@
             Features.Sagas.Clear();
         }
 
-        protected void RegisterExistingSagaEntity(IContainSagaData sagaEntity)
-        {
-            persister.CurrentSagaEntities[sagaEntity.Id] = new InMemorySagaPersister.VersionedSagaEntity { SagaEntity = sagaEntity };
 
-        }
-
-        protected void RegisterSaga<T>() where T : new()
+        protected void RegisterSaga<T>(object sagaEntity = null) where T : new()
         {
             var sagaEntityType = GetSagaEntityType<T>();
 
@@ -54,6 +49,13 @@
                     propertyFinder.GetProperty("MessageProperty").SetValue(finder, propertyLookups.Value);
                     FuncBuilder.Register(propertyFinder, () => finder);
                 }
+            }
+
+            if (sagaEntity != null)
+            {
+                var se = (IContainSagaData) sagaEntity;
+
+                persister.CurrentSagaEntities[se.Id] = new InMemorySagaPersister.VersionedSagaEntity { SagaEntity = se };
             }
             RegisterMessageHandlerType<T>();
 

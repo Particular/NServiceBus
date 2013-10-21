@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Config;
     using Logging;
@@ -21,11 +22,11 @@
             {
                 InfrastructureServices.Enable<ISagaPersister>();
 
-                Logger.InfoFormat("Sagas found in scanned types, saga persister enabled"); 
+                Logger.InfoFormat("Sagas found in scanned types, saga persister enabled");
             }
             else
             {
-               Logger.InfoFormat("The saga feature was enabled but no saga implementations could be found. No need to enable the configured saga persister"); 
+                Logger.InfoFormat("The saga feature was enabled but no saga implementations could be found. No need to enable the configured saga persister");
             }
         }
 
@@ -220,6 +221,7 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
+        [ObsoleteEx(Replacement = "GetFindersForMessageAndEntity", TreatAsErrorFromVersion = "4.3")]
         public static IEnumerable<Type> GetFindersFor(object m)
         {
             foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
@@ -234,6 +236,27 @@
                 foreach (var messageType in messageToMethodInfo.Keys)
                     if (messageType.IsInstanceOfType(m))
                         yield return finderType;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of finder object capable of using the given message.
+        /// </summary>
+        /// <param name="messageType"></param>
+        /// <param name="entityType"></param>
+        /// <returns></returns>
+        public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
+        {
+            foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
+            {
+                var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
+
+                MethodInfo methodInfo;
+
+                if (messageToMethodInfo.TryGetValue(messageType, out methodInfo) && methodInfo.ReturnType == entityType)
+                {
+                    yield return finderType;
+                }
             }
         }
 
