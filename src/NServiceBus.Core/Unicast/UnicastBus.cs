@@ -27,6 +27,7 @@ namespace NServiceBus.Unicast
     using Support;
     using Transport;
     using Transports;
+    using UnitOfWork;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.

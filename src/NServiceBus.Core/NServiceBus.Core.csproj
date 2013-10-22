@@ -127,7 +127,7 @@
     <Compile Include="Pipeline\Behaviors\SagaPersistenceBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\SagaStateAuditingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\Snapshot.cs" />
-    <Compile Include="Pipeline\Behaviors\UnitOfWorkBehavior.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
@@ -559,7 +559,6 @@
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
-    <Compile Include="Unicast\UnitOfWorkRunner.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />

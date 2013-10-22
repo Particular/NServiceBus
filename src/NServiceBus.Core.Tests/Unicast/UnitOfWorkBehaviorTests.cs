@@ -4,27 +4,27 @@
     using System.Linq;
     using Core.Tests;
     using NUnit.Framework;
+    using ObjectBuilder;
+    using Pipeline;
+    using Serializers.Json.Tests;
     using UnitOfWork;
 
     [TestFixture]
-    public class UnitOfWorkRunnerTests
+    public class UnitOfWorkBehaviorTests
     {
+
         [Test]
         public void When_first_throw_second_is_cleaned_up()
         {
             var builder = new FuncBuilder();
-            
+
             var unitOfWorkThatThrowsFromEnd = new UnitOfWorkThatThrowsFromEnd();
             var unitOfWork = new UnitOfWork();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWorkThatThrowsFromEnd);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
-            var runner = new UnitOfWorkRunner
-                         {
-                             Builder = builder
-                         };
-            runner.Begin();
-            Assert.Throws<InvalidOperationException>(runner.End);
+
+            Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.BeginCalled);
             Assert.IsTrue(unitOfWorkThatThrowsFromEnd.EndCalled);
             Assert.IsTrue(unitOfWork.BeginCalled);
@@ -39,16 +39,24 @@
             var unitOfWork = new UnitOfWorkThatThrowsFromEnd();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
-            var runner = new UnitOfWorkRunner
+
+            var aggregateException = Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
+
+            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, aggregateException.InnerExceptions[0]);
+        }
+
+        public void InvokeBehavior(IBuilder builder)
+        {
+            var runner = new UnitOfWorkBehavior
             {
                 Builder = builder
             };
-            var exception = new Exception();
-            runner.Begin();
-            var aggregateException = Assert.Throws<AggregateException>(() => runner.AppendEndExceptionsAndRethrow(exception));
-            var innerExceptions = aggregateException.InnerExceptions;
-            Assert.AreSame(exception, innerExceptions[0]);
-            Assert.AreSame(unitOfWork.ExceptionThrownFromEnd, innerExceptions[1]);
+
+            using (var context = new BehaviorContext(new TransportMessage()))
+            {
+                runner.Invoke(context, () => { });
+            }
+
         }
 
         public class UnitOfWorkThatThrowsFromEnd : IManageUnitsOfWork
@@ -98,12 +106,8 @@
             builder.Register<IManageUnitsOfWork>(() => unitOfWork1);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork2);
             builder.Register<IManageUnitsOfWork>(() => unitOfWork3);
-            var runner = new UnitOfWorkRunner
-                         {
-                             Builder = builder
-                         };
-            runner.Begin();
-            runner.End();
+
+            InvokeBehavior(builder);
 
             Assert.AreEqual(1, unitOfWork1.BeginCallIndex);
             Assert.AreEqual(2, unitOfWork2.BeginCallIndex);
@@ -138,17 +142,15 @@
             var builder = new FuncBuilder();
 
             var unitOfWork = new CaptureExceptionPassedToEndUnitOfWork();
+            var throwingUoW = new UnitOfWorkThatThrowsFromEnd();
 
             builder.Register<IManageUnitsOfWork>(() => unitOfWork);
-            var runner = new UnitOfWorkRunner
-                         {
-                             Builder = builder
-                         };
-            var exception = new Exception();
-            runner.Begin();
-            var aggregateException = Assert.Throws<AggregateException>(() => runner.AppendEndExceptionsAndRethrow(exception));
-            Assert.AreSame(exception, unitOfWork.Exception);
-            Assert.AreSame(exception, aggregateException.InnerExceptions.Single());
+            builder.Register<IManageUnitsOfWork>(() => throwingUoW);
+
+            var aggregateException = Assert.Throws<AggregateException>(() => InvokeBehavior(builder));
+
+            Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, unitOfWork.Exception);
+            Assert.AreSame(throwingUoW.ExceptionThrownFromEnd, aggregateException.InnerExceptions.Single());
         }
 
         public class CaptureExceptionPassedToEndUnitOfWork : IManageUnitsOfWork

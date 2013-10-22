@@ -12,6 +12,7 @@ namespace NServiceBus.Unicast.Config
     using Pipeline.Behaviors;
     using Routing;
     using Settings;
+    using UnitOfWork;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
