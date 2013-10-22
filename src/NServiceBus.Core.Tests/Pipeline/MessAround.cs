@@ -53,8 +53,6 @@
 //        {
 //            public IBuilder Builder { get; set; }
 
-//            public IBehavior Next { get; set; }
-
 //            public void Invoke(IBehaviorContext context)
 //            {
 //                using (var session = Builder.Build<IDocumentSession>())

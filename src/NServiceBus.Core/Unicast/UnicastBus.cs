@@ -1018,33 +1018,6 @@ namespace NServiceBus.Unicast
             started = false;
         }
 
-        public void Raise<T>(T @event)
-        {
-            //all this seems very clunky, we need to find a better way to reuse the "invoke handlers" part of the pipeline
-            var loadHandlersBehavior = Builder.Build<LoadHandlersBehavior>();
-
-            var invokeHandlersBehavior = Builder.Build<InvokeHandlersBehavior>();
-
-            loadHandlersBehavior.Next = invokeHandlersBehavior;
-            invokeHandlersBehavior.Next = new Terminator();
-
-            using (var context = new BehaviorContext(new TransportMessage()){Messages = new object[] {@event}})
-            {
-                loadHandlersBehavior.Invoke(context);    
-            }
-
-            
-        }
-
-        public void Raise<T>(Action<T> messageConstructor)
-        {
-            Raise(CreateInstance(messageConstructor));
-        }
-
-
-
-
-
 
         /// <summary>
         /// The list of message dispatcher factories to use
@@ -1105,10 +1078,34 @@ namespace NServiceBus.Unicast
                 HandleTransportMessage(child, e.Message);
         }
 
-        private void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
-        {
-            //Log.Debug("Received message with ID " + msg.Id + " from sender " + msg.ReplyToAddress);
 
+        public void Raise<T>(T @event)
+        {
+            //all this seems very clunky, we need to find a better way to reuse the "invoke handlers" part of the pipeline
+            var chain = new BehaviorChain(Builder);
+
+            chain.Add<LoadHandlersBehavior>();
+            chain.Add<InvokeHandlersBehavior>();
+
+            //HACK: this is a mess how do we do it properly?
+            //TODO: test
+            using (var context = new BehaviorContext(new TransportMessage())
+            {
+                Messages = new object[] { @event }
+            })
+            {
+                chain.Invoke(context);
+            }
+        }
+
+        public void Raise<T>(Action<T> messageConstructor)
+        {
+            Raise(CreateInstance(messageConstructor));
+        }
+
+
+        void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
+        {
             // construct behavior chain - look at configuration and possibly the incoming transport message
             var chain = new BehaviorChain(childBuilder);
             chain.Add<MessageHandlingLoggingBehavior>();
@@ -1131,8 +1128,7 @@ namespace NServiceBus.Unicast
             chain.Add<UnitOfWorkBehavior>();
             chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
 
-            Action<BehaviorContext> resetHandleCurrentMessageLaterFlag =
-                c => _handleCurrentMessageLaterWasCalled = false;
+            Action<BehaviorContext> resetHandleCurrentMessageLaterFlag = c => _handleCurrentMessageLaterWasCalled = false;
 
             chain.Add<PerformCustomActionsBehavior>(c =>
                                                 {

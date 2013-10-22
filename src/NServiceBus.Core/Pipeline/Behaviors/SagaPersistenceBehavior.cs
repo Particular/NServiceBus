@@ -13,15 +13,13 @@
 
     class SagaPersistenceBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public ISagaPersister SagaPersister { get; set; }
 
         public IBuilder Builder { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             currentContext = context;
 
@@ -62,7 +60,7 @@
             //so that other behaviors can access the sagas
             context.Set(new ActiveSagaInstances(activeSagaInstances));
 
-            Next.Invoke(context);
+            next();
 
             foreach (var sagaInstanceState in activeSagaInstances)
             {

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
+    using System;
     using System.Threading;
     using Impersonation;
 
@@ -7,15 +8,13 @@
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 
-        public IBehavior Next { get; set; }
-
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var principal = ExtractIncomingPrincipal.GetPrincipal(context.TransportMessage);
 
             if (principal == null)
             {
-                Next.Invoke(context);
+                next();
                 return;
             }
 
@@ -24,7 +23,7 @@
             {
                 context.Trace("Impersonating {0}", principal);
                 Thread.CurrentPrincipal = principal;
-                Next.Invoke(context);
+                next();
             }
             finally
             {

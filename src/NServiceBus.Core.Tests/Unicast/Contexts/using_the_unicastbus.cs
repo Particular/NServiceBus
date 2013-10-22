@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Reflection;
     using System.Threading;
     using Audit;
     using Core.Tests;
@@ -13,14 +12,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
-    using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Pipeline;
     using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
-    using Saga;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;

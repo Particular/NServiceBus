@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
+    using System;
     using System.Collections.Concurrent;
     using Unicast;
     using Unicast.Transport;
@@ -8,17 +9,15 @@
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
-        public IBehavior Next { get; set; }
-
         public ConcurrentDictionary<string, BusAsyncResult> MessageIdToAsyncResultLookup { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var messageWasHandled = HandleCorrelatedMessage(context.TransportMessage, context.Messages);
 
             context.Set(CallbackInvokedKey, messageWasHandled);
 
-            Next.Invoke(context);
+            next();
         }
 
         bool HandleCorrelatedMessage(TransportMessage transportMessage, object[] messages)

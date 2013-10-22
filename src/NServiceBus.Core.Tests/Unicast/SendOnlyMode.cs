@@ -3,7 +3,6 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Transport;
 
     [TestFixture]
     public class When_sending_a_message_in_send_only_mode : using_a_configured_unicastBus

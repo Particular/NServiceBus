@@ -10,9 +10,7 @@
     class SagaStateAuditingBehavior : IBehavior,
         RequireContextItemOfType<ActiveSagaInstances>
     {
-        public IBehavior Next { get; set; }
-
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             // let's just start out by handling one single saga instance
             var snapshotsBefore = context.Get<ActiveSagaInstances>()
@@ -20,7 +18,7 @@
                                          .Select(AsNewSnapshot)
                                          .ToList();
 
-            Next.Invoke(context);
+            next();
 
 
             var snapshotsAfter = context.Get<ActiveSagaInstances>()

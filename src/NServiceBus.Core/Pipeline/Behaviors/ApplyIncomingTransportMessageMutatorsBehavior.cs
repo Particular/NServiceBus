@@ -1,15 +1,14 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
+    using System;
     using MessageMutator;
     using ObjectBuilder;
 
     class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IBuilder Builder { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var mutators = Builder.BuildAll<IMutateIncomingTransportMessages>();
 
@@ -19,7 +18,7 @@
                 mutator.MutateIncoming(context.TransportMessage);
             }
 
-            Next.Invoke(context);
+            next();
         }
     }
 }

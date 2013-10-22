@@ -10,35 +10,29 @@
     /// </summary>
     class BehaviorChainItemDescriptor
     {
-        Type behaviorType;
-        IBuilder builder;
+        public Type BehaviorType;
         Delegate initializationMethod;
 
-        public BehaviorChainItemDescriptor(Type behaviorType, IBuilder builder, Delegate initializationMethod = null)
+        public BehaviorChainItemDescriptor(Type behaviorType, Delegate initializationMethod)
         {
-            this.behaviorType = behaviorType;
-            this.builder = builder;
+            BehaviorType = behaviorType;
             this.initializationMethod = initializationMethod;
         }
 
-        public IBehavior GetInstance()
+        public IBehavior GetInstance(IBuilder builder)
         {
             try
             {
-                var wrapperType = typeof(LazyBehavior<>).MakeGenericType(behaviorType);
-                var instance = Activator.CreateInstance(wrapperType, new object[] { builder, initializationMethod });
-                return (IBehavior)instance;
+                var behavior = (IBehavior)builder.Build(BehaviorType);
+                 initializationMethod.DynamicInvoke(behavior);
+                return behavior;
             }
             catch (Exception exception)
             {
-                var error = string.Format("An error occurred while attempting to create an instance of {0} closed with {1}", typeof(LazyBehavior<>), behaviorType);
+                var error = string.Format("An error occurred while attempting to create an instance of {0}", BehaviorType);
                 throw new Exception(error, exception);
             }
         }
 
-        public override string ToString()
-        {
-            return behaviorType.Name;
-        }
     }
 }

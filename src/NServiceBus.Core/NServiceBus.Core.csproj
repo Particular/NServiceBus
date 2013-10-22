@@ -131,8 +131,6 @@
     <Compile Include="Pipeline\Behaviors\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />
-    <Compile Include="Pipeline\LazyBehavior.cs" />
-    <Compile Include="Pipeline\Terminator.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />

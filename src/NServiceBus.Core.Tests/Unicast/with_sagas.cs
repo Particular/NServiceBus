@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
-    using System.Linq;
     using Contexts;
     using Encryption;
     using NUnit.Framework;

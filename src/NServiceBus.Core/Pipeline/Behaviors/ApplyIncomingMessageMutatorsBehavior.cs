@@ -1,16 +1,15 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
+    using System;
     using System.Linq;
     using MessageMutator;
     using ObjectBuilder;
 
     class ApplyIncomingMessageMutatorsBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IBuilder Builder { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             context.Messages = context.Messages
                 .Select(msg =>
@@ -22,7 +21,7 @@
                             })
                 .ToArray();
 
-            Next.Invoke(context);
+            next();
         }
 
         object ApplyIncomingMessageMutatorsTo(object originalMessage)

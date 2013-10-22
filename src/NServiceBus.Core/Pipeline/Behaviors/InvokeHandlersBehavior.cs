@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -16,12 +15,10 @@
     /// </summary>
     class InvokeHandlersBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IBuilder Builder { get; set; }
 
-  
-        public void Invoke(BehaviorContext context)
+
+        public void Invoke(BehaviorContext context, Action next)
         {
             var messages = context.Messages;
 
@@ -42,7 +39,7 @@
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
 
-            Next.Invoke(context);
+            next();
         }
 
         void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle,LoadedMessageHandlers loadedHandlers)

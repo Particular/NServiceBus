@@ -15,6 +15,8 @@
         [ThreadStatic]
         static BehaviorContext current;
 
+        Dictionary<string, object> stash = new Dictionary<string, object>();
+
         /// <summary>
         /// Accesses the ambient current <see cref="IBehaviorContext"/> if any
         /// </summary>
@@ -48,10 +50,13 @@
         public object[] Messages
         {
             get { return Get<object[]>("NServiceBus.Messages"); }
-            set { Set("NServiceBus.Messages", value); }
+            set
+            {
+                Set("NServiceBus.Messages", value);
+            }
         }
 
-        public Action TraceContextFor<T>()
+        public Action TraceContextFor()
         {
             traceIndentLevel++;
             return () => traceIndentLevel--;
@@ -64,7 +69,6 @@
 
         public bool DoNotContinueDispatchingMessageToHandlers { get; set; }
 
-        Dictionary<string, object> stash = new Dictionary<string, object>();
 
         public T Get<T>()
         {

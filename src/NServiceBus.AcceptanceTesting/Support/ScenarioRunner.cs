@@ -152,7 +152,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             try
             {
-                List<ActiveRunner> runners = InitializeRunners(runDescriptor, behaviorDescriptors);
+                var runners = InitializeRunners(runDescriptor, behaviorDescriptors);
 
                 try
                 {
@@ -213,7 +213,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             Console.WriteLine("");
             Console.WriteLine("Using settings:");
-            foreach (KeyValuePair<string, string> pair in settings)
+            foreach (var pair in settings)
             {
                 Console.Out.WriteLine("   {0}: {1}", pair.Key, pair.Value);
             }

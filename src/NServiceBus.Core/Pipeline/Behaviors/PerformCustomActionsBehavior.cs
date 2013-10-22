@@ -4,15 +4,13 @@
 
     class PerformCustomActionsBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public string Label { get; set; }
 
         public Action<BehaviorContext> Before { get; set; }
 
         public Action<BehaviorContext> After { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             if (Before != null)
             {
@@ -20,7 +18,7 @@
                 Before(context);
             }
 
-            Next.Invoke(context);
+            next();
 
             if (After != null)
             {

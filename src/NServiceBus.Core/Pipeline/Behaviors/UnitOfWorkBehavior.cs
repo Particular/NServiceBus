@@ -6,11 +6,9 @@
 
     class UnitOfWorkBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IBuilder Builder { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var unitOfWorkRunner = new UnitOfWorkRunner
             {
@@ -22,7 +20,7 @@
                 context.Trace("Starting uow");
                 unitOfWorkRunner.Begin();
 
-                Next.Invoke(context);
+                next();
 
                 context.Trace("Ending uow");
                 unitOfWorkRunner.End();

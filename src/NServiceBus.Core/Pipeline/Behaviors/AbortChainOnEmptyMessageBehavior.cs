@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
+    using System;
     using System.Reflection;
     using Logging;
     using Pipeline;
@@ -9,9 +10,7 @@
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public IBehavior Next { get; set; }
-
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var transportMessage = context.TransportMessage;
 
@@ -22,7 +21,7 @@
                 return;
             }
 
-            Next.Invoke(context);
+            next();
         }
 
         static int LogicalMessageCount(BehaviorContext context)

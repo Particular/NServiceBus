@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System;
+
     interface IBehavior
     {
-        IBehavior Next { get; set; }
-        void Invoke(BehaviorContext context);
+        void Invoke(BehaviorContext context, Action next);
     }
 }

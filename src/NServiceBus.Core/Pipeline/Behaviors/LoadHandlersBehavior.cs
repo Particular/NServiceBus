@@ -7,13 +7,11 @@
 
     class LoadHandlersBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
         public IBuilder Builder { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             var messagesToLoadHandlersFor = context.Messages;
 
@@ -24,7 +22,7 @@
             }
 
             // for now we cheat and pull it from the behavior context:
-            var callbackInvoked = BehaviorContext.Current.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
+            var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
             var messageHandlers = new LoadedMessageHandlers();
 
             foreach (var messageToHandle in messagesToLoadHandlersFor)
@@ -46,7 +44,7 @@
             }
             context.Set(messageHandlers);
 
-            Next.Invoke(context);
+            next();
         }
     }
 }

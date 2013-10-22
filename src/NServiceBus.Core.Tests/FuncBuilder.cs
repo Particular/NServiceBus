@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using ObjectBuilder;
-    using Unicast.Transport;
 
     public class FuncBuilder : IBuilder
     {

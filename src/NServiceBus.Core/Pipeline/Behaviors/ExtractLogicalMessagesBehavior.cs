@@ -10,19 +10,17 @@
 
     class ExtractLogicalMessagesBehavior : IBehavior
     {
-        public IBehavior Next { get; set; }
-
         public IMessageSerializer MessageSerializer { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public bool SkipDeserialization { get; set; }
 
-        public void Invoke(BehaviorContext context)
+        public void Invoke(BehaviorContext context, Action next)
         {
             PerformInvocation(context);
-            
-            Next.Invoke(context);
+
+            next();
         }
 
         void PerformInvocation(BehaviorContext context)
