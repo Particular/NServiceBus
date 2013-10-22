@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast
     using ObjectBuilder;
     using UnitOfWork;
 
+    //todo: merge this class with the behavior
     class UnitOfWorkRunner
     {
         public IBuilder Builder;

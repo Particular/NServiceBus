@@ -165,7 +165,6 @@
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
-    <Compile Include="Pipeline\Behaviors\AbortChainOnEmptyMessageBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\ExtractLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
@@ -616,7 +615,7 @@
     </PropertyGroup>
     <Delete Files="$(MergeTemp)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
-    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Interop.MSMQ.dll" "$(TargetDir)AutoFac.dll" "$(TargetDir)Newtonsoft.Json.dll" /target:library /targetplatform:"v4,$(FrameworkPathOverride)"' />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <Delete Files="$(MergeTemp)" />
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />

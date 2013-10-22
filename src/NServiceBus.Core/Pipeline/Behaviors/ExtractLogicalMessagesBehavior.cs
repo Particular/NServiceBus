@@ -3,10 +3,13 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.Serialization;
+    using Logging;
     using Unicast.Messages;
     using Pipeline;
     using Serialization;
+    using Unicast.Transport;
 
     class ExtractLogicalMessagesBehavior : IBehavior
     {
@@ -18,13 +21,6 @@
 
         public void Invoke(BehaviorContext context, Action next)
         {
-            PerformInvocation(context);
-
-            next();
-        }
-
-        void PerformInvocation(BehaviorContext context)
-        {
             if (SkipDeserialization)
             {
                 context.Messages = new object[0];
@@ -32,24 +28,31 @@
             }
 
             var transportMessage = context.TransportMessage;
+
             try
             {
-                var logicalMessages = Extract(transportMessage);
-
-                context.Messages = logicalMessages;
+                context.Messages = Extract(transportMessage);
             }
             catch (Exception exception)
             {
-                var error = string.Format("An error occurred while attempting to extract logical messages from transport message {0}",transportMessage);
-                throw new Exception(error, exception);
+                throw new Exception(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
+
+            if (!transportMessage.IsControlMessage() && !context.Messages.Any())
+            {
+                context.Trace("Ignoring empty message with ID {0}", transportMessage.Id);
+                log.Warn("Received an empty message - ignoring.");
+                return;
+            }
+
+            next();
         }
 
         object[] Extract(TransportMessage m)
         {
             if (m.Body == null || m.Body.Length == 0)
             {
-                return null;
+                return new object[0]; ;
             }
 
             try
@@ -67,5 +70,6 @@
             }
         }
 
+        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     }
 }

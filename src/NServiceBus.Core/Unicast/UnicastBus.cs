@@ -1156,10 +1156,7 @@ namespace NServiceBus.Unicast
             if (!disableMessageHandling)
             {
                 chain.Add<ExtractLogicalMessagesBehavior>(e => { e.SkipDeserialization = SkipDeserialization; });
-                chain.Add<AbortChainOnEmptyMessageBehavior>();
-
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
-
 
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);

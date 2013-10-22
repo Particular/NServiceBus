@@ -114,7 +114,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<AbortChainOnEmptyMessageBehavior>(() => new AbortChainOnEmptyMessageBehavior());
             FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior { Builder = FuncBuilder });
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
