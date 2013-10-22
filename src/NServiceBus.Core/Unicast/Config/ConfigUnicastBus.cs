@@ -230,7 +230,7 @@ namespace NServiceBus.Unicast.Config
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
+                Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 handlerRegistry.RegisterHandler(t);
                 handlers.Add(t);
             }
