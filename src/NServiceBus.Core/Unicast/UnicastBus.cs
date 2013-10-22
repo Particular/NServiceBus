@@ -962,10 +962,12 @@ namespace NServiceBus.Unicast
         {
             var context = BehaviorContext.Current;
 
-            // todo mhg: let it pass for now, probably throw pedagogically sound error in the future
-            if (context == null) return;
+            if (context == null)
+            {
+                throw new InvalidOperationException("DoNotContinueDispatchingCurrentMessageToHandlers() is only valid to call when receiving a message");
+            }
 
-            context.DoNotContinueDispatchingMessageToHandlers = true;
+            context.AbortChain();
         }
 
         public IDictionary<string, string> OutgoingHeaders
@@ -1158,7 +1160,6 @@ namespace NServiceBus.Unicast
 
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
 
-                chain.Add<AbortChainIfMessageDispatchIsDisabled>();
 
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
                 chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);

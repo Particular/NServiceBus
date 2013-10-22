@@ -114,7 +114,6 @@
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
     <Compile Include="Pipeline\BehaviorChainItemDescriptor.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
-    <Compile Include="Pipeline\Behaviors\AbortChainIfMessageDispatchIsDisabled.cs" />
     <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\CallbackInvocationBehavior.cs" />

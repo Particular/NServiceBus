@@ -12,10 +12,6 @@
     [SkipWeaving]
     class BehaviorContext : IDisposable
     {
-        [ThreadStatic]
-        static BehaviorContext current;
-
-        Dictionary<string, object> stash = new Dictionary<string, object>();
 
         /// <summary>
         /// Accesses the ambient current <see cref="IBehaviorContext"/> if any
@@ -24,10 +20,6 @@
         {
             get { return current; }
         }
-
-        int traceIndentLevel;
-
-        List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
 
         public BehaviorContext(TransportMessage transportMessage)
         {
@@ -67,9 +59,18 @@
             executionTrace.Add(Tuple.Create(traceIndentLevel, message, objs));
         }
 
-        public bool DoNotContinueDispatchingMessageToHandlers { get; set; }
+        public void AbortChain()
+        {
+            aborted = true;
+        }
 
-
+        public bool ChainAborted
+        {
+            get
+            {
+                return aborted;
+            }
+        }
         public T Get<T>()
         {
             return Get<T>(typeof(T).FullName);
@@ -104,5 +105,18 @@
         {
             current = null;
         }
+
+        [ThreadStatic]
+        static BehaviorContext current;
+
+        Dictionary<string, object> stash = new Dictionary<string, object>();
+
+
+        int traceIndentLevel;
+
+        List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
+
+        bool aborted;
+
     }
 }

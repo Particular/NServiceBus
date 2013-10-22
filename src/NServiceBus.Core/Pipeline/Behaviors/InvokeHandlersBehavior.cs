@@ -10,9 +10,6 @@
     using Unicast;
     using Unicast.Transport;
 
-    /// <summary>
-    /// invoke handler'n'stuff
-    /// </summary>
     class InvokeHandlersBehavior : IBehavior
     {
         public IBuilder Builder { get; set; }
@@ -34,7 +31,7 @@
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
-                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, messageHandlers);
+                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, messageHandlers,context);
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
@@ -42,7 +39,7 @@
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle,LoadedMessageHandlers loadedHandlers)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
         {
             var messageType = toHandle.GetType();
 
@@ -89,6 +86,12 @@
                         loadedHandler.Invocation(handlerInstance, toHandle);
                     }
 
+                    //for now we have to check of the chain is aborted but this will go away when we refactor the handlers to be a subpipeline
+                    if (context.ChainAborted)
+                    {
+                        log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke,messageType);
+                        return;
+                    }
                 }
                 finally
                 {

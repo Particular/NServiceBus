@@ -59,7 +59,7 @@
 
         void InvokeNext(BehaviorContext context)
         {
-            if (items.Count != 0)
+            if (items.Count != 0 || context.ChainAborted)
             {
                 var descriptor = items.Dequeue();
                 context.Trace("<{0}>", descriptor.BehaviorType);
