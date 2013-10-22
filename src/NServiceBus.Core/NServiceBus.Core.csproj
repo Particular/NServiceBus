@@ -123,10 +123,9 @@
     <Compile Include="Pipeline\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\PerformCustomActionsBehavior.cs" />
-    <Compile Include="Pipeline\Behaviors\RequireContextItemOfType.cs" />
-    <Compile Include="Pipeline\Behaviors\SagaPersistenceBehavior.cs" />
-    <Compile Include="Pipeline\Behaviors\SagaStateAuditingBehavior.cs" />
-    <Compile Include="Pipeline\Behaviors\Snapshot.cs" />
+    <Compile Include="Sagas\ActiveSagaInstance.cs" />
+    <Compile Include="Sagas\ActiveSagaInstances.cs" />
+    <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\BehaviorChain.cs" />

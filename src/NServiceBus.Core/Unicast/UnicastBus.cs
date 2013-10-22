@@ -20,6 +20,7 @@ namespace NServiceBus.Unicast
     using Pipeline.Behaviors;
     using Queuing;
     using Routing;
+    using Sagas;
     using Satellites;
     using Serialization;
     using Subscriptions;

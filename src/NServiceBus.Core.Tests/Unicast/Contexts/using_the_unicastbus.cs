@@ -17,6 +17,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Publishing;
     using Rhino.Mocks;
     using Routing;
+    using Sagas;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;

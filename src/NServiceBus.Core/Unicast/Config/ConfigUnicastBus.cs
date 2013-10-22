@@ -11,6 +11,7 @@ namespace NServiceBus.Unicast.Config
     using ObjectBuilder;
     using Pipeline.Behaviors;
     using Routing;
+    using Sagas;
     using Settings;
     using UnitOfWork;
 
