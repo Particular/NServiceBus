@@ -17,8 +17,6 @@
     {
         public ISagaPersister SagaPersister { get; set; }
 
-        public IBuilder Builder { get; set; }
-
         public IDeferMessages MessageDeferrer { get; set; }
 
         public void Invoke(BehaviorContext context, Action next)
@@ -103,7 +101,7 @@
         {
             logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", sagaInstance.MessageToProcess.GetType().FullName, currentContext.TransportMessage.Id);
 
-            foreach (var handler in Builder.BuildAll<IHandleSagaNotFound>())
+            foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
                 logger.DebugFormat("Invoking SagaNotFoundHandler: {0}",handler.GetType().FullName);
                 handler.Handle(sagaInstance.MessageToProcess);
@@ -176,7 +174,7 @@
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => Builder.Build(t) as IFinder).ToList();
+                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
                     logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), messageType);
@@ -186,7 +184,7 @@
 
             logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
 
-            return new List<IFinder> { Builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
+            return new List<IFinder> { currentContext.Builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
         }
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)

@@ -2,15 +2,12 @@
 {
     using System;
     using MessageMutator;
-    using ObjectBuilder;
 
     class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior
     {
-        public IBuilder Builder { get; set; }
-
         public void Invoke(BehaviorContext context, Action next)
         {
-            var mutators = Builder.BuildAll<IMutateIncomingTransportMessages>();
+            var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
 
             foreach (var mutator in mutators)
             {

@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading;
     using Janitor;
+    using ObjectBuilder;
 
     /// <summary>
     /// yeah, we should probably see if we can come up with better names :)
@@ -21,8 +22,9 @@
             get { return current; }
         }
 
-        public BehaviorContext(TransportMessage transportMessage)
+        public BehaviorContext(IBuilder builder,TransportMessage transportMessage)
         {
+            this.builder = builder;
             if (current != null)
             {
                 throw new InvalidOperationException(
@@ -71,6 +73,15 @@
                 return aborted;
             }
         }
+
+        public IBuilder Builder
+        {
+            get
+            {
+                return builder;
+            }
+        }
+
         public T Get<T>()
         {
             return Get<T>(typeof(T).FullName);
@@ -115,6 +126,8 @@
         int traceIndentLevel;
 
         List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
+
+        readonly IBuilder builder;
 
         bool aborted;
 

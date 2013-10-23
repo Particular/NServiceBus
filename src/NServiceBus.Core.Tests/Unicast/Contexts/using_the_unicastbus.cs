@@ -108,25 +108,25 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
 
-            FuncBuilder.Register<UnitOfWorkBehavior>(() => new UnitOfWorkBehavior { Builder = FuncBuilder });
-            FuncBuilder.Register<MessageHandlingLoggingBehavior>(() => new MessageHandlingLoggingBehavior());
+            FuncBuilder.Register<UnitOfWorkBehavior>();
+            FuncBuilder.Register<MessageHandlingLoggingBehavior>();
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>(() => new ApplyIncomingMessageMutatorsBehavior { Builder = FuncBuilder });
+            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
             FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
-            FuncBuilder.Register<LoadHandlersBehavior>(() => new LoadHandlersBehavior { Builder = FuncBuilder });
-            FuncBuilder.Register<SagaPersistenceBehavior>(() => new SagaPersistenceBehavior { Builder = FuncBuilder });
-            FuncBuilder.Register<InvokeHandlersBehavior>(() => new InvokeHandlersBehavior { Builder = FuncBuilder });
+            FuncBuilder.Register<LoadHandlersBehavior>();
+            FuncBuilder.Register<SagaPersistenceBehavior>();
+            FuncBuilder.Register<InvokeHandlersBehavior>();
 
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
-            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>(() => new ApplyIncomingTransportMessageMutatorsBehavior { Builder = FuncBuilder });
+            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
 
             unicastBus = new UnicastBus
             {

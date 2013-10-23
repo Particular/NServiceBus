@@ -47,12 +47,9 @@
 
         public void InvokeBehavior(IBuilder builder)
         {
-            var runner = new UnitOfWorkBehavior
-            {
-                Builder = builder
-            };
+            var runner = new UnitOfWorkBehavior();
 
-            using (var context = new BehaviorContext(new TransportMessage()))
+            using (var context = new BehaviorContext(builder,new TransportMessage()))
             {
                 runner.Invoke(context, () => { });
             }

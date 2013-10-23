@@ -12,9 +12,6 @@
 
     class InvokeHandlersBehavior : IBehavior
     {
-        public IBuilder Builder { get; set; }
-
-
         public void Invoke(BehaviorContext context, Action next)
         {
             var messages = context.Messages;
@@ -31,7 +28,7 @@
             {
                 ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
 
-                DispatchMessageToHandlersBasedOnType(Builder, messageToHandle, messageHandlers,context);
+                DispatchMessageToHandlersBasedOnType(context.Builder, messageToHandle, messageHandlers,context);
             }
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
@@ -105,7 +102,7 @@
             Type factoryType;
 
             //todo: Move the dispatcher mappings here (also obsolete the feature)
-            Builder.Build<UnicastBus>(). MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
+            builder.Build<UnicastBus>().MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
                 return null;

@@ -31,7 +31,7 @@
 
         public void Invoke(TransportMessage incomingTransportMessage)
         {
-            using (var context = new BehaviorContext(incomingTransportMessage))
+            using (var context = new BehaviorContext(builder,incomingTransportMessage))
             {
                 Invoke(context);
             }

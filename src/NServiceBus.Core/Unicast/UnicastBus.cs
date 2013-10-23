@@ -1085,15 +1085,12 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            //all this seems very clunky, we need to find a better way to reuse the "invoke handlers" part of the pipeline
             var chain = new BehaviorChain(Builder);
 
             chain.Add<LoadHandlersBehavior>();
             chain.Add<InvokeHandlersBehavior>();
 
-            //HACK: this is a mess how do we do it properly?
-            //TODO: test
-            using (var context = new BehaviorContext(new TransportMessage())
+            using (var context = new BehaviorContext(Builder,new TransportMessage())
             {
                 Messages = new object[] { @event }
             })

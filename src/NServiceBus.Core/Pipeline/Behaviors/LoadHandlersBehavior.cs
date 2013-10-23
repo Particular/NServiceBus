@@ -2,14 +2,11 @@
 {
     using System;
     using System.Linq;
-    using ObjectBuilder;
     using Unicast;
 
     class LoadHandlersBehavior : IBehavior
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
-
-        public IBuilder Builder { get; set; }
 
         public void Invoke(BehaviorContext context, Action next)
         {
@@ -39,7 +36,7 @@
 
                 foreach (var type in handlerTypedToInvoke)
                 {
-                    messageHandlers.AddHandler(messageType, Builder.Build(type));
+                    messageHandlers.AddHandler(messageType, context.Builder.Build(type));
                 }
             }
             context.Set(messageHandlers);

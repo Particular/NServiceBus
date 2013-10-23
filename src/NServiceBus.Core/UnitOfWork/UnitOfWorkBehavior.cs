@@ -2,20 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using ObjectBuilder;
     using Pipeline;
 
     internal class UnitOfWorkBehavior : IBehavior
     {
-        public IBuilder Builder { get; set; }
-
-        public void Invoke(BehaviorContext context, Action next)
+       public void Invoke(BehaviorContext context, Action next)
         {
             try
             {
                 context.Trace("Starting uow");
 
-                foreach (var uow in Builder.BuildAll<IManageUnitsOfWork>())
+                foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
                 {
                     unitsOfWork.Push(uow);
                     uow.Begin();
