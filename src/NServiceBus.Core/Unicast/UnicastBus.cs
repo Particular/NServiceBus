@@ -198,7 +198,11 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Event raised when client subscribed to a message type.
         /// </summary>
-        public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
+        event EventHandler<SubscriptionEventArgs> IUnicastBus.ClientSubscribed
+        {
+            add { throw new NotImplementedException(); }
+            remove { throw new NotImplementedException(); }
+        }
 
 
         /// <summary>
