@@ -173,15 +173,15 @@ namespace NServiceBus.Unicast
         public bool PropagateReturnAddressOnSend { get; set; }
 
 
-        [ObsoleteEx]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public Address ForwardReceivedMessagesTo { get; set; }
 
 
-        [ObsoleteEx]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
 
-        [ObsoleteEx]
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         //TODO: how do we handle this?
         public MessageAuditer MessageAuditer { get; set; }
 

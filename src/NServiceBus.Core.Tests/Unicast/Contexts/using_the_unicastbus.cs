@@ -149,7 +149,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 MessageRouter = router,
-                MessageAuditer = fakeMessageAuditer
             };
             bus = unicastBus;
 
