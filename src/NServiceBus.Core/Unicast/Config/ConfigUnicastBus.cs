@@ -38,11 +38,11 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
+            ConfigureBehaviors();
             RegisterMessageOwnersAndBusAddress(knownMessages);
           
             ConfigureMessageRegistry(knownMessages);
 
-            ConfigureBehaviors();
         }
 
         void ConfigureBehaviors()
