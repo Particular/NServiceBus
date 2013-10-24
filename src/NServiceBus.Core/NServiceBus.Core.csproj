@@ -90,6 +90,11 @@
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Audit\InitMessageAuditer.cs" />
     <Compile Include="Audit\MessageAuditer.cs" />
+    <Compile Include="Aop\Args\HandlerAspectArgs.cs" />
+    <Compile Include="Aop\Args\HandlerAspectEntryArgs.cs" />
+    <Compile Include="Aop\Args\HandlerAspectExceptionArgs.cs" />
+    <Compile Include="Aop\IHandlerAspectsProvider.cs" />
+    <Compile Include="Aop\IUseHandlerAspectsAttribute.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriber.cs" />
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettingsExtensions.cs" />
