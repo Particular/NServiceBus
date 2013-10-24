@@ -3,9 +3,7 @@
     using System.Linq;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NHibernate.Cfg;
     using NUnit.Framework;
-    using Environment = System.Environment;
 
     public class When_handling_current_message_later : NServiceBusAcceptanceTest
     {
@@ -33,7 +31,7 @@
                 .Done(c => c.Done)
                 .Run();
 
-            Assert.That(context.ThirdHandlerInvokedCount, Is.EqualTo(2), 
+            Assert.That(context.ThirdHandlerInvocationCount, Is.EqualTo(2), 
                 "Since calling HandleCurrentMessageLater does not discontinue message dispatch, the third handler should be called twice as well");
         }
 
@@ -65,16 +63,16 @@
         {
             public string[] Events { get; set; }
             
-            public bool MessageHasBeenRequeued { get; set; }
+            public bool SomeMessageHasBeenRequeued { get; set; }
 
             public bool Done
             {
-                get { return ThirdHandlerInvokedCount >= 1 && AnotherMessageReceivedCount == 2; }
+                get { return ThirdHandlerInvocationCount >= 2 && AnotherMessageReceivedCount == 2; }
             }
 
             public int AnotherMessageReceivedCount { get; set; }
             
-            public int ThirdHandlerInvokedCount { get; set; }
+            public int ThirdHandlerInvocationCount { get; set; }
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
@@ -119,11 +117,11 @@
                 public IBus Bus { get; set; }
                 public void Handle(SomeMessage message)
                 {
-                    if (!Context.MessageHasBeenRequeued)
+                    if (!Context.SomeMessageHasBeenRequeued)
                     {
                         Context.RegisterEvent("SecondHandler:Sending message to the back of the queue");
                         Bus.HandleCurrentMessageLater();
-                        Context.MessageHasBeenRequeued = true;
+                        Context.SomeMessageHasBeenRequeued = true;
                     }
                     else
                     {
@@ -138,7 +136,7 @@
                 public void Handle(SomeMessage message)
                 {
                     Context.RegisterEvent("ThirdHandler:Executed");
-                    Context.ThirdHandlerInvokedCount++;
+                    Context.ThirdHandlerInvocationCount++;
                 }
             }
         }
