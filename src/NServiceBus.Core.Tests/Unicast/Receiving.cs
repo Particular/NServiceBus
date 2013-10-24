@@ -158,7 +158,7 @@
         [Test]
         public void Handlers_should_not_be_invoked()
         {
-            unicastBus.SkipDeserialization = true; 
+            unicastBus.skipDeserialization = true; 
 
             var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
 

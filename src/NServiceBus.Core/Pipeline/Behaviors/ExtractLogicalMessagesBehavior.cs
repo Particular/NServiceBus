@@ -6,6 +6,7 @@
     using System.Reflection;
     using System.Runtime.Serialization;
     using Logging;
+    using Unicast;
     using Unicast.Messages;
     using Pipeline;
     using Serialization;
@@ -13,7 +14,10 @@
 
     class ExtractLogicalMessagesBehavior : IBehavior
     {
+        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         public IMessageSerializer MessageSerializer { get; set; }
+        public UnicastBus UnicastBus { get; set; }
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
@@ -21,7 +25,7 @@
 
         public void Invoke(BehaviorContext context, Action next)
         {
-            if (SkipDeserialization)
+            if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {
                 context.Messages = new object[0];
                 return;
@@ -52,7 +56,7 @@
         {
             if (m.Body == null || m.Body.Length == 0)
             {
-                return new object[0]; ;
+                return new object[0];
             }
 
             try
@@ -70,6 +74,5 @@
             }
         }
 
-        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     }
 }

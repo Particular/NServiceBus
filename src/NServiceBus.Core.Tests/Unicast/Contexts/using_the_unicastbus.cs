@@ -120,7 +120,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
-            FuncBuilder.Register<PerformCustomActionsBehavior>(() => new PerformCustomActionsBehavior());
             FuncBuilder.Register<LoadHandlersBehavior>();
             FuncBuilder.Register<SagaPersistenceBehavior>();
             FuncBuilder.Register<InvokeHandlersBehavior>();

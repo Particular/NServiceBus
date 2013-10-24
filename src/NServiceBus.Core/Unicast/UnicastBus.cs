@@ -40,7 +40,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public UnicastBus()
         {
-            _handleCurrentMessageLaterWasCalled = false;
             _messageBeingHandled = null;
         }
 
@@ -52,7 +51,7 @@ namespace NServiceBus.Unicast
         {
             set { disableMessageHandling = value; }
         }
-        private bool disableMessageHandling;
+        bool disableMessageHandling;
 
 
         /// <summary>
@@ -84,17 +83,23 @@ namespace NServiceBus.Unicast
         /// </summary>
         public Address MasterNodeAddress { get; set; }
 
-        /// <summary>
-        /// A delegate for a method that will handle the <see cref="MessageReceived"/>
-        /// event.
-        /// </summary>
-        /// <param name="message">The message received.</param>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public delegate void MessageReceivedDelegate(TransportMessage message);
 
         /// <summary>
         /// Event raised when a message is received.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public event MessageReceivedDelegate MessageReceived;
+
+        internal void OnMessageReceived(TransportMessage message)
+        {
+            var onMessageReceived = MessageReceived;
+            if (onMessageReceived != null)
+            {
+                onMessageReceived(message);
+            }
+        }
 
         /// <summary>
         /// Event raised when messages are sent.
@@ -168,23 +173,16 @@ namespace NServiceBus.Unicast
         public bool PropagateReturnAddressOnSend { get; set; }
 
 
-        /// <summary>
-        /// Should be used by administrator, not programmer.
-        /// Sets the address to which all messages received on this bus will be 
-        /// forwarded to (not including subscription messages). 
-        /// This is primarily useful for smart client scenarios 
-        /// where both client and server software are installed on the mobile
-        /// device. The server software will have this field set to the address
-        /// of the real server.
-        /// </summary>
+        [ObsoleteEx]
         public Address ForwardReceivedMessagesTo { get; set; }
 
-        /// <summary>
-        /// The TTR to set on forwarded messages. 
-        /// </summary>
+
+        [ObsoleteEx]
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
 
+        [ObsoleteEx]
+        //TODO: how do we handle this?
         public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
@@ -448,7 +446,7 @@ namespace NServiceBus.Unicast
 
         public void HandleCurrentMessageLater()
         {
-            if (_handleCurrentMessageLaterWasCalled)
+            if (BehaviorContext.Current.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
@@ -463,7 +461,7 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(_messageBeingHandled, Address.Local);
             }
 
-            _handleCurrentMessageLaterWasCalled = true;
+            BehaviorContext.Current.handleCurrentMessageLaterWasCalled = true;
         }
 
         public void ForwardCurrentMessageTo(string destination)
@@ -1028,41 +1026,14 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
-        /// <summary>
-        /// True if no deseralization should be performed. This means that no handlers will be called
-        /// </summary>
-        public bool SkipDeserialization { get; set; }
-
-        /// <summary>
-        /// If the message contains a correlationId, attempts to
-        /// invoke callbacks for that Id. Returns true if a callback was invoked
-        /// </summary>
-        /// <param name="msg">The message to evaluate.</param>
-        /// <param name="messages">The logical messages in the transport message.</param>
-        bool HandleCorrelatedMessage(TransportMessage msg, object[] messages)
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        public bool SkipDeserialization
         {
-            if (msg.CorrelationId == null)
-                return false;
-
-            if (msg.CorrelationId == msg.Id) //to make sure that we don't fire callbacks when doing send locals
-                return false;
-
-            BusAsyncResult busAsyncResult;
-
-            if (!messageIdToAsyncResultLookup.TryRemove(msg.CorrelationId, out busAsyncResult))
-            {
-                return false;
-            }
-
-            var statusCode = int.MinValue;
-
-            if (msg.IsControlMessage() && msg.Headers.ContainsKey(Headers.ReturnMessageErrorCodeHeader))
-                statusCode = int.Parse(msg.Headers[Headers.ReturnMessageErrorCodeHeader]);
-
-            busAsyncResult.Complete(statusCode, messages);
-
-            return true;
+            get { return skipDeserialization; }
+            set { skipDeserialization = value; }
         }
+        internal bool skipDeserialization;
+
 
         /// <summary>
         /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
@@ -1079,7 +1050,9 @@ namespace NServiceBus.Unicast
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
             using (var child = Builder.CreateChildBuilder())
+            {
                 HandleTransportMessage(child, e.Message);
+            }
         }
 
 
@@ -1116,45 +1089,15 @@ namespace NServiceBus.Unicast
                 chain.Add<ImpersonateSenderBehavior>();
             }
 
-            chain.Add<PerformCustomActionsBehavior>(c =>
-                                                        {
-                                                            c.After =
-                                                                ctx =>
-                                                                {
-                                                                    MessageAuditer.ForwardMessageToAuditQueue(msg);
-                                                                    ForwardMessageIfNecessary(msg);
-                                                                };
-                                                            c.Label = "Message auditing";
-                                                        });
+            chain.Add<AuditBehavior>();
+            chain.Add<ForwardBehavior>();
             chain.Add<UnitOfWorkBehavior>();
             chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-
-            Action<BehaviorContext> resetHandleCurrentMessageLaterFlag = c => _handleCurrentMessageLaterWasCalled = false;
-
-            chain.Add<PerformCustomActionsBehavior>(c =>
-                                                {
-                                                    c.Before = resetHandleCurrentMessageLaterFlag;
-                                                    c.Label = "Reset _handleCurrentMessageLaterWasCalled flag";
-                                                });
-
-            Action<BehaviorContext> raiseMessageReceivedEvent =
-                c =>
-                {
-                    if (MessageReceived != null)
-                    {
-                        MessageReceived(msg);
-                    }
-                };
-
-            chain.Add<PerformCustomActionsBehavior>(c =>
-                                                {
-                                                    c.Before = raiseMessageReceivedEvent;
-                                                    c.Label = "Raise MessageReceived event";
-                                                });
+            chain.Add<RaiseMessageReceivedBehavior>();
 
             if (!disableMessageHandling)
             {
-                chain.Add<ExtractLogicalMessagesBehavior>(e => { e.SkipDeserialization = SkipDeserialization; });
+                chain.Add<ExtractLogicalMessagesBehavior>();
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
 
                 // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
@@ -1167,8 +1110,6 @@ namespace NServiceBus.Unicast
 
             chain.Invoke(msg);
         }
-
-
 
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
@@ -1219,15 +1160,6 @@ namespace NServiceBus.Unicast
             message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
         }
 
-        void ForwardMessageIfNecessary(TransportMessage transportMessage)
-        {
-            if (ForwardReceivedMessagesTo == null || ForwardReceivedMessagesTo == Address.Undefined)
-            {
-                return;
-            }
-
-            MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
-        }
 
         /// <summary>
         /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
@@ -1389,20 +1321,14 @@ namespace NServiceBus.Unicast
         [ThreadStatic]
         static TransportMessage _messageBeingHandled;
 
-        private volatile bool started;
-        private volatile bool starting;
-        private readonly object startLocker = new object();
+        volatile bool started;
+        volatile bool starting;
+        object startLocker = new object();
 
-        private readonly static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
+        static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
-        private IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 
-        /// <summary>
-        /// ThreadStatic variable indicating if the current message was already
-        /// marked to be handled later so we don't do this more than once.
-        /// </summary>
-        [ThreadStatic]
-        static bool _handleCurrentMessageLaterWasCalled;
         protected ITransport transport;
 
         IMessageMapper messageMapper;

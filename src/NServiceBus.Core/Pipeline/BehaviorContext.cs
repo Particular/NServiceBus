@@ -25,6 +25,7 @@
         public BehaviorContext(IBuilder builder,TransportMessage transportMessage)
         {
             this.builder = builder;
+            handleCurrentMessageLaterWasCalled = false;
             if (current != null)
             {
                 throw new InvalidOperationException(
@@ -120,6 +121,10 @@
         [ThreadStatic]
         static BehaviorContext current;
 
+
+
+        internal bool handleCurrentMessageLaterWasCalled;
+
         Dictionary<string, object> stash = new Dictionary<string, object>();
 
 
@@ -127,7 +132,7 @@
 
         List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
 
-        readonly IBuilder builder;
+        IBuilder builder;
 
         bool aborted;
 
