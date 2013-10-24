@@ -1,6 +1,7 @@
 namespace ObjectBuilder.Tests
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Autofac;
@@ -79,6 +80,38 @@ namespace ObjectBuilder.Tests
                 }
 
                 Assert.AreNotSame(instance1, instance2);
+            });
+        }
+
+        [Test,Explicit("Time consuming")]
+        public void Instance_per_call_components_should_not_cause_memory_leaks()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
+
+              
+                GC.Collect();
+                var before = GC.GetTotalMemory(true);
+                
+
+                   var sw = new Stopwatch();
+
+                sw.Start();
+                for (int i = 0; i < 1000000; i++)
+                {
+                    using (var nestedContainer = builder.BuildChildContainer())
+                    {
+                        nestedContainer.Build(typeof(InstancePerCallComponent));
+                    }
+                    
+                }
+                sw.Stop();
+                                // Collect all generations of memory.
+                GC.Collect();
+
+                var after =  GC.GetTotalMemory(true);
+                Console.WriteLine("{0} Time: {1} MemDelta: {2} bytes", builder.GetType().Name, sw.Elapsed, after - before);
             });
         }
 

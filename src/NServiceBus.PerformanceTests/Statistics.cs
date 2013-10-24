@@ -19,8 +19,14 @@
 
             var durationSeconds = (Statistics.Last - Statistics.First.Value).TotalSeconds;
 
-            PrintStats("NumberOfMessages", NumberOfMessages, "#"); 
-            PrintStats("Throughput", Convert.ToDouble(NumberOfMessages) / durationSeconds, "msg/s");
+            PrintStats("NumberOfMessages", NumberOfMessages, "#");
+
+            var throughput = Convert.ToDouble(NumberOfMessages)/durationSeconds;
+
+            PrintStats("Throughput", throughput, "msg/s");
+
+            Console.Out.WriteLine("##teamcity[buildStatisticValue key='ReceiveThroughput' value='{0}']", Math.Round(throughput));
+
             PrintStats("NumberOfRetries", NumberOfRetries, "#");
             PrintStats("TimeToFirstMessage", (Statistics.First - StartTime).Value.TotalSeconds, "s");
 
