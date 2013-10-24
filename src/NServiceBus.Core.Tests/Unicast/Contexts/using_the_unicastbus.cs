@@ -50,8 +50,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
-        protected FakeMessageAuditer fakeMessageAuditer;
-
+      
 
         [SetUp]
         public void SetUp()
@@ -88,7 +87,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-            fakeMessageAuditer = new FakeMessageAuditer();
             subscriptionManager = new MessageDrivenSubscriptionManager
                 {
                     Builder = FuncBuilder,
@@ -108,6 +106,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
 
+            FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
+
             FuncBuilder.Register<UnitOfWorkBehavior>();
             FuncBuilder.Register<MessageHandlingLoggingBehavior>();
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
@@ -117,6 +117,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                              });
             FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
             FuncBuilder.Register<AuditBehavior>();
+            FuncBuilder.Register<MessageAuditer>();
+            
             FuncBuilder.Register<ForwardBehavior>();
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
@@ -126,6 +128,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<SagaPersistenceBehavior>();
             FuncBuilder.Register<InvokeHandlersBehavior>();
 
+            FuncBuilder.Register<RaiseMessageReceivedBehavior>();
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
 
