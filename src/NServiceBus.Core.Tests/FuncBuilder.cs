@@ -44,6 +44,10 @@
                     if (@interface != null)
                     {
                         fn = funcs.FirstOrDefault(f => f.Item1 == @interface);
+                        if (fn == null)
+                        {
+                            throw new Exception(string.Format("Could not build type of '{0}'", typeToBuild));
+                        }
                     }
                 }
 

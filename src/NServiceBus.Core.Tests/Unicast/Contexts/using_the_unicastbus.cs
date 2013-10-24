@@ -116,6 +116,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
             FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
+            FuncBuilder.Register<AuditBehavior>();
+            FuncBuilder.Register<ForwardBehavior>();
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
