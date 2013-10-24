@@ -25,7 +25,6 @@
 
         public class Context : ScenarioContext
         {
-        
             public bool GotRequest { get; set; }
 
             public string CorrelationIdReceived { get; set; }

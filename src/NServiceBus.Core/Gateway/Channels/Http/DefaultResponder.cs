@@ -13,6 +13,13 @@ namespace NServiceBus.Gateway.Channels.Http
                 Configure.EndpointName);
 
             ctx.Response.ContentType = "text/html";
+
+            if (ctx.Request.HttpMethod == WebRequestMethods.Http.Head)
+            {
+                ctx.Response.Close();
+                return;
+            }
+
             ctx.Response.Close(Encoding.UTF8.GetBytes(response), true);
         }
     }
