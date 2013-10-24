@@ -21,13 +21,11 @@
             var previousPrincipal = Thread.CurrentPrincipal;
             try
             {
-                context.Trace("Impersonating {0}", principal);
                 Thread.CurrentPrincipal = principal;
                 next();
             }
             finally
             {
-                context.Trace("Reverting back to {0}", previousPrincipal);
                 Thread.CurrentPrincipal = previousPrincipal;
             }
         }

@@ -9,8 +9,8 @@
     {
         static ILog log = LogManager.GetLogger(typeof(BehaviorChain));
 
-        IBuilder builder;
-        Queue<BehaviorChainItemDescriptor> items = new Queue<BehaviorChainItemDescriptor>();
+        readonly Queue<BehaviorChainItemDescriptor> itemDescriptors = new Queue<BehaviorChainItemDescriptor>();
+        readonly IBuilder builder;
 
         public BehaviorChain(IBuilder builder)
         {
@@ -19,21 +19,19 @@
 
         public void Add<TBehavior>(Action<TBehavior> init = null) where TBehavior : IBehavior
         {
-            if (init == null)
-            {
-                items.Enqueue(new BehaviorChainItemDescriptor(typeof(TBehavior), new Action<TBehavior>(x => { })));
-            }
-            else
-            {
-                items.Enqueue(new BehaviorChainItemDescriptor(typeof(TBehavior), init));
-            }
+            itemDescriptors.Enqueue(new BehaviorChainItemDescriptor(typeof(TBehavior), init ?? (x => { })));
         }
 
         public void Invoke(TransportMessage incomingTransportMessage)
         {
-            using (var context = new BehaviorContext(builder,incomingTransportMessage))
+            using (var context = new BehaviorContext(builder, incomingTransportMessage))
             {
                 Invoke(context);
+            }
+
+            if (log.IsDebugEnabled)
+            {
+                log.DebugFormat("Invoked behavior chain: {0}", this);
             }
         }
 
@@ -45,40 +43,20 @@
             }
             catch (Exception exception)
             {
-                var error = string.Format("An error occurred while attempting to invoke the following behavior chain: {0}", string.Join(" -> ", items));
+                var error = string.Format("An error occurred while attempting to invoke the following behavior chain: {0}", this);
+
                 throw new Exception(error, exception);
-            }
-            finally
-            {
-                if (log.IsDebugEnabled)
-                {
-                    log.Debug(context.GetTrace());
-                }
             }
         }
 
         void InvokeNext(BehaviorContext context)
         {
-            if (items.Count != 0 || context.ChainAborted)
+            if (itemDescriptors.Count != 0 || context.ChainAborted)
             {
-                var descriptor = items.Dequeue();
-                context.Trace("<{0}>", descriptor.BehaviorType);
+                var descriptor = itemDescriptors.Dequeue();
                 var instance = descriptor.GetInstance(builder);
-
-                var cleanupAction = context.TraceContextFor();
-                try
-                {
-                    instance.Invoke(context, () => InvokeNext(context));
-                }
-                finally
-                {
-                    cleanupAction();
-                    context.Trace("</{0}>", descriptor.BehaviorType);
-                }
-
-
+                instance.Invoke(context, () => InvokeNext(context));
             }
         }
-
     }
 }

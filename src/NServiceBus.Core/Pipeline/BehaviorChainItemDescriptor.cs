@@ -4,14 +4,12 @@
     using ObjectBuilder;
 
     /// <summary>
-    /// Chain item descriptor that will help create a behavior instance. The actual creation of the instance
-    /// will be deferred by wrapping it in a <see cref="LazyBehavior{TBehavior}"/> which will use the builder
-    /// to build the behavior when it is invoked.
+    /// Chain item descriptor that will help create a behavior instance
     /// </summary>
     class BehaviorChainItemDescriptor
     {
+        readonly Delegate initializationMethod;
         public Type BehaviorType;
-        Delegate initializationMethod;
 
         public BehaviorChainItemDescriptor(Type behaviorType, Delegate initializationMethod)
         {
@@ -24,7 +22,7 @@
             try
             {
                 var behavior = (IBehavior)builder.Build(BehaviorType);
-                 initializationMethod.DynamicInvoke(behavior);
+                initializationMethod.DynamicInvoke(behavior);
                 return behavior;
             }
             catch (Exception exception)

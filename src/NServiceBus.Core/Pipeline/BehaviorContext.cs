@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using Janitor;
     using ObjectBuilder;
@@ -13,7 +12,6 @@
     [SkipWeaving]
     class BehaviorContext : IDisposable
     {
-
         /// <summary>
         /// Accesses the ambient current <see cref="IBehaviorContext"/> if any
         /// </summary>
@@ -22,7 +20,7 @@
             get { return current; }
         }
 
-        public BehaviorContext(IBuilder builder,TransportMessage transportMessage)
+        public BehaviorContext(IBuilder builder, TransportMessage transportMessage)
         {
             this.builder = builder;
             handleCurrentMessageLaterWasCalled = false;
@@ -45,21 +43,7 @@
         public object[] Messages
         {
             get { return Get<object[]>("NServiceBus.Messages"); }
-            set
-            {
-                Set("NServiceBus.Messages", value);
-            }
-        }
-
-        public Action TraceContextFor()
-        {
-            traceIndentLevel++;
-            return () => traceIndentLevel--;
-        }
-
-        public void Trace(string message, params object[] objs)
-        {
-            executionTrace.Add(Tuple.Create(traceIndentLevel, message, objs));
+            set { Set("NServiceBus.Messages", value); }
         }
 
         public void AbortChain()
@@ -69,18 +53,12 @@
 
         public bool ChainAborted
         {
-            get
-            {
-                return aborted;
-            }
+            get { return aborted; }
         }
 
         public IBuilder Builder
         {
-            get
-            {
-                return builder;
-            }
+            get { return builder; }
         }
 
         public T Get<T>()
@@ -91,7 +69,7 @@
         public T Get<T>(string key)
         {
             return stash.ContainsKey(key)
-                       ? (T) stash[key]
+                       ? (T)stash[key]
                        : default(T);
         }
 
@@ -105,14 +83,6 @@
             stash[key] = t;
         }
 
-        public string GetTrace()
-        {
-            var spacesPerLevel = 4;
-                
-            return String.Join(Environment.NewLine,
-                               executionTrace.Select(t => new string(' ', spacesPerLevel * t.Item1) + String.Format(t.Item2, t.Item3)));
-        }
-
         public void Dispose()
         {
             current = null;
@@ -121,20 +91,12 @@
         [ThreadStatic]
         static BehaviorContext current;
 
-
-
         internal bool handleCurrentMessageLaterWasCalled;
 
-        Dictionary<string, object> stash = new Dictionary<string, object>();
+        readonly Dictionary<string, object> stash = new Dictionary<string, object>();
 
-
-        int traceIndentLevel;
-
-        List<Tuple<int, string, object[]>> executionTrace = new List<Tuple<int, string, object[]>>();
-
-        IBuilder builder;
+        readonly IBuilder builder;
 
         bool aborted;
-
     }
 }

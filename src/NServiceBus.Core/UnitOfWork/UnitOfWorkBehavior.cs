@@ -10,8 +10,6 @@
         {
             try
             {
-                context.Trace("Starting uow");
-
                 foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
                 {
                     unitsOfWork.Push(uow);
@@ -20,16 +18,13 @@
 
                 next();
 
-                context.Trace("Ending uow");
                 while (unitsOfWork.Count > 0)
                 {
-                    unitsOfWork.Pop()
-                        .End();
+                    unitsOfWork.Pop().End();
                 }
             }
             catch (Exception exception)
             {
-                context.Trace("Appending exception: {0}", exception);
                 AppendEndExceptionsAndRethrow(exception);
             }
         }

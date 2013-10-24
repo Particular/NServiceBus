@@ -44,7 +44,6 @@
 
             if (!transportMessage.IsControlMessage() && !context.Messages.Any())
             {
-                context.Trace("Ignoring empty message with ID {0}", transportMessage.Id);
                 log.Warn("Received an empty message - ignoring.");
                 return;
             }
