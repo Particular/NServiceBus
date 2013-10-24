@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.BasicMessaging
 {
+    using System;
     using System.Linq;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -13,7 +14,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new MyEndpoint.SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
                 .Done(c => c.Done)
                 .Run();
 
@@ -27,7 +28,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new MyEndpoint.SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
                 .Done(c => c.Done)
                 .Run();
 
@@ -41,7 +42,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new MyEndpoint.SomeMessage())))
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
                 .Done(c => c.Done)
                 .Run();
 
@@ -75,16 +76,18 @@
             public int ThirdHandlerInvocationCount { get; set; }
         }
 
+        [Serializable]
+        public class SomeMessage : IMessage { }
+
+        [Serializable]
+        public class AnotherMessage : IMessage { }
+
         public class MyEndpoint : EndpointConfigurationBuilder
         {
             public MyEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
-
-            public class SomeMessage : IMessage { }
-
-            public class AnotherMessage : IMessage { }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering
             {
