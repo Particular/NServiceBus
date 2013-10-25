@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Runtime.Remoting;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -55,6 +54,7 @@
             limiter.MessageProcessed();
             limiter.MessageProcessed();
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+            Debug.WriteLine("took {0}ms", elapsedMilliseconds);
             limiter.Stop();
             Assert.IsTrue(elapsedMilliseconds > 1000,string.Format("Expected more than 1000ms but received {0}ms", elapsedMilliseconds));
         }
@@ -75,6 +75,7 @@
             limiter.MessageProcessed();
             limiter.MessageProcessed();
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+            Debug.WriteLine("took {0}ms", elapsedMilliseconds);
             limiter.Stop();
             Assert.IsTrue(elapsedMilliseconds > 4000,string.Format("Expected more than 4000ms but received {0}ms", elapsedMilliseconds));
         }
@@ -87,6 +88,7 @@
             limiter.Start(2);
             limiter.MessageProcessed();
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+            Debug.WriteLine("took {0}ms", elapsedMilliseconds);
             limiter.Stop();
             Assert.IsTrue(elapsedMilliseconds < 1000,string.Format("Expected less than 1000ms but received {0}ms", elapsedMilliseconds));
         }
@@ -99,6 +101,7 @@
             limiter.Start(1);
             limiter.MessageProcessed();
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
+            Debug.WriteLine("took {0}ms", elapsedMilliseconds);
             limiter.Stop();
             Assert.IsTrue(elapsedMilliseconds < 1000,string.Format("Expected less than 1000ms but received {0}ms", elapsedMilliseconds));
         }

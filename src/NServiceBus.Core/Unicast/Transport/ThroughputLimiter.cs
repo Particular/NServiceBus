@@ -18,7 +18,7 @@ namespace NServiceBus.Unicast.Transport
             numberOfMessagesProcessed = 0;
             throughputSemaphore = new SemaphoreSlim(limit, limit);
             cancellationTokenSource = new CancellationTokenSource();
-            timer = new Timer(ResetLimit, null, 0, 1000);
+            timer = new Timer(ResetLimit, null, 1000, 1000);
             started = true;
         }
 
