@@ -42,31 +42,14 @@
 
         void InvokeNext(BehaviorContext context)
         {
-            BehaviorChainItemDescriptor descriptor = null;
-            try
+            if (itemDescriptors.Count == 0 || context.ChainAborted)
             {
-                if (itemDescriptors.Count == 0 || context.ChainAborted)
-                {
-                    return;
-                }
-
-                descriptor = itemDescriptors.Dequeue();
-                var instance = descriptor.GetInstance(builder);
-                instance.Invoke(context, () => InvokeNext(context));
+                return;
             }
-            catch (Exception exception)
-            {
-                if (descriptor == null)
-                {
-                    throw;
-                }
 
-                var error =
-                    string.Format("An error occurred while attempting to invoke the following behavior '{0}'",
-                        descriptor.BehaviorType);
-
-                throw new Exception(error, exception);
-            }
+            var descriptor = itemDescriptors.Dequeue();
+            var instance = descriptor.GetInstance(builder);
+            instance.Invoke(context, () => InvokeNext(context));
         }
     }
 }
