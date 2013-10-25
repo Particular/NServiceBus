@@ -49,7 +49,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.InnerException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
     [TestFixture]
@@ -62,7 +62,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.InnerException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
 
