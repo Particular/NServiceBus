@@ -5,7 +5,6 @@
     using System.Linq;
     using IdGeneration;
     using Logging;
-    using ObjectBuilder;
     using Pipeline;
     using Pipeline.Behaviors;
     using Saga;

@@ -6,7 +6,6 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Pipeline;
-    using Serializers.Json.Tests;
     using UnitOfWork;
 
     [TestFixture]
