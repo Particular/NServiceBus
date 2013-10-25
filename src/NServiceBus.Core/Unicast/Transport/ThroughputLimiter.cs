@@ -40,13 +40,18 @@ namespace NServiceBus.Unicast.Transport
 
             cancellationTokenSource.Cancel();
 
-            while (numberOfMessagesProcessing > 0)
-            {
-                Thread.SpinWait(5);                
-            }
+            BlockUntilZeroMessagesBeingProcessed();
 
             throughputSemaphore.Dispose();
             cancellationTokenSource.Dispose();
+        }
+
+        void BlockUntilZeroMessagesBeingProcessed()
+        {
+            while (numberOfMessagesProcessing > 0)
+            {
+                Thread.SpinWait(5);
+            }
         }
 
         public void MessageProcessed()
