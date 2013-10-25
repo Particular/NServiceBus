@@ -45,7 +45,7 @@
             BehaviorChainItemDescriptor descriptor = null;
             try
             {
-                if (itemDescriptors.Count == 0 && !context.ChainAborted)
+                if (itemDescriptors.Count == 0 || context.ChainAborted)
                 {
                     return;
                 }
