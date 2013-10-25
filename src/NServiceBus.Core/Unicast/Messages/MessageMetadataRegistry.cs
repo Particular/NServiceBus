@@ -14,7 +14,7 @@
             {
                 return metadata;
             }
-            var message = string.Format("Could not find Metadata for '{0}'. Please ensure the following: 1. '{0}' is included in initial scanning see File Scanning: http://support.nservicebus.com/customer/portal/articles/856698-the-nservicebus-host  2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages.", messageType.FullName);
+            var message = string.Format("Could not find Metadata for '{0}'.\nPlease ensure the following:\n1. '{0}' is included in initial scanning see File Scanning: http://particular.net/articles/the-nservicebus-host\n2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages", messageType.FullName);
             throw new Exception(message);
         }
 
