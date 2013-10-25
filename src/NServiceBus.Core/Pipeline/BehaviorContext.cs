@@ -22,7 +22,7 @@
 
         public BehaviorContext(IBuilder builder, TransportMessage transportMessage)
         {
-            this.builder = builder;
+            Builder = builder;
             handleCurrentMessageLaterWasCalled = false;
             if (current != null)
             {
@@ -48,18 +48,12 @@
 
         public void AbortChain()
         {
-            aborted = true;
+            ChainAborted = true;
         }
 
-        public bool ChainAborted
-        {
-            get { return aborted; }
-        }
+        public bool ChainAborted { get; private set; }
 
-        public IBuilder Builder
-        {
-            get { return builder; }
-        }
+        public IBuilder Builder { get; private set; }
 
         public T Get<T>()
         {
@@ -94,9 +88,5 @@
         internal bool handleCurrentMessageLaterWasCalled;
 
         Dictionary<string, object> stash = new Dictionary<string, object>();
-
-        IBuilder builder;
-
-        bool aborted;
     }
 }

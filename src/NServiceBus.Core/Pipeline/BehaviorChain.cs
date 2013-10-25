@@ -2,13 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using Logging;
     using ObjectBuilder;
 
     class BehaviorChain
     {
-        static ILog log = LogManager.GetLogger(typeof(BehaviorChain));
-
         Queue<Type> itemDescriptors = new Queue<Type>();
         IBuilder builder;
 
@@ -27,11 +24,6 @@
             using (var context = new BehaviorContext(builder, incomingTransportMessage))
             {
                 Invoke(context);
-            }
-
-            if (log.IsDebugEnabled)
-            {
-                log.DebugFormat("Invoked behavior chain: {0}", this);
             }
         }
 
