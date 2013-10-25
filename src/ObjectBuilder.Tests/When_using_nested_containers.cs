@@ -122,6 +122,35 @@ namespace ObjectBuilder.Tests
             }, typeof(NinjectObjectBuilder));
         }
 
+        [TestCase(10000, Ignore=true)]
+        [TestCase(20000, Ignore=true)]
+        [Description("Left in for convenience - MHG will remove soon")]
+        public void It_works_with_specific_object_builder(int iterations)
+        {
+            IContainer builder = new NinjectObjectBuilder();
+
+            builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.SingleInstance);
+
+            GC.Collect();
+            var before = GC.GetTotalMemory(true);
+            var sw = Stopwatch.StartNew();
+
+            for (var i = 0; i < iterations; i++)
+            {
+                using (var nestedContainer = builder.BuildChildContainer())
+                {
+                    nestedContainer.Build(typeof(InstancePerCallComponent));
+                }
+            }
+
+            sw.Stop();
+            // Collect all generations of memory.
+            GC.Collect();
+
+            var after = GC.GetTotalMemory(true);
+            Console.WriteLine("{0} reps: {1} Time: {2} MemDelta: {3} bytes", iterations, builder.GetType().Name, sw.Elapsed, after - before);
+        }
+
         [Test]
         public void UoW_components_in_the_parent_container_should_be_singletons_in_the_child_container()
         {
