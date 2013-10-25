@@ -9,6 +9,7 @@
     class BehaviorChainItemDescriptor
     {
         readonly Delegate initializationMethod;
+
         public Type BehaviorType;
 
         public BehaviorChainItemDescriptor(Type behaviorType, Delegate initializationMethod)

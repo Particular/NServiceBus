@@ -37,25 +37,35 @@
 
         internal void Invoke(BehaviorContext context)
         {
-            try
-            {
-                InvokeNext(context);
-            }
-            catch (Exception exception)
-            {
-                var error = string.Format("An error occurred while attempting to invoke the following behavior chain: {0}", this);
-
-                throw new Exception(error, exception);
-            }
+            InvokeNext(context);
         }
 
         void InvokeNext(BehaviorContext context)
         {
-            if (itemDescriptors.Count != 0 || context.ChainAborted)
+            BehaviorChainItemDescriptor descriptor = null;
+            try
             {
-                var descriptor = itemDescriptors.Dequeue();
+                if (itemDescriptors.Count == 0 && !context.ChainAborted)
+                {
+                    return;
+                }
+
+                descriptor = itemDescriptors.Dequeue();
                 var instance = descriptor.GetInstance(builder);
                 instance.Invoke(context, () => InvokeNext(context));
+            }
+            catch (Exception exception)
+            {
+                if (descriptor == null)
+                {
+                    throw;
+                }
+
+                var error =
+                    string.Format("An error occurred while attempting to invoke the following behavior '{0}'",
+                        descriptor.BehaviorType);
+
+                throw new Exception(error, exception);
             }
         }
     }
