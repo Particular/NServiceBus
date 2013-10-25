@@ -77,4 +77,4 @@
     <StartArguments>NServiceBus.Integration</StartArguments>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+<Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" /></Project>
