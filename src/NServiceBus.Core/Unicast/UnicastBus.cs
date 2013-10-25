@@ -1103,10 +1103,7 @@ namespace NServiceBus.Unicast
             {
                 chain.Add<ExtractLogicalMessagesBehavior>();
                 chain.Add<ApplyIncomingMessageMutatorsBehavior>();
-
-                // todo mhg: for now, just poke this bad boy in - should probably be residing in the container in the future
-                chain.Add<CallbackInvocationBehavior>(b => b.MessageIdToAsyncResultLookup = messageIdToAsyncResultLookup);
-
+                chain.Add<CallbackInvocationBehavior>();
                 chain.Add<LoadHandlersBehavior>();
                 chain.Add<SagaPersistenceBehavior>();
                 chain.Add<InvokeHandlersBehavior>();
@@ -1317,7 +1314,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Map of message identifiers to Async Results - useful for cleanup in case of timeouts.
         /// </summary>
-        ConcurrentDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, BusAsyncResult>();
+        internal ConcurrentDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, BusAsyncResult>();
 
         /// <remarks>
         /// ThreadStatic

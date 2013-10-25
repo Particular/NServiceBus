@@ -93,9 +93,9 @@
 
         internal bool handleCurrentMessageLaterWasCalled;
 
-        readonly Dictionary<string, object> stash = new Dictionary<string, object>();
+        Dictionary<string, object> stash = new Dictionary<string, object>();
 
-        readonly IBuilder builder;
+        IBuilder builder;
 
         bool aborted;
     }

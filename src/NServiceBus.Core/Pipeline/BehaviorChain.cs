@@ -9,17 +9,17 @@
     {
         static ILog log = LogManager.GetLogger(typeof(BehaviorChain));
 
-        readonly Queue<BehaviorChainItemDescriptor> itemDescriptors = new Queue<BehaviorChainItemDescriptor>();
-        readonly IBuilder builder;
+        Queue<Type> itemDescriptors = new Queue<Type>();
+        IBuilder builder;
 
         public BehaviorChain(IBuilder builder)
         {
             this.builder = builder;
         }
 
-        public void Add<TBehavior>(Action<TBehavior> init = null) where TBehavior : IBehavior
+        public void Add<TBehavior>() where TBehavior : IBehavior
         {
-            itemDescriptors.Enqueue(new BehaviorChainItemDescriptor(typeof(TBehavior), init ?? (x => { })));
+            itemDescriptors.Enqueue(typeof(TBehavior));
         }
 
         public void Invoke(TransportMessage incomingTransportMessage)
@@ -47,9 +47,23 @@
                 return;
             }
 
-            var descriptor = itemDescriptors.Dequeue();
-            var instance = descriptor.GetInstance(builder);
+            var behaviorType = itemDescriptors.Dequeue();
+            var instance = GetInstance(behaviorType);
             instance.Invoke(context, () => InvokeNext(context));
+        }
+
+
+        IBehavior GetInstance(Type type)
+        {
+            try
+            {
+                return (IBehavior)builder.Build(type);
+            }
+            catch (Exception exception)
+            {
+                var error = string.Format("An error occurred while attempting to create an instance of {0}", type);
+                throw new Exception(error, exception);
+            }
         }
     }
 }
