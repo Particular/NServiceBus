@@ -14,7 +14,7 @@
             {
                 return metadata;
             }
-            var message = string.Format("Could not find Metadata for '{0}'. Messages must have been registered and need to implement either 'IMessage', 'IEvent' or 'ICommand'. Alternatively, if you don't want to implement an interface, you can configure 'Unobtrusive Mode Messages' and use convention to configure how messages are mapped.", messageType.FullName);
+            var message = string.Format("Could not find Metadata for '{0}'. Please ensure the following: 1. '{0}' is included in initial scanning see File Scanning: http://support.nservicebus.com/customer/portal/articles/856698-the-nservicebus-host  2. '{0}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode' see: http://particular.net/articles/unobtrusive-mode-messages.", messageType.FullName);
             throw new Exception(message);
         }
 
