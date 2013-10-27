@@ -248,11 +248,22 @@ namespace NServiceBus.Encryption
 
     static class MemberInfoExtensions
     {
+        static readonly IDictionary<PropertyInfo, LateBoundProperty> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, LateBoundProperty>();
+        static readonly IDictionary<FieldInfo, LateBoundField> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, LateBoundField>();
+
         public static object GetValue(this MemberInfo member, object source)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                return ((FieldInfo)member).GetValue(source);
+                LateBoundField field;
+                if (!FieldInfoToLateBoundField.TryGetValue(member as FieldInfo, out field))
+                {
+                    FieldInfoToLateBoundField[fieldInfo] = field = DelegateFactory.Create(fieldInfo);
+                }
+
+                return field.Invoke(source);
             }
 
             var propertyInfo = (PropertyInfo) member;
@@ -266,19 +277,43 @@ namespace NServiceBus.Encryption
 
                 return null;
             }
-            
-            return propertyInfo.GetValue(source, null);
+
+            LateBoundProperty property;
+            if (!PropertyInfoToLateBoundProperty.TryGetValue(propertyInfo, out property))
+            {
+                PropertyInfoToLateBoundProperty[propertyInfo] = property = DelegateFactory.Create(propertyInfo);
+            }
+
+            return property.Invoke(source);
         }
+
+        static readonly IDictionary<PropertyInfo, LateBoundPropertySet> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, LateBoundPropertySet>();
+        static readonly IDictionary<FieldInfo, LateBoundFieldSet> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, LateBoundFieldSet>();
 
         public static void SetValue(this MemberInfo member, object target, object value)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                ((FieldInfo)member).SetValue(target, value);
+                LateBoundFieldSet fieldSet;
+                if (!FieldInfoToLateBoundFieldSet.TryGetValue(fieldInfo, out fieldSet))
+                {
+                    FieldInfoToLateBoundFieldSet[fieldInfo] = fieldSet = DelegateFactory.CreateSet(fieldInfo);
+                }
+
+                fieldSet.Invoke(target, value);
             }
             else
             {
-                ((PropertyInfo)member).SetValue(target, value, null);
+                var propertyInfo = member as PropertyInfo;
+                LateBoundPropertySet propertySet;
+                if (!PropertyInfoToLateBoundPropertySet.TryGetValue(propertyInfo, out propertySet))
+                {
+                    PropertyInfoToLateBoundPropertySet[propertyInfo] = propertySet = DelegateFactory.CreateSet(propertyInfo);
+                }
+
+                propertySet.Invoke(target, value);
             }
         }
     }
