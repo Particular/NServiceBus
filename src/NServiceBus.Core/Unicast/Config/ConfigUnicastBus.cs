@@ -9,8 +9,11 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Pipeline.Behaviors;
     using Routing;
+    using Sagas;
     using Settings;
+    using UnitOfWork;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -35,9 +38,28 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
+            ConfigureBehaviors();
             RegisterMessageOwnersAndBusAddress(knownMessages);
           
             ConfigureMessageRegistry(knownMessages);
+
+        }
+
+        void ConfigureBehaviors()
+        {
+            Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
+            extractLogicalMessagesConfig = Configurer.ConfigureComponent<ExtractLogicalMessagesBehavior>(DependencyLifecycle.InstancePerCall);
+            forwardConfig = Configurer.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<RaiseMessageReceivedBehavior>(DependencyLifecycle.InstancePerCall);
+            Configurer.ConfigureComponent<SagaPersistenceBehavior>(DependencyLifecycle.InstancePerCall);
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)
@@ -99,8 +121,10 @@ namespace NServiceBus.Unicast.Config
             {
                 var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+                forwardConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
+            forwardConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m=>m)
@@ -119,12 +143,12 @@ namespace NServiceBus.Unicast.Config
                     });
             }
         }
-        
-       
-        /// <summary>
-        /// Used to configure the bus.
-        /// </summary>
+
+
+
+        IComponentConfig<ForwardBehavior> forwardConfig;
         IComponentConfig<UnicastBus> busConfig;
+        IComponentConfig<ExtractLogicalMessagesBehavior> extractLogicalMessagesConfig;
 
         /// <summary>
         /// 
@@ -251,7 +275,9 @@ namespace NServiceBus.Unicast.Config
                 if (factory != null)
                     factoryTypeToUse = factory.GetType();
 
-                result.Add(handler, factoryTypeToUse);
+                //until we can remove the dispatcher factory concept
+                if (factoryTypeToUse != typeof(DefaultDispatcherFactory))
+                    result.Add(handler, factoryTypeToUse);
             }
             return result;
         }
@@ -345,6 +371,7 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus SkipDeserialization()
         {
             busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
+            extractLogicalMessagesConfig.ConfigureProperty(b => b.SkipDeserialization, true);
             return this;
         }
 

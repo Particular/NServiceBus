@@ -2,9 +2,7 @@
 {
     using System;
     using NServiceBus.Saga;
-    using NServiceBus.SagaPersisters.NHibernate;
 
-    [LockMode(LockModes.None)] //this is the default but still
     public class SagaData : IContainSagaData
     {
         public virtual string Originator { get; set; }

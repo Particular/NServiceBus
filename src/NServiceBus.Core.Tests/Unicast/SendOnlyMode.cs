@@ -3,7 +3,6 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-    using Transport;
 
     [TestFixture]
     public class When_sending_a_message_in_send_only_mode : using_a_configured_unicastBus
@@ -50,7 +49,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatRepliesWithACommandToAMessage>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
     [TestFixture]
@@ -63,7 +62,7 @@
             var receivedMessage = Helpers.Helpers.Serialize(new TestMessage());
             RegisterMessageHandlerType<HandlerThatReturns>();
             ReceiveMessage(receivedMessage);
-            Assert.IsInstanceOf<TransportMessageHandlingFailedException>(ResultingException.InnerException);
+            Assert.IsInstanceOf<InvalidOperationException>(ResultingException.GetBaseException());
         }
     }
 

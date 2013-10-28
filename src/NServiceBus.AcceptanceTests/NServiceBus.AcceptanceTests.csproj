@@ -108,6 +108,8 @@
   <ItemGroup>
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
+    <Compile Include="BasicMessaging\MessingAround.cs" />
+    <Compile Include="BasicMessaging\When_aborting_the_behavior_chain.cs" />
     <Compile Include="BasicMessaging\When_handling_current_message_later.cs" />
     <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
     <Compile Include="BasicMessaging\When_using_a_custom_correlation_id.cs" />

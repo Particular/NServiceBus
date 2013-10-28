@@ -651,11 +651,9 @@ namespace NServiceBus.Serializers.XML.Test
 
             watch.Start();
 
-            object[] result = null;
-
             for (var i = 0; i < numberOfIterations; i++)
                 using (var forDeserializing = new MemoryStream(buffer))
-                    result = serializer.Deserialize(forDeserializing);
+                    serializer.Deserialize(forDeserializing);
 
             watch.Stop();
             Debug.WriteLine("Deserializing: " + watch.Elapsed);

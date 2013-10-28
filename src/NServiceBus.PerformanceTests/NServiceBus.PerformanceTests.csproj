@@ -90,7 +90,7 @@
     <None Include="TestSuites\RabbitMQ.ps1" />
     <None Include="TestSuites\TestSupport.ps1" />
     <None Include="TestSuites\RunAllSuites.ps1" />
-    <None Include="TestSuites\Transports.ps1" />
+    <None Include="TestSuites\Receive-Durable.ps1" />
     <None Include="TestSuites\Serializers.ps1" />
     <None Include="TestSuites\Threads.ps1" />
   </ItemGroup>

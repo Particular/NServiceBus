@@ -40,7 +40,7 @@
             var configurer = new SatelliteConfigurer();
             configurer.Init();
 
-            var launcher = new SatelliteLauncher(Builder);
+            var launcher = new SatelliteLauncher();
 
             BeforeRun();
             launcher.Start();

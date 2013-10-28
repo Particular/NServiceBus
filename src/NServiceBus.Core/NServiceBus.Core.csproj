@@ -112,6 +112,25 @@
     <Compile Include="Persistence\Raven\Gateway\GatewayMessage.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBDeduplication.cs" />
     <Compile Include="Persistence\Raven\Gateway\RavenDBPersistence.cs" />
+    <Compile Include="Pipeline\BehaviorContext.cs" />
+    <Compile Include="Pipeline\Behaviors\ApplyIncomingMessageMutatorsBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\AuditBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\CallbackInvocationBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ForwardBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\InvokeHandlersBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\LoadedMessageHandlers.cs" />
+    <Compile Include="Pipeline\Behaviors\LoadHandlersBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\LogicalMessage.cs" />
+    <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Pipeline\Behaviors\RaiseMessageReceivedBehavior.cs" />
+    <Compile Include="Sagas\ActiveSagaInstance.cs" />
+    <Compile Include="Sagas\ActiveSagaInstances.cs" />
+    <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
+    <Compile Include="Pipeline\IBehavior.cs" />
+    <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerialization.cs" />
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
@@ -147,6 +166,7 @@
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
+    <Compile Include="Pipeline\Behaviors\ExtractLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />
@@ -409,7 +429,6 @@
     <Compile Include="Sagas\OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Sagas\SagaContext.cs" />
-    <Compile Include="Sagas\SagaDispatcherFactory.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
@@ -541,7 +560,6 @@
     <Compile Include="Unicast\Transport\TransportMessageHandlingFailedException.cs" />
     <Compile Include="Unicast\Transport\TransportMessageReceivedEventArgs.cs" />
     <Compile Include="Unicast\UnicastBus.cs" />
-    <Compile Include="Unicast\UnitOfWorkRunner.cs" />
     <Compile Include="UnitOfWork\IManageUnitsOfWork.cs" />
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
@@ -597,7 +615,7 @@
     </PropertyGroup>
     <Delete Files="$(MergeTemp)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
-    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Interop.MSMQ.dll" "$(TargetDir)AutoFac.dll" "$(TargetDir)Newtonsoft.Json.dll" /target:library /targetplatform:"v4,$(FrameworkPathOverride)"' />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <Delete Files="$(MergeTemp)" />
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />

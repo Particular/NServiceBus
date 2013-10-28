@@ -19,7 +19,7 @@
         {
             // Add the new audit config section, if the ForwardReceivedMessagesTo attribute has not been set in the UnicastBusConfig.
             var frmAttributeEnumerator = (IEnumerable)doc.XPathEvaluate("/configuration/UnicastBusConfig/@ForwardReceivedMessagesTo");
-            bool isForwardReceivedMessagesAttributeDefined = frmAttributeEnumerator.Cast<XAttribute>().Any();
+            var isForwardReceivedMessagesAttributeDefined = frmAttributeEnumerator.Cast<XAttribute>().Any();
 
             // Then add the audit config
             var sectionElement =

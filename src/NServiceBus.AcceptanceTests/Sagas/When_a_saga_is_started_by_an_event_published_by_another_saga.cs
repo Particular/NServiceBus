@@ -131,10 +131,9 @@
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
-        public class SomethingHappenedEvent : IEvent
+        public interface SomethingHappenedEvent : IEvent
         {
-            public Guid DataId { get; set; }
+            Guid DataId { get; set; }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Headquarter.Notifications
+﻿namespace Headquarter
 {
     using System;
     using NServiceBus;

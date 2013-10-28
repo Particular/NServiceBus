@@ -151,7 +151,7 @@
             Console.Out.WriteLine("Executing {0} {1}", startInfo.FileName, startInfo.Arguments);
 
             var ptr = new IntPtr();
-            bool fileSystemRedirectionDisabled = false;
+            var fileSystemRedirectionDisabled = false;
 
             if (Environment.Is64BitOperatingSystem)
             {

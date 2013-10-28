@@ -6,10 +6,12 @@ namespace ObjectBuilder.Tests
     using System.Threading.Tasks;
     using Autofac;
     using NServiceBus;
-    using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Autofac;
+    using NServiceBus.ObjectBuilder.CastleWindsor;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
+    using NServiceBus.ObjectBuilder.Unity;
     using NUnit.Framework;
     using IContainer = NServiceBus.ObjectBuilder.Common.IContainer;
 
@@ -158,12 +160,28 @@ namespace ObjectBuilder.Tests
 
                 using (var nestedContainer = builder.BuildChildContainer())
                 {
-                    Assert.AreEqual(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)));
+                    Assert.AreSame(nestedContainer.Build(typeof(InstancePerUoWComponent)), nestedContainer.Build(typeof(InstancePerUoWComponent)),"UoW's should be singleton in child container");
                 }
             },
             typeof(SpringObjectBuilder));
         }
 
+        [Test]
+        public void UoW_components_should_by_instance_per_call_in_root_container()
+        {
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+
+                using (var nestedContainer = builder.BuildChildContainer())
+                {
+                   //no-op
+                }
+
+                Assert.AreNotSame(builder.Build(typeof(InstancePerUoWComponent)), builder.Build(typeof(InstancePerUoWComponent)), "UoW's should be instance per call in the root container");
+            },
+            typeof(AutofacObjectBuilder), typeof(WindsorObjectBuilder), typeof(UnityObjectBuilder));
+        }
         [Test]
         public void Should_not_dispose_singletons_when_container_goes_out_of_scope()
         {
