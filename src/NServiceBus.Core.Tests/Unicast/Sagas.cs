@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
+    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Saga;
 
@@ -20,6 +22,17 @@
         }
 
         [Test]
+        public void Should_create_a_new_saga_if_no_existing_instance_is_found_for_interface_based_messages()
+        {
+            RegisterSaga<MySaga>();
+
+            RegisterMessageType<StartMessageThatIsAnInterface>();
+            ReceiveMessage(MessageMapper.CreateInstance<StartMessageThatIsAnInterface>());
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
+        }
+
+        [Test]
         public void Should_hit_existing_saga_if_one_is_found()
         {
             var sagaId = Guid.NewGuid();
@@ -30,15 +43,17 @@
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Keys.Count());
         }
-        
-        class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>
+
+        class MySaga : Saga<MySagaData>, IAmStartedByMessages<StartMessage>, IAmStartedByMessages<StartMessageThatIsAnInterface>
         {
             public void Handle(StartMessage message) { }
+            public void Handle(StartMessageThatIsAnInterface message) { }
         }
 
         class MySagaData : ContainSagaData { }
 
         class StartMessage : IMessage { }
+        public interface StartMessageThatIsAnInterface : IMessage { }
     }
 
     [TestFixture]
@@ -66,14 +81,14 @@
 
             RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
 
-            ReceiveMessage(new MessageThatHitsExistingSaga{PropertyThatCorrelatesToSaga = correlationId});
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
 
             Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
 
             Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
-      
+
         class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
             public void Handle(MessageThatHitsExistingSaga message)
@@ -83,8 +98,8 @@
 
             public override void ConfigureHowToFindSaga()
             {
-                ConfigureMapping<MessageThatHitsExistingSaga>(m=>m.PropertyThatCorrelatesToSaga)
-                    .ToSaga(s=>s.PropertyThatCorrelatesToMessage);
+                ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
+                    .ToSaga(s => s.PropertyThatCorrelatesToMessage);
             }
         }
 
@@ -94,7 +109,7 @@
             public Guid PropertyThatCorrelatesToMessage { get; set; }
         }
 
-        class MessageThatHitsExistingSaga : IMessage 
+        class MessageThatHitsExistingSaga : IMessage
         {
             public Guid PropertyThatCorrelatesToSaga { get; set; }
         }
@@ -122,7 +137,7 @@
         }
 
 
-        class MySaga : Saga<MySagaData>,IHandleTimeouts<MyTimeout>,IHandleMessages<MyTimeout>
+        class MySaga : Saga<MySagaData>, IHandleTimeouts<MyTimeout>, IHandleMessages<MyTimeout>
         {
             public void Timeout(MyTimeout timeout)
             {
@@ -195,7 +210,7 @@
         public void Should_not_be_persisted_if_completed_right_away()
         {
             RegisterSaga<MySaga>();
-         
+
             ReceiveMessage(new MessageThatStartsSaga());
 
             Assert.AreEqual(0, persister.CurrentSagaEntities.Count(), "No saga should be stored");

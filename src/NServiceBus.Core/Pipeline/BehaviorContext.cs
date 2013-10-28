@@ -40,12 +40,6 @@
             get { return Get<TransportMessage>(); }
         }
 
-        public object[] Messages
-        {
-            get { return Get<object[]>("NServiceBus.Messages"); }
-            set { Set("NServiceBus.Messages", value); }
-        }
-
         public void AbortChain()
         {
             ChainAborted = true;

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using System;
+    using System.Linq;
     using Unicast;
     using Unicast.Transport;
 
@@ -12,14 +13,14 @@
         
         public void Invoke(BehaviorContext context, Action next)
         {
-            var messageWasHandled = HandleCorrelatedMessage(context.TransportMessage, context.Messages);
+            var messageWasHandled = HandleCorrelatedMessage(context.TransportMessage, context.Get<LogicalMessages>());
 
             context.Set(CallbackInvokedKey, messageWasHandled);
 
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, object[] messages)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, LogicalMessages messages)
         {
             if (transportMessage.CorrelationId == null)
             {
@@ -49,7 +50,7 @@
                 }
             }
 
-            busAsyncResult.Complete(statusCode, messages);
+            busAsyncResult.Complete(statusCode, messages.Select(lm=>lm.Instance).ToArray());
 
             return true;
         }

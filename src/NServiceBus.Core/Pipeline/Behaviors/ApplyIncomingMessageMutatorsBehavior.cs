@@ -1,23 +1,25 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using System;
-    using System.Linq;
     using MessageMutator;
 
     class ApplyIncomingMessageMutatorsBehavior : IBehavior
     {
         public void Invoke(BehaviorContext context, Action next)
         {
-            context.Messages = context.Messages
-                .Select(msg =>
-                            {
-                                //message mutators may need to assume that this has been set (eg. for the purposes of headers).
-                                ExtensionMethods.CurrentMessageBeingHandled = msg;
+            foreach (var logicalMessage in context.Get<LogicalMessages>())
+            {
+               
+                foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
+                {
+                    var current = logicalMessage.Instance;
 
-                                return context.Builder.BuildAll<IMutateIncomingMessages>()
-                                    .Aggregate(msg, (current, mutator) => mutator.MutateIncoming(current));
-                            })
-                .ToArray();
+                    //message mutators may need to assume that this has been set (eg. for the purposes of headers).
+                    ExtensionMethods.CurrentMessageBeingHandled = current;
+
+                    logicalMessage.UpdateMessageInstance(mutator.MutateIncoming(current));
+                }
+            }
 
             next();
         }

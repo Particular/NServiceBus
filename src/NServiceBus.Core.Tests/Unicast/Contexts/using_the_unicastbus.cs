@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
+    using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
@@ -37,7 +38,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
-        MessageMapper MessageMapper = new MessageMapper();
+        protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
@@ -105,7 +106,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
-
+            FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
+            
             FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
 
             FuncBuilder.Register<UnitOfWorkBehavior>();

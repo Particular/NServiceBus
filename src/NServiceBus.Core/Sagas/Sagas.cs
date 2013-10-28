@@ -126,7 +126,7 @@
         /// <param name="sagaType"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static bool ShouldMessageStartSaga(Type sagaType, object message)
+        public static bool ShouldMessageStartSaga(Type sagaType, Type messageType)
         {
             List<Type> messageTypes;
             SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);
@@ -134,7 +134,7 @@
             if (messageTypes == null)
                 return false;
 
-            return messageTypes.Contains(message.GetType());
+            return messageTypes.Contains(messageType);
         }
 
         /// <summary>

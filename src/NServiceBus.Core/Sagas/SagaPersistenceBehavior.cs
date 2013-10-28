@@ -5,6 +5,7 @@
     using System.Linq;
     using IdGeneration;
     using Logging;
+    using MessageInterfaces;
     using Pipeline;
     using Pipeline.Behaviors;
     using Saga;
@@ -17,6 +18,8 @@
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
+
+        public IMessageMapper MessageMapper { get; set; }
 
         public void Invoke(BehaviorContext context, Action next)
         {
@@ -35,7 +38,7 @@
                 {
                     //if this message are not allowed to start the saga
                     if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType,
-                        sagaInstanceState.MessageToProcess))
+                        sagaInstanceState.MessageToProcess.MessageType))
                     {
                         sagaInstanceState.MarkAsNotFound();
 
@@ -111,9 +114,9 @@
         {
             var loadedMessageHandlers = context.Get<LoadedMessageHandlers>();
 
-            foreach (var message in context.Messages)
+            foreach (var message in context.Get<LogicalMessages>())
             {
-                foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.GetType()))
+                foreach (var messageHandler in loadedMessageHandlers.GetHandlersFor(message.MessageType))
                 {
                     var saga = messageHandler.Instance as ISaga;
 
@@ -125,22 +128,22 @@
             }
         }
 
-        static bool IsTimeoutMessage(object message)
+        static bool IsTimeoutMessage(Message message)
         {
-            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message, Headers.IsSagaTimeoutMessage));
+            return !string.IsNullOrEmpty(Headers.GetMessageHeader(message.Instance, Headers.IsSagaTimeoutMessage));
         }
 
-        IContainSagaData TryLoadSagaEntity(ISaga saga, object message)
+        IContainSagaData TryLoadSagaEntity(ISaga saga, Message message)
         {
             var sagaType = saga.GetType();
 
             var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
-            var finders = GetFindersFor(message.GetType(), sagaEntityType);
+            var finders = GetFindersFor(message.MessageType, sagaEntityType);
            
             foreach (var finder in finders)
             {
-                var sagaEntity = UseFinderToFindSaga(finder, message);
+                var sagaEntity = UseFinderToFindSaga(finder, message.Instance);
 
                 if (sagaEntity != null)
                     return sagaEntity;

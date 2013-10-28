@@ -14,19 +14,11 @@
     {
         public void Invoke(BehaviorContext context, Action next)
         {
-            var messages = context.Messages;
-
-            if (context.Messages == null)
-            {
-                var error = string.Format("Messages has not been set on the current behavior context: {0} - DispatchToHandlers must be executed AFTER having extracted the messages", context);
-                throw new ArgumentException(error);
-            }
-
             var messageHandlers = context.Get<LoadedMessageHandlers>();
 
-            foreach (var messageToHandle in messages)
+            foreach (var messageToHandle in context.Get<LogicalMessages>())
             {
-                ExtensionMethods.CurrentMessageBeingHandled = messageToHandle;
+                ExtensionMethods.CurrentMessageBeingHandled = messageToHandle.Instance;
 
                 DispatchMessageToHandlersBasedOnType(context.Builder, messageToHandle, messageHandlers,context);
             }
@@ -36,11 +28,9 @@
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, object toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, Message toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
         {
-            var messageType = toHandle.GetType();
-
-            foreach (var loadedHandler in loadedHandlers.GetHandlersFor(messageType))
+            foreach (var loadedHandler in loadedHandlers.GetHandlersFor(toHandle.MessageType))
             {
                 if (loadedHandler.InvocationDisabled)
                     continue;
@@ -61,11 +51,11 @@
 
                     if (factory != null)
                     {
-                        var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle).ToList();
+                        var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle.Instance).ToList();
 
                         dispatchers.ForEach(dispatch =>
                         {
-                            log.DebugFormat("Dispatching message '{0}' to handler '{1}'", messageType, handlerTypeToInvoke);
+                            log.DebugFormat("Dispatching message '{0}' to handler '{1}'", toHandle.MessageType, handlerTypeToInvoke);
                             try
                             {
                                 dispatch();
@@ -80,13 +70,13 @@
                     }
                     else
                     {
-                        loadedHandler.Invocation(handlerInstance, toHandle);
+                        loadedHandler.Invocation(handlerInstance, toHandle.Instance);
                     }
 
                     //for now we have to check of the chain is aborted but this will go away when we refactor the handlers to be a subpipeline
                     if (context.ChainAborted)
                     {
-                        log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke,messageType);
+                        log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke,toHandle.MessageType);
                         return;
                     }
                 }

@@ -1067,11 +1067,11 @@ namespace NServiceBus.Unicast
             chain.Add<LoadHandlersBehavior>();
             chain.Add<InvokeHandlersBehavior>();
 
-            using (var context = new BehaviorContext(Builder,new TransportMessage())
+            using (var context = new BehaviorContext(Builder,new TransportMessage()))
             {
-                Messages = new object[] { @event }
-            })
-            {
+                var logicalMessages = new LogicalMessages {new Message(typeof(T),@event)};
+
+                context.Set(logicalMessages);
                 chain.Invoke(context);
             }
         }

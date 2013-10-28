@@ -2,43 +2,37 @@
 {
     using System;
     using System.Linq;
+    using MessageInterfaces;
     using Unicast;
 
     class LoadHandlersBehavior : IBehavior
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
+        public IMessageMapper MessageMapper { get; set; }
+
         public void Invoke(BehaviorContext context, Action next)
         {
-            var messagesToLoadHandlersFor = context.Messages;
-
-            if (context.Messages == null)
-            {
-                var error = string.Format("Messages has not been set on the current behavior context: {0} - DispatchToHandlers must be executed AFTER having extracted the messages", context);
-                throw new ArgumentException(error);
-            }
-
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
             var messageHandlers = new LoadedMessageHandlers();
 
-            foreach (var messageToHandle in messagesToLoadHandlersFor)
+            foreach (var messageToHandle in context.Get<LogicalMessages>())
             {
-                var messageType = messageToHandle.GetType();
-
-                var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageType).ToList();
+                var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
 
                 if (!callbackInvoked && !handlerTypedToInvoke.Any())
                 {
-                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.GetType().FullName);
+                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.MessageType);
                     throw new InvalidOperationException(error);
                 }
 
-                foreach (var type in handlerTypedToInvoke)
+                foreach (var handlerType in handlerTypedToInvoke)
                 {
-                    messageHandlers.AddHandler(messageType, context.Builder.Build(type));
+                    messageHandlers.AddHandler(messageToHandle.MessageType, context.Builder.Build(handlerType));
                 }
             }
+         
             context.Set(messageHandlers);
 
             next();
