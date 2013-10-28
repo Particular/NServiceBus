@@ -128,12 +128,12 @@
             }
         }
 
-        static bool IsTimeoutMessage(Message message)
+        static bool IsTimeoutMessage(LogicalMessage message)
         {
             return !string.IsNullOrEmpty(Headers.GetMessageHeader(message.Instance, Headers.IsSagaTimeoutMessage));
         }
 
-        IContainSagaData TryLoadSagaEntity(ISaga saga, Message message)
+        IContainSagaData TryLoadSagaEntity(ISaga saga, LogicalMessage message)
         {
             var sagaType = saga.GetType();
 

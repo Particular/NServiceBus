@@ -63,7 +63,7 @@
             {
                 var messageType = MessageMapper.GetMappedTypeFor(rawMessage.GetType());
 
-                logicalMessages.Add(new Message(messageType,rawMessage));
+                logicalMessages.Add(new LogicalMessage(messageType,rawMessage));
             }
 
             next();
@@ -86,42 +86,4 @@
         }
 
     }
-    internal class LogicalMessages : IEnumerable<Message>
-    {
-        public void Add(Message message)
-        {
-            messages.Add(message);
-        }
-
-        public IEnumerator<Message> GetEnumerator()
-        {
-            return messages.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        List<Message> messages = new List<Message>();
-
-    }
-
-    internal class Message
-    {
-        public Message(Type messageType, object message)
-        {
-            Instance = message;
-            MessageType = messageType;
-        }
-
-        public void UpdateMessageInstance(object newMessage)
-        {
-            Instance = newMessage;
-        }
-
-        public Type MessageType { get; private set; }
-        public object Instance { get; private set; }
-    }
-
 }

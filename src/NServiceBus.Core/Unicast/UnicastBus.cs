@@ -1069,7 +1069,7 @@ namespace NServiceBus.Unicast
 
             using (var context = new BehaviorContext(Builder,new TransportMessage()))
             {
-                var logicalMessages = new LogicalMessages {new Message(typeof(T),@event)};
+                var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
 
                 context.Set(logicalMessages);
                 chain.Invoke(context);

@@ -28,7 +28,7 @@
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, Message toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
         {
             foreach (var loadedHandler in loadedHandlers.GetHandlersFor(toHandle.MessageType))
             {
