@@ -173,7 +173,6 @@
     <CallTarget Targets="Build32BitVersion"/>
   </Target>
   <Target Name="Build32BitVersion">  
-    <Message Text="XXX" />
     <MSBuild 
       Condition=" '$(Platform)' != 'x86' "
       Projects="$(ProjectPath)" 
