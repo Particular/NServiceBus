@@ -130,10 +130,6 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             {
                 return originalId;
             }
-            if (tm.Headers.TryGetValue(Headers.CorrelationId, out originalId))
-            {
-                return originalId;
-            }
 
             return null;
         }
