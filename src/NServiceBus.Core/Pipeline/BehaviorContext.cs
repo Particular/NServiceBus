@@ -28,8 +28,8 @@
             {
                 throw new InvalidOperationException(
                     string.Format(
-                        "Attempted to establish a new behavior context on {0}, but one was already established: {1} (transport message ID {2})",
-                        Thread.CurrentThread.Name, current, current.TransportMessage.Id));
+                        "Attempted to establish a new behavior context on thread {0}, but one was already established.  (transport message ID {1})",
+                        Thread.CurrentThread.ManagedThreadId, current.TransportMessage.Id));
             }
             current = this;
             Set(transportMessage);
