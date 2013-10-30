@@ -317,10 +317,10 @@ namespace NServiceBus
             sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
             sb.AppendLine();
             sb.AppendLine(
-                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
-            sb.AppendFormat(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus/Persistence"" in your config file, example:");
+            sb.AppendLine(
                 @"<connectionStrings>
-    <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
+    <add name=""NServiceBus/Persistence"" connectionString=""Url = http://localhost:9090"" />
 </connectionStrings>");
 sb.AppendLine("Reason: " + exception);
 
