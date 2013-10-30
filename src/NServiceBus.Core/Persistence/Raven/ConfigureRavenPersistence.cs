@@ -228,12 +228,21 @@ namespace NServiceBus
 
             if (connectionStringValue != null)
             {
-                store.ParseConnectionString(connectionStringValue);
+                try
+                {
+                    store.ParseConnectionString(connectionStringValue);
+                }
+                catch (ArgumentException)
+                {
+                    throw new ConfigurationErrorsException(String.Format("Raven connectionstring ({0}) could not be parsed. Please ensure the connectionstring is valid, see http://ravendb.net/docs/client-api/connecting-to-a-ravendb-datastore#using-a-connection-string", connectionStringValue));
+                }
 
                 var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
                 connectionStringParser.Parse();
                 if (connectionStringParser.ConnectionStringOptions.ResourceManagerId == Guid.Empty)
+                {
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
+                }
             }
             else
             {
