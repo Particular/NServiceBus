@@ -8,8 +8,8 @@
     public class DtcSetup
     {
         /// <summary>
-        /// Checks that the MSDTC service is running and configured correctly, and if not
-        /// takes the necessary corrective actions to make it so.
+        ///     Checks that the MSDTC service is running and configured correctly, and if not
+        ///     takes the necessary corrective actions to make it so.
         /// </summary>
         public static void StartDtcIfNecessary()
         {
@@ -30,7 +30,6 @@
 
             if (Controller.Status != ServiceControllerStatus.Running)
             {
-
                 Console.Out.WriteLine("MSDTC isn't currently running and needs to be started");
                 return false;
             }
@@ -42,7 +41,7 @@
         {
             Console.WriteLine("Checking if DTC is configured correctly.");
 
-            bool needToChange;
+            bool requireRestart;
             using (var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\MSDTC\Security", doChanges))
             {
                 if (key == null)
@@ -50,28 +49,35 @@
                     throw new InvalidOperationException("MSDTC could not be found in the registry. Cannot continue.");
                 }
 
-                needToChange = false;
+                requireRestart = false;
                 foreach (var val in RegValues)
-                    if ((int)key.GetValue(val) == 0)
-                        if (doChanges)
-                        {
-                            Console.WriteLine(
-                                "DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
+                {
+                    if ((int) key.GetValue(val) != 0)
+                    {
+                        continue;
+                    }
 
-                            key.SetValue(val, 1, RegistryValueKind.DWord);
+                    if (doChanges)
+                    {
+                        Console.WriteLine("DTC not configured correctly. Going to fix. This will require a restart of the DTC service.");
 
-                            Console.WriteLine("DTC configuration fixed.");
-                        }
-                        else
-                        {
-                            needToChange = true;
-                        }
+                        key.SetValue(val, 1, RegistryValueKind.DWord);
+
+                        Console.WriteLine("DTC configuration fixed.");
+                    }
+
+
+                    requireRestart = true;
+                }
             }
 
-            return needToChange;
+            return requireRestart;
         }
 
-        static readonly ServiceController Controller = new ServiceController { ServiceName = "MSDTC", MachineName = "." };
-        static readonly List<string> RegValues = new List<string>(new[] { "NetworkDtcAccess", "NetworkDtcAccessOutbound", "NetworkDtcAccessTransactions", "XaTransactions" });
+        static readonly ServiceController Controller = new ServiceController {ServiceName = "MSDTC", MachineName = "."};
+
+        static readonly List<string> RegValues =
+            new List<string>(new[]
+            {"NetworkDtcAccess", "NetworkDtcAccessOutbound", "NetworkDtcAccessTransactions", "XaTransactions"});
     }
 }

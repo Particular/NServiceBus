@@ -85,8 +85,6 @@ namespace NServiceBus.Transports.Msmq
         /// <summary>
         /// Sets default permissions for queue.
         /// </summary>
-        /// <param name="queue"></param>
-        /// <param name="account"></param>
         private static void SetPermissionsForQueue(string queue, string account)
         {
             var q = new MessageQueue(queue);
@@ -104,8 +102,6 @@ namespace NServiceBus.Transports.Msmq
         /// Returns the full path without Format or direct os
         /// from an address.
         /// </summary>
-        /// <param name="address"></param>
-        /// <returns></returns>
         public static string GetFullPathWithoutPrefix(Address address)
         {
             return address.Machine + MsmqUtilities.PRIVATE + address.Queue;

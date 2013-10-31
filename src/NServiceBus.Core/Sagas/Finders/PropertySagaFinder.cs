@@ -7,8 +7,6 @@ namespace NServiceBus.Sagas.Finders
     /// <summary>
     /// Finds the given type of saga by looking it up based on the given property.
     /// </summary>
-    /// <typeparam name="TSaga"></typeparam>
-    /// <typeparam name="TMessage"></typeparam>
     public class PropertySagaFinder<TSaga, TMessage> : IFindSagas<TSaga>.Using<TMessage>
         where TSaga : IContainSagaData
     {
@@ -30,8 +28,6 @@ namespace NServiceBus.Sagas.Finders
         /// <summary>
         /// Uses the saga persister to find the saga.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public TSaga FindBy(TMessage message)
         {
             if (SagaPersister == null)

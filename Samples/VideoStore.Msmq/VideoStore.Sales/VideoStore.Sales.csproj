@@ -43,12 +43,9 @@
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>
-    <Reference Include="System">
-    </Reference>
-    <Reference Include="System.Core">
-    </Reference>
-    <Reference Include="Microsoft.CSharp">
-    </Reference>
+    <Reference Include="System"/>
+    <Reference Include="System.Core"/>
+    <Reference Include="Microsoft.CSharp"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\VideoStore.ContentManagement\DebugFlagMutator.cs">
@@ -57,14 +54,10 @@
     <Compile Include="..\VideoStore.ContentManagement\UnobtrusiveMessageConventions.cs">
       <Link>UnobtrusiveMessageConventions.cs</Link>
     </Compile>
-    <Compile Include="EndpointConfig.cs">
-    </Compile>
-    <Compile Include="SubmitOrderHandler.cs">
-    </Compile>
-    <Compile Include="ProcessOrderSaga.cs">
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs">
-    </Compile>
+    <Compile Include="EndpointConfig.cs"/>
+    <Compile Include="SubmitOrderHandler.cs"/>
+    <Compile Include="ProcessOrderSaga.cs"/>
+    <Compile Include="Properties\AssemblyInfo.cs"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -86,6 +79,4 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets">
-  </Import>
 </Project>

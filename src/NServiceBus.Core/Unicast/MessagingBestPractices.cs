@@ -13,7 +13,6 @@ namespace NServiceBus.Unicast
         /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object[])"/>.
         /// </summary>
         /// <param name="messageType">Event, Command or message</param>
-        /// <param name="messageIntent"></param>
         public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
             if (MessageConventionExtensions.IsEventType(messageType) && messageIntent != MessageIntentEnum.Publish)
@@ -43,7 +42,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply"/>.
         /// </summary>
-        /// <param name="messageType"></param>
         [ObsoleteEx(RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
         public static void AssertIsValidForReply(Type messageType)
         {
@@ -55,7 +53,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by pubsub bus methods (<see cref="IBus.Subscribe(System.Type)"/>, <see cref="IBus.Unsubscribe"/> and <see cref="IBus.Publish{T}(T[])"/>)..
         /// </summary>
-        /// <param name="messageType"></param>
         public static void AssertIsValidForPubSub(Type messageType)
         {
             if (MessageConventionExtensions.IsCommandType(messageType))

@@ -55,7 +55,6 @@
         /// <summary>
         ///     Gets the type of the endpoint configuration.
         /// </summary>
-        /// <returns></returns>
         /// <exception cref="System.InvalidOperationException">No endpoint configuration found in scanned assemblies. </exception>
         public EndpointType GetEndpointConfigurationType()
         {

@@ -66,7 +66,7 @@
 
                         lock (behaviour)
                         {
-                            foreach (IWhenDefinition when in behaviour.Whens)
+                            foreach (var when in behaviour.Whens)
                             {
                                 if (executedWhens.Contains(when.Id))
                                 {
@@ -100,9 +100,9 @@
         {
             try
             {
-                foreach (IGivenDefinition given in behaviour.Givens)
+                foreach (var given in behaviour.Givens)
                 {
-                    Action<IBus> action = given.GetAction(scenarioContext);
+                    var action = given.GetAction(scenarioContext);
 
                     action(bus);
                 }

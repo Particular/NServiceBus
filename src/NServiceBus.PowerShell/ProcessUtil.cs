@@ -19,9 +19,6 @@
         /// Checks the status of the given controller, and if it isn't the requested state,
         /// performs the given action, and checks the state again.
         /// </summary>
-        /// <param name="controller"></param>
-        /// <param name="status"></param>
-        /// <param name="changeStatus"></param>
         public static void ChangeServiceStatus(ServiceController controller, ServiceControllerStatus status, Action changeStatus)
         {
             if (controller.Status == status)

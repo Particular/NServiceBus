@@ -50,7 +50,7 @@ namespace NServiceBus.Hosting.Tests
 
     public class TestRoleConfigurer : IConfigureRole<TestRole>
     {
-        public static bool ConfigureCalled = false;
+        public static bool ConfigureCalled;
 
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {

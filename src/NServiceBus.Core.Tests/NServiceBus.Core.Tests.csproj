@@ -199,6 +199,7 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
+    <Compile Include="Pipeline\MessAround.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
@@ -252,9 +253,11 @@
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
     <Compile Include="Unicast\Contexts\CommandWithDataBusPropertyMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
+    <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Unicast\UnitOfWorkRunnerTests.cs" />
+    <Compile Include="Unicast\Sagas.cs" />
+    <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\DeferedMessages.cs" />
@@ -276,6 +279,7 @@
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Unicast\Impersonation.cs" />
+    <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
   </ItemGroup>
   <ItemGroup>

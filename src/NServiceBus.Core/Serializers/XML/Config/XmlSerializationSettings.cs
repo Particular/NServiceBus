@@ -38,7 +38,6 @@
         /// </MyMessage>
         /// </code>
         /// </param>
-        /// <returns></returns>
         public XmlSerializationSettings DontWrapRawXml()
         {
             SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
@@ -49,8 +48,6 @@
         /// <summary>
         /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default
         /// </summary>
-        /// <param name="namespaceToUse"></param>
-        /// <returns></returns>
         public XmlSerializationSettings Namespace(string namespaceToUse)
         {
             if(string.IsNullOrEmpty(namespaceToUse))
@@ -64,7 +61,6 @@
         /// <summary>
         /// Tells the serializer to sanitize the input data from illegal characters
         /// </summary>
-        /// <returns></returns>
         public XmlSerializationSettings SanitizeInput()
         {
             SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);

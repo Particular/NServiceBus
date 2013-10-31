@@ -17,10 +17,7 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Host.???" target="lib\net40" />
-    <file src="..\..\binaries\CodeTemplates\Scaffolders\**" target="tools" />
-    <file src="nservicebus.host32\install.ps1" target="tools" />
-	  <file src="nservicebus.host.common\*.*" target="tools" />
-    <!--<file src="..\..\src\NServiceBus.Hosting.Windows\**\*.cs" target="src" />-->
+    <file src="..\..\binaries\NServiceBus.Host32.???" target="lib\net40" />
+	<file src="nservicebus.host\*.*" target="tools" />
   </files>
 </package>

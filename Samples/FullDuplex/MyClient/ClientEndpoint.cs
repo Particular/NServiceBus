@@ -27,7 +27,7 @@ namespace MyClient
 
         private void SendRequestDataMessage()
         {
-            Guid g = Guid.NewGuid();
+            var g = Guid.NewGuid();
 
             Console.WriteLine("==========================================================================");
             Console.WriteLine("Requesting to get data by id: {0}", g.ToString("N"));

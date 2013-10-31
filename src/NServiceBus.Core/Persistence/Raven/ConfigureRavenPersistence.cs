@@ -228,12 +228,21 @@ namespace NServiceBus
 
             if (connectionStringValue != null)
             {
-                store.ParseConnectionString(connectionStringValue);
+                try
+                {
+                    store.ParseConnectionString(connectionStringValue);
+                }
+                catch (ArgumentException)
+                {
+                    throw new ConfigurationErrorsException(String.Format("Raven connectionstring ({0}) could not be parsed. Please ensure the connectionstring is valid, see http://ravendb.net/docs/client-api/connecting-to-a-ravendb-datastore#using-a-connection-string", connectionStringValue));
+                }
 
                 var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
                 connectionStringParser.Parse();
                 if (connectionStringParser.ConnectionStringOptions.ResourceManagerId == Guid.Empty)
+                {
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
+                }
             }
             else
             {
@@ -317,10 +326,10 @@ namespace NServiceBus
             sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
             sb.AppendLine();
             sb.AppendLine(
-                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
-            sb.AppendFormat(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus/Persistence"" in your config file, example:");
+            sb.AppendLine(
                 @"<connectionStrings>
-    <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
+    <add name=""NServiceBus/Persistence"" connectionString=""Url = http://localhost:9090"" />
 </connectionStrings>");
 sb.AppendLine("Reason: " + exception);
 

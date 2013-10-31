@@ -35,7 +35,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Creates a new instance of the callback object storing the given message id.
         /// </summary>
-        /// <param name="messageId"></param>
         public Callback(string messageId)
         {
             this.messageId = messageId;

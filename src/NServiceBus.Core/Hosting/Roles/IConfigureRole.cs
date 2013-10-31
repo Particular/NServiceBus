@@ -10,14 +10,11 @@ namespace NServiceBus.Hosting.Roles
         /// <summary>
         /// Applies the role configuration
         /// </summary>
-        /// <param name="specifier"></param>
-        /// <returns></returns>
         ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier);
     }
     /// <summary>
     /// Generic helper interface for IConfigureRole
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface IConfigureRole<T> : IConfigureRole where T : IRole
     {
     }

@@ -15,7 +15,6 @@ namespace NServiceBus.Hosting.Wcf
         /// <summary>
         /// Constructs the host with the given service type
         /// </summary>
-        /// <param name="t"></param>
         public WcfServiceHost(Type t)
             : base(t)
         {
@@ -26,9 +25,6 @@ namespace NServiceBus.Hosting.Wcf
         /// <summary>
         /// Adds the given endpoint unless its already configured in app.config
         /// </summary>
-        /// <param name="contractType"></param>
-        /// <param name="binding"></param>
-        /// <param name="address"></param>
         public void AddDefaultEndpoint(Type contractType,Binding binding,string address)
         {
             var serviceModel = ServiceModelSectionGroup.GetSectionGroup(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));

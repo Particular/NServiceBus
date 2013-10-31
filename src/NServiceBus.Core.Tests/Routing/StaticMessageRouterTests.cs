@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Sagas
+namespace NServiceBus.Core.Tests.Sagas
 {
     using NUnit.Framework;
     using Unicast.Routing;

@@ -16,9 +16,6 @@ namespace NServiceBus
         /// Indicate that assemblies matching the given expression are not to be used.
         /// Use the 'And' method to indicate other assemblies to be skipped.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
-        /// <seealso cref="Configure.IsMatch"/>
-        /// <returns></returns>
         public static IExcludesBuilder Except(string assemblyExpression)
         {
             return new AllAssemblies
@@ -34,9 +31,6 @@ namespace NServiceBus
         /// Indicate that assemblies matching the given expression are to be used.
         /// Use the 'And' method to indicate other assemblies to be included.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
-        /// <seealso cref="Configure.IsMatch"/>
-        /// <returns></returns>
         public static IIncludesBuilder Matching(string assemblyExpression)
         {
             return new AllAssemblies
@@ -81,7 +75,6 @@ namespace NServiceBus
         /// <summary>
         /// Returns an enumerator for looping over the assemblies to be loaded.
         /// </summary>
-        /// <returns></returns>
         public IEnumerator<Assembly> GetEnumerator()
         {
             var assemblyScanner = new AssemblyScanner(directory)
@@ -101,7 +94,6 @@ namespace NServiceBus
         /// <summary>
         /// Return a non-generic enumerator.
         /// </summary>
-        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

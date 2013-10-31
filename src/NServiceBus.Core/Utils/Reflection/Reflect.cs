@@ -29,9 +29,7 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Gets the property represented by the lambda expression.        
         /// </summary>
-        /// <param name="property"></param>
         /// <param name="checkForSingleDot">If checkForSingleDot is true, then the property expression is checked to see that only a single dot is present.</param>
-        /// <returns></returns>
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property, bool checkForSingleDot)
         {
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
@@ -40,9 +38,7 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Returns a MemberInfo for an expression containing a call to a property.
         /// </summary>
-        /// <param name="member"></param>
         /// <param name="checkForSingleDot">Checks that the member expression doesn't have more than one dot like a.Prop.Val</param>
-        /// <returns></returns>
         static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
             if (member == null) throw new ArgumentNullException("member");

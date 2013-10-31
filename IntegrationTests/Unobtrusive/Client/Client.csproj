@@ -37,13 +37,13 @@
       <HintPath>..\..\..\binaries\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.0.0.15\lib\net40\Ninject.dll</HintPath>
+      <HintPath>..\packages\Ninject.3.0.2-unstable-9037\lib\net40\Ninject.dll</HintPath>
     </Reference>
     <Reference Include="Ninject.Extensions.ContextPreservation">
-      <HintPath>..\packages\Ninject.Extensions.ContextPreservation.3.0.0.8\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
+      <HintPath>..\packages\Ninject.Extensions.ContextPreservation.3.0.2-unstable-9009\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
     </Reference>
     <Reference Include="Ninject.Extensions.NamedScope">
-      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.0.0.5\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
+      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.0.2-unstable-9017\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
@@ -75,19 +75,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Commands\Commands.csproj">
-      <Project>{5AD5EAEF-AF56-49B7-A15D-C0F71780049F}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{5AD5EAEF-AF56-49B7-A15D-C0F71780049F}</Project>
       <Name>Commands</Name>
     </ProjectReference>
     <ProjectReference Include="..\Events\Events.csproj">
-      <Project>{6F35A2BC-639A-429D-8A40-35784600E956}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{6F35A2BC-639A-429D-8A40-35784600E956}</Project>
       <Name>Events</Name>
     </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
-      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{DD0DC12D-D6DF-47C0-B75A-AEC351164196}</Project>
       <Name>Messages</Name>
     </ProjectReference>
     <ProjectReference Include="..\MyConventions\MyConventions.csproj">
-      <Project>{fa4a7645-09b1-47a7-962d-6d3da27f0bce}<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+      <Project>{fa4a7645-09b1-47a7-962d-6d3da27f0bce}</Project>
       <Name>MyConventions</Name>
     </ProjectReference>
   </ItemGroup>
@@ -97,5 +97,5 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
     <StartArguments>NServiceBus.Integration</StartArguments>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
-<Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" /></Project>
+  <Import Project="$(SolutionDir)..\..\BuildSupport\RippleRestoreTask.targets" />
+</Project>

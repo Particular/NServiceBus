@@ -20,7 +20,6 @@
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles
         /// </summary>
-        /// <param name="assembliesToScan"></param>
         public RoleManager(IEnumerable<Assembly> assembliesToScan)
         {
             availableRoles = assembliesToScan.AllTypes()
@@ -32,7 +31,6 @@
         /// <summary>
         /// Checks if the specifier contains a given role and uses it to configure the UnicastBus appropriately.
         /// </summary>
-        /// <param name="specifier"></param>
         public void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier)
         {
             ConfigUnicastBus unicastBusConfig = null;

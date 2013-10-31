@@ -22,23 +22,38 @@ $nservicebusVersion = Get-NServiceBusVersion
 $nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
 
 #Figure out if this machine is properly setup
-$a = Get-ItemProperty -path $nserviceBusVersionPath -ErrorAction silentlycontinue
-$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
-$dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
+try {
+	if (!(Test-Path $nserviceBusKeyPath)) {
+		New-Item -Path HKCU:SOFTWARE -Name NServiceBus | Out-Null
+	}
 
-if($preparedInVersion.value){
-	$machinePrepared = $true
-}
-  
-if($machinePrepared -or $dontCheckMachineSetup.value)
-{
-	exit
-}
+	if (!(Test-Path $nserviceBusVersionPath)){
+		$versionToAdd = $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
+		New-Item -Path $nserviceBusKeyPath -Name $versionToAdd | Out-Null
+		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "false" | Out-Null
+	}
+	else
+	{
+		$a = Get-ItemProperty -path $nserviceBusVersionPath
+		$preparedInVersion  = $a.psobject.properties | ?{ $_.Name -eq $machinePreparedKey }
+		$dontCheckMachineSetup  = $a.psobject.properties | ?{ $_.Name -eq "DontCheckMachineSetup" }
+
+		if($preparedInVersion.value -eq $true){
+			$machinePrepared = $true
+		}
+	  
+		if($machinePrepared -or $dontCheckMachineSetup.value)
+		{
+			exit
+		}
+	}
+} Catch [Exception] {}
 
 $perfCountersInstalled = $false
 $msmqInstalled = $false
 $dtcInstalled = $false
 $ravenDBInstalled = $false
+
 try {
 	$perfCountersInstalled = Test-NServiceBusPerformanceCountersInstallation
 } Catch [System.Security.SecurityException] { }
@@ -72,8 +87,10 @@ if($perfCountersInstalled -and $msmqInstalled -and $dtcInstalled -and $ravenDBIn
 	Write-Host "Required infrastructure is all setup correctly."
 }
 
-New-Item -Path $nserviceBusVersionPath -ErrorAction silentlycontinue | Out-Null
-New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "true" | Out-Null
+try {
+	Set-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -Value "true" | Out-Null
+} Catch [Exception] { }
+
 
 $url = "http://particular.net/articles/preparing-your-machine-to-run-nservicebus?dtc=" + $dtcInstalled + "&msmq=" + $msmqInstalled + "&raven=" + $ravenDBInstalled + "&perfcounter=" + $perfCountersInstalled + "&installer=NServiceBus&method=nuget&version=" + $package.Version
 $url = $url.ToLowerInvariant(); 

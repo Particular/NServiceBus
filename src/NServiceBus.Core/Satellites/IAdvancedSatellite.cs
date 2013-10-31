@@ -11,7 +11,6 @@ namespace NServiceBus.Satellites
         /// <summary>
         /// Gets the customizations to apply to the receiver
         /// </summary>
-        /// <returns></returns>
         Action<TransportReceiver> GetReceiverCustomization();
     }
 }

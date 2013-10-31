@@ -12,8 +12,6 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
         /// <summary>
         /// Configures the UnicastBus with typical settings for a server
         /// </summary>
-        /// <param name="specifier"></param>
-        /// <returns></returns>
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
             Configure.ScaleOut(s=>s.UseSingleBrokerQueue());

@@ -18,8 +18,6 @@ namespace NServiceBus.ObjectBuilder.Common
         /// Uses the container to create the given type and then calls the given
         /// action on the object created.
         /// </summary>
-        /// <param name="typeToBuild"></param>
-        /// <param name="action"></param>
         public void BuildAndDispatch(Type typeToBuild, Action<object> action)
         {
             if (Container == null)

@@ -5,6 +5,6 @@ Your license to the NServiceBus source and/or binaries is governed by the Recipr
 
 http://www.opensource.org/licenses/rpl1.5.txt
 
-If you do not wish to release the source of software you build using NServiceBus, you may use NServiceBus source and/or binaries under the NServiceBus Basic End User License Agreement as described here:
+If you do not wish to release the source of software you build using NServiceBus, you may use NServiceBus source and/or binaries under the License Agreement described here:
 
-http://www.nservicebus.com/EULA.aspx
+http://particular.net/LicenseAgreement

@@ -44,7 +44,6 @@
         /// Sets the address mode, can only be done as long as the local address is not been initialized.By default the default machine equals Environment.MachineName
         /// </summary>
         /// <param name="machineName">The machine name.</param>
-        /// <exception cref="InvalidOperationException"></exception>
         public static void OverrideDefaultMachine(string machineName)
         {
             defaultMachine = machineName;
@@ -140,8 +139,6 @@
         /// Creates a new Address whose Queue is derived from the Queue of the existing Address
         /// together with the provided qualifier. For example: queue.qualifier@machine
         /// </summary>
-        /// <param name="qualifier"></param>
-        /// <returns></returns>
         public Address SubScope(string qualifier)
         {
             return new Address(Queue + "." + qualifier, Machine);
@@ -150,7 +147,6 @@
         /// <summary>
         /// Provides a hash code of the Address.
         /// </summary>
-        /// <returns></returns>
         public override int GetHashCode()
         {
             unchecked
@@ -162,7 +158,6 @@
         /// <summary>
         /// Returns a string representation of the address.
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             if (ignoreMachineName)

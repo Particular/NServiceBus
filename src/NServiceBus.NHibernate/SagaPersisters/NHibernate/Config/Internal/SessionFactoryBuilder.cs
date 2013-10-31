@@ -18,7 +18,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
         /// <summary>
         /// Constructor that accepts the types to scan for saga data classes
         /// </summary>
-        /// <param name="typesToScan"></param>
         public SessionFactoryBuilder(IEnumerable<Type> typesToScan)
         {
             this.typesToScan = typesToScan;
@@ -27,7 +26,6 @@ namespace NServiceBus.SagaPersisters.NHibernate.Config.Internal
         /// <summary>
         /// Builds the session factory with the given properties. Database is updated if updateSchema is set
         /// </summary>
-        /// <returns></returns>
         public ISessionFactory Build(Configuration nhibernateConfiguration)
         {
             var scannedAssemblies = typesToScan.Select(t => t.Assembly).Distinct();

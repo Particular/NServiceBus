@@ -30,7 +30,6 @@
         /// <summary>
         /// Instantiates the class saving the given container.
         /// </summary>
-        /// <param name="container"></param>
         public WindsorObjectBuilder(IWindsorContainer container)
         {
             if (container == null)
@@ -177,7 +176,7 @@
         static IEnumerable<Type> GetAllServiceTypesFor(Type t)
         {
             return t.GetInterfaces()
-                .Where(x => x.FullName != null && !x.FullName.StartsWith("System."))
+                .Where(x => !x.FullName.StartsWith("System."))
                 .Concat(new[] {t});
         }
 

@@ -15,14 +15,13 @@
     public static class MsmqSetup
     {
         /// <summary>
-        /// Checks that MSMQ is installed, configured correctly, and started, and if not
-        /// takes the necessary corrective actions to make it so.
+        /// Checks that MSMQ is installed, configured correctly, and started, and if not takes the necessary corrective actions to make it so.
         /// </summary>
         public static bool StartMsmqIfNecessary()
         {
             Console.WriteLine("Entering StartMsmqIfNecessary in NServiceBus.Setup.Windows.Msmq.MsmqSetup");
 
-            if(!InstallMsmqIfNecessary())
+            if (!InstallMsmqIfNecessary())
             {
                 return false;
             }
@@ -42,7 +41,7 @@
                 Console.WriteLine("MSMQ windows service not found! You may need to reboot after MSMQ has been installed.");
                 return false;
             }
-            
+
             return true;
         }
 
@@ -60,7 +59,6 @@
         /// <summary>
         /// Determines if the msmq installation on the current machine is ok
         /// </summary>
-        /// <returns></returns>
         public static bool IsInstallationGood()
         {
             var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
@@ -75,7 +73,7 @@
             return HasOnlyNeededComponents(installedComponents);
         }
 
-        private static bool InstallMsmqIfNecessary()
+        static bool InstallMsmqIfNecessary()
         {
             Console.WriteLine("Checking if MSMQ is installed.");
 
@@ -116,9 +114,11 @@
                     break;
 
                 case OperatingSystemEnum.Windows7:
+                    RunExe(dismPath, @"/Online /NoRestart /English /Enable-Feature /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server");
+                    break;
                 case OperatingSystemEnum.Windows8:
                 case OperatingSystemEnum.Server2012:
-                    RunExe(DISM, DISMInstallCommand);
+                    RunExe(dismPath, @"/Online /NoRestart /English /Enable-Feature /all /FeatureName:MSMQ-Server");
                     break;
 
                 default:
@@ -151,8 +151,8 @@
             Console.Out.WriteLine("Executing {0} {1}", startInfo.FileName, startInfo.Arguments);
 
             var ptr = new IntPtr();
-            bool fileSystemRedirectionDisabled = false;
-            
+            var fileSystemRedirectionDisabled = false;
+
             if (Environment.Is64BitOperatingSystem)
             {
                 fileSystemRedirectionDisabled = Wow64DisableWow64FsRedirection(ref ptr);
@@ -201,7 +201,7 @@
             }
         }
 
-        private static void InstallMsmqOnXpOrServer2003()
+        static void InstallMsmqOnXpOrServer2003()
         {
             var p = Path.GetTempFileName();
 
@@ -235,12 +235,12 @@
         }
 
         // Based on http://msdn.microsoft.com/en-us/library/windows/desktop/ms724833(v=vs.85).aspx
-        private static OperatingSystemEnum GetOperatingSystem()
+        static OperatingSystemEnum GetOperatingSystem()
         {
-            var osVersionInfoEx = new OSVersionInfoEx {OSVersionInfoSize = (UInt32) Marshal.SizeOf(typeof (OSVersionInfoEx))};
+            var osVersionInfoEx = new OSVersionInfoEx { OSVersionInfoSize = (UInt32)Marshal.SizeOf(typeof(OSVersionInfoEx)) };
 
             GetVersionEx(osVersionInfoEx);
-            
+
             switch (Environment.OSVersion.Version.Major)
             {
                 case 6:
@@ -280,7 +280,7 @@
             return OperatingSystemEnum.DontCare;
         }
 
-        private static bool HasOnlyNeededComponents(IEnumerable<string> installedComponents)
+        static bool HasOnlyNeededComponents(IEnumerable<string> installedComponents)
         {
             var needed = new List<string>(RequiredMsmqComponentsXp);
 
@@ -342,18 +342,25 @@
         }
 
         const byte VER_NT_WORKSTATION = 1;
-        const byte VER_NT_SERVER = 3;
 
-        static readonly List<string> RequiredMsmqComponentsXp = new List<string>(new[] { "msmq_Core", "msmq_LocalStorage" });
-        static readonly List<string> UndesirableMsmqComponentsXp = new List<string>(new[] { "msmq_ADIntegrated", "msmq_TriggersService", "msmq_HTTPSupport", "msmq_RoutingSupport", "msmq_MQDSService" });
-        static readonly List<string> UndesirableMsmqComponentsV4 = new List<string>(new[] { "msmq_DCOMProxy", "msmq_MQDSServiceInstalled", "msmq_MulticastInstalled", "msmq_RoutingInstalled", "msmq_TriggersInstalled" });
+        static List<string> RequiredMsmqComponentsXp = new List<string>(new[] { "msmq_Core", "msmq_LocalStorage" });
+        static List<string> UndesirableMsmqComponentsXp = new List<string>(new[] { "msmq_ADIntegrated", "msmq_TriggersService", "msmq_HTTPSupport", "msmq_RoutingSupport", "msmq_MQDSService" });
+        static List<string> UndesirableMsmqComponentsV4 = new List<string>(new[] { "msmq_DCOMProxy", "msmq_MQDSServiceInstalled", "msmq_MulticastInstalled", "msmq_RoutingInstalled", "msmq_TriggersInstalled" });
 
-        enum OperatingSystemEnum { DontCare, XpOrServer2003, Vista, Server2008, Windows7, Windows8, Server2012 }
+        enum OperatingSystemEnum
+        {
+            DontCare, 
+            XpOrServer2003, 
+            Vista, 
+            Server2008, 
+            Windows7,
+            Windows8, 
+            Server2012
+        }
 
         const string OcSetup = "OCSETUP";
-        static string DISM = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dism.exe");
+        static string dismPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "dism.exe");
         const string OcSetupInstallCommand = "MSMQ-Server /passive";
         const string OcSetupVistaInstallCommand = "MSMQ-Container;MSMQ-Server /passive";
-        const string DISMInstallCommand = @"/Online /NoRestart /English /Enable-Feature /FeatureName:MSMQ-Container /FeatureName:MSMQ-Server";
     }
 }

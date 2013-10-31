@@ -1,13 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FC318FC3-ED0F-4130-BD33-E970AE78A56C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.Messages", "VideoStore.Messages\VideoStore.Messages.csproj", "{59F2BA7E-4DA5-49F8-9DBC-520FA99F4679}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoStore.CustomerRelations", "VideoStore.CustomerRelations\VideoStore.CustomerRelations.csproj", "{CD522757-4C40-49C7-94C5-CD5DA956BAFC}"
