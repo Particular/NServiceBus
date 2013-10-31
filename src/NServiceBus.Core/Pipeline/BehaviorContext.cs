@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Janitor;
     using ObjectBuilder;
 
@@ -16,7 +17,7 @@
         /// </summary>
         public static BehaviorContext Current
         {
-            get { return behaviorContextStack.Peek(); }
+            get { return behaviorContextStack.Value.Peek(); }
         }
 
         public BehaviorContext(IBuilder builder, TransportMessage transportMessage)
@@ -24,9 +25,8 @@
             Builder = builder;
             handleCurrentMessageLaterWasCalled = false;
 
-            behaviorContextStack = behaviorContextStack ?? new Stack<BehaviorContext>();
+            behaviorContextStack.Value.Push(this);
 
-            behaviorContextStack.Push(this);
             Set(transportMessage);
         }
 
@@ -69,11 +69,11 @@
         public void Dispose()
         {
             // Pop the stack.
-            behaviorContextStack.Pop();
+            behaviorContextStack.Value.Pop();
         }
 
-        [ThreadStatic]
-        static Stack<BehaviorContext> behaviorContextStack;
+        
+        static ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
 
         internal bool handleCurrentMessageLaterWasCalled;
 
