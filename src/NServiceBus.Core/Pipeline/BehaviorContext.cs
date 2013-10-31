@@ -17,21 +17,15 @@
         /// </summary>
         public static BehaviorContext Current
         {
-            get { return current; }
+            get { return behaviorContextStack.Peek(); }
         }
 
         public BehaviorContext(IBuilder builder, TransportMessage transportMessage)
         {
             Builder = builder;
             handleCurrentMessageLaterWasCalled = false;
-            if (current != null)
-            {
-                throw new InvalidOperationException(
-                    string.Format(
-                        "Attempted to establish a new behavior context on thread {0}, but one was already established.  (transport message ID {1})",
-                        Thread.CurrentThread.ManagedThreadId, current.TransportMessage.Id));
-            }
-            current = this;
+            if (behaviorContextStack == null) behaviorContextStack = new Stack<BehaviorContext>();
+            behaviorContextStack.Push(this);
             Set(transportMessage);
         }
 
@@ -73,11 +67,12 @@
 
         public void Dispose()
         {
-            current = null;
+            // Pop the stack.
+            behaviorContextStack.Pop();
         }
 
         [ThreadStatic]
-        static BehaviorContext current;
+        static Stack<BehaviorContext> behaviorContextStack;
 
         internal bool handleCurrentMessageLaterWasCalled;
 
