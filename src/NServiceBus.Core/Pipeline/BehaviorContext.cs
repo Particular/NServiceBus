@@ -2,30 +2,20 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
-    using Janitor;
     using ObjectBuilder;
 
     /// <summary>
-    /// yeah, we should probably see if we can come up with better names :)
+    ///     yeah, we should probably see if we can come up with better names :)
     /// </summary>
-    [SkipWeaving]
-    class BehaviorContext : IDisposable
+    internal class BehaviorContext : IDisposable
     {
-        /// <summary>
-        /// Accesses the ambient current <see cref="IBehaviorContext"/> if any
-        /// </summary>
-        public static BehaviorContext Current
+        public BehaviorContext(IBuilder builder, TransportMessage transportMessage, BehaviorContextStacker contextStacker)
         {
-            get { return behaviorContextStack.Value.Peek(); }
-        }
-
-        public BehaviorContext(IBuilder builder, TransportMessage transportMessage)
-        {
+            this.contextStacker = contextStacker;
             Builder = builder;
             handleCurrentMessageLaterWasCalled = false;
 
-            behaviorContextStack.Value.Push(this);
+            contextStacker.Push(this);
 
             Set(transportMessage);
         }
@@ -35,14 +25,19 @@
             get { return Get<TransportMessage>(); }
         }
 
+        public bool ChainAborted { get; private set; }
+
+        public IBuilder Builder { get; private set; }
+
+        public void Dispose()
+        {
+            //Injected at compile time
+        }
+
         public void AbortChain()
         {
             ChainAborted = true;
         }
-
-        public bool ChainAborted { get; private set; }
-
-        public IBuilder Builder { get; private set; }
 
         public T Get<T>()
         {
@@ -52,8 +47,8 @@
         public T Get<T>(string key)
         {
             return stash.ContainsKey(key)
-                       ? (T)stash[key]
-                       : default(T);
+                ? (T) stash[key]
+                : default(T);
         }
 
         public void Set<T>(T t)
@@ -66,14 +61,13 @@
             stash[key] = t;
         }
 
-        public void Dispose()
+        public void DisposeManaged()
         {
             // Pop the stack.
-            behaviorContextStack.Value.Pop();
+            contextStacker.Pop();
         }
 
-        
-        static ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
+        readonly BehaviorContextStacker contextStacker;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

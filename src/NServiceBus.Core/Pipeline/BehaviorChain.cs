@@ -4,14 +4,12 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    class BehaviorChain
+    internal class BehaviorChain
     {
-        Queue<Type> itemDescriptors = new Queue<Type>();
-        IBuilder builder;
-
-        public BehaviorChain(IBuilder builder)
+        public BehaviorChain(IBuilder builder, BehaviorContextStacker contextStacker)
         {
             this.builder = builder;
+            this.contextStacker = contextStacker;
         }
 
         public void Add<TBehavior>() where TBehavior : IBehavior
@@ -21,7 +19,7 @@
 
         public void Invoke(TransportMessage incomingTransportMessage)
         {
-            using (var context = new BehaviorContext(builder, incomingTransportMessage))
+            using (var context = new BehaviorContext(builder, incomingTransportMessage, contextStacker))
             {
                 Invoke(context);
             }
@@ -49,7 +47,7 @@
         {
             try
             {
-                return (IBehavior)builder.Build(type);
+                return (IBehavior) builder.Build(type);
             }
             catch (Exception exception)
             {
@@ -57,5 +55,9 @@
                 throw new Exception(error, exception);
             }
         }
+
+        readonly BehaviorContextStacker contextStacker;
+        IBuilder builder;
+        Queue<Type> itemDescriptors = new Queue<Type>();
     }
 }
