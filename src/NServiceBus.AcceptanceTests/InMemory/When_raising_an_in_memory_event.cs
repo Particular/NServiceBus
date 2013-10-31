@@ -4,28 +4,21 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_raising_an_in_memory_event : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_delivered_to_handlers()
         {
-         Scenario.Define<Context>()
-                    .WithEndpoint<InMemoryEndpoint>(b => b.Given((bus, context) =>
-                        {
-                            bus.SendLocal<SomeCommand>(m => { });
+            var context = new Context();
 
-                        }))
+            Scenario.Define(context)
+                    .WithEndpoint<InMemoryEndpoint>(b => b.Given((bus, c) => bus.SendLocal<SomeCommand>(m => { })))
                     .Done(c => c.WasInMemoryEventReceivedByHandler1 && c.WasInMemoryEventReceivedByHandler2)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                    {
-                        Assert.True(c.WasInMemoryEventReceivedByHandler1, "class MyEventHandler1 did not receive the in-memory event");
-                        Assert.True(c.WasInMemoryEventReceivedByHandler2, "class MyEventHandler2 did not receive the in-memory event");
-                    })
-
                     .Run();
+
+            Assert.True(context.WasInMemoryEventReceivedByHandler1, "class MyEventHandler1 did not receive the in-memory event");
+            Assert.True(context.WasInMemoryEventReceivedByHandler2, "class MyEventHandler2 did not receive the in-memory event");
         }
 
         public class Context : ScenarioContext

@@ -13,8 +13,8 @@
             var context = new Context();
 
             Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.Send(Address.Local, new SomeMessage())))
-                .Done(c => c.FirstHandlerInvoked)
+                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
+                .Done(c => c.SecondHandlerInvoked)
                 .Run();
 
             Assert.IsTrue(context.FirstHandlerInvoked);
