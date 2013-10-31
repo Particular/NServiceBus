@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_raising_an_in_memory_event
+    public class When_raising_an_in_memory_event : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_delivered_to_handlers()
