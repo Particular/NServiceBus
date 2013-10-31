@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using Janitor;
     using ObjectBuilder;
 
@@ -24,7 +23,9 @@
         {
             Builder = builder;
             handleCurrentMessageLaterWasCalled = false;
-            if (behaviorContextStack == null) behaviorContextStack = new Stack<BehaviorContext>();
+
+            behaviorContextStack = behaviorContextStack ?? new Stack<BehaviorContext>();
+
             behaviorContextStack.Push(this);
             Set(transportMessage);
         }
