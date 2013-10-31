@@ -121,6 +121,8 @@
     <Compile Include="Gateway\When_sending_a_message_via_the_gateway.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
     <Compile Include="Gateway\When_using_a_custom_correlation_id.cs" />
+    <Compile Include="InMemory\When_calling_DoNotContinueDispatchingCurrentMessageToHandlers_from_inmemory.cs" />
+    <Compile Include="InMemory\When_raising_an_in_memory_event.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />

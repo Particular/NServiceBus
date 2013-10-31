@@ -19,7 +19,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                 if ((!ClusteredQueue) && (!q.Transactional))
                 {
-                    throw new ArgumentException(string.Format(NonTransactionalQueueErrorMessageFormat, q.Path));
+                    throw new ArgumentException(string.Format("Queue '{0}' must be transactional.", q.Path));
                 }
 
                 queue = q;
@@ -50,7 +50,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         }
 
         /// <summary>
-        ///     May throw a timeout exception if a message with the given id cannot be found.
+        ///   May throw a timeout exception if a message with the given id cannot be found.
         /// </summary>
         public void ReturnMessageToSourceQueue(string messageId)
         {
@@ -61,13 +61,8 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                     var message = queue.ReceiveById(messageId, TimeoutDuration, MessageQueueTransactionType.Automatic);
 
                     var tm = MsmqUtilities.Convert(message);
-                    string failedQ = null;
-                    if (tm.Headers.ContainsKey(FaultsHeaderKeys.FailedQ))
-                    {
-                        failedQ = tm.Headers[FaultsHeaderKeys.FailedQ];
-                    }
-
-                    if (string.IsNullOrEmpty(failedQ))
+                    string failedQ;
+                    if (!tm.Headers.TryGetValue(FaultsHeaderKeys.FailedQ, out failedQ))
                     {
                         Console.WriteLine("ERROR: Message does not have a header indicating from which queue it came. Cannot be automatically returned to queue.");
                         return;
@@ -91,17 +86,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
                         {
                             var tm = MsmqUtilities.Convert(m);
 
-                            string originalId = null;
-
-                            if (tm.Headers.ContainsKey(Headers.MessageId))
-                            {
-                                originalId = tm.Headers[Headers.MessageId];
-                            }
-
-                            if (string.IsNullOrEmpty(originalId) && tm.Headers.ContainsKey(Headers.CorrelationId))
-                            {
-                                originalId = tm.Headers[Headers.CorrelationId];
-                            }
+                            var originalId = GetOriginalId(tm);
 
                             if (string.IsNullOrEmpty(originalId) || messageId != originalId)
                             {
@@ -112,15 +97,13 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             using (var tx = new TransactionScope())
                             {
-                                using (var q = new MessageQueue(
-                                    MsmqUtilities.GetFullPath(
-                                        Address.Parse(tm.Headers[FaultsHeaderKeys.FailedQ]))))
+                                var failedQueue = tm.Headers[FaultsHeaderKeys.FailedQ];
+                                using (var q = new MessageQueue(MsmqUtilities.GetFullPath(Address.Parse(failedQueue))))
                                 {
                                     q.Send(m, MessageQueueTransactionType.Automatic);
                                 }
 
-                                queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId,
-                                    MessageQueueTransactionType.Automatic);
+                                queue.ReceiveByLookupId(MessageLookupAction.Current, m.LookupId, MessageQueueTransactionType.Automatic);
 
                                 tx.Complete();
                             }
@@ -135,12 +118,26 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
             }
         }
 
-        const string NonTransactionalQueueErrorMessageFormat = "Queue '{0}' must be transactional.";
+        string GetOriginalId(TransportMessage tm)
+        {
+            string originalId;
 
-        readonly string NoMessageFoundErrorFormat =
-            string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
+            if (tm.Headers.TryGetValue(Headers.OriginalId, out originalId))
+            {
+                return originalId;
+            }
+            if (tm.Headers.TryGetValue(Headers.MessageId, out originalId))
+            {
+                return originalId;
+            }
 
-        static readonly TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
+            return null;
+        }
+
+
+        string NoMessageFoundErrorFormat = string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
+
+        TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
         MessageQueue queue;
     }
 }

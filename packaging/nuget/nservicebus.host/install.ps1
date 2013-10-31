@@ -59,7 +59,7 @@ function Add-StartProgramIfNeeded {
 	$propertyGroupElement.StartAction = "Program"
 	$startProgramElement = $prjXml.CreateElement("StartProgram", $prjXml.Project.GetAttribute("xmlns"));
 	$propertyGroupElement.AppendChild($startProgramElement) | Out-Null
-	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)NServiceBus.Host.exe"
+	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)($package.Id).exe"
 	$prjXml.project.AppendChild($propertyGroupElement) | Out-Null
 	$writerSettings = new-object System.Xml.XmlWriterSettings
 	$writerSettings.OmitXmlDeclaration = $false
@@ -82,9 +82,13 @@ function Add-EndpointConfigIfRequired {
 	$foundConfigureThisEndpoint = Test-HasConfigureThisEndpoint($project)
 	
 	if($foundConfigureThisEndpoint -eq $false) {
-		if (Get-Module T4Scaffolding) {
-			Scaffold EndpointConfig -Project $project.Name
-		}
+		$namespace = $project.Properties.Item("DefaultNamespace").Value
+
+		$projectDir = [System.IO.Path]::GetDirectoryName($project.FullName)
+		$endpoingConfigPath = [System.IO.Path]::Combine( $projectDir, "EndpointConfig.cs")
+		Get-Content  "$installPath\Tools\EndpointConfig.cs" | ForEach-Object { $_ -replace "rootnamespace", $namespace } | Set-Content ($endpoingConfigPath)
+
+		$project.ProjectItems.AddFromFile( $endpoingConfigPath )
 	}
 }
 

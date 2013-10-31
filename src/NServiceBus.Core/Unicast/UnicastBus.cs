@@ -450,7 +450,7 @@ namespace NServiceBus.Unicast
 
         public void HandleCurrentMessageLater()
         {
-            if (BehaviorContext.Current.handleCurrentMessageLaterWasCalled)
+            if (contextStacker.Current.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
@@ -465,7 +465,7 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(_messageBeingHandled, Address.Local);
             }
 
-            BehaviorContext.Current.handleCurrentMessageLaterWasCalled = true;
+            contextStacker.Current.handleCurrentMessageLaterWasCalled = true;
         }
 
         public void ForwardCurrentMessageTo(string destination)
@@ -957,14 +957,13 @@ namespace NServiceBus.Unicast
         public void DisposeManaged()
         {
             InnerShutdown();
-
+            contextStacker.Dispose();
             Configure.Instance.Builder.Dispose();
         }
 
-
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            var context = BehaviorContext.Current;
+            var context = contextStacker.Current;
 
             if (context == null)
             {
@@ -1062,12 +1061,12 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            var chain = new BehaviorChain(Builder);
+            var chain = new BehaviorChain(Builder, contextStacker);
 
             chain.Add<LoadHandlersBehavior>();
             chain.Add<InvokeHandlersBehavior>();
 
-            using (var context = new BehaviorContext(Builder,new TransportMessage()))
+            using (var context = new BehaviorContext(Builder, new TransportMessage(), contextStacker))
             {
                 var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
 
@@ -1085,7 +1084,7 @@ namespace NServiceBus.Unicast
         void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
         {
             // construct behavior chain - look at configuration and possibly the incoming transport message
-            var chain = new BehaviorChain(childBuilder);
+            var chain = new BehaviorChain(childBuilder, contextStacker);
             chain.Add<MessageHandlingLoggingBehavior>();
 
             if (ConfigureImpersonation.Impersonate)
@@ -1325,6 +1324,8 @@ namespace NServiceBus.Unicast
         volatile bool started;
         volatile bool starting;
         object startLocker = new object();
+
+        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
 
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
