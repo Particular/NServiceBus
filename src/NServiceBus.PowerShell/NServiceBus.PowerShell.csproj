@@ -79,15 +79,6 @@
     <Compile Include="VsConstants.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.vb.t4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfig.ps1">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CodeTemplates\Scaffolders\EndpointConfig\EndpointConfigTemplate.cs.t4">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <EmbeddedResource Include="RavenResources\*.*">
       <Visible>false</Visible>
     </EmbeddedResource>

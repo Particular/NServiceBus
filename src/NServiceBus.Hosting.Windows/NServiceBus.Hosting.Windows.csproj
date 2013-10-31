@@ -9,7 +9,6 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.Hosting.Windows</RootNamespace>
-    <AssemblyName>NServiceBus.Host</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
@@ -17,6 +16,7 @@
     <FodyPath>..\packages\Fody</FodyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AssemblyName>NServiceBus.Host</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -28,6 +28,7 @@
     <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AssemblyName>NServiceBus.Host</AssemblyName>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\binaries\</OutputPath>
@@ -37,6 +38,30 @@
     <DocumentationFile>..\..\binaries\NServiceBus.Host.xml</DocumentationFile>
     <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>..\..\binaries\NServiceBus.Host32.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+    <OutputPath>..\..\binaries\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\..\binaries\NServiceBus.Host32.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+   </PropertyGroup>
   <PropertyGroup>
     <DelaySign>true</DelaySign>
   </PropertyGroup>
@@ -136,6 +161,7 @@
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="DebugAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Debug' ">
     <CallTarget Targets="BitSwitchAndSign"/>
+    <CallTarget Targets="Build32BitVersion"/>
   </Target>
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <PropertyGroup>
@@ -157,6 +183,13 @@
     <Exec Command='"$(TargetFrameworkSDKToolsDirectory)sn" -R "$(OutDir)NServiceBus.Host32.exe" "$(AssemblyOriginatorKeyFile)"' />
     <Exec Command='"$(TargetFrameworkSDKToolsDirectory)sn" -R "$(OutDir)NServiceBus.Host.exe" "$(AssemblyOriginatorKeyFile)"' />
 
+    <CallTarget Targets="Build32BitVersion"/>
+  </Target>
+  <Target Name="Build32BitVersion">  
+    <MSBuild 
+      Condition=" '$(Platform)' != 'x86' "
+      Projects="$(ProjectPath)" 
+      Properties="SolutionDir=$(SolutionDir);Configuration=$(ConfigurationName);Platform=x86"/>
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
 </Project>

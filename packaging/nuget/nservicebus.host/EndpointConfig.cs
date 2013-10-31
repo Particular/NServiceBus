@@ -1,7 +1,5 @@
-<#@ Template Language="C#" HostSpecific="True" Inherits="DynamicTransform" #>
-<#@ Output Extension="cs" #>
 
-namespace <#= Model.Namespace #>
+namespace rootnamespace
 {
     using NServiceBus;
 

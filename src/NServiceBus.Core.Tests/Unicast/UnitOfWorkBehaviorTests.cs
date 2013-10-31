@@ -11,7 +11,6 @@
     [TestFixture]
     public class UnitOfWorkBehaviorTests
     {
-
         [Test]
         public void When_first_throw_second_is_cleaned_up()
         {
@@ -48,7 +47,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            using (var context = new BehaviorContext(builder,new TransportMessage()))
+            using (var context = new BehaviorContext(builder, new TransportMessage(), new BehaviorContextStacker()))
             {
                 runner.Invoke(context, () => { });
             }
