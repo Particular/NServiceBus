@@ -15,7 +15,7 @@
         private readonly List<ServiceHost> hosts = new List<ServiceHost>();
       
         /// <summary>
-        /// Starts a servicehost for each found service. Defaults to BasicHttpBinding if
+        /// Starts a <see cref="ServiceHost"/> for each found service. Defaults to <see cref="BasicHttpBinding"/> if
         /// no user specified binding is found
         /// </summary>
         public void Startup()
@@ -41,7 +41,7 @@
         }
 
         /// <summary>
-        /// Shutsdown the service hosts
+        /// Shuts down the service hosts
         /// </summary>
         public void Shutdown()
         {

@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
+
     /// <summary>
     /// In memory operations
     /// </summary>
@@ -13,10 +15,10 @@
         void Raise<T>(T @event);
 
         /// <summary>
-        /// Instantiates a message of type T and raise it in memory
+        /// Instantiates a message of type <typeparamref name="T"/> and raise it in memory
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
-        /// <param name="messageContructor">An action which initializes properties of the message</param>
-        void Raise<T>(System.Action<T> messageContructor);
+        /// <param name="messageConstructor">An <see cref="Action{T}"/> which initializes properties of the message</param>
+        void Raise<T>(Action<T> messageConstructor);
     }
 }

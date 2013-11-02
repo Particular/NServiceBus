@@ -8,14 +8,13 @@
     using Subscriptions.MessageDrivenSubscriptions;
     using Transports;
 
-
     /// <summary>
     /// Published messages based on whats registered in the given subscription storage
     /// </summary>
     public class StorageDrivenPublisher:IPublishMessages
     {
         /// <summary>
-        /// Subscription storge containing information about events and their subscribers
+        /// Subscription storage containing information about events and their subscribers
         /// </summary>
         public ISubscriptionStorage SubscriptionStorage { get; set; }
 
@@ -26,11 +25,8 @@
       
       
         /// <summary>
-        /// Pubvlishes the given message to all subscribers
+        /// Publishes the given message to all subscribers
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="eventTypes"></param>
-        /// <returns></returns>
         public bool Publish(TransportMessage message, IEnumerable<Type> eventTypes)
         {
             if (SubscriptionStorage == null)

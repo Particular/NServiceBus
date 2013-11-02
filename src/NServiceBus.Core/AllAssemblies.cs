@@ -3,9 +3,9 @@ namespace NServiceBus
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Web;
+    using Hosting.Helpers;
 
     /// <summary>
     /// Class for specifying which assemblies not to load.
@@ -16,41 +16,48 @@ namespace NServiceBus
         /// Indicate that assemblies matching the given expression are not to be used.
         /// Use the 'And' method to indicate other assemblies to be skipped.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
-        /// <seealso cref="Configure.IsMatch"/>
-        /// <returns></returns>
         public static IExcludesBuilder Except(string assemblyExpression)
         {
-            return new AllAssemblies { assembliesToExclude = new List<string>(new[] { assemblyExpression })};
+            return new AllAssemblies
+                   {
+                       assembliesToExclude =
+                       {
+                           assemblyExpression
+                       }
+                   };
         }
 
         /// <summary>
         /// Indicate that assemblies matching the given expression are to be used.
         /// Use the 'And' method to indicate other assemblies to be included.
         /// </summary>
-        /// <param name="assemblyExpression"><see cref="Configure.IsMatch"/></param>
-        /// <seealso cref="Configure.IsMatch"/>
-        /// <returns></returns>
         public static IIncludesBuilder Matching(string assemblyExpression)
         {
-            return new AllAssemblies { assembliesToInclude = new List<string>(new[] { assemblyExpression }) };
+            return new AllAssemblies
+                   {
+                       assembliesToInclude =
+                       {
+                           assemblyExpression
+                       }
+                   };
         }
 
         IExcludesBuilder IExcludesBuilder.And(string assemblyExpression)
         {
             if (!assembliesToExclude.Contains(assemblyExpression))
+            {
                 assembliesToExclude.Add(assemblyExpression);
+            }
 
             return this;
         }
 
         IExcludesBuilder IIncludesBuilder.Except(string assemblyExpression)
         {
-            if (assembliesToExclude == null)
-                assembliesToExclude = new List<string>();
-
             if (!assembliesToExclude.Contains(assemblyExpression))
+            {
                 assembliesToExclude.Add(assemblyExpression);
+            }
 
             return this;
         }
@@ -58,7 +65,9 @@ namespace NServiceBus
         IIncludesBuilder IIncludesBuilder.And(string assemblyExpression)
         {
             if (!assembliesToInclude.Contains(assemblyExpression))
+            {
                 assembliesToInclude.Add(assemblyExpression);
+            }
 
             return this;
         }
@@ -66,39 +75,41 @@ namespace NServiceBus
         /// <summary>
         /// Returns an enumerator for looping over the assemblies to be loaded.
         /// </summary>
-        /// <returns></returns>
         public IEnumerator<Assembly> GetEnumerator()
         {
-            Predicate<string> exclude = assembliesToExclude != null 
-                ? name => assembliesToExclude.Any(skip => Configure.IsMatch(skip, name))
-                : (Predicate<string>) null;
+            var assemblyScanner = new AssemblyScanner(directory)
+            {
+                IncludeAppDomainAssemblies = true,
+                AssembliesToInclude = assembliesToInclude,
+                AssembliesToSkip = assembliesToExclude
+            };
+            assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
 
-            Predicate<string> include = assembliesToInclude != null
-                ? name => assembliesToInclude.Any(skip => Configure.IsMatch(skip, name))
-                : (Predicate<string>) null;
-
-            return Configure.FindAssemblies(directory, true, include, exclude).GetEnumerator();
+            return assemblyScanner
+                .GetScannableAssemblies()
+                .Assemblies
+                .GetEnumerator();
         }
 
         /// <summary>
         /// Return a non-generic enumerator.
         /// </summary>
-        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
 
-        private AllAssemblies()
+        AllAssemblies()
         {
-            if (HttpRuntime.AppDomainAppId != null)
-				directory = HttpRuntime.BinDirectory;
-            else
-                directory = AppDomain.CurrentDomain.BaseDirectory;
+            var isWebApplication = HttpRuntime.AppDomainAppId != null;
+
+            directory = isWebApplication
+                            ? HttpRuntime.BinDirectory
+                            : AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        private List<string> assembliesToExclude;
-        private List<string> assembliesToInclude;
-        private readonly string directory;
+        string directory;
+        List<string> assembliesToExclude = new List<string>();
+        List<string> assembliesToInclude = new List<string>();
     }
 }

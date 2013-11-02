@@ -6,7 +6,6 @@ namespace NServiceBus.Serializers.Binary
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Xml.Linq;
-
     using Serialization;
 
     /// <summary>
@@ -51,8 +50,8 @@ namespace NServiceBus.Serializers.Binary
 
             var result = new object[body.Count];
 
-            int i = 0;
-            foreach (object m in body)
+            var i = 0;
+            foreach (var m in body)
                 result[i++] = m;
 
             return result;

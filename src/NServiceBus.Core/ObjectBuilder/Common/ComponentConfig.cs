@@ -17,7 +17,7 @@ namespace NServiceBus.ObjectBuilder.Common
 
         IComponentConfig IComponentConfig.ConfigureProperty(string name, object value)
         {
-            this.container.ConfigureProperty(this.component, name, value);
+            container.ConfigureProperty(component, name, value);
 
             return this;
         }

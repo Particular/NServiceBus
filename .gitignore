@@ -1,8 +1,10 @@
+nugets
 build
 build32
 binaries
 obj
 bin
+*.vshost.*
 .nu
 _ReSharper.*
 _UpgradeReport.*
@@ -14,6 +16,7 @@ _UpgradeReport.*
 *~
 *.swp
 *.user
+TestResults
 TestResult.xml
 results
 CommonAssemblyInfo.cs
@@ -30,3 +33,5 @@ csx
 *.ncrunchproject
 *.ncrunchsolution
 _NCrunch_NServiceBus/*
+logs
+run-git.cmd

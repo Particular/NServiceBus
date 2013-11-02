@@ -11,14 +11,14 @@
             const int throughputLimit = 0;
 
             TransportReceiver.ChangeMaximumMessageThroughputPerSecond(throughputLimit);
-            TransportReceiver.Start(Address.Parse("mytest"));
+            TransportReceiver.Start(Address.Parse("myTest"));
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 fakeReceiver.FakeMessageReceived();
 
             }
-            Assert.AreEqual(100, fakeReceiver.NumMessagesReceived);
+            Assert.AreEqual(100, fakeReceiver.NumberOfMessagesReceived);
         }
     }
 }

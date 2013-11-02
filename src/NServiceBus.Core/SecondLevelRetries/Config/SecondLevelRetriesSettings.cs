@@ -1,7 +1,7 @@
 namespace NServiceBus.SecondLevelRetries.Config
 {
     using System;
-    using NServiceBus.Settings;
+    using Settings;
 
     public class SecondLevelRetriesSettings:ISetDefaultSettings
     {

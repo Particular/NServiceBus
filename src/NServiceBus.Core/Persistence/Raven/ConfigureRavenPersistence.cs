@@ -72,7 +72,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName)
         {
@@ -84,7 +84,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, string connectionStringName, string database)
@@ -97,7 +97,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString)
         {
@@ -109,7 +109,7 @@ namespace NServiceBus
         /// Configures RavenDB as the default persistence.
         /// </summary>
         /// <param name="config">The configuration object.</param>
-        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connectionstring to use.</param>
+        /// <param name="getConnectionString">Specifies a callback to call to retrieve the connection string to use.</param>
         /// <param name="database">The database name to use.</param>
         /// <returns>The configuration object.</returns>
         public static Configure RavenPersistence(this Configure config, Func<string> getConnectionString, string database)
@@ -228,12 +228,21 @@ namespace NServiceBus
 
             if (connectionStringValue != null)
             {
-                store.ParseConnectionString(connectionStringValue);
+                try
+                {
+                    store.ParseConnectionString(connectionStringValue);
+                }
+                catch (ArgumentException)
+                {
+                    throw new ConfigurationErrorsException(String.Format("Raven connectionstring ({0}) could not be parsed. Please ensure the connectionstring is valid, see http://ravendb.net/docs/client-api/connecting-to-a-ravendb-datastore#using-a-connection-string", connectionStringValue));
+                }
 
                 var connectionStringParser = ConnectionStringParser<RavenConnectionStringOptions>.FromConnectionString(connectionStringValue);
                 connectionStringParser.Parse();
                 if (connectionStringParser.ConnectionStringOptions.ResourceManagerId == Guid.Empty)
+                {
                     store.ResourceManagerId = RavenPersistenceConstants.DefaultResourceManagerId;
+                }
             }
             else
             {
@@ -261,7 +270,7 @@ namespace NServiceBus
         static void VerifyConnectionToRavenDBServer(IDocumentStore store)
         {
             RavenBuildInfo ravenBuildInfo = null;
-            bool connectionSuccessful = false;
+            var connectionSuccessful = false;
             Exception exception = null;
             try
             {
@@ -317,10 +326,10 @@ namespace NServiceBus
             sb.AppendFormat("Please ensure that you can open the Raven Studio by navigating to {0}.", store.Url);
             sb.AppendLine();
             sb.AppendLine(
-                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus.Persistence"" in your config file, example:");
-            sb.AppendFormat(
+                @"To configure NServiceBus to use a different Raven connection string add a connection string named ""NServiceBus/Persistence"" in your config file, example:");
+            sb.AppendLine(
                 @"<connectionStrings>
-    <add name=""NServiceBus.Persistence"" connectionString=""Url = http://localhost:9090"" />
+    <add name=""NServiceBus/Persistence"" connectionString=""Url = http://localhost:9090"" />
 </connectionStrings>");
 sb.AppendLine("Reason: " + exception);
 

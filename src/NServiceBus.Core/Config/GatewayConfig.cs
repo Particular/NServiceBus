@@ -3,6 +3,7 @@ namespace NServiceBus.Config
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
     using Gateway.Channels;
 
     /// <summary>
@@ -20,7 +21,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return (TimeSpan)this["TransactionTimeout"];
+                return (TimeSpan) this["TransactionTimeout"];
             }
             set
             {
@@ -64,40 +65,24 @@ namespace NServiceBus.Config
 
         public IDictionary<string, Gateway.Routing.Site> SitesAsDictionary()
         {
-            var result = new Dictionary<string, Gateway.Routing.Site>();
-
-            foreach (SiteConfig site in Sites)
+            return Sites.Cast<SiteConfig>().ToDictionary(site => site.Key, site => new Gateway.Routing.Site
             {
-                result.Add(site.Key, new Gateway.Routing.Site
-                                        {
-                                            Key = site.Key,
-                                            ReplyChannel = site.ReplyChannel,
-                                            Channel = new Channel{Type=site.ChannelType,Address = site.Address},
-                                            LegacyMode = !string.IsNullOrEmpty(site.Mode) && site.Mode.ToLower() == "legacy"
-                                        });
-            }
-
-            return result;
+                Key = site.Key,
+                Channel = new Channel {Type = site.ChannelType, Address = site.Address},
+                LegacyMode = site.LegacyMode
+            });
         }
 
         public IEnumerable<ReceiveChannel> GetChannels()
         {
-            var result = new List<ReceiveChannel>();
-
-            foreach (ChannelConfig channel in Channels)
-            {
-                result.Add(new ReceiveChannel
-                               {
-                                   Key = channel.Key,
-                                   ReplyAddress = string.IsNullOrEmpty(channel.ReplyAddress) ? channel.Address : channel.ReplyAddress,
-                                   Address = channel.Address,
-                                   Type = channel.ChannelType,
-                                   NumberOfWorkerThreads = channel.NumberOfWorkerThreads,
-                                   Default = channel.Default
-                               });
-            }
-
-            return result;
+            return (from ChannelConfig channel in Channels
+                select new ReceiveChannel
+                {
+                    Address = channel.Address,
+                    Type = channel.ChannelType,
+                    NumberOfWorkerThreads = channel.NumberOfWorkerThreads,
+                    Default = channel.Default
+                }).ToList();
         }
     }
 
@@ -106,7 +91,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new empty property
         /// </summary>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new ChannelConfig();
@@ -115,11 +99,9 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the key for the given element
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((ChannelConfig)element).Key;
+            return ((ChannelConfig) element).Address;
         }
 
         public override bool IsReadOnly()
@@ -130,7 +112,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd.
         /// </summary>
-        /// <param name="channel"></param>
         public void Add(ChannelConfig channel)
         {
             BaseAdd(channel);
@@ -139,7 +120,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd with true as the additional parameter.
         /// </summary>
-        /// <param name="element"></param>
         protected override void BaseAdd(ConfigurationElement element)
         {
             BaseAdd(element, true);
@@ -168,12 +148,12 @@ namespace NServiceBus.Config
         /// <summary>
         /// True if this channel is the default channel
         /// </summary>
-        [ConfigurationProperty("Default", IsRequired = false,DefaultValue = false, IsKey = false)]
+        [ConfigurationProperty("Default", IsRequired = false, DefaultValue = false, IsKey = false)]
         public bool Default
         {
             get
             {
-                return (bool)this["Default"];
+                return (bool) this["Default"];
             }
             set
             {
@@ -189,7 +169,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return (string)this["Address"];
+                return (string) this["Address"];
             }
             set
             {
@@ -200,20 +180,20 @@ namespace NServiceBus.Config
         /// <summary>
         /// The number of worker threads that will be used for this channel
         /// </summary>
-        [ConfigurationProperty("NumberOfWorkerThreads", IsRequired = false,DefaultValue =1, IsKey = false)]
+        [ConfigurationProperty("NumberOfWorkerThreads", IsRequired = false, DefaultValue = 1, IsKey = false)]
         public int NumberOfWorkerThreads
         {
             get
             {
-                return (int)this["NumberOfWorkerThreads"];
+                return (int) this["NumberOfWorkerThreads"];
             }
             set
             {
                 this["NumberOfWorkerThreads"] = value;
-            } 
+            }
         }
 
-       
+
         /// <summary>
         /// The ChannelType
         /// </summary>
@@ -222,7 +202,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return ((string)this["ChannelType"]).ToLower();
+                return ((string) this["ChannelType"]).ToLower();
             }
             set
             {
@@ -255,7 +235,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Creates a new empty property
         /// </summary>
-        /// <returns></returns>
         protected override ConfigurationElement CreateNewElement()
         {
             return new SiteConfig();
@@ -264,11 +243,9 @@ namespace NServiceBus.Config
         /// <summary>
         /// Returns the key for the given element
         /// </summary>
-        /// <param name="element"></param>
-        /// <returns></returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((SiteConfig)element).Key;
+            return ((SiteConfig) element).Key;
         }
 
         public override bool IsReadOnly()
@@ -279,7 +256,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd.
         /// </summary>
-        /// <param name="mapping"></param>
         public void Add(SiteConfig site)
         {
             BaseAdd(site);
@@ -288,7 +264,6 @@ namespace NServiceBus.Config
         /// <summary>
         /// Calls BaseAdd with true as the additional parameter.
         /// </summary>
-        /// <param name="element"></param>
         protected override void BaseAdd(ConfigurationElement element)
         {
             BaseAdd(element, true);
@@ -300,6 +275,17 @@ namespace NServiceBus.Config
     /// </summary>
     public class SiteConfig : ConfigurationElement
     {
+        public SiteConfig()
+        {
+            LegacyMode = SetDefaultLegacyMode();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0", Message = "From v5 we need to set the legacy mode to false.")]
+        bool SetDefaultLegacyMode()
+        {
+            return true;
+        }
+
         /// <summary>
         /// The key
         /// </summary>
@@ -308,7 +294,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return (string)this["Key"];
+                return (string) this["Key"];
             }
             set
             {
@@ -324,7 +310,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return (string)this["Address"];
+                return (string) this["Address"];
             }
             set
             {
@@ -340,7 +326,7 @@ namespace NServiceBus.Config
         {
             get
             {
-                return ((string)this["ChannelType"]).ToLower();
+                return ((string) this["ChannelType"]).ToLower();
             }
             set
             {
@@ -351,11 +337,17 @@ namespace NServiceBus.Config
         /// <summary>
         /// The forwarding mode for this site
         /// </summary>
-        [ConfigurationProperty("Mode", IsRequired = false, DefaultValue = "Default", IsKey = false)]
-        public string Mode
+        [ConfigurationProperty("LegacyMode", IsRequired = false, DefaultValue = true, IsKey = false)]
+        public bool LegacyMode
         {
-            get { return ((string)this["Mode"]); }
-            set { this["Mode"] = value; }
+            get
+            {
+                return (bool) this["LegacyMode"];
+            }
+            set
+            {
+                this["LegacyMode"] = value;
+            }
         }
 
         /// <summary>

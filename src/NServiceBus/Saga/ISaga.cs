@@ -21,7 +21,6 @@ namespace NServiceBus.Saga
     /// <summary>
     /// A more strongly typed version of ISaga meant to be implemented by application developers
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     public interface ISaga<T> : ISaga where T : IContainSagaData
     {
         /// <summary>

@@ -85,7 +85,7 @@ namespace NServiceBus.Distributor
 
         private void HandleControlMessage(TransportMessage controlMessage)
         {
-            Address replyToAddress = controlMessage.ReplyToAddress;
+            var replyToAddress = controlMessage.ReplyToAddress;
 
             if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
                 return;
@@ -98,7 +98,7 @@ namespace NServiceBus.Distributor
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
             {
-                int capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
+                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
 
                 WorkerAvailabilityManager.WorkerAvailable(replyToAddress, capacity);
 

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Transport
 {
-    using System;
-    using System.Transactions;
     using Fakes;
     using NUnit.Framework;
     using Unicast.Transport;

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Hosting.Helpers;
-using NServiceBus.Logging;
-using NServiceBus.Unicast.Config;
-using NServiceBus.Utils.Reflection;
-
-namespace NServiceBus.Hosting.Roles
+﻿namespace NServiceBus.Hosting.Roles
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using Helpers;
+    using Logging;
+    using Unicast.Config;
+    using Utils.Reflection;
+
     /// <summary>
     /// Handles the different roles that are registered
     /// </summary>
@@ -21,7 +20,6 @@ namespace NServiceBus.Hosting.Roles
         /// <summary>
         /// Creates the manager with the list of assemblies to scan for roles
         /// </summary>
-        /// <param name="assembliesToScan"></param>
         public RoleManager(IEnumerable<Assembly> assembliesToScan)
         {
             availableRoles = assembliesToScan.AllTypes()
@@ -33,7 +31,6 @@ namespace NServiceBus.Hosting.Roles
         /// <summary>
         /// Checks if the specifier contains a given role and uses it to configure the UnicastBus appropriately.
         /// </summary>
-        /// <param name="specifier"></param>
         public void ConfigureBusForEndpoint(IConfigureThisEndpoint specifier)
         {
             ConfigUnicastBus unicastBusConfig = null;
@@ -72,7 +69,7 @@ namespace NServiceBus.Hosting.Roles
                 if (config != null)
                 {
                     if (unicastBusConfig != null)
-                        throw new InvalidOperationException("Only one role can configure the unicastbus");
+                        throw new InvalidOperationException("Only one role can configure the UnicastBus");
 
                     unicastBusConfig = config;
                 }

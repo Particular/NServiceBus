@@ -14,7 +14,7 @@ namespace MyPublisher
             Console.WriteLine("This will publish IEvent, EventMessage, and AnotherEventMessage alternately.");
             Console.WriteLine("Press 'Enter' to publish a message.To exit, Ctrl + C");
 
-            int nextEventToPublish = 0;
+            var nextEventToPublish = 0;
             while (Console.ReadLine() != null)
             {
                 IMyEvent eventMessage;

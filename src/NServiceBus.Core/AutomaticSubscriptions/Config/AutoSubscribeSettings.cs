@@ -13,7 +13,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// <summary>
         /// Turns off auto subscriptions for sagas. Sagas where not auto subscribed by default before v4
         /// </summary>
-        /// <returns></returns>
         public AutoSubscribeSettings DoNotAutoSubscribeSagas()
         {
             SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c=>c.DoNotAutoSubscribeSagas,true);
@@ -23,7 +22,6 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         /// <summary>
         /// Allows to endpoint to subscribe to messages owned by the local endpoint
         /// </summary>
-        /// <returns></returns>
         public AutoSubscribeSettings DoNotRequireExplicitRouting()
         {
             SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.DoNotRequireExplicitRouting, true); 
@@ -31,9 +29,8 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// Turns on autosubscriptions for messages not marked as commands. This was the default before v4
+        /// Turns on auto-subscriptions for messages not marked as commands. This was the default before v4
         /// </summary>
-        /// <returns></returns>
         public AutoSubscribeSettings AutoSubscribePlainMessages()
         {
             SettingsHolder.SetProperty<DefaultAutoSubscriptionStrategy>(c => c.SubscribePlainMessages, true);
@@ -43,9 +40,8 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
 
         /// <summary>
-        /// Registers a custom autosubscription strategy
+        /// Registers a custom auto-subscription strategy
         /// </summary>
-        /// <returns></returns>
         public AutoSubscribeSettings CustomAutoSubscriptionStrategy<T>() where T : IAutoSubscriptionStrategy
         {
             InfrastructureServices.RegisterServiceFor<IAutoSubscriptionStrategy>(typeof(T), DependencyLifecycle.SingleInstance);

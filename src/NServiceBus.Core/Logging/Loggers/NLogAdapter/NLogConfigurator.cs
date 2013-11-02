@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace NServiceBus.Logging.Loggers.NLogAdapter
 {
     using System;

@@ -61,12 +61,12 @@ namespace NServiceBus.Faults.Forwarder
             }
             catch (Exception exception)
             {
-                var qnfEx = exception as QueueNotFoundException;
+                var queueNotFoundException = exception as QueueNotFoundException;
                 string errorMessage;
 
-                if (qnfEx != null)
+                if (queueNotFoundException != null)
                 {
-                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", qnfEx.Queue);
+                    errorMessage = string.Format("Could not forward failed message to error queue '{0}' as it could not be found.", queueNotFoundException.Queue);
                     Logger.Fatal(errorMessage);
                 }
                 else

@@ -35,7 +35,7 @@
     }
 
     [TestFixture]
-    public class When_removing_timeouts_from_the_storage_with_inmemory : When_removing_timeouts_from_the_storage
+    public class When_removing_timeouts_from_the_storage_with_inMemory : When_removing_timeouts_from_the_storage
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {

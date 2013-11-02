@@ -1,7 +1,7 @@
-﻿using System.ServiceModel;
-
-namespace Rhino.Licensing
+﻿namespace Rhino.Licensing
 {
+    using System.ServiceModel;
+
     /// <summary>
     /// Service contract of subscription server.
     /// </summary>
@@ -11,8 +11,6 @@ namespace Rhino.Licensing
         /// <summary>
         /// Issues a leased license
         /// </summary>
-        /// <param name="previousLicense"></param>
-        /// <returns></returns>
         [OperationContract]
         string LeaseLicense(string previousLicense);
     }

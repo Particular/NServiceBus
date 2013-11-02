@@ -8,76 +8,54 @@ namespace NServiceBus.Unicast.Monitoring
 
     public class EstimatedTimeToSLABreachCalculator : IDisposable
     {
-        const int MaxDatapoints = 10;
-        readonly List<DataPoint> dataPoints = new List<DataPoint>();
-        PerformanceCounter counter;
-        bool disposed;
-        TimeSpan endpointSLA;
-        Timer timer;
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
+            if (counter != null)
             {
-                return;
+                counter.Dispose();
             }
-
-            if (disposing)
+            if (timer != null)
             {
-                if (counter != null)
-                {
-                    counter.Dispose();
-                }
+                timer.Dispose();
             }
-            disposed = true;
-        }
-
-        ~EstimatedTimeToSLABreachCalculator()
-        {
-            Dispose(false);
         }
 
         /// <summary>
         ///     Verified that the counter exists
         /// </summary>
-        /// <param name="sla"> </param>
-        /// <param name="slaBreachCounter"></param>
         public void Initialize(TimeSpan sla, PerformanceCounter slaBreachCounter)
         {
             endpointSLA = sla;
             counter = slaBreachCounter;
 
-            timer = new Timer(RemoveOldDatapoints, null, 0, 2000);
+            timer = new Timer(RemoveOldDataPoints, null, 0, 2000);
         }
 
 
         /// <summary>
         ///     Updates the counter based on the passed times
         /// </summary>
-        /// <param name="sent"> </param>
-        /// <param name="processingStarted"></param>
-        /// <param name="processingEnded"></param>
         public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
         {
             var dataPoint = new DataPoint
-                {
-                    CriticalTime = processingEnded - sent,
-                    ProcessingTime = processingEnded - processingStarted,
-                    OccuredAt = processingEnded
-                };
+            {
+                CriticalTime = processingEnded - sent,
+                ProcessingTime = processingEnded - processingStarted,
+                OccurredAt = processingEnded
+            };
 
             lock (dataPoints)
             {
                 dataPoints.Add(dataPoint);
-                if (dataPoints.Count > MaxDatapoints)
+                if (dataPoints.Count > MaxDataPoints)
                 {
-                    dataPoints.RemoveRange(0, dataPoints.Count - MaxDatapoints);
+                    dataPoints.RemoveRange(0, dataPoints.Count - MaxDataPoints);
                 }
             }
 
@@ -89,26 +67,28 @@ namespace NServiceBus.Unicast.Monitoring
             IList<DataPoint> snapshots;
 
             lock (dataPoints)
+            {
                 snapshots = new List<DataPoint>(dataPoints);
+            }
 
-            double secondsToSLABreach = CalculateTimeToSLABreach(snapshots);
+            var secondsToSLABreach = CalculateTimeToSLABreach(snapshots);
 
             counter.RawValue = Convert.ToInt32(Math.Min(secondsToSLABreach, Int32.MaxValue));
         }
 
-        double CalculateTimeToSLABreach(IEnumerable<DataPoint> snapshots)
+        double CalculateTimeToSLABreach(IList<DataPoint> snapshots)
         {
-            //need at least 2 datapoints to be able to calculate
-            if (snapshots.Count() < 2)
+            //need at least 2 data points to be able to calculate
+            if (snapshots.Count < 2)
             {
                 return double.MaxValue;
             }
 
             DataPoint previous = null;
 
-            TimeSpan criticalTimeDelta = TimeSpan.Zero;
+            var criticalTimeDelta = TimeSpan.Zero;
 
-            foreach (DataPoint current in snapshots)
+            foreach (var current in snapshots)
             {
                 if (previous != null)
                 {
@@ -123,19 +103,18 @@ namespace NServiceBus.Unicast.Monitoring
                 return double.MaxValue;
             }
 
-            TimeSpan elapsedTime = snapshots.Last().OccuredAt - snapshots.First().OccuredAt;
+            var elapsedTime = snapshots.Last().OccurredAt - snapshots.First().OccurredAt;
 
             if (elapsedTime.TotalSeconds <= 0.0)
             {
                 return double.MaxValue;
             }
 
+            var lastKnownCriticalTime = snapshots.Last().CriticalTime.TotalSeconds;
 
-            double lastKnownCriticalTime = snapshots.Last().CriticalTime.TotalSeconds;
+            var criticalTimeDeltaPerSecond = criticalTimeDelta.TotalSeconds/elapsedTime.TotalSeconds;
 
-            double criticalTimeDeltaPerSecond = criticalTimeDelta.TotalSeconds/elapsedTime.TotalSeconds;
-
-            double secondsToSLABreach = (endpointSLA.TotalSeconds - lastKnownCriticalTime)/criticalTimeDeltaPerSecond;
+            var secondsToSLABreach = (endpointSLA.TotalSeconds - lastKnownCriticalTime)/criticalTimeDeltaPerSecond;
 
             if (secondsToSLABreach < 0.0)
             {
@@ -145,27 +124,33 @@ namespace NServiceBus.Unicast.Monitoring
             return secondsToSLABreach;
         }
 
-        void RemoveOldDatapoints(object state)
+        void RemoveOldDataPoints(object state)
         {
             lock (dataPoints)
             {
-                DataPoint last = dataPoints.LastOrDefault();
+                var last = dataPoints.LastOrDefault();
 
                 if (last != null)
                 {
-                    DateTime oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks*3);
+                    var oldestDataToKeep = DateTime.UtcNow - new TimeSpan(last.ProcessingTime.Ticks*3);
 
-                    dataPoints.RemoveAll(d => d.OccuredAt < oldestDataToKeep);
+                    dataPoints.RemoveAll(d => d.OccurredAt < oldestDataToKeep);
                 }
             }
 
             UpdateTimeToSLABreach();
         }
 
+        const int MaxDataPoints = 10;
+        readonly List<DataPoint> dataPoints = new List<DataPoint>();
+        PerformanceCounter counter;
+        TimeSpan endpointSLA;
+        Timer timer;
+
         class DataPoint
         {
             public TimeSpan CriticalTime { get; set; }
-            public DateTime OccuredAt { get; set; }
+            public DateTime OccurredAt { get; set; }
             public TimeSpan ProcessingTime { get; set; }
         }
     }

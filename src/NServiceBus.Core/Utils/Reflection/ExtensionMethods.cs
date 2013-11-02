@@ -12,13 +12,9 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="openGenericType"></param>
-        /// <param name="genericArg"></param>
-        /// <returns></returns>
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
-            bool result = false;
+            var result = false;
             LoopAndAct(type, openGenericType, genericArg, t => result = true);
 
             return result;
@@ -27,10 +23,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="openGenericType"></param>
-        /// <param name="genericArg"></param>
-        /// <returns></returns>
         public static Type GetGenericallyContainedType(this Type type, Type openGenericType, Type genericArg)
         {
             Type result = null;
@@ -58,8 +50,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Returns true if the type can be serialized as is.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
         public static bool IsSimpleType(this Type type)
         {
             return (type == typeof(string) ||
@@ -76,8 +66,6 @@ namespace NServiceBus.Utils.Reflection
         /// Takes the name of the given type and makes it friendly for serialization
         /// by removing problematic characters.
         /// </summary>
-        /// <param name="t"></param>
-        /// <returns></returns>
         public static string SerializationFriendlyName(this Type t)
         {
             lock(TypeToNameLookup)
@@ -87,11 +75,11 @@ namespace NServiceBus.Utils.Reflection
             var args = t.GetGenericArguments();
             if (args != null)
             {
-                int index = t.Name.IndexOf('`');
+                var index = t.Name.IndexOf('`');
                 if (index >= 0)
                 {
-                    string result = t.Name.Substring(0, index) + "Of";
-                    for (int i = 0; i < args.Length; i++)
+                    var result = t.Name.Substring(0, index) + "Of";
+                    for (var i = 0; i < args.Length; i++)
                     {
                         result += args[i].SerializationFriendlyName();
                         if (i != args.Length - 1)
@@ -119,8 +107,8 @@ namespace NServiceBus.Utils.Reflection
 
         static bool IsClrType(byte[] a1)
         {
-            IStructuralEquatable eqa1 = a1;
-            return eqa1.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
+            IStructuralEquatable structuralEquatable = a1;
+            return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
         public static bool IsSystemType(this Type type)

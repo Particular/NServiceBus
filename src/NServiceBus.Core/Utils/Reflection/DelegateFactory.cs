@@ -20,35 +20,30 @@ namespace NServiceBus.Utils.Reflection
     /// </summary>
     /// <param name="target">Target object</param>
     /// <param name="arguments">Arguments</param>
-    /// <returns></returns>
     public delegate object LateBoundMethod(object target, object[] arguments);
 
     /// <summary>
     /// Late Bound Property
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <returns></returns>
     public delegate object LateBoundProperty(object target);
 
     /// <summary>
     /// Late Bound Field
     /// </summary>
     /// <param name="target">Target Objects </param>
-    /// <returns></returns>
     public delegate object LateBoundField(object target);
 
     /// <summary>
     /// Late Bound Field Set
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <param name="value"></param>
     public delegate void LateBoundFieldSet(object target, object value);
 
     /// <summary>
     /// Late Bound Property Set
     /// </summary>
     /// <param name="target">Target Object</param>
-    /// <param name="value"></param>
     public delegate void LateBoundPropertySet(object target, object value);
 
     /// <summary>
@@ -63,15 +58,15 @@ namespace NServiceBus.Utils.Reflection
         /// <returns>LateBoundMethod</returns>
 		public static LateBoundMethod Create(MethodInfo method)
 		{
-			ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
-			ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
+			var instanceParameter = Expression.Parameter(typeof(object), "target");
+			var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 
-			MethodCallExpression call = Expression.Call(
+			var call = Expression.Call(
 				Expression.Convert(instanceParameter, method.DeclaringType),
 				method,
 				CreateParameterExpressions(method, argumentsParameter));
 
-			Expression<LateBoundMethod> lambda = Expression.Lambda<LateBoundMethod>(
+			var lambda = Expression.Lambda<LateBoundMethod>(
 				Expression.Convert(call, typeof(object)),
 				instanceParameter,
 				argumentsParameter);
@@ -82,34 +77,27 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Creates LateBoundProperty
         /// </summary>
-        /// <param name="property">PropertyInfo</param>
-        /// <returns>LateBoundProperty</returns>
         public static LateBoundProperty Create(PropertyInfo property)
         {
-            ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
+            var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            MemberExpression member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
+            var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
 
-            Expression<LateBoundProperty> lambda = Expression.Lambda<LateBoundProperty>(
+            var lambda = Expression.Lambda<LateBoundProperty>(
                 Expression.Convert(member, typeof(object)),
                 instanceParameter
                 );
 
             return lambda.Compile();
         }
-
-        /// <summary>
-        /// LateBoundField
-        /// </summary>
-        /// <param name="field">FieldInfo</param>
-        /// <returns></returns>
+        
         public static LateBoundField Create(FieldInfo field)
         {
-            ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
+            var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            MemberExpression member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
+            var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
 
-            Expression<LateBoundField> lambda = Expression.Lambda<LateBoundField>(
+            var lambda = Expression.Lambda<LateBoundField>(
                 Expression.Convert(member, typeof(object)),
                 instanceParameter
                 );
@@ -120,8 +108,6 @@ namespace NServiceBus.Utils.Reflection
         /// <summary>
         /// Create filed set 
         /// </summary>
-        /// <param name="field">FieldInfo</param>
-        /// <returns>LateBoundFieldSet</returns>
         public static LateBoundFieldSet CreateSet(FieldInfo field)
         {
             var sourceType = field.DeclaringType;

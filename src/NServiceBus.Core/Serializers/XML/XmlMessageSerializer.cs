@@ -52,13 +52,8 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
-        /// <param name="t"></param>
         public void InitType(Type t)
         {
-            if (t.IsNested)
-            {
-                throw new Exception("Nested types are not supported by the XmlMessageSerializer.");
-            }
             logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
 
             if (t.IsSimpleType())
@@ -194,9 +189,6 @@ namespace NServiceBus.Serializers.XML
         /// <summary>
         /// Gets a PropertyInfo for each property of the given type.
         /// </summary>
-        /// <param name="t"></param>
-        /// <param name="isKeyValuePair"></param>
-        /// <returns></returns>
         IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();

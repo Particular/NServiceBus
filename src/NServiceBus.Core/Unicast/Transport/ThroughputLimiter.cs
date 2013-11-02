@@ -12,13 +12,13 @@ namespace NServiceBus.Unicast.Transport
             if (limit <= 0)
                 return;
 
-            througputSemaphore = new SemaphoreSlim(limit, limit);
+            throughputSemaphore = new SemaphoreSlim(limit, limit);
             timer = new Timer(ResetLimit, null, 0, 1000);
         }
 
         public void Stop()
         {
-            if (througputSemaphore == null)
+            if (throughputSemaphore == null)
             {
                 return;
             }
@@ -27,16 +27,16 @@ namespace NServiceBus.Unicast.Transport
 
             stopResetEvent.WaitOne();
 
-            througputSemaphore.Dispose();
-            througputSemaphore = null;
+            throughputSemaphore.Dispose();
+            throughputSemaphore = null;
         }
 
         public void MessageProcessed()
         {
-            if (througputSemaphore == null)
+            if (throughputSemaphore == null)
                 return;
 
-            througputSemaphore.Wait();
+            throughputSemaphore.Wait();
             Interlocked.Increment(ref numberOfMessagesProcessed);
         }
 
@@ -48,7 +48,7 @@ namespace NServiceBus.Unicast.Transport
 
             if (numberOfMessagesProcessedSnapshot > 0)
             {
-                througputSemaphore.Release((int) numberOfMessagesProcessedSnapshot);
+                throughputSemaphore.Release((int) numberOfMessagesProcessedSnapshot);
             }
 
             stopResetEvent.Set();
@@ -57,6 +57,6 @@ namespace NServiceBus.Unicast.Transport
         readonly ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         Timer timer;
         long numberOfMessagesProcessed;
-        SemaphoreSlim througputSemaphore;
+        SemaphoreSlim throughputSemaphore;
     }
 }

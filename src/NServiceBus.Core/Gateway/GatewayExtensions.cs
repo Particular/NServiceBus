@@ -10,7 +10,6 @@
         /// <summary>
         ///     legacy mode support
         /// </summary>
-        /// <param name="message"></param>
         /// <returns>
         ///     true when message received from gateway other than v4
         ///     or v4 site is configured to forward messages using legacy mode,

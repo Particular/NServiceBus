@@ -4,10 +4,9 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports.Msmq;
-    using Unicast.Subscriptions;
+    using Logging;
+    using Settings;
+    using Transports.Msmq;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using MessageType = Unicast.Subscriptions.MessageType;
 
@@ -19,7 +18,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
     {
         void ISubscriptionStorage.Init()
         {
-            string path = MsmqUtilities.GetFullPath(Queue);
+            var path = MsmqUtilities.GetFullPath(Queue);
 
             q = new MessageQueue(path);
 
@@ -36,12 +35,11 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             if (!transactional && SettingsHolder.Get<bool>("Transactions.Enabled"))
                 throw new ArgumentException("Queue must be transactional (" + Queue + ").");
 
-            var mpf = new MessagePropertyFilter();
-            mpf.SetAll();
+            var messageReadPropertyFilter = new MessagePropertyFilter {Id = true, Body = true, Label = true};
 
             q.Formatter = new XmlMessageFormatter(new[] { typeof(string) });
 
-            q.MessageReadPropertyFilter = mpf;
+            q.MessageReadPropertyFilter = messageReadPropertyFilter;
 
             foreach (var m in q.GetAllMessages())
             {
@@ -73,7 +71,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// Checks if configuration is wrong - endpoint isn't transactional and
         /// object isn't configured to handle own transactions.
         /// </summary>
-        /// <returns></returns>
         private bool ConfigurationIsWrong()
         {
             return (Transaction.Current == null && !DontUseExternalTransaction);                
@@ -86,7 +83,7 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
             {
                 foreach (var messageType in messageTypes)
                 {
-                    bool found = false;
+                    var found = false;
                     foreach (var e in entries)
                         if (e.MessageType == messageType && e.Subscriber == address)
                         {
@@ -153,7 +150,6 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
         /// Returns the transaction type (automatic or single) that should be used
         /// based on the configuration of enlisting into external transactions.
         /// </summary>
-        /// <returns></returns>
 	    private MessageQueueTransactionType GetTransactionType()
 	    {
             if (!SettingsHolder.Get<bool>("Transactions.Enabled"))

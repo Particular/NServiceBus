@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>NServiceBus.Autofac</id>
+    <title>NServiceBus Autofac</title>
+    <version>4.0.0-alpha0</version>
+    <authors>NServiceBus Ltd</authors>
+    <owners>Udi Dahan, Andreas Ohlund, John Simons</owners>
+    <licenseUrl>http://particular.net/LicenseAgreement</licenseUrl>
+    <projectUrl>http://particular.net/</projectUrl>
+    <iconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>The Autofac Container for the nservicebus</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
+    <dependencies/>
+  </metadata>
+  <files>
+    <file src="..\..\binaries\containers\autofac\NServiceBus.ObjectBuilder.Autofac.???" target="lib\net40" />
+    <file src="tools\install.ps1" target="tools" />
+    <!--<file src="..\..\src\ObjectBuilder.Autofac\**\*.cs" target="src" />
+    <file src="..\..\src\NServiceBus.Core\ObjectBuilder\Autofac\AutofacObjectBuilder.cs" target="src\NServiceBus.Core\ObjectBuilder\Autofac\" />-->
+  </files>
+</package>

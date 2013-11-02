@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace NServiceBus.Serializers.XML
+﻿namespace NServiceBus.Serializers.XML
 {
+    using System;
+
     [Serializable]
     public class Risk
     {

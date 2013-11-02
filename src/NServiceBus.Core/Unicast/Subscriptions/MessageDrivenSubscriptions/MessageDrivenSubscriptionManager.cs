@@ -56,7 +56,7 @@
 
         public void MutateIncoming(TransportMessage transportMessage)
         {
-           string messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
+           var messageTypeString = GetSubscriptionMessageTypeFrom(transportMessage);
 
             var intent = transportMessage.MessageIntent;
 

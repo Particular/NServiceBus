@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using NServiceBus.Faults;
+    using Faults;
 
     internal class FirstLevelRetries
     {
@@ -18,7 +18,7 @@
 
         public bool HasMaxRetriesForMessageBeenReached(TransportMessage message)
         {
-            string messageId = message.Id;
+            var messageId = message.Id;
             Tuple<int, Exception> e;
 
             if (failuresPerMessage.TryGetValue(messageId, out e))
@@ -28,10 +28,8 @@
                     return false;
                 }
 
-                if (TryInvokeFaultManager(message, e.Item2))
-                {
-                    ClearFailuresForMessage(message);
-                }
+                TryInvokeFaultManager(message, e.Item2);
+                ClearFailuresForMessage(message);
 
                 return true;
             }
@@ -41,7 +39,7 @@
 
         public void ClearFailuresForMessage(TransportMessage message)
         {
-            string messageId = message.Id;
+            var messageId = message.Id;
             Tuple<int, Exception> e;
             failuresPerMessage.TryRemove(messageId, out e);
         }
@@ -52,11 +50,11 @@
                                            (s, i) => new Tuple<int, Exception>(i.Item1 + 1, e));
         }
 
-        private bool TryInvokeFaultManager(TransportMessage message, Exception exception)
+        private void TryInvokeFaultManager(TransportMessage message, Exception exception)
         {
             try
             {
-                Exception e = exception;
+                var e = exception;
 
                 if (e is AggregateException)
                 {
@@ -71,16 +69,13 @@
                 message.RevertToOriginalBodyIfNeeded();
 
                 failureManager.ProcessingAlwaysFailsForMessage(message, e);
-
-                return true;
             }
             catch (Exception ex)
             {
-                Configure.Instance.RaiseCriticalError(
-                    String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
-            }
+                Configure.Instance.RaiseCriticalError(String.Format("Fault manager failed to process the failed message with id {0}", message.Id), ex);
 
-            return false;
+                throw;
+            }
         }
     }
 }

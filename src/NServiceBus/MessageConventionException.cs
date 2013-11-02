@@ -1,8 +1,8 @@
-using System;
-
 namespace NServiceBus
 {
+    using System;
     using System.Runtime.Serialization;
+
     [Serializable]
     public class MessageConventionException : Exception
     {

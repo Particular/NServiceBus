@@ -8,7 +8,7 @@ namespace NServiceBus.Gateway.Channels
     {
         event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
-        void Start(string address, int numWorkerThreads);
+        void Start(string address, int numberOfWorkerThreads);
     }
 
     public class DataReceivedOnChannelArgs : EventArgs

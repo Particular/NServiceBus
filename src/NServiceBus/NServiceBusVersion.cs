@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     /// <summary>
     /// The semver version of NServiceBus

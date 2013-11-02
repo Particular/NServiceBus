@@ -29,8 +29,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Gets the setting value.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static object Get(string key)
         {
             object result;
@@ -54,7 +52,7 @@ namespace NServiceBus.Settings
         /// <param name="value">The setting value.</param>
         public static void Set(string key, object value)
         {
-            EnsureWriteEnabled();
+            EnsureWriteEnabled(key);
 
             Overrides[key] = value;
         }
@@ -75,9 +73,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the value of the given property
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
         public static void SetProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
@@ -89,9 +84,6 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the default value of the given property
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
         public static void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
@@ -115,7 +107,7 @@ namespace NServiceBus.Settings
         }
         public static void SetDefault(string key, object value)
         {
-            EnsureWriteEnabled();
+            EnsureWriteEnabled(key);
 
             Defaults[key] = value;
         }
@@ -175,11 +167,11 @@ namespace NServiceBus.Settings
             locked = true;
         }
 
-        static void EnsureWriteEnabled()
+        static void EnsureWriteEnabled(string key)
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException(string.Format("The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline"));
+                throw new ConfigurationErrorsException(string.Format("Unable to set the value for key: {0}. The settings has been locked for modifications. Please move any configuration code earlier in the configuration pipeline", key));
             }
         }
 

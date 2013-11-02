@@ -4,7 +4,6 @@ namespace NServiceBus.Serializers.Json.Internal
     using System.Globalization;
     using System.IO;
     using System.Xml.Linq;
-
     using Newtonsoft.Json;
 
     public class XContainerConverter : JsonConverter
@@ -39,7 +38,7 @@ namespace NServiceBus.Serializers.Json.Internal
                         reader.Value));
             }
 
-            string value = (string)reader.Value;
+            var value = (string)reader.Value;
             if (objectType == typeof(XDocument))
             {
                 try

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NServiceBus.Config;
-using NServiceBus.Unicast.Tests.Messages;
-using NServiceBus.Unicast.Tests.Messages.ANamespace;
-using NServiceBus.Unicast.Tests.Messages.ANamespace.ASubNamespace;
-using NUnit.Framework;
-
-namespace NServiceBus.Unicast.Tests.Messages
+﻿namespace NServiceBus.Unicast.Tests.Messages
 {
     public class MessageE : IMessage
     {
@@ -20,10 +11,17 @@ namespace NServiceBus.Unicast.Tests.Messages
 
 namespace NServiceBus.Unicast.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
+    using Messages;
+    using Messages.ANamespace;
+    using Messages.ANamespace.ASubNamespace;
+    using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
+    using NUnit.Framework;
     using Routing;
-    using Subscriptions;
 
     public class Configuring_message_endpoint_mapping
     {
@@ -31,7 +29,7 @@ namespace NServiceBus.Unicast.Tests
         {
             var mappings = new Dictionary<Type, Address>();
 
-            var mapping = new MessageEndpointMapping() { Endpoint = "SomeEndpoint" };
+            var mapping = new MessageEndpointMapping{ Endpoint = "SomeEndpoint" };
 
             setupMapping(mapping);
 

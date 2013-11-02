@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using Raven.Client.Document;
     using Raven.Client.Embedded;
 
-   [TestFixture]
+    [TestFixture]
    [Explicit]
     public class When_pooling_timeouts_with_raven : When_pooling_timeouts
     {
@@ -41,7 +41,7 @@ namespace NServiceBus.Core.Tests.Timeout
 
    [TestFixture]
    [Explicit]
-    public class When_pooling_timeouts_with_inmemory : When_pooling_timeouts
+    public class When_pooling_timeouts_with_inMemory : When_pooling_timeouts
     {
         protected override IPersistTimeouts CreateTimeoutPersister()
         {

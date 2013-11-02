@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using NUnit.Framework;
-
-namespace NServiceBus.Serializers.Json.Tests
+﻿namespace NServiceBus.Serializers.Json.Tests
 {
-    using MessageInterfaces.MessageMapper.Reflection;
-
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Reflection;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using NUnit.Framework;
 
     public class A : IMessage
     {

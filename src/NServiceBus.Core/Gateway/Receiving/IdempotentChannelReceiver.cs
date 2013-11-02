@@ -25,18 +25,26 @@ namespace NServiceBus.Gateway.Receiving
         public IDataBus DataBus { get; set; }
         public event EventHandler<MessageReceivedOnChannelArgs> MessageReceived;
 
-        public void Start(Channel channel, int numWorkerThreads)
+        public void Start(Channel channel, int numberOfWorkerThreads)
         {
             channelReceiver = channelFactory.GetReceiver(channel.Type);
 
             channelReceiver.DataReceived += DataReceivedOnChannel;
-            channelReceiver.Start(channel.Address, numWorkerThreads);
+            channelReceiver.Start(channel.Address, numberOfWorkerThreads);
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
+        }
+
+        public void DisposeManaged()
+        {
+            if (channelReceiver != null)
+            {
+                channelReceiver.DataReceived -= DataReceivedOnChannel;
+                channelReceiver.Dispose();
+            }
         }
 
         void DataReceivedOnChannel(object sender, DataReceivedOnChannelArgs e)
@@ -180,36 +188,10 @@ namespace NServiceBus.Gateway.Receiving
             MessageReceived(this, new MessageReceivedOnChannelArgs {Message = msg});
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
-                if (channelReceiver != null)
-                {
-                    channelReceiver.DataReceived -= DataReceivedOnChannel;
-                    channelReceiver.Dispose();
-                }
-            }
-
-            disposed = true;
-        }
-
-        ~IdempotentChannelReceiver()
-        {
-            Dispose(false);
-        }
-
         static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));
 
-        readonly IChannelFactory channelFactory;
-        readonly IPersistMessages persister;
+        IChannelFactory channelFactory;
+        IPersistMessages persister;
         IChannelReceiver channelReceiver;
-        bool disposed;
     }
 }

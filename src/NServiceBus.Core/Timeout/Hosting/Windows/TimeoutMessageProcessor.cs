@@ -8,7 +8,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports.Msmq;
     using Unicast.Transport;
 
-
     public class TimeoutMessageProcessor : IAdvancedSatellite
     {
         public ISendMessages MessageSender { get; set; }

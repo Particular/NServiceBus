@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Text;
-using NUnit.Framework;
-
 namespace NServiceBus.Serializers.XML.Test
 {
+    using System;
+    using System.IO;
+    using System.Text;
+    using NUnit.Framework;
+
     [Serializable]
     public class MessageWithArray
     {
@@ -32,7 +32,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanDeserializeXmlWithWhitespace()
         {
-            var str =
+            var xml =
               @"<?xml version=""1.0"" encoding=""utf-8""?>
 <Messages xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
     <MessageWithArray>
@@ -43,7 +43,7 @@ namespace NServiceBus.Serializers.XML.Test
     </MessageWithArray>
 </Messages>";
 
-            var data = Encoding.UTF8.GetBytes(str);
+            var data = Encoding.UTF8.GetBytes(xml);
 
             var serializer = SerializerFactory.Create<MessageWithArray>();
 
@@ -62,7 +62,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeAndBack()
         {
-            var message = new MessageWithArray(Guid.NewGuid(), new int[] { 1234, 5323 });
+            var message = new MessageWithArray(Guid.NewGuid(), new[] { 1234, 5323 });
 
             var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 
@@ -72,7 +72,7 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(5323, result.SomeInts[1]);
         }
         [Test]
-        public void CanSerializeMessagewithNullArray()
+        public void CanSerializeMessageWithNullArray()
         {
             var message = new MessageWithArrayAndNoDefaultCtor();
             message.SomeWords = null;
@@ -82,7 +82,7 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.IsNull(message.SomeWords);
         }
         [Test]
-        public void CanSerializeMessagewithEmptyArray()
+        public void CanSerializeMessageWithEmptyArray()
         {
             var message = new MessageWithArrayAndNoDefaultCtor();
             message.SomeWords = new string[0];

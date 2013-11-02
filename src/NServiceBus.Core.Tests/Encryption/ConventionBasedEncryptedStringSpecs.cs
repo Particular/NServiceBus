@@ -9,8 +9,8 @@
         [Test]
         public void Should_encrypt_the_value()
         {    
-            var message = new ConventionBasedSecureMessage()
-                              {
+            var message = new ConventionBasedSecureMessage
+                          {
                                   EncryptedSecret = "A secret"
                               };
             mutator.MutateOutgoing(message);
@@ -25,10 +25,10 @@
         [Test]
         public void Should_encrypt_the_value()
         {
-            var message = new ConventionBasedSecureMessage()
-            {
-                EncryptedSecret = "encrypted value@init_vector"
-            };
+            var message = new ConventionBasedSecureMessage
+                          {
+                              EncryptedSecret = "encrypted value@init_vector"
+                          };
             mutator.MutateIncoming(message);
 
             Assert.AreEqual("A secret", message.EncryptedSecret);
@@ -60,7 +60,7 @@
         [SetUp]
         public void SetUp()
         {
-            MessageConventionExtensions.IsEncryptedPropertyAction = (p) => p.Name.StartsWith("Encrypted");
+            MessageConventionExtensions.IsEncryptedPropertyAction = p => p.Name.StartsWith("Encrypted");
         }
     }
 

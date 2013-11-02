@@ -22,7 +22,7 @@ namespace NServiceBus.Scheduling
         public void Schedule(ScheduledTask task)
         {
             scheduledTaskStorage.Add(task);            
-            logger.DebugFormat("Task {0}/{1} scheduled with timespan {2}", task.Name, task.Id, task.Every);
+            logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", task.Name, task.Id, task.Every);
             DeferTask(task);
         }
 

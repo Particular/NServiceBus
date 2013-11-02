@@ -1,12 +1,12 @@
-using System;
-using System.Configuration;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Configuration;
-using NServiceBus.Logging;
-
 namespace NServiceBus.Hosting.Wcf
 {
+    using System;
+    using System.Configuration;
+    using System.ServiceModel;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel.Configuration;
+    using Logging;
+
     /// <summary>
     /// A specialized service host that adds a default endpoint if non is specified in config
     /// </summary>
@@ -15,7 +15,6 @@ namespace NServiceBus.Hosting.Wcf
         /// <summary>
         /// Constructs the host with the given service type
         /// </summary>
-        /// <param name="t"></param>
         public WcfServiceHost(Type t)
             : base(t)
         {
@@ -26,9 +25,6 @@ namespace NServiceBus.Hosting.Wcf
         /// <summary>
         /// Adds the given endpoint unless its already configured in app.config
         /// </summary>
-        /// <param name="contractType"></param>
-        /// <param name="binding"></param>
-        /// <param name="address"></param>
         public void AddDefaultEndpoint(Type contractType,Binding binding,string address)
         {
             var serviceModel = ServiceModelSectionGroup.GetSectionGroup(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None));
@@ -36,7 +32,7 @@ namespace NServiceBus.Hosting.Wcf
             if(serviceModel == null)
              throw new InvalidOperationException("No service model section found in config");
             
-            bool endpointAlreadyConfigured = false;
+            var endpointAlreadyConfigured = false;
 
             foreach (ServiceElement se in serviceModel.Services.Services)
             {
@@ -52,7 +48,7 @@ namespace NServiceBus.Hosting.Wcf
             }
             if (!endpointAlreadyConfigured)
             {
-                logger.Debug("Endpoint for contract: " + contractType.Name + " is not found in configuration, going to add it programatically");
+                logger.Debug("Endpoint for contract: " + contractType.Name + " is not found in configuration, going to add it programmatically");
                 AddServiceEndpoint(contractType, binding, address);
             }
                 

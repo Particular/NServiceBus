@@ -15,7 +15,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">Type of <see cref="TransportDefinition"/> to be configured.</typeparam>
         /// <param name="config">The configuration object.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param> 
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param> 
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport<T>(this Configure config, string connectionStringName = null) where T : TransportDefinition
         {
@@ -27,7 +27,7 @@ namespace NServiceBus
         /// </summary>
         /// <typeparam name="T">Type of <see cref="TransportDefinition"/> to be configured.</typeparam>
         /// <param name="config">The configuration object.</param>
-        /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>
+        /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connection string to use</param>
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport<T>(this Configure config, Func<string> definesConnectionString) where T : TransportDefinition
         {
@@ -39,7 +39,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <param name="transportDefinitionType">Type of <see cref="TransportDefinition"/> to be configured.</param>
-        /// <param name="connectionStringName">The connectionstring name to use to retrieve the connectionstring from.</param>
+        /// <param name="connectionStringName">The connection string name to use to retrieve the connection string from.</param>
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, string connectionStringName = null)
         {
@@ -60,7 +60,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The configuration object.</param>
         /// <param name="transportDefinitionType">Type of <see cref="TransportDefinition"/> to be configured.</param>
-        /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connectionstring to use</param>
+        /// <param name="definesConnectionString">Specifies a callback to call to retrieve the connection string to use</param>
         /// <returns>The configuration object.</returns>
         public static Configure UseTransport(this Configure config, Type transportDefinitionType, Func<string> definesConnectionString)
         {

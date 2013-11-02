@@ -3,6 +3,7 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Audit;
     using Config;
     using Features;
     using HeaderManagement;
@@ -13,17 +14,15 @@ namespace NServiceBus.Gateway.Sending
     using Satellites;
     using Settings;
     using Transports;
-    using Unicast;
     using Unicast.Transport;
 
     public class GatewaySender : IAdvancedSatellite
     {
-        public UnicastBus UnicastBus { get; set; }
         public IBuilder Builder { get; set; }
         public IManageReceiveChannels ChannelManager { get; set; }
         public IMessageNotifier Notifier { get; set; }
         public ISendMessages MessageSender { get; set; }
-
+       
         public bool Handle(TransportMessage message)
         {
             var destinationSites = GetDestinationSitesFor(message);
@@ -99,18 +98,12 @@ namespace NServiceBus.Gateway.Sending
         {
             transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite(targetSite);
 
-            //todo - derive this from the message and the channeltype
+            //TODO: derive this from the message and the channelType
             var forwarder = HandleLegacy(transportMessage, targetSite) ??
                             Builder.Build<IForwardMessagesToSites>();
             forwarder.Forward(transportMessage, targetSite);
 
             Notifier.RaiseMessageForwarded(Address.Local.ToString(), targetSite.Channel.Type, transportMessage);
-
-            if (UnicastBus != null && UnicastBus.ForwardReceivedMessagesTo != null &&
-                UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
-            {
-                MessageSender.Send(transportMessage, UnicastBus.ForwardReceivedMessagesTo);
-            }
         }
 
         IForwardMessagesToSites HandleLegacy(TransportMessage transportMessage, Site targetSite)

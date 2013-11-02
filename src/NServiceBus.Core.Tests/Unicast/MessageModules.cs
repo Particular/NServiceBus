@@ -3,9 +3,9 @@
     using System;
     using Contexts;
     using NUnit.Framework;
-   
+
     [TestFixture]
-    public class When_processing_a_message_successfully_with_a_registered_message_module : using_the_unicastbus
+    public class When_processing_a_message_successfully_with_a_registered_message_module : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_the_begin_and_end_on_the_message_module()
@@ -14,7 +14,7 @@
             var endCalled = false;
 
             var messageModule = new StubMessageModule();
-            bool beginCalled = false;
+            var beginCalled = false;
 
             var receivedMessage = Helpers.Helpers.EmptyTransportMessage();
 
@@ -44,7 +44,7 @@
     }
 
     [TestFixture]
-    public class When_a_message_if_forwarded_via_the_fault_manager : using_the_unicastbus
+    public class When_a_message_if_forwarded_via_the_fault_manager : using_the_unicastBus
     {
         [Test]
         public void Should_invoke_begin_and_end_message()
@@ -52,7 +52,7 @@
             var endCalled = false;
 
             var messageModule = new StubMessageModule();
-            bool beginCalled = false;
+            var beginCalled = false;
 
             messageModule.OnBegin = () =>
             {
@@ -70,7 +70,7 @@
 #pragma warning restore 0618
 
 
-            SimulateMessageBeeingAbortedDueToRetryCountExceeded(Helpers.Helpers.EmptyTransportMessage());
+            SimulateMessageBeingAbortedDueToRetryCountExceeded(Helpers.Helpers.EmptyTransportMessage());
 
             Assert.True(beginCalled);
             Assert.True(endCalled);

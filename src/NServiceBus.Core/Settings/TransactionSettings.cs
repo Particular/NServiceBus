@@ -85,7 +85,6 @@ namespace NServiceBus.Settings
             ///    Sets the isolation level of the transaction.
             /// </summary>
             /// <param name="isolationLevel">A <see cref="T:System.Transactions.IsolationLevel" /> enumeration that specifies the isolation level of the transaction.</param>
-            /// <returns></returns>
             public TransactionAdvancedSettings IsolationLevel(IsolationLevel isolationLevel)
             {
                 SettingsHolder.Set("Transactions.IsolationLevel", isolationLevel);
@@ -96,7 +95,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures the <see cref="ITransport" /> not to enlist in Distributed Transactions.
             /// </summary>
-            /// <returns></returns>
             public TransactionAdvancedSettings DisableDistributedTransactions()
             {
                 SettingsHolder.Set("Transactions.SuppressDistributedTransactions", true);
@@ -106,7 +104,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures the <see cref="ITransport" /> to enlist in Distributed Transactions.
             /// </summary>
-            /// <returns></returns>
             public TransactionAdvancedSettings EnableDistributedTransactions()
             {
                 SettingsHolder.Set("Transactions.SuppressDistributedTransactions", false);
@@ -116,7 +113,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> are not wrapped in a <see cref="TransactionScope" />.
             /// </summary>
-            /// <returns></returns>
             public TransactionAdvancedSettings DoNotWrapHandlersExecutionInATransactionScope()
             {
                 SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", true);
@@ -126,7 +122,6 @@ namespace NServiceBus.Settings
             /// <summary>
             /// Configures this endpoint so that <see cref="IHandleMessages{T}">handlers</see> not wrapped in a <see cref="TransactionScope" />.
             /// </summary>
-            /// <returns></returns>
             public TransactionAdvancedSettings WrapHandlersExecutionInATransactionScope()
             {
                 SettingsHolder.Set("Transactions.DoNotWrapHandlersExecutionInATransactionScope", false);
@@ -137,7 +132,6 @@ namespace NServiceBus.Settings
             /// Sets the default timeout period for the transaction.
             /// </summary>
             /// <param name="defaultTimeout">A <see cref="T:System.TimeSpan" /> value that specifies the default timeout period for the transaction.</param>
-            /// <returns></returns>
             public TransactionAdvancedSettings DefaultTimeout(TimeSpan defaultTimeout)
             {
                 if (defaultTimeout > maxTimeout)
@@ -153,7 +147,7 @@ namespace NServiceBus.Settings
             private static TimeSpan GetMaxTimeout()
             {
                 //default is 10 always 10 minutes
-                TimeSpan maxTimeout = TimeSpan.FromMinutes(10);
+                var maxTimeout = TimeSpan.FromMinutes(10);
 
                 var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
                                                                   .GetSectionGroup("system.transactions");

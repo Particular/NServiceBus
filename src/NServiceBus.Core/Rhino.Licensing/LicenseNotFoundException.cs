@@ -1,8 +1,8 @@
-using System;
-using System.Runtime.Serialization;
-
 namespace Rhino.Licensing
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// Thrown when suitable license is not found.
     /// </summary>

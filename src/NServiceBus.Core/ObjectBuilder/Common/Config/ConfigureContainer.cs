@@ -10,7 +10,6 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         ///</summary>
         ///<param name="configure">Configuration instance</param>
         ///<typeparam name="T">IContainer type</typeparam>
-        ///<returns></returns>
         public static Configure UsingContainer<T>(this Configure configure) where T : class, IContainer, new()
         {
             UsingContainer(configure, new T());
@@ -24,7 +23,6 @@ namespace NServiceBus.ObjectBuilder.Common.Config
         ///<param name="configure">Configuration instance</param>
         ///<param name="container">IContainer instance</param>
         ///<typeparam name="T">IContainer type</typeparam>
-        ///<returns></returns>
         public static Configure UsingContainer<T>(this Configure configure, T container) where T : IContainer
         {
             ConfigureCommon.With(configure, container);

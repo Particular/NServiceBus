@@ -10,8 +10,6 @@ namespace NServiceBus
         /// <summary>
         /// Use the in memory saga persister implementation.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure InMemorySagaPersister(this Configure config)
         {
             config.Configurer.ConfigureComponent<InMemorySagaPersister>(DependencyLifecycle.SingleInstance);

@@ -4,7 +4,6 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using Persistence;
     using Saga;
     using Serializers.Json;
 
@@ -101,7 +100,7 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
                 }
         }
 
-        private class VersionedSagaEntity
+        public class VersionedSagaEntity
         {
             public IContainSagaData SagaEntity;
 
@@ -124,6 +123,14 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             var json = serializer.SerializeObject(source);
 
             return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+        }
+
+        public IDictionary<Guid, VersionedSagaEntity> CurrentSagaEntities
+        {
+            get
+            {
+                return data;             
+            }
         }
 
         private readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);

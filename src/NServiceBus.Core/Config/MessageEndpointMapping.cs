@@ -96,19 +96,18 @@ namespace NServiceBus.Config
         /// <summary>
         /// Uses the configuration properties to configure the endpoint mapping
         /// </summary>
-        /// <param name="mapTypeToEndpoint"></param>
         public void Configure(Action<Type, Address> mapTypeToEndpoint)
         {
-            if (!string.IsNullOrWhiteSpace(this.Messages))
+            if (!string.IsNullOrWhiteSpace(Messages))
             {
                 ConfigureEndpointMappingUsingMessagesProperty(mapTypeToEndpoint);
                 return;
             }
 
-            var address = Address.Parse(this.Endpoint);
-            var assemblyName = this.AssemblyName;
-            var ns = this.Namespace;
-            var typeFullName = this.TypeFullName;
+            var address = Address.Parse(Endpoint);
+            var assemblyName = AssemblyName;
+            var ns = Namespace;
+            var typeFullName = TypeFullName;
 
             if (string.IsNullOrWhiteSpace(assemblyName))
                 throw new ArgumentException("Could not process message endpoint mapping. The Assembly property is not defined. Either the Assembly or Messages property is required.");
@@ -149,8 +148,8 @@ namespace NServiceBus.Config
 
         void ConfigureEndpointMappingUsingMessagesProperty(Action<Type, Address> mapTypeToEndpoint)
         {
-            var address = Address.Parse(this.Endpoint);
-            var messages = this.Messages;
+            var address = Address.Parse(Endpoint);
+            var messages = Messages;
 
             try
             {

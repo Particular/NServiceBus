@@ -10,8 +10,6 @@ namespace NServiceBus
         /// <summary>
         /// Use in-memory fault management.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
         public static Configure InMemoryFaultManagement(this Configure config)
         {
             config.Configurer.ConfigureComponent<FaultManager>(DependencyLifecycle.SingleInstance);

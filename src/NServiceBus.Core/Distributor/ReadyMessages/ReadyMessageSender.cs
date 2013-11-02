@@ -3,7 +3,6 @@ namespace NServiceBus.Distributor.ReadyMessages
     using System;
     using Transports;
     using Unicast;
-    using Unicast.Queuing;
     using Unicast.Transport;
 
     public class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
@@ -14,23 +13,30 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public Address DistributorControlAddress { get; set; }
 
+        ITransport transport;
+
         public void Start()
         {
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
                 return;
 
-            var capacityAvailable = Bus.Transport.MaximumConcurrencyLevel;
+            transport = Bus.Transport;
+            var capacityAvailable = transport.MaximumConcurrencyLevel;
             SendReadyMessage(capacityAvailable, true);
 
-            Bus.Transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
+            transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
         }
 
         public void Stop()
         {
-            Bus.Transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+            //transport will be null if !WorkerRunsOnThisEndpoint
+            if (transport != null)
+            {
+                transport.FinishedMessageProcessing -= TransportOnFinishedMessageProcessing;
+            }
         }
 
-        void TransportOnFinishedMessageProcessing(object sender, EventArgs eventArgs)
+        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
         {
             //if there was a failure this "send" will be rolled back
             SendReadyMessage();
@@ -38,7 +44,7 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         void SendReadyMessage(int capacityAvailable = 1, bool isStarting = false)
         {
-            //we use the actual address to make sure that the worker inside the masternode will check in correctly
+            //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessage.Create(Bus.InputAddress);
 
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());

@@ -2,8 +2,8 @@
 {
     using System;
     using NServiceBus.Persistence.Raven;
+    using Raven.Abstractions.Exceptions;
     using Raven.Client;
-    using ConcurrencyException = Raven.Abstractions.Exceptions.ConcurrencyException;
 
     public class RavenDBDeduplication : IDeduplicateMessages
     {

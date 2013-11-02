@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
@@ -10,16 +10,14 @@ namespace NServiceBus
     public class WireEncryptedString : ISerializable
     {
         /// <summary>
-        /// Default contstructor
+        /// Default constructor
         /// </summary>
         public WireEncryptedString()
         {}
 
         /// <summary>
-        /// Deseralizing contructor
+        /// Deserializing constructor
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         public WireEncryptedString(SerializationInfo info, StreamingContext context)
         {
             EncryptedValue = info.GetValue("EncryptedValue", typeof (EncryptedValue)) as EncryptedValue;
@@ -63,12 +61,12 @@ namespace NServiceBus
         //**** we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string EncryptedBase64Value { get; set; }
 
         /// <summary>
-        /// Only keept for backwards compatibility reasons
+        /// Only kept for backwards compatibility reasons
         /// </summary>
         public string Base64Iv { get; set; }
         
@@ -77,8 +75,6 @@ namespace NServiceBus
         /// <summary>
         /// Gets the string value from the WireEncryptedString.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static implicit operator string(WireEncryptedString s)
         {
             return s == null ? null : s.Value;
@@ -87,8 +83,6 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new WireEncryptedString from the given string.
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
         public static implicit operator WireEncryptedString(string s)
         {
             return new WireEncryptedString { Value = s };
@@ -97,8 +91,6 @@ namespace NServiceBus
         /// <summary>
         /// Method for making default XML serialization work properly for this type.
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("EncryptedValue", EncryptedValue);

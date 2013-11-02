@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting.Profiles
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
     using System.Reflection;
     using Helpers;
@@ -21,10 +20,6 @@ namespace NServiceBus.Hosting.Profiles
         /// <summary>
         /// Initializes the manager with the assemblies to scan and the endpoint configuration to use
         /// </summary>
-        /// <param name="assembliesToScan"></param>
-        /// <param name="specifier"></param>
-        /// <param name="args"></param>
-        /// <param name="defaultProfiles"></param>
         public ProfileManager(List<Assembly> assembliesToScan, IConfigureThisEndpoint specifier, string[] args, List<Type> defaultProfiles)
         {
             this.assembliesToScan = assembliesToScan;
@@ -57,7 +52,6 @@ namespace NServiceBus.Hosting.Profiles
         /// <summary>
         /// Returns an object to configure logging based on the specification and profiles passed in.
         /// </summary>
-        /// <returns></returns>
         public IEnumerable<IConfigureLogging> GetLoggingConfigurer()
         {
             return GetImplementor<IConfigureLogging>(typeof(IConfigureLoggingForProfile<>));
@@ -117,7 +111,6 @@ namespace NServiceBus.Hosting.Profiles
         /// <summary>
         /// Activates the profile handlers that handle the previously identified active profiles. 
         /// </summary>
-        /// <returns></returns>
         public void ActivateProfileHandlers()
         {
             var instantiableHandlers = assembliesToScan
@@ -149,7 +142,7 @@ namespace NServiceBus.Hosting.Profiles
                 {
                     if (executedHandlers.Contains(handlerType))
                     {
-                        Logger.Debug("Profile handler was already activated by a preceeding profile: " + handlerType.AssemblyQualifiedName);
+                        Logger.Debug("Profile handler was already activated by a preceding profile: " + handlerType.AssemblyQualifiedName);
                         continue;
                     }
                     var profileHandler = (IHandleProfile)Activator.CreateInstance(handlerType);

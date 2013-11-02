@@ -6,7 +6,6 @@
     using Raven.Client;
     using Raven.Client.Document;
     using Raven.Client.Embedded;
-    using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class WithRavenSubscriptionStorage
@@ -29,7 +28,10 @@
         [TearDown]
         public void Cleanup()
         {
-            store.Dispose();
+            if (store != null)
+            {
+                store.Dispose();
+            }
         }
     }
 }

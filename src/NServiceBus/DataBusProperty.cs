@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.Serialization;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Runtime.Serialization;
+
     /// <summary>
     /// Default implementation for <see cref="IDataBusProperty"/>.
     /// </summary>

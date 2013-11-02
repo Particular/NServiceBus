@@ -1,14 +1,14 @@
 namespace NServiceBus
 {
-	using System.Configuration;
-	using Config;
-	using Faults;
-	using Faults.Forwarder;
-	using Logging;
-	using Settings;
-	using Utils;
+    using System.Configuration;
+    using Config;
+    using Faults;
+    using Faults.Forwarder;
+    using Logging;
+    using Settings;
+    using Utils;
 
-	/// <summary>
+    /// <summary>
 	/// Contains extension methods to NServiceBus.Configure
 	/// </summary>
 	public static class ConfigureFaultsForwarder
@@ -16,8 +16,6 @@ namespace NServiceBus
 		/// <summary>
 		/// Forward messages that have repeatedly failed to another endpoint.
 		/// </summary>
-		/// <param name="config"></param>
-		/// <returns></returns>
 		public static Configure MessageForwardingInCaseOfFault(this Configure config)
 		{
 			if (ErrorQueue != null)

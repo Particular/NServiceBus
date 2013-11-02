@@ -4,17 +4,21 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading;
+    using Audit;
     using Core.Tests;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
+    using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
+    using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
+    using Sagas;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -24,9 +28,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Unicast.Messages;
     using UnitOfWork;
 
-    public class using_a_configured_unicastbus
+    public class using_a_configured_unicastBus
     {
-        protected IBus bus;
+        protected UnicastBus bus;
 
         protected UnicastBus unicastBus;
         protected ISendMessages messageSender;
@@ -34,7 +38,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected Address gatewayAddress;
         MessageHeaderManager headerManager = new MessageHeaderManager();
-        MessageMapper MessageMapper = new MessageMapper();
+        protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
@@ -47,8 +51,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+      
 
-     
         [SetUp]
         public void SetUp()
         {
@@ -84,14 +88,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
-
             subscriptionManager = new MessageDrivenSubscriptionManager
                 {
                     Builder = FuncBuilder,
                     MessageSender = messageSender,
                     SubscriptionStorage = subscriptionStorage
                 };
-            
+
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
@@ -101,7 +104,35 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
+            FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
+            FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
+            
+            FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
+
+            FuncBuilder.Register<UnitOfWorkBehavior>();
+            FuncBuilder.Register<MessageHandlingLoggingBehavior>();
+            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+                                                             {
+                                                                 MessageSerializer = MessageSerializer,
+                                                                 MessageMetadataRegistry = MessageMetadataRegistry,
+                                                             });
+            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
+            FuncBuilder.Register<AuditBehavior>();
+            FuncBuilder.Register<MessageAuditer>();
+            
+            FuncBuilder.Register<ForwardBehavior>();
+            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
+                {
+                    ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
+                });
+            FuncBuilder.Register<LoadHandlersBehavior>();
+            FuncBuilder.Register<SagaPersistenceBehavior>();
+            FuncBuilder.Register<InvokeHandlersBehavior>();
+
+            FuncBuilder.Register<RaiseMessageReceivedBehavior>();
+            FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
+            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
 
             unicastBus = new UnicastBus
             {
@@ -124,14 +155,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionManager = subscriptionManager,
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
-                HandlerRegistry = handlerRegistry,
-                MessageRouter = router
-
+                MessageRouter = router,
             };
             bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
+            FuncBuilder.Register<UnicastBus>(() => unicastBus);
 
             ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
         }
@@ -164,8 +194,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             if (unicastBus.MessageDispatcherMappings == null)
                 unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
-
-            unicastBus.MessageDispatcherMappings[typeof(T)] = typeof(DefaultDispatcherFactory);
         }
         protected void RegisterOwnedMessageType<T>()
         {
@@ -235,7 +263,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
     }
 
-    public class using_the_unicastbus : using_a_configured_unicastbus
+    public class FakeMessageAuditer : MessageAuditer
+    {
+        public override void ForwardMessageToAuditQueue(TransportMessage transportMessage)
+        {
+        }
+    }
+
+    public class using_the_unicastBus : using_a_configured_unicastBus
     {
         [SetUp]
         public new void SetUp()
@@ -249,19 +284,47 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             try
             {
-                Transport.FakeMessageBeeingProcessed(transportMessage);
+                ExtensionMethods.GetHeaderAction = (o, s) =>
+                {
+                    string v;
+                    transportMessage.Headers.TryGetValue(s, out v);
+                    return v;
+                };
+
+                ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
+
+                Transport.FakeMessageBeingProcessed(transportMessage);
             }
             catch (Exception ex)
             {
+                Console.Out.WriteLine("Fake message processing failed: " + ex);
                 ResultingException = ex;
             }
         }
 
-        protected void SimulateMessageBeeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
+        protected void ReceiveMessage<T>(T message, IDictionary<string,string> headers = null)
+        {
+            RegisterMessageType<T>();
+            var messageToReceive = Helpers.Serialize(message);
+
+            if (headers != null)
+            {
+                foreach (var header in headers)
+                {
+                    messageToReceive.Headers[header.Key] = header.Value;
+                }
+            }
+
+
+        
+            ReceiveMessage(messageToReceive);
+        }
+
+        protected void SimulateMessageBeingAbortedDueToRetryCountExceeded(TransportMessage transportMessage)
         {
             try
             {
-                Transport.FakeMessageBeeingPassedToTheFaultManager(transportMessage);
+                Transport.FakeMessageBeingPassedToTheFaultManager(transportMessage);
             }
             catch (Exception ex)
             {

@@ -13,22 +13,11 @@ namespace Server.Saga
             Data.OrderId = message.OrderId;
             var someState = new Random().Next(10);
 
-            RequestTimeout(TimeSpan.FromSeconds(10), someState);
-            LogMessage("v2.6 Timeout (10s) requested with state: " + someState);
-        }
-
-        [Obsolete]
-        public override void Timeout(object state)
-        {
-            LogMessage("v2.6 Timeout fired, with state: " + state);
-
-            var someState = new Random().Next(10);
-
             LogMessage("Requesting a custom timeout v3.0 style, state: " + someState);
             RequestTimeout(TimeSpan.FromSeconds(10), new MyTimeOutState
-                                                        {
-                                                            SomeValue = someState
-                                                        });
+            {
+                SomeValue = someState
+            });
         }
 
         public override void ConfigureHowToFindSaga()

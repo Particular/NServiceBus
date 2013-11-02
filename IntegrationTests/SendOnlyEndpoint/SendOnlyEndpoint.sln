@@ -1,13 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendOnlyEndpoint.Custom", "SendOnlyEndpoint.Custom\SendOnlyEndpoint.Custom.csproj", "{52E814AA-CD2D-48F5-AD5C-38D8335DEBF4}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E07D1441-4B8E-403B-9862-9B7F365BE600}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendOnlyEndpoint.NServiceBusHost", "SendOnlyEndpoint.NServiceBusHost\SendOnlyEndpoint.NServiceBusHost.csproj", "{62F5003D-869E-4A26-9373-F66B5F5FDE5B}"
 EndProject

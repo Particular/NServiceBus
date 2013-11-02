@@ -5,9 +5,7 @@
 
     public class StoreAccessor : IDisposable
     {
-        private bool disposed;
-
-        private readonly IDocumentStore store;
+        IDocumentStore store;
 
         public StoreAccessor(IDocumentStore store)
         {
@@ -21,29 +19,15 @@
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
+            if (store != null)
             {
-                return;
-            }
-
-            if (disposing)
-            {
-                // Dispose managed resources.
                 store.Dispose();
             }
-
-            disposed = true;
-        }
-
-        ~StoreAccessor()
-        {
-            Dispose(false);
         }
     }
 }

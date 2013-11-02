@@ -29,11 +29,11 @@
 
             Console.Out.WriteLine(sizeof(char));
             var message = MsmqUtilities.Convert(transportMessage);
-            var bufferWithNULLs = new byte[message.Extension.Length + (10 * sizeof(char))];
+            var bufferWithNulls = new byte[message.Extension.Length + (10 * sizeof(char))];
             
-            Buffer.BlockCopy(message.Extension, 0, bufferWithNULLs, 0, bufferWithNULLs.Length - (10 * sizeof(char)));
+            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - (10 * sizeof(char)));
             
-            message.Extension = bufferWithNULLs;
+            message.Extension = bufferWithNulls;
 
             var result = MsmqUtilities.Convert(message);
 

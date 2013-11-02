@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace NServiceBus.Serializers.XML
+﻿namespace NServiceBus.Serializers.XML
 {
+    using System;
+
     public interface IM1 : IMessage
     {
         float Age { get; set; }

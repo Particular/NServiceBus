@@ -18,7 +18,6 @@ namespace NServiceBus.ObjectBuilder.Autofac
 #endif
     {
         ILifetimeScope container;
-        bool disposed;
 
         ///<summary>
         /// Instantiates the class utilizing the given container.
@@ -36,33 +35,9 @@ namespace NServiceBus.ObjectBuilder.Autofac
         {
         }
 
-        /// <summary>
-        /// Disposes the container and all resources instantiated by the container.
-        /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-            }
-
-            disposed = true;
-            if (disposing)
-            {
-                container.Dispose();
-            }
-
-        }
-
-        ~AutofacObjectBuilder()
-        {
-            Dispose(false);
+            //Injected at compile time
         }
 
         /// <summary>
@@ -95,11 +70,13 @@ namespace NServiceBus.ObjectBuilder.Autofac
             var registration = GetComponentRegistration(component);
 
             if (registration != null)
+            {
                 return;
+            }
 
             var builder = new ContainerBuilder();
             var services = GetAllServices(component).ToArray();
-            var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();            
+            var registrationBuilder = builder.RegisterType(component).As(services).PropertiesAutowired();
 
             SetLifetimeScope(dependencyLifecycle, registrationBuilder);
 
@@ -108,14 +85,16 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
         void Common.IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
-            var registration = GetComponentRegistration(typeof (T));
+            var registration = GetComponentRegistration(typeof(T));
 
             if (registration != null)
+            {
                 return;
+            }
 
             var builder = new ContainerBuilder();
             var services = GetAllServices(typeof(T)).ToArray();
-            var registrationBuilder = builder.Register(c => componentFactory.Invoke()).As(services).PropertiesAutowired();            
+            var registrationBuilder = builder.Register(c => componentFactory.Invoke()).As(services).PropertiesAutowired();
 
             SetLifetimeScope(dependencyLifecycle, (IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle>) registrationBuilder);
 
@@ -131,8 +110,8 @@ namespace NServiceBus.ObjectBuilder.Autofac
 
             if (registration == null)
             {
-                throw new InvalidOperationException(
-                    "Cannot configure properties for a type that hasn't been configured yet: " + component.FullName);
+                var message = "Cannot configure properties for a type that hasn't been configured yet: " + component.FullName;
+                throw new InvalidOperationException(message);
             }
 
             registration.Activating += (sender, e) => SetPropertyValue(e.Instance, property, value);
@@ -141,13 +120,11 @@ namespace NServiceBus.ObjectBuilder.Autofac
         ///<summary>
         /// Register a singleton instance of a dependency within Autofac.
         ///</summary>
-        ///<param name="lookupType"></param>
-        ///<param name="instance"></param>
         public void RegisterSingleton(Type lookupType, object instance)
         {
             var builder = new ContainerBuilder();
             builder.RegisterInstance(instance).As(lookupType).PropertiesAutowired();
-            builder.Update(this.container.ComponentRegistry);
+            builder.Update(container.ComponentRegistry);
         }
 
         public bool HasComponent(Type componentType)
@@ -197,11 +174,12 @@ namespace NServiceBus.ObjectBuilder.Autofac
                 return new List<Type>();
             }
 
-            var result = new List<Type>(type.GetInterfaces()) {
-                type
-            };
+            var result = new List<Type>(type.GetInterfaces())
+                         {
+                             type
+                         };
 
-            foreach (Type interfaceType in type.GetInterfaces())
+            foreach (var interfaceType in type.GetInterfaces())
             {
                 result.AddRange(GetAllServices(interfaceType));
             }

@@ -1,16 +1,16 @@
 namespace NServiceBus.Serializers.Json
 {
+    using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.Serialization.Formatters;
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Serialization;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
     /// JSON and BSON base class for <see cref="IMessageSerializer"/>.
@@ -66,8 +66,10 @@ namespace NServiceBus.Serializers.Json
         {
             var settings = serializerSettings;
 
-            var dynamicTypeToSerializeTo = messageTypes != null ? messageTypes.FirstOrDefault(t => t.IsInterface) : null;
-            if (dynamicTypeToSerializeTo != null)
+            var mostConcreteType = messageTypes != null ? messageTypes.FirstOrDefault() : null;
+            var requiresDynamicDeserialization = mostConcreteType != null && mostConcreteType.IsInterface;
+
+            if (requiresDynamicDeserialization)
             {
                 settings = new JsonSerializerSettings{
                         TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
@@ -76,7 +78,7 @@ namespace NServiceBus.Serializers.Json
                 };
             }
 
-            JsonSerializer jsonSerializer = JsonSerializer.Create(settings);
+            var jsonSerializer = JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
 
             var reader = CreateJsonReader(stream);
@@ -86,9 +88,9 @@ namespace NServiceBus.Serializers.Json
 
             if (firstTokenType == JsonToken.StartArray)
             {
-                if (dynamicTypeToSerializeTo != null)
+                if (requiresDynamicDeserialization)
                 {
-                    return (object[]) jsonSerializer.Deserialize(reader, dynamicTypeToSerializeTo.MakeArrayType());
+                    return (object[])jsonSerializer.Deserialize(reader, mostConcreteType.MakeArrayType());
                 }
                 return jsonSerializer.Deserialize<object[]>(reader);
             }

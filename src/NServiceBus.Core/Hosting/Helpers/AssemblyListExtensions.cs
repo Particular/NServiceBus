@@ -1,20 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using NServiceBus.Utils.Reflection;
-
 namespace NServiceBus.Hosting.Helpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+
     internal static class AssemblyListExtensions
     {
         public static IEnumerable<Type> AllTypes(this IEnumerable<Assembly> assemblies)
         {
-            foreach (var assembly in assemblies)
-                foreach (var type in assembly.GetTypes())
-                {
-                    yield return type;
-                }
+            return assemblies.SelectMany(assembly => assembly.GetTypes());
         }
 
         public static IEnumerable<Type> AllTypesAssignableTo<T>(this IEnumerable<Assembly> assemblies)
@@ -28,13 +23,6 @@ namespace NServiceBus.Hosting.Helpers
         public static IEnumerable<Type> WhereConcrete(this IEnumerable<Type> types)
         {
             return types.Where(x => !x.IsInterface && !x.IsAbstract);
-        }
-
-        public static IEnumerable<Type> AllTypesClosing(this IEnumerable<Assembly> assemblies, Type openGenericType, Type genericArg)
-        {
-            return assemblies.Where(openGenericType.Assembly.IsReferencedByOrEquals)
-                .AllTypes()
-                .Where(type => type.GetGenericallyContainedType(openGenericType, genericArg) != null);
         }
 
         static bool IsReferencedByOrEquals(this Assembly referenceAssembly, Assembly targetAssembly)

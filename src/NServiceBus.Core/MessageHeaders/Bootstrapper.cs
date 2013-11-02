@@ -1,7 +1,7 @@
 namespace NServiceBus.MessageHeaders
 {
     using Config;
-    using INeedInitialization = NServiceBus.INeedInitialization;
+    using INeedInitialization = INeedInitialization;
 
     class Bootstrapper : INeedInitialization, IWantToRunWhenConfigurationIsComplete
     {

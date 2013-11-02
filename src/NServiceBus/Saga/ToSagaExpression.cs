@@ -6,18 +6,14 @@ namespace NServiceBus.Saga
     /// <summary>
     /// Allows a more fluent way to map sagas
     /// </summary>
-    /// <typeparam name="TSaga"></typeparam>
-    /// <typeparam name="TMessage"></typeparam>
     public class ToSagaExpression<TSaga,TMessage> where TSaga : IContainSagaData
     {
         readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
         readonly Expression<Func<TMessage, object>> messageProperty;
 
         /// <summary>
-        /// Constucts the expression
+        /// Constructs the expression
         /// </summary>
-        /// <param name="sagaMessageFindingConfiguration"></param>
-        /// <param name="messageProperty"></param>
         public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
         {
             this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;

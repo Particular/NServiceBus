@@ -4,7 +4,9 @@
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
+    using Janitor;
 
+    [SkipWeaving]
     public partial class TrialExpired : Form
     {
         public TrialExpired()
@@ -44,7 +46,7 @@
 
                 if (ShowDialogInSTA(openDialog) == DialogResult.OK)
                 {
-                    string licenseFileSelected = openDialog.FileName;
+                    var licenseFileSelected = openDialog.FileName;
 
                     if (ValidateLicenseFile(this, licenseFileSelected))
                     {

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Specify the order in which message handlers will be invoked.
     /// </summary>
@@ -12,7 +12,6 @@ namespace NServiceBus
         /// In this method, use the order object to specify the order 
         /// in which message handlers will be activated.
         /// </summary>
-        /// <param name="order"></param>
         void SpecifyOrder(Order order);
     }
 
@@ -30,16 +29,14 @@ namespace NServiceBus
         /// <summary>
         /// Specifies that the given type will be activated before all others.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public void SpecifyFirst<T>()
         {
             Types = new[] {typeof (T)};
         }
 
         /// <summary>
-        /// Obselete - use SpecifyFirst instead.
+        /// Obsolete - use SpecifyFirst instead.
         /// </summary>
-        /// <typeparam name="TFirst"></typeparam>
         [ObsoleteEx(Replacement = "SpecifyFirst<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
         public void Specify<TFirst>()
         {
@@ -49,8 +46,6 @@ namespace NServiceBus
         /// <summary>
         /// Specifies an ordering of multiple types using the syntax: <code>First{H1}.Then{H2}().AndThen{H3}()</code> etc
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="ordering"></param>
         public void Specify<T>(First<T> ordering)
         {
             Types = ordering.Types;
@@ -59,7 +54,6 @@ namespace NServiceBus
         /// <summary>
         /// Specifies an ordering of multiple types directly, where ordering may be decided dynamically at runtime.
         /// </summary>
-        /// <param name="priorityHandlers"></param>
         public void Specify(params Type[] priorityHandlers)
         {
             if (priorityHandlers == null)
@@ -81,8 +75,6 @@ namespace NServiceBus
         /// <summary>
         /// Specifies the type which will run next.
         /// </summary>
-        /// <typeparam name="K"></typeparam>
-        /// <returns></returns>
         public static First<T> Then<K>()
         {
             var instance = new First<T>();
@@ -104,8 +96,6 @@ namespace NServiceBus
         /// <summary>
         /// Specifies the type which will run next
         /// </summary>
-        /// <typeparam name="K"></typeparam>
-        /// <returns></returns>
         public First<T> AndThen<K>()
         {
             if (!types.Contains(typeof(K)))

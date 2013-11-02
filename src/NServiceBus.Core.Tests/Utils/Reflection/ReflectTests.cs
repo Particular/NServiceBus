@@ -52,7 +52,7 @@
                 Assert.AreEqual("Property2", propertyInfo.Name);
             }
             [Test]
-            public void Should_thoww_when_dots_not_allowed()
+            public void Should_throw_when_dots_not_allowed()
             {
                 var argumentException = Assert.Throws<ArgumentException>(() => Reflect<Target1>.GetProperty(target => target.Property1.Property2, true));
                 Assert.AreEqual("Argument passed contains more than a single dot which is not allowed: target => target.Property1.Property2\r\nParameter name: member", argumentException.Message);

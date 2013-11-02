@@ -1,16 +1,14 @@
 namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 {
-    using System;
     using System.Linq;
     using NUnit.Framework;
-    using Saga;
     using Unicast.Tests.Contexts;
 
     [TestFixture]
-    public class When_starting_an_endpoint_with_autosubscribe_turned_on : AutoSubscriptionContext
+    public class When_starting_an_endpoint_with_autoSubscribe_turned_on : AutoSubscriptionContext
     {
         [Test]
-        public void Should_not_autosubscribe_commands()
+        public void Should_not_autoSubscribe_commands()
         {
 
             var commandEndpointAddress = new Address("CommandEndpoint", "localhost");
@@ -24,7 +22,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
 
         [Test]
-        public void Should_not_autosubscribe_messages_by_default()
+        public void Should_not_autoSubscribe_messages_by_default()
         {
             var endpointAddress = new Address("MyEndpoint", "localhost");
 
@@ -35,7 +33,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
         }
 
         [Test]
-        public void Should_not_autosubscribe_messages_unless_asked_to_by_the_users()
+        public void Should_not_autoSubscribe_messages_unless_asked_to_by_the_users()
         {
             var endpointAddress = new Address("MyEndpoint", "localhost");
 
@@ -49,7 +47,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
 
         [Test]
-        public void Should_not_autosubscribe_messages_with_no_explicit_routing()
+        public void Should_not_autoSubscribe_messages_with_no_explicit_routing()
         {
             RegisterMessageType<EventMessage>(Address.Undefined);
             RegisterMessageHandlerType<EventMessageHandler>();
@@ -60,7 +58,7 @@ namespace NServiceBus.Core.Tests.AutomaticSubscriptions
 
 
         [Test]
-        public void Should_autosubscribe_messages_without_routing_if_configured_to_do_so()
+        public void Should_autoSubscribe_messages_without_routing_if_configured_to_do_so()
         {
             RegisterMessageType<EventMessage>(Address.Undefined);
             RegisterMessageHandlerType<EventMessageHandler>();

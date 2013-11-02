@@ -32,8 +32,6 @@ namespace NServiceBus
         /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
         /// </summary>
-        /// <param name="existingId"></param>
-        /// <param name="existingHeaders"></param>
         public TransportMessage(string existingId, Dictionary<string, string> existingHeaders)
         {
             if (existingHeaders == null)
@@ -114,7 +112,7 @@ namespace NServiceBus
         {
             get
             {
-                MessageIntentEnum messageIntent = default(MessageIntentEnum);
+                var messageIntent = default(MessageIntentEnum);
 
                 if (Headers.ContainsKey(NServiceBus.Headers.MessageIntent))
                 {
@@ -158,7 +156,6 @@ namespace NServiceBus
         /// <summary>
         ///     Use this method to change the stable ID of the given message.
         /// </summary>
-        /// <param name="newId"></param>
         internal void ChangeMessageId(string newId)
         {
             id = newId;
@@ -168,7 +165,6 @@ namespace NServiceBus
         /// <summary>
         ///     Use this method to update the body if this message
         /// </summary>
-        /// <param name="updatedBody"></param>
         void UpdateBody(byte[] updatedBody)
         {
             //preserve the original body if needed

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)\..\</SolutionDir>
+    <BuildDependsOn>
+      RippleRestoreTarget;
+      $(BuildDependsOn);
+    </BuildDependsOn>
+  </PropertyGroup>
+
+  <UsingTask
+      TaskName="RippleRestoreTask.RestoreTask"
+      AssemblyFile="$(MSBuildThisFileDirectory)RippleRestoreTask.dll" />
+
+  <Target Name="RippleRestoreTarget">
+    <RippleRestoreTask.RestoreTask SolutionDir="$(SolutionDir)"/>
+  </Target>
+
+  <!--Support for ncrunch-->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)RippleRestoreTask.dll" />
+    <None Include="$(MSBuildThisFileDirectory)RippleRestoreTask.pdb" />
+  </ItemGroup>
+
+
+</Project>
+
+

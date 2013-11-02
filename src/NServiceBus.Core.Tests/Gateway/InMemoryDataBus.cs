@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Gateway.Tests
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System;
     using DataBus;
 
     /// <summary>

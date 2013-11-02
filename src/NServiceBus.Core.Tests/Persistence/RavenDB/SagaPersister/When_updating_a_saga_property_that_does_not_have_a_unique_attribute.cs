@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         {
             var uniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithUniqueProperty()
+            var saga1 = new SagaWithUniqueProperty
                         {
                             Id = Guid.NewGuid(),
                             UniqueString = uniqueString,
@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         }
     }
 
-    public class When_updating_a_saga_property_on_a_existing_sagainstance_that_just_got_a_unique_attribute_set : Raven_saga_persistence_concern
+    public class When_updating_a_saga_property_on_a_existing_sagaInstance_that_just_got_a_unique_attribute_set : Raven_saga_persistence_concern
     {
         [Test]
         public void It_should_set_the_attribute_and_allow_the_update()
@@ -33,8 +33,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
 
             var anotherUniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithUniqueProperty()
-            {
+            var saga1 = new SagaWithUniqueProperty
+                        {
                 Id = Guid.NewGuid(),
                 UniqueString = uniqueString,
                 NonUniqueString = "notUnique"
@@ -70,8 +70,8 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
             var uniqueString = Guid.NewGuid().ToString();
             var anotherUniqueString = Guid.NewGuid().ToString();
 
-            var saga1 = new SagaWithoutUniqueProperties()
-            {
+            var saga1 = new SagaWithoutUniqueProperties
+                        {
                 Id = Guid.NewGuid(),
                 UniqueString = uniqueString,
                 NonUniqueString = "notUnique"

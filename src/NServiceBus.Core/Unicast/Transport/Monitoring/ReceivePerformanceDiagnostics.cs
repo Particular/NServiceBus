@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Transport.Monitoring
         const string CategoryName = "NServiceBus";
         static readonly ILog Logger = LogManager.GetLogger(typeof (ReceivePerformanceDiagnostics));
         readonly Address receiveAddress;
-        bool disposed;
         bool enabled;
         PerformanceCounter failureRateCounter;
         PerformanceCounter successRateCounter;
@@ -20,41 +19,28 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             this.receiveAddress = receiveAddress;
         }
 
+
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            //Injected at compile time
         }
 
-        protected virtual void Dispose(bool disposing)
+        public void DisposeManaged()
         {
-            if (disposed)
+            if (successRateCounter != null)
             {
-                return;
+                successRateCounter.Dispose();
             }
-
-            if (disposing)
+            if (throughputCounter != null)
             {
-                if (successRateCounter != null)
-                {
-                    successRateCounter.Dispose();
-                }
-                if (throughputCounter != null)
-                {
-                    throughputCounter.Dispose();
-                }
-                if (failureRateCounter != null)
-                {
-                    failureRateCounter.Dispose();
-                }
+                throughputCounter.Dispose();
             }
-            disposed = true;
+            if (failureRateCounter != null)
+            {
+                failureRateCounter.Dispose();
+            }
         }
 
-        ~ReceivePerformanceDiagnostics()
-        {
-            Dispose(false);
-        }
 
         public void Initialize()
         {

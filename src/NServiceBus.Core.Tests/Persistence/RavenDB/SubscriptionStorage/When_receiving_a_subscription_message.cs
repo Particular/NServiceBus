@@ -12,7 +12,7 @@
         [Test]
         public void A_subscription_entry_should_be_added_to_the_database()
         {
-            Address clientEndpoint = Address.Parse("TestEndpoint");
+            var clientEndpoint = Address.Parse("TestEndpoint");
 
             var messageTypes = new[] { new MessageType("MessageType1", "1.0.0.0"), new MessageType("MessageType2", "1.0.0.0") };
 
