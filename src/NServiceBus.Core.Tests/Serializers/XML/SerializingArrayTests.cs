@@ -74,8 +74,10 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeMessageWithNullArray()
         {
-            var message = new MessageWithArrayAndNoDefaultCtor();
-            message.SomeWords = null;
+            var message = new MessageWithArrayAndNoDefaultCtor
+            {
+                SomeWords = null
+            };
 
             var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 
@@ -84,8 +86,10 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeMessageWithEmptyArray()
         {
-            var message = new MessageWithArrayAndNoDefaultCtor();
-            message.SomeWords = new string[0];
+            var message = new MessageWithArrayAndNoDefaultCtor
+            {
+                SomeWords = new string[0]
+            };
 
             var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 

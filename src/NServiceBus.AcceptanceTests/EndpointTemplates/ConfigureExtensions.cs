@@ -111,14 +111,7 @@
 
             if (type == typeof(SagaPersister))
             {
-                NHibernateSettingRetriever.ConnectionStrings = () =>
-                {
-                    var c = new ConnectionStringSettingsCollection();
-
-                    c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
-                    return c;
-
-                };
+                NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
                 return config.UseNHibernateSagaPersister();
             }
 
@@ -145,14 +138,7 @@
 
             if (type == typeof(SubscriptionStorage))
             {
-                NHibernateSettingRetriever.ConnectionStrings = () =>
-                    {
-                        var c = new ConnectionStringSettingsCollection();
-                        
-                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
-                        return c;
-
-                    };
+                NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
                 return config.UseNHibernateSubscriptionPersister();
             }
 
