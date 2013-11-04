@@ -3,9 +3,9 @@
     using System;
     using MessageMutator;
 
-    class ApplyIncomingMessageMutatorsBehavior : IBehavior
+    class ApplyIncomingMessageMutatorsBehavior : IBehavior<PhysicalMessageContext>
     {
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             foreach (var logicalMessage in context.Get<LogicalMessages>())
             {

@@ -10,9 +10,9 @@
     using Unicast;
     using Unicast.Transport;
 
-    class InvokeHandlersBehavior : IBehavior
+    class InvokeHandlersBehavior : IBehavior<PhysicalMessageContext>
     {
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             var messageHandlers = context.Get<LoadedMessageHandlers>();
 

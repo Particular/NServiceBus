@@ -4,33 +4,24 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    internal class BehaviorChain
+    internal class BehaviorChain<T> where T:BehaviorContext
     {
-        public BehaviorChain(IBuilder builder, BehaviorContextStacker contextStacker)
+        public BehaviorChain(IBuilder builder)
         {
             this.builder = builder;
-            this.contextStacker = contextStacker;
         }
 
-        public void Add<TBehavior>() where TBehavior : IBehavior
+        public void Add<TBehavior>()// where TBehavior : IBehavior
         {
             itemDescriptors.Enqueue(typeof(TBehavior));
         }
 
-        public void Invoke(TransportMessage incomingTransportMessage)
-        {
-            using (var context = new BehaviorContext(builder, incomingTransportMessage, contextStacker))
-            {
-                Invoke(context);
-            }
-        }
-
-        internal void Invoke(BehaviorContext context)
+        internal void Invoke(T context)
         {
             InvokeNext(context);
         }
 
-        void InvokeNext(BehaviorContext context)
+        void InvokeNext(T context)
         {
             if (itemDescriptors.Count == 0 || context.ChainAborted)
             {
@@ -38,16 +29,17 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
-            var instance = GetInstance(behaviorType);
+            var instance = GetInstance(behaviorType) as IBehavior<T>;
+            
             instance.Invoke(context, () => InvokeNext(context));
         }
 
 
-        IBehavior GetInstance(Type type)
+        object GetInstance(Type type) 
         {
             try
             {
-                return (IBehavior) builder.Build(type);
+                return builder.Build(type);
             }
             catch (Exception exception)
             {
@@ -56,7 +48,6 @@
             }
         }
 
-        readonly BehaviorContextStacker contextStacker;
         IBuilder builder;
         Queue<Type> itemDescriptors = new Queue<Type>();
     }

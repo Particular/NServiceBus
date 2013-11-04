@@ -13,7 +13,7 @@
     using Transports;
     using Unicast;
 
-    class SagaPersistenceBehavior : IBehavior
+    class SagaPersistenceBehavior : IBehavior<PhysicalMessageContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
@@ -21,7 +21,7 @@
 
         public IMessageMapper MessageMapper { get; set; }
 
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             currentContext = context;
 
@@ -101,7 +101,7 @@
 
         void InvokeSagaNotFoundHandlers(ActiveSagaInstance sagaInstance)
         {
-            logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", sagaInstance.MessageToProcess.GetType().FullName, currentContext.TransportMessage.Id);
+            logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", sagaInstance.MessageToProcess.GetType().FullName, currentContext.PhysicalMessage.Id);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -172,7 +172,7 @@
         {
             string sagaId = null;
 
-            currentContext.TransportMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
+            currentContext.PhysicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
@@ -200,10 +200,10 @@
 
             sagaEntity.Id = CombGuid.Generate();
 
-            if (currentContext.TransportMessage.ReplyToAddress != null)
-                sagaEntity.Originator = currentContext.TransportMessage.ReplyToAddress.ToString();
+            if (currentContext.PhysicalMessage.ReplyToAddress != null)
+                sagaEntity.Originator = currentContext.PhysicalMessage.ReplyToAddress.ToString();
 
-            sagaEntity.OriginalMessageId = currentContext.TransportMessage.Id;
+            sagaEntity.OriginalMessageId = currentContext.PhysicalMessage.Id;
 
             return sagaEntity;
         }
@@ -211,6 +211,6 @@
         List<ActiveSagaInstance> activeSagaInstances;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
-        BehaviorContext currentContext;
+        PhysicalMessageContext currentContext;
     }
 }

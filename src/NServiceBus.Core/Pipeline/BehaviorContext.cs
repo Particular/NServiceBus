@@ -4,30 +4,29 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    /// <summary>
-    ///     yeah, we should probably see if we can come up with better names :)
-    /// </summary>
     internal class BehaviorContext : IDisposable
     {
-        public BehaviorContext(IBuilder builder, TransportMessage transportMessage, BehaviorContextStacker contextStacker)
+        public BehaviorContext(PipelineFactory pipelineFactory)
         {
-            this.contextStacker = contextStacker;
-            Builder = builder;
-            handleCurrentMessageLaterWasCalled = false;
-
-            contextStacker.Push(this);
-
-            Set(transportMessage);
+            this.pipelineFactory = pipelineFactory;
         }
 
-        public TransportMessage TransportMessage
+
+        public PipelineFactory PipelineFactory
         {
-            get { return Get<TransportMessage>(); }
+            get
+            {
+                return pipelineFactory;
+            }
         }
 
         public bool ChainAborted { get; private set; }
 
-        public IBuilder Builder { get; private set; }
+        public IBuilder Builder {
+            get
+            {
+                return pipelineFactory.CurrentBuilder;
+            } }
 
         public void Dispose()
         {
@@ -61,13 +60,8 @@
             stash[key] = t;
         }
 
-        public void DisposeManaged()
-        {
-            // Pop the stack.
-            contextStacker.Pop();
-        }
-
-        readonly BehaviorContextStacker contextStacker;
+    
+        readonly PipelineFactory pipelineFactory;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

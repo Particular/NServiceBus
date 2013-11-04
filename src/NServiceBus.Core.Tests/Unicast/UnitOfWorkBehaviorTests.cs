@@ -47,7 +47,7 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            using (var context = new BehaviorContext(builder, new TransportMessage(), new BehaviorContextStacker()))
+            using (var context = new PhysicalMessageContext( new PipelineFactory{CurrentBuilder = builder},new TransportMessage()))
             {
                 runner.Invoke(context, () => { });
             }

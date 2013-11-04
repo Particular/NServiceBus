@@ -148,7 +148,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public IBuilder Builder { get; set; }
 
-
         /// <summary>
         /// Gets/sets the message mapper.
         /// </summary>
@@ -450,7 +449,7 @@ namespace NServiceBus.Unicast
 
         public void HandleCurrentMessageLater()
         {
-            if (contextStacker.Current.handleCurrentMessageLaterWasCalled)
+            if (pipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
@@ -465,7 +464,7 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(_messageBeingHandled, Address.Local);
             }
 
-            contextStacker.Current.handleCurrentMessageLaterWasCalled = true;
+            pipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
         }
 
         public void ForwardCurrentMessageTo(string destination)
@@ -957,20 +956,18 @@ namespace NServiceBus.Unicast
         public void DisposeManaged()
         {
             InnerShutdown();
-            contextStacker.Dispose();
+            pipelineFactory.Dispose();
             Configure.Instance.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            var context = contextStacker.Current;
-
-            if (context == null)
+            if (!pipelineFactory.PipelineIsExecuting)
             {
                 throw new InvalidOperationException("DoNotContinueDispatchingCurrentMessageToHandlers() is only valid to call when receiving a message");
             }
 
-            context.AbortChain();
+            pipelineFactory.CurrentContext.AbortChain();
         }
 
         public IDictionary<string, string> OutgoingHeaders
@@ -1052,65 +1049,37 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            using (var child = Builder.CreateChildBuilder())
+            using (var childBuilder = Builder.CreateChildBuilder())
             {
-                HandleTransportMessage(child, e.Message);
+                // construct behavior chain - look at configuration and possibly the incoming transport message
+                var pipeline = pipelineFactory.GetPhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
+
+                pipeline();
             }
         }
 
 
         public void Raise<T>(T @event)
         {
-            var chain = new BehaviorChain(Builder, contextStacker);
+            //todo: resurrect
+            //var chain = new BehaviorChain(Builder, contextStacker);
 
-            chain.Add<LoadHandlersBehavior>();
-            chain.Add<InvokeHandlersBehavior>();
+            //chain.Add<LoadHandlersBehavior>();
+            //chain.Add<InvokeHandlersBehavior>();
 
-            using (var context = new BehaviorContext(Builder, new TransportMessage(), contextStacker))
-            {
-                var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
+            //using (var context = new BehaviorContext(Builder, new TransportMessage(), contextStacker))
+            //{
+            //    var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
 
-                context.Set(logicalMessages);
-                chain.Invoke(context);
-            }
+            //    context.Set(logicalMessages);
+            //    chain.Invoke(context);
+            //}
         }
 
         public void Raise<T>(Action<T> messageConstructor)
         {
             Raise(CreateInstance(messageConstructor));
         }
-
-
-        void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
-        {
-            // construct behavior chain - look at configuration and possibly the incoming transport message
-            var chain = new BehaviorChain(childBuilder, contextStacker);
-            chain.Add<MessageHandlingLoggingBehavior>();
-
-            if (ConfigureImpersonation.Impersonate)
-            {
-                chain.Add<ImpersonateSenderBehavior>();
-            }
-
-            chain.Add<AuditBehavior>();
-            chain.Add<ForwardBehavior>();
-            chain.Add<UnitOfWorkBehavior>();
-            chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            chain.Add<RaiseMessageReceivedBehavior>();
-
-            if (!disableMessageHandling)
-            {
-                chain.Add<ExtractLogicalMessagesBehavior>();
-                chain.Add<ApplyIncomingMessageMutatorsBehavior>();
-                chain.Add<CallbackInvocationBehavior>();
-                chain.Add<LoadHandlersBehavior>();
-                chain.Add<SagaPersistenceBehavior>();
-                chain.Add<InvokeHandlersBehavior>();
-            }
-
-            chain.Invoke(msg);
-        }
-
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
@@ -1325,8 +1294,6 @@ namespace NServiceBus.Unicast
         volatile bool starting;
         object startLocker = new object();
 
-        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
@@ -1336,5 +1303,6 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
+        PipelineFactory pipelineFactory = new PipelineFactory();
     }
 }

@@ -5,13 +5,13 @@
     using MessageInterfaces;
     using Unicast;
 
-    class LoadHandlersBehavior : IBehavior
+    class LoadHandlersBehavior : IBehavior<PhysicalMessageContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
         public IMessageMapper MessageMapper { get; set; }
 
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
@@ -34,6 +34,13 @@
             }
          
             context.Set(messageHandlers);
+
+            foreach (var handler in messageHandlers)
+            {
+                var handlerPipeline = context.PipelineFactory.GetHandlerPipeline(handler);
+
+                handlerPipeline();
+            }
 
             next();
         }

@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas
 
     class ActiveSagaInstance
     {
-        public ActiveSagaInstance(ISaga saga, LoadedMessageHandlers.LoadedHandler messageHandler, LogicalMessage message)
+        public ActiveSagaInstance(ISaga saga, MessageHandler messageHandler, LogicalMessage message)
         {
             Instance = saga;
             SagaType = saga.GetType();
@@ -27,7 +27,7 @@ namespace NServiceBus.Sagas
         
         public LogicalMessage MessageToProcess { get; private set; }
         
-        public LoadedMessageHandlers.LoadedHandler Handler { get; private set; }
+        public MessageHandler Handler { get; private set; }
         
         public bool NotFound { get; private set; }
 

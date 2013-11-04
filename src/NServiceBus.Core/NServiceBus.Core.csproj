@@ -125,6 +125,8 @@
     <Compile Include="Pipeline\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\LogicalMessage.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Pipeline\PhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\ActiveSagaInstances.cs" />
