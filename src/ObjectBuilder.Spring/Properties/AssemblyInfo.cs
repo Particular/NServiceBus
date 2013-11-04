@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("NServiceBus Object Builder Spring Implementation")]
@@ -9,5 +8,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: AssemblyConfiguration("release")]
 [assembly: ComVisible(false)]		
-[assembly: CLSCompliant(true)]
 
