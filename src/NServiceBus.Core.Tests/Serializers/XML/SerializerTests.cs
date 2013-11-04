@@ -421,15 +421,19 @@ namespace NServiceBus.Serializers.XML.Test
             var sw = new Stopwatch();
             sw.Start();
 
-            var xmlWriterSettings = new XmlWriterSettings();
-            xmlWriterSettings.OmitXmlDeclaration = false;
+            var xmlWriterSettings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = false
+            };
 
-            var xmlReaderSettings = new XmlReaderSettings();
-            xmlReaderSettings.IgnoreProcessingInstructions = true;
-            xmlReaderSettings.ValidationType = ValidationType.None;
-            xmlReaderSettings.IgnoreWhitespace = true;
-            xmlReaderSettings.CheckCharacters = false;
-            xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
+            var xmlReaderSettings = new XmlReaderSettings
+            {
+                IgnoreProcessingInstructions = true, 
+                ValidationType = ValidationType.None, 
+                IgnoreWhitespace = true, 
+                CheckCharacters = false,
+                ConformanceLevel = ConformanceLevel.Auto
+            };
 
             for (var i = 0; i < numberOfIterations; i++)
                 using (var stream = new MemoryStream())
@@ -591,29 +595,40 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        private M2 CreateM2()
+        M2 CreateM2()
         {
-            var o = new M2();
-            o.Id = Guid.NewGuid();
-            o.Age = 10;
-            o.Address = Guid.NewGuid().ToString();
-            o.Int = 7;
-            o.Name = "udi";
-            o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
-            o.Some = SomeEnum.B;
-            o.Start = DateTime.Now;
-            o.Duration = TimeSpan.Parse("-01:15:27.123");
-            o.Offset = DateTimeOffset.Now;
+            var o = new M2
+            {
+                Id = Guid.NewGuid(),
+                Age = 10,
+                Address = Guid.NewGuid().ToString(),
+                Int = 7,
+                Name = "udi",
+                Risk = new Risk
+                {
+                    Percent = 0.15D,
+                    Annum = true,
+                    Accuracy = 0.314M
+                },
+                Some = SomeEnum.B,
+                Start = DateTime.Now,
+                Duration = TimeSpan.Parse("-01:15:27.123"),
+                Offset = DateTimeOffset.Now,
+                Parent = new M1
+                {
+                    Age = 10,
+                    Address = Guid.NewGuid().ToString(), Int = 7,
+                    Name = "-1",
+                    Risk = new Risk
+                    {
+                        Percent = 0.15D,
+                        Annum = true,
+                        Accuracy = 0.314M
+                    }
+                },
+                Names = new List<M1>()
+            };
 
-            o.Parent = new M1();
-            o.Parent.Name = "udi";
-            o.Parent.Age = 10;
-            o.Parent.Address = Guid.NewGuid().ToString();
-            o.Parent.Int = 7;
-            o.Parent.Name = "-1";
-            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
-
-            o.Names = new List<M1>();
             for (var i = 0; i < number; i++)
             {
                 var m1 = new M1();
@@ -622,7 +637,12 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Address = Guid.NewGuid().ToString();
                 m1.Int = 7;
                 m1.Name = i.ToString();
-                m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
+                m1.Risk = new Risk
+                {
+                    Percent = 0.15D,
+                    Annum = true, 
+                    Accuracy = 0.314M
+                };
             }
 
             o.MoreNames = o.Names.ToArray();

@@ -70,7 +70,7 @@
                 !environmentExcludes.Any(e => d.Key.ToLower().Contains(e))
                 ).ToList();
 
-            int permutation = 1;
+            var permutation = 1;
             foreach (var run in activeDescriptors)
             {
                 run.Permutation = permutation;

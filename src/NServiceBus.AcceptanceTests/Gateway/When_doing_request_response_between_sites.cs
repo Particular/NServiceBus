@@ -17,7 +17,7 @@
             Scenario.Define<Context>()
                 .WithEndpoint<SiteA>(
                     b => b.Given((bus, context) =>
-                        bus.SendToSites(new[] { "SiteB" }, new MyRequest() { Payload = new DataBusProperty<byte[]>(PayloadToSend) })
+                        bus.SendToSites(new[] { "SiteB" }, new MyRequest { Payload = new DataBusProperty<byte[]>(PayloadToSend) })
                             .Register(result => context.GotCallback = true)))
                 .WithEndpoint<SiteB>()
                 .Done(c => c.GotResponseBack)
@@ -122,7 +122,7 @@
                 public void Handle(MyRequest request)
                 {
                     Context.SiteBReceivedPayload = request.Payload.Value;
-                    Bus.Reply(new MyResponse(){OriginalPayload = request.Payload});
+                    Bus.Reply(new MyResponse {OriginalPayload = request.Payload});
 
                     // Inspect the headers to find the originating site address
                     Context.OriginatingSiteForRequest = Bus.CurrentMessageContext.Headers[Headers.OriginatingSite];

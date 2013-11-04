@@ -29,8 +29,10 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (type.IsPrimitive || type == typeof(string) || type == typeof(object) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(DateTimeOffset) || type.IsEnum || type == typeof(Decimal))
                 return null;
 
-            var complex = new ComplexType();
-            complex.Name = Reflect.GetTypeNameFrom(type);
+            var complex = new ComplexType
+            {
+                Name = Reflect.GetTypeNameFrom(type)
+            };
 
             if (Repository.IsNormalizedList(type))
             {

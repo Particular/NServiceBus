@@ -15,7 +15,7 @@ namespace NServiceBus
                   "Once you stop using this feature the Thread.CurrentPrincipal will no longer be set to a fake principal containing the username. However you can still get access to that information using the message headers.", 
         Replacement = "message.GetHeader(Headers.WindowsIdentityName)",
         RemoveInVersion = "5.0", 
-        TreatAsErrorFromVersion = "4.3")]
+        TreatAsErrorFromVersion = "5.0")]
     public static class ConfigureImpersonation
     {
         /// <summary>

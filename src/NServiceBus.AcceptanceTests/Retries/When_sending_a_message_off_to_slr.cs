@@ -129,7 +129,7 @@
 
             public static byte Checksum(byte[] data)
             {
-                long longSum = data.Sum(x => (long)x);
+                var longSum = data.Sum(x => (long)x);
                 return unchecked((byte)longSum);
             }
         }

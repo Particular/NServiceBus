@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.BusStartStop
 {
     using System;
-    using System.Diagnostics;
     using System.Threading;
     using AcceptanceTesting.Support;
     using EndpointTemplates;
@@ -43,7 +42,6 @@
             {
                 public void Handle(Message message)
                 {
-                    Debug.WriteLine("sdfdsf");
                     Thread.Sleep(100);
                 }
             }

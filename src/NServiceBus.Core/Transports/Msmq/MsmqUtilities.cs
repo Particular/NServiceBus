@@ -133,13 +133,14 @@ namespace NServiceBus.Transports.Msmq
             {
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
+                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue), 
+                CorrelationId = GetCorrelationId(m, headers)
             };
 
-            result.CorrelationId = GetCorrelationId(m, headers);
-
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
+            {
                 result.MessageIntent = (MessageIntentEnum)m.AppSpecific;
+            }
 
             m.BodyStream.Position = 0;
             result.Body = new byte[m.BodyStream.Length];

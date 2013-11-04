@@ -72,7 +72,11 @@
 
                     Context.SubPropertySecret = message.SubProperty.Secret.Value;
 
-                    Context.CreditCards = new List<string>() { message.CreditCards[0].Number.Value, message.CreditCards[1].Number.Value };
+                    Context.CreditCards = new List<string>
+                    {
+                        message.CreditCards[0].Number.Value, 
+                        message.CreditCards[1].Number.Value
+                    };
 
                     Context.Done = true;
                 }
@@ -102,7 +106,7 @@
 
         public class ConfigureEncryption: IProvideConfiguration<RijndaelEncryptionServiceConfig>
         {
-            readonly RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig { Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
+            RijndaelEncryptionServiceConfig rijndaelEncryptionServiceConfig = new RijndaelEncryptionServiceConfig { Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6" };
 
             public RijndaelEncryptionServiceConfig GetConfiguration()
             {

@@ -9,7 +9,7 @@ namespace NServiceBus.MessageInterfaces
     /// </summary>
     [ObsoleteEx(
         Message = "Not a public API.",
-        TreatAsErrorFromVersion = "4.3",
+        TreatAsErrorFromVersion = "5.0",
         RemoveInVersion = "5.0")]
     public interface IMessageMapper : IMessageCreator
     {
