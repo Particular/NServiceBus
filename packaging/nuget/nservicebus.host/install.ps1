@@ -59,7 +59,7 @@ function Add-StartProgramIfNeeded {
 	$propertyGroupElement.StartAction = "Program"
 	$startProgramElement = $prjXml.CreateElement("StartProgram", $prjXml.Project.GetAttribute("xmlns"));
 	$propertyGroupElement.AppendChild($startProgramElement) | Out-Null
-	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)($package.Id).exe"
+	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)$package.exe"
 	$prjXml.project.AppendChild($propertyGroupElement) | Out-Null
 	$writerSettings = new-object System.Xml.XmlWriterSettings
 	$writerSettings.OmitXmlDeclaration = $false
