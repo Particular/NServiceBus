@@ -3,7 +3,6 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Audit;
     using Config;
     using Features;
     using HeaderManagement;

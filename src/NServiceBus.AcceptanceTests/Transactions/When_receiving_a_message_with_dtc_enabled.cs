@@ -26,7 +26,7 @@
             using (var tx = new TransactionScope())
             {
                 Transaction.Current.EnlistDurable(FakePromotableResourceManager.ResourceManagerId, new FakePromotableResourceManager(), EnlistmentOptions.None);
-                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager())); ;
+                Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
 
                 tx.Complete();
             }
@@ -38,7 +38,7 @@
         {
             using (var tx = new TransactionScope())
             {
-                Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager())); ;
+                Assert.True(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
 
                 Assert.False(Transaction.Current.EnlistPromotableSinglePhase(new FakePromotableResourceManager()));
 

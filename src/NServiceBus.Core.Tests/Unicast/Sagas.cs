@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Saga;
 
