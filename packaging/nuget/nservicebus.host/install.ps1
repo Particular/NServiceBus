@@ -53,13 +53,22 @@ function Add-StartProgramIfNeeded {
 		}
 	}
 
+    $exeName = "NServiceBus.Host"
+
+    if($package.Id.Contains("Host32"))
+    {
+        $exeName += "32"
+    }
+
+    $exeName += ".exe"
+
 	$propertyGroupElement = $prjXml.CreateElement("PropertyGroup", $prjXml.Project.GetAttribute("xmlns"));
 	$startActionElement = $prjXml.CreateElement("StartAction", $prjXml.Project.GetAttribute("xmlns"));
 	$propertyGroupElement.AppendChild($startActionElement) | Out-Null
 	$propertyGroupElement.StartAction = "Program"
 	$startProgramElement = $prjXml.CreateElement("StartProgram", $prjXml.Project.GetAttribute("xmlns"));
 	$propertyGroupElement.AppendChild($startProgramElement) | Out-Null
-	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)$package.exe"
+	$propertyGroupElement.StartProgram = "`$(ProjectDir)`$(OutputPath)$exeName"
 	$prjXml.project.AppendChild($propertyGroupElement) | Out-Null
 	$writerSettings = new-object System.Xml.XmlWriterSettings
 	$writerSettings.OmitXmlDeclaration = $false
