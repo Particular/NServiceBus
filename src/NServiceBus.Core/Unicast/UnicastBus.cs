@@ -1331,7 +1331,9 @@ namespace NServiceBus.Unicast
 
         IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
 
+#pragma warning disable 3005
         protected ITransport transport;
+#pragma warning restore 3005
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
