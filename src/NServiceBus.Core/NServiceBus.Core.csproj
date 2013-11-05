@@ -23,8 +23,8 @@
     <DefineConstants>TRACE;DEBUG;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570,618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,8 +33,8 @@
     <DefineConstants>TRACE;MAKE_AutofacObjectBuilder_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\NServiceBus.Core.XML</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <DocumentationFile>..\..\binaries\NServiceBus.Core.xml</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570,618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="Fody.targets" />
