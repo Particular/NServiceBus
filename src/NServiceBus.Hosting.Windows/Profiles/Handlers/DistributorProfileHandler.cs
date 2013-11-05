@@ -6,7 +6,9 @@
     using System.Linq;
     using Hosting.Profiles;
 
+#pragma warning disable 437
     class DistributorProfileHandler : IHandleProfile<Distributor>, IWantTheListOfActiveProfiles
+#pragma warning restore 437
     {
         public void ProfileActivated()
         {
