@@ -90,7 +90,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
-        /// <param name="messages">The message to send.</param>
+        /// <param name="message">The message to send.</param>
         ICallback SendLocal(object message);
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the provided message.
         /// </summary>
-        /// <param name="messages">The message to send.</param>
+        /// <param name="message">The message to send.</param>
         ICallback Send(object message);
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace NServiceBus
         /// <param name="destination">
         /// The address of the destination to which the message will be sent.
         /// </param>
-        /// <param name="messages">The message to send.</param>
+        /// <param name="message">The message to send.</param>
         ICallback Send(string destination, object message);
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace NServiceBus
         /// <param name="address">
         /// The address to which the message will be sent.
         /// </param>
-        /// <param name="messages">The message to send.</param>
+        /// <param name="message">The message to send.</param>
         ICallback Send(Address address, object message);
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace NServiceBus
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.
         /// </summary>
-        /// <param name="messages">The message to send.</param>
+        /// <param name="message">The message to send.</param>
         void Reply(object message);
 
         /// <summary>

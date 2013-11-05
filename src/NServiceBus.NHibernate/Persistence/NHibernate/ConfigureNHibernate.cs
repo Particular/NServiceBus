@@ -141,7 +141,7 @@ Here is an example of what is required:
         public static IDictionary<string, string> DistributorPersisterProperties { get; private set; }
 
         /// <summary>
-        /// Adds T mapping to <param name="configuration">Configuration</param>.
+        /// Adds T mapping to <paramref name="configuration"/> .
         /// </summary>
         /// <typeparam name="T">The mapping class.</typeparam>
         /// <param name="configuration">The existing <see cref="Configuration"/>.</param>

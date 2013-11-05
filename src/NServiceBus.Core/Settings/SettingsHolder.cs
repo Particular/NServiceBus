@@ -59,7 +59,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the value
         /// </summary>
-        /// <param name="key">The key to use to store the setting.</param>
+        /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
         public static void Set<T>(object value)
         {
@@ -95,7 +95,7 @@ namespace NServiceBus.Settings
         /// <summary>
         /// Sets the default setting value.
         /// </summary>
-        /// <param name="key">The key to use to store the setting.</param>
+        /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
         public static void SetDefault<T>(object value)
         {

@@ -123,9 +123,6 @@
         /// <summary>
         /// True if the given message are configure to start the saga
         /// </summary>
-        /// <param name="sagaType"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static bool ShouldMessageStartSaga(Type sagaType, Type messageType)
         {
             List<Type> messageTypes;
@@ -241,9 +238,6 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="entityType"></param>
-        /// <returns></returns>
         public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
         {
             foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
