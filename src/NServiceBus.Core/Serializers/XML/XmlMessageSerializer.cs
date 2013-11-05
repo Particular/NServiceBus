@@ -1181,6 +1181,7 @@ namespace NServiceBus.Serializers.XML
             return value.ToString();
         }
 
+#pragma warning disable 652
         static string Escape(char c)
         {
             if (c == 0x9 || c == 0xA || c == 0xD
@@ -1308,6 +1309,7 @@ namespace NServiceBus.Serializers.XML
             //Should not get here but just in case!
             return stringToEscape;
         }
+#pragma warning restore 652
 
         List<string> GetNamespaces(object[] messages)
         {
