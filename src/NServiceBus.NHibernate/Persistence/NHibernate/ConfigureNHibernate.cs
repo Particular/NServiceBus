@@ -59,7 +59,7 @@ Here is an example of what is required:
         }
 
         /// <summary>
-        /// Initializes the <see cref="NHibernate.Cfg.Configuration"/> NHibernate properties.
+        /// Initializes the <see cref="ConfigureNHibernate"/> NHibernate properties.
         /// </summary>
         /// <remarks>
         /// Configure NHibernate using the <c>&lt;hibernate-configuration&gt;</c> section
