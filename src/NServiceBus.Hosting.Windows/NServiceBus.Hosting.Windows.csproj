@@ -25,7 +25,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Host.xml</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1573</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AssemblyName>NServiceBus.Host</AssemblyName>
@@ -36,7 +37,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\NServiceBus.Host.xml</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1573</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <AssemblyName>NServiceBus.Host32</AssemblyName>
@@ -48,7 +50,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1573</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <AssemblyName>NServiceBus.Host32</AssemblyName>
@@ -60,8 +62,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
-   </PropertyGroup>
+    <NoWarn>1591,1573</NoWarn>
+  </PropertyGroup>
   <PropertyGroup>
     <DelaySign>true</DelaySign>
   </PropertyGroup>
@@ -160,23 +162,20 @@
   <Import Project="Fody.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="DebugAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Debug' ">
-    <CallTarget Targets="Build32BitVersion"/>
+    <CallTarget Targets="Build32BitVersion" />
   </Target>
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <PropertyGroup>
-        <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
+      <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
     </PropertyGroup>
-    <Delete Files="$(MergeTemp)"/>
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)"/>
-    <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Microsoft.Practices.ServiceLocation.dll" "$(TargetDir)Topshelf.dll" /targetplatform:"v4,$(FrameworkPathOverride)"' />
-    <Delete Files="$(MergeTemp)"/>
-    <CallTarget Targets="Build32BitVersion"/>
+    <Delete Files="$(MergeTemp)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Microsoft.Practices.ServiceLocation.dll&quot; &quot;$(TargetDir)Topshelf.dll&quot; /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <Delete Files="$(MergeTemp)" />
+    <CallTarget Targets="Build32BitVersion" />
   </Target>
-  <Target Name="Build32BitVersion">  
-    <MSBuild 
-      Condition=" '$(Platform)' != 'x86' "
-      Projects="$(ProjectPath)" 
-      Properties="SolutionDir=$(SolutionDir);Configuration=$(ConfigurationName);Platform=x86"/>
+  <Target Name="Build32BitVersion">
+    <MSBuild Condition=" '$(Platform)' != 'x86' " Projects="$(ProjectPath)" Properties="SolutionDir=$(SolutionDir);Configuration=$(ConfigurationName);Platform=x86" />
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
 </Project>
