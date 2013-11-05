@@ -160,7 +160,6 @@
   <Import Project="Fody.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="DebugAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Debug' ">
-    <CallTarget Targets="BitSwitchAndSign"/>
     <CallTarget Targets="Build32BitVersion"/>
   </Target>
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
@@ -171,18 +170,6 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)"/>
     <Exec Command='"$(SolutionDir)..\tools\IlMerge\ilmerge.exe" /keyfile:"$(SolutionDir)NServiceBus.snk" /internalize /out:"$(TargetPath)" "$(MergeTemp)" "$(TargetDir)log4net.dll" "$(TargetDir)Microsoft.Practices.ServiceLocation.dll" "$(TargetDir)Topshelf.dll" /targetplatform:"v4,$(FrameworkPathOverride)"' />
     <Delete Files="$(MergeTemp)"/>
-    <CallTarget Targets="BitSwitchAndSign"/>
-  </Target>
-  <Target Name="BitSwitchAndSign">
-    <Copy SourceFiles="$(OutDir)NServiceBus.Host.exe" DestinationFiles="$(OutDir)NServiceBus.Host32.exe"/>
-    <Copy SourceFiles="$(OutDir)NServiceBus.Host.pdb" DestinationFiles="$(OutDir)NServiceBus.Host32.pdb"/>
-    <Copy SourceFiles="$(OutDir)NServiceBus.Host.xml" DestinationFiles="$(OutDir)NServiceBus.Host32.xml"/>
-
-    <Exec Command='"$(TargetFrameworkSDKToolsDirectory)corflags" /32bit+ /Force "$(OutDir)NServiceBus.Host32.exe"' />
-
-    <Exec Command='"$(TargetFrameworkSDKToolsDirectory)sn" -R "$(OutDir)NServiceBus.Host32.exe" "$(AssemblyOriginatorKeyFile)"' />
-    <Exec Command='"$(TargetFrameworkSDKToolsDirectory)sn" -R "$(OutDir)NServiceBus.Host.exe" "$(AssemblyOriginatorKeyFile)"' />
-
     <CallTarget Targets="Build32BitVersion"/>
   </Target>
   <Target Name="Build32BitVersion">  
