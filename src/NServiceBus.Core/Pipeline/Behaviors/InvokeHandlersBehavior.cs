@@ -27,9 +27,6 @@
 
         void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler, BehaviorContext context)
         {
-            if (messageHandler.InvocationDisabled)
-                return;
-
             var handlerInstance = messageHandler.Instance;
             try
             {
