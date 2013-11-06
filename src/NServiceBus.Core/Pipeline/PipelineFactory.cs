@@ -16,7 +16,6 @@
             messageHandlingDisabled = true;
         }
 
-
         internal void InvokePhysicalMessagePipeline(TransportMessage msg)
         {
             using (var childBuilder = RootBuilder.CreateChildBuilder())
@@ -81,7 +80,6 @@
             contextStacker.Pop();
         }
 
-
         internal void InvokeHandlerPipeline(MessageHandler handler)
         {
             var pipeline = new BehaviorChain<MessageHandlerContext>(CurrentContext.Builder);
@@ -89,6 +87,8 @@
 
 
             pipeline.Add<SagaPersistenceBehavior>();
+
+            //saga auditing will go here
 
             pipeline.Add<InvokeHandlersBehavior>();
 

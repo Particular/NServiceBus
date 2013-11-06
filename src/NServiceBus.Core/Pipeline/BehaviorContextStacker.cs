@@ -32,6 +32,7 @@
             behaviorContextStack.Value.Pop();
         }
 
+        //until we get the internal container going we
         ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
     }
 }
