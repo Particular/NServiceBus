@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using Behaviors;
-    using ObjectBuilder;
 
     internal class LogicalMessageContext : BehaviorContext
     {
-        public LogicalMessageContext(IBuilder builder,BehaviorContext parentContext, LogicalMessage message)
-            : base(builder, parentContext)
+        public LogicalMessageContext(BehaviorContext parentContext, LogicalMessage message)
+            : base(parentContext)
         {
             Set(message);
         }

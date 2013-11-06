@@ -1,12 +1,11 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using Behaviors;
-    using ObjectBuilder;
 
     internal class MessageHandlerContext : BehaviorContext
     {
-        public MessageHandlerContext(IBuilder builder, BehaviorContext parentContext, MessageHandler messageHandler)
-            : base(builder, parentContext)
+        public MessageHandlerContext(BehaviorContext parentContext, MessageHandler messageHandler)
+            : base(parentContext)
         {
             Set(messageHandler);
         }

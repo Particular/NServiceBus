@@ -968,11 +968,6 @@ namespace NServiceBus.Unicast
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            if (!PipelineFactory.PipelineIsExecuting)
-            {
-                throw new InvalidOperationException("DoNotContinueDispatchingCurrentMessageToHandlers() is only valid to call when receiving a message");
-            }
-
             PipelineFactory.CurrentContext.AbortChain();
         }
 

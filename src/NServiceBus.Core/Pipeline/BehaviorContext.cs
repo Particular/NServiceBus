@@ -5,9 +5,8 @@
 
     internal abstract class BehaviorContext
     {
-        protected BehaviorContext(IBuilder builder, BehaviorContext parentContext)
+        protected BehaviorContext(BehaviorContext parentContext)
         {
-            this.builder = builder;
             this.parentContext = parentContext;
         }
 
@@ -17,7 +16,7 @@
         {
             get
             {
-                return builder;
+                return Get<IBuilder>();
             }
         }
 
@@ -60,8 +59,6 @@
         }
 
 
-        readonly PipelineFactory pipelineFactory;
-        readonly IBuilder builder;
         readonly BehaviorContext parentContext;
 
         internal bool handleCurrentMessageLaterWasCalled;

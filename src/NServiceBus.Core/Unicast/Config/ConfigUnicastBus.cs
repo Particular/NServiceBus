@@ -49,6 +49,7 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
+            Configurer.ConfigureComponent<ChildContainerBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);

@@ -115,6 +115,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             
             FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
 
+
+            FuncBuilder.Register<ChildContainerBehavior>();
             FuncBuilder.Register<UnitOfWorkBehavior>();
             FuncBuilder.Register<MessageHandlingLoggingBehavior>();
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
