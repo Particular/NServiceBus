@@ -220,6 +220,11 @@ namespace NServiceBus.Unicast
         public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
+        /// The 
+        /// </summary>
+        public PipelineFactory PipelineFactory { get; set; }
+
+        /// <summary>
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
         /// </summary>
@@ -449,7 +454,7 @@ namespace NServiceBus.Unicast
 
         public void HandleCurrentMessageLater()
         {
-            if (pipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
+            if (PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
@@ -464,7 +469,7 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(_messageBeingHandled, Address.Local);
             }
 
-            pipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
+            PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
         }
 
         public void ForwardCurrentMessageTo(string destination)
@@ -956,18 +961,18 @@ namespace NServiceBus.Unicast
         public void DisposeManaged()
         {
             InnerShutdown();
-            pipelineFactory.Dispose();
+            PipelineFactory.Dispose();
             Configure.Instance.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            if (!pipelineFactory.PipelineIsExecuting)
+            if (!PipelineFactory.PipelineIsExecuting)
             {
                 throw new InvalidOperationException("DoNotContinueDispatchingCurrentMessageToHandlers() is only valid to call when receiving a message");
             }
 
-            pipelineFactory.CurrentContext.AbortChain();
+            PipelineFactory.CurrentContext.AbortChain();
         }
 
         public IDictionary<string, string> OutgoingHeaders
@@ -1051,14 +1056,14 @@ namespace NServiceBus.Unicast
         {
             using (var childBuilder = Builder.CreateChildBuilder())
             {
-                pipelineFactory.InvokePhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
+                PipelineFactory.InvokePhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
             }
         }
 
 
         public void Raise<T>(T @event)
         {
-            pipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T),@event));
+            PipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T), @event));
         }
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -1288,6 +1293,5 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
-        PipelineFactory pipelineFactory = new PipelineFactory();
     }
 }

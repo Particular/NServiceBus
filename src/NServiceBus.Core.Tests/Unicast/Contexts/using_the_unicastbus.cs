@@ -14,6 +14,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
+    using Pipeline;
     using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
@@ -51,6 +52,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+
+        protected PipelineFactory pipelineFactory;
       
 
         [SetUp]
@@ -95,6 +98,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
+            pipelineFactory = new PipelineFactory(); 
+
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
@@ -132,6 +137,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<RaiseMessageReceivedBehavior>();
             FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
+            FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
             FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
 
             unicastBus = new UnicastBus
@@ -156,6 +162,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 MessageRouter = router,
+                PipelineFactory = pipelineFactory
             };
             bus = unicastBus;
 

@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using ObjectBuilder;
+
     internal class PhysicalMessageContext : BehaviorContext
     {
-        public PhysicalMessageContext(PipelineFactory pipelineFactory, BehaviorContext parentContext, TransportMessage transportMessage)
-            : base(pipelineFactory,parentContext)
+        public PhysicalMessageContext(IBuilder builder, BehaviorContext parentContext, TransportMessage transportMessage)
+            : base(builder,parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;
 

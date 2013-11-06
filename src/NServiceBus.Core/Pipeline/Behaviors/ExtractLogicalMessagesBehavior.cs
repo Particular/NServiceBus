@@ -27,6 +27,8 @@
 
         public bool SkipDeserialization { get; set; }
 
+        public PipelineFactory PipelineFactory { get; set; }
+
         public void Invoke(PhysicalMessageContext context, Action next)
         {
             var logicalMessages = new LogicalMessages();
@@ -65,7 +67,7 @@
 
                 logicalMessages.Add(logicalMessage);
 
-                context.PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
             }
 
             next();

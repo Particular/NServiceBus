@@ -11,6 +11,8 @@
 
         public IMessageMapper MessageMapper { get; set; }
 
+        public PipelineFactory PipelineFactory { get; set; }
+
         public void Invoke(LogicalMessageContext context, Action next)
         {
             var messageToHandle = context.LogicalMessage;
@@ -38,7 +40,7 @@
 
             foreach (var handler in messageHandlers)
             {
-                context.PipelineFactory.InvokeHandlerPipeline(handler);
+                PipelineFactory.InvokeHandlerPipeline(handler);
             }
 
             next();

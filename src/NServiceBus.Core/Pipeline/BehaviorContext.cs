@@ -1,24 +1,14 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    internal class BehaviorContext
+    internal abstract class BehaviorContext
     {
-        public BehaviorContext(PipelineFactory pipelineFactory, BehaviorContext parentContext)
+        protected BehaviorContext(IBuilder builder, BehaviorContext parentContext)
         {
-            this.pipelineFactory = pipelineFactory;
+            this.builder = builder;
             this.parentContext = parentContext;
-        }
-
-
-        public PipelineFactory PipelineFactory
-        {
-            get
-            {
-                return pipelineFactory;
-            }
         }
 
         public bool ChainAborted { get; private set; }
@@ -27,11 +17,9 @@
         {
             get
             {
-                return pipelineFactory.CurrentBuilder;
+                return builder;
             }
         }
-
-
 
         public void AbortChain()
         {
@@ -73,6 +61,7 @@
 
 
         readonly PipelineFactory pipelineFactory;
+        readonly IBuilder builder;
         readonly BehaviorContext parentContext;
 
         internal bool handleCurrentMessageLaterWasCalled;

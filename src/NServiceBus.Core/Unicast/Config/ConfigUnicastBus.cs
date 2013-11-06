@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Pipeline;
     using Pipeline.Behaviors;
     using Routing;
     using Sagas;
@@ -38,6 +39,7 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
+            Configurer.ConfigureComponent<PipelineFactory>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors();
             RegisterMessageOwnersAndBusAddress(knownMessages);
           
