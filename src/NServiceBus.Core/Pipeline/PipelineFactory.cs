@@ -8,50 +8,64 @@
 
     public class PipelineFactory : IDisposable
     {
-        internal void InvokePhysicalMessagePipeline(IBuilder rootBuilder, TransportMessage msg, bool disableMessageHandling)
+        public IBuilder RootBuilder { get; set; }
+
+        internal void InvokePhysicalMessagePipeline(TransportMessage msg, bool disableMessageHandling)
         {
-            var pipeline = new BehaviorChain<PhysicalMessageContext>(rootBuilder);
-
-            pipeline.Add<MessageHandlingLoggingBehavior>();
-
-            if (ConfigureImpersonation.Impersonate)
+            using (var childBuilder = RootBuilder.CreateChildBuilder())
             {
-                pipeline.Add<ImpersonateSenderBehavior>();
+                var pipeline = new BehaviorChain<PhysicalMessageContext>(childBuilder);
+
+                pipeline.Add<MessageHandlingLoggingBehavior>();
+
+                if (ConfigureImpersonation.Impersonate)
+                {
+                    pipeline.Add<ImpersonateSenderBehavior>();
+                }
+
+                pipeline.Add<AuditBehavior>();
+                pipeline.Add<ForwardBehavior>();
+                pipeline.Add<UnitOfWorkBehavior>();
+                pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
+                pipeline.Add<RaiseMessageReceivedBehavior>();
+
+                if (!disableMessageHandling)
+                {
+                    pipeline.Add<ExtractLogicalMessagesBehavior>();
+                    pipeline.Add<CallbackInvocationBehavior>();
+                }
+
+                var context = new PhysicalMessageContext(childBuilder, null, msg);
+
+
+                contextStacker.Push(context);
+
+                pipeline.Invoke(context);
+
+                contextStacker.Pop();                
             }
-
-            pipeline.Add<AuditBehavior>();
-            pipeline.Add<ForwardBehavior>();
-            pipeline.Add<UnitOfWorkBehavior>();
-            pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            pipeline.Add<RaiseMessageReceivedBehavior>();
-
-            if (!disableMessageHandling)
-            {
-                pipeline.Add<ExtractLogicalMessagesBehavior>();
-                pipeline.Add<CallbackInvocationBehavior>();
-            }
-
-            var context = new PhysicalMessageContext(rootBuilder, null, msg);
-
-
-            contextStacker.Push(context);
-
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
         }
-
 
         internal void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
+            IBuilder builderToUse = null;
 
-            var pipeline = new BehaviorChain<LogicalMessageContext>(CurrentContext.Builder);
+            if (PipelineIsExecuting)
+            {
+                builderToUse = CurrentContext.Builder;
+            }
+            else
+            {
+                //this will only happen when doing Bus.InMemory.Raise from a non message handler
+                builderToUse = RootBuilder;
+            }
+            var pipeline = new BehaviorChain<LogicalMessageContext>(builderToUse);
 
             pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
             pipeline.Add<LoadHandlersBehavior>();
 
 
-            var context = new LogicalMessageContext(CurrentContext.Builder, CurrentContext, message);
+            var context = new LogicalMessageContext(builderToUse, CurrentContext, message);
 
             contextStacker.Push(context);
 

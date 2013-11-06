@@ -23,9 +23,6 @@
 
         public void Invoke(MessageHandlerContext context, Action next)
         {
-            currentContext = context;
-            physicalMessage = context.Get<TransportMessage>();
-
             var saga = context.MessageHandler.Instance as ISaga;
 
             if (saga == null)
@@ -33,7 +30,10 @@
                 next();
                 return;
             }
-
+            
+            currentContext = context;
+            physicalMessage = context.Get<TransportMessage>();
+       
             //todo: remove the handler
             var sagaInstanceState = new ActiveSagaInstance(saga, context.MessageHandler, context.LogicalMessage);
 

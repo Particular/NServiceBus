@@ -1054,10 +1054,7 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            using (var childBuilder = Builder.CreateChildBuilder())
-            {
-                PipelineFactory.InvokePhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
-            }
+            PipelineFactory.InvokePhysicalMessagePipeline(e.Message, disableMessageHandling);
         }
 
 

@@ -98,7 +98,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory(); 
+            pipelineFactory = new PipelineFactory{RootBuilder = FuncBuilder}; 
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
