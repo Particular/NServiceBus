@@ -10,7 +10,7 @@
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
         public UnicastBus UnicastBus { get; set; }
-        
+
         public void Invoke(PhysicalMessageContext context, Action next)
         {
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context.Get<LogicalMessages>());

@@ -10,80 +10,74 @@
     using Unicast;
     using Unicast.Transport;
 
-    class InvokeHandlersBehavior : IBehavior<PhysicalMessageContext>
+    class InvokeHandlersBehavior : IBehavior<MessageHandlerContext>
     {
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public void Invoke(MessageHandlerContext context, Action next)
         {
-            var messageHandlers = context.Get<LoadedMessageHandlers>();
+            var logicalMessage = context.Get<LogicalMessage>();
 
-            foreach (var messageToHandle in context.Get<LogicalMessages>())
-            {
-                ExtensionMethods.CurrentMessageBeingHandled = messageToHandle.Instance;
+            ExtensionMethods.CurrentMessageBeingHandled = logicalMessage;
 
-                DispatchMessageToHandlersBasedOnType(context.Builder, messageToHandle, messageHandlers,context);
-            }
+            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler, context);
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
 
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, LoadedMessageHandlers loadedHandlers, BehaviorContext context)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler, BehaviorContext context)
         {
-            foreach (var loadedHandler in loadedHandlers.GetHandlersFor(toHandle.MessageType))
+            if (messageHandler.InvocationDisabled)
+                return;
+
+            var handlerInstance = messageHandler.Instance;
+            try
             {
-                if (loadedHandler.InvocationDisabled)
-                    continue;
-
-                var handlerInstance = loadedHandler.Instance;
-                try
+                //until we have a outgoing pipeline that inherits context from the main one
+                if (handlerInstance is ISaga)
                 {
-                    //until we have a outgoing pipeline that inherits context from the main one
-                    if (handlerInstance is ISaga)
+                    SagaContext.Current = (ISaga)handlerInstance;
+                }
+
+                var handlerTypeToInvoke = handlerInstance.GetType();
+
+                //for backwards compatibility (users can have registered their own factory
+                var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
+
+                if (factory != null)
+                {
+                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle.Instance).ToList();
+
+                    dispatchers.ForEach(dispatch =>
                     {
-                        SagaContext.Current = (ISaga) handlerInstance;
-                    }
-                    
-                    var handlerTypeToInvoke = handlerInstance.GetType();
-
-                    //for backwards compatibility (users can have registered their own factory
-                    var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
-
-                    if (factory != null)
-                    {
-                        var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle.Instance).ToList();
-
-                        dispatchers.ForEach(dispatch =>
+                        log.DebugFormat("Dispatching message '{0}' to handler '{1}'", toHandle.MessageType, handlerTypeToInvoke);
+                        try
                         {
-                            log.DebugFormat("Dispatching message '{0}' to handler '{1}'", toHandle.MessageType, handlerTypeToInvoke);
-                            try
-                            {
-                                dispatch();
-                            }
-                            catch (Exception e)
-                            {
-                                log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
+                            dispatch();
+                        }
+                        catch (Exception e)
+                        {
+                            log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
 
-                                throw new TransportMessageHandlingFailedException(e);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        loadedHandler.Invocation(handlerInstance, toHandle.Instance);
-                    }
-
-                    //for now we have to check of the chain is aborted but this will go away when we refactor the handlers to be a subpipeline
-                    if (context.ChainAborted)
-                    {
-                        log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke,toHandle.MessageType);
-                        return;
-                    }
+                            throw new TransportMessageHandlingFailedException(e);
+                        }
+                    });
                 }
-                finally
+                else
                 {
-                    SagaContext.Current = null;
+                    messageHandler.Invocation(handlerInstance, toHandle.Instance);
                 }
+
+                //for now we have to check of the chain is aborted but this will go away when we refactor the handlers to be a subpipeline
+                if (context.ChainAborted)
+                {
+                    log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke, toHandle.MessageType);
+                    return;
+                }
+            }
+            finally
+            {
+                SagaContext.Current = null;
             }
         }
 
@@ -106,6 +100,6 @@
         }
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-   
+
     }
 }

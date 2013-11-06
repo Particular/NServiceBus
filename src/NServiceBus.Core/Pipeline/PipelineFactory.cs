@@ -8,7 +8,7 @@
 
     internal class PipelineFactory : IDisposable
     {
-        public Action GetPhysicalMessagePipeline(IBuilder rootBuilder, TransportMessage msg, bool disableMessageHandling)
+        public void InvokePhysicalMessagePipeline(IBuilder rootBuilder, TransportMessage msg, bool disableMessageHandling)
         {
             CurrentBuilder = rootBuilder;
 
@@ -30,38 +30,55 @@
             if (!disableMessageHandling)
             {
                 pipeline.Add<ExtractLogicalMessagesBehavior>();
-                pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
                 pipeline.Add<CallbackInvocationBehavior>();
-                pipeline.Add<LoadHandlersBehavior>();
-                pipeline.Add<SagaPersistenceBehavior>();
-                pipeline.Add<InvokeHandlersBehavior>();
             }
 
-            return () =>
-            {
-                using (var context = new PhysicalMessageContext(this,msg))
-                {
-                    contextStacker.Push(context);
+            var context = new PhysicalMessageContext(this, CurrentContext, msg);
 
-                    pipeline.Invoke(context);
 
-                    contextStacker.Pop();
-                }
-            };
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
         }
 
-        public Action GetHandlerPipeline(MessageHandler handler)
+
+        public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
 
-            //var pipeline = new BehaviorChain(contextStacker.Current.Builder, contextStacker);
+            var pipeline = new BehaviorChain<LogicalMessageContext>(CurrentBuilder);
 
-            return () =>
-            {
-                //using (var context = new BehaviorContext(contextStacker.Current.Builder, contextStacker))
-                //{
-                //    pipeline.Invoke(context);
-                //}
-            };
+            pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
+            pipeline.Add<LoadHandlersBehavior>();
+
+
+            var context = new LogicalMessageContext(this, CurrentContext, message);
+
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
+        }
+
+
+        public void InvokeHandlerPipeline(MessageHandler handler)
+        {
+            var pipeline = new BehaviorChain<MessageHandlerContext>(CurrentBuilder);
+
+        
+            pipeline.Add<SagaPersistenceBehavior>();
+            pipeline.Add<InvokeHandlersBehavior>();
+
+
+            var context = new MessageHandlerContext(this,CurrentContext,handler);
+
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
         }
 
         public BehaviorContext CurrentContext

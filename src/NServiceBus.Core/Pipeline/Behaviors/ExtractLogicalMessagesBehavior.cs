@@ -61,7 +61,11 @@
             {
                 var messageType = MessageMapper.GetMappedTypeFor(rawMessage.GetType());
 
-                logicalMessages.Add(new LogicalMessage(messageType,rawMessage));
+                var logicalMessage = new LogicalMessage(messageType, rawMessage);
+
+                logicalMessages.Add(logicalMessage);
+
+                context.PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
             }
 
             next();

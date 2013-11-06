@@ -125,11 +125,12 @@
     <Compile Include="Pipeline\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\LogicalMessage.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Pipeline\LogicalMessageContext.cs" />
+    <Compile Include="Pipeline\MessageHandlerContext.cs" />
     <Compile Include="Pipeline\PhysicalMessageContext.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
-    <Compile Include="Sagas\ActiveSagaInstances.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />

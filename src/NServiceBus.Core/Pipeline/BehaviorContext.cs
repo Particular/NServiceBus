@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    internal class BehaviorContext : IDisposable
+    internal class BehaviorContext
     {
-        public BehaviorContext(PipelineFactory pipelineFactory)
+        public BehaviorContext(PipelineFactory pipelineFactory, BehaviorContext parentContext)
         {
             this.pipelineFactory = pipelineFactory;
+            this.parentContext = parentContext;
         }
 
 
@@ -22,16 +23,15 @@
 
         public bool ChainAborted { get; private set; }
 
-        public IBuilder Builder {
+        public IBuilder Builder
+        {
             get
             {
                 return pipelineFactory.CurrentBuilder;
-            } }
-
-        public void Dispose()
-        {
-            //Injected at compile time
+            }
         }
+
+
 
         public void AbortChain()
         {
@@ -45,9 +45,20 @@
 
         public T Get<T>(string key)
         {
-            return stash.ContainsKey(key)
-                ? (T) stash[key]
-                : default(T);
+            if (stash.ContainsKey(key))
+            {
+                return (T)stash[key];
+            }
+
+            if (parentContext != null)
+            {
+                return parentContext.Get<T>(key);
+            }
+
+            if (typeof(T).IsValueType)
+                return default(T);
+
+            throw new KeyNotFoundException("No item found in behavior context with key: " + key);
         }
 
         public void Set<T>(T t)
@@ -60,8 +71,9 @@
             stash[key] = t;
         }
 
-    
+
         readonly PipelineFactory pipelineFactory;
+        readonly BehaviorContext parentContext;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

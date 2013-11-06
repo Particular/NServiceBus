@@ -2,7 +2,8 @@
 {
     internal class PhysicalMessageContext : BehaviorContext
     {
-        public PhysicalMessageContext(PipelineFactory pipelineFactory,TransportMessage transportMessage):base(pipelineFactory)
+        public PhysicalMessageContext(PipelineFactory pipelineFactory, BehaviorContext parentContext, TransportMessage transportMessage)
+            : base(pipelineFactory,parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;
 

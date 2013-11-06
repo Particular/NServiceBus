@@ -11,7 +11,7 @@
             this.builder = builder;
         }
 
-        public void Add<TBehavior>()// where TBehavior : IBehavior
+        public void Add<TBehavior>() where TBehavior : IBehavior<T>
         {
             itemDescriptors.Enqueue(typeof(TBehavior));
         }

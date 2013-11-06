@@ -1051,29 +1051,14 @@ namespace NServiceBus.Unicast
         {
             using (var childBuilder = Builder.CreateChildBuilder())
             {
-                // construct behavior chain - look at configuration and possibly the incoming transport message
-                var pipeline = pipelineFactory.GetPhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
-
-                pipeline();
+                pipelineFactory.InvokePhysicalMessagePipeline(childBuilder, e.Message, disableMessageHandling);
             }
         }
 
 
         public void Raise<T>(T @event)
         {
-            //todo: resurrect
-            //var chain = new BehaviorChain(Builder, contextStacker);
-
-            //chain.Add<LoadHandlersBehavior>();
-            //chain.Add<InvokeHandlersBehavior>();
-
-            //using (var context = new BehaviorContext(Builder, new TransportMessage(), contextStacker))
-            //{
-            //    var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
-
-            //    context.Set(logicalMessages);
-            //    chain.Invoke(context);
-            //}
+            pipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T),@event));
         }
 
         public void Raise<T>(Action<T> messageConstructor)
