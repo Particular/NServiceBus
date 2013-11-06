@@ -6,10 +6,9 @@
     using Sagas;
     using UnitOfWork;
 
-    public class PipelineFactory : IDisposable
+    internal class PipelineFactory : IDisposable
     {
-        public IBuilder RootBuilder { get; set; }
-
+        internal IBuilder RootBuilder { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
         internal void DisableLogicalMessageHandling()
@@ -88,7 +87,9 @@
             var pipeline = new BehaviorChain<MessageHandlerContext>(CurrentContext.Builder);
 
 
+
             pipeline.Add<SagaPersistenceBehavior>();
+
             pipeline.Add<InvokeHandlersBehavior>();
 
 

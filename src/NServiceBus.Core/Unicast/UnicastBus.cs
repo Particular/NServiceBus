@@ -221,9 +221,9 @@ namespace NServiceBus.Unicast
         public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
-        /// The 
+        /// Gives access to our different pipelines
         /// </summary>
-        public PipelineFactory PipelineFactory { get; set; }
+        internal PipelineFactory PipelineFactory { get; set; }
 
         /// <summary>
         /// Creates an instance of the specified type.

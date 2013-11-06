@@ -53,7 +53,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected MessageHandlerRegistry handlerRegistry;
 
-        protected PipelineFactory pipelineFactory;
+        PipelineFactory pipelineFactory;
       
 
         [SetUp]
