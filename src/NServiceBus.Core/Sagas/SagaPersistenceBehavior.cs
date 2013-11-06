@@ -5,7 +5,6 @@
     using System.Linq;
     using IdGeneration;
     using Logging;
-    using MessageInterfaces;
     using Pipeline;
     using Pipeline.Behaviors;
     using Saga;
@@ -13,13 +12,11 @@
     using Transports;
     using Unicast;
 
-    class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
+    internal class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
-
-        public IMessageMapper MessageMapper { get; set; }
 
         public void Invoke(MessageHandlerContext context, Action next)
         {
