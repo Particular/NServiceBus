@@ -10,7 +10,15 @@
     {
         public IBuilder RootBuilder { get; set; }
 
-        internal void InvokePhysicalMessagePipeline(TransportMessage msg, bool disableMessageHandling)
+
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        internal void DisableLogicalMessageHandling()
+        {
+            messageHandlingDisabled = true;
+        }
+
+
+        internal void InvokePhysicalMessagePipeline(TransportMessage msg)
         {
             using (var childBuilder = RootBuilder.CreateChildBuilder())
             {
@@ -29,7 +37,7 @@
                 pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
                 pipeline.Add<RaiseMessageReceivedBehavior>();
 
-                if (!disableMessageHandling)
+                if (!messageHandlingDisabled)
                 {
                     pipeline.Add<ExtractLogicalMessagesBehavior>();
                     pipeline.Add<CallbackInvocationBehavior>();
@@ -42,7 +50,7 @@
 
                 pipeline.Invoke(context);
 
-                contextStacker.Pop();                
+                contextStacker.Pop();
             }
         }
 
@@ -79,7 +87,7 @@
         {
             var pipeline = new BehaviorChain<MessageHandlerContext>(CurrentContext.Builder);
 
-        
+
             pipeline.Add<SagaPersistenceBehavior>();
             pipeline.Add<InvokeHandlersBehavior>();
 
@@ -93,6 +101,7 @@
             contextStacker.Pop();
         }
 
+
         internal BehaviorContext CurrentContext
         {
             get
@@ -102,7 +111,7 @@
         }
 
         internal bool PipelineIsExecuting { get { return CurrentContext != null; } }
-     
+
         public void Dispose()
         {
             //Injected
@@ -114,5 +123,7 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
+
+        bool messageHandlingDisabled;
     }
 }

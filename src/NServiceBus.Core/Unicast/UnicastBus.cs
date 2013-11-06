@@ -20,7 +20,6 @@ namespace NServiceBus.Unicast
     using Pipeline.Behaviors;
     using Queuing;
     using Routing;
-    using Sagas;
     using Satellites;
     using Serialization;
     using Subscriptions;
@@ -28,7 +27,6 @@ namespace NServiceBus.Unicast
     using Support;
     using Transport;
     using Transports;
-    using UnitOfWork;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -47,11 +45,14 @@ namespace NServiceBus.Unicast
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public virtual bool DisableMessageHandling
         {
-            set { disableMessageHandling = value; }
+            set
+            {
+                PipelineFactory.DisableLogicalMessageHandling();
+            }
         }
-        bool disableMessageHandling;
 
 
         /// <summary>
@@ -1054,7 +1055,7 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            PipelineFactory.InvokePhysicalMessagePipeline(e.Message, disableMessageHandling);
+            PipelineFactory.InvokePhysicalMessagePipeline(e.Message);
         }
 
 
