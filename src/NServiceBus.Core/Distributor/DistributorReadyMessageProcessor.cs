@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor
 {
     using System;
+    using System.Collections.Generic;
     using Logging;
     using ReadyMessages;
     using Satellites;
@@ -33,6 +34,12 @@ namespace NServiceBus.Distributor
         {
             if (!message.IsControlMessage())
             {
+                return true;
+            }
+
+            if (message.Headers.ContainsKey(Headers.DisconnectWorker))
+            {
+                HandleDisconnectMessage(message);
                 return true;
             }
 
@@ -81,6 +88,14 @@ namespace NServiceBus.Distributor
             };
         }
 
+        void HandleDisconnectMessage(TransportMessage controlMessage)
+        {
+            var workerAddress = Address.Parse(controlMessage.Headers[Headers.DisconnectWorker]);
+
+            registeredWorkerAddresses.Remove(workerAddress);
+            WorkerAvailabilityManager.ClearAvailabilityForWorker(workerAddress);
+        }
+
         void HandleControlMessage(TransportMessage controlMessage)
         {
             var replyToAddress = controlMessage.ReplyToAddress;
@@ -92,22 +107,32 @@ namespace NServiceBus.Distributor
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
+                registeredWorkerAddresses.Add(replyToAddress);
+
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(replyToAddress);
                 Logger.InfoFormat("Worker {0} has started up, clearing previous reported capacity", replyToAddress);
             }
-
-            if (controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
+            else if (!registeredWorkerAddresses.Contains(replyToAddress))
             {
-                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
-
-                WorkerAvailabilityManager.WorkerAvailable(replyToAddress, capacity);
-
-                Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
+                // Drop ready message as this worker has been disconnected
+                return;
             }
+
+            if (!controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
+            {
+                return;
+            }
+
+            var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
+
+            WorkerAvailabilityManager.WorkerAvailable(replyToAddress, capacity);
+
+            Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
         }
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
         static readonly Address Address;
         static readonly bool Disable;
+        HashSet<Address> registeredWorkerAddresses = new HashSet<Address>();
     }
 }
