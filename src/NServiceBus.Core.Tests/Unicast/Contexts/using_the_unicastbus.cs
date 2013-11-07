@@ -163,8 +163,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionManager = subscriptionManager,
                 MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
-                MessageRouter = router,
-                PipelineFactory = pipelineFactory
+                MessageRouter = router
             };
             bus = unicastBus;
 

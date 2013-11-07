@@ -8,15 +8,15 @@
 
     internal class PipelineFactory : IDisposable
     {
-        internal IBuilder RootBuilder { get; set; }
+        public IBuilder RootBuilder { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        internal void DisableLogicalMessageHandling()
+        public void DisableLogicalMessageHandling()
         {
             messageHandlingDisabled = true;
         }
 
-        internal void InvokePhysicalMessagePipeline(TransportMessage msg)
+        public void InvokePhysicalMessagePipeline(TransportMessage msg)
         {
             var pipeline = new BehaviorChain<PhysicalMessageContext>();
 
@@ -51,7 +51,7 @@
 
         }
 
-        internal void InvokeLogicalMessagePipeline(LogicalMessage message)
+        public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
             var pipeline = new BehaviorChain<LogicalMessageContext>();
 
@@ -68,7 +68,7 @@
             contextStacker.Pop();
         }
 
-        internal void InvokeHandlerPipeline(MessageHandler handler)
+        public void InvokeHandlerPipeline(MessageHandler handler)
         {
             var pipeline = new BehaviorChain<MessageHandlerContext>();
 
@@ -85,7 +85,7 @@
         }
 
 
-        internal BehaviorContext CurrentContext
+        public BehaviorContext CurrentContext
         {
             get
             {

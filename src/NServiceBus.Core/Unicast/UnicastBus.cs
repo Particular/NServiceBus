@@ -221,11 +221,6 @@ namespace NServiceBus.Unicast
         public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
-        /// Gives access to our different pipelines
-        /// </summary>
-        internal PipelineFactory PipelineFactory { get; set; }
-
-        /// <summary>
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
         /// </summary>
@@ -1288,5 +1283,14 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
+
+        //we need to not inject since at least Autofac dosen't seem to inject internal properties
+        PipelineFactory PipelineFactory
+        {
+            get
+            {
+                return Builder.Build<PipelineFactory>();
+            }        
+        }
     }
 }
