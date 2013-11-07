@@ -22,7 +22,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply"/>.
+        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object[])"/>.
         /// </summary>
         /// <param name="messages">Collection of messages to enforce messaging rules on.</param>
         public static void AssertIsValidForReply(IEnumerable<object> messages)
@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast
             }
         }
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply"/>.
+        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object[])"/>.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
         public static void AssertIsValidForReply(Type messageType)

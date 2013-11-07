@@ -51,7 +51,7 @@ namespace NServiceBus.ObjectBuilder.Common
         /// </summary>
         /// <param name="component">The interface type.</param>
         /// <param name="property">The property name to be injected.</param>
-        /// <param name="value">The value to assign to the <param name="property"></param>.</param>
+        /// <param name="value">The value to assign to the <paramref name="property"/>.</param>
         void ConfigureProperty(Type component, string property, object value);
 
         /// <summary>

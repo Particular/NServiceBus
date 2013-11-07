@@ -13,7 +13,7 @@ namespace NServiceBus.Config
     {
         /// <summary>
         /// Property for getting/setting the period of time when the outgoing gateway transaction times out.
-        /// Only relevant when <see cref="IsTransactional"/> is set to true.
+        /// Only relevant when <see cref="TransactionalConfigManager.IsTransactional"/> is set to true.
         /// Defaults to the TransactionTimeout of the main transport.
         /// </summary>
         [ConfigurationProperty("TransactionTimeout", IsRequired = false, DefaultValue = "00:00:00")]

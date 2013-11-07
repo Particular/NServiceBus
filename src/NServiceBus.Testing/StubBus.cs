@@ -289,7 +289,9 @@
             throw new NotImplementedException();
         }
 
+#pragma warning disable 67
         public event EventHandler Started;
+#pragma warning restore 67
 
         public T CreateInstance<T>()
         {

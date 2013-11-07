@@ -13,7 +13,7 @@
         protected InMemorySagaPersister persister;
 
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
 
             persister = new InMemorySagaPersister();

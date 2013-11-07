@@ -980,7 +980,7 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 
 	public class AlternateItemListMultipleIEnumerableImplementations : List<MessageWithListItemAlternate>, IEnumerable<string>
 	{
-		public IEnumerator<string> GetEnumerator()
+		public new IEnumerator<string> GetEnumerator()
 		{
 			return ToArray().Select(item => item.Data).GetEnumerator();
 		}

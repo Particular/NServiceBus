@@ -37,7 +37,6 @@
         ///       </Root>
         /// </MyMessage>
         /// </code>
-        /// </param>
         public XmlSerializationSettings DontWrapRawXml()
         {
             SettingsHolder.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);

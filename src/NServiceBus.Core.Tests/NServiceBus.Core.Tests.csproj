@@ -23,6 +23,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>618,67</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>618,67</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWS.Extensions">
@@ -39,6 +43,10 @@
     </Reference>
     <Reference Include="AWSSDK">
       <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="ConventionBasedHandlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ConventionBasedHandlers.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop">
       <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
@@ -289,10 +297,6 @@
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Core.Tests.x64\ConventionBasedHandler.Tests.csproj">
-      <Project>{0bd67228-1286-4732-a589-5248f774c3d8}</Project>
-      <Name>ConventionBasedHandler.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
