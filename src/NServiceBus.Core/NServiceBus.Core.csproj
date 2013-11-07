@@ -99,6 +99,8 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Distributor\MsmqWorkerAvailabilityManager.cs" />
+    <Compile Include="Distributor\QueueCreators\DistributorStorageQueueCreator.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
@@ -258,8 +260,6 @@
     <Compile Include="Distributor\Config\WorkerInitializer.cs" />
     <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
     <Compile Include="Distributor\LicenseConfig.cs" />
-    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\DistributorStorageQueueCreator.cs" />
-    <Compile Include="Transports\Msmq\WorkerAvailabilityManager\MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
     <Compile Include="Distributor\ReadyMessages\Headers.cs" />
     <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />

@@ -1,7 +1,6 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
-    using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
 
     public class DistributorInitializer

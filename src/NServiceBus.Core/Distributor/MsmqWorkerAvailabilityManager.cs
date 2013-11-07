@@ -1,12 +1,12 @@
-namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
+namespace NServiceBus.Distributor
 {
     using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Messaging;
     using System.Threading;
-    using Distributor;
     using Settings;
+    using Transports.Msmq;
 
     /// <summary>
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
