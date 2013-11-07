@@ -40,7 +40,11 @@
 
             foreach (var handler in messageHandlers)
             {
-                PipelineFactory.InvokeHandlerPipeline(handler);
+                if (PipelineFactory.InvokeHandlerPipeline(handler).ChainAborted)
+                {
+                    //if the chain was aborted skip the other handlers
+                    break;
+                }
             }
 
             next();

@@ -68,7 +68,7 @@
             contextStacker.Pop();
         }
 
-        public void InvokeHandlerPipeline(MessageHandler handler)
+        public MessageHandlerContext InvokeHandlerPipeline(MessageHandler handler)
         {
             var pipeline = new BehaviorChain<MessageHandlerContext>();
 
@@ -82,6 +82,8 @@
             pipeline.Invoke(context);
 
             contextStacker.Pop();
+
+            return context;
         }
 
 
