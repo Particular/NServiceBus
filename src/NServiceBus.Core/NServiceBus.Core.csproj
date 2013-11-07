@@ -106,6 +106,7 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
+    <Compile Include="Licensing\TimestampReader.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
@@ -621,5 +622,6 @@
     <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <Delete Files="$(MergeTemp)" />
   </Target>
+  <Import Project="$(SolutionDir)..\BuildSupport\Timestamp\build\Timestamp.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
 </Project>

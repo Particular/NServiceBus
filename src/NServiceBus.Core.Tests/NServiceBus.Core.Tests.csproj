@@ -131,6 +131,7 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Licensing\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
