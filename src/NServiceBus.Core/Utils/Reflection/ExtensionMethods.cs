@@ -111,13 +111,20 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
+        private static readonly Dictionary<Type, bool> IsSystemTypeCache = new Dictionary<Type, bool>();
+
         public static bool IsSystemType(this Type type)
         {
-            var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+            bool result;
 
-            return IsClrType(nameOfContainingAssembly);
+            if (!IsSystemTypeCache.TryGetValue(type, out result))
+            {
+                var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+                IsSystemTypeCache[type] = result = IsClrType(nameOfContainingAssembly);
+            }
+
+            return result;
         }
-
 
         public static bool IsNServiceBusMarkerInterface(this Type type)
         {
