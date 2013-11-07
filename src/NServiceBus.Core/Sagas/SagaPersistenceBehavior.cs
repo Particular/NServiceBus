@@ -187,10 +187,9 @@
             return sagaEntity;
         }
 
-        List<ActiveSagaInstance> activeSagaInstances;
-
-        readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
         MessageHandlerContext currentContext;
         TransportMessage physicalMessage;
+
+        readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
     }
 }
