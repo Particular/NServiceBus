@@ -205,8 +205,8 @@ namespace NServiceBus.Licensing
                     if 
                         (
                         //developer(aka trial) (90days) ie use the expiry. this is handled by rhino
-                        (validator.LicenseType == Rhino.Licensing.LicenseType.Trial) ||
-                        (license.LicenseType == LicenseType.)
+                        (validator.LicenseType == Rhino.Licensing.LicenseType.Trial) //||
+                        //(license.LicenseType == LicenseType.)
                         )
                     {
                     
