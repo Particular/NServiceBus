@@ -623,7 +623,7 @@ namespace NServiceBus.Unicast
             return SetupCallback(toSend.Id);
         }
 
-        private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+        ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
                 throw new InvalidOperationException("Cannot send an empty set of messages.");
@@ -635,17 +635,7 @@ namespace NServiceBus.Unicast
             return SendMessage(Address.Parse(destination), correlationId, messageIntent, messages);
         }
 
-        private ICallback SendMessage(Address address, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
-        {
-            // loop only happens once
-            foreach (var id in SendMessage(new List<Address> { address }, correlationId, messageIntent, messages))
-            {
-                return SetupCallback(id);
-            }
-
-            return null;
-        }
-
+     
         ICallback SetupCallback(string transportMessageId)
         {
             var result = new Callback(transportMessageId);
@@ -658,11 +648,11 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+        ICallback SendMessage(Address address, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
         {
             if (messages.Length == 0)
             {
-                return Enumerable.Empty<string>();
+                return null;
             }
 
             messages.ToList()
@@ -688,17 +678,10 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            addresses
-                .ForEach(address =>
-                             {
-                                 if (address == Address.Undefined)
-                                     throw new InvalidOperationException("No destination specified for message(s): " +
-                                                                         string.Join(";", messages.Select(m => m.GetType())));
-                             });
+            if (address == Address.Undefined)
+                throw new InvalidOperationException("No destination specified for message(s): " +
+                                                    string.Join(";", messages.Select(m => m.GetType())));
 
-
-
-            var result = new List<string>();
 
             var toSend = new TransportMessage { MessageIntent = messageIntent };
 
@@ -709,40 +692,35 @@ namespace NServiceBus.Unicast
 
             MapTransportMessageFor(messages, toSend);
 
-            foreach (var destination in addresses)
+            try
             {
-                try
-                {
-                    MessageSender.Send(toSend, destination);
-                }
-                catch (QueueNotFoundException ex)
-                {
-                    throw new ConfigurationErrorsException("The destination queue '" + destination +
-                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                        messages[0].GetType().FullName +
-                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
-                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                                                        , ex);
-                }
-
-                if (Log.IsDebugEnabled)
-                    Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
-                                            "ToString() of the message yields: {3}\n" +
-                                            "Message headers:\n{4}",
-                                            messages[0].GetType().AssemblyQualifiedName,
-                                            toSend.Id,
-                                            destination,
-                                            messages[0],
-                                            string.Join(", ", toSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
-                        ));
-
-                result.Add(toSend.Id);
+                MessageSender.Send(toSend, address);
             }
+            catch (QueueNotFoundException ex)
+            {
+                throw new ConfigurationErrorsException("The destination queue '" + address +
+                                                     "' could not be found. You may have misconfigured the destination for this kind of message (" +
+                                                    messages[0].GetType().FullName +
+                                                     ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
+                                                     "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
+                                                    , ex);
+            }
+
+            if (Log.IsDebugEnabled)
+                Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
+                                        "ToString() of the message yields: {3}\n" +
+                                        "Message headers:\n{4}",
+                                        messages[0].GetType().AssemblyQualifiedName,
+                                        toSend.Id,
+                                        address,
+                                        messages[0],
+                                        string.Join(", ", toSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
+                    ));
 
             if (MessagesSent != null)
                 MessagesSent(this, new MessagesEventArgs(messages));
 
-            return result;
+            return SetupCallback(toSend.Id);
         }
 
         List<Type> GetFullTypes(IEnumerable<object> messages)
@@ -1291,7 +1269,7 @@ namespace NServiceBus.Unicast
             get
             {
                 return Builder.Build<PipelineFactory>();
-            }        
+            }
         }
     }
 }
