@@ -417,9 +417,12 @@ namespace NServiceBus.Unicast
         public void Reply(params object[] messages)
         {
             MessagingBestPractices.AssertIsValidForReply(messages.ToList());
-            if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-            SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Reply, messages);
+        
+            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+
+            options.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
+
+            Send(options, messages);
         }
 
         public void Reply(object message)
@@ -488,10 +491,9 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return Send(MasterNodeAddress, messages);
+                return Send(new SendOptions(MasterNodeAddress), messages);
             }
-
-            return Send(Address.Local, messages);
+            return Send(SendOptions.ToLocalEndpoint, messages);
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -508,67 +510,97 @@ namespace NServiceBus.Unicast
         {
             var destination = GetAddressForMessages(messages);
 
-            return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+            return Send(new SendOptions(destination), messages);
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            return Send(new SendOptions(destination), new[] { CreateInstance(messageConstructor) });
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            return Send(new SendOptions(address), new[] { CreateInstance(messageConstructor) });
         }
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, new[] { message });
+            return Send(new SendOptions(destination), new[] { message });
         }
 
         public ICallback Send(string destination, params object[] messages)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+            return Send(new SendOptions(destination), messages);
         }
 
         public ICallback Send(Address address, params object[] messages)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, messages);
+            return Send(new SendOptions(address), messages);
         }
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, new[] { message });
+            return Send(new SendOptions(address), new[] { message });
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, new[] { CreateInstance(messageConstructor) });
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, new[] { CreateInstance(messageConstructor) });
         }
 
         public ICallback Send(string destination, string correlationId, object message)
         {
-            return Send(destination, correlationId, new[] { message });
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, new[] { message });
         }
 
         public ICallback Send(string destination, string correlationId, params object[] messages)
         {
-            return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, messages);
         }
 
         public ICallback Send(Address address, string correlationId, params object[] messages)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, messages);
         }
 
         public ICallback Send(Address address, string correlationId, object message)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[] { message });
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return Send(options, new[] { message });
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
@@ -578,12 +610,9 @@ namespace NServiceBus.Unicast
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
-            if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
-
             Headers.SetMessageHeader(messages[0], Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
+            return Send(new SendOptions(MasterNodeAddress.SubScope("gateway")), messages);
         }
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
@@ -623,40 +652,16 @@ namespace NServiceBus.Unicast
             return SetupCallback(toSend.Id);
         }
 
-        ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+        //todo: make this one public at a later stage
+        ICallback Send(SendOptions sendOptions, params object[] messages)
         {
             if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
-
-            if (destination == null)
-                throw new InvalidOperationException(
-                    string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
-
-            return SendMessage(Address.Parse(destination), correlationId, messageIntent, messages);
-        }
-
-     
-        ICallback SetupCallback(string transportMessageId)
-        {
-            var result = new Callback(transportMessageId);
-            result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
-                {
-                    //TODO: what should we do if the key already exists?
-                    messageIdToAsyncResultLookup[args.MessageId] = args.Result;
-                };
-
-            return result;
-        }
-
-        ICallback SendMessage(Address address, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
-        {
-            if (messages.Length == 0)
             {
-                return null;
+                throw new InvalidOperationException("Cannot send an empty set of messages.");
             }
 
             messages.ToList()
-                        .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
+                        .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), sendOptions.Intent));
 
             if (messages.Length > 1)
             {
@@ -678,27 +683,27 @@ namespace NServiceBus.Unicast
                 }
             }
 
-            if (address == Address.Undefined)
-                throw new InvalidOperationException("No destination specified for message(s): " +
-                                                    string.Join(";", messages.Select(m => m.GetType())));
-
-
-            var toSend = new TransportMessage { MessageIntent = messageIntent };
-
-            if (!string.IsNullOrEmpty(correlationId))
+            if (sendOptions.Destination == Address.Undefined)
             {
-                toSend.CorrelationId = correlationId;
+                throw new InvalidOperationException("No destination specified for message(s): " + string.Join(";", messages.Select(m => m.GetType())));
+            }
+
+            var toSend = new TransportMessage { MessageIntent = sendOptions.Intent };
+
+            if (!string.IsNullOrEmpty(sendOptions.CorrelationId))
+            {
+                toSend.CorrelationId = sendOptions.CorrelationId;
             }
 
             MapTransportMessageFor(messages, toSend);
 
             try
             {
-                MessageSender.Send(toSend, address);
+                MessageSender.Send(toSend, sendOptions.Destination);
             }
             catch (QueueNotFoundException ex)
             {
-                throw new ConfigurationErrorsException("The destination queue '" + address +
+                throw new ConfigurationErrorsException("The destination queue '" + sendOptions.Destination +
                                                      "' could not be found. You may have misconfigured the destination for this kind of message (" +
                                                     messages[0].GetType().FullName +
                                                      ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
@@ -712,7 +717,7 @@ namespace NServiceBus.Unicast
                                         "Message headers:\n{4}",
                                         messages[0].GetType().AssemblyQualifiedName,
                                         toSend.Id,
-                                        address,
+                                        sendOptions.Destination,
                                         messages[0],
                                         string.Join(", ", toSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
                     ));
@@ -721,6 +726,18 @@ namespace NServiceBus.Unicast
                 MessagesSent(this, new MessagesEventArgs(messages));
 
             return SetupCallback(toSend.Id);
+        }
+
+        ICallback SetupCallback(string transportMessageId)
+        {
+            var result = new Callback(transportMessageId);
+            result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
+            {
+                //TODO: what should we do if the key already exists?
+                messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+            };
+
+            return result;
         }
 
         List<Type> GetFullTypes(IEnumerable<object> messages)
