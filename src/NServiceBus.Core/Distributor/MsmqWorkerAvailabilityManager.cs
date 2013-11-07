@@ -101,8 +101,16 @@ namespace NServiceBus.Distributor
         public void Start()
         {
             var path = MsmqUtilities.GetFullPath(StorageQueueAddress);
+            var messageReadPropertyFilter = new MessagePropertyFilter
+            {
+                Id = true,
+                ResponseQueue = true,
+            };
 
-            storageQueue = new MessageQueue(path);
+            storageQueue = new MessageQueue(path, false, true, QueueAccessMode.SendAndReceive)
+            {
+                MessageReadPropertyFilter = messageReadPropertyFilter
+            };
 
             if ((!storageQueue.Transactional) && (SettingsHolder.Get<bool>("Transactions.Enabled")))
             {
@@ -127,23 +135,24 @@ namespace NServiceBus.Distributor
         /// <param name="capacity">The number of messages that this worker is ready to process</param>
         public void WorkerAvailable(Address address, int capacity)
         {
-            var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(address));
-
-            for (var i = 0; i < capacity; i++)
+            using (var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Send))
             {
-                if (UnitOfWork.HasActiveTransaction())
+                for (var i = 0; i < capacity; i++)
                 {
-                    storageQueue.Send(new Message
+                    if (UnitOfWork.HasActiveTransaction())
                     {
-                        ResponseQueue = returnAddress
-                    }, UnitOfWork.Transaction);
-                }
-                else
-                {
-                    storageQueue.Send(new Message
+                        storageQueue.Send(new Message
+                        {
+                            ResponseQueue = returnAddress
+                        }, UnitOfWork.Transaction);
+                    }
+                    else
                     {
-                        ResponseQueue = returnAddress
-                    }, MessageQueueTransactionType.Automatic);
+                        storageQueue.Send(new Message
+                        {
+                            ResponseQueue = returnAddress
+                        }, MessageQueueTransactionType.Automatic);
+                    }
                 }
             }
         }
