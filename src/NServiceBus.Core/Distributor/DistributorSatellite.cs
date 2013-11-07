@@ -30,7 +30,7 @@ namespace NServiceBus.Distributor
         public IWorkerAvailabilityManager WorkerManager { get; set; }
 
         /// <summary>
-        /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
+        ///     The <see cref="Address" /> for this <see cref="ISatellite" /> to use when receiving messages.
         /// </summary>
         public Address InputAddress
         {
@@ -38,7 +38,7 @@ namespace NServiceBus.Distributor
         }
 
         /// <summary>
-        /// Set to <code>true</code> to disable this <see cref="ISatellite"/>.
+        ///     Set to <code>true</code> to disable this <see cref="ISatellite" />.
         /// </summary>
         public bool Disabled
         {
@@ -64,23 +64,25 @@ namespace NServiceBus.Distributor
         public Action<TransportReceiver> GetReceiverCustomization()
         {
             return receiver =>
-                {
-                    //we don't need any DTC for the distributor
-                    receiver.TransactionSettings.DontUseDistributedTransactions = true;
-                    receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
-                };
+            {
+                //we don't need any DTC for the distributor
+                receiver.TransactionSettings.DontUseDistributedTransactions = true;
+                receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
+            };
         }
 
         /// <summary>
-        /// This method is called when a message is available to be processed.
+        ///     This method is called when a message is available to be processed.
         /// </summary>
-        /// <param name="message">The <see cref="TransportMessage"/> received.</param>
+        /// <param name="message">The <see cref="TransportMessage" /> received.</param>
         public bool Handle(TransportMessage message)
         {
             var destination = WorkerManager.PopAvailableWorker();
 
             if (destination == null)
+            {
                 return false;
+            }
 
             Logger.Debug("Sending message to: " + destination);
             MessageSender.Send(message, destination);

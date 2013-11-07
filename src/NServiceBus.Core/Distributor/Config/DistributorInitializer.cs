@@ -23,7 +23,7 @@ namespace NServiceBus.Distributor.Config
             }
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
-                              applicativeInputQueue);
+                applicativeInputQueue);
         }
 
         static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);

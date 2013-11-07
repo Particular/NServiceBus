@@ -13,12 +13,12 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public Address DistributorControlAddress { get; set; }
 
-        ITransport transport;
-
         public void Start()
         {
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
+            {
                 return;
+            }
 
             transport = Bus.Transport;
             var capacityAvailable = transport.MaximumConcurrencyLevel;
@@ -50,9 +50,13 @@ namespace NServiceBus.Distributor.ReadyMessages
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
 
             if (isStarting)
+            {
                 readyMessage.Headers.Add(Headers.WorkerStarting, Boolean.TrueString);
+            }
 
             MessageSender.Send(readyMessage, DistributorControlAddress);
         }
+
+        ITransport transport;
     }
 }

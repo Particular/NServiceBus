@@ -17,7 +17,9 @@ namespace NServiceBus.Distributor.Config
 
             //allow users to override control address in config
             if (unicastBusConfig != null && !string.IsNullOrWhiteSpace(unicastBusConfig.DistributorControlAddress))
+            {
                 distributorControlAddress = Address.Parse(unicastBusConfig.DistributorControlAddress);
+            }
 
             config.Configurer.ConfigureComponent<ReadyMessageSender>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.DistributorControlAddress, distributorControlAddress);

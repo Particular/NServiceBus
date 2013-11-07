@@ -11,10 +11,6 @@ namespace NServiceBus.Distributor
     /// </summary>
     public class DistributorReadyMessageProcessor : IAdvancedSatellite
     {
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
-        private static readonly Address Address;
-        private static readonly bool Disable;
-
         static DistributorReadyMessageProcessor()
         {
             Address = Configure.Instance.GetMasterNodeAddress().SubScope("distributor.control");
@@ -36,7 +32,9 @@ namespace NServiceBus.Distributor
         public bool Handle(TransportMessage message)
         {
             if (!message.IsControlMessage())
+            {
                 return true;
+            }
 
             HandleControlMessage(message);
 
@@ -83,12 +81,14 @@ namespace NServiceBus.Distributor
             };
         }
 
-        private void HandleControlMessage(TransportMessage controlMessage)
+        void HandleControlMessage(TransportMessage controlMessage)
         {
             var replyToAddress = controlMessage.ReplyToAddress;
 
             if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
+            {
                 return;
+            }
 
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
@@ -105,5 +105,9 @@ namespace NServiceBus.Distributor
                 Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
             }
         }
+
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
+        static readonly Address Address;
+        static readonly bool Disable;
     }
 }

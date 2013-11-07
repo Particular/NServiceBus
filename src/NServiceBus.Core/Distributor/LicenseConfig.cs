@@ -6,14 +6,10 @@ namespace NServiceBus.Distributor
     using Logging;
 
     /// <summary>
-    /// Limit number of workers in accordance with Licensing policy
+    ///     Limit number of workers in accordance with Licensing policy
     /// </summary>
     public static class LicenseConfig
     {
-        private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
-        private static readonly int allowedWorkerNodes;
-        private static readonly ConcurrentBag<Address> WorkersList = new ConcurrentBag<Address>();
-
         static LicenseConfig()
         {
             allowedWorkerNodes = LicenseManager.CurrentLicense.AllowedNumberOfWorkerNodes;
@@ -22,7 +18,9 @@ namespace NServiceBus.Distributor
         internal static bool LimitNumberOfWorkers(Address workerAddress)
         {
             if (WorkersList.Contains(workerAddress))
+            {
                 return false;
+            }
 
             if (WorkersList.Count < allowedWorkerNodes)
             {
@@ -34,5 +32,9 @@ namespace NServiceBus.Distributor
                 allowedWorkerNodes);
             return true;
         }
+
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
+        static readonly int allowedWorkerNodes;
+        static readonly ConcurrentBag<Address> WorkersList = new ConcurrentBag<Address>();
     }
 }
