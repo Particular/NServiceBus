@@ -18,7 +18,6 @@ namespace NServiceBus.Licensing
     public class LicenseManager
     {
         private const string LicenseTypeKey = "LicenseType";
-        private const string LicenseVersionKey = "LicenseVersion";
         private const string MaxMessageThroughputPerSecondLicenseKey = "MaxMessageThroughputPerSecond";
         private const string MaxMessageThroughputPerSecond = "Max";
         private const int OneMessagePerSecondThroughput = 1;
@@ -195,11 +194,32 @@ namespace NServiceBus.Licensing
                     Logger.InfoFormat("Registered to {0}", (object) validator.Name);
                     Logger.InfoFormat("Expires on {0}", (object) validator.ExpirationDate);
                     if ((validator.LicenseAttributes != null) && (validator.LicenseAttributes.Count > 0))
+                    {
                         foreach (var licenseAttribute in validator.LicenseAttributes)
+                        {
                             Logger.InfoFormat("[{0}]: [{1}]", licenseAttribute.Key, licenseAttribute.Value);
+                        }
+                    }
 
-                    CheckIfNServiceBusVersionIsNewerThanLicenseVersion();
+
+                    if 
+                        (
+                        //developer(aka trial) (90days) ie use the expiry. this is handled by rhino
+                        (validator.LicenseType == Rhino.Licensing.LicenseType.Trial) ||
+                        (license.LicenseType == LicenseType.)
+                        )
+                    {
                     
+                        //monthly treat ap perpetual 
+                        //startup (year) ie use the expiry. this is handled by rhino
+
+                        // so if trial/monthly/startup dont check UpgradeProtectionExpiration
+                        CheckIfUpgradeProtectionHasExpired(validator);
+                    }
+
+
+
+
                     ConfigureNServiceBusLicense();
 
                     return;
@@ -329,7 +349,7 @@ namespace NServiceBus.Licensing
                 });
         }
 
-        private static AbstractLicenseValidator CreateValidator(string licenseText = "")
+        internal static AbstractLicenseValidator CreateValidator(string licenseText = "")
         {
             if (!String.IsNullOrEmpty(licenseText))
             {
@@ -374,38 +394,22 @@ namespace NServiceBus.Licensing
             return String.IsNullOrEmpty(licenseText) ? null : new StringLicenseValidator(LicenseDescriptor.PublicKey, licenseText);
         }
 
-        //if NServiceBus version > license version, throw an exception
-        private void CheckIfNServiceBusVersionIsNewerThanLicenseVersion()
+        internal static void CheckIfUpgradeProtectionHasExpired(AbstractLicenseValidator validator)
         {
-            if (validator.LicenseType == Rhino.Licensing.LicenseType.None)
-            {
-                return;
-            }
 
-            if (validator.LicenseType == Rhino.Licensing.LicenseType.Trial)
-            {
-                return;
-            }
 
-            if (validator.LicenseAttributes.ContainsKey(LicenseVersionKey))
+            string upgradeProtectionExpiryValue;
+            if (validator.LicenseAttributes.TryGetValue("UpgradeProtectionExpiration", out upgradeProtectionExpiryValue))
             {
-                try
+                var buildTimeStamp = TimestampReader.GetBuildTimestamp();
+                var upgradeProtectionExpiry = DateTimeOffset.ParseExact(upgradeProtectionExpiryValue, "yyyy-MM-dd", null);
+                if (upgradeProtectionExpiry >= buildTimeStamp)
                 {
-                    var semver = GetNServiceBusVersion();
-                    var licenseVersion = Version.Parse(validator.LicenseAttributes[LicenseVersionKey]);
-                    if (licenseVersion >= semver)
-                        return;
-                }
-                catch (Exception exception)
-                {
-                    throw new ConfigurationErrorsException(
-                        "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@particular.net. If your upgrade protection has lapsed, you can renew it at http://particular.net/licensing",
-                        exception);
+                    return;
                 }
             }
 
-            throw new ConfigurationErrorsException(
-                "Your license is valid for an older version of NServiceBus. If you are still within the 1 year upgrade protection period of your original license, you should have already received a new license and if you haven’t, please contact customer.care@particular.net. If your upgrade protection has lapsed, you can renew it at http://particular.net/licensing");
+            throw new ConfigurationErrorsException("Your license upgrade protection does not cover this version of NServiceBus. You can renew it at http://particular.net/licensing");
         }
 
         private static Version GetNServiceBusVersion()

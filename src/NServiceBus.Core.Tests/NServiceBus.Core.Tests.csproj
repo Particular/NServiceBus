@@ -131,7 +131,8 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
-    <Compile Include="Licensing\When_mapping_ienumerable_implementations.cs" />
+    <Compile Include="Licensing\LicenseManagerTests.cs" />
+    <Compile Include="Licensing\TimestampTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
@@ -311,6 +312,8 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Licensing\LicenseWithFutureUpgradeProtection.xml" />
+    <EmbeddedResource Include="Licensing\LicenseWithOldUpgradeProtection.xml" />
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

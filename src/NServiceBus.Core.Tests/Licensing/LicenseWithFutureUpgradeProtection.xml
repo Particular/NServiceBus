@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<license id="ffab39b0-3969-40bd-855e-b72e1c8b4a45" 
+         expiration="2012-11-07T18:31:18.9246232" 
+         type="Standard" 
+         ProductName="NServiceBus" 
+         WorkerThreads="1" 
+         LicenseVersion="100.0" 
+         MaxMessageThroughputPerSecond="1" 
+         AllowedNumberOfWorkerNodes="1" 
+         UpgradeProtectionExpiryDate="2023-11-07">
+  <name>Test</name>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <DigestValue>oN0IvwZgyT+uxAPw6pdyho7wPWU=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>q80uH7N8Xso5RUL4+XGz9GqkSjnWZdjnvQ9/+Bz7NeRlWrYtGuTdvgHMOyEBvVFIG7MKD6bZcmi+kaphjiItjTImxPOUzxd0Ww4tmg9MjhFQuXCv1vJQifrUCYoy7qw2xEE754kgkRq/Ij4du65rqNCFCnuNe2km0LP7L/oAULk=</SignatureValue>
+  </Signature>
+</license>
+
