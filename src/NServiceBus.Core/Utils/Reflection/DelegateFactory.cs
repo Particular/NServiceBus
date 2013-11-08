@@ -53,11 +53,11 @@ namespace NServiceBus.Utils.Reflection
     /// </summary>
 	public static class DelegateFactory
 	{
-        static readonly IDictionary<PropertyInfo, LateBoundProperty> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, LateBoundProperty>();
-        static readonly IDictionary<FieldInfo, LateBoundField> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, LateBoundField>();
-        static readonly IDictionary<PropertyInfo, LateBoundPropertySet> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, LateBoundPropertySet>();
-        static readonly IDictionary<FieldInfo, LateBoundFieldSet> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, LateBoundFieldSet>();
-        static readonly IDictionary<MethodInfo, LateBoundMethod> MethodInfoToLateBoundMethod = new ConcurrentDictionary<MethodInfo, LateBoundMethod>();
+        static readonly Dictionary<PropertyInfo, LateBoundProperty> PropertyInfoToLateBoundProperty = new Dictionary<PropertyInfo, LateBoundProperty>();
+        static readonly Dictionary<FieldInfo, LateBoundField> FieldInfoToLateBoundField = new Dictionary<FieldInfo, LateBoundField>();
+        static readonly Dictionary<PropertyInfo, LateBoundPropertySet> PropertyInfoToLateBoundPropertySet = new Dictionary<PropertyInfo, LateBoundPropertySet>();
+        static readonly Dictionary<FieldInfo, LateBoundFieldSet> FieldInfoToLateBoundFieldSet = new Dictionary<FieldInfo, LateBoundFieldSet>();
+        static readonly Dictionary<MethodInfo, LateBoundMethod> MethodInfoToLateBoundMethod = new Dictionary<MethodInfo, LateBoundMethod>();
 
         /// <summary>
         /// Create Late Bound methods
