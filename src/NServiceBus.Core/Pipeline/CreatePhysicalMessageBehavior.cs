@@ -1,0 +1,52 @@
+﻿namespace NServiceBus.Pipeline
+{
+    using System;
+    using System.Linq;
+    using Unicast;
+    using Unicast.Messages;
+
+    internal class CreatePhysicalMessageBehavior:IBehavior<SendLogicalMessagesContext>
+    {
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+        public UnicastBus UnicastBus { get; set; }
+
+        public PipelineFactory PipelineFactory { get; set; }
+
+        public void Invoke(SendLogicalMessagesContext context, Action next)
+        {
+            var sendOptions = context.SendOptions;
+
+            var toSend = new TransportMessage
+            {
+                MessageIntent = sendOptions.Intent,
+                CorrelationId = sendOptions.CorrelationId,
+                ReplyToAddress = sendOptions.ReplyToAddress
+            };
+
+
+            //todo: pull this out to the distributor when we split it to a separate repo
+            if (UnicastBus.PropagateReturnAddressOnSend)
+            {
+                TransportMessage incomingMessage;
+
+                if (context.TryGet(out incomingMessage))
+                {
+                    sendOptions.ReplyToAddress = incomingMessage.ReplyToAddress;
+                }
+            }
+
+
+            var messageDefinitions = context.LogicalMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(m.MessageType)).ToList();
+
+            toSend.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
+            toSend.Recoverable = messageDefinitions.Any(md => md.Recoverable);
+
+            context.Set(toSend);
+
+            PipelineFactory.InvokeSendPipeline(sendOptions,toSend);
+
+            next();
+        }
+    }
+}

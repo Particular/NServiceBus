@@ -1,9 +1,12 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using Behaviors;
     using ObjectBuilder;
     using Sagas;
+    using Unicast;
     using UnitOfWork;
 
     class PipelineFactory : IDisposable
@@ -86,6 +89,63 @@
             return context;
         }
 
+        public SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
+        {
+            var pipeline = new BehaviorChain<SendLogicalMessagesContext>();
+
+            pipeline.Add<MultiSendValidatorBehavior>();
+            pipeline.Add<MultiMessageBehavior>();
+            pipeline.Add<CreatePhysicalMessageBehavior>();
+
+            var context = new SendLogicalMessagesContext(CurrentContext, sendOptions, messages);
+
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
+
+            return context;
+        }
+
+        public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
+        {
+            var pipeline = new BehaviorChain<SendLogicalMessageContext>();
+
+            pipeline.Add<SendValidatorBehavior>();
+            pipeline.Add<MutateOutgoingMessageBehavior>();
+
+
+            var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
+
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
+
+            return context;
+        }
+
+        public void InvokeSendPipeline(SendOptions sendOptions, TransportMessage physicalMessage)
+        {
+            var pipeline = new BehaviorChain<SendPhysicalMessageContext>();
+
+            pipeline.Add<SerializeMessagesBehavior>();
+            pipeline.Add<MutateOutgoingPhysicalMessageBehavior>();
+            pipeline.Add<DispatchMessageToTransportBehavior>();
+
+
+            var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
+
+            contextStacker.Push(context);
+
+            pipeline.Invoke(context);
+
+            contextStacker.Pop();
+        }
+
+
 
         public BehaviorContext CurrentContext
         {
@@ -112,5 +172,7 @@
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
 
         bool messageHandlingDisabled;
+
+
     }
 }

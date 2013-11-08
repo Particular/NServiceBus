@@ -30,22 +30,44 @@
             return Get<T>(typeof(T).FullName);
         }
 
-        public T Get<T>(string key)
+        public bool TryGet<T>(out T result)
+        {
+            return TryGet<T>(typeof(T).FullName, out result);
+        }
+
+        public bool TryGet<T>(string key,out T result)
         {
             if (stash.ContainsKey(key))
             {
-                return (T)stash[key];
+                result = (T)stash[key];
+                return true;
             }
 
             if (parentContext != null)
             {
-                return parentContext.Get<T>(key);
+                return parentContext.TryGet<T>(key, out result);
             }
 
             if (typeof(T).IsValueType)
-                return default(T);
+            {
+                result=default(T);
 
-            throw new KeyNotFoundException("No item found in behavior context with key: " + key);
+                return true;
+            }
+            result = default(T);
+            return false;
+        }
+
+        public T Get<T>(string key)
+        {
+            T result;
+
+            if (!TryGet(key, out result))
+            {
+                throw new KeyNotFoundException("No item found in behavior context with key: " + key);
+            }
+
+            return result;
         }
 
         public void Set<T>(T t)
