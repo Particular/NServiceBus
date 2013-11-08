@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports;
     using Unicast.Queuing;
 
-    internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
+    class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
         static readonly ILog Logger = LogManager.GetLogger(typeof(ManageMessageFailuresWithoutSlr));
 

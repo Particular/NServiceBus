@@ -5,7 +5,7 @@ using Messages;
 
 namespace Client
 {
-    internal class Program
+    class Program
     {
         private static readonly ChannelFactory<ICancelOrderService> ChannelFactory = new ChannelFactory<ICancelOrderService>("");
 

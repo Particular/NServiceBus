@@ -3,7 +3,7 @@
     using System;
     using Logging;
 
-    internal class InternalLog4NetLog : ILog
+    class InternalLog4NetLog : ILog
     {
         private readonly log4net.ILog _log;
 

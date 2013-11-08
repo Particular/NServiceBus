@@ -4,7 +4,7 @@ namespace NServiceBus.Unicast.Transport.Monitoring
     using System.Diagnostics;
     using Logging;
 
-    internal class ReceivePerformanceDiagnostics : IDisposable
+    class ReceivePerformanceDiagnostics : IDisposable
     {
         const string CategoryName = "NServiceBus";
         static readonly ILog Logger = LogManager.GetLogger(typeof (ReceivePerformanceDiagnostics));

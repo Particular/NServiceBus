@@ -3,7 +3,7 @@
     using System;
     using Logging;
 
-    internal class InternalLog4NetLoggerFactory : ILoggerFactory
+    class InternalLog4NetLoggerFactory : ILoggerFactory
     {
         public ILog GetLogger(Type type)
         {

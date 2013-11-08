@@ -3,7 +3,7 @@ namespace NServiceBus.Logging.Log4NetBridge
     using log4net.Appender;
     using log4net.Core;
 
-    internal class Log4NetBridgeAppender : AppenderSkeleton
+    class Log4NetBridgeAppender : AppenderSkeleton
     {
         protected override void Append(LoggingEvent loggingEvent)
         {

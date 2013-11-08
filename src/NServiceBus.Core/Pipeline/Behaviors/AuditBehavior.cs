@@ -3,13 +3,14 @@
     using System;
     using Audit;
 
-    class AuditBehavior : IBehavior
+    class AuditBehavior : IBehavior<PhysicalMessageContext>
     {
         public MessageAuditer MessageAuditer { get; set; }
-        public void Invoke(BehaviorContext context, Action next)
+
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             next();
-            MessageAuditer.ForwardMessageToAuditQueue(context.TransportMessage);
+            MessageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
         }
     }
 }

@@ -145,7 +145,7 @@
         }
     }
 
-    internal class FakeMessageDeferrer : IDeferMessages
+    class FakeMessageDeferrer : IDeferMessages
     {
         public Address MessageRoutedTo { get; set; }
 
@@ -163,7 +163,7 @@
         }
     }
 
-    internal class FakeMessageSender : ISendMessages
+    class FakeMessageSender : ISendMessages
     {
         public Address MessageSentTo { get; set; }
 

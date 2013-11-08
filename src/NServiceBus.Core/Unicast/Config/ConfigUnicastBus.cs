@@ -9,6 +9,7 @@ namespace NServiceBus.Unicast.Config
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
+    using Pipeline;
     using Pipeline.Behaviors;
     using Routing;
     using Sagas;
@@ -38,6 +39,7 @@ namespace NServiceBus.Unicast.Config
 
             RegisterMessageModules();
 
+            Configurer.ConfigureComponent<PipelineFactory>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors();
             RegisterMessageOwnersAndBusAddress(knownMessages);
           
@@ -47,6 +49,7 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
+            Configurer.ConfigureComponent<ChildContainerBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
             Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);
@@ -251,6 +254,7 @@ namespace NServiceBus.Unicast.Config
 
             //configure the message dispatcher for each handler
             busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
+            Configurer.ConfigureProperty<InvokeHandlersBehavior>(b => b.MessageDispatcherMappings, dispatcherMappings);
 
             availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
 

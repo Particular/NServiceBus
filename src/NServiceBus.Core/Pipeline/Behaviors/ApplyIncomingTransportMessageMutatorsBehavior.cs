@@ -3,15 +3,15 @@
     using System;
     using MessageMutator;
 
-    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior
+    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<PhysicalMessageContext>
     {
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
 
             foreach (var mutator in mutators)
             {
-                mutator.MutateIncoming(context.TransportMessage);
+                mutator.MutateIncoming(context.PhysicalMessage);
             }
 
             next();

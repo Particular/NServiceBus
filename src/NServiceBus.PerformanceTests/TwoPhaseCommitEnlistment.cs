@@ -2,7 +2,7 @@
 {
     using System.Transactions;
 
-    internal class TwoPhaseCommitEnlistment : ISinglePhaseNotification
+    class TwoPhaseCommitEnlistment : ISinglePhaseNotification
     {
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {

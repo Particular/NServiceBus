@@ -4,7 +4,7 @@ namespace NServiceBus.Serializers.Binary
     using System.Runtime.Serialization;
     using System.Xml.Linq;
 
-    internal class XElementSurrogate : ISerializationSurrogate
+    class XElementSurrogate : ISerializationSurrogate
     {
         private const string FieldName = "_XElement";
 

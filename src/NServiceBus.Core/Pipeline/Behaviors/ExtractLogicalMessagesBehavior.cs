@@ -13,7 +13,7 @@
     using Serialization;
     using Unicast.Transport;
 
-    class ExtractLogicalMessagesBehavior : IBehavior
+    class ExtractLogicalMessagesBehavior : IBehavior<PhysicalMessageContext>
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -27,7 +27,9 @@
 
         public bool SkipDeserialization { get; set; }
 
-        public void Invoke(BehaviorContext context, Action next)
+        public PipelineFactory PipelineFactory { get; set; }
+
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
             var logicalMessages = new LogicalMessages();
 
@@ -38,7 +40,7 @@
                 return;
             }
 
-            var transportMessage = context.TransportMessage;
+            var transportMessage = context.PhysicalMessage;
 
             object[] rawMessages;
 
@@ -61,7 +63,11 @@
             {
                 var messageType = MessageMapper.GetMappedTypeFor(rawMessage.GetType());
 
-                logicalMessages.Add(new LogicalMessage(messageType,rawMessage));
+                var logicalMessage = new LogicalMessage(messageType, rawMessage);
+
+                logicalMessages.Add(logicalMessage);
+
+                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
             }
 
             next();
