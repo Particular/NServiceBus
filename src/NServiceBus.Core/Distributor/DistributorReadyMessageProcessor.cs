@@ -105,9 +105,9 @@ namespace NServiceBus.Distributor
             string messageSessionId;
             if (!controlMessage.Headers.TryGetValue(Headers.WorkerSessionId, out messageSessionId))
             {
-                messageSessionId = Guid.Empty.ToString();
+                messageSessionId = String.Empty;
             }
-
+            
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
                 var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);

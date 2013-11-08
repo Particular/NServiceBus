@@ -3,7 +3,9 @@ namespace NServiceBus.Distributor
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Messaging;
+    using System.Threading;
     using Logging;
     using Settings;
     using Transports.Msmq;
@@ -20,6 +22,7 @@ namespace NServiceBus.Distributor
             var path = MsmqUtilities.GetFullPath(storageQueueAddress);
             var messageReadPropertyFilter = new MessagePropertyFilter
             {
+                Id = true,
                 Label = true,
                 ResponseQueue = true,
             };
@@ -56,13 +59,25 @@ namespace NServiceBus.Distributor
             {
                 Message availableWorker;
 
-                if (UnitOfWork.HasActiveTransaction())
+                if (!Monitor.TryEnter(lockObject))
                 {
-                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
+                    return null;
                 }
-                else
+
+                try
                 {
-                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);
+                    if (UnitOfWork.HasActiveTransaction())
+                    {
+                        availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
+                    }
+                    else
+                    {
+                        availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);
+                    }
+                }
+                finally
+                {
+                    Monitor.Exit(lockObject);
                 }
 
                 if (availableWorker == null)
@@ -129,11 +144,38 @@ namespace NServiceBus.Distributor
 
         public void RegisterNewWorker(Worker worker, int capacity)
         {
+            // Need to handle backwards compatibility
+            if (worker.SessionId == String.Empty)
+            {
+                ClearAvailabilityForWorker(worker.Address);
+            }
+
             AddWorkerToStorageQueue(worker, capacity);
 
             registeredWorkerAddresses[worker.Address] = worker.SessionId;
 
             Logger.InfoFormat("Worker '{0}' has been registered with {1} capacity.", worker.Address, capacity);
+        }
+
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "6.0")]
+        void ClearAvailabilityForWorker(Address address)
+        {
+            lock (lockObject)
+            {
+                var messages = storageQueue.GetAllMessages();
+
+                foreach (var m in messages.Where(m => MsmqUtilities.GetIndependentAddressForQueue(m.ResponseQueue) == address))
+                {
+                    if (UnitOfWork.HasActiveTransaction())
+                    {
+                        storageQueue.ReceiveById(m.Id, UnitOfWork.Transaction);
+                    }
+                    else
+                    {
+                        storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
+                    }
+                }
+            }
         }
 
         void AddWorkerToStorageQueue(Worker worker, int capacity = 1)
@@ -163,6 +205,7 @@ namespace NServiceBus.Distributor
         static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqWorkerAvailabilityManager));
 
         static TimeSpan MaxTimeToWaitForAvailableWorker = TimeSpan.FromSeconds(10);
+        readonly object lockObject = new object();
         Dictionary<Address, string> registeredWorkerAddresses = new Dictionary<Address, string>();
         MessageQueue storageQueue;
     }
