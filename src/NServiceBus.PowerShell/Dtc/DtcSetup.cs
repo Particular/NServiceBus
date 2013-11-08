@@ -42,7 +42,9 @@
             Console.WriteLine("Checking if DTC is configured correctly.");
 
             bool requireRestart;
-            using (var key = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\MSDTC\Security", doChanges))
+            using (var rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                                 Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Default))
+            using (var key = rootKey.OpenSubKey(@"SOFTWARE\Microsoft\MSDTC\Security", doChanges))
             {
                 if (key == null)
                 {
