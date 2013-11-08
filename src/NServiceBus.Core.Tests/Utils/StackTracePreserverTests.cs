@@ -1,14 +1,13 @@
-namespace NServiceBus.Hosting.Tests
+namespace NServiceBus.Core.Tests.Utils
 {
     using System;
     using System.Runtime.CompilerServices;
-    using Windows;
     using NUnit.Framework;
+    using NServiceBus.Utils;
 
     [TestFixture]
     public class StackTracePreserverTests
     {
-
         [Test]
         public void PreservedStackTraceShouldInclude()
         {

@@ -289,6 +289,7 @@
     <Compile Include="Unicast\Impersonation.cs" />
     <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
+    <Compile Include="Utils\StackTracePreserverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
