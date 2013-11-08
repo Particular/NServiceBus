@@ -10,14 +10,24 @@ namespace NServiceBus.Distributor.QueueCreators
         /// <summary>
         ///     Holds storage queue address.
         /// </summary>
-        public MsmqWorkerAvailabilityManager MsmqWorkerAvailabilityManager { get; set; }
+        public DistributorStorageQueueCreator()
+        {
+            disabled = !Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>();
+
+            if (disabled)
+            {
+                return;
+            }
+
+            address = Address.Local.SubScope("distributor.storage");
+        }
 
         /// <summary>
         ///     Address of Distributor storage queue.
         /// </summary>
         public Address Address
         {
-            get { return MsmqWorkerAvailabilityManager == null ? null : MsmqWorkerAvailabilityManager.StorageQueueAddress; }
+            get { return address; }
         }
 
         /// <summary>
@@ -25,7 +35,10 @@ namespace NServiceBus.Distributor.QueueCreators
         /// </summary>
         public bool IsDisabled
         {
-            get { return (!Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>()); }
+            get { return disabled; }
         }
+
+        Address address;
+        bool disabled;
     }
 }

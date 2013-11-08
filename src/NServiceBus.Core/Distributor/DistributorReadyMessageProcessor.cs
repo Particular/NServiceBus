@@ -1,8 +1,6 @@
 namespace NServiceBus.Distributor
 {
     using System;
-    using System.Collections.Generic;
-    using Logging;
     using ReadyMessages;
     using Satellites;
     using Unicast.Transport;
@@ -92,8 +90,7 @@ namespace NServiceBus.Distributor
         {
             var workerAddress = Address.Parse(controlMessage.Headers[Headers.DisconnectWorker]);
 
-            registeredWorkerAddresses.Remove(workerAddress);
-            WorkerAvailabilityManager.ClearAvailabilityForWorker(workerAddress);
+            WorkerAvailabilityManager.DisconnectWorker(workerAddress);
         }
 
         void HandleControlMessage(TransportMessage controlMessage)
@@ -105,34 +102,25 @@ namespace NServiceBus.Distributor
                 return;
             }
 
+            string messageSessionId;
+            if (!controlMessage.Headers.TryGetValue(Headers.WorkerSessionId, out messageSessionId))
+            {
+                messageSessionId = Guid.Empty.ToString();
+            }
+
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
-                registeredWorkerAddresses.Add(replyToAddress);
+                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
 
-                WorkerAvailabilityManager.ClearAvailabilityForWorker(replyToAddress);
-                Logger.InfoFormat("Worker {0} has started up, clearing previous reported capacity", replyToAddress);
-            }
-            else if (!registeredWorkerAddresses.Contains(replyToAddress))
-            {
-                // Drop ready message as this worker has been disconnected
+                WorkerAvailabilityManager.RegisterNewWorker(new Worker(replyToAddress, messageSessionId), capacity);
+                
                 return;
             }
 
-            if (!controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
-            {
-                return;
-            }
-
-            var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
-
-            WorkerAvailabilityManager.WorkerAvailable(replyToAddress, capacity);
-
-            Logger.InfoFormat("Worker {0} checked in with available capacity: {1}", replyToAddress, capacity);
+            WorkerAvailabilityManager.WorkerAvailable(new Worker(replyToAddress, messageSessionId));
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
         static readonly Address Address;
         static readonly bool Disable;
-        HashSet<Address> registeredWorkerAddresses = new HashSet<Address>();
     }
 }

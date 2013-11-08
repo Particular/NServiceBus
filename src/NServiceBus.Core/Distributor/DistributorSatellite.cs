@@ -2,6 +2,7 @@ namespace NServiceBus.Distributor
 {
     using System;
     using Logging;
+    using ReadyMessages;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -50,7 +51,6 @@ namespace NServiceBus.Distributor
         /// </summary>
         public void Start()
         {
-            WorkerManager.Start();
         }
 
         /// <summary>
@@ -58,7 +58,6 @@ namespace NServiceBus.Distributor
         /// </summary>
         public void Stop()
         {
-            WorkerManager.Stop();
         }
 
         public Action<TransportReceiver> GetReceiverCustomization()
@@ -77,15 +76,18 @@ namespace NServiceBus.Distributor
         /// <param name="message">The <see cref="TransportMessage" /> received.</param>
         public bool Handle(TransportMessage message)
         {
-            var destination = WorkerManager.PopAvailableWorker();
+            var worker = WorkerManager.NextAvailableWorker();
 
-            if (destination == null)
+            if (worker == null)
             {
                 return false;
             }
 
-            Logger.Debug("Sending message to: " + destination);
-            MessageSender.Send(message, destination);
+            Logger.DebugFormat("Forwarding message to '{0}'.", worker.Address);
+
+            message.Headers[Headers.WorkerSessionId] = worker.SessionId;
+
+            MessageSender.Send(message, worker.Address);
 
             return true;
         }

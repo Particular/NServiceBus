@@ -17,15 +17,13 @@ namespace NServiceBus.Distributor.Config
 
             if (!config.Configurer.HasComponent<IWorkerAvailabilityManager>())
             {
-                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(
-                    DependencyLifecycle.SingleInstance)
-                    .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
+                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance);
             }
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                 applicativeInputQueue);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
+        static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorInitializer));
     }
 }

@@ -22,7 +22,7 @@ namespace NServiceBus.Distributor.ReadyMessages
 
             transport = Bus.Transport;
             var capacityAvailable = transport.MaximumConcurrencyLevel;
-            SendReadyMessage(capacityAvailable, true);
+            SendReadyMessage(workerSessionId, capacityAvailable, true);
 
             transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
         }
@@ -36,18 +36,27 @@ namespace NServiceBus.Distributor.ReadyMessages
             }
         }
 
-        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
+        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
             //if there was a failure this "send" will be rolled back
-            SendReadyMessage();
+            string messageSessionId;
+            e.Message.Headers.TryGetValue(Headers.WorkerSessionId, out messageSessionId);
+
+            //If the message we are processing contains an old sessionid then we do not send an extra control message 
+            //otherwise that would cause https://github.com/Particular/NServiceBus/issues/978
+            if (messageSessionId == workerSessionId)
+            {
+                SendReadyMessage(messageSessionId);
+            }
         }
 
-        void SendReadyMessage(int capacityAvailable = 1, bool isStarting = false)
+        void SendReadyMessage(string sessionId, int capacityAvailable = 1, bool isStarting = false)
         {
             //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessage.Create(Bus.InputAddress);
 
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
+            readyMessage.Headers.Add(Headers.WorkerSessionId, sessionId);
 
             if (isStarting)
             {
@@ -58,5 +67,6 @@ namespace NServiceBus.Distributor.ReadyMessages
         }
 
         ITransport transport;
+        string workerSessionId = Guid.NewGuid().ToString();
     }
 }
