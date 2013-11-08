@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Behaviors
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -12,6 +13,8 @@
 
     class InvokeHandlersBehavior : IBehavior<MessageHandlerContext>
     {
+        public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
+
         public void Invoke(MessageHandlerContext context, Action next)
         {
             var logicalMessage = context.Get<LogicalMessage>();
@@ -31,9 +34,11 @@
             try
             {
                 //until we have a outgoing pipeline that inherits context from the main one
-                if (handlerInstance is ISaga)
+                var saga = handlerInstance as ISaga;
+
+                if (saga != null)
                 {
-                    SagaContext.Current = (ISaga)handlerInstance;
+                    SagaContext.Current = saga;
                 }
 
                 var handlerTypeToInvoke = handlerInstance.GetType();
@@ -80,10 +85,15 @@
 
         IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
         {
+            if (MessageDispatcherMappings == null)
+            { 
+                return null;
+            }
+
+
             Type factoryType;
 
-            //todo: Move the dispatcher mappings here (also obsolete the feature)
-            builder.Build<UnicastBus>().MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
+            MessageDispatcherMappings.TryGetValue(messageHandlerTypeToInvoke, out factoryType);
 
             if (factoryType == null)
                 return null;
@@ -97,6 +107,5 @@
         }
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
     }
 }

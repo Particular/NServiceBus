@@ -4,7 +4,7 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    internal class LogicalMessage
+    class LogicalMessage
     {
         public LogicalMessage(Type messageType, object message)
         {
@@ -21,7 +21,7 @@
         public object Instance { get; private set; }
     }
 
-    internal class LogicalMessages : IEnumerable<LogicalMessage>
+    class LogicalMessages : IEnumerable<LogicalMessage>
     {
         public void Add(LogicalMessage message)
         {

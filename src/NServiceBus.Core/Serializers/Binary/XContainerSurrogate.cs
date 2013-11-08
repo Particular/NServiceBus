@@ -4,7 +4,7 @@ namespace NServiceBus.Serializers.Binary
     using System.Runtime.Serialization;
     using System.Xml.Linq;
 
-    internal class XContainerSurrogate : ISerializationSurrogate
+    class XContainerSurrogate : ISerializationSurrogate
     {
         private const string FieldName = "_XDocument";
 

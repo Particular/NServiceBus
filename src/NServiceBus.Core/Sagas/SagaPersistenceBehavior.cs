@@ -12,7 +12,7 @@
     using Transports;
     using Unicast;
 
-    internal class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
+    class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 

@@ -31,7 +31,7 @@ namespace Messages
     /// <summary>
     /// Custom Range Attribute for Dates range.
     /// </summary>
-    internal class DateRangeAttribute : RangeAttribute
+    class DateRangeAttribute : RangeAttribute
     {
         /// <summary>
         /// Constructor

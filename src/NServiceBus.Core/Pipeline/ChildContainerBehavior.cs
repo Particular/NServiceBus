@@ -2,7 +2,7 @@ namespace NServiceBus.Pipeline
 {
     using System;
 
-    internal class ChildContainerBehavior:IBehavior<PhysicalMessageContext>
+    class ChildContainerBehavior:IBehavior<PhysicalMessageContext>
     {
         public void Invoke(PhysicalMessageContext context, Action next)
         {

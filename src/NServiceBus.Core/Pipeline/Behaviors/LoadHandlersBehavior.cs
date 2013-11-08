@@ -19,7 +19,6 @@
 
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
-            var messageHandlers = new LoadedMessageHandlers();
 
             var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
 
@@ -31,16 +30,13 @@
 
             foreach (var handlerType in handlerTypedToInvoke)
             {
-                messageHandlers.AddHandler(messageToHandle.MessageType, context.Builder.Build(handlerType));
-            }
+                var loadedHandler = new MessageHandler
+                {
+                    Instance = context.Builder.Build(handlerType),
+                    Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+                };
 
-
-            //todo: remove this
-            context.Set(messageHandlers);
-
-            foreach (var handler in messageHandlers)
-            {
-                if (PipelineFactory.InvokeHandlerPipeline(handler).ChainAborted)
+                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
                 {
                     //if the chain was aborted skip the other handlers
                     break;

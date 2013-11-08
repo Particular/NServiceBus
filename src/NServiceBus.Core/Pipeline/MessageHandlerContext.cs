@@ -2,7 +2,7 @@
 {
     using Behaviors;
 
-    internal class MessageHandlerContext : BehaviorContext
+    class MessageHandlerContext : BehaviorContext
     {
         public MessageHandlerContext(BehaviorContext parentContext, MessageHandler messageHandler)
             : base(parentContext)

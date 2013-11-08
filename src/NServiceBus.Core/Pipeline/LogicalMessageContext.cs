@@ -2,7 +2,7 @@
 {
     using Behaviors;
 
-    internal class LogicalMessageContext : BehaviorContext
+    class LogicalMessageContext : BehaviorContext
     {
         public LogicalMessageContext(BehaviorContext parentContext, LogicalMessage message)
             : base(parentContext)

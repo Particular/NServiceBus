@@ -32,11 +32,11 @@ namespace NServiceBus.Hosting.Tests
         }
     }
 
-    internal class ConfigurationWithTestRole : IConfigureThisEndpoint, TestRole
+    class ConfigurationWithTestRole : IConfigureThisEndpoint, TestRole
     {
     }
 
-    internal class ConfigurationWithInheritedRole : IConfigureThisEndpoint, IInheritedRole
+    class ConfigurationWithInheritedRole : IConfigureThisEndpoint, IInheritedRole
     {
     }
 

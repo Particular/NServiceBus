@@ -3,7 +3,7 @@ namespace NServiceBus.Unicast.Config
     using System.Linq;
     using NServiceBus.Config;
 
-    internal class StartupRunners : NServiceBus.INeedInitialization, IWantToRunWhenConfigurationIsComplete
+    class StartupRunners : NServiceBus.INeedInitialization, IWantToRunWhenConfigurationIsComplete
     {
         public void Init()
         {

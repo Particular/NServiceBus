@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    internal abstract class BehaviorContext
+    abstract class BehaviorContext
     {
         protected BehaviorContext(BehaviorContext parentContext)
         {

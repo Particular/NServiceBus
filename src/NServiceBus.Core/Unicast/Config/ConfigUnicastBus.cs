@@ -254,6 +254,7 @@ namespace NServiceBus.Unicast.Config
 
             //configure the message dispatcher for each handler
             busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
+            Configurer.ConfigureProperty<InvokeHandlersBehavior>(b => b.MessageDispatcherMappings, dispatcherMappings);
 
             availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
 

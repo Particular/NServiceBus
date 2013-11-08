@@ -3,7 +3,7 @@
     using Faults;
     using Hosting.Profiles;
 
-    internal class ProductionProfileHandler : IHandleProfile<Production>
+    class ProductionProfileHandler : IHandleProfile<Production>
     {
         void IHandleProfile.ProfileActivated()
         {

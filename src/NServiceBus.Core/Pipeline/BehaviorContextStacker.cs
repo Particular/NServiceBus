@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    internal class BehaviorContextStacker : IDisposable
+    class BehaviorContextStacker : IDisposable
     {
         public BehaviorContext Current
         {

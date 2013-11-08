@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    internal class PhysicalMessageContext : BehaviorContext
+    class PhysicalMessageContext : BehaviorContext
     {
         public PhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)

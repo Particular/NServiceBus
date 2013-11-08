@@ -6,7 +6,7 @@
     using NServiceBus;
     using NServiceBus.UnitOfWork;
 
-    internal class StatisticsUoW : IManageUnitsOfWork, INeedInitialization
+    class StatisticsUoW : IManageUnitsOfWork, INeedInitialization
     {
         public void Begin()
         {

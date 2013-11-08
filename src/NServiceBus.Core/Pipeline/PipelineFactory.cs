@@ -6,7 +6,7 @@
     using Sagas;
     using UnitOfWork;
 
-    internal class PipelineFactory : IDisposable
+    class PipelineFactory : IDisposable
     {
         public IBuilder RootBuilder { get; set; }
 

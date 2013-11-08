@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
 
-    internal class BehaviorChain<T> where T : BehaviorContext
+    class BehaviorChain<T> where T : BehaviorContext
     {
         public void Add<TBehavior>() where TBehavior : IBehavior<T>
         {
             itemDescriptors.Enqueue(typeof(TBehavior));
         }
 
-        internal void Invoke(T context)
+        public void Invoke(T context)
         {
             InvokeNext(context);
         }

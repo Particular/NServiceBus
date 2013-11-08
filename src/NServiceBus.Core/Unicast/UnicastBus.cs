@@ -1020,6 +1020,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The list of message dispatcher factories to use
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]

@@ -6,7 +6,7 @@ namespace NServiceBus.Licensing
     /// <summary>
     /// Validates content of a license file
     /// </summary>
-    internal class StringLicenseValidator : AbstractLicenseValidator
+    class StringLicenseValidator : AbstractLicenseValidator
     {
         /// <summary>
         /// Creates a new instance of <seealso cref="StringLicenseValidator"/>
