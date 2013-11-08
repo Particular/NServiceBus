@@ -13,22 +13,26 @@
         {
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointWithLocalCallback>(b=>b.Given(
-                        (bus,context)=>bus.SendLocal(new MyRequest()).Register(r => context.CallbackFired = DateTime.UtcNow)))
-                    .Done(c => c.HandlerGotTheRequest.HasValue)
+                        (bus,context)=>bus.SendLocal(new MyRequest()).Register(r =>
+                        {
+                            Assert.True(context.HandlerGotTheRequest);
+                            context.CallbackFired = true;
+                        })))
+                    .Done(c => c.CallbackFired)
                     .Repeat(r =>r.For(Transports.Default))
                     .Should(c =>
                     {
-                        Assert.Greater(c.CallbackFired, c.HandlerGotTheRequest, "The callback should fire when the response comes in");
+                        Assert.True(c.CallbackFired);
+                        Assert.True(c.HandlerGotTheRequest);
                     })
                     .Run();
         }
 
         public class Context : ScenarioContext
         {
-            public DateTime? HandlerGotTheRequest { get; set; }
+            public bool HandlerGotTheRequest { get; set; }
 
-
-            public DateTime CallbackFired { get; set; }
+            public bool CallbackFired { get; set; }
         }
 
         public class EndpointWithLocalCallback : EndpointConfigurationBuilder
@@ -46,7 +50,8 @@
 
                 public void Handle(MyRequest request)
                 {
-                    Context.HandlerGotTheRequest = DateTime.UtcNow;
+                    Assert.False(Context.CallbackFired);
+                    Context.HandlerGotTheRequest = true;
 
                     Bus.Return(1);
                 }

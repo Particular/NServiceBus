@@ -118,24 +118,25 @@ namespace NServiceBus.Unicast
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
         }
 
-
         /// <summary>
         /// Should be used by the programmer, not the administrator.
         /// Gets and sets an <see cref="IMessageSerializer"/> implementation to
         /// be used for subscription storage for the bus.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public virtual IMessageSerializer MessageSerializer { get; set; }
-
 
         /// <summary>
         /// The registry of all known messages for this endpoint
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
 
         /// <summary>
         /// A way to request the transport to defer the processing of a message
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public IDeferMessages MessageDeferrer { get; set; }
 
         /// <summary>
@@ -178,7 +179,6 @@ namespace NServiceBus.Unicast
 
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        //TODO: how do we handle this?
         public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
@@ -214,6 +214,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Publishes the given messages
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
@@ -421,9 +422,6 @@ namespace NServiceBus.Unicast
 
         public void Return<T>(T errorCode)
         {
-            if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-
             var returnMessage = ControlMessage.Create(Address.Local);
 
             returnMessage.MessageIntent = MessageIntentEnum.Reply;
@@ -431,9 +429,9 @@ namespace NServiceBus.Unicast
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
 
-            PipelineFactory.InvokePhysicalMessagePipeline(returnMessage);
-
-            MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
+            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+            
+            PipelineFactory.InvokeSendPipeline(options,returnMessage);
         }
 
         public void HandleCurrentMessageLater()
@@ -673,8 +671,6 @@ namespace NServiceBus.Unicast
 
                 Address.PreventChanges();
 
-                ValidateConfiguration();
-
                 if (startupAction != null)
                 {
                     startupAction();
@@ -803,12 +799,6 @@ namespace NServiceBus.Unicast
         {
             if (Address.Local == null)
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
-        }
-
-        void ValidateConfiguration()
-        {
-            if (!SkipDeserialization && MessageSerializer == null)
-                throw new InvalidOperationException("No message serializer has been configured.");
         }
 
         public void Dispose()

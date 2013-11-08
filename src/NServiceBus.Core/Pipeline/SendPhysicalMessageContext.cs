@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System.Collections;
     using System.Collections.Generic;
     using Behaviors;
     using Unicast;
@@ -31,7 +30,14 @@
         {
             get
             {
-                return Get<IEnumerable<LogicalMessage>>();
+                IEnumerable<LogicalMessage> result;
+
+                if (TryGet(out result))
+                {
+                    return result;
+                }
+
+                return new List<LogicalMessage>();
             }
         }
     }

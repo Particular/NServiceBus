@@ -148,15 +148,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
-                MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
                 MessageMapper = MessageMapper,
-                MessagePublisher = messagePublisher,
-                MessageDeferrer = deferer,
                 SubscriptionManager = subscriptionManager,
-                MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 MessageRouter = router
             };
