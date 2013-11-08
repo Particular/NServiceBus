@@ -1,7 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Linq;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     internal class MultiSendValidatorBehavior : IBehavior<SendLogicalMessagesContext>
     {

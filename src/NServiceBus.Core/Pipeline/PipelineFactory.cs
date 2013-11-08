@@ -3,10 +3,14 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Behaviors;
+    using Audit;
+    using Contexts;
+    using MessageMutator;
+    using NServiceBus.MessageMutator;
     using ObjectBuilder;
     using Sagas;
     using Unicast;
+    using Unicast.Behaviors;
     using UnitOfWork;
 
     class PipelineFactory : IDisposable

@@ -1,6 +1,8 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
     /// This one can be removed in v5.0 

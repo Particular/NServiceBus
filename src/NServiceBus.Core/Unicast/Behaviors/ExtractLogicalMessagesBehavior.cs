@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.IO;
@@ -7,10 +7,11 @@
     using System.Runtime.Serialization;
     using Logging;
     using MessageInterfaces;
+    using Pipeline;
+    using Pipeline.Contexts;
+    using Serialization;
     using Unicast;
     using Unicast.Messages;
-    using Pipeline;
-    using Serialization;
     using Unicast.Transport;
 
     class ExtractLogicalMessagesBehavior : IBehavior<PhysicalMessageContext>

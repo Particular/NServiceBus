@@ -1,6 +1,8 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Unicast;
 
     class RaiseMessageReceivedBehavior : IBehavior<PhysicalMessageContext>

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
 

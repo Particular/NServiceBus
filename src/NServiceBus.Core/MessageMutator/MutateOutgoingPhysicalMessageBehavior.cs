@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.MessageMutator
 {
     using System;
     using System.Linq;
-    using MessageMutator;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     internal class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendPhysicalMessageContext>
     {

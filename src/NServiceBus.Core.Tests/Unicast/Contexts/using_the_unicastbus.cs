@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.ObjectModel;
     using System.Threading;
     using Audit;
+    using Behaviors;
     using Core.Tests;
     using Helpers;
     using Impersonation;
@@ -15,7 +16,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Monitoring;
     using NUnit.Framework;
     using Pipeline;
-    using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;

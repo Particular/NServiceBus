@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Threading;
     using Impersonation;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class ImpersonateSenderBehavior : IBehavior<PhysicalMessageContext>
     {

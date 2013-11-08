@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
-    using Behaviors;
     using Unicast;
+    using Unicast.Behaviors;
 
     internal class SendLogicalMessagesContext : BehaviorContext
     {

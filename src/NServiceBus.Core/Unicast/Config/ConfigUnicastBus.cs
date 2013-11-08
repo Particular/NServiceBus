@@ -4,13 +4,13 @@ namespace NServiceBus.Unicast.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using Behaviors;
     using Features;
     using Logging;
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
     using Pipeline;
-    using Pipeline.Behaviors;
     using Routing;
     using Settings;
 

@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.MessageMutator
 {
     using System;
-    using MessageMutator;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     internal class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
     {

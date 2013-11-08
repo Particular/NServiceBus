@@ -1,9 +1,11 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Configuration;
     using System.Linq;
     using Logging;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Transports;
     using Unicast.Queuing;
 

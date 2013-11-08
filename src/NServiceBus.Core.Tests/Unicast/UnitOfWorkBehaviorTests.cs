@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Pipeline;
+    using Pipeline.Contexts;
     using UnitOfWork;
 
     [TestFixture]

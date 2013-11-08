@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Pipeline
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Behaviors;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Serialization;
 
     internal class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>

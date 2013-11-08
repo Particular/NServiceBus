@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Reflection;
     using Logging;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
     /// Arguably not the most interesting behavior, but let's just handle logging like this too

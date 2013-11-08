@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,8 @@
     using System.Reflection;
     using Logging;
     using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Saga;
     using Sagas;
     using Unicast;

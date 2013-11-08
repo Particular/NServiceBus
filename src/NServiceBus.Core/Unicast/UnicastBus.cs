@@ -8,13 +8,13 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading.Tasks;
     using Audit;
+    using Behaviors;
     using Licensing;
     using Logging;
     using MessageInterfaces;
     using Messages;
     using ObjectBuilder;
     using Pipeline;
-    using Pipeline.Behaviors;
     using Routing;
     using Satellites;
     using Serialization;

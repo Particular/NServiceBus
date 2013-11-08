@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Pipeline;
+    using Pipeline.Contexts;
 
     class UnitOfWorkBehavior : IBehavior<PhysicalMessageContext>
     {

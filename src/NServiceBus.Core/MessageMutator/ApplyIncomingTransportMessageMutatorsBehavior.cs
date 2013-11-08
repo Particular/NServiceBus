@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.MessageMutator
 {
     using System;
-    using MessageMutator;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<PhysicalMessageContext>
     {
