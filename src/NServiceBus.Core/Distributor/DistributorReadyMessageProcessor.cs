@@ -35,7 +35,7 @@ namespace NServiceBus.Distributor
                 return true;
             }
 
-            if (message.Headers.ContainsKey(Headers.DisconnectWorker))
+            if (message.Headers.ContainsKey(Headers.UnregisterWorker))
             {
                 HandleDisconnectMessage(message);
                 return true;
@@ -88,9 +88,9 @@ namespace NServiceBus.Distributor
 
         void HandleDisconnectMessage(TransportMessage controlMessage)
         {
-            var workerAddress = Address.Parse(controlMessage.Headers[Headers.DisconnectWorker]);
+            var workerAddress = Address.Parse(controlMessage.Headers[Headers.UnregisterWorker]);
 
-            WorkerAvailabilityManager.DisconnectWorker(workerAddress);
+            WorkerAvailabilityManager.UnregisterWorker(workerAddress);
         }
 
         void HandleControlMessage(TransportMessage controlMessage)

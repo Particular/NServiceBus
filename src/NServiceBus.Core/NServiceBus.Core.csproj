@@ -101,6 +101,7 @@
     <Compile Include="Config\AuditConfig.cs" />
     <Compile Include="Distributor\MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Distributor\QueueCreators\DistributorStorageQueueCreator.cs" />
+    <Compile Include="Distributor\Worker.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />

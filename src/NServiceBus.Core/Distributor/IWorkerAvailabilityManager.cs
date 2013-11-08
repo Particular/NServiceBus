@@ -6,29 +6,29 @@ namespace NServiceBus.Distributor
     /// </summary>
     public interface IWorkerAvailabilityManager
     {
+        /// <summary>
+        /// Signal that a worker is available to receive a dispatched message.
+        /// </summary>
+        /// <param name="worker">The worker details.</param>
         void WorkerAvailable(Worker worker);
 
+        /// <summary>
+        /// Registers a new worker with <see cref="IWorkerAvailabilityManager"/>.
+        /// </summary>
+        /// <param name="worker">The worker details.</param>
+        /// <param name="capacity">The number of messages that this worker is ready to process.</param>
         void RegisterNewWorker(Worker worker, int capacity);
 
-        void DisconnectWorker(Address address);
+        /// <summary>
+        /// Unregisters the worker from the <see cref="IWorkerAvailabilityManager"/>.
+        /// </summary>
+        /// <param name="address"><see cref="Address"/> of worker to unregister.</param>
+        void UnregisterWorker(Address address);
 
         /// <summary>
-        ///     Pops the next available worker from the available worker list
-        ///     and returns its address.
+        ///     Retrieves the next available worker from the available worker list.
         /// </summary>
-        /// <returns>The address of the next available worker.</returns>
+        /// <returns>The <see cref="Worker"/> details, or <value>null</value> if no worker is available.</returns>
         Worker NextAvailableWorker();
-    }
-
-    public class Worker
-    {
-        public Worker(Address address, string sessionId)
-        {
-            Address = address;
-            SessionId = sessionId;
-        }
-
-        public Address Address { get; set; }
-        public string SessionId { get; set; }
     }
 }

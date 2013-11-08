@@ -137,7 +137,7 @@ namespace NServiceBus.Distributor
             AddWorkerToStorageQueue(worker);
         }
 
-        public void DisconnectWorker(Address address)
+        public void UnregisterWorker(Address address)
         {
             registeredWorkerAddresses.Remove(address);
         }
