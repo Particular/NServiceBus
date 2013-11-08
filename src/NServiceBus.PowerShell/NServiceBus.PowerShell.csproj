@@ -49,6 +49,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeaderInfo.cs" />
+    <Compile Include="UnregisterMSMQWorker.cs" />
     <Compile Include="AddConfigSection.cs" />
     <Compile Include="AddAuditConfig.cs" />
     <Compile Include="AddNHibernateConfig.cs" />
