@@ -2,6 +2,7 @@ namespace NServiceBus.Utils.Reflection
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     /// <summary>
@@ -111,7 +112,7 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
-        private static readonly Dictionary<Type, bool> IsSystemTypeCache = new Dictionary<Type, bool>();
+        private static readonly ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
 
         public static bool IsSystemType(this Type type)
         {

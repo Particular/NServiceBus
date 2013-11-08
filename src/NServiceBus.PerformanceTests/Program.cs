@@ -2,15 +2,18 @@
 
 namespace Runner
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
-
     using NServiceBus;
     using NServiceBus.Features;
     using NServiceBus.Persistence.NHibernate;
+    using Runner.Encryption;
     using Runner.Saga;
 
     class Program
@@ -22,6 +25,7 @@ namespace Runner
             var suppressDTC = (args[4].ToLower() == "suppressdtc");
             var twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
             var saga = (args[5].ToLower() == "sagamessages");
+            var encryption = (args[5].ToLower() == "encryption");
             var nhibernate = (args[6].ToLower() == "nhibernate");
             var concurrency = int.Parse(args[7]);
 
@@ -94,6 +98,11 @@ namespace Runner
                 Configure.Transactions.Advanced(settings => settings.DisableDistributedTransactions());
             }
 
+            if (encryption)
+            {
+                SetupRijndaelTestEncryptionService();
+            }
+
             switch (args[3].ToLower())
             {
                 case "msmq":
@@ -126,8 +135,8 @@ namespace Runner
                 }
                 else
                 {
-                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, saga, true);
-                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, saga, true);
+                    Statistics.SendTimeNoTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, false, twoPhaseCommit, encryption);
+                    Statistics.SendTimeWithTx = SeedInputQueue(numberOfMessages / 2, endpointName, numberOfThreads, true, twoPhaseCommit, encryption);
                 }
 
                 Statistics.StartTime = DateTime.Now;
@@ -146,13 +155,20 @@ namespace Runner
             }
         }
 
+        private static void SetupRijndaelTestEncryptionService()
+        {
+            var encryptConfig = Configure.Instance.Configurer.ConfigureComponent<NServiceBus.Encryption.Rijndael.EncryptionService>(DependencyLifecycle.SingleInstance);
+            encryptConfig.ConfigureProperty(s => s.Key, Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+        }
+
         static void DumpSetting(string[] args)
         {
             Console.Out.WriteLine("---------------- Settings ----------------");
-            Console.Out.WriteLine("Threads: {0}, Serialization: {1}, Transport: {2}",
+            Console.Out.WriteLine("Threads: {0}, Serialization: {1}, Transport: {2}, Messagemode: {3}",
                                   args[0],
                                   args[2],
-                                  args[3]);
+                                  args[3],
+                                  args[5]);
         }
 
         static void SeedSagaMessages(int numberOfMessages, string inputQueue, int concurrency)
@@ -173,7 +189,7 @@ namespace Runner
 
         }
 
-        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool saga, bool startSaga)
+        static TimeSpan SeedInputQueue(int numberOfMessages, string inputQueue, int numberOfThreads, bool createTransaction, bool twoPhaseCommit, bool encryption)
         {
             var sw = new Stopwatch();
             var bus = Configure.Instance.Builder.Build<IBus>();
@@ -185,7 +201,7 @@ namespace Runner
                 new ParallelOptions { MaxDegreeOfParallelism = numberOfThreads },
                 x =>
                 {
-                    var message = CreateMessage(saga, startSaga);
+                    var message = CreateMessage(encryption);
                     message.TwoPhaseCommit = twoPhaseCommit;
                     message.Id = x;
 
@@ -207,16 +223,30 @@ namespace Runner
             return sw.Elapsed;
         }
 
-        private static MessageBase CreateMessage(bool saga, bool startSaga)
-        {
-            if (saga)
-            {
-                if (startSaga)
-                {
-                    return new StartSagaMessage();
-                }
+        public const string EncryptedBase64Value = "encrypted value";
+        public const string MySecretMessage = "A secret";
 
-                return new CompleteSagaMessage();
+        private static MessageBase CreateMessage(bool encryption)
+        {
+            if (encryption)
+            {
+                // need a new instance of a message each time
+                var message = new EncryptionTestMessage
+                {
+                    Secret = MySecretMessage,
+                    SecretField = MySecretMessage,
+                    CreditCard = new CreditCardDetails { CreditCardNumber = MySecretMessage },
+                    LargeByteArray = new byte[1], // the length of the array is not the issue now
+                    ListOfCreditCards =
+                        new List<CreditCardDetails>
+                        {
+                            new CreditCardDetails {CreditCardNumber = MySecretMessage},
+                            new CreditCardDetails {CreditCardNumber = MySecretMessage}
+                        }
+                };
+                message.ListOfSecrets = new ArrayList(message.ListOfCreditCards);
+
+                return message;
             }
 
             return new TestMessage();
