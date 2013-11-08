@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Hosting.Windows
+﻿namespace NServiceBus.Utils
 {
     using System;
     using System.Runtime.Serialization;
