@@ -5,15 +5,15 @@
     using Unicast;
     using Unicast.Transport;
 
-    class CallbackInvocationBehavior : IBehavior
+    class CallbackInvocationBehavior : IBehavior<PhysicalMessageContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
         public UnicastBus UnicastBus { get; set; }
-        
-        public void Invoke(BehaviorContext context, Action next)
+
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
-            var messageWasHandled = HandleCorrelatedMessage(context.TransportMessage, context.Get<LogicalMessages>());
+            var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context.Get<LogicalMessages>());
 
             context.Set(CallbackInvokedKey, messageWasHandled);
 

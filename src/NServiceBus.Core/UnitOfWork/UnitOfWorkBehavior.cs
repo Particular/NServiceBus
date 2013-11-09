@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using Pipeline;
 
-    internal class UnitOfWorkBehavior : IBehavior
+    class UnitOfWorkBehavior : IBehavior<PhysicalMessageContext>
     {
-       public void Invoke(BehaviorContext context, Action next)
+       public void Invoke(PhysicalMessageContext context, Action next)
         {
             try
             {

@@ -3,7 +3,7 @@
     using Faults;
     using Hosting.Profiles;
 
-    internal class IntegrationProfileHandler : IHandleProfile<Integration>
+    class IntegrationProfileHandler : IHandleProfile<Integration>
     {
         void IHandleProfile.ProfileActivated()
         {

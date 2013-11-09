@@ -3,24 +3,20 @@
     using System;
     using MessageMutator;
 
-    class ApplyIncomingMessageMutatorsBehavior : IBehavior
+    class ApplyIncomingMessageMutatorsBehavior : IBehavior<LogicalMessageContext>
     {
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(LogicalMessageContext context, Action next)
         {
-            foreach (var logicalMessage in context.Get<LogicalMessages>())
+
+            foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
-               
-                foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
-                {
-                    var current = logicalMessage.Instance;
+                var current = context.LogicalMessage.Instance;
 
-                    //message mutators may need to assume that this has been set (eg. for the purposes of headers).
-                    ExtensionMethods.CurrentMessageBeingHandled = current;
+                //message mutators may need to assume that this has been set (eg. for the purposes of headers).
+                ExtensionMethods.CurrentMessageBeingHandled = current;
 
-                    logicalMessage.UpdateMessageInstance(mutator.MutateIncoming(current));
-                }
+                context.LogicalMessage.UpdateMessageInstance(mutator.MutateIncoming(current));
             }
-
             next();
         }
     }

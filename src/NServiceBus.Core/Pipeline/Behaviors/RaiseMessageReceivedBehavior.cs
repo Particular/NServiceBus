@@ -3,12 +3,13 @@
     using System;
     using Unicast;
 
-    class RaiseMessageReceivedBehavior : IBehavior
+    class RaiseMessageReceivedBehavior : IBehavior<PhysicalMessageContext>
     {
         public UnicastBus UnicastBus { get; set; }
-        public void Invoke(BehaviorContext context, Action next)
+        
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
-            UnicastBus.OnMessageReceived(context.TransportMessage);
+            UnicastBus.OnMessageReceived(context.PhysicalMessage);
             next();
         }
     }

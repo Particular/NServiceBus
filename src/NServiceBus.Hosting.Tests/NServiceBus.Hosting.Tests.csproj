@@ -66,7 +66,6 @@
     <Compile Include="AssemblyListExtensions\WhereConcreteTests.cs" />
     <Compile Include="AssemblyPathHelper.cs" />
     <Compile Include="ConfigManagerTests.cs" />
-    <Compile Include="StackTracePreserverTests.cs" />
     <Compile Include="EndpointTypeDeterminerTests.cs" />
     <Compile Include="EndpointTypeTests.cs" />
     <Compile Include="ProfileManagerTests.cs" />

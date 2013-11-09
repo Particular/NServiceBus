@@ -6,7 +6,7 @@
 
     using Raven.Client;
 
-    internal class TestRavenUnitOfWork : IManageUnitsOfWork
+    class TestRavenUnitOfWork : IManageUnitsOfWork
     {
         private readonly IDocumentSession session;
 

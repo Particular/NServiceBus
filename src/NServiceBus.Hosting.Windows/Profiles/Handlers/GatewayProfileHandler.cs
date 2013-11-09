@@ -2,7 +2,7 @@
 {
     using Hosting.Profiles;
 
-    internal class GatewayProfileHandler : IHandleProfile<MultiSite>
+    class GatewayProfileHandler : IHandleProfile<MultiSite>
     {
         void IHandleProfile.ProfileActivated()
         {

@@ -8,6 +8,7 @@ namespace NServiceBus.Unicast.Transport
     using Logging;
     using Monitoring;
     using Transports;
+    using Utils;
 
     /// <summary>
     /// The default implementation of <see cref="ITransport"/>
@@ -257,7 +258,9 @@ namespace NServiceBus.Unicast.Transport
             var messageId = message != null ? message.Id : null;
 
             if (needToAbort)
+            {
                 return;
+            }
 
             throughputLimiter.MessageProcessed();
             
@@ -313,7 +316,10 @@ namespace NServiceBus.Unicast.Transport
             }
 
             if (exceptionFromStartedMessageHandling != null)
+            {
+                exceptionFromStartedMessageHandling.PreserveStackTrace();
                 throw exceptionFromStartedMessageHandling; //cause rollback 
+            }
 
             //care about failures here
             var exceptionFromMessageHandling = OnTransportMessageReceived(message);
@@ -343,17 +349,20 @@ namespace NServiceBus.Unicast.Transport
                     }
                     else
                     {
+                        exceptionFromMessageHandling.PreserveStackTrace();
                         throw exceptionFromMessageHandling;//cause rollback    
                     }
                 }
                 else
                 {
+                    exceptionFromMessageHandling.PreserveStackTrace();
                     throw exceptionFromMessageHandling;//cause rollback    
                 }
             }
 
             if (exceptionFromMessageModules != null) //cause rollback
             {
+                exceptionFromMessageModules.PreserveStackTrace();
                 throw exceptionFromMessageModules;
             }
         }

@@ -4,11 +4,17 @@
     using System.Collections.Generic;
     using System.Threading;
 
-    internal class BehaviorContextStacker : IDisposable
+    class BehaviorContextStacker : IDisposable
     {
         public BehaviorContext Current
         {
-            get { return behaviorContextStack.Value.Peek(); }
+            get
+            {
+                if (behaviorContextStack.Value.Count == 0)
+                    return null;
+
+                return behaviorContextStack.Value.Peek();
+            }
         }
 
         public void Dispose()
@@ -26,6 +32,7 @@
             behaviorContextStack.Value.Pop();
         }
 
+        //until we get the internal container going we
         ThreadLocal<Stack<BehaviorContext>> behaviorContextStack = new ThreadLocal<Stack<BehaviorContext>>(() => new Stack<BehaviorContext>());
     }
 }

@@ -94,6 +94,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\Utils\StackTracePreserver.cs">
+      <Link>StackTracePreserver.cs</Link>
+    </Compile>
     <Compile Include="EndpointType.cs" />
     <Compile Include="EndpointTypeDeterminer.cs" />
     <Compile Include="INameThisEndpoint.cs" />
@@ -103,7 +106,6 @@
     <Compile Include="LoggingHandlers\Internal\InternalLog4NetLog.cs" />
     <Compile Include="LoggingHandlers\Internal\InternalLog4NetLoggerFactory.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="StackTracePreserver.cs" />
     <Compile Include="Profiles\Handlers\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\Distributor.cs" />
     <Compile Include="Profiles\MultiSite.cs" />

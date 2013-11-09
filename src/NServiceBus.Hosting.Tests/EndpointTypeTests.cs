@@ -160,24 +160,24 @@ namespace NServiceBus.Hosting.Tests
             }
         }
 
-        internal class TypeWithoutEmptyPublicConstructor
+        class TypeWithoutEmptyPublicConstructor
         {
             public TypeWithoutEmptyPublicConstructor(object foo)
             {
             }
         }
 
-        internal class TestEndpointType
+        class TestEndpointType
         {
         }
 
         [EndpointName("EndpointNameFromAttribute")]
-        internal class TestEndpointTypeWithEndpointNameAttribute
+        class TestEndpointTypeWithEndpointNameAttribute
         {
         }
     }
 }
 
-internal class TestEndpointTypeWithoutANamespace
+class TestEndpointTypeWithoutANamespace
 {
 }

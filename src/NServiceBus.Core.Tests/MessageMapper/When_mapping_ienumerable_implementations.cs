@@ -63,7 +63,7 @@
 			Assert.NotNull(mapper.GetMappedTypeFor(typeof(DerivedReturnMyselfCollectionImplementingBaseIReturnMyself)));
 		}
 
-		internal class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>
+		class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>
 		{
 			public IEnumerator<TItem> GetEnumerator()
 			{
@@ -76,7 +76,7 @@
 			}
 		}
 
-		internal class ClassImplementingIEnumerableAndIReturnMyself<TItem> : IEnumerable<TItem>, IReturnMyself<ClassImplementingIEnumerableAndIReturnMyself<TItem>>
+		class ClassImplementingIEnumerableAndIReturnMyself<TItem> : IEnumerable<TItem>, IReturnMyself<ClassImplementingIEnumerableAndIReturnMyself<TItem>>
 		{
 			public IEnumerator<TItem> GetEnumerator()
 			{
@@ -100,7 +100,7 @@
 			T ReturnMe();
 		}
 
-		internal class ReturnMyself : IReturnMyself<ReturnMyself>
+		class ReturnMyself : IReturnMyself<ReturnMyself>
 		{
 			public ReturnMyself ReturnMe()
 			{
@@ -108,7 +108,7 @@
 			}
 		}
 
-		internal class DerivedReturnMyselfCollectionImplementingIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<DerivedReturnMyselfCollectionImplementingIReturnMyself>
+		class DerivedReturnMyselfCollectionImplementingIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<DerivedReturnMyselfCollectionImplementingIReturnMyself>
 		{
 			public DerivedReturnMyselfCollectionImplementingIReturnMyself ReturnMe()
 			{
@@ -116,11 +116,11 @@
 			}
 		}
 
-		internal class DerivedReturnMyselfCollectionObject : ClassImplementingIEnumerable<ReturnMyself>
+		class DerivedReturnMyselfCollectionObject : ClassImplementingIEnumerable<ReturnMyself>
 		{
 		}
 
-		internal class DerivedReturnMyselfCollectionImplementingBaseIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<ClassImplementingIEnumerable<ReturnMyself>>
+		class DerivedReturnMyselfCollectionImplementingBaseIReturnMyself : ClassImplementingIEnumerable<ReturnMyself>, IReturnMyself<ClassImplementingIEnumerable<ReturnMyself>>
 		{
 			public ClassImplementingIEnumerable<ReturnMyself> ReturnMe()
 			{

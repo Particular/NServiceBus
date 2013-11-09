@@ -49,6 +49,9 @@
     <Reference Include="Autofac.Configuration">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.Configuration.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.MSMQ">
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
@@ -137,13 +140,18 @@
     <Compile Include="Pipeline\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\InvokeHandlersBehavior.cs" />
-    <Compile Include="Pipeline\Behaviors\LoadedMessageHandlers.cs" />
     <Compile Include="Pipeline\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Pipeline\Behaviors\LogicalMessage.cs" />
+    <Compile Include="Pipeline\Behaviors\MessageHandler.cs" />
     <Compile Include="Pipeline\Behaviors\MessageHandlingLoggingBehavior.cs" />
+    <Compile Include="Pipeline\ChildContainerBehavior.cs" />
+    <Compile Include="Pipeline\LogicalMessageContext.cs" />
+    <Compile Include="Pipeline\MessageHandlerContext.cs" />
+    <Compile Include="Pipeline\PhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Pipeline\Behaviors\RaiseMessageReceivedBehavior.cs" />
+    <Compile Include="Pipeline\RootContext.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
-    <Compile Include="Sagas\ActiveSagaInstances.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
@@ -572,6 +580,7 @@
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
+    <Compile Include="Utils\StackTracePreserver.cs" />
     <Compile Include="WcfService.cs" />
   </ItemGroup>
   <ItemGroup>

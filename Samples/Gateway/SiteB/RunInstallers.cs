@@ -4,7 +4,7 @@ using NServiceBus.Installation.Environments;
 
 namespace SiteB
 {
-    internal class RunInstallers : IWantToRunWhenConfigurationIsComplete
+    class RunInstallers : IWantToRunWhenConfigurationIsComplete
     {
         public void Run()
         {

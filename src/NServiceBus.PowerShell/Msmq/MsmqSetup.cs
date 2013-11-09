@@ -61,16 +61,12 @@
         /// </summary>
         public static bool IsInstallationGood()
         {
-            var msmqSetup = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup");
-            if (msmqSetup == null)
+            using (var rootKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                                 Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Default))
+            using (var msmqSetup = rootKey.OpenSubKey(@"SOFTWARE\Microsoft\MSMQ\Setup"))
             {
-                return false;
+                return msmqSetup != null && HasOnlyNeededComponents(msmqSetup.GetValueNames());
             }
-
-            var installedComponents = new List<string>(msmqSetup.GetValueNames());
-            msmqSetup.Close();
-
-            return HasOnlyNeededComponents(installedComponents);
         }
 
         static bool InstallMsmqIfNecessary()

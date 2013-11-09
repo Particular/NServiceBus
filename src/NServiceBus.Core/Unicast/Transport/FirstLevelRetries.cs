@@ -4,7 +4,7 @@
     using System.Collections.Concurrent;
     using Faults;
 
-    internal class FirstLevelRetries
+    class FirstLevelRetries
     {
         private readonly ConcurrentDictionary<string, Tuple<int, Exception>> failuresPerMessage = new ConcurrentDictionary<string, Tuple<int, Exception>>();
         private readonly IManageMessageFailures failureManager;

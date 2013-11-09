@@ -2,35 +2,20 @@
 {
     using System;
     using System.Collections.Generic;
-    using ObjectBuilder;
 
-    internal class BehaviorChain
+    class BehaviorChain<T> where T : BehaviorContext
     {
-        public BehaviorChain(IBuilder builder, BehaviorContextStacker contextStacker)
-        {
-            this.builder = builder;
-            this.contextStacker = contextStacker;
-        }
-
-        public void Add<TBehavior>() where TBehavior : IBehavior
+        public void Add<TBehavior>() where TBehavior : IBehavior<T>
         {
             itemDescriptors.Enqueue(typeof(TBehavior));
         }
 
-        public void Invoke(TransportMessage incomingTransportMessage)
-        {
-            using (var context = new BehaviorContext(builder, incomingTransportMessage, contextStacker))
-            {
-                Invoke(context);
-            }
-        }
-
-        internal void Invoke(BehaviorContext context)
+        public void Invoke(T context)
         {
             InvokeNext(context);
         }
 
-        void InvokeNext(BehaviorContext context)
+        void InvokeNext(T context)
         {
             if (itemDescriptors.Count == 0 || context.ChainAborted)
             {
@@ -38,26 +23,12 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
-            var instance = GetInstance(behaviorType);
+            var instance =  context.Builder.Build(behaviorType) as IBehavior<T>;
+
             instance.Invoke(context, () => InvokeNext(context));
         }
 
 
-        IBehavior GetInstance(Type type)
-        {
-            try
-            {
-                return (IBehavior) builder.Build(type);
-            }
-            catch (Exception exception)
-            {
-                var error = string.Format("An error occurred while attempting to create an instance of {0}", type);
-                throw new Exception(error, exception);
-            }
-        }
-
-        readonly BehaviorContextStacker contextStacker;
-        IBuilder builder;
         Queue<Type> itemDescriptors = new Queue<Type>();
     }
 }

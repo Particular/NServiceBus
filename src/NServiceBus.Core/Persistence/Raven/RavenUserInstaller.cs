@@ -151,20 +151,20 @@ namespace NServiceBus.Persistence.Raven
             dataAccess.Admin = true;
         }
 
-        internal class WindowsAuthDocument
+        class WindowsAuthDocument
         {
             public List<WindowsAuthData> RequiredGroups = new List<WindowsAuthData>();
             public List<WindowsAuthData> RequiredUsers = new List<WindowsAuthData>();
         }
 
-        internal class WindowsAuthData
+        class WindowsAuthData
         {
             public string Name;
             public bool Enabled;
             public List<DatabaseAccess> Databases = new List<DatabaseAccess>();
         }
 
-        internal class DatabaseAccess
+        class DatabaseAccess
         {
             public bool Admin;
             public bool ReadOnly;

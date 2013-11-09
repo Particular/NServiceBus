@@ -20,7 +20,6 @@ namespace NServiceBus.Unicast
     using Pipeline.Behaviors;
     using Queuing;
     using Routing;
-    using Sagas;
     using Satellites;
     using Serialization;
     using Subscriptions;
@@ -28,7 +27,6 @@ namespace NServiceBus.Unicast
     using Support;
     using Transport;
     using Transports;
-    using UnitOfWork;
 
     /// <summary>
     /// A unicast implementation of <see cref="IBus"/> for NServiceBus.
@@ -47,11 +45,14 @@ namespace NServiceBus.Unicast
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public virtual bool DisableMessageHandling
         {
-            set { disableMessageHandling = value; }
+            set
+            {
+                PipelineFactory.DisableLogicalMessageHandling();
+            }
         }
-        bool disableMessageHandling;
 
 
         /// <summary>
@@ -147,7 +148,6 @@ namespace NServiceBus.Unicast
         /// dynamically instantiate and execute message handlers.
         /// </summary>
         public IBuilder Builder { get; set; }
-
 
         /// <summary>
         /// Gets/sets the message mapper.
@@ -450,7 +450,7 @@ namespace NServiceBus.Unicast
 
         public void HandleCurrentMessageLater()
         {
-            if (contextStacker.Current.handleCurrentMessageLaterWasCalled)
+            if (PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled)
             {
                 return;
             }
@@ -465,7 +465,7 @@ namespace NServiceBus.Unicast
                 MessageSender.Send(_messageBeingHandled, Address.Local);
             }
 
-            contextStacker.Current.handleCurrentMessageLaterWasCalled = true;
+            PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
         }
 
         public void ForwardCurrentMessageTo(string destination)
@@ -957,20 +957,13 @@ namespace NServiceBus.Unicast
         public void DisposeManaged()
         {
             InnerShutdown();
-            contextStacker.Dispose();
+            PipelineFactory.Dispose();
             Configure.Instance.Builder.Dispose();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()
         {
-            var context = contextStacker.Current;
-
-            if (context == null)
-            {
-                throw new InvalidOperationException("DoNotContinueDispatchingCurrentMessageToHandlers() is only valid to call when receiving a message");
-            }
-
-            context.AbortChain();
+            PipelineFactory.CurrentContext.AbortChain();
         }
 
         public IDictionary<string, string> OutgoingHeaders
@@ -1027,6 +1020,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The list of message dispatcher factories to use
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
@@ -1052,65 +1046,19 @@ namespace NServiceBus.Unicast
         /// </remarks>
         private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
         {
-            using (var child = Builder.CreateChildBuilder())
-            {
-                HandleTransportMessage(child, e.Message);
-            }
+            PipelineFactory.InvokePhysicalMessagePipeline(e.Message);
         }
 
 
         public void Raise<T>(T @event)
         {
-            var chain = new BehaviorChain(Builder, contextStacker);
-
-            chain.Add<LoadHandlersBehavior>();
-            chain.Add<InvokeHandlersBehavior>();
-
-            using (var context = new BehaviorContext(Builder, new TransportMessage(), contextStacker))
-            {
-                var logicalMessages = new LogicalMessages {new LogicalMessage(typeof(T),@event)};
-
-                context.Set(logicalMessages);
-                chain.Invoke(context);
-            }
+            PipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T), @event));
         }
 
         public void Raise<T>(Action<T> messageConstructor)
         {
             Raise(CreateInstance(messageConstructor));
         }
-
-
-        void HandleTransportMessage(IBuilder childBuilder, TransportMessage msg)
-        {
-            // construct behavior chain - look at configuration and possibly the incoming transport message
-            var chain = new BehaviorChain(childBuilder, contextStacker);
-            chain.Add<MessageHandlingLoggingBehavior>();
-
-            if (ConfigureImpersonation.Impersonate)
-            {
-                chain.Add<ImpersonateSenderBehavior>();
-            }
-
-            chain.Add<AuditBehavior>();
-            chain.Add<ForwardBehavior>();
-            chain.Add<UnitOfWorkBehavior>();
-            chain.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            chain.Add<RaiseMessageReceivedBehavior>();
-
-            if (!disableMessageHandling)
-            {
-                chain.Add<ExtractLogicalMessagesBehavior>();
-                chain.Add<ApplyIncomingMessageMutatorsBehavior>();
-                chain.Add<CallbackInvocationBehavior>();
-                chain.Add<LoadHandlersBehavior>();
-                chain.Add<SagaPersistenceBehavior>();
-                chain.Add<InvokeHandlersBehavior>();
-            }
-
-            chain.Invoke(msg);
-        }
-
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
         {
@@ -1325,8 +1273,6 @@ namespace NServiceBus.Unicast
         volatile bool starting;
         object startLocker = new object();
 
-        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
@@ -1338,5 +1284,14 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
+
+        //we need to not inject since at least Autofac dosen't seem to inject internal properties
+        PipelineFactory PipelineFactory
+        {
+            get
+            {
+                return Builder.Build<PipelineFactory>();
+            }        
+        }
     }
 }
