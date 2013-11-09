@@ -115,6 +115,7 @@
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
     <Compile Include="BusStartStop\When_bus_start_and_stops_with_a_pending_message.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
+    <Compile Include="Distributor\When_using_master.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
     <Compile Include="EndpointTemplates\BusExtensions.cs" />
     <Compile Include="Gateway\When_sending_a_message_via_the_gateway.cs" />
@@ -178,6 +179,10 @@
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Distributor.MSMQ\NServiceBus.Distributor.MSMQ.csproj">
+      <Project>{5a2f57e3-4d2b-439c-9481-1de2dd101789}</Project>
+      <Name>NServiceBus.Distributor.MSMQ</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">
       <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}</Project>
       <Name>ObjectBuilder.Autofac</Name>
