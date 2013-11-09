@@ -235,13 +235,13 @@ namespace Runner
                 {
                     Secret = MySecretMessage,
                     SecretField = MySecretMessage,
-                    CreditCard = new CreditCardDetails { CreditCardNumber = MySecretMessage },
+                    CreditCard = new ClassForNesting { EncryptedProperty = MySecretMessage },
                     LargeByteArray = new byte[1], // the length of the array is not the issue now
                     ListOfCreditCards =
-                        new List<CreditCardDetails>
+                        new List<ClassForNesting>
                         {
-                            new CreditCardDetails {CreditCardNumber = MySecretMessage},
-                            new CreditCardDetails {CreditCardNumber = MySecretMessage}
+                            new ClassForNesting {EncryptedProperty = MySecretMessage},
+                            new ClassForNesting {EncryptedProperty = MySecretMessage}
                         }
                 };
                 message.ListOfSecrets = new ArrayList(message.ListOfCreditCards);

@@ -11,7 +11,6 @@ http://www.lostechies.com/blogs/jimmy_bogard/archive/2009/08/05/late-bound-invoc
 namespace NServiceBus.Utils.Reflection
 {
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;

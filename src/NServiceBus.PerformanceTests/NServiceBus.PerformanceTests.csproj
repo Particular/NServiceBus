@@ -60,6 +60,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Encryption\ClassForNesting.cs" />
     <Compile Include="Encryption\EncryptionTestMessageHandler.cs" />
     <Compile Include="Saga\CompleteSagaMessage.cs" />
     <Compile Include="MessageBase.cs" />

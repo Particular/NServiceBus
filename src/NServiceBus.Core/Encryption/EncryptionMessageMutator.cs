@@ -53,7 +53,7 @@ namespace NServiceBus.Encryption
                 {
                     if (MessageConventionExtensions.IsEncryptedProperty(propertyInfo))
                     {
-                        throw new NotSupportedException("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
+                        throw new Exception("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.");
                     }
 
                     return false;
@@ -74,7 +74,9 @@ namespace NServiceBus.Encryption
         void ForEachMember(object root, Action<object, MemberInfo> action, Func<MemberInfo, bool> appliesTo)
         {
             if (root == null || visitedMembers.Contains(root))
+            {
                 return;
+            }
 
             visitedMembers.Add(root);
 
@@ -131,16 +133,19 @@ namespace NServiceBus.Encryption
             var valueToEncrypt = member.GetValue(target);
 
             if (valueToEncrypt == null)
+            {
                 return;
+            }
 
             if (EncryptionService == null)
-                throw new InvalidOperationException(
-                    String.Format("Cannot encrypt field {0} because no encryption service was configured.",
-                                  member.Name));
-
-            if (valueToEncrypt is WireEncryptedString)
             {
-                var encryptedString = (WireEncryptedString)valueToEncrypt;
+                throw new Exception(String.Format("Cannot encrypt field {0} because no encryption service was configured.",member.Name));
+            }
+
+            var wireEncryptedString = valueToEncrypt as WireEncryptedString;
+            if (wireEncryptedString != null)
+            {
+                var encryptedString = wireEncryptedString;
                 EncryptWireEncryptedString(encryptedString);
 
                 //we clear the properties to avoid having the extra data serialized
@@ -160,15 +165,19 @@ namespace NServiceBus.Encryption
             var encryptedValue = property.GetValue(target);
 
             if (encryptedValue == null)
+            {
                 return;
+            }
 
             if (EncryptionService == null)
-                throw new InvalidOperationException(
-                    String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
-
-            if (encryptedValue is WireEncryptedString)
             {
-                Decrypt((WireEncryptedString)encryptedValue);
+                throw new Exception(String.Format("Cannot decrypt field {0} because no encryption service was configured.", property.Name));
+            }
+
+            var wireEncryptedString = encryptedValue as WireEncryptedString;
+            if (wireEncryptedString != null)
+            {
+                Decrypt(wireEncryptedString);
             }
             else
             {
@@ -183,7 +192,9 @@ namespace NServiceBus.Encryption
             var stringToDecrypt = encryptedValue as string;
 
             if (stringToDecrypt == null)
-                throw new InvalidOperationException("Only string properties is supported for convention based encryption, please check your convention");
+            {
+                throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+            }
 
             var parts = stringToDecrypt.Split(new[] { '@' }, StringSplitOptions.None);
 
@@ -197,7 +208,9 @@ namespace NServiceBus.Encryption
         void Decrypt(WireEncryptedString encryptedValue)
         {
             if (encryptedValue.EncryptedValue == null)
-                throw new InvalidOperationException("Encrypted property is missing encryption data");
+            {
+                throw new Exception("Encrypted property is missing encryption data");
+            }
 
             encryptedValue.Value = EncryptionService.Decrypt(encryptedValue.EncryptedValue);
         }
@@ -207,7 +220,9 @@ namespace NServiceBus.Encryption
             var stringToEncrypt = valueToEncrypt as string;
 
             if (stringToEncrypt == null)
-                throw new InvalidOperationException("Only string properties is supported for convention based encryption, please check your convention");
+            {
+                throw new Exception("Only string properties is supported for convention based encryption, please check your convention");
+            }
 
             var encryptedValue = EncryptionService.Encrypt(stringToEncrypt);
 
@@ -239,56 +254,10 @@ namespace NServiceBus.Encryption
             return cache[messageType];
         }
 
-        readonly HashSet<object> visitedMembers = new HashSet<object>();
+        HashSet<object> visitedMembers = new HashSet<object>();
 
-        readonly static IDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
+        static ConcurrentDictionary<Type, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<Type, IEnumerable<MemberInfo>>();
 
-        readonly static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
-    }
-
-    static class MemberInfoExtensions
-    {
-        public static object GetValue(this MemberInfo member, object source)
-        {
-            var fieldInfo = member as FieldInfo;
-
-            if (fieldInfo != null)
-            {
-                var field = DelegateFactory.Create(fieldInfo);
-                return field.Invoke(source);
-            }
-
-            var propertyInfo = (PropertyInfo) member;
-            
-            if (!propertyInfo.CanRead)
-            {
-                if (propertyInfo.PropertyType.IsValueType)
-                {
-                    return Activator.CreateInstance(propertyInfo.PropertyType);
-                }
-
-                return null;
-            }
-
-            var property = DelegateFactory.Create(propertyInfo);
-            return property.Invoke(source);
-        }
-
-        public static void SetValue(this MemberInfo member, object target, object value)
-        {
-            var fieldInfo = member as FieldInfo;
-
-            if (fieldInfo != null)
-            {
-                var fieldSet = DelegateFactory.CreateSet(fieldInfo);
-                fieldSet.Invoke(target, value);
-            }
-            else
-            {
-                var propertyInfo = member as PropertyInfo;
-                var propertySet = DelegateFactory.CreateSet(propertyInfo);
-                propertySet.Invoke(target, value);
-            }
-        }
+        static ILog Log = LogManager.GetLogger(typeof(IEncryptionService));
     }
 }

@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Core.Utils.Reflection
 {
-    using System;
-    using System.Diagnostics;
     using NServiceBus.Utils.Reflection;
     using NUnit.Framework;
 
