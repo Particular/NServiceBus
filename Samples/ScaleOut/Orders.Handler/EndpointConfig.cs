@@ -11,14 +11,14 @@ namespace Orders.Handler
         public void Init()
         {
             //uncomment one of the following lines if you want to use the fluent api instead. Remember to 
-            // remove the "Master" profile from the command line Properties->Debug
-            //Configure.Instance.RunDistributor();
+            // remove the "MSMQMaster" profile from the command line Properties->Debug
+            //Configure.Instance.AsMasterNode();
 
             //or if you want to run the distributor only and no worker
-            //Configure.Instance.RunDistributorWithNoWorkerOnItsEndpoint();
+            //Configure.Instance.RunMSMQDistributor(false);
 
             //or if you want to be a worker
-            //Configure.Instance.EnlistWithDistributor();
+            //Configure.Instance.EnlistWithMSMQDistributor();
         }
     }
 }
