@@ -69,7 +69,6 @@
             }
 
             var allowedNumberOfWorkerNodes = doc.SelectSingleNode("/license/@AllowedNumberOfWorkerNodes").Value;
-            //TODO: if null should this be MinNumberOfWorkerNodes?
             if (allowedNumberOfWorkerNodes == "Max")
             {
                 license.AllowedNumberOfWorkerNodes = MaxWorkerNodes;   
