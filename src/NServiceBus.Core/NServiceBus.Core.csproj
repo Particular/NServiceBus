@@ -150,7 +150,7 @@
     <Compile Include="Serializers\Binary\Config\ConfigureBinarySerializer.cs" />
     <Compile Include="ConfigureCriticalErrorAction.cs" />
     <Compile Include="ConfigureDefaultBuilder.cs" />
-    <Compile Include="ConfigureDistributor.cs" />
+    <Compile Include="Distributor\ConfigureDistributor.cs" />
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureGateway.cs" />
@@ -166,7 +166,7 @@
     <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
     <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
-    <Compile Include="MasterNode\AdjustSettingsForNonMasterNodes.cs" />
+    <Compile Include="Distributor\MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
@@ -191,7 +191,7 @@
     <Compile Include="Persistence\InMemory\SubscriptionStorage\ConfigureInMemorySubscriptionStorage.cs" />
     <Compile Include="Serializers\Json\Config\ConfigureJsonSerializer.cs" />
     <Compile Include="ConfigureLicenseExtensions.cs" />
-    <Compile Include="MasterNode\ConfigureMasterNode.cs" />
+    <Compile Include="Distributor\MasterNode\ConfigureMasterNode.cs" />
     <Compile Include="Settings\TransportSettings.cs" />
     <Compile Include="Unicast\Config\SetUnicastBusConfigurationDefaults.cs" />
     <Compile Include="Timeout\TimeoutManager.cs" />
@@ -220,7 +220,7 @@
     <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Config\Logging.cs" />
-    <Compile Include="MasterNode\MasterNodeConfig.cs" />
+    <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />
     <Compile Include="Config\MessageEndpointMapping.cs" />
     <Compile Include="Config\MessageEndpointMappingCollection.cs" />
     <Compile Include="Config\MessageForwardingInCaseOfFaultConfig.cs" />
