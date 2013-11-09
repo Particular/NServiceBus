@@ -5,7 +5,7 @@
     using log4net.Core;
     using Logging;
 
-    internal class ConfigureInternalLog4Net
+    class ConfigureInternalLog4Net
     {
         public static void Lite()
         {

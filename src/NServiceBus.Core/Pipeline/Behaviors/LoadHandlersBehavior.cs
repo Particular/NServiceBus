@@ -5,35 +5,43 @@
     using MessageInterfaces;
     using Unicast;
 
-    class LoadHandlersBehavior : IBehavior
+    class LoadHandlersBehavior : IBehavior<LogicalMessageContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
         public IMessageMapper MessageMapper { get; set; }
 
-        public void Invoke(BehaviorContext context, Action next)
+        public PipelineFactory PipelineFactory { get; set; }
+
+        public void Invoke(LogicalMessageContext context, Action next)
         {
+            var messageToHandle = context.LogicalMessage;
+
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
-            var messageHandlers = new LoadedMessageHandlers();
 
-            foreach (var messageToHandle in context.Get<LogicalMessages>())
+            var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
+
+            if (!callbackInvoked && !handlerTypedToInvoke.Any())
             {
-                var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
+                var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.MessageType);
+                throw new InvalidOperationException(error);
+            }
 
-                if (!callbackInvoked && !handlerTypedToInvoke.Any())
+            foreach (var handlerType in handlerTypedToInvoke)
+            {
+                var loadedHandler = new MessageHandler
                 {
-                    var error = string.Format("No handlers could be found for message type: {0}", messageToHandle.MessageType);
-                    throw new InvalidOperationException(error);
-                }
+                    Instance = context.Builder.Build(handlerType),
+                    Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
+                };
 
-                foreach (var handlerType in handlerTypedToInvoke)
+                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
                 {
-                    messageHandlers.AddHandler(messageToHandle.MessageType, context.Builder.Build(handlerType));
+                    //if the chain was aborted skip the other handlers
+                    break;
                 }
             }
-         
-            context.Set(messageHandlers);
 
             next();
         }

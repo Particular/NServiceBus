@@ -12,7 +12,7 @@ namespace NServiceBus.ObjectBuilder.Autofac
     /// Autofac implementation of <see cref="Common.IContainer"/>.
     ///</summary>
 #if MAKE_AutofacObjectBuilder_INTERNAL
-    internal class AutofacObjectBuilder : Common.IContainer
+    class AutofacObjectBuilder : Common.IContainer
 #else
     public class AutofacObjectBuilder : Common.IContainer
 #endif

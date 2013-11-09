@@ -4,7 +4,7 @@
     using Hosting.Profiles;
     using Persistence.InMemory;
 
-    internal class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
+    class LiteProfileHandler : IHandleProfile<Lite>, IWantTheEndpointConfig
     {
         void IHandleProfile.ProfileActivated()
         {

@@ -47,10 +47,9 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            using (var context = new BehaviorContext(builder, new TransportMessage(), new BehaviorContextStacker()))
-            {
-                runner.Invoke(context, () => { });
-            }
+            var context = new PhysicalMessageContext(new RootContext(builder), new TransportMessage());
+
+            runner.Invoke(context, () => { });
 
         }
 

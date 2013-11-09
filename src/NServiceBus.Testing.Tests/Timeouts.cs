@@ -46,7 +46,7 @@
         }
     }
 
-    internal class TimeoutSaga : Saga<TimeoutSagaData>,
+    class TimeoutSaga : Saga<TimeoutSagaData>,
                                  IHandleTimeouts<MyTimeout>,
                                  IHandleTimeouts<MyOtherTimeout>,
                                  IAmStartedByMessages<StartMessage>
@@ -73,24 +73,24 @@
 
     }
 
-    internal class StartMessage
+    class StartMessage
     {
     }
 
-    internal class SomeMessage : IMessage
+    class SomeMessage : IMessage
     {
     }
 
-    internal class MyTimeout
+    class MyTimeout
     {
         public string SomeProperty { get; set; }
     }
 
-    internal class MyOtherTimeout
+    class MyOtherTimeout
     {
     }
 
-    internal class TimeoutSagaData : IContainSagaData
+    class TimeoutSagaData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

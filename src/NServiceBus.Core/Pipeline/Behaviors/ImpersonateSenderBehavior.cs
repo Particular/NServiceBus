@@ -4,13 +4,13 @@
     using System.Threading;
     using Impersonation;
 
-    class ImpersonateSenderBehavior : IBehavior
+    class ImpersonateSenderBehavior : IBehavior<PhysicalMessageContext>
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 
-        public void Invoke(BehaviorContext context, Action next)
+        public void Invoke(PhysicalMessageContext context, Action next)
         {
-            var principal = ExtractIncomingPrincipal.GetPrincipal(context.TransportMessage);
+            var principal = ExtractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
 
             if (principal == null)
             {

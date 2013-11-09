@@ -5,7 +5,7 @@ namespace NServiceBus.Unicast.Transport
     /// <summary>
     /// Support for throughput limitation of the transport
     /// </summary>
-    internal class ThroughputLimiter
+    class ThroughputLimiter
     {
         public void Start(int limit)
         {

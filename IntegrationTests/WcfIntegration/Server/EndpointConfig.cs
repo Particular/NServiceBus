@@ -2,7 +2,7 @@
 
 namespace Server
 {
-    internal class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher
+    class EndpointConfig : IConfigureThisEndpoint, AsA_Publisher
     {
     }
 }

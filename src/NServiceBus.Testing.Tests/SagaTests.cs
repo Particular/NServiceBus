@@ -5,7 +5,7 @@
     using Saga;
 
     [TestFixture]
-    internal class SagaTests
+    class SagaTests
     {
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
