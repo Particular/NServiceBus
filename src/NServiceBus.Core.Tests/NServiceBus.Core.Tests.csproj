@@ -134,7 +134,6 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="Licensing\LicenseDeserializerTests.cs" />
     <Compile Include="Licensing\LicenseDowngraderTests.cs" />
-    <Compile Include="Licensing\LicenseManagerTests.cs" />
     <Compile Include="Licensing\NServiceBusVersionTests.cs" />
     <Compile Include="Licensing\ResourceReader.cs" />
     <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
