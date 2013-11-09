@@ -2,7 +2,7 @@ namespace NServiceBus.Distributor.ReadyMessages
 {
     using MessageMutator;
 
-    internal class ReturnAddressRewriter : IMutateOutgoingTransportMessages
+    class ReturnAddressRewriter : IMutateOutgoingTransportMessages
     {
         public Address DistributorDataAddress { get; set; }
 
@@ -10,9 +10,7 @@ namespace NServiceBus.Distributor.ReadyMessages
         {
             //when not talking to the distributor, pretend that our address is that of the distributor
             if (DistributorDataAddress != null)
-            {
                 transportMessage.ReplyToAddress = DistributorDataAddress;
-            }
         }
     }
 }

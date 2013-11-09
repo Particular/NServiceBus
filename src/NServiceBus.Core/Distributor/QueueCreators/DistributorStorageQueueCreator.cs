@@ -1,44 +1,32 @@
-namespace NServiceBus.Distributor.QueueCreators
+namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 {
     using Unicast.Queuing;
 
-    /// <summary>
-    ///     Signal to create the queue to store worker availability information.
-    /// </summary>
+    ///<summary>
+    /// Signal to create the queue to store worker availability information.
+    ///</summary>
     public class DistributorStorageQueueCreator : IWantQueueCreated
     {
         /// <summary>
-        ///     Holds storage queue address.
+        /// Holds storage queue address.
         /// </summary>
-        public DistributorStorageQueueCreator()
-        {
-            disabled = !Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>();
-
-            if (disabled)
-            {
-                return;
-            }
-
-            address = Address.Local.SubScope("distributor.storage");
-        }
+        public MsmqWorkerAvailabilityManager MsmqWorkerAvailabilityManager { get; set; }
 
         /// <summary>
-        ///     Address of Distributor storage queue.
+        /// Address of Distributor storage queue.
         /// </summary>
         public Address Address
         {
-            get { return address; }
+            get {
+                return MsmqWorkerAvailabilityManager == null ? null : MsmqWorkerAvailabilityManager.StorageQueueAddress;
+            }
         }
-
         /// <summary>
-        ///     Disabling the creation of the distributor storage queue
+        /// Disabling the creation of the distributor storage queue
         /// </summary>
         public bool IsDisabled
         {
-            get { return disabled; }
+            get { return (!Configure.Instance.Configurer.HasComponent<MsmqWorkerAvailabilityManager>()); }
         }
-
-        Address address;
-        bool disabled;
     }
 }

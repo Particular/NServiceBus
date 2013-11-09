@@ -13,16 +13,16 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public Address DistributorControlAddress { get; set; }
 
+        ITransport transport;
+
         public void Start()
         {
             if (!Configure.Instance.WorkerRunsOnThisEndpoint())
-            {
                 return;
-            }
 
             transport = Bus.Transport;
             var capacityAvailable = transport.MaximumConcurrencyLevel;
-            SendReadyMessage(workerSessionId, capacityAvailable, true);
+            SendReadyMessage(capacityAvailable, true);
 
             transport.FinishedMessageProcessing += TransportOnFinishedMessageProcessing;
         }
@@ -36,37 +36,23 @@ namespace NServiceBus.Distributor.ReadyMessages
             }
         }
 
-        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
+        void TransportOnFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs eventArgs)
         {
             //if there was a failure this "send" will be rolled back
-            string messageSessionId;
-            e.Message.Headers.TryGetValue(Headers.WorkerSessionId, out messageSessionId);
-
-            //If the message we are processing contains an old sessionid then we do not send an extra control message 
-            //otherwise that would cause https://github.com/Particular/NServiceBus/issues/978
-            if (messageSessionId == workerSessionId)
-            {
-                SendReadyMessage(messageSessionId);
-            }
+            SendReadyMessage();
         }
 
-        void SendReadyMessage(string sessionId, int capacityAvailable = 1, bool isStarting = false)
+        void SendReadyMessage(int capacityAvailable = 1, bool isStarting = false)
         {
             //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessage.Create(Bus.InputAddress);
 
             readyMessage.Headers.Add(Headers.WorkerCapacityAvailable, capacityAvailable.ToString());
-            readyMessage.Headers.Add(Headers.WorkerSessionId, sessionId);
 
             if (isStarting)
-            {
                 readyMessage.Headers.Add(Headers.WorkerStarting, Boolean.TrueString);
-            }
 
             MessageSender.Send(readyMessage, DistributorControlAddress);
         }
-
-        ITransport transport;
-        string workerSessionId = Guid.NewGuid().ToString();
     }
 }

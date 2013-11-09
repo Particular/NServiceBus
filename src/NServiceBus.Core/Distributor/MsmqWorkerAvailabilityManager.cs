@@ -1,164 +1,39 @@
-namespace NServiceBus.Distributor
+namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Messaging;
     using System.Threading;
-    using Logging;
+    using Distributor;
     using Settings;
-    using Transports.Msmq;
 
     /// <summary>
-    ///     An implementation of <see cref="IWorkerAvailabilityManager" /> for MSMQ to be used
-    ///     with the <see cref="DistributorSatellite" /> class.
+    /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
+    /// with the <see cref="DistributorSatellite"/> class.
     /// </summary>
-    internal class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager, IDisposable
+    public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
-        public MsmqWorkerAvailabilityManager()
-        {
-            var storageQueueAddress = Address.Local.SubScope("distributor.storage");
-            var path = MsmqUtilities.GetFullPath(storageQueueAddress);
-            var messageReadPropertyFilter = new MessagePropertyFilter
-            {
-                Id = true,
-                Label = true,
-                ResponseQueue = true,
-            };
-
-            storageQueue = new MessageQueue(path, false, true, QueueAccessMode.SendAndReceive)
-            {
-                MessageReadPropertyFilter = messageReadPropertyFilter
-            };
-
-            if ((!storageQueue.Transactional) && (SettingsHolder.Get<bool>("Transactions.Enabled")))
-            {
-                throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
-            }
-        }
-
         /// <summary>
-        ///     Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork" />.
+        /// Msmq unit of work to be used in non DTC mode <see cref="MsmqUnitOfWork"/>.
         /// </summary>
         public MsmqUnitOfWork UnitOfWork { get; set; }
 
-        public void Dispose()
-        {
-            //Injected
-        }
+        /// <summary>
+        /// Sets the path to the queue that will be used for storing
+        /// worker availability.
+        /// </summary>
+        /// <remarks>The queue provided must be transactional.</remarks>
+        public Address StorageQueueAddress { get; set; }
 
         /// <summary>
-        ///     Pops the next available worker from the available worker queue
-        ///     and returns its address.
+        /// Removes all entries from the worker availability queue
+        /// with the specified address.
         /// </summary>
-        [DebuggerNonUserCode]
-        public Worker NextAvailableWorker()
-        {
-            try
-            {
-                Message availableWorker;
-
-                if (!Monitor.TryEnter(lockObject))
-                {
-                    return null;
-                }
-
-                try
-                {
-                    if (UnitOfWork.HasActiveTransaction())
-                    {
-                        availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
-                    }
-                    else
-                    {
-                        availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);
-                    }
-                }
-                finally
-                {
-                    Monitor.Exit(lockObject);
-                }
-
-                if (availableWorker == null)
-                {
-                    return null;
-                }
-
-                var address = MsmqUtilities.GetIndependentAddressForQueue(availableWorker.ResponseQueue);
-                string registeredWorkerSessionId;
-
-                if (!registeredWorkerAddresses.TryGetValue(address, out registeredWorkerSessionId))
-                {
-                    return NextAvailableWorker();
-                }
-
-                var sessionId = availableWorker.Label;
-
-                if (registeredWorkerSessionId != sessionId)
-                {
-                    return NextAvailableWorker();
-                }
-
-                return new Worker(address, sessionId);
-            }
-            catch (MessageQueueException)
-            {
-                return null;
-            }
-        }
-
-        public void WorkerAvailable(Worker worker)
-        {
-            string sessionId;
-
-            if (!registeredWorkerAddresses.TryGetValue(worker.Address, out sessionId))
-            {
-                // Drop ready message as this worker has been disconnected 
-                // or the worker send us a message before the "WorkerStarting" message
-
-                Logger.InfoFormat("Dropping ready message from worker '{0}', because this worker has been disconnected.", worker.Address);
-
-                return;
-            }
-
-            if (sessionId != worker.SessionId)
-            {
-                // Drop ready message as this message is an extra message that could have been sent because of
-                // https://github.com/Particular/NServiceBus/issues/978
-
-                Logger.InfoFormat("Dropping ready message from worker {0}, because this ready message is from an old worker sessionid.", worker.Address);
-
-                return;
-            }
-
-            Logger.InfoFormat("Worker '{0}' is available to take on more work.", worker.Address);
-
-            AddWorkerToStorageQueue(worker);
-        }
-
-        public void UnregisterWorker(Address address)
-        {
-            registeredWorkerAddresses.Remove(address);
-        }
-
-        public void RegisterNewWorker(Worker worker, int capacity)
-        {
-            // Need to handle backwards compatibility
-            if (worker.SessionId == String.Empty)
-            {
-                ClearAvailabilityForWorker(worker.Address);
-            }
-
-            AddWorkerToStorageQueue(worker, capacity);
-
-            registeredWorkerAddresses[worker.Address] = worker.SessionId;
-
-            Logger.InfoFormat("Worker '{0}' has been registered with {1} capacity.", worker.Address, capacity);
-        }
-
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "6.0")]
-        void ClearAvailabilityForWorker(Address address)
+        /// <param name="address">
+        /// The address of the worker to remove from the availability list.
+        /// </param>
+        public void ClearAvailabilityForWorker(Address address)
         {
             lock (lockObject)
             {
@@ -174,39 +49,104 @@ namespace NServiceBus.Distributor
                     {
                         storageQueue.ReceiveById(m.Id, MessageQueueTransactionType.Automatic);
                     }
+
+                    
                 }
             }
         }
 
-        void AddWorkerToStorageQueue(Worker worker, int capacity = 1)
+        /// <summary>
+        /// Pops the next available worker from the available worker queue
+        /// and returns its address.
+        /// </summary>
+        [DebuggerNonUserCode]
+        public Address PopAvailableWorker()
         {
-            using (var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(worker.Address), false, true, QueueAccessMode.Send))
+            if (!Monitor.TryEnter(lockObject))
             {
-                var message = new Message
-                {
-                    Label = worker.SessionId,
-                    ResponseQueue = returnAddress
-                };
+                return null;
+            }
 
-                for (var i = 0; i < capacity; i++)
+            try
+            {
+                Message availableWorker;
+
+                if (UnitOfWork.HasActiveTransaction())
                 {
-                    if (UnitOfWork.HasActiveTransaction())
-                    {
-                        storageQueue.Send(message, UnitOfWork.Transaction);
-                    }
-                    else
-                    {
-                        storageQueue.Send(message, MessageQueueTransactionType.Automatic);
-                    }
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, UnitOfWork.Transaction);
                 }
+                else
+                {
+                    availableWorker = storageQueue.Receive(MaxTimeToWaitForAvailableWorker, MessageQueueTransactionType.Automatic);                    
+                }
+
+                if (availableWorker == null)
+                {
+                    return null;
+                }
+
+                return MsmqUtilities.GetIndependentAddressForQueue(availableWorker.ResponseQueue);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                Monitor.Exit(lockObject);
             }
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(MsmqWorkerAvailabilityManager));
+        /// <summary>
+        /// Initializes the object.
+        /// </summary>
+        public void Start()
+        {
+            var path = MsmqUtilities.GetFullPath(StorageQueueAddress);
+
+            storageQueue = new MessageQueue(path);
+
+            if ((!storageQueue.Transactional) && (SettingsHolder.Get<bool>("Transactions.Enabled")))
+            {
+                throw new Exception(string.Format("Queue [{0}] must be transactional.", path));
+            }
+        }
+
+        public void Stop()
+        {
+            if (storageQueue != null)
+            {
+                storageQueue.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Signal that a worker is available to receive a dispatched message.
+        /// </summary>
+        /// <param name="address">
+        /// The address of the worker that will accept the dispatched message.
+        /// </param>
+        /// <param name="capacity">The number of messages that this worker is ready to process</param>
+        public void WorkerAvailable(Address address, int capacity)
+        {
+            var returnAddress = new MessageQueue(MsmqUtilities.GetFullPath(address));
+
+            for (var i = 0; i < capacity; i++)
+            {
+                if (UnitOfWork.HasActiveTransaction())
+                {
+                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, UnitOfWork.Transaction); 
+                }
+                else
+                {
+                    storageQueue.Send(new Message{ResponseQueue = returnAddress}, MessageQueueTransactionType.Automatic); 
+                }
+            }
+        }
 
         static TimeSpan MaxTimeToWaitForAvailableWorker = TimeSpan.FromSeconds(10);
-        readonly object lockObject = new object();
-        Dictionary<Address, string> registeredWorkerAddresses = new Dictionary<Address, string>();
+
         MessageQueue storageQueue;
+        readonly object lockObject = new object();
     }
 }

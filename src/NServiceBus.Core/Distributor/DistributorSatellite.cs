@@ -2,7 +2,6 @@ namespace NServiceBus.Distributor
 {
     using System;
     using Logging;
-    using ReadyMessages;
     using Satellites;
     using Transports;
     using Unicast.Transport;
@@ -31,7 +30,7 @@ namespace NServiceBus.Distributor
         public IWorkerAvailabilityManager WorkerManager { get; set; }
 
         /// <summary>
-        ///     The <see cref="Address" /> for this <see cref="ISatellite" /> to use when receiving messages.
+        /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
         /// </summary>
         public Address InputAddress
         {
@@ -39,7 +38,7 @@ namespace NServiceBus.Distributor
         }
 
         /// <summary>
-        ///     Set to <code>true</code> to disable this <see cref="ISatellite" />.
+        /// Set to <code>true</code> to disable this <see cref="ISatellite"/>.
         /// </summary>
         public bool Disabled
         {
@@ -51,6 +50,7 @@ namespace NServiceBus.Distributor
         /// </summary>
         public void Start()
         {
+            WorkerManager.Start();
         }
 
         /// <summary>
@@ -58,36 +58,32 @@ namespace NServiceBus.Distributor
         /// </summary>
         public void Stop()
         {
+            WorkerManager.Stop();
         }
 
         public Action<TransportReceiver> GetReceiverCustomization()
         {
             return receiver =>
-            {
-                //we don't need any DTC for the distributor
-                receiver.TransactionSettings.DontUseDistributedTransactions = true;
-                receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
-            };
+                {
+                    //we don't need any DTC for the distributor
+                    receiver.TransactionSettings.DontUseDistributedTransactions = true;
+                    receiver.TransactionSettings.DoNotWrapHandlersExecutionInATransactionScope = true;
+                };
         }
 
         /// <summary>
-        ///     This method is called when a message is available to be processed.
+        /// This method is called when a message is available to be processed.
         /// </summary>
-        /// <param name="message">The <see cref="TransportMessage" /> received.</param>
+        /// <param name="message">The <see cref="TransportMessage"/> received.</param>
         public bool Handle(TransportMessage message)
         {
-            var worker = WorkerManager.NextAvailableWorker();
+            var destination = WorkerManager.PopAvailableWorker();
 
-            if (worker == null)
-            {
+            if (destination == null)
                 return false;
-            }
 
-            Logger.DebugFormat("Forwarding message to '{0}'.", worker.Address);
-
-            message.Headers[Headers.WorkerSessionId] = worker.SessionId;
-
-            MessageSender.Send(message, worker.Address);
+            Logger.Debug("Sending message to: " + destination);
+            MessageSender.Send(message, destination);
 
             return true;
         }

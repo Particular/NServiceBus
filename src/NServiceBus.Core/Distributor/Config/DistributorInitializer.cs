@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
+    using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
 
     public class DistributorInitializer
@@ -17,13 +18,15 @@ namespace NServiceBus.Distributor.Config
 
             if (!config.Configurer.HasComponent<IWorkerAvailabilityManager>())
             {
-                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance);
+                config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(
+                    DependencyLifecycle.SingleInstance)
+                    .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
             }
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
-                applicativeInputQueue);
+                              applicativeInputQueue);
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorInitializer));
+        static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
     }
 }
