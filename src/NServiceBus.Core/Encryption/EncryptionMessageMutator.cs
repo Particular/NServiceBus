@@ -250,9 +250,12 @@ namespace NServiceBus.Encryption
     {
         public static object GetValue(this MemberInfo member, object source)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                return ((FieldInfo)member).GetValue(source);
+                var field = DelegateFactory.Create(fieldInfo);
+                return field.Invoke(source);
             }
 
             var propertyInfo = (PropertyInfo) member;
@@ -266,19 +269,25 @@ namespace NServiceBus.Encryption
 
                 return null;
             }
-            
-            return propertyInfo.GetValue(source, null);
+
+            var property = DelegateFactory.Create(propertyInfo);
+            return property.Invoke(source);
         }
 
         public static void SetValue(this MemberInfo member, object target, object value)
         {
-            if (member is FieldInfo)
+            var fieldInfo = member as FieldInfo;
+
+            if (fieldInfo != null)
             {
-                ((FieldInfo)member).SetValue(target, value);
+                var fieldSet = DelegateFactory.CreateSet(fieldInfo);
+                fieldSet.Invoke(target, value);
             }
             else
             {
-                ((PropertyInfo)member).SetValue(target, value, null);
+                var propertyInfo = member as PropertyInfo;
+                var propertySet = DelegateFactory.CreateSet(propertyInfo);
+                propertySet.Invoke(target, value);
             }
         }
     }
