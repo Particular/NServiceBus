@@ -63,6 +63,12 @@
     <Compile Include="MasterNodeUtils.cs" />
     <Compile Include="Config\MasterNodeConfig.cs" />
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
+    <Compile Include="Profiles\DistributorProfileHandler.cs" />
+    <Compile Include="Profiles\MasterProfileHandler.cs" />
+    <Compile Include="Profiles\MSMQDistributor.cs" />
+    <Compile Include="Profiles\MSMQMaster.cs" />
+    <Compile Include="Profiles\MSMQWorker.cs" />
+    <Compile Include="Profiles\WorkerProfileHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueCreators\DistributorStorageQueueCreator.cs" />
     <Compile Include="QueueCreators\WorkerQueueCreator.cs" />
