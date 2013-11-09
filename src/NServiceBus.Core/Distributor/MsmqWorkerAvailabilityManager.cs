@@ -12,6 +12,7 @@ namespace NServiceBus.Transports.Msmq.WorkerAvailabilityManager
     /// An implementation of <see cref="IWorkerAvailabilityManager"/> for MSMQ to be used
     /// with the <see cref="DistributorSatellite"/> class.
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class MsmqWorkerAvailabilityManager : IWorkerAvailabilityManager
     {
         /// <summary>

@@ -7,6 +7,7 @@ namespace NServiceBus
     using Distributor.Config;
     using Logging;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     public static class ConfigureDistributor
     {
         public static bool DistributorEnabled(this Configure config)

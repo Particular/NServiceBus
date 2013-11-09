@@ -10,6 +10,7 @@ namespace NServiceBus.Distributor
     ///     Provides functionality for distributing messages from a bus
     ///     to multiple workers when using a unicast transport.
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class DistributorSatellite : IAdvancedSatellite
     {
         static DistributorSatellite()

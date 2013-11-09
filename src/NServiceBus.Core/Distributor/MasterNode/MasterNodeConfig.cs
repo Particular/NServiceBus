@@ -5,6 +5,7 @@ namespace NServiceBus.Config
     /// <summary>
     /// Configuration section for holding the node which is the master.
     /// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     public class MasterNodeConfig : ConfigurationSection
     {
         /// <summary>

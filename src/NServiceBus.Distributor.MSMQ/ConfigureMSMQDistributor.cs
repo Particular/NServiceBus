@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Configuration;
     using System.Linq;
     using System.Net;
-    using Distributor.Config;
     using Distributor.MSMQ;
     using Logging;
 
@@ -46,12 +45,12 @@ namespace NServiceBus
             distributorEnabled = true;
             distributorShouldRunOnThisEndpoint = true;
 
-            DistributorInitializer.Init(withWorker);
+            Distributor.MSMQ.Config.DistributorInitializer.Init(withWorker);
 
             if (withWorker)
             {
                 workerRunsOnThisEndpoint = true;
-                WorkerInitializer.Init();
+                Distributor.MSMQ.Config.WorkerInitializer.Init();
             }
 
 
@@ -67,7 +66,7 @@ namespace NServiceBus
 
             ValidateMasterNodeConfigurationForWorker();
 
-            WorkerInitializer.Init();
+            Distributor.MSMQ.Config.WorkerInitializer.Init();
 
             return config;
         }

@@ -9,6 +9,7 @@ namespace NServiceBus.Distributor
     /// <summary>
     ///     Part of the Distributor infrastructure.
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class DistributorReadyMessageProcessor : IAdvancedSatellite
     {
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);

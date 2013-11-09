@@ -3,6 +3,7 @@ namespace NServiceBus.Distributor.Config
     using NServiceBus.Config;
     using ReadyMessages;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class WorkerInitializer
     {
         public static void Init()

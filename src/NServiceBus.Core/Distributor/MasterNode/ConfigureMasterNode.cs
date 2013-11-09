@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Configuration;
     using Config;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     public static class ConfigureMasterNode
     {
         public static Configure AsMasterNode(this Configure config)
