@@ -12,10 +12,10 @@ namespace NServiceBus.Unicast.Transport.Config
         {
             LoadConfigurationSettings();
 
-            if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
+            if (LicenseManager.License.MaxThroughputPerSecond > 0)
             {
-                if (maximumThroughput == 0 || LicenseManager.CurrentLicense.MaxThroughputPerSecond < maximumThroughput)
-                    maximumThroughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
+                if (maximumThroughput == 0 || LicenseManager.License.MaxThroughputPerSecond < maximumThroughput)
+                    maximumThroughput = LicenseManager.License.MaxThroughputPerSecond;
             }
 
             var transactionSettings = new TransactionSettings
@@ -31,7 +31,7 @@ namespace NServiceBus.Unicast.Transport.Config
 
         static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
         {
-            var workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
+            var workerThreadsInLicenseFile = LicenseManager.License.AllowedNumberOfThreads;
 
             return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }

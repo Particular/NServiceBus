@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<license id="ffab39b0-3969-40bd-855e-b72e1c8b4a45" 
-         expiration="2012-11-07T18:31:18.9246232" 
+<license id="c450ccc5-be72-4105-b808-4542c30138f8" 
+         expiration="2012-11-07T18:41:29.3365058" 
          type="Standard" 
-         ProductName="NServiceBus" 
+         ProductName="NServiceBus2" 
          WorkerThreads="1" 
          LicenseVersion="100.0" 
          MaxMessageThroughputPerSecond="1" 
          AllowedNumberOfWorkerNodes="1" 
-         UpgradeProtectionExpiryDate="2023-11-07">
+         UpgradeProtectionExpiryDate="2003-11-07">
   <name>Test</name>
   <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
     <SignedInfo>
@@ -18,10 +18,10 @@
           <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
         </Transforms>
         <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <DigestValue>oN0IvwZgyT+uxAPw6pdyho7wPWU=</DigestValue>
+        <DigestValue>lUUG/tVsr3FqFWIEsr1TR0k7mHA=</DigestValue>
       </Reference>
     </SignedInfo>
-    <SignatureValue>q80uH7N8Xso5RUL4+XGz9GqkSjnWZdjnvQ9/+Bz7NeRlWrYtGuTdvgHMOyEBvVFIG7MKD6bZcmi+kaphjiItjTImxPOUzxd0Ww4tmg9MjhFQuXCv1vJQifrUCYoy7qw2xEE754kgkRq/Ij4du65rqNCFCnuNe2km0LP7L/oAULk=</SignatureValue>
+    <SignatureValue>FaJB18iMjNysEY7pUA/29/HiOt2oRg6OVKv5N1JdPnpvXrSspx/urXUsB76HKDmUkAM6ZqyHuLSHVMZQBue62T8o3Q7Qq0spDu+BAqjd0bj0RaCthuG2bC+5+avK4EBadmCkOHFPi4Oi9XjB6TYju49bPzat/o2zfFGqXZ1SIH8=</SignatureValue>
   </Signature>
 </license>
 
