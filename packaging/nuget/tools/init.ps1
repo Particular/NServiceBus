@@ -15,7 +15,7 @@ Write-Host ""
 Write-Host "Type 'get-help about_NServiceBus' to see all available NServiceBus commands."
 Write-Host ""
 
-$nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
+$nserviceBusKeyPath =  "HKCU:SOFTWARE\ParticularSoftware\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
 $machinePrepared = $false
 $nservicebusVersion = Get-NServiceBusVersion
