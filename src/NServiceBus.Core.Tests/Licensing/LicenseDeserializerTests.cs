@@ -30,7 +30,6 @@
 
             var dateTimeOffset = new DateTime(2014, 2, 6, 0, 0, 0,DateTimeKind.Utc);
             Assert.AreEqual(dateTimeOffset, license.ExpirationDate);
-            Assert.AreEqual(LicenseDeserializer.MaxOfWorkerThreads, license.AllowedNumberOfThreads);
             Assert.AreEqual(LicenseDeserializer.MaxWorkerNodes, license.AllowedNumberOfWorkerNodes);
             Assert.AreEqual(LicenseDeserializer.MaxThroughputPerSecond, license.MaxThroughputPerSecond);
             Assert.AreEqual(new DateTime(2013, 11, 6, 0, 0, 0,DateTimeKind.Utc), license.UpgradeProtectionExpiration);
@@ -50,7 +49,6 @@
         public void WithNonMaxThresholds()
         {
             var license = LicenseDeserializer.Deserialize(ResourceReader.ReadResourceAsString("Licensing.LicenseWithNonMaxThresholds.xml"));
-            Assert.AreEqual(2, license.AllowedNumberOfThreads);
             Assert.AreEqual(2, license.AllowedNumberOfWorkerNodes);
             Assert.AreEqual(2, license.MaxThroughputPerSecond);
         }

@@ -12,7 +12,6 @@
             {
                 ExpirationDate = DateTime.MinValue,
                 AllowedNumberOfWorkerNodes = MinNumberOfWorkerNodes,
-                AllowedNumberOfThreads = MinNumberOfWorkerThreads,
                 MaxThroughputPerSecond = MinMessagePerSecondThroughput
             };
 
@@ -25,7 +24,6 @@
                 ExpirationDate = expiry,
                 AllowedNumberOfWorkerNodes = MaxWorkerNodes,
                 MaxThroughputPerSecond = MaxThroughputPerSecond,
-                AllowedNumberOfThreads = MaxOfWorkerThreads,
             };
         }
         public static License Deserialize(string licenseText)
@@ -57,17 +55,6 @@
                 license.MaxThroughputPerSecond = int.Parse(maxMessageThroughputPerSecond);
             }
 
-            var workerThreads = doc.SelectSingleNode("/license/@WorkerThreads").Value;
-            //TODO: if null should this be 1?
-            if (workerThreads == "Max")
-            {
-                license.AllowedNumberOfThreads = MaxOfWorkerThreads;
-            }
-            else
-            {
-                license.AllowedNumberOfThreads = int.Parse(workerThreads);
-            }
-
             var allowedNumberOfWorkerNodes = doc.SelectSingleNode("/license/@AllowedNumberOfWorkerNodes").Value;
             if (allowedNumberOfWorkerNodes == "Max")
             {
@@ -91,8 +78,6 @@
         public const int MaxWorkerNodes = int.MaxValue;
         public const int MaxThroughputPerSecond = 0;
         public const int MinNumberOfWorkerNodes = 2;
-        public const int MinNumberOfWorkerThreads = 1;
         public const int MinMessagePerSecondThroughput = 1;
-        public const int MaxOfWorkerThreads = 1024;
     }
 }

@@ -49,7 +49,6 @@ namespace NServiceBus.Licensing
             Logger.InfoFormat("License Version {0}", License.LicenseVersion);
             Logger.InfoFormat("UpgradeProtectionExpiration {0}", License.UpgradeProtectionExpiration);
             Logger.InfoFormat("MaxThroughputPerSecond {0}", License.MaxThroughputPerSecond);
-            Logger.InfoFormat("AllowedNumberOfThreads {0}", License.AllowedNumberOfThreads);
             Logger.InfoFormat("AllowedNumberOfWorkerNodes {0}", License.AllowedNumberOfWorkerNodes);
         }
 

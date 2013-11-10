@@ -8,7 +8,6 @@ namespace NServiceBus.Licensing
     class License
     {
         public int MaxThroughputPerSecond;
-        public int AllowedNumberOfThreads;
         public int AllowedNumberOfWorkerNodes;
         public DateTime ExpirationDate;
         public string Name;
