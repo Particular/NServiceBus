@@ -86,7 +86,8 @@
             message[0] = MySecretMessage;
             message[1] = MySecretMessage;
 
-            Assert.Throws<NotSupportedException>(() => mutator.MutateOutgoing(message));
+            var exception = Assert.Throws<Exception>(() => mutator.MutateOutgoing(message));
+            Assert.AreEqual("Cannot encrypt or decrypt indexed properties that return a WireEncryptedString.", exception.Message);
         }
 
         public class MessageWithIndexedProperties : IMessage
@@ -221,7 +222,8 @@
                     Secret = new WireEncryptedString {Value = "The real value"}
                 };
 
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(message));
+            var exception = Assert.Throws<Exception>(() => mutator.MutateIncoming(message));
+            Assert.AreEqual("Encrypted property is missing encryption data", exception.Message);
         }
     }
 
@@ -287,7 +289,8 @@
         public void Should_throw_an_exception()
         {
             mutator.EncryptionService = null;
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateOutgoing(new Customer {Secret = "x"}));
+            var exception = Assert.Throws<Exception>(() => mutator.MutateOutgoing(new Customer { Secret = "x" }));
+            Assert.AreEqual("Cannot encrypt field Secret because no encryption service was configured.", exception.Message);
         }
     }
 
@@ -298,7 +301,9 @@
         public void Should_throw_an_exception()
         {
             mutator.EncryptionService = null;
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(new Customer {Secret = "x"}));
+
+            var exception = Assert.Throws<Exception>(() => mutator.MutateIncoming(new Customer { Secret = "x" }));
+            Assert.AreEqual("Cannot decrypt field Secret because no encryption service was configured.", exception.Message);
         }
     }
 
