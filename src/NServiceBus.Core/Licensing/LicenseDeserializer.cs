@@ -24,8 +24,8 @@
             {
                 ExpirationDate = expiry,
                 AllowedNumberOfWorkerNodes = MaxWorkerNodes,
-                MaxThroughputPerSecond = MaxOfWorkerThreads,
-                AllowedNumberOfThreads = MaxWorkerNodes,
+                MaxThroughputPerSecond = MaxThroughputPerSecond,
+                AllowedNumberOfThreads = MaxOfWorkerThreads,
             };
         }
         public static License Deserialize(string licenseText)
