@@ -1,6 +1,5 @@
 namespace NServiceBus.Unicast.Transport.Config
 {
-    using System;
     using System.Configuration;
     using Licensing;
     using NServiceBus.Config;
@@ -12,10 +11,10 @@ namespace NServiceBus.Unicast.Transport.Config
         {
             LoadConfigurationSettings();
 
-            if (LicenseManager.CurrentLicense.MaxThroughputPerSecond > 0)
+            if (LicenseManager.License.MaxThroughputPerSecond > 0)
             {
-                if (maximumThroughput == 0 || LicenseManager.CurrentLicense.MaxThroughputPerSecond < maximumThroughput)
-                    maximumThroughput = LicenseManager.CurrentLicense.MaxThroughputPerSecond;
+                if (maximumThroughput == 0 || LicenseManager.License.MaxThroughputPerSecond < maximumThroughput)
+                    maximumThroughput = LicenseManager.License.MaxThroughputPerSecond;
             }
 
             var transactionSettings = new TransactionSettings
@@ -25,15 +24,8 @@ namespace NServiceBus.Unicast.Transport.Config
 
             Configure.Instance.Configurer.ConfigureComponent<TransportReceiver>(DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty(t => t.TransactionSettings, transactionSettings)
-                .ConfigureProperty(t => t.MaximumConcurrencyLevel, GetAllowedNumberOfThreads(numberOfWorkerThreadsInAppConfig))
+                .ConfigureProperty(t => t.MaximumConcurrencyLevel, numberOfWorkerThreadsInAppConfig)
                 .ConfigureProperty(t => t.MaxThroughputPerSecond, maximumThroughput);
-        }
-
-        static int GetAllowedNumberOfThreads(int numberOfWorkerThreadsInConfig)
-        {
-            var workerThreadsInLicenseFile = LicenseManager.CurrentLicense.AllowedNumberOfThreads;
-
-            return Math.Min(workerThreadsInLicenseFile, numberOfWorkerThreadsInConfig);
         }
 
         void LoadConfigurationSettings()

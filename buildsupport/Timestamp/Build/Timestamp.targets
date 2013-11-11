@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)..\</SolutionDir>
+  </PropertyGroup>
+
+  <UsingTask
+      TaskName="Timestamp.AddTimestamp"
+      AssemblyFile="$(MSBuildThisFileDirectory)..\Timestamp.dll" />
+
+    <Target Name="AddTimestamp"
+            BeforeTargets="CoreCompile">
+      <Timestamp.AddTimestamp
+        SolutionDirectory="$(SolutionDir)" 
+          ProjectFile="$(ProjectPath)" 
+          CompileFiles ="@(Compile)">
+          <Output 
+            TaskParameter="TimestampAttributeTempFilePath" 
+            PropertyName="TimestampAttributeTempFilePath" />
+        </Timestamp.AddTimestamp>
+        <ItemGroup>
+            <Compile Include="$(TimestampAttributeTempFilePath)" />
+        </ItemGroup>
+    </Target>
+
+  <!--Support for ncrunch-->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\Timestamp.dll" />
+    <None Include="$(MSBuildThisFileDirectory)..\Timestamp.pdb" />
+  </ItemGroup>
+
+
+</Project>
+
+

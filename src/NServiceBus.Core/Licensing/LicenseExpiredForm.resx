@@ -117,17 +117,39 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="form_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\formicon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="richTextBox1.Text" xml:space="preserve">
+    <value>Your license has enxpired and a new license is needed to continue
+
+Please purchase a license online or browse for a license file
+
+If you close this dialog NServiceBus will fall back to running in basic mode</value>
   </data>
-  <data name="logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\NServiceBus_Logo-  white.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="String" xml:space="preserve">
-    <value>Import-Module .\tools\psake\psake.psm1</value>
-  </data>
-  <data name="String1" xml:space="preserve">
-    <value>Invoke-psake .\default.ps1 -taskList @("ReleaseNServiceBus") -properties @{ProductVersion="3.3";PatchVersion="7";PreRelease="-beta";buildConfiguration="Release";}</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAEAIAAoBQAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAA
+        AACacADWmm8A7phsAOiabgDpnHEA6ZpuAOmZbQDpm3AA6ZtwAOmZbQDpmm4A6ZxxAOmabgDpmGwA6Jpv
+        AO6acADWm28A7qJ3AP+ogQ//pX0g/51xAP+kewD/qH8A/6B0AP+gdAD/qH8A/6R7AP+dcQD/o3oA/6h/
+        AP+idwD/mm8A7phsAOipghL/x6UA/K2EAP2UZxP9upYA/cqnAP2fdwD9n3cA/cqnAP26lwD9k2UA/bWR
+        AP3KqgD8qIAA/5hsAOibcBLpoHIA/8qwcf3SwKD+kmEA/q6HFP62kQD+n3MA/p9zAP62kQD+rYYA/phq
+        AP6qgwD+tpIA/aR6AP+abgDpnXIP6ZlqAP+jglr9+vn6/7KXcf+RXwD/lmoX/5twAP+cchX/lWgH/5dr
+        BP+dcgD/mGwA/5NlAP2dcQD/nHAA6ZpuAOmogCf/rYIA/ePXwP/k39r/pHYA/7uYI/+geBv/mmwA/7eS
+        AP+vigX/mGwL/6yGAP+6lgD9pHsA/5puAOmZbQDpqoIN/8ilAP27m0H/9fT1/8yxb//FogD/mWoA/7SY
+        bP/StlT/uJMA/5NlAP+2kgr/yqgA/amAAP+ZbQDpm3AA6aB0AP+jfCX9kVoA/9jNwv/t597/jU0A/8Cr
+        k//5+PX/xrOX/+3o4P+jf0X/nHEA/6B4Cf2gdAD/m3AA6ZtwAOmgdAD/n3cM/ZtvAP+lgkr/7unj/8Wx
+        lP/5+PX/wq+X/4xNAP/t6eH/1sy+/5FZAP+heyP9n3QA/5twAOmZbQDpqYAB/8qnAP21kQv/k2UA/7mU
+        AP/Stlj/t5ty/5lpAP/EoAD/zLN0//X09f+6mTn/yKUA/amBCv+ZbQDpmm4A6aV8AP+7lwD9rIYA/5dr
+        DP+wigD/uJIA/5psAP+geBv/vJoh/6Z4AP/m4N3/4dW8/66DAP2ogCf/mW4A6ZxwAOmdcQD/k2UA/Zhs
+        AP+dcgD/l2sE/5VoCf+cchX/m3AA/5ZqGf+RXQD/tJp2//r5+v+hflP9mmsA/5xyD+mabgDppHoA/7WR
+        AP2pggD+mGsA/qyFAP60kAD+nnMA/p5zAP60jwD+rYYS/pNiAP7UxKb+ya9y/Z9xAP+bcBLpmGwA6KmB
+        Af/LqgD8tZEA/ZNlAP27lwD9yqgA/Z93AP2fdwD9yqgA/buXAP2UZxP9roQA/celAPypgQ//mGwA6Jpv
+        AO6jeAD/qYEB/6R6AP+dcQD/pXwA/6mBAf+gdAD/oHQA/6mBAf+lfAD/nXEA/6Z+H/+pgg//o3cA/5pv
+        AO6acADWmm8A7phsAOiabgDpnHEA6ZpuAOmZbQDpm3AA6ZtwAOmZbQDpmm4A6ZxxAOmabgDpmGwA6Jpv
+        AO6acADWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</value>
   </data>
 </root>
