@@ -13,7 +13,8 @@ namespace NServiceBus.Utils.Reflection
     {
         /// <summary>
         /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
-        /// </summary>
+        /// </summary>  
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message= "No longer used. to be deleted")]
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
             var result = false;
