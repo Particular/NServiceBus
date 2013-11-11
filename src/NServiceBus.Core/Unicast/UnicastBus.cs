@@ -407,7 +407,7 @@ namespace NServiceBus.Unicast
         {
             var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
 
-            options.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
+            options.CorrelationId = !string.IsNullOrEmpty(_messageBeingHandled.CorrelationId) ? _messageBeingHandled.CorrelationId : _messageBeingHandled.Id;
 
             SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
