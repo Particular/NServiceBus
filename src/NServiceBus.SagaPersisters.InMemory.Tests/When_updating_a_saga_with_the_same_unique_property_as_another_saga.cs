@@ -4,7 +4,6 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
     using InMemory.Tests;
     using NUnit.Framework;
     using Persistence.InMemory.SagaPersister;
-    using Saga;
 
     [TestFixture]
     public class When_updating_a_saga_with_the_same_unique_property_as_another_saga
@@ -14,7 +13,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         {
             var saga1 = new SagaWithUniqueProperty {Id = Guid.NewGuid(), UniqueString = "whatever1"};
             var saga2 = new SagaWithUniqueProperty {Id = Guid.NewGuid(), UniqueString = "whatever"};
-            var inMemorySagaPersister = new InMemorySagaPersister() as ISagaPersister;
+            var inMemorySagaPersister = new InMemorySagaPersister();
             
             inMemorySagaPersister.Save(saga1);
             inMemorySagaPersister.Save(saga2);
@@ -32,7 +31,7 @@ namespace NServiceBus.SagaPersisters.Raven.Tests
         {
             var saga1 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever1", UniqueInt = 5};
             var saga2 = new SagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 37};
-            var inMemorySagaPersister = new InMemorySagaPersister() as ISagaPersister;
+            var inMemorySagaPersister = new InMemorySagaPersister();
 
             inMemorySagaPersister.Save(saga1);
             inMemorySagaPersister.Save(saga2);

@@ -12,7 +12,7 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
     /// </summary>
     public class InMemorySagaPersister : ISagaPersister
     {
-        void ISagaPersister.Complete(IContainSagaData saga)
+        public void Complete(IContainSagaData saga)
         {
             lock (syncRoot)
             {
@@ -20,7 +20,7 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             }
         }
 
-        T ISagaPersister.Get<T>(string property, object value)
+        public T Get<T>(string property, object value) where T : IContainSagaData
         {
             lock (syncRoot)
             {
@@ -39,7 +39,7 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             return default(T);
         }
 
-        T ISagaPersister.Get<T>(Guid sagaId)
+        public T Get<T>(Guid sagaId) where T : IContainSagaData
         {
             lock (syncRoot)
             {
@@ -54,7 +54,7 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             return default(T);
         }
 
-        void ISagaPersister.Save(IContainSagaData saga)
+        public void Save(IContainSagaData saga)
         {
             lock (syncRoot)
             {
@@ -69,9 +69,9 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             }
         }
 
-        void ISagaPersister.Update(IContainSagaData saga)
+        public void Update(IContainSagaData saga)
         {
-            ((ISagaPersister)this).Save(saga);
+            Save(saga);
         }
 
         private void ValidateUniqueProperties(IContainSagaData saga)
