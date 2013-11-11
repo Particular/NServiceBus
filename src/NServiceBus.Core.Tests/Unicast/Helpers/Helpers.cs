@@ -8,9 +8,7 @@ namespace NServiceBus.Unicast.Tests.Helpers
     {
         public static TransportMessage EmptyTransportMessage()
         {
-            return new TransportMessage
-                       {
-                       };
+            return new TransportMessage();
         }
 
         public static TransportMessage EmptySubscriptionMessage()

@@ -81,7 +81,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var result = ExecuteSerializer.ForMessage<MessageWithArrayAndNoDefaultCtor>(message);
 
-            Assert.IsNull(message.SomeWords);
+            Assert.IsNull(result.SomeWords);
         }
         [Test]
         public void CanSerializeMessageWithEmptyArray()

@@ -73,16 +73,20 @@
             try
             {
                 Console.WriteLine("runas {0} {1}", command, args);
-                var process = Process.Start(new ProcessStartInfo
+                using (var process = Process.Start(new ProcessStartInfo
+                    {
+                        Verb = "runas",
+                        Arguments = args,
+                        FileName = command,
+                    }))
                 {
-                    Verb = "runas",
-                    Arguments = args,
-                    FileName = command,
-                });
-                process.WaitForExit();
+                    process.WaitForExit();
+                }
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
+                // if we cant runas it is ok. we will verify the result later
             }
         }
     }

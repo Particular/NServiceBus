@@ -95,7 +95,9 @@ namespace NServiceBus.Unicast.Transport.Monitoring
             try
             {
                 counter = new PerformanceCounter(CategoryName, counterName, receiveAddress.Queue, false);
-                var t = counter.CounterType; //access the counter type to force a exception to be thrown if the counter doesn't exists
+                //access the counter type to force a exception to be thrown if the counter doesn't exists
+                // ReSharper disable once UnusedVariable
+                var t = counter.CounterType; 
             }
             catch (Exception)
             {

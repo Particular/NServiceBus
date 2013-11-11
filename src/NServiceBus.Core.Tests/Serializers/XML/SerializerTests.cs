@@ -685,24 +685,7 @@ namespace NServiceBus.Serializers.XML.Test
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
         }
 
-        public void TestSchemaValidation()
-        {
-            try
-            {
-                var settings = new XmlReaderSettings();
-                settings.Schemas.Add(null, "schema0.xsd");
-                settings.Schemas.Add(null, "schema1.xsd");
-                settings.ValidationType = ValidationType.Schema;
-                var document = new XmlDocument();
-                document.Load("XMLFile1.xml");
-                var xmlReader = XmlReader.Create(new StringReader(document.InnerXml), settings);
-                while (xmlReader.Read()) { }
-            }
-            catch (Exception e)
-            {
-                var s = e.Message;
-            }
-        }
+
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {

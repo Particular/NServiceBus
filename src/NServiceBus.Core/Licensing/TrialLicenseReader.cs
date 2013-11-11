@@ -18,10 +18,9 @@ namespace NServiceBus.Licensing
                 var subKeyPath = String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor);
                 using (var registryKey = Registry.CurrentUser.CreateSubKey(subKeyPath))
                 {
-// ReSharper disable PossibleNullReferenceException
                     //CreateSubKey does not return null http://stackoverflow.com/questions/19849870/under-what-circumstances-will-registrykey-createsubkeystring-return-null
+                    // ReSharper disable once PossibleNullReferenceException
                     var trialStartDateString = (string) registryKey.GetValue("TrialStart", null);
-// ReSharper restore PossibleNullReferenceException
                     if (trialStartDateString == null)
                     {
                         var trialStart = DateTime.UtcNow;

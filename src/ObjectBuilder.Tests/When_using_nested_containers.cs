@@ -170,7 +170,7 @@ namespace ObjectBuilder.Tests
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (builder.BuildChildContainer())
                 {
                    //no-op
                 }

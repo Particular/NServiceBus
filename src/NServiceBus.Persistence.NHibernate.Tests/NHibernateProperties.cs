@@ -16,7 +16,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         [Test]
         public void Should_assign_default_properties_to_all_persisters()
         {
-            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection { };
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection();
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                 {
                     new ConnectionStringSettings("NServiceBus/Persistence", connectionString)
@@ -41,7 +41,7 @@ namespace NServiceBus.Persistence.NHibernate.Tests
         [Test]
         public void Should_assign_overridden_connectionString_if_specified()
         {
-            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection{};
+            NHibernateSettingRetriever.AppSettings = () => new NameValueCollection();
             NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection
                 {
                     new ConnectionStringSettings("NServiceBus/Persistence", connectionString),

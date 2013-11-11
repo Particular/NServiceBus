@@ -111,6 +111,7 @@ namespace NServiceBus.Licensing
                     }
                 }
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch (Exception)
             {
                 //Swallow exception if we can't read HKLM

@@ -447,12 +447,11 @@ namespace NServiceBus.Serializers.XML
                     logger.Debug("Trying to deserialize message to " + baseType.FullName);
                     return baseType;
                 }
-                // ReSharper disable EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
                 } 
-                // ReSharper restore EmptyGeneralCatchClause
             }
 
             throw new TypeLoadException("Could not determine type for node: '" + node.Name + "'.");
