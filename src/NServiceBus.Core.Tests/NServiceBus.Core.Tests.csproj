@@ -217,7 +217,6 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
-    <Compile Include="Pipeline\MessAround.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />

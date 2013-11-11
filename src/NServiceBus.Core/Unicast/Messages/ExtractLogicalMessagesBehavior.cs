@@ -1,100 +1,94 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.Serialization;
     using Logging;
-    using MessageInterfaces;
-    using Unicast;
-    using Unicast.Messages;
     using Pipeline;
+    using Pipeline.Contexts;
     using Serialization;
-    using Unicast.Transport;
+    using Transport;
+    using Unicast;
 
     class ExtractLogicalMessagesBehavior : IBehavior<PhysicalMessageContext>
     {
-        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public IMessageSerializer MessageSerializer { get; set; }
-
-        public IMessageMapper MessageMapper { get; set; }
-
+    
         public UnicastBus UnicastBus { get; set; }
 
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+        public LogicalMessageFactory LogicalMessageFactory { get; set; }
 
         public bool SkipDeserialization { get; set; }
 
         public PipelineFactory PipelineFactory { get; set; }
 
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
         public void Invoke(PhysicalMessageContext context, Action next)
         {
-            var logicalMessages = new LogicalMessages();
-
-            context.Set(logicalMessages);
-
             if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {
+                next();
                 return;
             }
 
             var transportMessage = context.PhysicalMessage;
 
+            IEnumerable<LogicalMessage> messages;
+            
             if (transportMessage.IsControlMessage())
             {
-                log.Info("Received a control message. Skipping deserilization as control message data is contained in the header.");
+                log.Info("Received a control message. Skipping deserialization as control message data is contained in the header.");
                 next();
                 return;
             }
 
-            object[] rawMessages;
-
             try
             {
-                rawMessages = Extract(transportMessage);
+                messages = Extract(transportMessage).ToList();
             }
             catch (Exception exception)
             {
                 throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
 
-            if (!rawMessages.Any())
+          
+            foreach (var message in messages)
             {
-                log.Warn("Received an empty message - ignoring.");
-                return;
+                PipelineFactory.InvokeLogicalMessagePipeline(message);
             }
 
-            foreach (var rawMessage in rawMessages)
+            if (!messages.Any())
             {
-                var messageType = MessageMapper.GetMappedTypeFor(rawMessage.GetType());
-
-                var logicalMessage = new LogicalMessage(messageType, rawMessage);
-
-                logicalMessages.Add(logicalMessage);
-
-                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+                log.Warn("Received an empty message - ignoring.");
             }
 
             next();
         }
 
-        object[] Extract(TransportMessage m)
+        IEnumerable<LogicalMessage> Extract(TransportMessage m)
         {
             if (m.Body == null || m.Body.Length == 0)
             {
-                return new object[0];
+                return new List<LogicalMessage>();
             }
 
             var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
 
             using (var stream = new MemoryStream(m.Body))
             {
-                return MessageSerializer.Deserialize(stream, messageMetadata.Select(metadata => metadata.MessageType).ToList());
+                var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
+
+                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => LogicalMessageFactory.Create(rawMessage.GetType(),rawMessage)).ToList();
             }
 
         }
+
+        static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     }
 }

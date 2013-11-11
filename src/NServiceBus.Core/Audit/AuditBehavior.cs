@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Audit
 {
     using System;
-    using Audit;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class AuditBehavior : IBehavior<PhysicalMessageContext>
     {

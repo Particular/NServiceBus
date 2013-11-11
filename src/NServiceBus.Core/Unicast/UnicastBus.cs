@@ -3,8 +3,6 @@ namespace NServiceBus.Unicast
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Configuration;
-    using System.IO;
     using System.Linq;
     using System.Security.Principal;
     using System.Text;
@@ -13,12 +11,9 @@ namespace NServiceBus.Unicast
     using Licensing;
     using Logging;
     using MessageInterfaces;
-    using MessageMutator;
     using Messages;
     using ObjectBuilder;
     using Pipeline;
-    using Pipeline.Behaviors;
-    using Queuing;
     using Routing;
     using Satellites;
     using Serialization;
@@ -40,6 +35,7 @@ namespace NServiceBus.Unicast
         {
             _messageBeingHandled = null;
         }
+
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -122,24 +118,25 @@ namespace NServiceBus.Unicast
             MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
         }
 
-
         /// <summary>
         /// Should be used by the programmer, not the administrator.
         /// Gets and sets an <see cref="IMessageSerializer"/> implementation to
         /// be used for subscription storage for the bus.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public virtual IMessageSerializer MessageSerializer { get; set; }
-
 
         /// <summary>
         /// The registry of all known messages for this endpoint
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
 
         /// <summary>
         /// A way to request the transport to defer the processing of a message
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public IDeferMessages MessageDeferrer { get; set; }
 
         /// <summary>
@@ -182,7 +179,6 @@ namespace NServiceBus.Unicast
 
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        //TODO: how do we handle this?
         public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
@@ -218,6 +214,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Publishes the given messages
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public IPublishMessages MessagePublisher { get; set; }
 
         /// <summary>
@@ -303,21 +300,13 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            MessagingBestPractices.AssertIsValidForPubSub(messages[0].GetType());
+            var messagesToPublish = (IEnumerable<object>)messages.ToList();
 
-            var fullTypes = GetFullTypes(messages as object[]);
-            var eventMessage = new TransportMessage { MessageIntent = MessageIntentEnum.Publish };
+            var context = PipelineFactory.InvokeSendPipeline(SendOptions.Publish, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
-            MapTransportMessageFor(messages as object[], eventMessage);
-
-            if (MessagePublisher == null)
-                throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
-
-            var subscribersExisted = MessagePublisher.Publish(eventMessage, fullTypes);
-
-            if (!subscribersExisted && NoSubscribersForMessage != null)
+            if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
-                NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
+                NoSubscribersForMessage(this, new MessageEventArgs(messagesToPublish.First()));
             }
         }
 
@@ -416,10 +405,11 @@ namespace NServiceBus.Unicast
 
         public void Reply(params object[] messages)
         {
-            MessagingBestPractices.AssertIsValidForReply(messages.ToList());
-            if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Reply was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-            SendMessage(_messageBeingHandled.ReplyToAddress, _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id, MessageIntentEnum.Reply, messages);
+            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+
+            options.CorrelationId = !string.IsNullOrEmpty(_messageBeingHandled.CorrelationId) ? _messageBeingHandled.CorrelationId : _messageBeingHandled.Id;
+
+            SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public void Reply(object message)
@@ -434,9 +424,6 @@ namespace NServiceBus.Unicast
 
         public void Return<T>(T errorCode)
         {
-            if (_messageBeingHandled.ReplyToAddress == null)
-                throw new InvalidOperationException("Return was called with null reply-to-address field. It can happen if you are using a SendOnly client. See http://particular.net/articles/one-way-send-only-endpoints");
-
             var returnMessage = ControlMessage.Create(Address.Local);
 
             returnMessage.MessageIntent = MessageIntentEnum.Reply;
@@ -444,8 +431,9 @@ namespace NServiceBus.Unicast
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
             returnMessage.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
 
-            InvokeOutgoingTransportMessagesMutators(new object[] { }, returnMessage);
-            MessageSender.Send(returnMessage, _messageBeingHandled.ReplyToAddress);
+            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+            
+            PipelineFactory.InvokeSendPipeline(options,returnMessage);
         }
 
         public void HandleCurrentMessageLater()
@@ -488,10 +476,9 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return Send(MasterNodeAddress, messages);
+                return SendMessages(new SendOptions(MasterNodeAddress), LogicalMessageFactory.CreateMultiple(messages));
             }
-
-            return Send(Address.Local, messages);
+            return SendMessages(SendOptions.ToLocalEndpoint, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -508,82 +495,111 @@ namespace NServiceBus.Unicast
         {
             var destination = GetAddressForMessages(messages);
 
-            return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, new[] { message });
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(string destination, params object[] messages)
         {
-            return SendMessage(destination, null, MessageIntentEnum.Send, messages);
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, params object[] messages)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, messages);
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessage(address, null, MessageIntentEnum.Send, new[] { message });
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
         {
-            return SendMessage(destination, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, CreateInstance(messageConstructor));
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, string correlationId, object message)
         {
-            return Send(destination, correlationId, new[] { message });
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(string destination, string correlationId, params object[] messages)
         {
-            return SendMessage(destination, correlationId, MessageIntentEnum.Send, messages);
+            var options = new SendOptions(destination)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, string correlationId, params object[] messages)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, messages);
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, string correlationId, object message)
         {
-            return SendMessage(address, correlationId, MessageIntentEnum.Send, new[] { message });
+            var options = new SendOptions(address)
+            {
+                CorrelationId = correlationId
+            };
+
+            return SendMessages(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            return SendToSites(siteKeys, new[] { message });
+            Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
+
+            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
-            if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
-
             Headers.SetMessageHeader(messages[0], Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(MasterNodeAddress.SubScope("gateway"), null, MessageIntentEnum.Send, messages);
+            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
@@ -603,189 +619,35 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            if (messages == null || messages.Length == 0)
-            {
-                throw new InvalidOperationException("Cannot Defer an empty set of messages.");
-            }
-            if (processAt.ToUniversalTime() <= DateTime.UtcNow)
-            {
-                return SendLocal(messages);
-            }
-
-            var toSend = new TransportMessage();
-
-            MapTransportMessageFor(messages, toSend);
-
-            toSend.Headers[Headers.IsDeferredMessage] = Boolean.TrueString;
-
-            MessageDeferrer.Defer(toSend, processAt, Address.Local);
-
-            return SetupCallback(toSend.Id);
+            return SendMessages(new SendOptions(Address.Local) { ProcessAt = processAt }, LogicalMessageFactory.CreateMultiple(messages));
         }
 
-        private ICallback SendMessage(string destination, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
+
+        ICallback SendMessages(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
         {
-            if (messages == null || messages.Length == 0)
-                throw new InvalidOperationException("Cannot send an empty set of messages.");
+            var context = PipelineFactory.InvokeSendPipeline(sendOptions, messages);
 
-            if (destination == null)
-                throw new InvalidOperationException(
-                    string.Format("No destination specified for message {0}. Message cannot be sent. Check the UnicastBusConfig section in your config file and ensure that a MessageEndpointMapping exists for the message type.", messages[0].GetType().FullName));
-
-            return SendMessage(Address.Parse(destination), correlationId, messageIntent, messages);
-        }
-
-        private ICallback SendMessage(Address address, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
-        {
-            // loop only happens once
-            foreach (var id in SendMessage(new List<Address> { address }, correlationId, messageIntent, messages))
+            if (MessagesSent != null)
             {
-                return SetupCallback(id);
+                MessagesSent(this, new MessagesEventArgs(messages.Select(m => m.Instance).ToArray()));
             }
 
-            return null;
+            var physicalMessage = context.Get<TransportMessage>();
+
+            return SetupCallback(physicalMessage.Id);
         }
+
 
         ICallback SetupCallback(string transportMessageId)
         {
             var result = new Callback(transportMessageId);
             result.Registered += delegate(object sender, BusAsyncResultEventArgs args)
-                {
-                    //TODO: what should we do if the key already exists?
-                    messageIdToAsyncResultLookup[args.MessageId] = args.Result;
-                };
+            {
+                //TODO: what should we do if the key already exists?
+                messageIdToAsyncResultLookup[args.MessageId] = args.Result;
+            };
 
             return result;
-        }
-
-        IEnumerable<string> SendMessage(List<Address> addresses, string correlationId, MessageIntentEnum messageIntent, params object[] messages)
-        {
-            if (messages.Length == 0)
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            messages.ToList()
-                        .ForEach(message => MessagingBestPractices.AssertIsValidForSend(message.GetType(), messageIntent));
-
-            if (messages.Length > 1)
-            {
-                // Users can't send more than one message with a DataBusProperty in the same TransportMessage, Yes this is a limitation for now!
-                var numberOfMessagesWithDataBusProperties = 0;
-                foreach (var message in messages)
-                {
-                    var hasAtLeastOneDataBusProperty = message.GetType().GetProperties().Any(MessageConventionExtensions.IsDataBusProperty);
-
-                    if (hasAtLeastOneDataBusProperty)
-                    {
-                        numberOfMessagesWithDataBusProperties++;
-                    }
-                }
-
-                if (numberOfMessagesWithDataBusProperties > 1)
-                {
-                    throw new InvalidOperationException("This version of NServiceBus only supports sending up to one message with DataBusProperties per Send().");
-                }
-            }
-
-            addresses
-                .ForEach(address =>
-                             {
-                                 if (address == Address.Undefined)
-                                     throw new InvalidOperationException("No destination specified for message(s): " +
-                                                                         string.Join(";", messages.Select(m => m.GetType())));
-                             });
-
-
-
-            var result = new List<string>();
-
-            var toSend = new TransportMessage { MessageIntent = messageIntent };
-
-            if (!string.IsNullOrEmpty(correlationId))
-            {
-                toSend.CorrelationId = correlationId;
-            }
-
-            MapTransportMessageFor(messages, toSend);
-
-            foreach (var destination in addresses)
-            {
-                try
-                {
-                    MessageSender.Send(toSend, destination);
-                }
-                catch (QueueNotFoundException ex)
-                {
-                    throw new ConfigurationErrorsException("The destination queue '" + destination +
-                                                         "' could not be found. You may have misconfigured the destination for this kind of message (" +
-                                                        messages[0].GetType().FullName +
-                                                         ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
-                                                         "It may also be the case that the given queue just hasn't been created yet, or has been deleted."
-                                                        , ex);
-                }
-
-                if (Log.IsDebugEnabled)
-                    Log.Debug(string.Format("Sending message {0} with ID {1} to destination {2}.\n" +
-                                            "ToString() of the message yields: {3}\n" +
-                                            "Message headers:\n{4}",
-                                            messages[0].GetType().AssemblyQualifiedName,
-                                            toSend.Id,
-                                            destination,
-                                            messages[0],
-                                            string.Join(", ", toSend.Headers.Select(h => h.Key + ":" + h.Value).ToArray())
-                        ));
-
-                result.Add(toSend.Id);
-            }
-
-            if (MessagesSent != null)
-                MessagesSent(this, new MessagesEventArgs(messages));
-
-            return result;
-        }
-
-        List<Type> GetFullTypes(IEnumerable<object> messages)
-        {
-            var types = new List<Type>();
-
-            foreach (var m in messages)
-            {
-                var messageType = m.GetType();
-                var s = MessageMapper.GetMappedTypeFor(messageType);
-                if (types.Contains(s))
-                {
-                    continue;
-                }
-
-                types.Add(s);
-
-                foreach (var t in GetParentTypes(messageType)
-                    .Where(MessageConventionExtensions.IsMessageType)
-                    .Where(t => !types.Contains(t)))
-                {
-                    types.Add(t);
-                }
-            }
-
-            return types;
-        }
-
-        static IEnumerable<Type> GetParentTypes(Type type)
-        {
-            foreach (var i in type.GetInterfaces())
-            {
-                yield return i;
-            }
-
-            // return all inherited types
-            var currentBaseType = type.BaseType;
-            var objectType = typeof(Object);
-            while (currentBaseType != null && currentBaseType != objectType)
-            {
-                yield return currentBaseType;
-                currentBaseType = currentBaseType.BaseType;
-            }
         }
 
         public event EventHandler Started;
@@ -810,8 +672,6 @@ namespace NServiceBus.Unicast
                 starting = true;
 
                 Address.PreventChanges();
-
-                ValidateConfiguration();
 
                 if (startupAction != null)
                 {
@@ -943,12 +803,6 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("Cannot start subscriber without a queue configured. Please specify the LocalAddress property of UnicastBusConfig.");
         }
 
-        void ValidateConfiguration()
-        {
-            if (!SkipDeserialization && MessageSerializer == null)
-                throw new InvalidOperationException("No message serializer has been configured.");
-        }
-
         public void Dispose()
         {
             //Injected at compile time
@@ -1052,7 +906,7 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            PipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T), @event));
+            PipelineFactory.InvokeLogicalMessagePipeline(LogicalMessageFactory.Create(typeof(T),@event));
         }
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -1110,98 +964,6 @@ namespace NServiceBus.Unicast
 
 
         /// <summary>
-        /// Wraps the provided messages in an NServiceBus envelope, does not include destination.
-        /// Invokes message mutators.
-        /// </summary>
-        /// <param name="rawMessages">The messages to wrap.</param>
-        /// <param name="result">The envelope in which the messages are placed.</param>
-        /// <returns>The envelope containing the messages.</returns>
-        void MapTransportMessageFor(IList<object> rawMessages, TransportMessage result)
-        {
-            if (!Configure.SendOnlyMode)
-            {
-                result.ReplyToAddress = Address.Local;
-
-                if (PropagateReturnAddressOnSend && _messageBeingHandled != null && _messageBeingHandled.ReplyToAddress != null)
-                    result.ReplyToAddress = _messageBeingHandled.ReplyToAddress;
-            }
-
-            var messages = ApplyOutgoingMessageMutatorsTo(rawMessages).ToArray();
-
-
-            var messageDefinitions = rawMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(GetMessageType(m))).ToList();
-
-            result.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);
-            result.Recoverable = messageDefinitions.Any(md => md.Recoverable);
-
-            SerializeMessages(result, messages);
-
-            InvokeOutgoingTransportMessagesMutators(messages, result);
-        }
-
-        Type GetMessageType(object message)
-        {
-            var messageType = message.GetType();
-
-            return MessageMapper.GetMappedTypeFor(messageType);
-        }
-
-        void SerializeMessages(TransportMessage result, object[] messages)
-        {
-            using (var ms = new MemoryStream())
-            {
-                MessageSerializer.Serialize(messages, ms);
-
-                result.Headers[Headers.ContentType] = MessageSerializer.ContentType;
-
-                if (messages.Any())
-                    result.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(messages);
-
-                result.Body = ms.ToArray();
-            }
-        }
-
-        string SerializeEnclosedMessageTypes(IEnumerable<object> messages)
-        {
-            var types = messages.Select(m => MessageMapper.GetMappedTypeFor(m.GetType())).ToList();
-
-            var interfaces = types.SelectMany(t => t.GetInterfaces())
-                .Where(MessageConventionExtensions.IsMessageType);
-
-            var distinctTypes = types.Distinct();
-            var interfacesOrderedByHierarchy = interfaces.Distinct().OrderByDescending(i => i.GetInterfaces().Count()); // Interfaces with less interfaces are lower in the hierarchy. 
-
-            return string.Join(";", distinctTypes.Concat(interfacesOrderedByHierarchy).Select(t => t.AssemblyQualifiedName));
-        }
-
-        private void InvokeOutgoingTransportMessagesMutators(object[] messages, TransportMessage result)
-        {
-            var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
-            if (mutators != null)
-                foreach (var mutator in mutators)
-                {
-                    Log.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
-                    mutator.MutateOutgoing(messages, result);
-                }
-        }
-
-        IEnumerable<object> ApplyOutgoingMessageMutatorsTo(IEnumerable<object> messages)
-        {
-            foreach (var originalMessage in messages)
-            {
-                var mutators = Builder.BuildAll<IMutateOutgoingMessages>().ToList();
-
-                var mutatedMessage = originalMessage;
-                mutators.ForEach(m =>
-                {
-                    mutatedMessage = m.MutateOutgoing(mutatedMessage);
-                });
-
-                yield return mutatedMessage;
-            }
-        }
-
-        /// <summary>
         /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
         /// </summary>
         Address GetAddressForMessages(object[] messages)
@@ -1244,8 +1006,6 @@ namespace NServiceBus.Unicast
             if (starting == false)
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
-
-
 
         Address inputAddress;
 
@@ -1291,7 +1051,15 @@ namespace NServiceBus.Unicast
             get
             {
                 return Builder.Build<PipelineFactory>();
-            }        
+            }
+        }
+
+        LogicalMessageFactory LogicalMessageFactory
+        {
+            get
+            {
+                return Builder.Build<LogicalMessageFactory>();
+            }
         }
     }
 }

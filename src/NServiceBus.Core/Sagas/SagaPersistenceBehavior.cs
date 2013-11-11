@@ -6,11 +6,12 @@
     using IdGeneration;
     using Logging;
     using Pipeline;
-    using Pipeline.Behaviors;
+    using Pipeline.Contexts;
     using Saga;
     using Finders;
     using Transports;
     using Unicast;
+    using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
     {

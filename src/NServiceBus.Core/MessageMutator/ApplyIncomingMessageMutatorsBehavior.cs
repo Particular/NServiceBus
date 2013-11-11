@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Pipeline.MessageMutator
 {
     using System;
-    using MessageMutator;
+    using Contexts;
+    using NServiceBus.MessageMutator;
 
     class ApplyIncomingMessageMutatorsBehavior : IBehavior<LogicalMessageContext>
     {

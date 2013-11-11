@@ -1,6 +1,8 @@
-namespace NServiceBus.Pipeline
+namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class ChildContainerBehavior:IBehavior<PhysicalMessageContext>
     {

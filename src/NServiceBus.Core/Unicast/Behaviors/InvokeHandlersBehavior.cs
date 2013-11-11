@@ -1,15 +1,18 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using Logging;
+    using Messages;
     using ObjectBuilder;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Saga;
     using Sagas;
     using Unicast;
-    using Unicast.Transport;
+    using Transport;
 
     class InvokeHandlersBehavior : IBehavior<MessageHandlerContext>
     {
@@ -68,13 +71,6 @@
                 else
                 {
                     messageHandler.Invocation(handlerInstance, toHandle.Instance);
-                }
-
-                //for now we have to check of the chain is aborted but this will go away when we refactor the handlers to be a subpipeline
-                if (context.ChainAborted)
-                {
-                    log.DebugFormat("Handler {0} requested downstream handlers of message {1} to not be invoked", handlerTypeToInvoke, toHandle.MessageType);
-                    return;
                 }
             }
             finally

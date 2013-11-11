@@ -20,12 +20,10 @@
                         bus.SendToSites(new[] { "SiteB" }, new MyRequest { Payload = new DataBusProperty<byte[]>(PayloadToSend) })
                             .Register(result => context.GotCallback = true)))
                 .WithEndpoint<SiteB>()
-                .Done(c => c.GotResponseBack)
+                .Done(c => c.GotResponseBack && c.GotCallback)
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>
                 {
-                    Assert.IsTrue(c.GotResponseBack);
-                    Assert.IsTrue(c.GotCallback);
                     Assert.AreEqual(PayloadToSend, c.SiteBReceivedPayload,
                         "The large payload should be marshalled correctly using the databus");
                     Assert.AreEqual(PayloadToSend, c.SiteAReceivedPayloadInResponse,

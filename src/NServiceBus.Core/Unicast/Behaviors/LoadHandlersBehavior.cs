@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.Pipeline.Behaviors
+﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
     using System.Linq;
     using MessageInterfaces;
+    using Pipeline;
+    using Pipeline.Contexts;
     using Unicast;
 
     class LoadHandlersBehavior : IBehavior<LogicalMessageContext>
