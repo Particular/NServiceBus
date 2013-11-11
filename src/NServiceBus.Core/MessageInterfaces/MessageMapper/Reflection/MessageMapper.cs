@@ -53,7 +53,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
-            if (t.IsSimpleType())
+            if (t.IsSimpleType() || t.IsGenericTypeDefinition)
             {
                 return;
             }
@@ -339,7 +339,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 Type result;
                 concreteToInterfaceTypeMapping.TryGetValue(t, out result);
-                if (result != null)
+                if (result != null || t.IsGenericTypeDefinition)
                 {
                     return result;
                 }

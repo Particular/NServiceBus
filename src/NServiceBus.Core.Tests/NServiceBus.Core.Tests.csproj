@@ -173,6 +173,7 @@
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
+    <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
