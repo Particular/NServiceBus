@@ -127,7 +127,7 @@
     <Compile Include="Unicast\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\LogicalMessage.cs" />
+    <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandlingLoggingBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
@@ -150,6 +150,7 @@
     <Compile Include="Unicast\Behaviors\SerializeMessagesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
+    <Compile Include="Unicast\Messages\LogicalMessageFactory.cs" />
     <Compile Include="Unicast\SendOptions.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
@@ -189,7 +190,7 @@
     <Compile Include="Transports\Msmq\CorrelationIdMutatorForBackwardsCompatibilityWithV3.cs" />
     <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Msmq\Config\MsmqTransport.cs" />
-    <Compile Include="Unicast\Behaviors\ExtractLogicalMessagesBehavior.cs" />
+    <Compile Include="Unicast\Messages\ExtractLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Config\FinalizeUnicastBusConfiguration.cs" />
     <Compile Include="Gateway\DefaultInputAddress.cs" />
     <Compile Include="Gateway\Gateway.cs" />

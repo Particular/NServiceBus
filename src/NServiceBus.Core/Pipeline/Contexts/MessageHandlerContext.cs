@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using Unicast.Behaviors;
+    using Unicast.Messages;
 
     class MessageHandlerContext : BehaviorContext
     {

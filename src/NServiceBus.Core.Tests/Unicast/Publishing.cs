@@ -6,10 +6,10 @@
     using Rhino.Mocks;
 
     [TestFixture]
-    public class When_publishing_a_command_messages : using_the_unicastBus
+    public class When_publishing_a_command : using_the_unicastBus
     {
         [Test]
-        public void Should_get_an_error_messages()
+        public void Should_get_an_error_message()
         {
             RegisterMessageType<CommandMessage>();
 
@@ -18,7 +18,7 @@
     }
 
     [TestFixture]
-    public class When_publishing_a_event_messages : using_the_unicastBus
+    public class When_publishing_an_event : using_the_unicastBus
     {
         [Test]
         public void Should_send_a_message_to_each_subscriber()

@@ -8,7 +8,6 @@ namespace NServiceBus.Unicast
     using System.Text;
     using System.Threading.Tasks;
     using Audit;
-    using Behaviors;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -36,6 +35,7 @@ namespace NServiceBus.Unicast
         {
             _messageBeingHandled = null;
         }
+
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -300,11 +300,13 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var context = PipelineFactory.InvokeSendPipeline(SendOptions.Publish, messages.Select(m => new LogicalMessage(typeof(T), m)).ToList());
+            var messagesToPublish = (IEnumerable<object>)messages.ToList();
+
+            var context = PipelineFactory.InvokeSendPipeline(SendOptions.Publish, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
             if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
-                NoSubscribersForMessage(this, new MessageEventArgs(messages[0]));
+                NoSubscribersForMessage(this, new MessageEventArgs(messagesToPublish.First()));
             }
         }
 
@@ -407,7 +409,7 @@ namespace NServiceBus.Unicast
 
             options.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
 
-            SendMessages(options, CreateLogicalMessages(messages));
+            SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public void Reply(object message)
@@ -474,9 +476,9 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return SendMessages(new SendOptions(MasterNodeAddress), CreateLogicalMessages(messages));
+                return SendMessages(new SendOptions(MasterNodeAddress), LogicalMessageFactory.CreateMultiple(messages));
             }
-            return SendMessages(SendOptions.ToLocalEndpoint, CreateLogicalMessages(messages));
+            return SendMessages(SendOptions.ToLocalEndpoint, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -493,37 +495,37 @@ namespace NServiceBus.Unicast
         {
             var destination = GetAddressForMessages(messages);
 
-            return SendMessages(new SendOptions(destination), CreateLogicalMessages(messages));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessage.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(address), LogicalMessage.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessages(new SendOptions(destination), CreateLogicalMessages(message));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(string destination, params object[] messages)
         {
-            return SendMessages(new SendOptions(destination), CreateLogicalMessages(messages));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, params object[] messages)
         {
-            return SendMessages(new SendOptions(address), CreateLogicalMessages(messages));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessages(new SendOptions(address), CreateLogicalMessages(message));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -533,7 +535,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessage.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
@@ -543,7 +545,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessage.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, string correlationId, object message)
@@ -553,7 +555,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, CreateLogicalMessages(message));
+            return SendMessages(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(string destination, string correlationId, params object[] messages)
@@ -563,7 +565,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, CreateLogicalMessages(messages));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, string correlationId, params object[] messages)
@@ -573,7 +575,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, CreateLogicalMessages(messages));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send(Address address, string correlationId, object message)
@@ -583,21 +585,21 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, CreateLogicalMessages(message));
+            return SendMessages(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), CreateLogicalMessages(message));
+            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
             Headers.SetMessageHeader(messages[0], Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), CreateLogicalMessages(messages));
+            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
@@ -617,7 +619,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            return SendMessages(new SendOptions(Address.Local) { ProcessAt = processAt }, CreateLogicalMessages(messages));
+            return SendMessages(new SendOptions(Address.Local) { ProcessAt = processAt }, LogicalMessageFactory.CreateMultiple(messages));
         }
 
 
@@ -904,7 +906,7 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(T @event)
         {
-            PipelineFactory.InvokeLogicalMessagePipeline(new LogicalMessage(typeof(T), @event));
+            PipelineFactory.InvokeLogicalMessagePipeline(LogicalMessageFactory.Create(typeof(T),@event));
         }
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -1005,11 +1007,6 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
         }
 
-        IEnumerable<LogicalMessage> CreateLogicalMessages(params object[] messages)
-        {
-            return LogicalMessage.Create(messages, messageMapper);
-        }
-
         Address inputAddress;
 
 
@@ -1054,6 +1051,14 @@ namespace NServiceBus.Unicast
             get
             {
                 return Builder.Build<PipelineFactory>();
+            }
+        }
+
+        LogicalMessageFactory LogicalMessageFactory
+        {
+            get
+            {
+                return Builder.Build<LogicalMessageFactory>();
             }
         }
     }

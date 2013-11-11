@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Messages;
     using Pipeline;
     using Pipeline.Contexts;
     using Serialization;
 
-    internal class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
+    class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 
@@ -35,15 +36,9 @@
 
         string SerializeEnclosedMessageTypes(IEnumerable<LogicalMessage> messages)
         {
-            var types = messages.Select(m => m.MessageType).ToList();
-
-            var interfaces = types.SelectMany(t => t.GetInterfaces())
-                .Where(MessageConventionExtensions.IsMessageType);
-
-            var distinctTypes = types.Distinct();
-            var interfacesOrderedByHierarchy = interfaces.Distinct().OrderByDescending(i => i.GetInterfaces().Count()); // Interfaces with less interfaces are lower in the hierarchy. 
-
-            return string.Join(";", distinctTypes.Concat(interfacesOrderedByHierarchy).Select(t => t.AssemblyQualifiedName));
+            var distinctTypes = messages.SelectMany(lm => lm.Metadata.MessageHierarchy).Distinct();
+            
+            return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }
     }
 }

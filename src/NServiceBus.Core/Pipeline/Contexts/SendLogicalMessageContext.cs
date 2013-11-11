@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using Unicast;
-    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     internal class SendLogicalMessageContext : BehaviorContext
     {

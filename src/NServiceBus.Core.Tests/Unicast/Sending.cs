@@ -201,6 +201,7 @@
         [Test]
         public void Should_throw()
         {
+            RegisterMessageType<CommandMessage>(Address.Undefined);
             Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandMessage()));
         }
     }

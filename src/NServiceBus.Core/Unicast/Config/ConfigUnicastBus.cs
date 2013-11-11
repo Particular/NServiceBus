@@ -60,6 +60,7 @@ namespace NServiceBus.Unicast.Config
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
             Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
+            Configurer.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
             
             if(!Logger.IsInfoEnabled)
                 return;

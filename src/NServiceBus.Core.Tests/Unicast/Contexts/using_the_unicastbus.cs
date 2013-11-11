@@ -19,7 +19,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Publishing;
     using Rhino.Mocks;
     using Routing;
-    using Sagas;
     using Serialization;
     using Serializers.XML;
     using Settings;
@@ -105,6 +104,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
             FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
+
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator

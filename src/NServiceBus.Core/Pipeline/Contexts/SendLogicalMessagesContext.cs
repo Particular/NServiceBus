@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
     using Unicast;
-    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     internal class SendLogicalMessagesContext : BehaviorContext
     {

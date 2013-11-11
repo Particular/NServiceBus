@@ -11,7 +11,7 @@
     using Finders;
     using Transports;
     using Unicast;
-    using Unicast.Behaviors;
+    using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
     {

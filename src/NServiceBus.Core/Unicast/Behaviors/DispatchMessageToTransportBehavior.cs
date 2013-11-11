@@ -41,7 +41,11 @@
                         throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
                     }
 
-                    var subscribersFound = MessagePublisher.Publish(context.MessageToSend, context.LogicalMessages.Select(m => m.MessageType).ToList());
+                    var eventTypesToPublish = context.LogicalMessages.SelectMany(m => m.Metadata.MessageHierarchy)
+                        .Distinct()
+                        .ToList();
+
+                    var subscribersFound = MessagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
 
                     context.Set("SubscribersFound", subscribersFound);
                 }

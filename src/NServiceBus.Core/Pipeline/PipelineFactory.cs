@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using Audit;
     using Contexts;
@@ -11,6 +10,7 @@
     using Sagas;
     using Unicast;
     using Unicast.Behaviors;
+    using Unicast.Messages;
     using UnitOfWork;
 
     class PipelineFactory : IDisposable

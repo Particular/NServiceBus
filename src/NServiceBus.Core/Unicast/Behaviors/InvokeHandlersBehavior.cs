@@ -5,13 +5,14 @@
     using System.Linq;
     using System.Reflection;
     using Logging;
+    using Messages;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
     using Saga;
     using Sagas;
     using Unicast;
-    using Unicast.Transport;
+    using Transport;
 
     class InvokeHandlersBehavior : IBehavior<MessageHandlerContext>
     {
