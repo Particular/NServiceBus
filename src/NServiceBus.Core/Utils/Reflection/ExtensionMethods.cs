@@ -8,6 +8,7 @@ namespace NServiceBus.Utils.Reflection
     /// <summary>
     /// Contains extension methods
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message= "These will be made internal in version 5.0")]
     public static class ExtensionMethods
     {
         /// <summary>
