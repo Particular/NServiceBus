@@ -356,6 +356,7 @@ namespace NServiceBus.Unicast.Config
         /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
         /// your self.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Replacement = "Should instead be writing a Satelite")]
         public ConfigUnicastBus SkipDeserialization()
         {
             busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
