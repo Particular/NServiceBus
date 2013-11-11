@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using Messages;
     using Pipeline;
@@ -16,14 +18,15 @@
 
         public void Invoke(PhysicalMessageContext context, Action next)
         {
-            var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context.Get<LogicalMessages>());
+
+            var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
 
             context.Set(CallbackInvokedKey, messageWasHandled);
 
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, LogicalMessages messages)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, PhysicalMessageContext context)
         {
             if (transportMessage.CorrelationId == null)
             {
@@ -51,6 +54,13 @@
                 {
                     statusCode = int.Parse(errorCode);
                 }
+            }
+
+            IEnumerable<LogicalMessage> messages;
+
+            if (!context.TryGet(out messages))
+            {
+                messages = new List<LogicalMessage>();
             }
 
             busAsyncResult.Complete(statusCode, messages.Select(lm=>lm.Instance).ToArray());

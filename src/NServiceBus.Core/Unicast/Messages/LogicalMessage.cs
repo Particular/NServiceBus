@@ -29,24 +29,4 @@
 
         public object Instance { get; private set; }
     }
-
-    class LogicalMessages : IEnumerable<LogicalMessage>
-    {
-        public void Add(LogicalMessage message)
-        {
-            messages.Add(message);
-        }
-
-        public IEnumerator<LogicalMessage> GetEnumerator()
-        {
-            return messages.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        List<LogicalMessage> messages = new List<LogicalMessage>();
-    }
 }
