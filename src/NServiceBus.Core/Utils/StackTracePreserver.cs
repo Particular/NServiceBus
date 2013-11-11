@@ -7,6 +7,10 @@
     {
         public static void PreserveStackTrace(this Exception exception)
         {
+            if (!exception.GetType().IsSerializable)
+            {
+                return;
+            }
             try
             {
                 var context = new StreamingContext(StreamingContextStates.CrossAppDomain);

@@ -111,6 +111,7 @@
     <Compile Include="Distributor\ReadyMessages\Headers.cs" />
     <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />
     <Compile Include="Distributor\ReadyMessages\ReturnAddressRewriter.cs" />
+    <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
