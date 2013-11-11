@@ -39,6 +39,13 @@
             var transportMessage = context.PhysicalMessage;
 
             IEnumerable<LogicalMessage> messages;
+            
+            if (transportMessage.IsControlMessage())
+            {
+                log.Info("Received a control message. Skipping deserialization as control message data is contained in the header.");
+                next();
+                return;
+            }
 
             try
             {
@@ -49,15 +56,15 @@
                 throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
 
-            if (!transportMessage.IsControlMessage() && !messages.Any())
-            {
-                log.Warn("Received an empty message - ignoring.");
-                return;
-            }
-
+          
             foreach (var message in messages)
             {
                 PipelineFactory.InvokeLogicalMessagePipeline(message);
+            }
+
+            if (!messages.Any())
+            {
+                log.Warn("Received an empty message - ignoring.");
             }
 
             next();

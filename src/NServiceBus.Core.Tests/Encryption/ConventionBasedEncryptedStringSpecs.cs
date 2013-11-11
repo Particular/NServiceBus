@@ -41,7 +41,8 @@
         [Test]
         public void Should_throw_an_exception()
         {
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateOutgoing(new MessageWithNonStringSecureProperty()));
+            var exception = Assert.Throws<Exception>(() => mutator.MutateOutgoing(new MessageWithNonStringSecureProperty()));
+            Assert.AreEqual("Only string properties is supported for convention based encryption, please check your convention", exception.Message);
         }
     }
 
@@ -51,7 +52,8 @@
         [Test]
         public void Should_throw_an_exception()
         {
-            Assert.Throws<InvalidOperationException>(() => mutator.MutateIncoming(new MessageWithNonStringSecureProperty()));
+            var exception = Assert.Throws<Exception>(() => mutator.MutateIncoming(new MessageWithNonStringSecureProperty()));
+            Assert.AreEqual("Only string properties is supported for convention based encryption, please check your convention", exception.Message);
         }
     }
 

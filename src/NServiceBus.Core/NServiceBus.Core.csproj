@@ -46,9 +46,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac.Configuration">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.Configuration.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp">
       <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
     </Reference>
@@ -102,6 +99,7 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
