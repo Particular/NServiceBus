@@ -6,7 +6,6 @@
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_master : NServiceBusAcceptanceTest
     {
