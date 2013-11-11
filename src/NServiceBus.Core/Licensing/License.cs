@@ -10,9 +10,8 @@ namespace NServiceBus.Licensing
         public int MaxThroughputPerSecond;
         public int AllowedNumberOfWorkerNodes;
         public DateTime ExpirationDate;
-        public string Name;
+      //  public string Name;
         public DateTime? UpgradeProtectionExpiration;
-        public string LicenseVersion;
-        public Guid UserId;
+      //  public Guid UserId;
     }
 }

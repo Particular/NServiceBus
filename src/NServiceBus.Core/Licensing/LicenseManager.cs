@@ -44,10 +44,11 @@ namespace NServiceBus.Licensing
 
         static void WriteLicenseInfo()
         {
-            Logger.InfoFormat("Registered to {0}", License.Name);
             Logger.InfoFormat("Expires on {0}", License.ExpirationDate);
-            Logger.InfoFormat("License Version {0}", License.LicenseVersion);
-            Logger.InfoFormat("UpgradeProtectionExpiration {0}", License.UpgradeProtectionExpiration);
+            if (License.UpgradeProtectionExpiration != null)
+            {
+                Logger.InfoFormat("UpgradeProtectionExpiration {0}", License.UpgradeProtectionExpiration);
+            }
             Logger.InfoFormat("MaxThroughputPerSecond {0}", License.MaxThroughputPerSecond);
             Logger.InfoFormat("AllowedNumberOfWorkerNodes {0}", License.AllowedNumberOfWorkerNodes);
         }
@@ -70,7 +71,7 @@ namespace NServiceBus.Licensing
                     Logger.Info(message);
 
                     //Run in unlimited mode during trial period
-                    License = LicenseDeserializer.GetMaxLicense(trialExpirationDate);
+                    License = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
                 }
                 return;
             }

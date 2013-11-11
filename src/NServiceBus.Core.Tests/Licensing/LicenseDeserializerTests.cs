@@ -30,12 +30,9 @@
 
             var dateTimeOffset = new DateTime(2014, 2, 6, 0, 0, 0,DateTimeKind.Utc);
             Assert.AreEqual(dateTimeOffset, license.ExpirationDate);
-            Assert.AreEqual(LicenseDeserializer.MaxWorkerNodes, license.AllowedNumberOfWorkerNodes);
-            Assert.AreEqual(LicenseDeserializer.MaxThroughputPerSecond, license.MaxThroughputPerSecond);
+            Assert.AreEqual(int.MaxValue, license.AllowedNumberOfWorkerNodes);
+            Assert.AreEqual(0, license.MaxThroughputPerSecond);
             Assert.AreEqual(new DateTime(2013, 11, 6, 0, 0, 0,DateTimeKind.Utc), license.UpgradeProtectionExpiration);
-            Assert.AreEqual("4.2",license.LicenseVersion);
-            Assert.AreEqual("74a8f2b3-2730-43e9-ab27-fe20d36bcedd", license.UserId.ToString());
-            Assert.AreEqual("John Smith", license.Name);
         }
 
         [Test]
