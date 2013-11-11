@@ -27,11 +27,22 @@ namespace NServiceBus.Serializers.XML
         string nameSpace = "http://tempuri.net";
         /// <summary>
         /// The namespace to place in outgoing XML.
+        /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
         public string Namespace
         {
             get { return nameSpace; }
-            set { nameSpace = value; }
+            set { nameSpace = TrimPotentialTralingForwardSlashes(value); }
+        }
+
+        string TrimPotentialTralingForwardSlashes(string value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            return value.TrimEnd(new[] { '/' });
         }
 
         /// <summary>

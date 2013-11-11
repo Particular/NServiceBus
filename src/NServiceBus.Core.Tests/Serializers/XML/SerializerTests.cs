@@ -223,6 +223,19 @@ namespace NServiceBus.Serializers.XML.Test
             AssertSerializedEquals(serializer, msg, expected);
         }
 
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_specified_namespace_with_trailing_forward_slashes()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            serializer.Namespace = "http://super.com///";
+            var msg = new EmptyMessage();
+
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+
+            AssertSerializedEquals(serializer, msg, expected);
+        }
+
         static void AssertSerializedEquals(IMessageSerializer serializer, IMessage msg, string expected)
         {
             using (var stream = new MemoryStream())
