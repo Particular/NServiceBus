@@ -4,20 +4,14 @@ namespace NServiceBus.Unicast
 
     internal class SendOptions
     {
-        SendOptions()
+        public SendOptions()
         {
-            Intent = MessageIntentEnum.Publish;
-
-            if (!Configure.SendOnlyMode)
-            {
-                ReplyToAddress = Address.Local;
-            }
+            Intent = MessageIntentEnum.Send;    
         }
+
         public SendOptions(Address destination):this()
         {
-            Intent = MessageIntentEnum.Send;
-            this.destination = destination;
-            
+            Destination = destination;
         }
 
         public SendOptions(string destination): this(Address.Parse(destination))
@@ -25,28 +19,11 @@ namespace NServiceBus.Unicast
         }
 
         public MessageIntentEnum Intent { get; set; }
-        public Address Destination { get { return destination; } }
+        public Address Destination { get; set; }
         public string CorrelationId { get; set; }
-
-        public static SendOptions ToLocalEndpoint
-        {
-            get
-            {
-                return new SendOptions(Address.Local);
-            }
-        }
-
         public Address ReplyToAddress { get; set; }
-
-        public static SendOptions Publish
-        {
-            get
-            {
-                return new SendOptions();
-            }
-        }
-
-        public DateTime? ProcessAt { get; set; }
+        public DateTime? DeliverAt { get; set; }
+        public TimeSpan? DelayDeliveryWith { get; set; }
 
 
         public static SendOptions ReplyTo(Address replyToAddress)
@@ -56,8 +33,5 @@ namespace NServiceBus.Unicast
 
             return new SendOptions(replyToAddress){Intent = MessageIntentEnum.Reply};
         }
-
-        readonly Address destination;
-
     }
 }

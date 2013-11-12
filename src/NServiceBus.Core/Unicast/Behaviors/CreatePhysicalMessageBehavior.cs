@@ -15,6 +15,8 @@
 
         public PipelineFactory PipelineFactory { get; set; }
 
+        public Address DefaultReplyToAddress { get; set; }
+
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
             var sendOptions = context.SendOptions;
@@ -25,7 +27,15 @@
                 CorrelationId = sendOptions.CorrelationId,
                 ReplyToAddress = sendOptions.ReplyToAddress
             };
+    
+    
+    
 
+
+            if (toSend.ReplyToAddress == null)
+            {
+                toSend.ReplyToAddress = DefaultReplyToAddress;
+            }
 
             //todo: pull this out to the distributor when we split it to a separate repo
             if (UnicastBus.PropagateReturnAddressOnSend)

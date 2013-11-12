@@ -302,7 +302,7 @@ namespace NServiceBus.Unicast
 
             var messagesToPublish = (IEnumerable<object>)messages.ToList();
 
-            var context = PipelineFactory.InvokeSendPipeline(SendOptions.Publish, LogicalMessageFactory.CreateMultiple(messagesToPublish));
+            var context = PipelineFactory.InvokeSendPipeline(new SendOptions{Intent = MessageIntentEnum.Publish}, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
             if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
@@ -478,7 +478,7 @@ namespace NServiceBus.Unicast
             {
                 return SendMessages(new SendOptions(MasterNodeAddress), LogicalMessageFactory.CreateMultiple(messages));
             }
-            return SendMessages(SendOptions.ToLocalEndpoint, LogicalMessageFactory.CreateMultiple(messages));
+            return SendMessages(new SendOptions(Address.Local), LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -602,14 +602,14 @@ namespace NServiceBus.Unicast
             return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.CreateMultiple(messages));
         }
 
-        public ICallback Defer(TimeSpan delay, params object[] messages)
-        {
-            return Defer(DateTime.UtcNow + delay, messages);
-        }
-
         public ICallback Defer(TimeSpan delay, object message)
         {
-            return Defer(DateTime.UtcNow + delay, message);
+            return Defer(delay, new[] { message });
+        }
+        
+        public ICallback Defer(TimeSpan delay, params object[] messages)
+        {
+            return SendMessages(new SendOptions(Address.Local) { DelayDeliveryWith = delay }, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Defer(DateTime processAt, object message)
@@ -619,7 +619,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            return SendMessages(new SendOptions(Address.Local) { ProcessAt = processAt }, LogicalMessageFactory.CreateMultiple(messages));
+            return SendMessages(new SendOptions(Address.Local) { DeliverAt = processAt }, LogicalMessageFactory.CreateMultiple(messages));
         }
 
 

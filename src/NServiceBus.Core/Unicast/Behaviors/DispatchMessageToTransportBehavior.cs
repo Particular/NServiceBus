@@ -51,17 +51,30 @@
                 }
                 else
                 {
-                    if (sendOptions.ProcessAt.HasValue && sendOptions.ProcessAt.Value > DateTime.UtcNow)
+                    var deliverAt = DateTime.UtcNow;
+
+                    if (sendOptions.DelayDeliveryWith.HasValue)
+                    {
+                        deliverAt = deliverAt + sendOptions.DelayDeliveryWith.Value;
+                    }
+
+                    if (sendOptions.DeliverAt.HasValue)
+                    {
+                        deliverAt = sendOptions.DeliverAt.Value;
+                    }
+
+                    if (deliverAt > DateTime.UtcNow)
                     {
                         context.MessageToSend.Headers[Headers.IsDeferredMessage] = true.ToString();
 
-                        MessageDeferral.Defer(context.MessageToSend,sendOptions.ProcessAt.Value,sendOptions.Destination);
+                        SetDelayDeliveryWithHeader(context, sendOptions.DelayDeliveryWith);
+
+                        MessageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
                     }
                     else
                     {
-                        MessageSender.Send(context.MessageToSend, sendOptions.Destination);
+                        MessageSender.Send(context.MessageToSend, sendOptions.Destination);    
                     }
-
                 }
             }
             catch (QueueNotFoundException ex)
@@ -89,6 +102,15 @@
             }
 
             next();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0",Message ="V 5.0 will have a explicit IDeferMessages.Defer method for this")]
+        static void SetDelayDeliveryWithHeader(SendPhysicalMessageContext context, TimeSpan? delay)
+        {
+            if (!delay.HasValue)
+                return;
+
+            context.MessageToSend.Headers["NServiceBus.Temporary.DelayDeliveryWith"] = delay.Value.ToString();
         }
 
         static ILog Log = LogManager.GetLogger(typeof(DispatchMessageToTransportBehavior));

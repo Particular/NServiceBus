@@ -48,6 +48,11 @@ namespace NServiceBus.Unicast.Config
         void ConfigureBehaviors()
         {
             Instance.ForAllTypes<IBehavior>(t => Configurer.ConfigureComponent(t,DependencyLifecycle.InstancePerCall));
+
+            if (!SendOnlyMode)
+            {
+                Configurer.ConfigureProperty<CreatePhysicalMessageBehavior>(p => p.DefaultReplyToAddress,Address.Local);
+            }
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)
