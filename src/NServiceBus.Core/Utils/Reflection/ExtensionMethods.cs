@@ -75,11 +75,11 @@ namespace NServiceBus.Utils.Reflection
                 if (TypeToNameLookup.ContainsKey(t))
                     return TypeToNameLookup[t];
 
-            var args = t.GetGenericArguments();
             var index = t.Name.IndexOf('`');
             if (index >= 0)
             {
                 var result = t.Name.Substring(0, index) + "Of";
+                var args = t.GetGenericArguments();
                 for (var i = 0; i < args.Length; i++)
                 {
                     result += args[i].SerializationFriendlyName();
