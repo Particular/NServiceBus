@@ -199,20 +199,25 @@ namespace NServiceBus.Transports.Msmq
                                 return;
                             }
 
-                            UnitOfWork.SetTransaction(msmqTransaction);
-
-                            transportMessage = ConvertMessage(message);
-
-                            if (ProcessMessage(transportMessage))
+                            try
                             {
-                                msmqTransaction.Commit();
-                            }
-                            else
-                            {
-                                msmqTransaction.Abort();
-                            }
+                                UnitOfWork.SetTransaction(msmqTransaction);
 
-                            UnitOfWork.ClearTransaction();
+                                transportMessage = ConvertMessage(message);
+
+                                if (ProcessMessage(transportMessage))
+                                {
+                                    msmqTransaction.Commit();
+                                }
+                                else
+                                {
+                                    msmqTransaction.Abort();
+                                }
+                            }
+                            finally
+                            {
+                                UnitOfWork.ClearTransaction();
+                            }
                         }
                     }
                     else
