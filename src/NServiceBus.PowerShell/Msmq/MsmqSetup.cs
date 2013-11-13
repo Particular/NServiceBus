@@ -260,6 +260,7 @@
                             return OperatingSystemEnum.Server2008;
 
                         case 2:
+                        case 3:
                             if (osVersionInfoEx.ProductType == VER_NT_WORKSTATION)
                             {
                                 return OperatingSystemEnum.Windows8;
