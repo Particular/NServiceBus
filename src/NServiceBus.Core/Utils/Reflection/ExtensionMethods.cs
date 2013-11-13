@@ -40,13 +40,17 @@ namespace NServiceBus.Utils.Reflection
             {
                 var args = i.GetGenericArguments();
 
-                if (args.Length == 1)
-                    if (genericArg.IsAssignableFrom(args[0]))
-                        if (openGenericType.MakeGenericType(args[0]) == i)
-                        {
-                            act(args[0]);
-                            break;
-                        }
+                if (args.Length != 1)
+                {
+                    continue;
+                }
+
+                if (genericArg.IsAssignableFrom(args[0])
+                    && openGenericType.MakeGenericType(args[0]) == i)
+                {
+                    act(args[0]);
+                    break;
+                }
             }
         }
 

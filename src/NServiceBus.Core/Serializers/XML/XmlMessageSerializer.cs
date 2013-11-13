@@ -96,12 +96,14 @@ namespace NServiceBus.Serializers.XML
                 foreach (var interfaceType in t.GetInterfaces())
                 {
                     var arr = interfaceType.GetGenericArguments();
-                    if (arr.Length == 1)
+                    if (arr.Length != 1)
                     {
-                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
-                        {
-                            InitType(arr[0]);
-                        }
+                        continue;
+                    }
+
+                    if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
+                    {
+                        InitType(arr[0]);
                     }
                 }
 
@@ -721,14 +723,16 @@ namespace NServiceBus.Serializers.XML
                 foreach (var interfaceType in type.GetInterfaces())
                 {
                     var args = interfaceType.GetGenericArguments();
-                    if (args.Length == 2)
+                    if (args.Length != 2)
                     {
-                        if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
-                        {
-                            keyType = args[0];
-                            valueType = args[1];
-                            break;
-                        }
+                        continue;
+                    }
+
+                    if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
+                    {
+                        keyType = args[0];
+                        valueType = args[1];
+                        break;
                     }
                 }
 
@@ -1080,13 +1084,15 @@ namespace NServiceBus.Serializers.XML
                     foreach (var interfaceType in interfaces)
                     {
                         var arr = interfaceType.GetGenericArguments();
-                        if (arr.Length == 1)
+                        if (arr.Length != 1)
                         {
-                            if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
-                            {
-                                baseType = arr[0];
-                                break;
-                            }
+                            continue;
+                        }
+
+                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
+                        {
+                            baseType = arr[0];
+                            break;
                         }
                     }
 
