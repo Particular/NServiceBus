@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using AcceptanceTesting.Support;
-    using NServiceBus.SagaPersisters.NHibernate;
     using Persistence.InMemory.SagaPersister;
     using Persistence.Raven.SagaPersister;
 
@@ -34,18 +33,5 @@
                             }
                         }
             };
-
-        public static readonly RunDescriptor NHibernate = new RunDescriptor
-        {
-            Key = "NHibernateSagaPersister",
-            Settings =
-                new Dictionary<string, string>
-                        {
-                            {
-                                "SagaPersister",
-                                typeof (SagaPersister).AssemblyQualifiedName
-                            }
-                        }
-        };
     }
 }

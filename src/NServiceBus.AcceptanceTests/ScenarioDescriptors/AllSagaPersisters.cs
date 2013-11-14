@@ -8,7 +8,6 @@
         {
             Add(SagaPersisters.InMemory);
             Add(SagaPersisters.Raven);
-            Add(SagaPersisters.NHibernate);
         }
     }
 }

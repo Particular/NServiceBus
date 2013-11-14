@@ -12,9 +12,8 @@ namespace Runner
     using System.Transactions;
     using NServiceBus;
     using NServiceBus.Features;
-    using NServiceBus.Persistence.NHibernate;
-    using Runner.Encryption;
-    using Runner.Saga;
+    using Encryption;
+    using Saga;
 
     class Program
     {
@@ -26,7 +25,6 @@ namespace Runner
             var twoPhaseCommit = (args[4].ToLower() == "twophasecommit");
             var saga = (args[5].ToLower() == "sagamessages");
             var encryption = (args[5].ToLower() == "encryption");
-            var nhibernate = (args[6].ToLower() == "nhibernate");
             var concurrency = int.Parse(args[7]);
 
             TransportConfigOverride.MaximumConcurrencyLevel = numberOfThreads;
@@ -69,23 +67,11 @@ namespace Runner
 
             Configure.Features.Disable<Audit>();
 
-            //Configure.Instance.UnicastBus().IsolationLevel(IsolationLevel.Snapshot);
-            //Console.Out.WriteLine("Snapshot");
-
             if (saga)
             {
                 Configure.Features.Enable<Sagas>();
 
-                if (nhibernate)
-                {
-                    NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", SqlServerConnectionString)};
-                    config.UseNHibernateSagaPersister();
-
-                }
-                else
-                {
-                    config.RavenSagaPersister();
-                }
+                config.RavenSagaPersister();
             }
 
             if (volatileMode)
@@ -108,18 +94,6 @@ namespace Runner
                 case "msmq":
                     config.UseTransport<Msmq>();
                     break;
-
-                //todo: dynamically load the transports or autodetect like we do in the acceptance tests
-                //case "sqlserver":
-                //    config.UseTransport<SqlServer>( () => SqlServerConnectionString);
-                //    break;
-
-                //case "activemq":
-                //    config.UseTransport<ActiveMQ>(() => "ServerUrl=activemq:tcp://localhost:61616?nms.prefetchPolicy.all=100");
-                //    break;
-                //case "rabbitmq":
-                //    config.UseTransport<RabbitMQ>(() => "host=localhost");
-                //    break;
 
                 default:
                     throw new InvalidOperationException("Illegal transport " + args[2]);
@@ -251,9 +225,5 @@ namespace Runner
 
             return new TestMessage();
         }
-
-        static string SqlServerConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
-
-
     }
 }

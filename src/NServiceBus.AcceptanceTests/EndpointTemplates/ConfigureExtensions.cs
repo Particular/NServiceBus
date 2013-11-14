@@ -4,29 +4,24 @@
     using System.Collections.Generic;
     using System.Configuration;
     using AcceptanceTesting;
-    using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Common.Config;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.StructureMap;
-    using NServiceBus.ObjectBuilder.Unity;
-    using NServiceBus.Serializers.Binary;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Serializers.XML;
+    using ObjectBuilder.Autofac;
+    using ObjectBuilder.CastleWindsor;
+    using ObjectBuilder.Common.Config;
+    using ObjectBuilder.Ninject;
+    using ObjectBuilder.Spring;
+    using ObjectBuilder.StructureMap;
+    using ObjectBuilder.Unity;
+    using Serializers.Binary;
+    using Serializers.Json;
+    using Serializers.XML;
     using Persistence.InMemory.SagaPersister;
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
-    using Persistence.NHibernate;
     using Persistence.Raven.SagaPersister;
     using Persistence.Raven.SubscriptionStorage;
-    using SagaPersisters.NHibernate;
-    using Unicast.Subscriptions.NHibernate;
 
     public static class ConfigureExtensions
     {
-        static string NHibernateConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
-
         public static string GetOrNull(this IDictionary<string, string> dictionary, string key)
         {
             if (!dictionary.ContainsKey(key))
@@ -109,12 +104,6 @@
 
             }
 
-            if (type == typeof(SagaPersister))
-            {
-                NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
-                return config.UseNHibernateSagaPersister();
-            }
-
             throw new InvalidOperationException("Unknown persister:" + persister);
         }
 
@@ -136,13 +125,7 @@
 
             }
 
-            if (type == typeof(SubscriptionStorage))
-            {
-                NHibernateSettingRetriever.ConnectionStrings = () => new ConnectionStringSettingsCollection {new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString)};
-                return config.UseNHibernateSubscriptionPersister();
-            }
-
-
+          
             if (type == typeof(MsmqSubscriptionStorage))
             {
                 return config.MsmqSubscriptionStorage();

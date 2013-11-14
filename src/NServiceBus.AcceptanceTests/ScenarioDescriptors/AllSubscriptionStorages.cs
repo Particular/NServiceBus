@@ -8,7 +8,6 @@
         {
             Add(SubscriptionStorages.InMemory);
             Add(SubscriptionStorages.Raven);
-            Add(SubscriptionStorages.NHibernate);
             Add(SubscriptionStorages.Msmq);
         }
     }

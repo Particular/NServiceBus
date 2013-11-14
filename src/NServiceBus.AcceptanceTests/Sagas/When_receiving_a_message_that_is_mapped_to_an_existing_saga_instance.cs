@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using Saga;
-    using SagaPersisters.NHibernate.AutoPersistence.Attributes;
     using ScenarioDescriptors;
 
     public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusAcceptanceTest
@@ -74,7 +73,6 @@
                 }
             }
 
-            [TableName("SagaEndpointTestSagaData")]
             public class TestSagaData : IContainSagaData
             {
                 public virtual Guid Id { get; set; }

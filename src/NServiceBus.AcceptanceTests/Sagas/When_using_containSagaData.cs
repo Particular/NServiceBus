@@ -11,13 +11,13 @@
     public class When_using_containsagadata : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_handle_timeouts_properly_when_using_NHibernate()
+        public void Should_handle_timeouts_properly()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<EndpointThatHostsASaga>(
                         b => b.Given(bus => bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
                     .Done(c => c.DidAllSagaInstancesReceiveTimeouts)
-                    .Repeat(r => r.For(Transports.SqlServer).For(SagaPersisters.NHibernate))
+                    .Repeat(r => r.For(Transports.SqlServer))
                     .Should(c =>
                         {
                             Assert.True(c.DidAllSagaInstancesReceiveTimeouts);
@@ -37,9 +37,9 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class SagaThatUsesNHibernatePersistence : Saga<SagaThatUsesNHibernatePersistence.MySagaData>,
+            public class MySaga : Saga<MySaga.MySagaData>,
                                                              IAmStartedByMessages<StartSaga>,
-                                                             IHandleTimeouts<SagaThatUsesNHibernatePersistence.TimeHasPassed>
+                                                             IHandleTimeouts<MySaga.TimeHasPassed>
             {
                 public Context Context { get; set; }
 
