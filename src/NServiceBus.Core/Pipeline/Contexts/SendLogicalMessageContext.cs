@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using Unicast;
     using Unicast.Messages;
 

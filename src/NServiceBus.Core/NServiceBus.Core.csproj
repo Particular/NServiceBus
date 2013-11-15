@@ -134,6 +134,7 @@
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
+    <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ImpersonateSenderBehavior.cs" />
@@ -448,7 +449,6 @@
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Finders\NullSagaFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
-    <Compile Include="Sagas\OriginatingSagaHeaderMutator.cs" />
     <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Sagas\SagaContext.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />

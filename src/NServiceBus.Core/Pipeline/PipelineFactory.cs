@@ -117,7 +117,9 @@
             var pipeline = new BehaviorChain<SendLogicalMessageContext>();
 
             pipeline.Add<SendValidatorBehavior>();
+            pipeline.Add<SagaSendBehavior>(); 
             pipeline.Add<MutateOutgoingMessageBehavior>();
+            
 
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);

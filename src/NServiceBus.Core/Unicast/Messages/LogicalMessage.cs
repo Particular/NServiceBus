@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
+    using System.Collections.Generic;
 
     class LogicalMessage
     {
@@ -8,6 +9,7 @@
         {
             Instance = message;
             Metadata = metadata;
+            Headers = new Dictionary<string, string>();
         }
 
         public void UpdateMessageInstance(object newMessage)
@@ -22,6 +24,8 @@
                 return Metadata.MessageType;
             }
         }
+
+        public IDictionary<string, string> Headers { get; private set; }
 
         public MessageMetadata Metadata { get; private set; }
 

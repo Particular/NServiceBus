@@ -29,6 +29,12 @@
 
                     context.MessageToSend.Body = ms.ToArray();
                 }
+              
+                foreach (var headerEntry in context.LogicalMessages.SelectMany(lm => lm.Headers))
+                {
+                    context.MessageToSend.Headers[headerEntry.Key] = headerEntry.Value;
+                }
+                
             }
 
             next();

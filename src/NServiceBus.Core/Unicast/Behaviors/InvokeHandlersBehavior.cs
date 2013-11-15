@@ -34,55 +34,40 @@
         void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler, BehaviorContext context)
         {
             var handlerInstance = messageHandler.Instance;
-            try
+            var handlerTypeToInvoke = handlerInstance.GetType();
+
+            //for backwards compatibility (users can have registered their own factory
+            var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
+
+            if (factory != null)
             {
-                //until we have a outgoing pipeline that inherits context from the main one
-                var saga = handlerInstance as ISaga;
+                var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle.Instance).ToList();
 
-                if (saga != null)
+                dispatchers.ForEach(dispatch =>
                 {
-                    SagaContext.Current = saga;
-                }
-
-                var handlerTypeToInvoke = handlerInstance.GetType();
-
-                //for backwards compatibility (users can have registered their own factory
-                var factory = GetDispatcherFactoryFor(handlerTypeToInvoke, builder);
-
-                if (factory != null)
-                {
-                    var dispatchers = factory.GetDispatcher(handlerTypeToInvoke, builder, toHandle.Instance).ToList();
-
-                    dispatchers.ForEach(dispatch =>
+                    log.DebugFormat("Dispatching message '{0}' to handler '{1}'", toHandle.MessageType, handlerTypeToInvoke);
+                    try
                     {
-                        log.DebugFormat("Dispatching message '{0}' to handler '{1}'", toHandle.MessageType, handlerTypeToInvoke);
-                        try
-                        {
-                            dispatch();
-                        }
-                        catch (Exception e)
-                        {
-                            log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
+                        dispatch();
+                    }
+                    catch (Exception e)
+                    {
+                        log.Warn(handlerTypeToInvoke.Name + " failed handling message.", e);
 
-                            throw new TransportMessageHandlingFailedException(e);
-                        }
-                    });
-                }
-                else
-                {
-                    messageHandler.Invocation(handlerInstance, toHandle.Instance);
-                }
+                        throw new TransportMessageHandlingFailedException(e);
+                    }
+                });
             }
-            finally
+            else
             {
-                SagaContext.Current = null;
+                messageHandler.Invocation(handlerInstance, toHandle.Instance);
             }
         }
 
         IMessageDispatcherFactory GetDispatcherFactoryFor(Type messageHandlerTypeToInvoke, IBuilder builder)
         {
             if (MessageDispatcherMappings == null)
-            { 
+            {
                 return null;
             }
 
