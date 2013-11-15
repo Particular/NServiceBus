@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Config;
     using Logging;
@@ -173,12 +174,9 @@
                 return sagaType;
             }
 
-            foreach (var msgTypeHandleBySaga in messageTypes)
+            if (messageTypes.Any(msgTypeHandleBySaga => msgTypeHandleBySaga.IsInstanceOfType(message)))
             {
-                if (msgTypeHandleBySaga.IsInstanceOfType(message))
-                {
-                    return sagaType;
-                }
+                return sagaType;
             }
 
             return null;
@@ -215,25 +213,26 @@
         [ObsoleteEx(TreatAsErrorFromVersion = "4.4", Message = "This should be internal")]
         public static MethodInfo GetFindByMethodForFinder(IFinder finder, object message)
         {
-            MethodInfo result = null;
-
+            MethodInfo result;
             IDictionary<Type, MethodInfo> methods;
+
             FinderTypeToMessageToMethodInfoLookup.TryGetValue(finder.GetType(), out methods);
 
-            if (methods != null)
+            if (methods == null)
             {
-                methods.TryGetValue(message.GetType(), out result);
+                return null;
+            }
 
-                if (result == null)
-                {
-                    foreach (var messageType in methods.Keys)
-                    {
-                        if (messageType.IsInstanceOfType(message))
-                        {
-                            result = methods[messageType];
-                        }
-                    }
-                }
+            methods.TryGetValue(message.GetType(), out result);
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            foreach (var messageType in methods.Keys.Where(messageType => messageType.IsInstanceOfType(message)))
+            {
+                result = methods[messageType];
             }
 
             return result;
@@ -242,7 +241,7 @@
         /// <summary>
         ///     Returns a list of finder object capable of using the given message.
         /// </summary>
-        [ObsoleteEx(Replacement = "GetFindersForMessageAndEntity", TreatAsErrorFromVersion = "4.3")]
+        [ObsoleteEx(Replacement = "GetFindersForMessageAndEntity", TreatAsErrorFromVersion = "4.4")]
         public static IEnumerable<Type> GetFindersFor(object m)
         {
             foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
