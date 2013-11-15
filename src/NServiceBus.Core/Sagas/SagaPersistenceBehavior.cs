@@ -66,7 +66,9 @@
             next();
 
             if (sagaInstanceState.NotFound)
+            {
                 return;
+            }
 
             if (saga.Completed)
             {
@@ -105,8 +107,6 @@
                 handler.Handle(currentContext.LogicalMessage.Instance);
             }
         }
-
-
 
         static bool IsTimeoutMessage(LogicalMessage message)
         {
@@ -150,13 +150,13 @@
 
         IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
-            string sagaId = null;
+            string sagaId;
 
             physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
-                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
+                var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => (IFinder)currentContext.Builder.Build(t)).ToList();
 
                 if (logger.IsDebugEnabled)
                     logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), messageType);
@@ -166,7 +166,7 @@
 
             logger.DebugFormat("Message contains a saga type and saga id. Going to use the saga id finder. Type:{0}, Id:{1}", sagaEntityType, sagaId);
 
-            return new List<IFinder> { currentContext.Builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) as IFinder };
+            return new List<IFinder> { (IFinder)currentContext.Builder.Build(typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType)) };
         }
 
         IContainSagaData CreateNewSagaEntity(Type sagaType)

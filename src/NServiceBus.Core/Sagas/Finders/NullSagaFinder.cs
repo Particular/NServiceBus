@@ -6,7 +6,7 @@ namespace NServiceBus.Sagas.Finders
     /// Catch-all finder to return null - so that we can later check
     /// for whether a new saga should be created.
     /// </summary>
-    [ObsoleteEx(Message = "Not used since 4.2",TreatAsErrorFromVersion = "4.3")]
+    [ObsoleteEx(Message = "Not used since 4.2", TreatAsErrorFromVersion = "4.3")]
     public class NullSagaFinder<T> : IFindSagas<T>.Using<object> where T : IContainSagaData
     {
         /// <summary>

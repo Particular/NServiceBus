@@ -24,14 +24,14 @@
 
             ExtensionMethods.CurrentMessageBeingHandled = logicalMessage.Instance;
 
-            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler, context);
+            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler);
 
             ExtensionMethods.CurrentMessageBeingHandled = null;
 
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler, BehaviorContext context)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler)
         {
             var handlerInstance = messageHandler.Instance;
             try
