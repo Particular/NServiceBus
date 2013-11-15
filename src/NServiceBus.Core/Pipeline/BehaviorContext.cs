@@ -81,7 +81,7 @@
         }
 
 
-        readonly BehaviorContext parentContext;
+        protected readonly BehaviorContext parentContext;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

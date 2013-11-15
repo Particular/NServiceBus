@@ -406,7 +406,6 @@
                     ), Arg<Address>.Is.Anything));
         }
 
-     
 
         class MySaga : Saga<MySagaData>, IAmStartedByMessages<MessageToProcess>
         {

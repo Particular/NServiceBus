@@ -26,5 +26,17 @@
                 return Get<LogicalMessage>();
             }
         }
+
+        public TransportMessage IncomingMessage
+        {
+            get
+            {
+                TransportMessage message;
+
+                parentContext.TryGet(out message);
+
+                return message;
+            }
+        }
     }
 }

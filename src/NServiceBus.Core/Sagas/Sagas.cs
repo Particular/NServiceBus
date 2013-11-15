@@ -14,8 +14,6 @@
     {
         public override void Initialize()
         {
-            Configure.Component<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
-
             var sagasFound = FindAndConfigureSagasIn(Configure.TypesToScan);
 
             if (sagasFound)
@@ -442,7 +440,7 @@
 
         static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(ReplyingToNullOriginatorDispatcher));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(Sagas));
 
         /// <summary>
         /// Until we get rid of those statics

@@ -443,12 +443,10 @@
     </Compile>
     <Compile Include="Persistence\InMemory\SagaPersister\InMemorySagaPersister.cs" />
     <Compile Include="Persistence\Raven\SagaPersister\RavenSagaPersister.cs" />
-    <Compile Include="Sagas\AutoCorrelateSagaOnReplyMutator.cs" />
     <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
     <Compile Include="Sagas\ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
-    <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />

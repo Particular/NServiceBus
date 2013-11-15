@@ -30,7 +30,14 @@
             
             currentContext = context;
             physicalMessage = context.Get<TransportMessage>();
-       
+
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            if (physicalMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
+                physicalMessage.Headers.Remove(Headers.SagaId);
+                physicalMessage.Headers.Remove(Headers.SagaType);
+            }
+
             var sagaInstanceState = new ActiveSagaInstance(saga);
 
             var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);

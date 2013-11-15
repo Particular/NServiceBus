@@ -271,7 +271,12 @@ namespace NServiceBus.Saga
         protected virtual void ReplyToOriginator(params object[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
-                HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();
+            {
+                if (HandleReplyingToNullOriginator != null)
+                {
+                    HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();    
+                }
+            }
             else
                 Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }
@@ -307,6 +312,5 @@ namespace NServiceBus.Saga
         public virtual void Timeout(object state)
         {
         }
-
     }
 }
