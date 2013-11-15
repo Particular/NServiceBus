@@ -1,10 +1,7 @@
-﻿using System;
-
-namespace Runner
+﻿namespace Runner
 {
     using System.Collections;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
@@ -14,6 +11,7 @@ namespace Runner
     using NServiceBus.Features;
     using Encryption;
     using Saga;
+    using System;
 
     class Program
     {

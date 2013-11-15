@@ -185,7 +185,7 @@ namespace NServiceBus.Transports.Msmq
                 }
             }
 
-            foreach (var pair in o as List<HeaderInfo>)
+            foreach (var pair in (List<HeaderInfo>)o)
             {
                 if (pair.Key != null)
                 {

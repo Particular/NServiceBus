@@ -45,7 +45,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithInvalidCharacter;
+                var m = (MessageWithInvalidCharacter)msgArray[0];
                 Assert.AreEqual(sb.ToString(), m.Special);
             }
         }
@@ -343,7 +343,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             stream.Position = 0;
             var msgArray = serializer.Deserialize(stream);
-            var m = msgArray[0] as MessageWithDouble;
+            var m = (MessageWithDouble)msgArray[0];
 
             Assert.AreEqual(val, m.Double);
 
@@ -484,7 +484,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithList;
+                var m = (MessageWithList)msgArray[0];
                 Assert.AreEqual("Hello", m.Items.First().Data);
             }
         }
@@ -504,7 +504,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespace;
+				var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First().Data);
 			}
 		}

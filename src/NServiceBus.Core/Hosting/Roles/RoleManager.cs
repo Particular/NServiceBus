@@ -62,7 +62,7 @@
                 roleFound = true;
 
                 //apply role
-                var roleConfigurer = Activator.CreateInstance(role.Value) as IConfigureRole;
+                var roleConfigurer = (IConfigureRole)Activator.CreateInstance(role.Value);
 
                 var config = roleConfigurer.ConfigureRole(specifier);
 

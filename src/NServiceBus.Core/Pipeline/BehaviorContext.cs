@@ -32,7 +32,7 @@
 
         public bool TryGet<T>(out T result)
         {
-            return TryGet<T>(typeof(T).FullName, out result);
+            return TryGet(typeof(T).FullName, out result);
         }
 
         public bool TryGet<T>(string key,out T result)
@@ -45,7 +45,7 @@
 
             if (parentContext != null)
             {
-                return parentContext.TryGet<T>(key, out result);
+                return parentContext.TryGet(key, out result);
             }
 
             if (typeof(T).IsValueType)

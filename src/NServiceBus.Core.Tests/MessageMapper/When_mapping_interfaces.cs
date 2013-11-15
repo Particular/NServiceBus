@@ -56,7 +56,7 @@ namespace NServiceBus.MessageInterfaces.Tests
             mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructor) });
             var instance = mapper.CreateInstance(typeof (InterfaceWithCustomAttributeThatHasNoDefaultConstructor));
             var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructor),true);
-            var attr = attributes[0] as CustomAttributeWithNoDefaultConstructor;
+            var attr = (CustomAttributeWithNoDefaultConstructor)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
 
@@ -67,7 +67,7 @@ namespace NServiceBus.MessageInterfaces.Tests
             mapper.Initialize(new[] { typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters) });
             var instance = mapper.CreateInstance(typeof(InterfaceWithCustomAttributeThatHasNoDefaultConstructorAndNoMatchingParameters));
             var attributes = instance.GetType().GetProperty("SomeProperty").GetCustomAttributes(typeof(CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters), true);
-            var attr = attributes[0] as CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters;
+            var attr = (CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters)attributes[0];
             Assert.AreEqual(attr.Name, "Blah");
         }
 

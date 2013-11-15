@@ -12,7 +12,7 @@ namespace NServiceBus
                 return;
 
 
-            var slaString = (arr.First() as EndpointSLAAttribute).SLA;
+            var slaString = ((EndpointSLAAttribute)arr.First()).SLA;
             
             TimeSpan sla;
 

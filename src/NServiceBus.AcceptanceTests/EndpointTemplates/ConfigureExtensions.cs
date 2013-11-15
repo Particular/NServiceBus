@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using AcceptanceTesting;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.CastleWindsor;

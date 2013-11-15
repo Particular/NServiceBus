@@ -23,7 +23,7 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
-            var instance =  context.Builder.Build(behaviorType) as IBehavior<T>;
+            var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
 
             instance.Invoke(context, () => InvokeNext(context));
         }

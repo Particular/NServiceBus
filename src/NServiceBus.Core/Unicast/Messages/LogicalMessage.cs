@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
 
     class LogicalMessage
     {
