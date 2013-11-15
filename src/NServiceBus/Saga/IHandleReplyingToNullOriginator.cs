@@ -3,6 +3,7 @@ namespace NServiceBus.Saga
     /// <summary>
     /// Double-dispatch class.
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", Message ="This hook will no longer be provided")]
     public interface IHandleReplyingToNullOriginator
     {
         /// <summary>
