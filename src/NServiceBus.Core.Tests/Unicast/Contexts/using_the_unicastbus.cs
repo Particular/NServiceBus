@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
+    using Licensing;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
@@ -59,6 +60,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
+            LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();

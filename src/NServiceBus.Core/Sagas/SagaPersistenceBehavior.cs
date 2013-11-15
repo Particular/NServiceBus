@@ -80,7 +80,7 @@
                     NotifyTimeoutManagerThatSagaHasCompleted(saga);
                 }
 
-                logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
+                logger.Debug(string.Format("Saga: {0} with Id: {1} has completed.", sagaInstanceState.SagaType.FullName, saga.Entity.Id));
             }
             else
             {

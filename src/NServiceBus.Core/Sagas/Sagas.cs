@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Config;
     using Logging;
@@ -238,8 +239,11 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
-        public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
+        internal static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
         {
+            var findersWithExactMatch = new List<Type>();
+            var findersMatchingBaseTypes = new List<Type>();
+
             foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
             {
                 var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
@@ -248,9 +252,21 @@
 
                 if (messageToMethodInfo.TryGetValue(messageType, out methodInfo) && methodInfo.ReturnType == entityType)
                 {
-                    yield return finderType;
+                    findersWithExactMatch.Add(finderType);
+                }
+                else
+                {
+                    foreach (var otherMessages in messageToMethodInfo.Keys)
+                    {
+                        if (otherMessages.IsAssignableFrom(messageType))
+                        {
+                           findersMatchingBaseTypes.Add(finderType);
+                        }
+                    }
                 }
             }
+
+            return findersWithExactMatch.Concat(findersMatchingBaseTypes);
         }
 
         /// <summary>
