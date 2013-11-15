@@ -447,7 +447,6 @@
     <Compile Include="Sagas\ConfigureHowToFindSagaWithMessageDispatcher.cs" />
     <Compile Include="Sagas\ConfigureTimeoutAsSystemMessages.cs" />
     <Compile Include="Sagas\Finders\HeaderSagaIdFinder.cs" />
-    <Compile Include="Sagas\Finders\NullSagaFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
     <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />

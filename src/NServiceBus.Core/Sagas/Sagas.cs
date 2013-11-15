@@ -83,10 +83,7 @@
 
         public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
-        /// <summary>
-        /// Creates an <see cref="NullSagaFinder{T}" /> for each saga type that doesn't have a finder configured.
-        /// </summary>
-        private void CreateAdditionalFindersAsNecessary()
+        void CreateAdditionalFindersAsNecessary()
         {
             foreach (var sagaEntityType in SagaEntityToMessageToPropertyLookup.Keys)
                 foreach (var messageType in SagaEntityToMessageToPropertyLookup[sagaEntityType].Keys)
@@ -98,11 +95,6 @@
             foreach (var sagaType in SagaTypeToSagaEntityTypeLookup.Keys)
             {
                 var sagaEntityType = SagaTypeToSagaEntityTypeLookup[sagaType];
-
-
-                var nullFinder = typeof(NullSagaFinder<>).MakeGenericType(sagaEntityType);
-                Configure.Component(nullFinder, DependencyLifecycle.InstancePerCall);
-                ConfigureFinder(nullFinder);
 
                 var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
                 Configure.Component(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
