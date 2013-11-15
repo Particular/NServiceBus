@@ -450,7 +450,6 @@
     <Compile Include="Sagas\Finders\NullSagaFinder.cs" />
     <Compile Include="Sagas\Finders\PropertySagaFinder.cs" />
     <Compile Include="Sagas\ReplyingToNullOriginatorDispatcher.cs" />
-    <Compile Include="Sagas\SagaContext.cs" />
     <Compile Include="Satellites\Config\SatelliteContext.cs" />
     <Compile Include="Satellites\ISatellite.cs" />
     <Compile Include="Satellites\SatellitesQueuesCreator.cs" />
