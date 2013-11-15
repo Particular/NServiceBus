@@ -66,7 +66,9 @@
             next();
 
             if (sagaInstanceState.NotFound)
+            {
                 return;
+            }
 
             if (saga.Completed)
             {
@@ -105,8 +107,6 @@
                 handler.Handle(currentContext.LogicalMessage.Instance);
             }
         }
-
-
 
         static bool IsTimeoutMessage(LogicalMessage message)
         {
@@ -150,7 +150,7 @@
 
         IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
-            string sagaId = null;
+            string sagaId;
 
             physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 

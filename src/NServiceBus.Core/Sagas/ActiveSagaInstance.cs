@@ -26,7 +26,6 @@ namespace NServiceBus.Sagas
             IsNew = true;
             AttachEntity(sagaEntity);
         }
-
         
         public void AttachExistingEntity(IContainSagaData loadedEntity)
         {
