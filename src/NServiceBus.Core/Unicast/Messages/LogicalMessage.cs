@@ -25,7 +25,7 @@
             }
         }
 
-        public IDictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
         public MessageMetadata Metadata { get; private set; }
 

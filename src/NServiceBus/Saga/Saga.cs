@@ -76,6 +76,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
         public IHandleReplyingToNullOriginator HandleReplyingToNullOriginator { get; set; }
 
 

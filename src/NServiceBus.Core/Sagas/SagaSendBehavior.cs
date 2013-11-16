@@ -27,16 +27,18 @@
                 string sagaId;
                 string sagaType;
 
-                context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId);
-                context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType);
+                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
+                {
+                    context.MessageToSend.Headers[Headers.SagaId] = sagaId;
+                }
 
-                context.MessageToSend.Headers[Headers.SagaId] = sagaId;
-                context.MessageToSend.Headers[Headers.SagaType] = sagaType;
+                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
+                {
+                    context.MessageToSend.Headers[Headers.SagaType] = sagaType;
+                }
             }
 
             next();
         }
-
-
     }
 }

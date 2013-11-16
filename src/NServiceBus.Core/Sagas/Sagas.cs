@@ -229,7 +229,7 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
-        internal static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
+        public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
         {
             var findersWithExactMatch = new List<Type>();
             var findersMatchingBaseTypes = new List<Type>();
