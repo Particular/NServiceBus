@@ -246,9 +246,9 @@
                 }
                 else
                 {
-                    foreach (var otherMessages in messageToMethodInfo.Keys)
+                    foreach (var otherMessage in messageToMethodInfo.Keys)
                     {
-                        if (otherMessages.IsAssignableFrom(messageType))
+                        if (otherMessage.IsAssignableFrom(messageType) && messageToMethodInfo[otherMessage].ReturnType == entityType)
                         {
                            findersMatchingBaseTypes.Add(finderType);
                         }
