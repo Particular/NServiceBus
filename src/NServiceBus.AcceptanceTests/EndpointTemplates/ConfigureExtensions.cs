@@ -105,17 +105,18 @@
             }
 
 
-            //for now
-            if (persister.Contains("NHibernate"))
-            {
-                SagaPersisters.Configure(persister);
-                return config;
+            var type = Type.GetType(persister);
 
-            }
+            var typeName = "Configure" + type.Name;
 
-            throw new InvalidOperationException("Unknown persister:" + persister);
+            var configurer = Activator.CreateInstance(Type.GetType(typeName));
+
+            dynamic dc = configurer;
+
+            dc.Configure(config);
+
+            return config;
         }
-
 
         public static Configure DefineSubscriptionStorage(this Configure config, string persister)
         {

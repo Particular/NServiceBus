@@ -65,11 +65,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public class Saga1Data : ContainSagaData
             {
                 [Unique]
-                public Guid DataId { get; set; }
+                public virtual Guid DataId { get; set; }
             }
 
 
-            public class Saga2 : Saga<Saga2Data>, IAmStartedByMessages<StartSaga2>
+            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
                 public Context Context { get; set; }
 
@@ -78,11 +78,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Context.DidSaga2ReceiveMessage = true;
                 }
 
+                public class Saga2Data : ContainSagaData
+                {
+                }
             }
 
-            public class Saga2Data : ContainSagaData
-            {
-            }
         }
 
 

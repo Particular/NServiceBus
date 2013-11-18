@@ -57,8 +57,6 @@
                 };
             }
         }
-
-        public static Action<string> Configure = s => { throw new NotImplementedException("Please supply config for " + s); };
     }
 
 }
