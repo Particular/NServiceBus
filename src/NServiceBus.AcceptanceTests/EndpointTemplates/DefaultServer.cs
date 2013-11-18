@@ -5,12 +5,9 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using AcceptanceTesting;
     using AcceptanceTesting.Support;
     using Config.ConfigurationSource;
     using Hosting.Helpers;
-    using log4net.Appender;
-    using log4net.Core;
     using NServiceBus;
     using Settings;
 
@@ -20,7 +17,8 @@
         {
             var settings = runDescriptor.Settings;
 
-            SetupLogging(endpointConfiguration, runDescriptor.ScenarioContext);
+            SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
+
 
             var types = GetTypesToUse(endpointConfiguration);
 
@@ -80,56 +78,5 @@
             }
         }
 
-        static void SetupLogging(EndpointConfiguration endpointConfiguration, ScenarioContext scenarioContext)
-        {
-            var logDir = ".\\logfiles\\";
-
-            if (!Directory.Exists(logDir))
-                Directory.CreateDirectory(logDir);
-
-            var logFile = Path.Combine(logDir, endpointConfiguration.EndpointName + ".txt");
-
-            if (File.Exists(logFile))
-                File.Delete(logFile);
-
-            var logLevel = "WARN";
-            var logLevelOverride = Environment.GetEnvironmentVariable("tests_loglevel");
-
-            if (!string.IsNullOrEmpty(logLevelOverride))
-                logLevel = logLevelOverride;
-
-            try
-            {
-                SetLoggingLibrary.Log4Net(null, new ContextAppender(scenarioContext));
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLine(ex);
-
-            }
-
-        }
-    }
-
-    public class ContextAppender : AppenderSkeleton
-    {
-        public ContextAppender(ScenarioContext context)
-        {
-            this.context = context;
-        }
-
-        protected override void Append(LoggingEvent loggingEvent)
-        {
-            if (loggingEvent.ExceptionObject != null)
-            {
-                lock (context)
-                {
-                    context.Exceptions += loggingEvent.ExceptionObject + "/n/r";
-                }
-            }
-
-        }
-
-        ScenarioContext context;
     }
 }
