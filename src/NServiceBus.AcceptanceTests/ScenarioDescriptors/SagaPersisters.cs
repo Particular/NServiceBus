@@ -1,37 +1,65 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using AcceptanceTesting.Support;
+    using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
     using Persistence.InMemory.SagaPersister;
     using Persistence.Raven.SagaPersister;
+    using Saga;
 
-    public static class SagaPersisters
+    public class SagaPersisters : ScenarioDescriptor
     {
-        public static readonly RunDescriptor InMemory = new RunDescriptor
-            {
-                Key = "InMemorySagaPersister",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "SagaPersister",
-                                typeof (InMemorySagaPersister).AssemblyQualifiedName
-                            }
-                        }
-            };
+        public SagaPersisters()
+        {
+            var persisters = AvailablePeristers;
 
-
-        public static readonly RunDescriptor Raven = new RunDescriptor
+            foreach (var persister in persisters)
             {
-                Key = "RavenSagaPersister",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "SagaPersister",
-                                typeof (RavenSagaPersister).AssemblyQualifiedName
-                            }
-                        }
-            };
+                Add(new RunDescriptor
+                {
+                    Key = persister.Name,
+                    Settings = new Dictionary<string, string> { { "SagaPersister", persister.AssemblyQualifiedName } }
+                });
+            }
+        }
+
+        static List<Type> AvailablePeristers
+        {
+            get
+            {
+                var persisters = TypeScanner.GetAllTypesAssignableTo<ISagaPersister>()
+                    .Where(t => !t.IsInterface)
+                    .ToList();
+                return persisters;
+            }
+        }
+
+        public static RunDescriptor Default
+        {
+            get
+            {
+                var persisters = AvailablePeristers;
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySagaPersister) && p != typeof(RavenSagaPersister));
+
+                if (persister == null)
+                {
+                    persister = typeof(RavenSagaPersister);
+                }
+
+                return new RunDescriptor
+                {
+                    Key = persister.Name,
+                    Settings = new Dictionary<string, string>
+                    {
+                        {"SagaPersister", persister.AssemblyQualifiedName}
+                    }
+                };
+            }
+        }
+
+        public static Action<string> Configure = s => { throw new NotImplementedException("Please supply config for " + s); };
     }
+
 }

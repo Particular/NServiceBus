@@ -10,6 +10,8 @@
     using ObjectBuilder.Ninject;
     using ObjectBuilder.StructureMap;
     using ObjectBuilder.Unity;
+    using Raven.Abstractions;
+    using ScenarioDescriptors;
     using Serializers.Binary;
     using Serializers.Json;
     using Serializers.XML;
@@ -89,17 +91,31 @@
         public static Configure DefineSagaPersister(this Configure config, string persister)
         {
             if (string.IsNullOrEmpty(persister))
+            {
+                persister = SagaPersisters.Default.Settings["SagaPersister"];
+            }
+
+
+
+            if (persister.Contains(typeof(InMemorySagaPersister).FullName))
+            {
                 return config.InMemorySagaPersister();
+            }
 
-            var type = Type.GetType(persister);
 
-            if (type == typeof(InMemorySagaPersister))
-                return config.InMemorySagaPersister();
-
-            if (type == typeof(RavenSagaPersister))
+            if (persister.Contains(typeof(RavenSagaPersister).FullName))
             {
                 config.RavenPersistence(() => "url=http://localhost:8080");
                 return config.RavenSagaPersister();
+
+            }
+
+
+            //for now
+            if (persister.Contains("NHibernate"))
+            {
+                SagaPersisters.Configure(persister);
+                return config;
 
             }
 

@@ -144,13 +144,12 @@
     <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
     <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
     <Compile Include="Sagas\When_using_containsagadata.cs" />
-    <Compile Include="ScenarioDescriptors\AllSagaPersisters.cs" />
+    <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\AllSubscriptionStorages.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\AllBuilders.cs" />
     <Compile Include="ScenarioDescriptors\AllSerializers.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
-    <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SubscriptionStorages.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Transactions\FakePromotableResourceManager.cs" />
