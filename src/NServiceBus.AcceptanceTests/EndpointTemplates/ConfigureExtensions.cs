@@ -3,14 +3,8 @@
     using System;
     using System.Collections.Generic;
     using AcceptanceTesting;
-    using ObjectBuilder.Autofac;
-    using ObjectBuilder.CastleWindsor;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
-    using ObjectBuilder.Ninject;
-    using ObjectBuilder.StructureMap;
-    using ObjectBuilder.Unity;
-    using Raven.Abstractions;
     using ScenarioDescriptors;
     using Serializers.Binary;
     using Serializers.Json;

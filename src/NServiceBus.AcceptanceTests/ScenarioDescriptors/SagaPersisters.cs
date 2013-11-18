@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
     using Persistence.InMemory.SagaPersister;
     using Persistence.Raven.SagaPersister;
     using Saga;
