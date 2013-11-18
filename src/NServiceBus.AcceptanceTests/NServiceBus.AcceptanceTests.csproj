@@ -101,7 +101,6 @@
   <ItemGroup>
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
-    <Compile Include="BasicMessaging\MessingAround.cs" />
     <Compile Include="BasicMessaging\When_aborting_the_behavior_chain.cs" />
     <Compile Include="BasicMessaging\When_handling_current_message_later.cs" />
     <Compile Include="BasicMessaging\When_registering_a_callback_for_a_local_message.cs" />
@@ -162,7 +161,6 @@
     <Compile Include="Transactions\When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled.cs" />
     <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScenarioDescriptors\Builders.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />

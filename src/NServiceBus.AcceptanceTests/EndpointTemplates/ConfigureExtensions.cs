@@ -5,9 +5,9 @@
     using AcceptanceTesting;
     using ObjectBuilder.Autofac;
     using ObjectBuilder.CastleWindsor;
+    using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
     using ObjectBuilder.Ninject;
-    using ObjectBuilder.Spring;
     using ObjectBuilder.StructureMap;
     using ObjectBuilder.Unity;
     using Serializers.Binary;
@@ -138,32 +138,12 @@
             if (string.IsNullOrEmpty(builder))
                 return config.DefaultBuilder();
 
-            var type = Type.GetType(builder);
 
-            if (type == typeof(AutofacObjectBuilder))
-            {
-                ConfigureCommon.With(config, new AutofacObjectBuilder(null));
+            var container = (IContainer)Activator.CreateInstance(Type.GetType(builder));
 
-                return config;
-            }
+            ConfigureCommon.With(config, container);
 
-            if (type == typeof(WindsorObjectBuilder))
-                return config.CastleWindsorBuilder();
-
-            if (type == typeof(NinjectObjectBuilder))
-                return config.NinjectBuilder();
-
-            if (type == typeof(SpringObjectBuilder))
-                return config.SpringFrameworkBuilder();
-
-            if (type == typeof(StructureMapObjectBuilder))
-                return config.StructureMapBuilder();
-
-            if (type == typeof(UnityObjectBuilder))
-                return config.StructureMapBuilder();
-
-
-            throw new InvalidOperationException("Unknown builder:" + builder);
+            return config;
         }
     }
 }
