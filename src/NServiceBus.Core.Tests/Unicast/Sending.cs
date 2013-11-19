@@ -273,6 +273,55 @@
         }
     }
 
+    [TestFixture]
+    public class When_raising_an_in_memory_message_from_a_message_handler : using_the_unicastBus
+    {
+        [Test]
+        public void Should_invoke_registered_message_handlers()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new StartMessage());
+          
+            RegisterMessageType<StartMessage>();
+           
+            RegisterMessageHandlerType<StartHandler>();
+            RegisterMessageHandlerType<RaisedMessageHandler>();
+
+            ReceiveMessage(receivedMessage);
+            
+            Assert.True(RaisedMessageHandler.Called);
+        }
+
+        class StartMessage:IMessage
+        {
+             
+        }
+
+        class RaisedMessage
+        {
+             
+        }
+
+        class StartHandler : IHandleMessages<StartMessage>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(StartMessage message)
+            {
+                Bus.InMemory.Raise(new RaisedMessage());
+            }
+        }
+
+        class RaisedMessageHandler : IHandleMessages<RaisedMessage>
+        {
+            public static bool Called;
+
+            public void Handle(RaisedMessage message)
+            {
+                Called = true;
+            }
+        }
+    }
+
 
     [TestFixture]
     public class When_replying_to_a_saga : using_the_unicastBus

@@ -18,6 +18,11 @@
             throw new Exception(message);
         }
 
+        public bool HasDefinitionFor(Type messageType)
+        {
+            return messages.ContainsKey(messageType);
+        }
+
         public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
         {
             var messageMetadatas = new List<MessageMetadata>();

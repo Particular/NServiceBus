@@ -904,14 +904,33 @@ namespace NServiceBus.Unicast
         }
 
 
-        public void Raise<T>(T @event)
-        {
-            PipelineFactory.InvokeLogicalMessagePipeline(LogicalMessageFactory.Create(typeof(T),@event));
-        }
-
+      
         public void Raise<T>(Action<T> messageConstructor)
         {
             Raise(CreateInstance(messageConstructor));
+        }
+        public void Raise<T>(T @event)
+        {
+            var messageType = typeof(T);
+
+            EnsureMessageIsRegistered(messageType);
+         
+            var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
+
+            PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0" ,Message ="In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
+        void EnsureMessageIsRegistered(Type messageType)
+        {
+            var registry = Builder.Build<MessageMetadataRegistry>();
+
+            if (registry.HasDefinitionFor(messageType))
+            {
+                return;
+            }
+
+            registry.RegisterMessageType(messageType);
         }
 
         void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
