@@ -200,7 +200,7 @@
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
         {
-            return ProcessInvocation(typeof(SendToSitesInvocation<>), siteKeys, messages);
+            return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object> { { "Value", siteKeys } }, messages);
         }
 
         public ICallback Defer(TimeSpan delay, object message)
