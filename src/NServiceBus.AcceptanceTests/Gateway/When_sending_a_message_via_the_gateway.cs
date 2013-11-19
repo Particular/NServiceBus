@@ -83,6 +83,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
                     .IncludeType<MyRequest>()
+                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                     {
                         c.Channels = new ChannelCollection
