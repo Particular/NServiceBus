@@ -5,6 +5,7 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Rhino.Mocks.Constraints;
 
     [TestFixture]
     public class When_sending_a_message_with_databusProperty : using_the_unicastBus
@@ -238,7 +239,7 @@
     [TestFixture]
     public class When_raising_an_in_memory_message : using_the_unicastBus
     {
-        [Test]
+        [Test,Ignore("Not supported for now")]
         public void Should_invoke_registered_message_handlers()
         {
             RegisterMessageType<TestMessage>();
@@ -246,7 +247,11 @@
             RegisterMessageHandlerType<TestMessageHandler1>();
             RegisterMessageHandlerType<TestMessageHandler2>();
 
-            bus.InMemory.Raise(new TestMessage());
+            var messageToRaise = new TestMessage();
+            Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
+
+
+            bus.InMemory.Raise(messageToRaise);
 
             Assert.True(TestMessageHandler1.Called);
             Assert.True(TestMessageHandler2.Called);
@@ -258,6 +263,8 @@
 
             public void Handle(TestMessage message)
             {
+                Assert.AreEqual("MyHeaderValue", Headers.GetMessageHeader(message, "MyHeader"));
+
                 Called = true;
             }
         }
@@ -280,7 +287,9 @@
         public void Should_invoke_registered_message_handlers()
         {
             var receivedMessage = Helpers.Helpers.Serialize(new StartMessage());
-          
+
+            receivedMessage.Headers["HeaderOnPhysicalMessage"] = "SomeValue";
+
             RegisterMessageType<StartMessage>();
            
             RegisterMessageHandlerType<StartHandler>();
@@ -307,7 +316,10 @@
 
             public void Handle(StartMessage message)
             {
-                Bus.InMemory.Raise(new RaisedMessage());
+                var messageToRaise = new RaisedMessage();
+                Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
+
+                Bus.InMemory.Raise(messageToRaise);
             }
         }
 
@@ -317,6 +329,10 @@
 
             public void Handle(RaisedMessage message)
             {
+                Assert.AreEqual("MyHeaderValue",Headers.GetMessageHeader(message, "MyHeader"));
+
+                Assert.AreEqual("SomeValue", Headers.GetMessageHeader(message, "HeaderOnPhysicalMessage"));
+
                 Called = true;
             }
         }
