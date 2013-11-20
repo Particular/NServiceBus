@@ -21,35 +21,41 @@ namespace NServiceBus.Utils.Reflection
     /// </summary>
     /// <param name="target">Target object</param>
     /// <param name="arguments">Arguments</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundMethod(object target, object[] arguments);
 
     /// <summary>
     /// Late Bound Property
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundProperty(object target);
 
     /// <summary>
     /// Late Bound Field
     /// </summary>
     /// <param name="target">Target Objects </param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundField(object target);
 
     /// <summary>
     /// Late Bound Field Set
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate void LateBoundFieldSet(object target, object value);
 
     /// <summary>
     /// Late Bound Property Set
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate void LateBoundPropertySet(object target, object value);
 
     /// <summary>
     /// Delegate Factory
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
 	public static class DelegateFactory
 	{
         static readonly ConcurrentDictionary<PropertyInfo, LateBoundProperty> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, LateBoundProperty>();
