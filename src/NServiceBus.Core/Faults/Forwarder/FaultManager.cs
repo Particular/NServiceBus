@@ -100,7 +100,7 @@ namespace NServiceBus.Faults.Forwarder
                 message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
             }
 
-            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
+            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
        
