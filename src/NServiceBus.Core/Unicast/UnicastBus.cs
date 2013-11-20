@@ -10,6 +10,7 @@ namespace NServiceBus.Unicast
     using Audit;
     using Licensing;
     using Logging;
+    using MessageHeaders;
     using MessageInterfaces;
     using Messages;
     using ObjectBuilder;

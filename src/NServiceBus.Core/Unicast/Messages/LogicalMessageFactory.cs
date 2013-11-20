@@ -3,6 +3,7 @@ namespace NServiceBus.Unicast.Messages
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using MessageHeaders;
     using MessageInterfaces;
 
     class LogicalMessageFactory
@@ -10,6 +11,8 @@ namespace NServiceBus.Unicast.Messages
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
         
         public IMessageMapper MessageMapper { get; set; }
+
+        public MessageHeaderManager MessageHeaderManager { get; set; }
 
         public IEnumerable<LogicalMessage> Create<T>(T message)
         {
@@ -19,8 +22,9 @@ namespace NServiceBus.Unicast.Messages
         public LogicalMessage Create(Type messageType, object message)
         {
             var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
-
-            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message);
+            var headers = GetMessageHeaders(message);
+         
+            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType),message, headers);
         }
 
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
@@ -37,9 +41,20 @@ namespace NServiceBus.Unicast.Messages
             return messages.Select(m =>
             {
                 var messageType = MessageMapper.GetMappedTypeFor(m.GetType());
-
-                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m);
+                var headers = GetMessageHeaders(m);
+       
+                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
             }).ToList();
         }
+
+
+        Dictionary<string, string> GetMessageHeaders(object message)
+        {
+            var headers = new Dictionary<string, string>();
+            MessageHeaderManager.ApplyMessageSpecificHeaders(message, headers);
+
+            return headers;
+        }
+
     }
 }
