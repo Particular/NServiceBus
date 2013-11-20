@@ -825,7 +825,7 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                return ExtensionMethods.GetStaticOutgoingHeadersAction();
+                return staticOutgoingHeaders;
             }
         }
 
@@ -1064,6 +1064,9 @@ namespace NServiceBus.Unicast
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
+
+        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>(); 
+       
 
         //we need to not inject since at least Autofac dosen't seem to inject internal properties
         PipelineFactory PipelineFactory

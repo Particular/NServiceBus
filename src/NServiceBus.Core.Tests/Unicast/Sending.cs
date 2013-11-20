@@ -76,10 +76,14 @@
         [Test]
         public void The_content_type_should_be_set()
         {
+            bus.OutgoingHeaders["MyStaticHeader"] = "StaticHeaderValue";
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ContentType] == "text/xml"), Arg<Address>.Is.Anything));
+            
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => 
+                m.Headers[Headers.ContentType] == "text/xml" &&
+                m.Headers["MyStaticHeader"] == "StaticHeaderValue"), Arg<Address>.Is.Anything));
         }
 
         [Test]

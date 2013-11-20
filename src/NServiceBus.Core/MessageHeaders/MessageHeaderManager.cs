@@ -15,15 +15,7 @@ namespace NServiceBus.MessageHeaders
     {
         void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
         {
-            foreach (var key in staticOutgoingHeaders.Keys)
-            {
-                transportMessage.Headers[key] = staticOutgoingHeaders[key];
-            }
-
-            if (messages != null && messages.Length > 0)
-            {
-                ApplyMessageSpecificHeaders(messages[0], transportMessage.Headers);
-            }
+            //no-op until we kill this one in v5
         }
 
         /// <summary>
@@ -102,7 +94,8 @@ namespace NServiceBus.MessageHeaders
         /// </summary>
         public IDictionary<string, string> GetStaticOutgoingHeaders()
         {
-            return staticOutgoingHeaders;
+            //just in case some users is accessing the headers on the class
+            return Bus.OutgoingHeaders;
         }
 
         /// <summary>
@@ -154,8 +147,6 @@ namespace NServiceBus.MessageHeaders
 
 
         IUnicastBus bus;
-
-        static IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
 
         [ThreadStatic]
         static IDictionary<object, IDictionary<string, string>> messageHeaders;

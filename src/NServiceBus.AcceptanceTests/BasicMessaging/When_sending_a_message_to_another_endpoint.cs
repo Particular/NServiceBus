@@ -13,7 +13,14 @@
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage { Id = context.Id })))
+                    .WithEndpoint<Sender>(b => b.Given((bus, context) =>
+                    {
+                        bus.OutgoingHeaders["MyStaticHeader"] = "StaticHeaderValue";
+                        bus.Send(new MyMessage
+                        {
+                            Id = context.Id
+                        });
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
                     .Repeat(r =>r.For(Serializers.Binary)
@@ -27,6 +34,7 @@
                             Assert.True(c.ReceivedHeaders[Headers.OriginatingEndpoint].Contains("Sender"), "The sender should attach its endpoint name as a header");
                             Assert.AreEqual(Environment.MachineName, c.ReceivedHeaders[Headers.ProcessingMachine], "The receiver should attach the machine name as a header");
                             Assert.True(c.ReceivedHeaders[Headers.ProcessingEndpoint].Contains("Receiver"), "The receiver should attach its endpoint name as a header");
+                            Assert.AreEqual("StaticHeaderValue",c.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
                         })
                     .Run();
         }

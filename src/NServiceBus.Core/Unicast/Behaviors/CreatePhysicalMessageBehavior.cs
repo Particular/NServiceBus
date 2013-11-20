@@ -27,11 +27,12 @@
                 CorrelationId = sendOptions.CorrelationId,
                 ReplyToAddress = sendOptions.ReplyToAddress
             };
-    
-    
-    
 
-
+            foreach (var staticHeader in UnicastBus.OutgoingHeaders.Keys)
+            {
+                toSend.Headers[staticHeader] = UnicastBus.OutgoingHeaders[staticHeader];
+            }
+    
             if (toSend.ReplyToAddress == null)
             {
                 toSend.ReplyToAddress = DefaultReplyToAddress;
