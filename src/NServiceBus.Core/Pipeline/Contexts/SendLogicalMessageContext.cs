@@ -31,7 +31,9 @@
             {
                 TransportMessage message;
 
-                parentContext.TryGet(out message);
+                //todo: I think we should move to strongly typed parent contexts so the below should be
+                // parentContext.IncomingMessage or similar
+                parentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out message);
 
                 return message;
             }

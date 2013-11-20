@@ -15,6 +15,7 @@ namespace NServiceBus.Unicast
     using Messages;
     using ObjectBuilder;
     using Pipeline;
+    using Pipeline.Contexts;
     using Routing;
     using Satellites;
     using Serialization;
@@ -29,15 +30,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        public UnicastBus()
-        {
-            _messageBeingHandled = null;
-        }
-
-
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
@@ -406,9 +398,9 @@ namespace NServiceBus.Unicast
 
         public void Reply(params object[] messages)
         {
-            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
 
-            options.CorrelationId = !string.IsNullOrEmpty(_messageBeingHandled.CorrelationId) ? _messageBeingHandled.CorrelationId : _messageBeingHandled.Id;
+            options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
@@ -430,9 +422,9 @@ namespace NServiceBus.Unicast
             returnMessage.MessageIntent = MessageIntentEnum.Reply;
 
             returnMessage.Headers[Headers.ReturnMessageErrorCodeHeader] = errorCode.GetHashCode().ToString();
-            returnMessage.CorrelationId = _messageBeingHandled.CorrelationId ?? _messageBeingHandled.Id;
+            returnMessage.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
-            var options = SendOptions.ReplyTo(_messageBeingHandled.ReplyToAddress);
+            var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
             
             PipelineFactory.InvokeSendPipeline(options,returnMessage);
         }
@@ -447,11 +439,11 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                MessageSender.Send(_messageBeingHandled, MasterNodeAddress);
+                MessageSender.Send(MessageBeingProcessed, MasterNodeAddress);
             }
             else
             {
-                MessageSender.Send(_messageBeingHandled, Address.Local);
+                MessageSender.Send(MessageBeingProcessed, Address.Local);
             }
 
             PipelineFactory.CurrentContext.handleCurrentMessageLaterWasCalled = true;
@@ -459,7 +451,7 @@ namespace NServiceBus.Unicast
 
         public void ForwardCurrentMessageTo(string destination)
         {
-            MessageSender.Send(_messageBeingHandled, Address.Parse(destination));
+            MessageSender.Send(MessageBeingProcessed, Address.Parse(destination));
         }
 
         public ICallback SendLocal<T>(Action<T> messageConstructor)
@@ -833,7 +825,14 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                return _messageBeingHandled == null ? null : new MessageContext(_messageBeingHandled);
+                TransportMessage current;
+
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                {
+                    return null;
+                }
+
+                return new MessageContext(current);
             }
         }
 
@@ -884,28 +883,9 @@ namespace NServiceBus.Unicast
             get { return skipDeserialization; }
             set { skipDeserialization = value; }
         }
+        
         internal bool skipDeserialization;
 
-
-        /// <summary>
-        /// Handles the <see cref="ITransport.TransportMessageReceived"/> event from the <see cref="ITransport"/> used
-        /// for the bus.
-        /// </summary>
-        /// <param name="sender">The sender of the event.</param>
-        /// <param name="e">The arguments for the event.</param>
-        /// <remarks>
-        /// When the transport passes up the <see cref="TransportMessage"/> its received,
-        /// the bus checks for initialization, 
-        /// sets the message as that which is currently being handled for the current thread
-        /// and, depending on <see cref="DisableMessageHandling"/>, attempts to handle the message.
-        /// </remarks>
-        private void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
-        {
-            PipelineFactory.InvokePhysicalMessagePipeline(e.Message);
-        }
-
-
-      
         public void Raise<T>(Action<T> messageConstructor)
         {
             Raise(CreateInstance(messageConstructor));
@@ -934,13 +914,47 @@ namespace NServiceBus.Unicast
             registry.RegisterMessageType(messageType);
         }
 
-        void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
+        void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
+            var incomingMessage = e.Message;
+
+            incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
+            incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+
+            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
+
+#pragma warning disable 0618
+            modules = Builder.BuildAll<IMessageModule>().ToList();
+#pragma warning restore 0618
+
             modules.ForEach(module =>
             {
-                Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
-                module.HandleEndMessage();
+                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
+                module.HandleBeginMessage(); //don't need to call others if one fails                                    
             });
+
+            modules.Reverse();//make sure that the modules are called in reverse order when processing ends
+        }
+        void TransportMessageReceived(object sender, TransportMessageReceivedEventArgs e)
+        {
+            PipelineFactory.InvokeReceivePhysicalMessagePipeline();
+        }
+
+        void TransportFinishedMessageProcessing(object sender, FinishedMessageProcessingEventArgs e)
+        {
+            try
+            {
+                modules.ForEach(module =>
+                {
+                    Log.Debug("Calling 'HandleEndMessage' on " + module.GetType().FullName);
+                    module.HandleEndMessage();
+                });
+            }
+            catch (Exception)
+            {
+                PipelineFactory.CompletePhysicalMessagePipelineContext();
+                throw;
+            }
         }
 
         void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
@@ -957,30 +971,6 @@ namespace NServiceBus.Unicast
             });
         }
 
-        void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
-        {
-            _messageBeingHandled = e.Message;
-
-            AddProcessingInformationHeaders(_messageBeingHandled);
-
-#pragma warning disable 0618
-            modules = Builder.BuildAll<IMessageModule>().ToList();
-#pragma warning restore 0618
-
-            modules.ForEach(module =>
-            {
-                Log.Debug("Calling 'HandleBeginMessage' on " + module.GetType().FullName);
-                module.HandleBeginMessage(); //don't need to call others if one fails                                    
-            });
-
-            modules.Reverse();//make sure that the modules are called in reverse order when processing ends
-        }
-
-        void AddProcessingInformationHeaders(TransportMessage message)
-        {
-            message.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
-            message.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
-        }
 
 
         /// <summary>
@@ -1043,11 +1033,20 @@ namespace NServiceBus.Unicast
         /// </summary>
         internal ConcurrentDictionary<string, BusAsyncResult> messageIdToAsyncResultLookup = new ConcurrentDictionary<string, BusAsyncResult>();
 
-        /// <remarks>
-        /// ThreadStatic
-        /// </remarks>
-        [ThreadStatic]
-        static TransportMessage _messageBeingHandled;
+        TransportMessage MessageBeingProcessed
+        {
+            get
+            {
+                TransportMessage current;
+
+                if (!PipelineFactory.CurrentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                {
+                    throw new InvalidOperationException("There is no current message beeing processed");
+                }
+
+                return current;
+            }
+        }
 
         volatile bool started;
         volatile bool starting;

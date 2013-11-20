@@ -23,9 +23,21 @@
             messageHandlingDisabled = true;
         }
 
-        public void InvokePhysicalMessagePipeline(TransportMessage msg)
+        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
-            var pipeline = new BehaviorChain<PhysicalMessageContext>();
+            contextStacker.Push(new IncomingPhysicalMessageContext(CurrentContext, message));
+        }
+
+        public void InvokeReceivePhysicalMessagePipeline()
+        {
+            var context = contextStacker.Current as IncomingPhysicalMessageContext;
+
+            if(context == null)
+            {
+                throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
+            }
+
+            var pipeline = new BehaviorChain<IncomingPhysicalMessageContext>();
 
             pipeline.Add<ChildContainerBehavior>();
             pipeline.Add<MessageHandlingLoggingBehavior>();
@@ -47,16 +59,16 @@
                 pipeline.Add<CallbackInvocationBehavior>();
             }
 
-            var context = new PhysicalMessageContext(CurrentContext, msg);
-
-
-            contextStacker.Push(context);
-
+            
             pipeline.Invoke(context);
 
-            contextStacker.Pop();
-
+     
         }
+        public void CompletePhysicalMessagePipelineContext()
+        {
+            contextStacker.Pop();
+        }
+
 
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
@@ -117,9 +129,9 @@
             var pipeline = new BehaviorChain<SendLogicalMessageContext>();
 
             pipeline.Add<SendValidatorBehavior>();
-            pipeline.Add<SagaSendBehavior>(); 
+            pipeline.Add<SagaSendBehavior>();
             pipeline.Add<MutateOutgoingMessageBehavior>();
-            
+
 
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);

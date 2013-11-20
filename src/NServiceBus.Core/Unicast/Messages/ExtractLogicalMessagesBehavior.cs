@@ -13,7 +13,7 @@
     using Transport;
     using Unicast;
 
-    class ExtractLogicalMessagesBehavior : IBehavior<PhysicalMessageContext>
+    class ExtractLogicalMessagesBehavior : IBehavior<IncomingPhysicalMessageContext>
     {
 
         public IMessageSerializer MessageSerializer { get; set; }
@@ -28,7 +28,7 @@
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
             if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {

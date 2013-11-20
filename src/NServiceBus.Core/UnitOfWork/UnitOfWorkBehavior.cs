@@ -5,9 +5,9 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class UnitOfWorkBehavior : IBehavior<PhysicalMessageContext>
+    class UnitOfWorkBehavior : IBehavior<IncomingPhysicalMessageContext>
     {
-       public void Invoke(PhysicalMessageContext context, Action next)
+       public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
             try
             {

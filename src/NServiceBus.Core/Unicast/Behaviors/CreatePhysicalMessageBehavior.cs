@@ -41,9 +41,9 @@
             //todo: pull this out to the distributor when we split it to a separate repo
             if (UnicastBus.PropagateReturnAddressOnSend)
             {
-                TransportMessage incomingMessage;
+                var incomingMessage = context.IncomingMessage;
 
-                if (context.TryGet(out incomingMessage))
+                if (incomingMessage != null)
                 {
                     sendOptions.ReplyToAddress = incomingMessage.ReplyToAddress;
                 }

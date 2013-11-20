@@ -154,7 +154,7 @@
     <Compile Include="Unicast\Behaviors\MultiSendValidatorBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\PhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\Contexts\IncomingPhysicalMessageContext.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />

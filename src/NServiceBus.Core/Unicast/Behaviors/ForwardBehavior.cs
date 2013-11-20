@@ -6,7 +6,7 @@
     using Transports;
     using Unicast;
 
-    class ForwardBehavior : IBehavior<PhysicalMessageContext>
+    class ForwardBehavior : IBehavior<IncomingPhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -16,7 +16,7 @@
 
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
             next();
 
