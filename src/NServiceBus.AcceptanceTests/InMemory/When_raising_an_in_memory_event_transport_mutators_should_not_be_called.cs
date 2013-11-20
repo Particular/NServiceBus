@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.InMemory
 {
     using System;
-    using Audit;
     using EndpointTemplates;
     using AcceptanceTesting;
     using MessageMutator;
@@ -18,8 +17,8 @@
                 .WithEndpoint<InMemoryEndpoint>(b => b.Given((bus, c) => bus.InMemory.Raise<MyInMemoryEvent>(m => { })))
                 .Run();
 
-            Assert.False(context.MutateIncomingWasCalledInMutator);
-            Assert.False(context.MutateOutGoingWasCalledInMutator);
+            Assert.False(context.MutateIncomingCalled);
+            Assert.False(context.MutateOutGoingCalled);
         }
 
         class Mutator : IMutateTransportMessages, INeedInitialization
@@ -28,12 +27,12 @@
 
             public void MutateIncoming(TransportMessage transportMessage)
             {
-                Context.MutateIncomingWasCalledInMutator = true;
+                Context.MutateIncomingCalled = true;
             }
 
             public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
             {
-                Context.MutateOutGoingWasCalledInMutator = true;
+                Context.MutateOutGoingCalled = true;
             }
 
             public void Init()
@@ -44,8 +43,8 @@
 
         public class Context : ScenarioContext
         {
-            public bool MutateOutGoingWasCalledInMutator { get; set; }
-            public bool MutateIncomingWasCalledInMutator { get; set; }
+            public bool MutateOutGoingCalled { get; set; }
+            public bool MutateIncomingCalled { get; set; }
         }
 
         public class InMemoryEndpoint : EndpointConfigurationBuilder
