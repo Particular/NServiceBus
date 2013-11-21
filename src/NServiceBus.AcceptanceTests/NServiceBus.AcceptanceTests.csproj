@@ -127,6 +127,7 @@
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
     <Compile Include="PubSub\PubSubAcceptanceTest.cs" />
+    <Compile Include="PubSub\When_subscribing_to_a_base_event_from_different_publishers.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
     <Compile Include="PubSub\When_publishing_an_event.cs" />
