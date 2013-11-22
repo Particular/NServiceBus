@@ -5,7 +5,11 @@
     class OutboxMessage
     {
         public string Id { get; set; }
+       
+        public bool IsDispatching { get { return isDispatching; } }
 
+        public bool Dispatched { get; set; }
+   
         public List<TransportOperation> TransportOperations
         {
             get
@@ -21,7 +25,15 @@
             }
         }
 
+        public void StartDispatching()
+        {
+            isDispatching = true;
+        }
+
         List<TransportOperation> transportOperations;
-        public bool Dispatched { get; set; }
+
+        bool isDispatching;
+
+        
     }
 }
