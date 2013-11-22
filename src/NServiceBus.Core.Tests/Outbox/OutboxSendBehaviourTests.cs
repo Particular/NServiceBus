@@ -1,9 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Serializers.Json.Tests;
-    using NServiceBus.Serializers.XML.Test;
     using NUnit.Framework;
+    using Outbox;
     using Unicast;
 
     [TestFixture]
@@ -23,6 +22,23 @@
             Assert.True(Invoke(context), "Pipeline should have been aborted");
 
             Assert.AreEqual(1, context.Get<OutboxMessage>().TransportOperations.Count);
+        }
+    }
+
+    [TestFixture]
+    class When_a_transport_operation_is_performed_from_a_non_message_handler : SendBehaviourContext
+    {
+        [Test]
+        public void Should_allow_pipeline_to_proceed()
+        {
+            var transportMessageBeeingSent = new TransportMessage();
+
+            var sendOptions = new SendOptions();
+
+            var context = new SendPhysicalMessageContext(null, sendOptions, transportMessageBeeingSent);
+
+          
+            Assert.False(Invoke(context), "Pipeline should have not been aborted");
         }
     }
 

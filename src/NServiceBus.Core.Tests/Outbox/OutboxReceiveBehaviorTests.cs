@@ -2,6 +2,7 @@
 {
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
+    using Outbox;
 
     [TestFixture]
     public class OutboxReceiveBehaviorTests

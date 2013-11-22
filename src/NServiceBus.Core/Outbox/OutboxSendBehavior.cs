@@ -1,8 +1,8 @@
 namespace NServiceBus.Outbox
 {
     using System;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class OutboxSendBehavior : IBehavior<SendPhysicalMessageContext>
     {
@@ -12,20 +12,14 @@ namespace NServiceBus.Outbox
         {
             OutboxMessage currentOutboxMessage;
 
-            if (!context.TryGet(out currentOutboxMessage))
+            if (context.TryGet(out currentOutboxMessage) && !currentOutboxMessage.IsDispatching)
             {
-                throw new InvalidOperationException("No current outbox message found");
-            }
-
-            if (currentOutboxMessage.IsDispatching)
-            {
-                next();
+                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend));
             }
             else
             {
-                currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend));                
+                next();
             }
         }
-
     }
 }
