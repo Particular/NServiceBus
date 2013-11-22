@@ -40,13 +40,17 @@ namespace NServiceBus.Utils.Reflection
             {
                 var args = i.GetGenericArguments();
 
-                if (args.Length == 1)
-                    if (genericArg.IsAssignableFrom(args[0]))
-                        if (openGenericType.MakeGenericType(args[0]) == i)
-                        {
-                            act(args[0]);
-                            break;
-                        }
+                if (args.Length != 1)
+                {
+                    continue;
+                }
+
+                if (genericArg.IsAssignableFrom(args[0])
+                    && openGenericType.MakeGenericType(args[0]) == i)
+                {
+                    act(args[0]);
+                    break;
+                }
             }
         }
 
@@ -75,29 +79,26 @@ namespace NServiceBus.Utils.Reflection
                 if (TypeToNameLookup.ContainsKey(t))
                     return TypeToNameLookup[t];
 
-            var args = t.GetGenericArguments();
-            if (args != null)
+            var index = t.Name.IndexOf('`');
+            if (index >= 0)
             {
-                var index = t.Name.IndexOf('`');
-                if (index >= 0)
+                var result = t.Name.Substring(0, index) + "Of";
+                var args = t.GetGenericArguments();
+                for (var i = 0; i < args.Length; i++)
                 {
-                    var result = t.Name.Substring(0, index) + "Of";
-                    for (var i = 0; i < args.Length; i++)
-                    {
-                        result += args[i].SerializationFriendlyName();
-                        if (i != args.Length - 1)
-                            result += "And";
-                    }
-
-                    if (args.Length == 2)
-                        if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
-                            result = "NServiceBus." + result;
-
-                    lock(TypeToNameLookup)  
-                        TypeToNameLookup[t] = result;
-
-                    return result;
+                    result += args[i].SerializationFriendlyName();
+                    if (i != args.Length - 1)
+                        result += "And";
                 }
+
+                if (args.Length == 2)
+                    if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                        result = "NServiceBus." + result;
+
+                lock(TypeToNameLookup)  
+                    TypeToNameLookup[t] = result;
+
+                return result;
             }
 
             lock(TypeToNameLookup)

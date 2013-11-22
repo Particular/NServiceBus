@@ -47,9 +47,11 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             foreach (var interfaceType in t.GetInterfaces())
             {
                 var genericArgs = interfaceType.GetGenericArguments();
-                if (genericArgs.Length == 1)
-                    if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]).IsAssignableFrom(t))
-                        return genericArgs[0];
+                if (genericArgs.Length != 1)
+                    continue;
+
+                if (typeof(IEnumerable<>).MakeGenericType(genericArgs[0]).IsAssignableFrom(t))
+                    return genericArgs[0];
             }
 
             return null;
