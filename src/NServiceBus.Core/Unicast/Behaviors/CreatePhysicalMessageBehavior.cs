@@ -28,11 +28,16 @@
                 ReplyToAddress = sendOptions.ReplyToAddress
             };
 
+            //apply static headers
             foreach (var staticHeader in UnicastBus.OutgoingHeaders.Keys)
             {
                 toSend.Headers[staticHeader] = UnicastBus.OutgoingHeaders[staticHeader];
             }
-    
+
+            //apply individual headers
+            context.LogicalMessages.SelectMany(m=>m.Headers).ToList()
+                .ForEach(header=>toSend.Headers[header.Key] = header.Value);
+                
             if (toSend.ReplyToAddress == null)
             {
                 toSend.ReplyToAddress = DefaultReplyToAddress;

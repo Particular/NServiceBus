@@ -21,11 +21,18 @@ namespace NServiceBus.Unicast.Messages
 
         public LogicalMessage Create(Type messageType, object message)
         {
-            var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
-            var headers = GetMessageHeaders(message);
-         
-            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType),message, headers);
+             var headers = GetMessageHeaders(message);
+
+            return Create(messageType, message, headers);
         }
+
+        public LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
+        {
+            var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
+
+            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
+        }
+
 
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
         // the real message type without using the mapper
