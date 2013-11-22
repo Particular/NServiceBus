@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
+    using Outbox;
+
     class FakeOutboxStorage : IOutboxStorage
     {
         public OutboxMessage Get(string messageId)

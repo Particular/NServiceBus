@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline
+﻿namespace NServiceBus.Outbox
 {
     using System;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     class OutboxReceiveBehavior : IBehavior<PhysicalMessageContext>
     {
