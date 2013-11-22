@@ -4,7 +4,13 @@
 
     class TransportOperation
     {
-        public SendOptions SendOptions { get; set; }
-        public TransportMessage PhysicalMessage { get; set; }
+        public TransportOperation(SendOptions sendOptions, TransportMessage physicalMessage)
+        {
+            SendOptions = sendOptions;
+            PhysicalMessage = physicalMessage;
+        }
+
+        public SendOptions SendOptions { get; private set; }
+        public TransportMessage PhysicalMessage { get;private set; }
     }
 }

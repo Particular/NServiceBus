@@ -29,14 +29,15 @@
                 OutboxStorage.Store(outboxMessage);
             }
 
-            DispachOperationToTransport(outboxMessage.TransportOperations);
+            DispachOperationToTransport(outboxMessage);
 
             OutboxStorage.SetAsDispatched(outboxMessage);
         }
 
-        void DispachOperationToTransport(IEnumerable<TransportOperation> transportOperations)
+        void DispachOperationToTransport(OutboxMessage outboxMessage)
         {
-            foreach (var transportOperation in transportOperations)
+            outboxMessage.StartDispatching();
+            foreach (var transportOperation in outboxMessage.TransportOperations)
             {
                 //dispatch to transport
                 PipelineFactory.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.PhysicalMessage);
