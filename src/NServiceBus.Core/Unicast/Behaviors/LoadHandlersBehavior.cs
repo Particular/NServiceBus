@@ -7,7 +7,7 @@
     using Pipeline.Contexts;
     using Unicast;
 
-    class LoadHandlersBehavior : IBehavior<LogicalMessageContext>
+    class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
@@ -15,7 +15,7 @@
 
         public PipelineFactory PipelineFactory { get; set; }
 
-        public void Invoke(LogicalMessageContext context, Action next)
+        public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
             var messageToHandle = context.LogicalMessage;
 

@@ -2,9 +2,9 @@
 {
     using Unicast.Messages;
 
-    class LogicalMessageContext : BehaviorContext
+    class ReceiveLogicalMessageContext : BehaviorContext
     {
-        public LogicalMessageContext(BehaviorContext parentContext, LogicalMessage message)
+        public ReceiveLogicalMessageContext(BehaviorContext parentContext, LogicalMessage message)
             : base(parentContext)
         {
             Set(message);

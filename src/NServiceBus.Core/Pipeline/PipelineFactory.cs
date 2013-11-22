@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Audit;
     using Contexts;
+    using DataBus;
     using MessageMutator;
     using NServiceBus.MessageMutator;
     using ObjectBuilder;
@@ -72,13 +73,17 @@
 
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
-            var pipeline = new BehaviorChain<LogicalMessageContext>();
+            var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>();
 
             pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
+            
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            pipeline.Add<DataBusReceiveBehavior>();
+
             pipeline.Add<LoadHandlersBehavior>();
 
 
-            var context = new LogicalMessageContext(CurrentContext, message);
+            var context = new ReceiveLogicalMessageContext(CurrentContext, message);
 
             contextStacker.Push(context);
 
@@ -131,8 +136,9 @@
             pipeline.Add<SendValidatorBehavior>();
             pipeline.Add<SagaSendBehavior>();
             pipeline.Add<MutateOutgoingMessageBehavior>();
-
-
+            
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            pipeline.Add<DataBusSendBehavior>();
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 

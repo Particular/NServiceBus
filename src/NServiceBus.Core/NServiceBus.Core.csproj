@@ -99,6 +99,8 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
+    <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
@@ -148,7 +150,7 @@
     <Compile Include="Unicast\Behaviors\ChildContainerBehavior.cs" />
     <Compile Include="Unicast\Behaviors\CreatePhysicalMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\LogicalMessageContext.cs" />
+    <Compile Include="Pipeline\Contexts\ReceiveLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\MessageHandlerContext.cs" />
     <Compile Include="Unicast\Behaviors\MultiMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\MultiSendValidatorBehavior.cs" />
@@ -283,7 +285,6 @@
     <Compile Include="Config\TransportConfig.cs" />
     <Compile Include="Config\UnicastBusConfig.cs" />
     <Compile Include="DataBus\Config\Bootstrapper.cs" />
-    <Compile Include="DataBus\DataBusMessageMutator.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
     <Compile Include="DataBus\FileShare\FileShareDataBus.cs" />
     <Compile Include="DataBus\IDataBus.cs" />

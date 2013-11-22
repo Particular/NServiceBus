@@ -4,7 +4,7 @@
     using MessageMutator;
     using Saga;
 
-    [ObsoleteEx(TreatAsErrorFromVersion="4.3",RemoveInVersion = "5.0")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class AutoCorrelateSagaOnReplyMutator : IMutateTransportMessages, INeedInitialization
     {
         public void MutateIncoming(TransportMessage transportMessage)
@@ -25,7 +25,7 @@
     {
         public void TriedToReplyToNullOriginator()
         {
-            
+
         }
     }
 
@@ -36,7 +36,7 @@
         public static ISaga Current;
     }
 
-     [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
+    [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class OriginatingSagaHeaderMutator : IMutateOutgoingTransportMessages, INeedInitialization
     {
         /// <summary>
@@ -64,5 +64,34 @@ namespace NServiceBus.Sagas.Finders
         {
             return default(T);
         }
+    }
+}
+
+
+namespace NServiceBus.DataBus
+{
+    using MessageMutator;
+
+    [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
+    public class DataBusMessageMutator : IMessageMutator
+    {
+
+        public DataBusMessageMutator(IDataBus dataBus, IDataBusSerializer serializer)
+        {
+        }
+
+        object IMutateOutgoingMessages.MutateOutgoing(object message)
+        {
+
+            return message;
+        }
+
+        object IMutateIncomingMessages.MutateIncoming(object message)
+        {
+
+            return message;
+        }
+
+
     }
 }
