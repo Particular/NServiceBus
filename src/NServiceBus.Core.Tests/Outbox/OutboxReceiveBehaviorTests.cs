@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
-    using System.Runtime.Remoting.Contexts;
     using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
 
     [TestFixture]
-    public class OutboxReceiveBehaviourTests
+    public class OutboxReceiveBehaviorTests
     {
         [Test]
         public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
@@ -51,7 +50,7 @@
         {
             fakeOutbox = new FakeOutboxStorage();
 
-            behavior = new OutboxReceiveBehaviour
+            behavior = new OutboxReceiveBehavior
             {
                 OutboxStorage = fakeOutbox
             };
@@ -59,7 +58,7 @@
         }
 
         FakeOutboxStorage fakeOutbox;
-        OutboxReceiveBehaviour behavior;
+        OutboxReceiveBehavior behavior;
 
     }
 }

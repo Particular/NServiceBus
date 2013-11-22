@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
-    using System.Collections.Generic;
     using NServiceBus.Pipeline;
     using NServiceBus.Pipeline.Contexts;
 
-    class OutboxReceiveBehaviour : IBehavior<PhysicalMessageContext>
+    class OutboxReceiveBehavior : IBehavior<PhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
 

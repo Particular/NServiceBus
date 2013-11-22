@@ -199,12 +199,7 @@
     <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Outbox\FakeOutboxStorage.cs" />
-    <Compile Include="Outbox\IOutboxStorage.cs" />
-    <Compile Include="Outbox\OutboxMessage.cs" />
-    <Compile Include="Outbox\OutboxReceiveBehaviour.cs" />
-    <Compile Include="Outbox\OutboxReceiveBehaviourTests.cs" />
-    <Compile Include="Outbox\OutboxSendBehavior.cs" />
-    <Compile Include="Outbox\TransportOperation.cs" />
+    <Compile Include="Outbox\OutboxReceiveBehaviorTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Raven_saga_persistence_concern.cs" />
