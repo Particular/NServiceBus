@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline
+﻿namespace NServiceBus.Outbox
 {
     interface IOutboxStorage
     {

@@ -143,6 +143,11 @@
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
     <Compile Include="Licensing\UserSidChecker.cs" />
+    <Compile Include="Outbox\IOutboxStorage.cs" />
+    <Compile Include="Outbox\OutboxMessage.cs" />
+    <Compile Include="Outbox\OutboxReceiveBehavior.cs" />
+    <Compile Include="Outbox\OutboxSendBehavior.cs" />
+    <Compile Include="Outbox\TransportOperation.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Gateway\GatewayExtensions.cs" />
