@@ -18,7 +18,7 @@ namespace NServiceBus.Gateway.Receiving
 
         public Channel GetDefaultChannel()
         {
-            return GetReceiveChannels().First();
+            return GetReceiveChannels().First().ReplyChannel;
         }
     }
 }

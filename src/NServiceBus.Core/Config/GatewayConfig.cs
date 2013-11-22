@@ -129,6 +129,23 @@ namespace NServiceBus.Config
     public class ChannelConfig : ConfigurationElement
     {
         /// <summary>
+        /// The key
+        /// </summary>
+        [ConfigurationProperty("Key", IsRequired = false, IsKey = true)]
+        public string Key
+        {
+            get
+            {
+                var key = (string) this["Key"];
+                return string.IsNullOrEmpty(key) ? Address : key;
+            }
+            set
+            {
+                this["Key"] = value;
+            }
+        }
+
+        /// <summary>
         /// True if this channel is the default channel
         /// </summary>
         [ConfigurationProperty("Default", IsRequired = false, DefaultValue = false, IsKey = false)]
@@ -190,6 +207,22 @@ namespace NServiceBus.Config
             set
             {
                 this["ChannelType"] = value;
+            }
+        }
+
+        /// <summary>
+        /// The address that will be used for replies on this channel
+        /// </summary>
+        [ConfigurationProperty("ReplyAddress", IsRequired = false, IsKey = false)]
+        public string ReplyAddress
+        {
+            get
+            {
+                return (string)this["ReplyAddress"];
+            }
+            set
+            {
+                this["ReplyAddress"] = value;
             }
         }
     }
@@ -315,6 +348,17 @@ namespace NServiceBus.Config
             {
                 this["LegacyMode"] = value;
             }
+        }
+
+        /// <summary>
+        /// The Key or Address of the reply channel.
+        /// If empty, the default channel will be used for replies.
+        /// </summary>
+        [ConfigurationProperty("ReplyChannel", IsRequired = false, IsKey = false)]
+        public string ReplyChannel
+        {
+            get { return (string)this["ReplyChannel"]; }
+            set { this["ReplyChannel"] = value; }
         }
     }
 }

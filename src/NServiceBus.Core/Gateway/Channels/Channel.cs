@@ -4,8 +4,22 @@ namespace NServiceBus.Gateway.Channels
 
     public class ReceiveChannel : Channel
     {
+        public string Key { get; set; }
+        public string ReplyAddress { get; set; }
         public int NumberOfWorkerThreads { get; set; }
         public bool Default { get; set; }
+
+        public Channel ReplyChannel
+        {
+            get
+            {
+                return new Channel
+                    {
+                        Address = string.IsNullOrEmpty(ReplyAddress) ? Address : ReplyAddress,
+                        Type = Type,
+                    };
+            }
+        }
 
         public override string ToString()
         {
