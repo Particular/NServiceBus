@@ -7,9 +7,9 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
-    using Unicast.Queuing;
+    using Queuing;
 
-    internal class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
 

@@ -7,7 +7,7 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Unicast.Transport;
+    using Transport;
 
     class CallbackInvocationBehavior : IBehavior<PhysicalMessageContext>
     {

@@ -4,7 +4,7 @@
     using Unicast;
     using Unicast.Messages;
 
-    internal class SendLogicalMessagesContext : BehaviorContext
+    class SendLogicalMessagesContext : BehaviorContext
     {
         public SendLogicalMessagesContext(BehaviorContext parentContext, SendOptions sendOptions,IEnumerable<LogicalMessage> messages)
             : base(parentContext)

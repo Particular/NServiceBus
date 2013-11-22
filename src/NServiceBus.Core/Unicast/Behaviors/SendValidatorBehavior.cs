@@ -5,7 +5,7 @@
     using Pipeline.Contexts;
     using Unicast;
 
-    internal class SendValidatorBehavior : IBehavior<SendLogicalMessageContext>
+    class SendValidatorBehavior : IBehavior<SendLogicalMessageContext>
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

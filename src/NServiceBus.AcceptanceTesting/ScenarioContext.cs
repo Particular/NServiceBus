@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Collections.Generic;
     using System.Runtime.Remoting.Activation;
     using System.Runtime.Remoting.Contexts;
     using System.Runtime.Remoting.Messaging;

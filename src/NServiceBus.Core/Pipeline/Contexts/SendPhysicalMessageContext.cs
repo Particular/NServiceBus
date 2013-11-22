@@ -4,7 +4,7 @@
     using Unicast;
     using Unicast.Messages;
 
-    internal class SendPhysicalMessageContext : BehaviorContext
+    class SendPhysicalMessageContext : BehaviorContext
     {
         public SendPhysicalMessageContext(BehaviorContext parentContext, SendOptions sendOptions, TransportMessage message)
             : base(parentContext)

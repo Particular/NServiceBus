@@ -5,7 +5,7 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    internal class MultiSendValidatorBehavior : IBehavior<SendLogicalMessagesContext>
+    class MultiSendValidatorBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
@@ -29,8 +29,6 @@
                     throw new InvalidOperationException("This version of NServiceBus only supports sending up to one message with DataBusProperties per Send().");
                 }
             }
-
-    
 
             next();
         }

@@ -5,9 +5,9 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
-    using Unicast.Messages;
+    using Messages;
 
-    internal class CreatePhysicalMessageBehavior:IBehavior<SendLogicalMessagesContext>
+    class CreatePhysicalMessageBehavior:IBehavior<SendLogicalMessagesContext>
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 

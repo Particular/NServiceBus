@@ -38,7 +38,7 @@
         public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
-                settings = ScenarioDescriptors.Transports.Default.Settings;
+                settings = Transports.Default.Settings;
 
             var transportType = Type.GetType(settings["Transport"]);
 

@@ -4,7 +4,7 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    internal class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
+    class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

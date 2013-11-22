@@ -2,7 +2,7 @@ namespace NServiceBus.Unicast
 {
     using System;
 
-    internal class SendOptions
+    class SendOptions
     {
         public SendOptions()
         {

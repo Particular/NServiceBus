@@ -5,7 +5,6 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Rhino.Mocks.Constraints;
 
     [TestFixture]
     public class When_sending_a_message_with_databusProperty : using_the_unicastBus

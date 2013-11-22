@@ -106,12 +106,12 @@
 
                 public void SerializationFailedForMessage(TransportMessage message, Exception e)
                 {
-                    Context.SlrChecksum = RetryEndpoint.Checksum(message.Body);
+                    Context.SlrChecksum = Checksum(message.Body);
                 }
 
                 public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
                 {
-                    Context.SlrChecksum = RetryEndpoint.Checksum(message.Body);
+                    Context.SlrChecksum = Checksum(message.Body);
                 }
 
                 public void Init(Address address)

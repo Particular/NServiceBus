@@ -5,7 +5,7 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    internal class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendPhysicalMessageContext>
+    class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
