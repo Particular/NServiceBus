@@ -28,8 +28,14 @@
                 OutboxStorage.Store(outboxMessage);
             }
 
+            if (outboxMessage.Dispatched)
+            {
+                return;
+            }
+
             DispachOperationToTransport(outboxMessage);
 
+            outboxMessage.Dispatched = true;
             OutboxStorage.SetAsDispatched(outboxMessage);
         }
 
