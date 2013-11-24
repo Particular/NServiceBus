@@ -16,7 +16,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
+                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .Done(c => context.TimesCalled == 1)
                     .Run();
         }
@@ -28,7 +28,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus =>
+                    .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
                         bus.SendLocal<PlaceOrder>(m =>
@@ -61,9 +61,9 @@
         }
 
 
-        public class NonDtcSalesEndpoint : EndpointConfigurationBuilder
+        public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public NonDtcSalesEndpoint()
+            public NonDtcReceivingEndpoint()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {

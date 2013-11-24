@@ -34,6 +34,21 @@
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
+        [Test]
+        public void Should_not_dispatch_already_dispatched_messages()
+        {
+            var incomingTransportMessage = new TransportMessage();
+
+            fakeOutbox.ExistingMessage = new OutboxMessage { Id = incomingTransportMessage.Id,Dispatched=true };
+            fakeOutbox.ThrowOnDisaptch();
+            var context = new PhysicalMessageContext(null, incomingTransportMessage);
+
+            Invoke(context);
+
+            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
+            Assert.Null(fakeOutbox.StoredMessage);
+        }
+
         void Invoke(PhysicalMessageContext context, bool shouldAbort = false)
         {
             behavior.Invoke(context, () =>
