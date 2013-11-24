@@ -17,15 +17,47 @@
 
             Scenario.Define(context)
                     .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .Done(c => context.HandlerCalled)
+                    .Done(c => context.TimesCalled == 1)
                     .Run();
         }
 
 
+        [Test]
+        public void Should_discard_duplicates_using_the_outbox()
+        {
+            var context = new Context();
+
+            Scenario.Define(context)
+                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus =>
+                    {
+                        var duplicateMessageId = Guid.NewGuid().ToString();
+                        bus.SendLocal<PlaceOrder>(m =>
+                        {
+                            m.SetHeader(Headers.MessageId, duplicateMessageId);
+                            m.OrderId = duplicateMessageId;
+                            m.Duplicate = true;
+                        });
+                        bus.SendLocal<PlaceOrder>(m =>
+                        {
+                            m.SetHeader(Headers.MessageId, duplicateMessageId);
+                            m.OrderId = duplicateMessageId;
+                            m.Duplicate = true;
+                        });
+                      
+                        bus.SendLocal(new PlaceOrder());
+                    }))
+                    .Done(c => context.DuplicateMessageProcessed && context.NonDuplicateProcessed)
+                    .Run();
+
+            Assert.AreEqual(2,context.TimesCalled);
+        }
+
 
         public class Context : ScenarioContext
         {
-            public bool HandlerCalled { get; set; }
+            public int TimesCalled { get; set; }
+            public bool DuplicateMessageProcessed { get; set; }
+            public bool NonDuplicateProcessed { get; set; }
         }
 
 
@@ -45,10 +77,19 @@
             class PlaceOrderHandler:IHandleMessages<PlaceOrder>
             {
                 public Context Context { get; set; }
-               
+         
                 public void Handle(PlaceOrder message)
                 {
-                    Context.HandlerCalled = true;
+                    Context.TimesCalled++;
+                    if (message.Duplicate)
+                    {
+                        Assert.False(Context.DuplicateMessageProcessed);
+                        Context.DuplicateMessageProcessed = true;
+                    }
+                    else
+                    {
+                        Context.NonDuplicateProcessed = true;
+                    }
                 }
             }
           
@@ -57,6 +98,8 @@
         [Serializable]
         public class PlaceOrder : ICommand
         {
+            public string OrderId{ get; set; }
+            public bool Duplicate { get; set; }
         }
 
 
