@@ -10,7 +10,7 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior:IBehavior<ReceiveLogicalMessageContext>
+    class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 
@@ -21,44 +21,43 @@
         {
             var message = context.LogicalMessage.Instance;
 
-            using (new TransactionScope(TransactionScopeOption.Suppress))
-            {
-                foreach (var property in GetDataBusProperties(message))
-                {
-                    var propertyValue = property.GetValue(message, null);
 
-                    var dataBusProperty = propertyValue as IDataBusProperty;
-                    string headerKey;
+            foreach (var property in GetDataBusProperties(message))
+            {
+                var propertyValue = property.GetValue(message, null);
+
+                var dataBusProperty = propertyValue as IDataBusProperty;
+                string headerKey;
+
+                if (dataBusProperty != null)
+                {
+                    headerKey = dataBusProperty.Key;
+                }
+                else
+                {
+                    headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
+                }
+
+                string dataBusKey;
+
+                if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey)
+                    || string.IsNullOrEmpty(dataBusKey))
+                {
+                    continue;
+                }
+
+                using (new TransactionScope(TransactionScopeOption.Suppress))
+                using (var stream = DataBus.Get(dataBusKey))
+                {
+                    var value = DataBusSerializer.Deserialize(stream);
 
                     if (dataBusProperty != null)
                     {
-                        headerKey = dataBusProperty.Key;
+                        dataBusProperty.SetValue(value);
                     }
                     else
                     {
-                        headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
-                    }
-
-                    string dataBusKey;
-
-                    if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey)
-                        || string.IsNullOrEmpty(dataBusKey))
-                    {
-                        continue;
-                    }
-
-                    using (var stream = DataBus.Get(dataBusKey))
-                    {
-                        var value = DataBusSerializer.Deserialize(stream);
-
-                        if (dataBusProperty != null)
-                        {
-                            dataBusProperty.SetValue(value);
-                        }
-                        else
-                        {
-                            property.SetValue(message, value, null);
-                        }
+                        property.SetValue(message, value, null);
                     }
                 }
             }
@@ -86,6 +85,6 @@
             return value;
         }
 
-        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>(); 
+        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
     }
 }
