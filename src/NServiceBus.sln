@@ -1,5 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor", "ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj", "{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}"
@@ -22,8 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Serializers.XML
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Logging.Tests", "NServiceBus.Logging.Tests\NServiceBus.Logging.Tests.csproj", "{CED929E4-5D17-4A5F-B74C-648331FF7E7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PowerShell", "NServiceBus.PowerShell\NServiceBus.PowerShell.csproj", "{5E51EFBF-329F-4D3A-B86E-CC111697746F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LicenseInstaller", "licenseinstaller\LicenseInstaller.csproj", "{857C5E77-1946-4C83-BC8D-EFF8E1611A0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NServiceBus", "NServiceBus", "{258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}"
@@ -31,8 +31,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ObjectBuilders", "ObjectBuilders", "{A650DE92-3B6D-4228-A1A2-FB06E74C1BD2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2904B75F-8F07-4C07-BABC-BC42533B3E75}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell", "Powershell", "{7C9F4F7D-7D96-4F9B-A673-428D78B7DB14}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{EF5E77D7-74B1-422D-B34E-AED35E19249E}"
 EndProject
@@ -51,8 +49,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Core.Tests", "NServiceBus.Core.Tests\NServiceBus.Core.Tests.csproj", "{2C8F181B-9BAF-4858-968B-1C16F5DDCFA7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Testing.Tests", "NServiceBus.Testing.Tests\NServiceBus.Testing.Tests.csproj", "{7619C202-AE52-45DC-98AF-901DD670F117}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PowerShell.Tests", "NServiceBus.PowerShell.Tests\NServiceBus.PowerShell.Tests.csproj", "{04121C4B-EB4F-4508-8760-5818185F4403}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.AcceptanceTesting", "NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj", "{758357F6-CD31-4337-80C4-BA377FC257AF}"
 EndProject
@@ -186,16 +182,6 @@ Global
 		{CED929E4-5D17-4A5F-B74C-648331FF7E7A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{CED929E4-5D17-4A5F-B74C-648331FF7E7A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CED929E4-5D17-4A5F-B74C-648331FF7E7A}.Release|x86.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F}.Release|x86.ActiveCfg = Release|Any CPU
 		{857C5E77-1946-4C83-BC8D-EFF8E1611A0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{857C5E77-1946-4C83-BC8D-EFF8E1611A0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{857C5E77-1946-4C83-BC8D-EFF8E1611A0D}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -268,16 +254,6 @@ Global
 		{7619C202-AE52-45DC-98AF-901DD670F117}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7619C202-AE52-45DC-98AF-901DD670F117}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7619C202-AE52-45DC-98AF-901DD670F117}.Release|x86.ActiveCfg = Release|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Release|Any CPU.Build.0 = Release|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{04121C4B-EB4F-4508-8760-5818185F4403}.Release|x86.ActiveCfg = Release|Any CPU
 		{758357F6-CD31-4337-80C4-BA377FC257AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{758357F6-CD31-4337-80C4-BA377FC257AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{758357F6-CD31-4337-80C4-BA377FC257AF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -349,8 +325,6 @@ Global
 		{857C5E77-1946-4C83-BC8D-EFF8E1611A0D} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
 		{85118B5C-6CAA-44B4-87EA-419DC6F4F2FB} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
 		{C4693C58-BB66-4630-984E-313E1BCC2474} = {EF5E77D7-74B1-422D-B34E-AED35E19249E}
-		{5E51EFBF-329F-4D3A-B86E-CC111697746F} = {7C9F4F7D-7D96-4F9B-A673-428D78B7DB14}
-		{04121C4B-EB4F-4508-8760-5818185F4403} = {7C9F4F7D-7D96-4F9B-A673-428D78B7DB14}
 		{6A9E04E7-6229-4A3E-B94A-DA168E962B5A} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{2F2FBB64-FE67-4204-8E27-E1DB39ED843D} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{93B2CD66-7860-47A3-A039-B7D778E9A8F4} = {5F77E8FE-0DCB-4E91-8F91-D3C9E767F5EF}
