@@ -61,7 +61,7 @@ namespace NServiceBus.Licensing
                 //Check trial is still valid
                 if (ExpiryChecker.IsExpired(trialExpirationDate))
                 {
-                    Logger.WarnFormat("Trial for NServiceBus v{{0}} has expired. Falling back to run in Basic1 license mode.", NServiceBusVersion.MajorAndMinor);
+                    Logger.WarnFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", NServiceBusVersion.MajorAndMinor);
 
                     License = LicenseDeserializer.GetBasicLicense();
                 }
