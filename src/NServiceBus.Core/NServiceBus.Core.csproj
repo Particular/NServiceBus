@@ -416,8 +416,7 @@
     <Compile Include="SecondLevelRetries\SecondLevelRetriesProcessor.cs" />
     <Compile Include="SecondLevelRetries\Helpers\SecondLevelRetriesHeaders.cs" />
     <Compile Include="MessageConventions.cs" />
-    <Compile Include="MessageHeaders\Bootstrapper.cs" />
-    <Compile Include="MessageHeaders\MessageHeaderManager.cs" />
+    <Compile Include="MessageHeaders\HeaderBootstrapper.cs" />
     <Compile Include="MessageInterfaces\IMessageMapper.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="MessageMutator\IMutateTransportMessages.cs" />

@@ -95,3 +95,64 @@ namespace NServiceBus.DataBus
 
     }
 }
+
+namespace NServiceBus.MessageHeaders
+{
+    using System;
+    using System.Collections.Generic;
+    using MessageMutator;
+    using Unicast;
+
+    /// <summary>
+    /// Message Header Manager
+    /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3")]
+    public class MessageHeaderManager : IMutateOutgoingTransportMessages
+    {
+        void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        {
+            throw new NotSupportedException("This class has been obsoleted and should not be used");
+        }
+
+        /// <summary>
+        /// Gets the Header for the Message
+        /// </summary>
+        /// <param name="message">message for which Headers to be find</param>
+        /// <param name="key">Key</param>
+        public string GetHeader(object message, string key)
+        {
+            throw new NotSupportedException("This class has been obsoleted and should not be used");
+        }
+
+        /// <summary>
+        /// Sets the Header for the Message
+        /// </summary>
+        public void SetHeader(object message, string key, string value)
+        {
+            throw new NotSupportedException("This class has been obsoleted and should not be used");
+        }
+
+        /// <summary>
+        /// Gets Static Outgoing Headers
+        /// </summary>
+        public IDictionary<string, string> GetStaticOutgoingHeaders()
+        {
+            throw new NotSupportedException("This class has been obsoleted and should not be used");
+        }
+
+        /// <summary>
+        /// Bus
+        /// </summary>
+        public IUnicastBus Bus
+        {
+            get
+            {
+                throw new NotSupportedException("This class has been obsoleted and should not be used");
+            }
+            set
+            {
+                throw new NotSupportedException("This class has been obsoleted and should not be used");
+            }
+        }
+    }
+}

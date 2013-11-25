@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast.Messages
     using System.Linq;
     using MessageHeaders;
     using MessageInterfaces;
+    using Pipeline;
 
     class LogicalMessageFactory
     {
@@ -12,7 +13,7 @@ namespace NServiceBus.Unicast.Messages
         
         public IMessageMapper MessageMapper { get; set; }
 
-        public MessageHeaderManager MessageHeaderManager { get; set; }
+        public PipelineFactory PipelineFactory { get; set; }
 
         public IEnumerable<LogicalMessage> Create<T>(T message)
         {
@@ -57,10 +58,23 @@ namespace NServiceBus.Unicast.Messages
 
         Dictionary<string, string> GetMessageHeaders(object message)
         {
-            var headers = new Dictionary<string, string>();
-            MessageHeaderManager.ApplyMessageSpecificHeaders(message, headers);
+            Dictionary<object, Dictionary<string, string>> outgoingHeaders;
 
-            return headers;
+            if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+            {
+                return new Dictionary<string, string>();
+            }
+            Dictionary<string, string> outgoingHeadersForThisMessage;
+
+            if (!outgoingHeaders.TryGetValue(message, out outgoingHeadersForThisMessage))
+            {
+                return new Dictionary<string, string>();
+            }
+
+            //remove the entry to allow memory to be reclaimed
+            outgoingHeaders.Remove(message);
+
+            return outgoingHeadersForThisMessage;
         }
 
     }

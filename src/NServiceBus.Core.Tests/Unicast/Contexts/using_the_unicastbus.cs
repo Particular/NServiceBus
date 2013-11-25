@@ -56,10 +56,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         PipelineFactory pipelineFactory;
 
-        MessageHeaderManager messageHeaderManager = new MessageHeaderManager();
         [SetUp]
         public void SetUp()
         {
+          
+
             LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
@@ -116,8 +117,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => messageHeaderManager);
-            FuncBuilder.Register<MessageHeaderManager>(() => messageHeaderManager);
 
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
@@ -170,8 +169,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
             FuncBuilder.Register<UnicastBus>(() => unicastBus);
-
-            ExtensionMethods.SetHeaderAction = messageHeaderManager.SetHeader;
+            new HeaderBootstrapper
+            {
+                Builder = FuncBuilder
+            }.SetupHeaderActions();
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()
