@@ -40,8 +40,7 @@
 
                 string dataBusKey;
 
-                if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey)
-                    || string.IsNullOrEmpty(dataBusKey))
+                if (!context.LogicalMessage.Headers.TryGetValue(HeaderMapper.DATABUS_PREFIX + headerKey, out dataBusKey))
                 {
                     continue;
                 }

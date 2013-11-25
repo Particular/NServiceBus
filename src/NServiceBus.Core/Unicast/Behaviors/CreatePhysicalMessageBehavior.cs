@@ -29,14 +29,16 @@
             };
 
             //apply static headers
-            foreach (var staticHeader in UnicastBus.OutgoingHeaders.Keys)
+            foreach (var kvp in UnicastBus.OutgoingHeaders)
             {
-                toSend.Headers[staticHeader] = UnicastBus.OutgoingHeaders[staticHeader];
+                toSend.Headers[kvp.Key] = kvp.Value;
             }
 
             //apply individual headers
-            context.LogicalMessages.SelectMany(m=>m.Headers).ToList()
-                .ForEach(header=>toSend.Headers[header.Key] = header.Value);
+            foreach(var kvp in context.LogicalMessages.SelectMany(m=>m.Headers))
+            {
+                toSend.Headers[kvp.Key] = kvp.Value;
+            }
                 
             if (toSend.ReplyToAddress == null)
             {
