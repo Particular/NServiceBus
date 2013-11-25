@@ -22,9 +22,7 @@
   </metadata>
   <files>
     <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net40" />
-    <file src="..\..\binaries\NServiceBus.PowerShell.dll" target="tools" />
-    <file src="..\..\binaries\about_NServiceBus.help.txt" target="tools" />
+    <file src="..\..\src\packages\NServiceBus.PowerShell\lib\net40\NServiceBus.PowerShell.dll" target="tools" />
     <file src="tools\init.ps1" target="tools" />
-    <!--<file src="..\..\src\NServiceBus.Core\**\*.cs" target="src" />-->
   </files>
 </package>

@@ -56,9 +56,6 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             foreach (var interfaceType in type.GetInterfaces())
             {
                 var genericArgs = interfaceType.GetGenericArguments();
-                if (genericArgs == null)
-                    continue;
-
                 if (genericArgs.Length != 1)
                     continue;
 

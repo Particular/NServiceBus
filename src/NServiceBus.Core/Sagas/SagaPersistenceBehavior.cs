@@ -6,11 +6,12 @@
     using IdGeneration;
     using Logging;
     using Pipeline;
-    using Pipeline.Behaviors;
+    using Pipeline.Contexts;
     using Saga;
     using Finders;
     using Transports;
     using Unicast;
+    using Unicast.Messages;
 
     class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
     {
@@ -29,7 +30,14 @@
             
             currentContext = context;
             physicalMessage = context.Get<TransportMessage>();
-       
+
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            if (physicalMessage.MessageIntent == MessageIntentEnum.Publish)
+            {
+                physicalMessage.Headers.Remove(Headers.SagaId);
+                physicalMessage.Headers.Remove(Headers.SagaType);
+            }
+
             var sagaInstanceState = new ActiveSagaInstance(saga);
 
             var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);
@@ -79,7 +87,7 @@
                     NotifyTimeoutManagerThatSagaHasCompleted(saga);
                 }
 
-                logger.Debug(string.Format("{0} {1} has completed.", saga.GetType().FullName, saga.Entity.Id));
+                logger.Debug(string.Format("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.SagaType.FullName, saga.Entity.Id));
             }
             else
             {

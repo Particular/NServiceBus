@@ -88,7 +88,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga1Data : ContainSagaData
                 {
                     [Unique]
-                    public Guid DataId { get; set; }
+                    public virtual  Guid DataId { get; set; }
                 }
             }
 
@@ -120,7 +120,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class MySaga2Data : ContainSagaData
                 {
                     [Unique]
-                    public Guid DataId { get; set; }
+                    public virtual  Guid DataId { get; set; }
                 }
             }
         }

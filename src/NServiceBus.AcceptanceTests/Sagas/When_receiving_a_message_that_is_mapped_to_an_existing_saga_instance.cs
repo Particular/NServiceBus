@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using Saga;
-    using SagaPersisters.NHibernate.AutoPersistence.Attributes;
     using ScenarioDescriptors;
 
     public class When_receiving_a_message_that_is_mapped_to_an_existing_saga_instance : NServiceBusAcceptanceTest
@@ -22,7 +21,7 @@
                             bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
                         }))
                     .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For<AllSagaPersisters>())
+                    .Repeat(r => r.For(SagaPersisters.Default))
                     .Should(c =>
                     {
                         Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages");
@@ -74,7 +73,6 @@
                 }
             }
 
-            [TableName("SagaEndpointTestSagaData")]
             public class TestSagaData : IContainSagaData
             {
                 public virtual Guid Id { get; set; }

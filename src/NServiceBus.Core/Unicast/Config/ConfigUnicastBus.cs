@@ -4,17 +4,15 @@ namespace NServiceBus.Unicast.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using Behaviors;
     using Features;
     using Logging;
     using Messages;
     using NServiceBus.Config;
     using ObjectBuilder;
     using Pipeline;
-    using Pipeline.Behaviors;
     using Routing;
-    using Sagas;
     using Settings;
-    using UnitOfWork;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -49,20 +47,12 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
-            Configurer.ConfigureComponent<ChildContainerBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
-            extractLogicalMessagesConfig = Configurer.ConfigureComponent<ExtractLogicalMessagesBehavior>(DependencyLifecycle.InstancePerCall);
-            forwardConfig = Configurer.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<RaiseMessageReceivedBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<SagaPersistenceBehavior>(DependencyLifecycle.InstancePerCall);
+            Instance.ForAllTypes<IBehavior>(t => Configurer.ConfigureComponent(t,DependencyLifecycle.InstancePerCall));
+
+            if (!SendOnlyMode)
+            {
+                Configurer.ConfigureProperty<CreatePhysicalMessageBehavior>(p => p.DefaultReplyToAddress,Address.Local);
+            }
         }
 
         void ConfigureMessageRegistry(List<Type> knownMessages)
@@ -75,6 +65,7 @@ namespace NServiceBus.Unicast.Config
             knownMessages.ForEach(messageRegistry.RegisterMessageType);
 
             Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
+            Configurer.ConfigureComponent<LogicalMessageFactory>(DependencyLifecycle.SingleInstance);
             
             if(!Logger.IsInfoEnabled)
                 return;
@@ -124,10 +115,10 @@ namespace NServiceBus.Unicast.Config
             {
                 var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
                 busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-                forwardConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
+                Configurer.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
             busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-            forwardConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
+            Configurer.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
 
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
                 .OrderByDescending(m=>m)
@@ -149,9 +140,7 @@ namespace NServiceBus.Unicast.Config
 
 
 
-        IComponentConfig<ForwardBehavior> forwardConfig;
         IComponentConfig<UnicastBus> busConfig;
-        IComponentConfig<ExtractLogicalMessagesBehavior> extractLogicalMessagesConfig;
 
         /// <summary>
         /// 
@@ -372,10 +361,12 @@ namespace NServiceBus.Unicast.Config
         /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
         /// your self.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Replacement = "Should instead be writing a Satelite")]
         public ConfigUnicastBus SkipDeserialization()
         {
             busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
-            extractLogicalMessagesConfig.ConfigureProperty(b => b.SkipDeserialization, true);
+            Configurer.ConfigureProperty<ExtractLogicalMessagesBehavior>(b => b.SkipDeserialization, true);
+            
             return this;
         }
 

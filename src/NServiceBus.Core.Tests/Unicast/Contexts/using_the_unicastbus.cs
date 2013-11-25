@@ -5,21 +5,22 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.ObjectModel;
     using System.Threading;
     using Audit;
+    using Behaviors;
     using Core.Tests;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
+    using Licensing;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
     using Pipeline;
-    using Pipeline.Behaviors;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
-    using Sagas;
+    using Serialization;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -54,11 +55,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected MessageHandlerRegistry handlerRegistry;
 
         PipelineFactory pipelineFactory;
-      
+
 
         [SetUp]
         public void SetUp()
         {
+            LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();
@@ -98,70 +100,67 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory{RootBuilder = FuncBuilder}; 
+            pipelineFactory = new PipelineFactory { RootBuilder = FuncBuilder };
+
+            FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
+            FuncBuilder.Register<ISendMessages>(() => messageSender);
+
+            FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
+
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
                     SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
                 });
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
-            FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
+            FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
+
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
-            
-            FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
 
-
-            FuncBuilder.Register<ChildContainerBehavior>();
-            FuncBuilder.Register<UnitOfWorkBehavior>();
-            FuncBuilder.Register<MessageHandlingLoggingBehavior>();
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
-            FuncBuilder.Register<AuditBehavior>();
-            FuncBuilder.Register<MessageAuditer>();
-            
-            FuncBuilder.Register<ForwardBehavior>();
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
-            FuncBuilder.Register<LoadHandlersBehavior>();
-            FuncBuilder.Register<SagaPersistenceBehavior>();
-            FuncBuilder.Register<InvokeHandlersBehavior>();
 
-            FuncBuilder.Register<RaiseMessageReceivedBehavior>();
-            FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
+            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior
+            {
+                DefaultReplyToAddress = Address.Local
+            });
             FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
-            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
+
+            var messagePublisher = new StorageDrivenPublisher
+            {
+                MessageSender = messageSender,
+                SubscriptionStorage = subscriptionStorage
+            };
+
+            var deferer = new TimeoutManagerDeferrer
+            {
+                MessageSender = messageSender,
+                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
+            };
+
+            FuncBuilder.Register<IDeferMessages>(() => deferer);
+            FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
-                MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
                 MessageMapper = MessageMapper,
-                MessagePublisher = new StorageDrivenPublisher
-                    {
-                        MessageSender = messageSender,
-                        SubscriptionStorage = subscriptionStorage
-                    },
-                MessageDeferrer = new TimeoutManagerDeferrer
-                    {
-                        MessageSender = messageSender,
-                        TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
-                    },
                 SubscriptionManager = subscriptionManager,
-                MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 MessageRouter = router
             };
@@ -310,7 +309,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void ReceiveMessage<T>(T message, IDictionary<string,string> headers = null)
+        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null)
         {
             RegisterMessageType<T>();
             var messageToReceive = Helpers.Serialize(message);
@@ -324,7 +323,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
 
 
-        
+
             ReceiveMessage(messageToReceive);
         }
 

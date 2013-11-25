@@ -45,7 +45,7 @@
             manualResetEventSlim.Set();
         }
 
-        [Test]
+        [Test,Explicit("Not stable")]
         public void One_message_limit_and_two_messages_should_take_more_than_one_second()
         {
             var stopwatch = Stopwatch.StartNew();

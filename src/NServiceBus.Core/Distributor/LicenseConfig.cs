@@ -17,7 +17,7 @@ namespace NServiceBus.Distributor
 
         static LicenseConfig()
         {
-            allowedWorkerNodes = LicenseManager.CurrentLicense.AllowedNumberOfWorkerNodes;
+            allowedWorkerNodes = LicenseManager.License.AllowedNumberOfWorkerNodes;
         }
 
         internal static bool LimitNumberOfWorkers(Address workerAddress)

@@ -53,9 +53,9 @@ namespace NServiceBus.Unicast
             get { return messageId; }
         }
 
-        Task<int> ICallback.Register()
+        public Task<int> Register()
         {
-            var asyncResult = ((ICallback) this).Register(null, null);
+            var asyncResult = Register(null, null);
             var task = Task<int>.Factory.FromAsync(asyncResult, x =>
                 {
                     var cr = ((CompletionResult) x.AsyncState);
@@ -66,13 +66,13 @@ namespace NServiceBus.Unicast
             return task;
         }
 
-        Task<T> ICallback.Register<T>()
+        public Task<T> Register<T>()
         {
             if (!typeof (T).IsEnum)
                 throw new InvalidOperationException(
                     "Register<T> can only be used with enumerations, use Register() to return an integer instead");
 
-            var asyncResult = ((ICallback) this).Register(null, null);
+            var asyncResult = Register(null, null);
             var task = Task<T>.Factory.FromAsync(asyncResult, x =>
                 {
                     var cr = ((CompletionResult) x.AsyncState);
@@ -83,25 +83,21 @@ namespace NServiceBus.Unicast
             return task;
         }
 
-        Task<T> ICallback.Register<T>(Func<CompletionResult, T> completion)
+        public Task<T> Register<T>(Func<CompletionResult, T> completion)
         {
-            var asyncResult = ((ICallback) this).Register(null, null);
-            var task = Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
+            var asyncResult = Register(null, null);
+            return Task<T>.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
                                                  TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
         }
 
-        Task ICallback.Register(Action<CompletionResult> completion)
+        public Task Register(Action<CompletionResult> completion)
         {
-            var asyncResult = ((ICallback) this).Register(null, null);
-            var task = Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
+            var asyncResult = Register(null, null);
+            return Task.Factory.FromAsync(asyncResult, x => completion((CompletionResult) x.AsyncState),
                                               TaskCreationOptions.None, TaskScheduler.Default);
-
-            return task;
         }
 
-        IAsyncResult ICallback.Register(AsyncCallback callback, object state)
+        public IAsyncResult Register(AsyncCallback callback, object state)
         {
             var result = new BusAsyncResult(callback, state);
 
@@ -111,26 +107,26 @@ namespace NServiceBus.Unicast
             return result;
         }
 
-        void ICallback.Register<T>(Action<T> callback)
+        public void Register<T>(Action<T> callback)
         {
             var page = callback.Target as Page;
             if (page != null)
             {
-                (this as ICallback).Register(callback, page);
+                Register(callback, page);
                 return;
             }
 
             if (AsyncControllerType.IsInstanceOfType(callback.Target))
             {
-                (this as ICallback).Register(callback, callback.Target);
+                Register(callback, callback.Target);
                 return;
             }
 
             var context = SynchronizationContext.Current;
-            (this as ICallback).Register(callback, context);
+            Register(callback, context);
         }
 
-        void ICallback.Register<T>(Action<T> callback, object synchronizer)
+        public void Register<T>(Action<T> callback, object synchronizer)
         {
             if (!typeof(T).IsEnum && typeof(T) != typeof(int))
                 throw new InvalidOperationException("Can only support registering callbacks for integer or enum types. The given type is: " + typeof(T).FullName);
@@ -140,14 +136,15 @@ namespace NServiceBus.Unicast
 
             if (synchronizer == null)
             {
-                (this as ICallback).Register(GetCallbackInvocationActionFrom(callback), null);
+                Register(GetCallbackInvocationActionFrom(callback), null);
                 return;
             }
 
-            if (synchronizer is Page)
+            var page = synchronizer as Page;
+            if (page != null)
             {
-                (synchronizer as Page).RegisterAsyncTask(new PageAsyncTask(
-                    (sender, e, cb, extraData) => (this as ICallback).Register(cb, extraData),
+                page.RegisterAsyncTask(new PageAsyncTask(
+                    (sender, e, cb, extraData) => Register(cb, extraData),
                     new EndEventHandler(GetCallbackInvocationActionFrom(callback)),
                     null,
                     null
@@ -160,7 +157,7 @@ namespace NServiceBus.Unicast
                 dynamic asyncController = synchronizer;
                 asyncController.AsyncManager.OutstandingOperations.Increment();
 
-                (this as ICallback).Register(GetMvcCallbackInvocationActionFrom(callback, asyncController.AsyncManager), null);
+                Register(GetMvcCallbackInvocationActionFrom(callback, asyncController.AsyncManager), null);
 
                 return;
             }
@@ -168,7 +165,7 @@ namespace NServiceBus.Unicast
             var synchronizationContext = synchronizer as SynchronizationContext;
             if (synchronizationContext != null)
             {
-                (this as ICallback).Register(
+               Register(
                     ar => synchronizationContext.Post(
                         x => GetCallbackInvocationActionFrom(callback).Invoke(ar), null),
                     null

@@ -27,11 +27,22 @@ namespace NServiceBus.Serializers.XML
         string nameSpace = "http://tempuri.net";
         /// <summary>
         /// The namespace to place in outgoing XML.
+        /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
         public string Namespace
         {
             get { return nameSpace; }
-            set { nameSpace = value; }
+            set { nameSpace = TrimPotentialTralingForwardSlashes(value); }
+        }
+
+        string TrimPotentialTralingForwardSlashes(string value)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+
+            return value.TrimEnd(new[] { '/' });
         }
 
         /// <summary>
@@ -85,12 +96,14 @@ namespace NServiceBus.Serializers.XML
                 foreach (var interfaceType in t.GetInterfaces())
                 {
                     var arr = interfaceType.GetGenericArguments();
-                    if (arr.Length == 1)
+                    if (arr.Length != 1)
                     {
-                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
-                        {
-                            InitType(arr[0]);
-                        }
+                        continue;
+                    }
+
+                    if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
+                    {
+                        InitType(arr[0]);
                     }
                 }
 
@@ -436,12 +449,11 @@ namespace NServiceBus.Serializers.XML
                     logger.Debug("Trying to deserialize message to " + baseType.FullName);
                     return baseType;
                 }
-                // ReSharper disable EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
                 } 
-                // ReSharper restore EmptyGeneralCatchClause
             }
 
             throw new TypeLoadException("Could not determine type for node: '" + node.Name + "'.");
@@ -711,14 +723,16 @@ namespace NServiceBus.Serializers.XML
                 foreach (var interfaceType in type.GetInterfaces())
                 {
                     var args = interfaceType.GetGenericArguments();
-                    if (args.Length == 2)
+                    if (args.Length != 2)
                     {
-                        if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
-                        {
-                            keyType = args[0];
-                            valueType = args[1];
-                            break;
-                        }
+                        continue;
+                    }
+
+                    if (typeof(IDictionary<,>).MakeGenericType(args).IsAssignableFrom(type))
+                    {
+                        keyType = args[0];
+                        valueType = args[1];
+                        break;
                     }
                 }
 
@@ -1070,13 +1084,15 @@ namespace NServiceBus.Serializers.XML
                     foreach (var interfaceType in interfaces)
                     {
                         var arr = interfaceType.GetGenericArguments();
-                        if (arr.Length == 1)
+                        if (arr.Length != 1)
                         {
-                            if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
-                            {
-                                baseType = arr[0];
-                                break;
-                            }
+                            continue;
+                        }
+
+                        if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(type))
+                        {
+                            baseType = arr[0];
+                            break;
                         }
                     }
 

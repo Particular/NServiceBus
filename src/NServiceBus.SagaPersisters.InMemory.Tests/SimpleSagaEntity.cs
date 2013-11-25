@@ -5,22 +5,12 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
 
     public class SimpleSageEntity : IContainSagaData
     {
-        public virtual Guid Id { get; set; }
-        public virtual string Originator { get; set; }
-        public virtual string OriginalMessageId { get; set; }
+        public Guid Id { get; set; }
+        public string Originator { get; set; }
+        public string OriginalMessageId { get; set; }
 
-        public virtual string OrderSource { get; set; }
-        public virtual DateTime OrderExpirationDate { get; set; }
-        public virtual decimal OrderCost { get; set; }
-    }
-    public class AnotherSimpleSageEntity : IContainSagaData
-    {
-        public virtual Guid Id { get; set; }
-        public virtual string Originator { get; set; }
-        public virtual string OriginalMessageId { get; set; }
-
-        public virtual string ProductSource { get; set; }
-        public virtual DateTime ProductExpirationDate { get; set; }
-        public virtual decimal ProductCost { get; set; }
+        public string OrderSource { get; set; }
+        public DateTime OrderExpirationDate { get; set; }
+        public decimal OrderCost { get; set; }
     }
 }

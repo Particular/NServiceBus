@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Collections.Generic;
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
@@ -201,6 +202,7 @@
         [Test]
         public void Should_throw()
         {
+            RegisterMessageType<CommandMessage>(Address.Undefined);
             Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandMessage()));
         }
     }
@@ -236,7 +238,7 @@
     [TestFixture]
     public class When_raising_an_in_memory_message : using_the_unicastBus
     {
-        [Test]
+        [Test,Ignore("Not supported for now")]
         public void Should_invoke_registered_message_handlers()
         {
             RegisterMessageType<TestMessage>();
@@ -244,7 +246,11 @@
             RegisterMessageHandlerType<TestMessageHandler1>();
             RegisterMessageHandlerType<TestMessageHandler2>();
 
-            bus.InMemory.Raise(new TestMessage());
+            var messageToRaise = new TestMessage();
+            Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
+
+
+            bus.InMemory.Raise(messageToRaise);
 
             Assert.True(TestMessageHandler1.Called);
             Assert.True(TestMessageHandler2.Called);
@@ -256,6 +262,8 @@
 
             public void Handle(TestMessage message)
             {
+                Assert.AreEqual("MyHeaderValue", Headers.GetMessageHeader(message, "MyHeader"));
+
                 Called = true;
             }
         }
@@ -267,6 +275,112 @@
             public void Handle(TestMessage message)
             {
                 Called = true;
+            }
+        }
+    }
+
+    [TestFixture]
+    public class When_raising_an_in_memory_message_from_a_message_handler : using_the_unicastBus
+    {
+        [Test]
+        public void Should_invoke_registered_message_handlers()
+        {
+            var receivedMessage = Helpers.Helpers.Serialize(new StartMessage());
+
+            receivedMessage.Headers["HeaderOnPhysicalMessage"] = "SomeValue";
+
+            RegisterMessageType<StartMessage>();
+           
+            RegisterMessageHandlerType<StartHandler>();
+            RegisterMessageHandlerType<RaisedMessageHandler>();
+
+            ReceiveMessage(receivedMessage);
+            
+            Assert.True(RaisedMessageHandler.Called);
+        }
+
+        class StartMessage:IMessage
+        {
+             
+        }
+
+        class RaisedMessage
+        {
+             
+        }
+
+        class StartHandler : IHandleMessages<StartMessage>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(StartMessage message)
+            {
+                var messageToRaise = new RaisedMessage();
+                Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
+
+                Bus.InMemory.Raise(messageToRaise);
+            }
+        }
+
+        class RaisedMessageHandler : IHandleMessages<RaisedMessage>
+        {
+            public static bool Called;
+
+            public void Handle(RaisedMessage message)
+            {
+                Assert.AreEqual("MyHeaderValue",Headers.GetMessageHeader(message, "MyHeader"));
+
+                Assert.AreEqual("SomeValue", Headers.GetMessageHeader(message, "HeaderOnPhysicalMessage"));
+
+                Called = true;
+            }
+        }
+    }
+
+
+    [TestFixture]
+    public class When_replying_to_a_saga : using_the_unicastBus
+    {
+        [Test]
+        public void The_saga_id_header_should_point_to_the_saga_we_are_replying_to()
+        {
+            RegisterMessageType<SagaRequest>();
+            RegisterMessageType<ReplyToSaga>();
+            var receivedMessage = Helpers.Helpers.Serialize(new SagaRequest());
+
+            var sagaId = Guid.NewGuid();
+            var sagaType = "the saga type";
+
+            receivedMessage.Headers[Headers.OriginatingSagaId] = sagaId.ToString();
+            receivedMessage.Headers[Headers.OriginatingSagaType] = sagaType;
+            receivedMessage.ReplyToAddress = Address.Parse("EndpointRunningTheSaga");
+
+            RegisterMessageHandlerType<HandlerThatRepliesToSaga>();
+            ReceiveMessage(receivedMessage);
+
+            AssertSendWithHeaders(headers => headers[Headers.SagaId] == sagaId.ToString() && headers[Headers.SagaType] == sagaType);
+        }
+
+        void AssertSendWithHeaders(Func<IDictionary<string,string>,bool> condition)
+        {
+            messageSender.AssertWasCalled(x =>x.Send(Arg<TransportMessage>.Matches(m =>condition(m.Headers)), Arg<Address>.Is.Anything));
+        }
+
+
+        class SagaRequest : IMessage
+        {
+        }
+        class ReplyToSaga : IMessage
+        {
+        }
+
+        class HandlerThatRepliesToSaga : IHandleMessages<SagaRequest>
+        {
+            public IBus Bus { get; set; }
+
+            public void Handle(SagaRequest message)
+            {
+                Bus.Reply(new ReplyToSaga());
             }
         }
     }

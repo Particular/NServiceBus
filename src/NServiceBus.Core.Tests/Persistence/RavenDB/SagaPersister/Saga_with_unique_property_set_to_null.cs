@@ -8,11 +8,10 @@
         [Test, ExpectedException(typeof(ArgumentNullException))]
         public void should_throw_a_ArgumentNullException()
         {
-            string uniqueString = null;
             var saga1 = new SagaWithUniqueProperty
                             {
                                 Id = Guid.NewGuid(),
-                                UniqueString = uniqueString
+                                UniqueString = null
                             };
 
             SaveSaga(saga1);        

@@ -13,8 +13,6 @@ namespace NServiceBus.Sagas
 
         public Type SagaType { get; private set; }
         
-        public bool Found { get; private set; }
-        
         public ISaga Instance { get; private set; }
         
         public bool IsNew { get; private set; }

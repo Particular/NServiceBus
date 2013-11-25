@@ -35,6 +35,7 @@
             public Headquarters()
             {
                 EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                    .AllowExceptions()
                     .WithConfig<GatewayConfig>(c =>
                         {
                             c.Sites = new SiteCollection

@@ -57,7 +57,7 @@
 
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
         {
-            done = (c) => func((TContext)c);
+            done = c => func((TContext)c);
 
             return this;
         }

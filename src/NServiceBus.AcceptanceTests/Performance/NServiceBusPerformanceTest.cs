@@ -50,7 +50,7 @@
                     .DeclaringType.Namespace.Replace(typeof(NServiceBusPerformanceTest).Namespace + ".", "");
             var testCase = caller.GetMethod().Name;
 
-            var c = summary.RunDescriptor.ScenarioContext as PerformanceTestContext;
+            var c = (PerformanceTestContext)summary.RunDescriptor.ScenarioContext;
 
             var messagesPerSecondsProcessed = c.NumberOfTestMessages/
                                               (c.LastMessageProcessedAt - c.FirstMessageProcessedAt).TotalSeconds;

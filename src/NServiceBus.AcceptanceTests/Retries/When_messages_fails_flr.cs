@@ -41,6 +41,7 @@
             public SLREndpoint()
             {
                 EndpointSetup<DefaultServer>()
+                    .AllowExceptions()
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0; //to skip the FLR

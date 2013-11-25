@@ -77,7 +77,7 @@
                 public class Saga1Data : ContainSagaData
                 {
                     [Unique]
-                    public Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
                 public class Timeout1
@@ -116,7 +116,7 @@
                 public class Saga2Data : ContainSagaData
                 {
                     [Unique]
-                    public Guid DataId { get; set; }
+                    public virtual Guid DataId { get; set; }
                 }
 
                 public class Saga2Timeout

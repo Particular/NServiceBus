@@ -102,8 +102,6 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         private static bool IsKeyValuePair(Type t)
         {
             var args = t.GetGenericArguments();
-            if (args == null)
-                return false;
             if (args.Length != 2)
                 return false;
             return (typeof(KeyValuePair<,>).MakeGenericType(args) == t);

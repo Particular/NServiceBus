@@ -15,7 +15,7 @@
         {
             var context = new Context();
 
-            Scenario.Define<Context>(context)
+            Scenario.Define(context)
                     .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
                     .Done(c => c.HandedOverToSlr)
                     .Run();
@@ -42,7 +42,8 @@
                     .WithConfig<TransportConfig>(c =>
                         {
                             c.MaxRetries = 0;
-                        });
+                        })
+                        .AllowExceptions();
             }
 
             class CustomFaultManager: IManageMessageFailures

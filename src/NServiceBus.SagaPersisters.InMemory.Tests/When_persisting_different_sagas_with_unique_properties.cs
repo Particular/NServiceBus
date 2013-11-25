@@ -3,7 +3,6 @@
     using System;
     using NUnit.Framework;
     using Persistence.InMemory.SagaPersister;
-    using Saga;
 
     [TestFixture]
     public class When_persisting_different_sagas_with_unique_properties
@@ -15,7 +14,7 @@
             var saga2 = new AnotherSagaWithTwoUniqueProperties { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
             var saga3 = new SagaWithUniqueProperty {Id = Guid.NewGuid(), UniqueString = "whatever"};
             
-            var inMemorySagaPersister = new InMemorySagaPersister() as ISagaPersister;
+            var inMemorySagaPersister = new InMemorySagaPersister();
 
             inMemorySagaPersister.Save(saga1);
             inMemorySagaPersister.Save(saga2);

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting.Support;
 
     public class AllSerializers : ScenarioDescriptor
     {

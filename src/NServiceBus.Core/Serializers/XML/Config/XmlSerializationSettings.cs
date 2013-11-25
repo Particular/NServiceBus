@@ -45,7 +45,8 @@
         }
 
         /// <summary>
-        /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default
+        /// Configures the serializer to use a custom namespace. (http://tempuri.net) is the default.
+        /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
         public XmlSerializationSettings Namespace(string namespaceToUse)
         {

@@ -45,7 +45,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithInvalidCharacter;
+                var m = (MessageWithInvalidCharacter)msgArray[0];
                 Assert.AreEqual(sb.ToString(), m.Special);
             }
         }
@@ -207,20 +207,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(new[] { msg }, stream);
-                stream.Position = 0;
-
-                string result;
-                using (var reader = new StreamReader(stream))
-                {
-                    reader.ReadLine();
-                    result = reader.ReadLine();
-                }
-
-                Assert.AreEqual(expected, result);
-            }
+            AssertSerializedEquals(serializer, msg, expected);
         }
 
         [Test]
@@ -232,6 +219,25 @@ namespace NServiceBus.Serializers.XML.Test
             var msg = new EmptyMessage();
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+
+            AssertSerializedEquals(serializer, msg, expected);
+        }
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_specified_namespace_with_trailing_forward_slashes()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            serializer.Namespace = "http://super.com///";
+            var msg = new EmptyMessage();
+
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+
+            AssertSerializedEquals(serializer, msg, expected);
+        }
+
+        static void AssertSerializedEquals(IMessageSerializer serializer, IMessage msg, string expected)
+        {
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new[] { msg }, stream);
@@ -337,7 +343,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             stream.Position = 0;
             var msgArray = serializer.Deserialize(stream);
-            var m = msgArray[0] as MessageWithDouble;
+            var m = (MessageWithDouble)msgArray[0];
 
             Assert.AreEqual(val, m.Double);
 
@@ -478,7 +484,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithList;
+                var m = (MessageWithList)msgArray[0];
                 Assert.AreEqual("Hello", m.Items.First().Data);
             }
         }
@@ -498,7 +504,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespace;
+				var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First().Data);
 			}
 		}
@@ -679,24 +685,7 @@ namespace NServiceBus.Serializers.XML.Test
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
         }
 
-        public void TestSchemaValidation()
-        {
-            try
-            {
-                var settings = new XmlReaderSettings();
-                settings.Schemas.Add(null, "schema0.xsd");
-                settings.Schemas.Add(null, "schema1.xsd");
-                settings.ValidationType = ValidationType.Schema;
-                var document = new XmlDocument();
-                document.Load("XMLFile1.xml");
-                var xmlReader = XmlReader.Create(new StringReader(document.InnerXml), settings);
-                while (xmlReader.Read()) { }
-            }
-            catch (Exception e)
-            {
-                var s = e.Message;
-            }
-        }
+
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {

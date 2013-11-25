@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
-    using NServiceBus.Config.ConfigurationSource;
+    using Config.ConfigurationSource;
 
     public interface IEndpointSetupTemplate
     {

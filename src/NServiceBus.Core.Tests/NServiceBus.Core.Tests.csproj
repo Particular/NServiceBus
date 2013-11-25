@@ -110,6 +110,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
@@ -131,6 +132,15 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Licensing\LicenseDeserializerTests.cs" />
+    <Compile Include="Licensing\LicenseDowngraderTests.cs" />
+    <Compile Include="Licensing\NServiceBusVersionTests.cs" />
+    <Compile Include="Licensing\ResourceReader.cs" />
+    <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
+    <Compile Include="Licensing\TimestampTests.cs" />
+    <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
+    <Compile Include="Licensing\TrialLicenseReaderTests.cs" />
+    <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
@@ -173,6 +183,7 @@
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
+    <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
@@ -207,7 +218,6 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
-    <Compile Include="Pipeline\MessAround.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
@@ -313,6 +323,13 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Licensing\LicenseWithNoUpgradeProtection.xml" />
+    <EmbeddedResource Include="Licensing\SignedInvalid.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Licensing\SignedValid.xml" />
+    <EmbeddedResource Include="Licensing\LicenseWithNonMaxThresholds.xml" />
+    <EmbeddedResource Include="Licensing\LicenseWithAllProperties.xml" />
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
