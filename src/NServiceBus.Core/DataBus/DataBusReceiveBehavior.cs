@@ -66,18 +66,26 @@
             next();
         }
 
-        static List<PropertyInfo> GetDataBusProperties(object message)
+        static IEnumerable<PropertyInfo> GetDataBusProperties(object message)
         {
             var messageType = message.GetType();
 
-            if (!cache.ContainsKey(messageType))
-                cache[messageType] = messageType.GetProperties()
-                    .Where(property => MessageConventionExtensions.IsDataBusProperty(property))
+
+            List<PropertyInfo> value;
+
+            if (!cache.TryGetValue(messageType, out value))
+            {
+                value = messageType.GetProperties()
+                    .Where(MessageConventionExtensions.IsDataBusProperty)
                     .ToList();
 
-            return cache[messageType];
+                cache[messageType] = value;
+            }
+
+
+            return value;
         }
 
-        readonly static IDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>(); 
+        readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>(); 
     }
 }
