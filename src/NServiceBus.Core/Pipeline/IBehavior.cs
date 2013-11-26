@@ -2,14 +2,9 @@
 {
     using System;
 
-
-    interface IBehavior<T> : IBehavior where T : BehaviorContext
+    interface IBehavior<T> where T : BehaviorContext
     {
         void Invoke(T context, Action next);
     }
 
-    interface IBehavior
-    {
-        
-    }
 }

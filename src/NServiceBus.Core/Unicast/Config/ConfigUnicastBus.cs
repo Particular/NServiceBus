@@ -11,6 +11,7 @@ namespace NServiceBus.Unicast.Config
     using NServiceBus.Config;
     using ObjectBuilder;
     using Pipeline;
+    using Pipeline.Contexts;
     using Routing;
     using Settings;
 
@@ -47,7 +48,12 @@ namespace NServiceBus.Unicast.Config
 
         void ConfigureBehaviors()
         {
-            Instance.ForAllTypes<IBehavior>(t => Configurer.ConfigureComponent(t,DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<HandlerInvocationContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<ReceiveLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<ReceivePhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendLogicalMessagesContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendPhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
             if (!SendOnlyMode)
             {
