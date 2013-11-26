@@ -13,7 +13,7 @@
     using Transport;
     using Unicast;
 
-    class ExtractLogicalMessagesBehavior : IBehavior<PhysicalMessageContext>
+    class ExtractLogicalMessagesBehavior : IBehavior<IncomingPhysicalMessageContext>
     {
 
         public IMessageSerializer MessageSerializer { get; set; }
@@ -28,7 +28,7 @@
 
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
             if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {
@@ -70,25 +70,26 @@
             next();
         }
 
-        IEnumerable<LogicalMessage> Extract(TransportMessage m)
+        IEnumerable<LogicalMessage> Extract(TransportMessage physicalMessage)
         {
-            if (m.Body == null || m.Body.Length == 0)
+            if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
             {
                 return new List<LogicalMessage>();
             }
 
-            var messageMetadata = MessageMetadataRegistry.GetMessageTypes(m);
+            var messageMetadata = MessageMetadataRegistry.GetMessageTypes(physicalMessage);
 
-            using (var stream = new MemoryStream(m.Body))
+            using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
 
-                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => LogicalMessageFactory.Create(rawMessage.GetType(),rawMessage)).ToList();
+                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => 
+                    LogicalMessageFactory.Create(rawMessage.GetType(),rawMessage,physicalMessage.Headers))
+                    .ToList();
             }
 
         }
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
     }
 }

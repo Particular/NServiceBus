@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using Audit;
     using Contexts;
+    using DataBus;
     using MessageMutator;
     using NServiceBus.MessageMutator;
     using ObjectBuilder;
@@ -23,9 +24,21 @@
             messageHandlingDisabled = true;
         }
 
-        public void InvokePhysicalMessagePipeline(TransportMessage msg)
+        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
-            var pipeline = new BehaviorChain<PhysicalMessageContext>();
+            contextStacker.Push(new IncomingPhysicalMessageContext(CurrentContext, message));
+        }
+
+        public void InvokeReceivePhysicalMessagePipeline()
+        {
+            var context = contextStacker.Current as IncomingPhysicalMessageContext;
+
+            if(context == null)
+            {
+                throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
+            }
+
+            var pipeline = new BehaviorChain<IncomingPhysicalMessageContext>();
 
             pipeline.Add<ChildContainerBehavior>();
             pipeline.Add<MessageHandlingLoggingBehavior>();
@@ -47,26 +60,30 @@
                 pipeline.Add<CallbackInvocationBehavior>();
             }
 
-            var context = new PhysicalMessageContext(CurrentContext, msg);
-
-
-            contextStacker.Push(context);
-
+            
             pipeline.Invoke(context);
 
-            contextStacker.Pop();
-
+     
         }
+        public void CompletePhysicalMessagePipelineContext()
+        {
+            contextStacker.Pop();
+        }
+
 
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
-            var pipeline = new BehaviorChain<LogicalMessageContext>();
+            var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>();
 
             pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
+            
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            pipeline.Add<DataBusReceiveBehavior>();
+
             pipeline.Add<LoadHandlersBehavior>();
 
 
-            var context = new LogicalMessageContext(CurrentContext, message);
+            var context = new ReceiveLogicalMessageContext(CurrentContext, message);
 
             contextStacker.Push(context);
 
@@ -117,10 +134,11 @@
             var pipeline = new BehaviorChain<SendLogicalMessageContext>();
 
             pipeline.Add<SendValidatorBehavior>();
-            pipeline.Add<SagaSendBehavior>(); 
+            pipeline.Add<SagaSendBehavior>();
             pipeline.Add<MutateOutgoingMessageBehavior>();
             
-
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            pipeline.Add<DataBusSendBehavior>();
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 

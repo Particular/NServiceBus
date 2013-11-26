@@ -22,5 +22,17 @@
         {
             get { return Get<IEnumerable<LogicalMessage>>(); }
         }
+
+        public TransportMessage IncomingMessage
+        {
+            get
+            {
+                TransportMessage message;
+
+                parentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out message);
+
+                return message;
+            }
+        }
     }
 }

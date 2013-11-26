@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.DataBus
     public class When_nservicebus_is_initializing
     {
         [Test]
-        public void Databus_mutators_should_be_registered_if_a_databus_property_is_found()
+        public void Databus_should_be_registered_if_a_databus_property_is_found()
         {
             Configure.With(new[] {typeof (MessageWithDataBusProperty)})
                 .DefineEndpointName("xyz") 
@@ -22,11 +22,11 @@ namespace NServiceBus.Core.Tests.DataBus
 
             bootstrapper.Run();
 
-            Assert.True(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
+            Assert.True(Configure.Instance.Configurer.HasComponent<IDataBus>());
         }
 
         [Test]
-        public void Databus_mutators_should_not_be_registered_if_no_databus_property_is_found()
+        public void Databus_should_not_be_registered_if_no_databus_property_is_found()
         {
             Configure.With(new[] { typeof(MessageWithoutDataBusProperty) })
                 .DefineEndpointName("xyz") 
@@ -36,7 +36,7 @@ namespace NServiceBus.Core.Tests.DataBus
 
             bootstrapper.Run();
 
-            Assert.False(Configure.Instance.Configurer.HasComponent<DataBusMessageMutator>());
+            Assert.False(Configure.Instance.Configurer.HasComponent<IDataBus>());
         }
 
         [Test]

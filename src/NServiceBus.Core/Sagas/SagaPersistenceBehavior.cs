@@ -29,7 +29,7 @@
             }
             
             currentContext = context;
-            physicalMessage = context.Get<TransportMessage>();
+            physicalMessage = context.PhysicalMessage;
 
             // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             if (physicalMessage.MessageIntent == MessageIntentEnum.Publish)

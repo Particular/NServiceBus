@@ -27,11 +27,19 @@
                 CorrelationId = sendOptions.CorrelationId,
                 ReplyToAddress = sendOptions.ReplyToAddress
             };
-    
-    
-    
 
+            //apply static headers
+            foreach (var kvp in UnicastBus.OutgoingHeaders)
+            {
+                toSend.Headers[kvp.Key] = kvp.Value;
+            }
 
+            //apply individual headers
+            foreach(var kvp in context.LogicalMessages.SelectMany(m=>m.Headers))
+            {
+                toSend.Headers[kvp.Key] = kvp.Value;
+            }
+                
             if (toSend.ReplyToAddress == null)
             {
                 toSend.ReplyToAddress = DefaultReplyToAddress;
@@ -40,9 +48,9 @@
             //todo: pull this out to the distributor when we split it to a separate repo
             if (UnicastBus.PropagateReturnAddressOnSend)
             {
-                TransportMessage incomingMessage;
+                var incomingMessage = context.IncomingMessage;
 
-                if (context.TryGet(out incomingMessage))
+                if (incomingMessage != null)
                 {
                     sendOptions.ReplyToAddress = incomingMessage.ReplyToAddress;
                 }
