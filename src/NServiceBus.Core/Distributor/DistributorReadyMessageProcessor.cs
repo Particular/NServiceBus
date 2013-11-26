@@ -4,6 +4,7 @@ namespace NServiceBus.Distributor
     using Logging;
     using ReadyMessages;
     using Satellites;
+    using Settings;
     using Unicast.Transport;
 
     /// <summary>
@@ -19,7 +20,7 @@ namespace NServiceBus.Distributor
         static DistributorReadyMessageProcessor()
         {
             Address = Configure.Instance.GetMasterNodeAddress().SubScope("distributor.control");
-            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint();
+            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1;
         }
 
         /// <summary>

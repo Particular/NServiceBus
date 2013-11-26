@@ -22,6 +22,7 @@ namespace NServiceBus.Distributor.MSMQ.Config
             }
 
             SettingsHolder.Set("Distributor.Enabled", true);
+            SettingsHolder.Set("Distributor.Version", 2);
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                 applicativeInputQueue);

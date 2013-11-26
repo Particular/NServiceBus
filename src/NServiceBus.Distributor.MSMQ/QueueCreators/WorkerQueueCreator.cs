@@ -1,5 +1,6 @@
 namespace NServiceBus.Distributor.MSMQ.QueueCreators
 {
+    using Settings;
     using Unicast.Queuing;
 
     /// <summary>
@@ -20,7 +21,7 @@ namespace NServiceBus.Distributor.MSMQ.QueueCreators
         /// </summary>
         public bool IsDisabled
         {
-            get { return !((ConfigureMSMQDistributor.DistributorConfiguredToRunOnThisEndpoint()) && (ConfigureMSMQDistributor.WorkerRunsOnThisEndpoint())); }
+            get { return !(ConfigureMSMQDistributor.DistributorConfiguredToRunOnThisEndpoint() && ConfigureMSMQDistributor.WorkerRunsOnThisEndpoint() && SettingsHolder.Get<int>("Distributor.Version") == 2); }
         }
     }
 }

@@ -26,6 +26,7 @@ namespace NServiceBus.Distributor.Config
             }
 
             SettingsHolder.Set("Distributor.Enabled", true);
+            SettingsHolder.Set("Distributor.Version", 1);
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                               applicativeInputQueue);

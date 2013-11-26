@@ -3,6 +3,7 @@ namespace NServiceBus.Distributor
     using System;
     using Logging;
     using Satellites;
+    using Settings;
     using Transports;
     using Unicast.Transport;
 
@@ -16,7 +17,7 @@ namespace NServiceBus.Distributor
         static DistributorSatellite()
         {
             Address = Configure.Instance.GetMasterNodeAddress();
-            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint();
+            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1;
         }
 
         /// <summary>

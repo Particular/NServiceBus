@@ -1,5 +1,6 @@
 namespace NServiceBus.Distributor.QueueCreators
 {
+    using Settings;
     using Unicast.Queuing;
 
     /// <summary>
@@ -20,7 +21,7 @@ namespace NServiceBus.Distributor.QueueCreators
         /// </summary>
         public bool IsDisabled
         {
-            get {return !((Configure.Instance.DistributorConfiguredToRunOnThisEndpoint()) && (Configure.Instance.WorkerRunsOnThisEndpoint()));}
+            get { return !(Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() && Configure.Instance.WorkerRunsOnThisEndpoint() && SettingsHolder.Get<int>("Distributor.Version") == 1); }
         }
     }
 }
