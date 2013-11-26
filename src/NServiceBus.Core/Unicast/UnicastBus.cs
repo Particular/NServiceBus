@@ -42,7 +42,7 @@ namespace NServiceBus.Unicast
         {
             set
             {
-                messageHandlingDisabled = true;
+                messageHandlingDisabled = value;
             }
         }
 
