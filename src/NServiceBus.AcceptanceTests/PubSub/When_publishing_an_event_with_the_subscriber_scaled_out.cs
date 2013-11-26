@@ -55,7 +55,7 @@
                     {
                         Assert.AreEqual(1, c.SubcribersOfTheEvent.Count(), "There should only be one logical subscriber");
                     })
-                    .MaxTestParallelism(1)//we force the endpoint names so we can't run this is parallell
+                    .MaxTestParallelism(1)//we force the endpoint names so we can't run this is parallel
                     .Run();
         }
 

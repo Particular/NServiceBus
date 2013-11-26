@@ -401,7 +401,8 @@
             messageSender.AssertWasCalled(x =>
                 x.Send(Arg<TransportMessage>.Matches(m => 
                     m.Headers[Headers.OriginatingSagaId] == sagaData.Id.ToString() && //id of the current saga
-                    m.Headers[Headers.OriginatingSagaType] == typeof(MySaga).AssemblyQualifiedName //todo: should we really us the FQTN here? (what if users move sagas btw assemblies
+                    //todo: should we really us the AssemblyQualifiedName here? (what if users move sagas btw assemblies
+                    m.Headers[Headers.OriginatingSagaType] == typeof(MySaga).AssemblyQualifiedName 
                     ), Arg<Address>.Is.Anything));
         }
 

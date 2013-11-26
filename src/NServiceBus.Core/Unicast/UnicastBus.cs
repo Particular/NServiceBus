@@ -1067,7 +1067,7 @@ namespace NServiceBus.Unicast
         Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>(); 
        
 
-        //we need to not inject since at least Autofac dosen't seem to inject internal properties
+        //we need to not inject since at least Autofac doesn't seem to inject internal properties
         PipelineFactory PipelineFactory
         {
             get

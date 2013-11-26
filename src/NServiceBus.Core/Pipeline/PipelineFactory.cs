@@ -72,7 +72,7 @@
 
             pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
             
-            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             pipeline.Add<DataBusReceiveBehavior>();
 
             pipeline.Add<LoadHandlersBehavior>();
@@ -132,7 +132,7 @@
             pipeline.Add<SagaSendBehavior>();
             pipeline.Add<MutateOutgoingMessageBehavior>();
             
-            //todo: we'll make this optional as soon as we have a way to manipulate the pipeling
+            //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             pipeline.Add<DataBusSendBehavior>();
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
