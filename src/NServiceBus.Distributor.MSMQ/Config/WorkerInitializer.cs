@@ -2,13 +2,13 @@ namespace NServiceBus.Distributor.MSMQ.Config
 {
     using NServiceBus.Config;
     using ReadyMessages;
+    using Settings;
 
     internal class WorkerInitializer
     {
         public static void Init()
         {
-            var masterNodeAddress = MasterNodeUtils.GetMasterNodeAddress();
-
+            var masterNodeAddress = Configure.Instance.GetMasterNodeAddress();
             var distributorControlAddress = masterNodeAddress.SubScope("distributor.control");
 
             var unicastBusConfig = Configure.GetConfigSection<UnicastBusConfig>();
@@ -25,6 +25,10 @@ namespace NServiceBus.Distributor.MSMQ.Config
             Configure.Instance.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);
+
+            SettingsHolder.Set("Worker.Enabled", true);
+
+            SettingsHolder.Set("MasterNode.Address", masterNodeAddress);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace NServiceBus.MasterNode
             if (!Configure.Instance.HasMasterNode())
                 return;
 
-            SettingsHolder.SetDefault("SecondLevelRetries.AddressOfRetryProcessor",Configure.Instance.GetMasterNodeAddress().SubScope("Retries"));
+            SettingsHolder.SetDefault("SecondLevelRetries.AddressOfRetryProcessor", Configure.Instance.GetMasterNodeAddress().SubScope("Retries"));
         }
     }
 }

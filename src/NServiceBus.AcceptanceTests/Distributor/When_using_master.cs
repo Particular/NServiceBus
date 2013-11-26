@@ -75,7 +75,7 @@
                 {
                     c.MaximumConcurrencyLevel = 1;
                 })
-                .WithConfig<NServiceBus.Distributor.MSMQ.Config.MasterNodeConfig>(c=> c.Node = "localhost")
+                .WithConfig<MasterNodeConfig>(c=> c.Node = "localhost")
                 .WithConfig<UnicastBusConfig>(c=> c.DistributorDataAddress = "distributor.masterendpoint.msmq");
             }
 

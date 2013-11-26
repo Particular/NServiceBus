@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.MSMQ.Config
 {
     using Logging;
+    using Settings;
     using Unicast;
 
     internal class DistributorInitializer
@@ -19,6 +20,8 @@ namespace NServiceBus.Distributor.MSMQ.Config
             {
                 config.Configurer.ConfigureComponent<MsmqWorkerAvailabilityManager>(DependencyLifecycle.SingleInstance);
             }
+
+            SettingsHolder.Set("Distributor.Enabled", true);
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                 applicativeInputQueue);

@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
+    using Settings;
     using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
 
@@ -23,6 +24,8 @@ namespace NServiceBus.Distributor.Config
                     DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
             }
+
+            SettingsHolder.Set("Distributor.Enabled", true);
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                               applicativeInputQueue);

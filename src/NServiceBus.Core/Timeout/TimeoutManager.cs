@@ -24,7 +24,7 @@
             if (Configure.HasComponent<IDeferMessages>())
                 return false;
 
-            //if we have a master node configured we should use that timeout manager instead
+            //if we have a master node configured we should use the Master Node timeout manager instead
             if (Configure.Instance.HasMasterNode())
                 return false;
 

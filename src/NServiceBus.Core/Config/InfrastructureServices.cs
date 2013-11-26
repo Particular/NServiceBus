@@ -120,18 +120,13 @@ namespace NServiceBus.Config
         static readonly IDictionary<Type, ServiceStatus> knownServices = new Dictionary<Type, ServiceStatus>();
         static readonly ILog Logger = LogManager.GetLogger(typeof(InfrastructureServices));
 
-
         public class ServiceStatus
         {
             public Type Service { get; set; }
             public bool Enabled { get; set; }
-
         }
-
- 
     }
 
-    
     /// <summary>
     /// Displays the current status for the infrastructure services
     /// </summary>

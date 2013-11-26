@@ -12,7 +12,7 @@ namespace NServiceBus.Distributor.MSMQ
     {
         static DistributorReadyMessageProcessor()
         {
-            Address = MasterNodeUtils.GetMasterNodeAddress().SubScope("distributor.control");
+            Address = Configure.Instance.GetMasterNodeAddress().SubScope("distributor.control");
             Disable = !ConfigureMSMQDistributor.DistributorConfiguredToRunOnThisEndpoint();
         }
 

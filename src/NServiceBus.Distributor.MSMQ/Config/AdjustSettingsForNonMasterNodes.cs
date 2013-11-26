@@ -6,12 +6,12 @@ namespace NServiceBus.Distributor.MSMQ.Config
     {
         public void Run()
         {
-            if (!MasterNodeUtils.HasMasterNode())
+            if (!Configure.Instance.HasMasterNode())
             {
                 return;
             }
 
-            SettingsHolder.SetDefault("SecondLevelRetries.AddressOfRetryProcessor", MasterNodeUtils.GetMasterNodeAddress().SubScope("Retries"));
+            SettingsHolder.SetDefault("SecondLevelRetries.AddressOfRetryProcessor", Configure.Instance.GetMasterNodeAddress().SubScope("Retries"));
         }
     }
 }

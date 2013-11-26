@@ -25,6 +25,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>..\..\binaries\NServiceBus.Distributor.MSMQ.XML</DocumentationFile>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <NoWarn>612,618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +36,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>..\..\binaries\NServiceBus.Distributor.MSMQ.XML</DocumentationFile>
+    <NoWarn>612,618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Janitor, Version=0.4.0.0, Culture=neutral, PublicKeyToken=d34c7d3bba3746e6, processorArchitecture=MSIL">
@@ -60,8 +62,6 @@
     <Compile Include="IWorkerAvailabilityManager.cs" />
     <Compile Include="LicenseConfig.cs" />
     <Compile Include="Config\AdjustSettingsForNonMasterNodes.cs" />
-    <Compile Include="MasterNodeUtils.cs" />
-    <Compile Include="Config\MasterNodeConfig.cs" />
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Profiles\DistributorProfileHandler.cs" />
     <Compile Include="Profiles\MasterProfileHandler.cs" />

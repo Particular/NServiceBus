@@ -70,7 +70,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
             const string localAddress = "endpointA";
-            MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
@@ -155,7 +154,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus = new UnicastBus
             {
-                MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,

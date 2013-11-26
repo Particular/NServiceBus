@@ -4,27 +4,22 @@ namespace NServiceBus
     using System.Configuration;
     using System.Linq;
     using System.Net;
-    using Distributor.MSMQ;
     using Logging;
+    using Settings;
 
     /// <summary>
     /// Extension methods to configure Distributor.
     /// </summary>
     public static class ConfigureMSMQDistributor
     {
-        internal static bool DistributorEnabled()
-        {
-            return distributorEnabled;
-        }
-
         internal static bool DistributorConfiguredToRunOnThisEndpoint()
         {
-            return distributorEnabled && distributorShouldRunOnThisEndpoint;
+            return SettingsHolder.GetOrDefault<bool>("Distributor.Enabled");
         }
 
         internal static bool WorkerRunsOnThisEndpoint()
         {
-            return workerRunsOnThisEndpoint;
+            return SettingsHolder.GetOrDefault<bool>("Worker.Enabled");
         }
 
         /// <summary>
@@ -42,14 +37,10 @@ namespace NServiceBus
         /// <param name="withWorker"><value>true</value> if this endpoint should enlist as a worker, otherwise <value>false</value>. Default is <value>true</value>.</param>
         public static Configure RunMSMQDistributor(this Configure config, bool withWorker = true)
         {
-            distributorEnabled = true;
-            distributorShouldRunOnThisEndpoint = true;
-
             Distributor.MSMQ.Config.DistributorInitializer.Init(withWorker);
 
             if (withWorker)
             {
-                workerRunsOnThisEndpoint = true;
                 Distributor.MSMQ.Config.WorkerInitializer.Init();
             }
 
@@ -62,8 +53,6 @@ namespace NServiceBus
         /// </summary>
         public static Configure EnlistWithMSMQDistributor(this Configure config)
         {
-            workerRunsOnThisEndpoint = true;
-
             ValidateMasterNodeConfigurationForWorker();
 
             Distributor.MSMQ.Config.WorkerInitializer.Init();
@@ -73,7 +62,7 @@ namespace NServiceBus
 
         static void ValidateMasterNodeConfigurationForWorker()
         {
-            var masterNodeName = MasterNodeUtils.GetMasterNode();
+            var masterNodeName = Configure.Instance.GetMasterNode();
 
             if (masterNodeName == null)
             {
@@ -119,9 +108,6 @@ namespace NServiceBus
             return false;
         }
 
-        static bool distributorEnabled;
-        static bool distributorShouldRunOnThisEndpoint;
-        static bool workerRunsOnThisEndpoint;
         static ILog logger = LogManager.GetLogger(typeof(ConfigureMSMQDistributor));
     }
 }

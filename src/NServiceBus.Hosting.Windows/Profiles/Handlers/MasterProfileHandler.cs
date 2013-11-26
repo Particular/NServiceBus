@@ -7,6 +7,7 @@
     using Features;
     using Hosting.Profiles;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     class MasterProfileHandler : IHandleProfile<Master>, IWantTheListOfActiveProfiles
     {
         public void ProfileActivated()
@@ -16,9 +17,8 @@
                 throw new ConfigurationErrorsException("Master profile and Worker profile should not coexist.");
             }
 
-            Configure.Instance.AsMasterNode()
-                .RunDistributor();
-            
+            Configure.Instance.RunDistributor();
+
             Feature.EnableByDefault<Gateway>();
         }
         
