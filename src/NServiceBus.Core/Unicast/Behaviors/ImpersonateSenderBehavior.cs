@@ -12,6 +12,12 @@
 
         public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
+            if (!ConfigureImpersonation.Impersonate)
+            {
+                next();
+                return;
+            }
+
             var principal = ExtractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
 
             if (principal == null)

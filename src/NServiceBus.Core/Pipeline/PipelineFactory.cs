@@ -42,12 +42,7 @@
 
             pipeline.Add<ChildContainerBehavior>();
             pipeline.Add<MessageHandlingLoggingBehavior>();
-
-            if (ConfigureImpersonation.Impersonate)
-            {
-                pipeline.Add<ImpersonateSenderBehavior>();
-            }
-
+            pipeline.Add<ImpersonateSenderBehavior>();
             pipeline.Add<AuditBehavior>();
             pipeline.Add<ForwardBehavior>();
             pipeline.Add<UnitOfWorkBehavior>();
