@@ -37,6 +37,7 @@
 
             public string Options1
             {
+// ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing
@@ -45,6 +46,7 @@
 
             public int Options2
             {
+// ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing

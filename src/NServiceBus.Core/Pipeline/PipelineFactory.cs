@@ -18,15 +18,9 @@
     {
         public IBuilder RootBuilder { get; set; }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public void DisableLogicalMessageHandling()
+        public void PreparePhysicalMessagePipelineContext(TransportMessage message, bool messageHandlingDisabled)
         {
-            messageHandlingDisabled = true;
-        }
-
-        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
-        {
-            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message));
+            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message, messageHandlingDisabled));
         }
 
         public void InvokeReceivePhysicalMessagePipeline()
@@ -48,12 +42,8 @@
             pipeline.Add<UnitOfWorkBehavior>();
             pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
             pipeline.Add<RaiseMessageReceivedBehavior>();
-
-            if (!messageHandlingDisabled)
-            {
-                pipeline.Add<ExtractLogicalMessagesBehavior>();
-                pipeline.Add<CallbackInvocationBehavior>();
-            }
+            pipeline.Add<ExtractLogicalMessagesBehavior>();
+            pipeline.Add<CallbackInvocationBehavior>();
 
             pipeline.Invoke(context);
         }
@@ -71,7 +61,6 @@
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             pipeline.Add<DataBusReceiveBehavior>();
             pipeline.Add<LoadHandlersBehavior>();
-
 
             var context = new ReceiveLogicalMessageContext(CurrentContext, message);
 
@@ -181,9 +170,6 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
-        bool messageHandlingDisabled;
-
 
     }
 }

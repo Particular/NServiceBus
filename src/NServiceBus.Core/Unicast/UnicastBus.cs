@@ -29,6 +29,10 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
+
+
+        bool messageHandlingDisabled;
+
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
@@ -38,7 +42,7 @@ namespace NServiceBus.Unicast
         {
             set
             {
-                PipelineFactory.DisableLogicalMessageHandling();
+                messageHandlingDisabled = true;
             }
         }
 
@@ -924,7 +928,7 @@ namespace NServiceBus.Unicast
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
             incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
 
-            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
+            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 
 #pragma warning disable 0618
             modules = Builder.BuildAll<IMessageModule>().ToList();
@@ -957,8 +961,6 @@ namespace NServiceBus.Unicast
             {
                 PipelineFactory.CompletePhysicalMessagePipelineContext();
             }
-            
-               
         }
 
         void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)

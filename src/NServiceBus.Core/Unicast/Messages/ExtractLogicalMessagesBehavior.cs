@@ -30,6 +30,11 @@
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
+            if (context.MessageHandlingDisabled)
+            {
+                return;
+            }
+
             if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {
                 next();
