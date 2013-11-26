@@ -55,26 +55,21 @@
                 pipeline.Add<CallbackInvocationBehavior>();
             }
 
-            
             pipeline.Invoke(context);
-
-     
         }
+
         public void CompletePhysicalMessagePipelineContext()
         {
             contextStacker.Pop();
         }
-
 
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
             var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>();
 
             pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
-            
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             pipeline.Add<DataBusReceiveBehavior>();
-
             pipeline.Add<LoadHandlersBehavior>();
 
 
@@ -154,7 +149,6 @@
             pipeline.Add<MutateOutgoingPhysicalMessageBehavior>();
             pipeline.Add<DispatchMessageToTransportBehavior>();
 
-
             var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
 
             contextStacker.Push(context);
@@ -163,8 +157,6 @@
 
             contextStacker.Pop();
         }
-
-
 
         public BehaviorContext CurrentContext
         {

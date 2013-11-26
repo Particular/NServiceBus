@@ -162,7 +162,6 @@
     <Compile Include="Transactions\When_receiving_a_message_with_transactions_disabled.cs" />
     <Compile Include="Transactions\When_sending_a_message_from_a_non_transactional_endpoint_with_a_ambient_transaction_enabled.cs" />
     <Compile Include="Transactions\When_sending_messages_within_an_ambient_transaction.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_to_another_endpoint.cs" />

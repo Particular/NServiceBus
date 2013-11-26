@@ -90,7 +90,6 @@
     <Compile Include="When_using_nested_containers.cs" />
     <Compile Include="When_building_components.cs" />
     <Compile Include="When_querying_for_registered_components.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="When_registering_components.cs" />
   </ItemGroup>
   <ItemGroup>
