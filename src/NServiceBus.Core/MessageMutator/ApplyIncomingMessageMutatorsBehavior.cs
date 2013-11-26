@@ -4,9 +4,9 @@
     using Contexts;
     using NServiceBus.MessageMutator;
 
-    class ApplyIncomingMessageMutatorsBehavior : IBehavior<LogicalMessageContext>
+    class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
-        public void Invoke(LogicalMessageContext context, Action next)
+        public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
 
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())

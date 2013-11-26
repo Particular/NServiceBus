@@ -9,13 +9,13 @@
     using Unicast;
     using Transport;
 
-    class CallbackInvocationBehavior : IBehavior<PhysicalMessageContext>
+    class CallbackInvocationBehavior : IBehavior<IncomingPhysicalMessageContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
         public UnicastBus UnicastBus { get; set; }
 
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public void Invoke(IncomingPhysicalMessageContext context, Action next)
         {
 
             var messageWasHandled = HandleCorrelatedMessage(context.PhysicalMessage, context);
@@ -25,7 +25,7 @@
             next();
         }
 
-        bool HandleCorrelatedMessage(TransportMessage transportMessage, PhysicalMessageContext context)
+        bool HandleCorrelatedMessage(TransportMessage transportMessage, IncomingPhysicalMessageContext context)
         {
             if (transportMessage.CorrelationId == null)
             {

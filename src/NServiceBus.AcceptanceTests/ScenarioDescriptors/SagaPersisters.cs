@@ -44,7 +44,7 @@
 
                 if (persister == null)
                 {
-                    persister = typeof(RavenSagaPersister);
+                    persister = typeof(InMemorySagaPersister);
                 }
 
                 return new RunDescriptor

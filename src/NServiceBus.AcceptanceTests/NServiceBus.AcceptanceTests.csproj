@@ -117,6 +117,7 @@
     <Compile Include="Gateway\When_using_a_custom_correlation_id.cs" />
     <Compile Include="InMemory\When_raising_an_in_memory_event_transport_mutators_should_not_be_called.cs" />
     <Compile Include="InMemory\When_calling_DoNotContinueDispatchingCurrentMessageToHandlers_from_inmemory.cs" />
+    <Compile Include="InMemory\When_raising_an_in_memory_event_from_a_non_handler.cs" />
     <Compile Include="InMemory\When_raising_an_in_memory_event.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />

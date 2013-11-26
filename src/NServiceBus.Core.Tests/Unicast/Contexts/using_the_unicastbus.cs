@@ -11,6 +11,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Impersonation;
     using Impersonation.Windows;
     using Licensing;
+    using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
@@ -39,7 +40,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FakeSubscriptionStorage subscriptionStorage;
 
         protected Address gatewayAddress;
-        MessageHeaderManager headerManager = new MessageHeaderManager();
         protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
@@ -56,10 +56,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         PipelineFactory pipelineFactory;
 
-
         [SetUp]
         public void SetUp()
         {
+          
+
             LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
@@ -88,7 +89,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
-            ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
+            //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
@@ -109,7 +110,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
                     SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
@@ -169,8 +169,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
             FuncBuilder.Register<UnicastBus>(() => unicastBus);
-
-            ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
+            new HeaderBootstrapper
+            {
+                Builder = FuncBuilder
+            }.SetupHeaderActions();
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()

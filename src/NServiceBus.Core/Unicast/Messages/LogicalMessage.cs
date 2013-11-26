@@ -5,11 +5,11 @@
 
     class LogicalMessage
     {
-        public LogicalMessage(MessageMetadata metadata, object message)
+        public LogicalMessage(MessageMetadata metadata, object message,Dictionary<string,string> headers)
         {
             Instance = message;
             Metadata = metadata;
-            Headers = new Dictionary<string, string>();
+            Headers = headers;
         }
 
         public void UpdateMessageInstance(object newMessage)

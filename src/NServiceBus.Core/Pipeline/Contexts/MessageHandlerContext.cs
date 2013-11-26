@@ -20,5 +20,10 @@
         {
             get { return Get<LogicalMessage>(); }
         }
+
+        public TransportMessage PhysicalMessage
+        {
+            get { return Get<TransportMessage>(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey); }
+        }
     }
 }
