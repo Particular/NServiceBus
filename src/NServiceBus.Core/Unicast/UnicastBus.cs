@@ -954,11 +954,12 @@ namespace NServiceBus.Unicast
                     module.HandleEndMessage();
                 });
             }
-            catch (Exception)
+            finally 
             {
                 PipelineFactory.CompletePhysicalMessagePipelineContext();
-                throw;
             }
+            
+               
         }
 
         void TransportFailedMessageProcessing(object sender, FailedMessageProcessingEventArgs e)
