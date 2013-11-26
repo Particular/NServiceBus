@@ -12,11 +12,11 @@
     using Unicast;
     using Transport;
 
-    class InvokeHandlersBehavior : IBehavior<MessageHandlerContext>
+    class InvokeHandlersBehavior : IBehavior<HandlerInvocationContext>
     {
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
-        public void Invoke(MessageHandlerContext context, Action next)
+        public void Invoke(HandlerInvocationContext context, Action next)
         {
             var logicalMessage = context.Get<LogicalMessage>();
 

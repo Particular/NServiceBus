@@ -29,7 +29,7 @@
             {
                 TransportMessage message;
 
-                parentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out message);
+                parentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out message);
 
                 return message;
             }

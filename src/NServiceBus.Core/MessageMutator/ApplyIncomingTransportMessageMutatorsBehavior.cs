@@ -4,9 +4,9 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<IncomingPhysicalMessageContext>
+    class ApplyIncomingTransportMessageMutatorsBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        public void Invoke(IncomingPhysicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
 

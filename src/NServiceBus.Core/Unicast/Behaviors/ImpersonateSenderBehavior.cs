@@ -6,11 +6,11 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ImpersonateSenderBehavior : IBehavior<IncomingPhysicalMessageContext>
+    class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 
-        public void Invoke(IncomingPhysicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             if (!ConfigureImpersonation.Impersonate)
             {

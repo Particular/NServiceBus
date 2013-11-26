@@ -33,7 +33,7 @@
 
                 //todo: I think we should move to strongly typed parent contexts so the below should be
                 // parentContext.IncomingMessage or similar
-                parentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out message);
+                parentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out message);
 
                 return message;
             }

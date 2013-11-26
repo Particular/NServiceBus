@@ -13,13 +13,13 @@
     using Unicast;
     using Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<MessageHandlerContext>
+    class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
         public IDeferMessages MessageDeferrer { get; set; }
 
-        public void Invoke(MessageHandlerContext context, Action next)
+        public void Invoke(HandlerInvocationContext context, Action next)
         {
             var saga = context.MessageHandler.Instance as ISaga;
             if (saga == null)
@@ -195,7 +195,7 @@
             return sagaEntity;
         }
 
-        MessageHandlerContext currentContext;
+        HandlerInvocationContext currentContext;
         TransportMessage physicalMessage;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));

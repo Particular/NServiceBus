@@ -26,19 +26,19 @@
 
         public void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
-            contextStacker.Push(new IncomingPhysicalMessageContext(CurrentContext, message));
+            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message));
         }
 
         public void InvokeReceivePhysicalMessagePipeline()
         {
-            var context = contextStacker.Current as IncomingPhysicalMessageContext;
+            var context = contextStacker.Current as ReceivePhysicalMessageContext;
 
             if(context == null)
             {
                 throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
             }
 
-            var pipeline = new BehaviorChain<IncomingPhysicalMessageContext>();
+            var pipeline = new BehaviorChain<ReceivePhysicalMessageContext>();
 
             pipeline.Add<ChildContainerBehavior>();
             pipeline.Add<MessageHandlingLoggingBehavior>();
@@ -82,14 +82,14 @@
             contextStacker.Pop();
         }
 
-        public MessageHandlerContext InvokeHandlerPipeline(MessageHandler handler)
+        public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
         {
-            var pipeline = new BehaviorChain<MessageHandlerContext>();
+            var pipeline = new BehaviorChain<HandlerInvocationContext>();
 
             pipeline.Add<SagaPersistenceBehavior>();
             pipeline.Add<InvokeHandlersBehavior>();
 
-            var context = new MessageHandlerContext(CurrentContext, handler);
+            var context = new HandlerInvocationContext(CurrentContext, handler);
 
             contextStacker.Push(context);
 

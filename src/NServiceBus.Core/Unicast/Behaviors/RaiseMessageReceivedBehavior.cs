@@ -5,11 +5,11 @@
     using Pipeline.Contexts;
     using Unicast;
 
-    class RaiseMessageReceivedBehavior : IBehavior<IncomingPhysicalMessageContext>
+    class RaiseMessageReceivedBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public UnicastBus UnicastBus { get; set; }
         
-        public void Invoke(IncomingPhysicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             UnicastBus.OnMessageReceived(context.PhysicalMessage);
             next();

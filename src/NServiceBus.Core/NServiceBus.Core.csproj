@@ -151,12 +151,12 @@
     <Compile Include="Unicast\Behaviors\CreatePhysicalMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\DispatchMessageToTransportBehavior.cs" />
     <Compile Include="Pipeline\Contexts\ReceiveLogicalMessageContext.cs" />
-    <Compile Include="Pipeline\Contexts\MessageHandlerContext.cs" />
+    <Compile Include="Pipeline\Contexts\HandlerInvocationContext.cs" />
     <Compile Include="Unicast\Behaviors\MultiMessageBehavior.cs" />
     <Compile Include="Unicast\Behaviors\MultiSendValidatorBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
-    <Compile Include="Pipeline\Contexts\IncomingPhysicalMessageContext.cs" />
+    <Compile Include="Pipeline\Contexts\ReceivePhysicalMessageContext.cs" />
     <Compile Include="Pipeline\PipelineFactory.cs" />
     <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />

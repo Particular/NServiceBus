@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
-    class IncomingPhysicalMessageContext : BehaviorContext
+    class ReceivePhysicalMessageContext : BehaviorContext
     {
-        public IncomingPhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage)
+        public ReceivePhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;

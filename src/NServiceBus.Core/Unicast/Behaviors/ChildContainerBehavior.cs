@@ -4,9 +4,9 @@ namespace NServiceBus.Unicast.Behaviors
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ChildContainerBehavior:IBehavior<IncomingPhysicalMessageContext>
+    class ChildContainerBehavior:IBehavior<ReceivePhysicalMessageContext>
     {
-        public void Invoke(IncomingPhysicalMessageContext context, Action next)
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             using (var childBuilder = context.Builder.CreateChildBuilder())
             {

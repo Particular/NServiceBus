@@ -827,7 +827,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
                 {
                     return null;
                 }
@@ -1039,7 +1039,7 @@ namespace NServiceBus.Unicast
             {
                 TransportMessage current;
 
-                if (!PipelineFactory.CurrentContext.TryGet(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey, out current))
+                if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
                 {
                     throw new InvalidOperationException("There is no current message beeing processed");
                 }

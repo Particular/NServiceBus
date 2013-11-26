@@ -3,9 +3,9 @@
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    class MessageHandlerContext : BehaviorContext
+    class HandlerInvocationContext : BehaviorContext
     {
-        public MessageHandlerContext(BehaviorContext parentContext, MessageHandler messageHandler)
+        public HandlerInvocationContext(BehaviorContext parentContext, MessageHandler messageHandler)
             : base(parentContext)
         {
             Set(messageHandler);
@@ -23,7 +23,7 @@
 
         public TransportMessage PhysicalMessage
         {
-            get { return Get<TransportMessage>(IncomingPhysicalMessageContext.IncomingPhysicalMessageKey); }
+            get { return Get<TransportMessage>(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey); }
         }
     }
 }
