@@ -293,9 +293,13 @@ namespace NServiceBus.Unicast
                 return;
             }
 
-            var messagesToPublish = (IEnumerable<object>)messages.ToList();
+            var messagesToPublish = messages.Cast<object>().ToList();
 
-            var context = PipelineFactory.InvokeSendPipeline(new SendOptions{Intent = MessageIntentEnum.Publish}, LogicalMessageFactory.CreateMultiple(messagesToPublish));
+            var sendOptions = new SendOptions
+                {
+                    Intent = MessageIntentEnum.Publish
+                };
+            var context = PipelineFactory.InvokeSendPipeline(sendOptions, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
             if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
