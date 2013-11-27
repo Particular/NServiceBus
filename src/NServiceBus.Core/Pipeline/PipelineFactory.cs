@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Audit;
     using Contexts;
     using DataBus;
@@ -16,9 +17,14 @@
 
     class PipelineFactory : IDisposable
     {
-        public IBuilder RootBuilder { get; set; }
-        public List<PipelineOverride> PipelineOverrides { get; set; }
+        public IBuilder RootBuilder { get;private  set; }
+        List<PipelineOverride> pipelineOverrides;
 
+        public PipelineFactory(IBuilder builder)
+        {
+            RootBuilder = builder;
+            pipelineOverrides = builder.BuildAll<PipelineOverride>().ToList();
+        }
         public void PreparePhysicalMessagePipelineContext(TransportMessage message, bool messageHandlingDisabled)
         {
             contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message, messageHandlingDisabled));
@@ -45,7 +51,7 @@
             behaviorList.Add<ExtractLogicalMessagesBehavior>();
             behaviorList.Add<CallbackInvocationBehavior>();
 
-            foreach (var pipelineOverride in PipelineOverrides)
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
@@ -66,8 +72,8 @@
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             behaviorList.Add<DataBusReceiveBehavior>();
             behaviorList.Add<LoadHandlersBehavior>();
-            
-            foreach (var pipelineOverride in PipelineOverrides)
+
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
@@ -88,7 +94,7 @@
             behaviorList.Add<SagaPersistenceBehavior>();
             behaviorList.Add<InvokeHandlersBehavior>();
 
-            foreach (var pipelineOverride in PipelineOverrides)
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
@@ -112,7 +118,7 @@
             behaviorList.Add<MultiMessageBehavior>();
             behaviorList.Add<CreatePhysicalMessageBehavior>();
 
-            foreach (var pipelineOverride in PipelineOverrides)
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
@@ -139,7 +145,7 @@
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             behaviorList.Add<DataBusSendBehavior>();
 
-            foreach (var pipelineOverride in PipelineOverrides)
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
@@ -164,7 +170,7 @@
             behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
             behaviorList.Add<DispatchMessageToTransportBehavior>();
 
-            foreach (var pipelineOverride in PipelineOverrides)
+            foreach (var pipelineOverride in pipelineOverrides)
             {
                 pipelineOverride.Override(behaviorList);
             }
