@@ -55,6 +55,8 @@ namespace NServiceBus.Unicast.Config
             Instance.ForAllTypes<IBehavior<SendLogicalMessagesContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
             Instance.ForAllTypes<IBehavior<SendPhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
 
+            Instance.ForAllTypes<PipelineOverride>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.SingleInstance));
+
             if (!SendOnlyMode)
             {
                 Configurer.ConfigureProperty<CreatePhysicalMessageBehavior>(p => p.DefaultReplyToAddress,Address.Local);
