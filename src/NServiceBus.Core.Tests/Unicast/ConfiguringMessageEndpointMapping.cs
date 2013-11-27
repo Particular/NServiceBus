@@ -55,6 +55,8 @@ namespace NServiceBus.Unicast.Tests
         public void Should_take_precedence()
         {
             SettingsHolder.Set("Endpoint.SendOnly", false);
+            SettingsHolder.Set("Transactions.Enabled", true);
+
             Configure.With(new Type[] {})
                 .DefineEndpointName("Foo")
                 .CustomConfigurationSource(new CustomUnicastBusConfig())
