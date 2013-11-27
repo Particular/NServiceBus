@@ -196,7 +196,6 @@ namespace NServiceBus.Unicast
             remove { throw new NotImplementedException(); }
         }
 
-
         /// <summary>
         /// Handles the filtering of messages on the subscriber side
         /// </summary>
@@ -336,11 +335,12 @@ namespace NServiceBus.Unicast
             var p = new Predicate<object>(m =>
             {
                 if (m is T)
-                    return condition((T)m);
+                {
+                    return condition((T) m);
+                }
 
                 return true;
-            }
-            );
+            });
 
             Subscribe(typeof(T), p);
         }
@@ -356,7 +356,9 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
+            }
 
             AssertHasLocalAddress();
 
@@ -415,7 +417,6 @@ namespace NServiceBus.Unicast
             }
 
         }
-
 
         public void Reply(params object[] messages)
         {
@@ -507,9 +508,31 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(params object[] messages)
         {
-            var destination = GetAddressForMessages(messages);
+            var destinations = GetAddressForMessages(messages)
+                .Distinct()
+                .ToList();
+
+            if (destinations.Count > 1)
+            {
+                throw new InvalidOperationException("Batch Sends can only target one address.");
+            }
+
+            var destination = destinations.SingleOrDefault();
 
             return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
+        }
+
+        IEnumerable<Address> GetAddressForMessages(IEnumerable<object> messages)
+        {
+            if (messages == null)
+            {
+                yield break;
+            }
+
+            foreach (var address in messages.SelectMany(message => GetAddressForMessageType(message.GetType())))
+            {
+                yield return address;
+            }
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
@@ -991,9 +1014,6 @@ namespace NServiceBus.Unicast
             });
         }
 
-
-
-
         /// <summary>
         /// Gets the destination address For a message type.
         /// </summary>
@@ -1008,14 +1028,14 @@ namespace NServiceBus.Unicast
                 return destination;
             }
 
-
             if (messageMapper != null && !messageType.IsInterface)
             {
                 var t = messageMapper.GetMappedTypeFor(messageType);
                 if (t != null && t != messageType)
+                {
                     return GetAddressForMessageType(t);
+                }
             }
-
 
             return destination;
         }
