@@ -6,63 +6,62 @@ namespace NServiceBus
     using System.Net;
     using Distributor.Config;
     using Logging;
+    using Settings;
 
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     public static class ConfigureDistributor
     {
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool DistributorEnabled(this Configure config)
         {
-            return distributorEnabled;
+            return config.DistributorConfiguredToRunOnThisEndpoint();
         }
 
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool DistributorConfiguredToRunOnThisEndpoint(this Configure config)
         {
-            return distributorEnabled && distributorShouldRunOnThisEndpoint;
+            return SettingsHolder.GetOrDefault<bool>("Distributor.Enabled");
         }
-        /// <summary>
-        /// Return whether this endpoint contains a worker
-        /// </summary>
+
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool WorkerRunsOnThisEndpoint(this Configure config)
         {
-            return workerRunsOnThisEndpoint;
+            return SettingsHolder.GetOrDefault<bool>("Worker.Enabled");
         }
 
         /// <summary>
         /// Configure the distributor to run on this endpoint
         /// </summary>
         /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {
-            distributorEnabled = true;
-            distributorShouldRunOnThisEndpoint = true;
-
             DistributorInitializer.Init(withWorker);
 
             if (withWorker)
             {
-                workerRunsOnThisEndpoint = true;
                 WorkerInitializer.Init();
             }
-                
 
             return config;
         }
+
         /// <summary>
         /// Starting the Distributor without a worker running on its endpoint
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
         {
             config.RunDistributor(false);
             return config;
         }
 
-
         /// <summary>
         /// Enlist Worker with Master node defined in the config.
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure EnlistWithDistributor(this Configure config)
         {
-            workerRunsOnThisEndpoint = true;
-
             ValidateMasterNodeConfigurationForWorker(config);
 
             WorkerInitializer.Init();
@@ -93,7 +92,7 @@ namespace NServiceBus
             }
         }
 
-        internal static bool? IsLocalIpAddress(string hostName)
+        static bool? IsLocalIpAddress(string hostName)
         {
             if (string.IsNullOrWhiteSpace(hostName)) return null;
             try
@@ -110,9 +109,7 @@ namespace NServiceBus
             }
             return false;
         }
-        static bool distributorEnabled;
-        static bool distributorShouldRunOnThisEndpoint;
-        static bool workerRunsOnThisEndpoint;
+
         static ILog logger = LogManager.GetLogger(typeof(ConfigureDistributor));
     }
 }

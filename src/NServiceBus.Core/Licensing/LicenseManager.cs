@@ -5,19 +5,14 @@ namespace NServiceBus.Licensing
     using System.Windows.Forms;
     using Logging;
 
-    static class LicenseManager
+    public static class LicenseManager
     {
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-
-        public static License License;
-        static string licenseText;
-
-        public static void InitializeLicenseText(string license)
+        internal static void InitializeLicenseText(string license)
         {
             licenseText = license;
         }
 
-        public static void PromptUserForLicenseIfTrialHasExpired()
+        internal static void PromptUserForLicenseIfTrialHasExpired()
         {
             if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
             {
@@ -81,7 +76,7 @@ namespace NServiceBus.Licensing
             License = LicenseDeserializer.GetBasicLicense();
         }
 
-        public static void Verify()
+        internal static void Verify()
         {
             //only do this if not been configured by the fluent API
             if (licenseText == null)
@@ -99,7 +94,7 @@ namespace NServiceBus.Licensing
             string message;
             if (LicenseDowngrader.ShouldLicenseDowngrade(tempLicense, out message))
             {
-                message = message+ " You can renew it at http://particular.net/licensing. Downgrading to basic mode";
+                message = message + " You can renew it at http://particular.net/licensing. Downgrading to basic mode";
                 Logger.Warn(message);
                 License = LicenseDeserializer.GetBasicLicense();
             }
@@ -109,6 +104,10 @@ namespace NServiceBus.Licensing
             }
             WriteLicenseInfo();
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+
+        public static License License;
+        static string licenseText;
     }
 }
-

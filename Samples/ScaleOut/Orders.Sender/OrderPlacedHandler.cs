@@ -11,5 +11,4 @@ namespace Orders.Sender
             Console.WriteLine("Received Event OrderPlaced for orderId: " + orderPlaced.OrderId);
         }
     }
-    
 }

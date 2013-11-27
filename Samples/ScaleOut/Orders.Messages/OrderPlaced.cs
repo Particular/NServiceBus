@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using NServiceBus;
+﻿using NServiceBus;
 
 namespace Orders.Messages
 {
