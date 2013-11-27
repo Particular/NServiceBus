@@ -1,10 +1,12 @@
 namespace NServiceBus.Distributor.QueueCreators
 {
+    using Settings;
     using Unicast.Queuing;
 
     /// <summary>
     /// Signal to create the queue for a worker
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]    
     public class WorkerQueueCreator : IWantQueueCreated
     {
         /// <summary>
@@ -19,7 +21,7 @@ namespace NServiceBus.Distributor.QueueCreators
         /// </summary>
         public bool IsDisabled
         {
-            get {return !((Configure.Instance.DistributorConfiguredToRunOnThisEndpoint()) && (Configure.Instance.WorkerRunsOnThisEndpoint()));}
+            get { return !(Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() && Configure.Instance.WorkerRunsOnThisEndpoint() && SettingsHolder.Get<int>("Distributor.Version") == 1); }
         }
     }
 }

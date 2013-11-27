@@ -2,6 +2,7 @@ namespace NServiceBus.Distributor.ReadyMessages
 {
     using MessageMutator;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]    
     class ReturnAddressRewriter : IMutateOutgoingTransportMessages
     {
         public Address DistributorDataAddress { get; set; }

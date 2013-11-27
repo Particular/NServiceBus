@@ -10,10 +10,10 @@
         {
             InMemoryPersistence.UseAsDefault();
 
-            Configure.Instance.AsMasterNode();
-
             if (!Configure.Instance.Configurer.HasComponent<IManageMessageFailures>())
+            {
                 Configure.Instance.InMemoryFaultManagement();
+            }
 
             WindowsInstallerRunner.RunInstallers = true;
         }

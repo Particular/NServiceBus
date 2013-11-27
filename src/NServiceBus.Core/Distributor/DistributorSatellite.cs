@@ -3,6 +3,7 @@ namespace NServiceBus.Distributor
     using System;
     using Logging;
     using Satellites;
+    using Settings;
     using Transports;
     using Unicast.Transport;
 
@@ -10,12 +11,13 @@ namespace NServiceBus.Distributor
     ///     Provides functionality for distributing messages from a bus
     ///     to multiple workers when using a unicast transport.
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class DistributorSatellite : IAdvancedSatellite
     {
         static DistributorSatellite()
         {
             Address = Configure.Instance.GetMasterNodeAddress();
-            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint();
+            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1;
         }
 
         /// <summary>

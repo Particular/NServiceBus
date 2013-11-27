@@ -2,5 +2,7 @@
 
 namespace Orders.Sender
 {
-    class EndpointConfig : IConfigureThisEndpoint, AsA_Server {}
+    internal class EndpointConfig : IConfigureThisEndpoint, AsA_Server
+    {
+    }
 }
