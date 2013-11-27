@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -13,20 +14,28 @@
     using Transport;
     using Unicast;
 
-    class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
+        IMessageSerializer messageSerializer;
+        UnicastBus unicastBus;
+        LogicalMessageFactory logicalMessageFactory;
+        PipelineFactory pipelineFactory;
+        MessageMetadataRegistry messageMetadataRegistry;
 
-        public IMessageSerializer MessageSerializer { get; set; }
-    
-        public UnicastBus UnicastBus { get; set; }
+        internal ExtractLogicalMessagesBehavior(IMessageSerializer messageSerializer, UnicastBus unicastBus, LogicalMessageFactory logicalMessageFactory, PipelineFactory pipelineFactory, MessageMetadataRegistry messageMetadataRegistry)
+        {
+            this.messageSerializer = messageSerializer;
+            this.unicastBus = unicastBus;
+            this.logicalMessageFactory = logicalMessageFactory;
+            this.pipelineFactory = pipelineFactory;
+            this.messageMetadataRegistry = messageMetadataRegistry;
+        }
 
-        public LogicalMessageFactory LogicalMessageFactory { get; set; }
-
-        public bool SkipDeserialization { get; set; }
-
-        public PipelineFactory PipelineFactory { get; set; }
-
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+        internal bool SkipDeserialization { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -35,7 +44,7 @@
                 return;
             }
 
-            if (SkipDeserialization || UnicastBus.SkipDeserialization)
+            if (SkipDeserialization || unicastBus.SkipDeserialization)
             {
                 next();
                 return;
@@ -64,7 +73,7 @@
           
             foreach (var message in messages)
             {
-                PipelineFactory.InvokeLogicalMessagePipeline(message);
+                pipelineFactory.InvokeLogicalMessagePipeline(message);
             }
 
             if (!messages.Any())
@@ -82,14 +91,14 @@
                 return new List<LogicalMessage>();
             }
 
-            var messageMetadata = MessageMetadataRegistry.GetMessageTypes(physicalMessage);
+            var messageMetadata = messageMetadataRegistry.GetMessageTypes(physicalMessage);
 
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
 
-                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => 
-                    LogicalMessageFactory.Create(rawMessage.GetType(),rawMessage,physicalMessage.Headers))
+                return messageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => 
+                    logicalMessageFactory.Create(rawMessage.GetType(),rawMessage,physicalMessage.Headers))
                     .ToList();
             }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using IdGeneration;
     using Logging;
@@ -13,11 +14,20 @@
     using Unicast;
     using Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
-        public ISagaPersister SagaPersister { get; set; }
+        ISagaPersister sagaPersister;
+        IDeferMessages messageDeferrer;
 
-        public IDeferMessages MessageDeferrer { get; set; }
+        internal SagaPersistenceBehavior(ISagaPersister sagaPersister, IDeferMessages messageDeferrer)
+        {
+            this.sagaPersister = sagaPersister;
+            this.messageDeferrer = messageDeferrer;
+        }
 
         public void Invoke(HandlerInvocationContext context, Action next)
         {
@@ -73,13 +83,15 @@
             next();
 
             if (sagaInstanceState.NotFound)
+            {
                 return;
+            }
 
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Complete(saga.Entity);
+                    sagaPersister.Complete(saga.Entity);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -93,11 +105,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Save(saga.Entity);
+                    sagaPersister.Save(saga.Entity);
                 }
                 else
                 {
-                    SagaPersister.Update(saga.Entity);
+                    sagaPersister.Update(saga.Entity);
                 }
             }
         }
@@ -141,7 +153,7 @@
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
+            messageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)
@@ -157,7 +169,7 @@
 
         IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
-            string sagaId = null;
+            string sagaId;
 
             physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
@@ -199,5 +211,6 @@
         TransportMessage physicalMessage;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
+
     }
 }

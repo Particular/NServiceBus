@@ -2,10 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class UnitOfWorkBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class UnitOfWorkBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

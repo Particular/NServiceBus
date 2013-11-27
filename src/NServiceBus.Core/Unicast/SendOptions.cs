@@ -1,8 +1,14 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.ComponentModel;
 
-    class SendOptions
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SendOptions
     {
         public SendOptions()
         {

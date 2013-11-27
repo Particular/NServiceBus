@@ -1,8 +1,13 @@
 ﻿namespace NServiceBus.Pipeline
 {
+    using System.ComponentModel;
     using Contexts;
 
-    abstract class PipelineOverride 
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public abstract class PipelineOverride 
     {
         public virtual void Override(BehaviorList<HandlerInvocationContext> behaviorList)
         {

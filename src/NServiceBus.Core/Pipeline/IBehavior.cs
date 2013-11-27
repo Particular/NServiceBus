@@ -1,8 +1,13 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System;
+    using System.ComponentModel;
 
-    interface IBehavior<T> where T : BehaviorContext
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public interface IBehavior<T> where T : BehaviorContext
     {
         void Invoke(T context, Action next);
     }

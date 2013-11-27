@@ -1,19 +1,27 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
-    using MessageInterfaces;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
 
-    class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
-        public IMessageHandlerRegistry HandlerRegistry { get; set; }
+        IMessageHandlerRegistry handlerRegistry;
+        PipelineFactory pipelineFactory;
 
-        public IMessageMapper MessageMapper { get; set; }
+        internal LoadHandlersBehavior(IMessageHandlerRegistry handlerRegistry, PipelineFactory pipelineFactory)
+        {
+            this.handlerRegistry = handlerRegistry;
+            this.pipelineFactory = pipelineFactory;
+        }
 
-        public PipelineFactory PipelineFactory { get; set; }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
@@ -22,7 +30,7 @@
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
 
-            var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
+            var handlerTypedToInvoke = handlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
 
             if (!callbackInvoked && !handlerTypedToInvoke.Any())
             {
@@ -38,7 +46,7 @@
                     Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
                 };
 
-                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
+                if (pipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
                 {
                     //if the chain was aborted skip the other handlers
                     break;

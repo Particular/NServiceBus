@@ -1,15 +1,17 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Reflection;
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
 
     /// <summary>
-    /// Arguably not the most interesting behavior, but let's just handle logging like this too
+    /// Not for public consumption. May change in minor version releases.
     /// </summary>
-    class MessageHandlingLoggingBehavior : IBehavior<ReceivePhysicalMessageContext>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class MessageHandlingLoggingBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 

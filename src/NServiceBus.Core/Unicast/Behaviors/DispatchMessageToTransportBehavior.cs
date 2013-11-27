@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Configuration;
     using System.Linq;
     using Logging;
@@ -9,14 +10,22 @@
     using Transports;
     using Queuing;
 
-    class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
     {
-        public ISendMessages MessageSender { get; set; }
+        ISendMessages messageSender;
+        IPublishMessages messagePublisher;
+        IDeferMessages messageDeferral;
 
-        public IPublishMessages MessagePublisher { get; set; }
-
-        public IDeferMessages MessageDeferral { get; set; }
-
+        internal DispatchMessageToTransportBehavior(IDeferMessages messageDeferral, IPublishMessages messagePublisher, ISendMessages messageSender)
+        {
+            this.messageDeferral = messageDeferral;
+            this.messagePublisher = messagePublisher;
+            this.messageSender = messageSender;
+        }
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
@@ -36,7 +45,7 @@
             {
                 if (sendOptions.Intent == MessageIntentEnum.Publish)
                 {
-                    if (MessagePublisher == null)
+                    if (messagePublisher == null)
                     {
                         throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
                     }
@@ -45,7 +54,7 @@
                         .Distinct()
                         .ToList();
 
-                    var subscribersFound = MessagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
+                    var subscribersFound = messagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
 
                     context.Set("SubscribersFound", subscribersFound);
                 }
@@ -69,11 +78,11 @@
 
                         SetDelayDeliveryWithHeader(context, sendOptions.DelayDeliveryWith);
 
-                        MessageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
+                        messageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
                     }
                     else
                     {
-                        MessageSender.Send(context.MessageToSend, sendOptions.Destination);    
+                        messageSender.Send(context.MessageToSend, sendOptions.Destination);    
                     }
                 }
             }

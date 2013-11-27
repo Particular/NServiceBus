@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -12,9 +13,13 @@
     using Unicast;
     using Transport;
 
-    class InvokeHandlersBehavior : IBehavior<HandlerInvocationContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class InvokeHandlersBehavior : IBehavior<HandlerInvocationContext>
     {
-        public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
+        internal Dictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         public void Invoke(HandlerInvocationContext context, Action next)
         {

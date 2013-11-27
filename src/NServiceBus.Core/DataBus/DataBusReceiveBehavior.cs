@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
@@ -10,17 +11,24 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
 
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
+        internal DataBusReceiveBehavior(IDataBusSerializer dataBusSerializer, IDataBus dataBus)
+        {
+            this.dataBusSerializer = dataBusSerializer;
+            this.dataBus = dataBus;
+        }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
             var message = context.LogicalMessage.Instance;
-
 
             foreach (var property in GetDataBusProperties(message))
             {
@@ -46,9 +54,9 @@
                 }
 
                 using (new TransactionScope(TransactionScopeOption.Suppress))
-                using (var stream = DataBus.Get(dataBusKey))
+                using (var stream = dataBus.Get(dataBusKey))
                 {
-                    var value = DataBusSerializer.Deserialize(stream);
+                    var value = dataBusSerializer.Deserialize(stream);
 
                     if (dataBusProperty != null)
                     {
@@ -85,5 +93,6 @@
         }
 
         readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
+
     }
 }

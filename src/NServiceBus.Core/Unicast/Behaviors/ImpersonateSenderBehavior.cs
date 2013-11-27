@@ -1,14 +1,24 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Threading;
     using Impersonation;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
+        ExtractIncomingPrincipal extractIncomingPrincipal;
+
+        internal ImpersonateSenderBehavior(ExtractIncomingPrincipal extractIncomingPrincipal)
+        {
+            this.extractIncomingPrincipal = extractIncomingPrincipal;
+        }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -18,7 +28,7 @@
                 return;
             }
 
-            var principal = ExtractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
+            var principal = extractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
 
             if (principal == null)
             {

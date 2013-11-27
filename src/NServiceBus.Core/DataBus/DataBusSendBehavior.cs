@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -11,12 +12,20 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
 
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
+        internal DataBusSendBehavior(IDataBus dataBus, IDataBusSerializer dataBusSerializer)
+        {
+            this.dataBus = dataBus;
+            this.dataBusSerializer = dataBusSerializer;
+        }
 
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
@@ -41,14 +50,14 @@
                         propertyValue = dataBusProperty.GetValue();
                     }
 
-                    DataBusSerializer.Serialize(propertyValue, stream);
+                    dataBusSerializer.Serialize(propertyValue, stream);
                     stream.Position = 0;
 
                     string headerValue;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived);
+                        headerValue = dataBus.Put(stream, timeToBeReceived);
                     }
 
                     string headerKey;

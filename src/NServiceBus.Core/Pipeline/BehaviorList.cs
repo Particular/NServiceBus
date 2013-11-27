@@ -2,8 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
-    class BehaviorList<TContext> where TContext : BehaviorContext
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class BehaviorList<TContext> where TContext : BehaviorContext
     {
         public List<Type> InnerList { get; set; }
 

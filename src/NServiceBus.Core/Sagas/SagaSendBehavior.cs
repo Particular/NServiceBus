@@ -1,10 +1,16 @@
 ﻿namespace NServiceBus.Sagas
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class SagaSendBehavior : IBehavior<SendLogicalMessageContext>
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SagaSendBehavior : IBehavior<SendLogicalMessageContext>
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

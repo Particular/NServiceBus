@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using Messages;
@@ -9,9 +10,18 @@
     using Pipeline.Contexts;
     using Serialization;
 
-    class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
     {
-        public IMessageSerializer MessageSerializer { get; set; }
+        IMessageSerializer messageSerializer;
+
+        internal SerializeMessagesBehavior(IMessageSerializer messageSerializer)
+        {
+            this.messageSerializer = messageSerializer;
+        }
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
@@ -21,9 +31,9 @@
                 {
                     var messages = context.LogicalMessages.Select(m => m.Instance).ToArray();
 
-                    MessageSerializer.Serialize(messages, ms);
+                    messageSerializer.Serialize(messages, ms);
 
-                    context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
+                    context.MessageToSend.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
                     context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessages);
 

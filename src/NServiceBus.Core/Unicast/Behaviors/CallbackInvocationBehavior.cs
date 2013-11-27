@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using Messages;
     using Pipeline;
@@ -9,11 +10,20 @@
     using Unicast;
     using Transport;
 
-    class CallbackInvocationBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class CallbackInvocationBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
-        public UnicastBus UnicastBus { get; set; }
+        UnicastBus unicastBus;
+
+        internal CallbackInvocationBehavior(UnicastBus unicastBus)
+        {
+            this.unicastBus = unicastBus;
+        }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -39,7 +49,7 @@
 
             BusAsyncResult busAsyncResult;
 
-            if (!UnicastBus.messageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
+            if (!unicastBus.messageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
             {
                 return false;
             }

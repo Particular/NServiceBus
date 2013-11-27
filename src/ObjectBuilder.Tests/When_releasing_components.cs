@@ -22,6 +22,7 @@ namespace ObjectBuilder.Tests
 
                     builder.Release(comp);
 
+                    // ReSharper disable once RedundantAssignment
                     comp = null;
 
                     GC.Collect();

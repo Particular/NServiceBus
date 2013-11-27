@@ -84,6 +84,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             {
                 Address.InitializeLocalAddress(localAddress);
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch // intentional
             {
             }
@@ -107,8 +108,9 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
             FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
-
-            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
+            
+            var logicalMessageFactory = new LogicalMessageFactory();
+            FuncBuilder.Register<LogicalMessageFactory>(() => logicalMessageFactory);
 
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
@@ -122,17 +124,10 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
-                                                             {
-                                                                 MessageSerializer = MessageSerializer,
-                                                                 MessageMetadataRegistry = MessageMetadataRegistry,
-                                                             });
-            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
-                {
-                    ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
-                });
+            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior(MessageSerializer, unicastBus, logicalMessageFactory, pipelineFactory, MessageMetadataRegistry));
+            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior(MockRepository.GenerateStub<ExtractIncomingPrincipal>()));
 
-            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior
+            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior(pipelineFactory,MessageMetadataRegistry,unicastBus)
             {
                 DefaultReplyToAddress = Address.Local
             });

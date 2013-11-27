@@ -1,9 +1,15 @@
 ﻿namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using ObjectBuilder;
 
-    abstract class BehaviorContext
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public abstract class BehaviorContext
     {
         protected BehaviorContext(BehaviorContext parentContext)
         {

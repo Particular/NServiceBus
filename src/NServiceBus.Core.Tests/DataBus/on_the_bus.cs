@@ -14,18 +14,10 @@
         public void SetUp()
         {
             dataBus = MockRepository.GenerateMock<IDataBus>();
-            
-            receiveBehavior = new DataBusReceiveBehavior
-            {
-                DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
-            };
 
-            sendBehavior = new DataBusSendBehavior
-            {
-                DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
-            };
+            receiveBehavior = new DataBusReceiveBehavior(new DefaultDataBusSerializer(), dataBus);
+
+            sendBehavior = new DataBusSendBehavior(dataBus, new DefaultDataBusSerializer());
         }
 
     }
