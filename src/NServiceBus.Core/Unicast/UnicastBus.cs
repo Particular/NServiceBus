@@ -526,7 +526,7 @@ namespace NServiceBus.Unicast
 
             if (destinations.Count > 1)
             {
-                throw new InvalidOperationException("Batch Sends can only target one address.");
+                throw new InvalidOperationException("Sends can only target one address.");
             }
 
             var destination = destinations.SingleOrDefault();

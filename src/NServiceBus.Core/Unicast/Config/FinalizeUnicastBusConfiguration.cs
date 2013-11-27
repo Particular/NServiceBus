@@ -33,6 +33,12 @@ namespace NServiceBus.Unicast.Config
         {
             var unicastConfig = Configure.GetConfigSection<UnicastBusConfig>();
             var router = new StaticMessageRouter(knownMessages);
+            var key = typeof(DefaultAutoSubscriptionStrategy).FullName + ".SubscribePlainMessages";
+
+            if (SettingsHolder.HasSetting(key))
+            {
+                router.SubscribeToPlainMessages = SettingsHolder.Get<bool>(key);
+            }
 
             Configure.Instance.Configurer.RegisterSingleton<StaticMessageRouter>(router);
 
@@ -60,12 +66,18 @@ namespace NServiceBus.Unicast.Config
             {
                 mapping.Configure((messageType, address) =>
                 {
-                    if (!MessageConventionExtensions.IsMessageType(messageType))
+                    if (!(MessageConventionExtensions.IsMessageType(messageType) || MessageConventionExtensions.IsEventType(messageType) || MessageConventionExtensions.IsCommandType(messageType)))
                     {
                         return;
                     }
 
-                    router.RegisterRoute(messageType, address);
+                    if (MessageConventionExtensions.IsEventType(messageType))
+                    {
+                        router.RegisterEventRoute(messageType, address);
+                        return;
+                    }
+
+                    router.RegisterMessageRoute(messageType, address);
                 });
             }
         }

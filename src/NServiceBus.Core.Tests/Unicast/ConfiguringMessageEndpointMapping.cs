@@ -14,7 +14,6 @@ namespace NServiceBus.Unicast.Tests
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using Messages;
     using Messages.ANamespace;

@@ -3,7 +3,6 @@ namespace NServiceBus.Unicast.Messages
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using MessageHeaders;
     using MessageInterfaces;
     using Pipeline;
 
