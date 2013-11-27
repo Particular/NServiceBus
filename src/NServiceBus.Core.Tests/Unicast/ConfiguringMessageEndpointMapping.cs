@@ -13,6 +13,7 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
     using System.Reflection;
     using Messages;
@@ -22,6 +23,7 @@ namespace NServiceBus.Unicast.Tests
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
     using Routing;
+    using Settings;
 
     public class Configuring_message_endpoint_mapping
     {
@@ -52,13 +54,13 @@ namespace NServiceBus.Unicast.Tests
         [Test]
         public void Should_take_precedence()
         {
-            Configure.With(Assembly.GetExecutingAssembly())
-                     .DefineEndpointName("Foo")
-                     .DefaultBuilder();
-
-            Configure.Instance.Configurer.ConfigureComponent<CustomUnicastBusConfig>(DependencyLifecycle.InstancePerCall);
-
-            Configure.Instance.UnicastBus();
+            SettingsHolder.Set("Endpoint.SendOnly", false);
+            Configure.With(new Type[] {})
+                .DefineEndpointName("Foo")
+                .CustomConfigurationSource(new CustomUnicastBusConfig())
+                .DefaultBuilder()
+                .UnicastBus()
+                .CreateBus();
 
             var messageOwners = Configure.Instance.Builder.Build<StaticMessageRouter>();
 
@@ -69,9 +71,9 @@ namespace NServiceBus.Unicast.Tests
             Assert.AreEqual("Namespace", messageOwners.GetDestinationFor(typeof(MessageF)).Single().Queue);
         }
 
-        public class CustomUnicastBusConfig : IProvideConfiguration<UnicastBusConfig>
+        class CustomUnicastBusConfig : IConfigurationSource
         {
-            public UnicastBusConfig GetConfiguration()
+            public T GetConfiguration<T>() where T : class, new()
             {
                 var mappingByType = new MessageEndpointMapping { Endpoint = "Type", TypeFullName = "NServiceBus.Unicast.Tests.Messages.MessageA", AssemblyName = "NServiceBus.Core.Tests" };
                 var mappingByNamespace = new MessageEndpointMapping { Endpoint = "Namespace", Namespace = "NServiceBus.Unicast.Tests.Messages", AssemblyName = "NServiceBus.Core.Tests" };
@@ -79,10 +81,33 @@ namespace NServiceBus.Unicast.Tests
                 var mappingByMessagesWithType = new MessageEndpointMapping { Endpoint = "MessagesWithType", Messages = "NServiceBus.Unicast.Tests.Messages.MessageE, NServiceBus.Core.Tests" };
                 var mappings = new MessageEndpointMappingCollection { mappingByNamespace, mappingByType, mappingByAssembly, mappingByMessagesWithType };
 
-                return new UnicastBusConfig
+
+                var type = typeof(T);
+
+                if (type == typeof(MessageForwardingInCaseOfFaultConfig))
+                    return new MessageForwardingInCaseOfFaultConfig
+                    {
+                        ErrorQueue = "error"
+                    } as T;
+
+                if (type == typeof(UnicastBusConfig))
                 {
-                    MessageEndpointMappings = mappings
-                };
+
+                    return new UnicastBusConfig
+                    {
+                        MessageEndpointMappings = mappings,
+                    } as T;
+
+                }
+
+                if (type == typeof(Logging))
+                    return new Logging
+                    {
+                        Threshold = "WARN"
+                    } as T;
+
+
+                return ConfigurationManager.GetSection(type.Name) as T;
             }
         }
     }

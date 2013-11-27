@@ -367,7 +367,13 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            foreach (var destination in GetAddressForMessageType(messageType))
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
+
+            foreach (var destination in addresses)
             {
                 if (Address.Self == destination)
                 {
@@ -411,7 +417,13 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            foreach (var destination in GetAddressForMessageType(messageType))
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
+
+            foreach (var destination in addresses)
             {
                 SubscriptionManager.Unsubscribe(messageType, destination);    
             }

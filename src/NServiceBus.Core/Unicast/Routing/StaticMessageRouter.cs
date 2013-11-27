@@ -34,7 +34,6 @@
             }
 
             return address;
-
         }
 
         public void RegisterRoute(Type messageType, Address endpointAddress)
