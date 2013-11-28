@@ -37,6 +37,9 @@
     <Reference Include="NServiceBus.Core">
       <HintPath>..\..\..\binaries\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Distributor.MSMQ">
+      <HintPath>..\..\..\binaries\NServiceBus.Distributor.MSMQ.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
     </Reference>

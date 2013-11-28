@@ -86,7 +86,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Error("Failed to initalize endpoint " + endpointName, ex);
+                Logger.Error("Failed to initialize endpoint " + endpointName, ex);
                 return Result.Failure(ex);
             }
         }
