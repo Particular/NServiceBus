@@ -301,7 +301,8 @@ namespace NServiceBus.Unicast
                 {
                     Intent = MessageIntentEnum.Publish
                 };
-            var context = PipelineFactory.InvokeSendPipeline(sendOptions, LogicalMessageFactory.CreateMultiple(messagesToPublish));
+
+            var context = InvokeSendPipeline(sendOptions, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
             if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
@@ -336,7 +337,7 @@ namespace NServiceBus.Unicast
             {
                 if (m is T)
                 {
-                    return condition((T) m);
+                    return condition((T)m);
                 }
 
                 return true;
@@ -425,7 +426,7 @@ namespace NServiceBus.Unicast
 
             foreach (var destination in addresses)
             {
-                SubscriptionManager.Unsubscribe(messageType, destination);    
+                SubscriptionManager.Unsubscribe(messageType, destination);
             }
 
         }
@@ -459,8 +460,8 @@ namespace NServiceBus.Unicast
             returnMessage.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            
-            PipelineFactory.InvokeSendPipeline(options,returnMessage);
+
+            PipelineFactory.InvokeSendPipeline(options, returnMessage);
         }
 
         public void HandleCurrentMessageLater()
@@ -655,7 +656,7 @@ namespace NServiceBus.Unicast
         {
             return Defer(delay, new[] { message });
         }
-        
+
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return SendMessages(new SendOptions(Address.Local) { DelayDeliveryWith = delay }, LogicalMessageFactory.CreateMultiple(messages));
@@ -672,9 +673,9 @@ namespace NServiceBus.Unicast
         }
 
 
-        ICallback SendMessages(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
+        ICallback SendMessages(SendOptions sendOptions, List<LogicalMessage> messages)
         {
-            var context = PipelineFactory.InvokeSendPipeline(sendOptions, messages);
+            var context = InvokeSendPipeline(sendOptions, messages);
 
             if (MessagesSent != null)
             {
@@ -684,6 +685,21 @@ namespace NServiceBus.Unicast
             var physicalMessage = context.Get<TransportMessage>();
 
             return SetupCallback(physicalMessage.Id);
+        }
+
+        SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, List<LogicalMessage> messages)
+        {
+            if (sendOptions.ReplyToAddress == null && !Configure.SendOnlyMode)
+            {
+                sendOptions.ReplyToAddress = Address.Local;
+            }
+
+            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
+            {
+                sendOptions.ReplyToAddress = CurrentMessageContext.ReplyToAddress;
+            }
+
+            return PipelineFactory.InvokeSendPipeline(sendOptions, messages);
         }
 
 
@@ -930,7 +946,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The list of message dispatcher factories to use
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
@@ -939,7 +955,7 @@ namespace NServiceBus.Unicast
             get { return skipDeserialization; }
             set { skipDeserialization = value; }
         }
-        
+
         internal bool skipDeserialization;
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -951,13 +967,13 @@ namespace NServiceBus.Unicast
             var messageType = typeof(T);
 
             EnsureMessageIsRegistered(messageType);
-         
+
             var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
 
             PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0" ,Message ="In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
+        [ObsoleteEx(RemoveInVersion = "5.0", Message = "In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
         void EnsureMessageIsRegistered(Type messageType)
         {
             var registry = Builder.Build<MessageMetadataRegistry>();
@@ -1006,7 +1022,7 @@ namespace NServiceBus.Unicast
                     module.HandleEndMessage();
                 });
             }
-            finally 
+            finally
             {
                 PipelineFactory.CompletePhysicalMessagePipelineContext();
             }
@@ -1108,8 +1124,8 @@ namespace NServiceBus.Unicast
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
 
-        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>(); 
-       
+        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
         PipelineFactory PipelineFactory

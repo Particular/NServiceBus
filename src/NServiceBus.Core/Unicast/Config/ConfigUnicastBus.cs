@@ -43,11 +43,6 @@ namespace NServiceBus.Unicast.Config
             Instance.ForAllTypes<IBehavior<SendLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
             Instance.ForAllTypes<IBehavior<SendLogicalMessagesContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
             Instance.ForAllTypes<IBehavior<SendPhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
-
-            if (!SendOnlyMode)
-            {
-                Configurer.ConfigureProperty<CreatePhysicalMessageBehavior>(p => p.DefaultReplyToAddress, Address.Local);
-            }
         }
 
 #pragma warning disable 0618
