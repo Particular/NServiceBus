@@ -15,8 +15,6 @@
 
         public PipelineFactory PipelineFactory { get; set; }
 
-        public Address DefaultReplyToAddress { get; set; }
-
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
             var sendOptions = context.SendOptions;
@@ -39,24 +37,7 @@
             {
                 toSend.Headers[kvp.Key] = kvp.Value;
             }
-                
-            if (toSend.ReplyToAddress == null)
-            {
-                toSend.ReplyToAddress = DefaultReplyToAddress;
-            }
-
-            //todo: pull this out to the distributor when we split it to a separate repo
-            if (UnicastBus.PropagateReturnAddressOnSend)
-            {
-                var incomingMessage = context.IncomingMessage;
-
-                if (incomingMessage != null)
-                {
-                    sendOptions.ReplyToAddress = incomingMessage.ReplyToAddress;
-                }
-            }
-
-
+           
             var messageDefinitions = context.LogicalMessages.Select(m => MessageMetadataRegistry.GetMessageDefinition(m.MessageType)).ToList();
 
             toSend.TimeToBeReceived = messageDefinitions.Min(md => md.TimeToBeReceived);

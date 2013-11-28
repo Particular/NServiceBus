@@ -132,10 +132,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
 
-            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior
-            {
-                DefaultReplyToAddress = Address.Local
-            });
+            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
 
             var messagePublisher = new StorageDrivenPublisher
