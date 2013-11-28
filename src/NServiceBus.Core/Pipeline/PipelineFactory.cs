@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Audit;
     using Contexts;
     using DataBus;
@@ -27,7 +28,7 @@
         {
             var context = contextStacker.Current as ReceivePhysicalMessageContext;
 
-            if(context == null)
+            if (context == null)
             {
                 throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
             }
@@ -64,11 +65,8 @@
 
             var context = new ReceiveLogicalMessageContext(CurrentContext, message);
 
-            contextStacker.Push(context);
 
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
+            Execute(pipeline, context);
         }
 
         public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
@@ -80,11 +78,7 @@
 
             var context = new HandlerInvocationContext(CurrentContext, handler);
 
-            contextStacker.Push(context);
-
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
+            Execute(pipeline, context);
 
             return context;
         }
@@ -99,11 +93,7 @@
 
             var context = new SendLogicalMessagesContext(CurrentContext, sendOptions, messages);
 
-            contextStacker.Push(context);
-
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
+            Execute(pipeline, context);
 
             return context;
         }
@@ -115,17 +105,13 @@
             pipeline.Add<SendValidatorBehavior>();
             pipeline.Add<SagaSendBehavior>();
             pipeline.Add<MutateOutgoingMessageBehavior>();
-            
+
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
             pipeline.Add<DataBusSendBehavior>();
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 
-            contextStacker.Push(context);
-
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
+            Execute(pipeline,context);
 
             return context;
         }
@@ -140,11 +126,7 @@
 
             var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
 
-            contextStacker.Push(context);
-
-            pipeline.Invoke(context);
-
-            contextStacker.Pop();
+            Execute(pipeline, context);
         }
 
         public BehaviorContext CurrentContext
@@ -167,6 +149,21 @@
         public void Dispose()
         {
             //Injected
+        }
+
+        void Execute<T>(BehaviorChain<T> pipelineAction, T context) where T : BehaviorContext
+        {
+            try
+            {
+                contextStacker.Push(context);
+
+                pipelineAction.Invoke(context);
+            }
+            finally
+            {
+
+                contextStacker.Pop();
+            }
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
