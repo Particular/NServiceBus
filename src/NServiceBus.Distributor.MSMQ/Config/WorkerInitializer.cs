@@ -27,7 +27,7 @@ namespace NServiceBus.Distributor.MSMQ.Config
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);
 
             SettingsHolder.Set("Worker.Enabled", true);
-
+            SettingsHolder.Set("Distributor.Version", 2);
             SettingsHolder.Set("MasterNode.Address", masterNodeAddress);
         }
     }
