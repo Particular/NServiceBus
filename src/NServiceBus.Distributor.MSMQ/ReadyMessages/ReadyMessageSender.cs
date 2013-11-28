@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.MSMQ.ReadyMessages
 {
     using System;
+    using Settings;
     using Transports;
     using Unicast;
     using Unicast.Transport;
@@ -15,7 +16,7 @@ namespace NServiceBus.Distributor.MSMQ.ReadyMessages
 
         public void Start()
         {
-            if (!ConfigureMSMQDistributor.WorkerRunsOnThisEndpoint())
+            if (!ConfigureMSMQDistributor.WorkerRunsOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 2)
             {
                 return;
             }

@@ -1,6 +1,7 @@
 namespace NServiceBus.Distributor.ReadyMessages
 {
     using System;
+    using Settings;
     using Transports;
     using Unicast;
     using Unicast.Transport;
@@ -18,8 +19,10 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public void Start()
         {
-            if (!Configure.Instance.WorkerRunsOnThisEndpoint())
+            if (!Configure.Instance.WorkerRunsOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1)
+            {
                 return;
+            }
 
             transport = Bus.Transport;
             var capacityAvailable = transport.MaximumConcurrencyLevel;
