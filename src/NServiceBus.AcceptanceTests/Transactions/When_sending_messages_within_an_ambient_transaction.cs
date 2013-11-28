@@ -34,7 +34,6 @@
                     .Should(c =>
                         {
                             Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,"The transport should preserve the order in which the transactional messages are delivered to the queuing system");
-                            Assert.True(c.NonTransactionalHandlerCalledFirst,"The non transactional handler should be called first");
                         }
                     )
                     .Run();
