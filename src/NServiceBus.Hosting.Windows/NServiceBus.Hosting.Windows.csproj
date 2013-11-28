@@ -167,13 +167,14 @@
     <CallTarget Targets="Build32BitVersion" />
   </Target>
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
-    <PropertyGroup>
-      <MergeTemp>$(TargetDir)$(TargetName)_mergeTemp$(TargetExt)</MergeTemp>
-    </PropertyGroup>
-    <Delete Files="$(MergeTemp)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(MergeTemp)" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetPath)&quot; &quot;$(MergeTemp)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Microsoft.Practices.ServiceLocation.dll&quot; &quot;$(TargetDir)Topshelf.dll&quot; /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
-    <Delete Files="$(MergeTemp)" />
+    <MakeDir Directories="$(TargetDir)temp\"/>
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Microsoft.Practices.ServiceLocation.dll&quot; &quot;$(TargetDir)Topshelf.dll&quot; /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <ItemGroup>
+      <TempFiles Include="$(TargetDir)temp\*.*"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(TempFiles)" />
+    <RemoveDir Directories="$(TargetDir)temp\" />
     <CallTarget Targets="Build32BitVersion" />
   </Target>
   <Target Name="Build32BitVersion">
