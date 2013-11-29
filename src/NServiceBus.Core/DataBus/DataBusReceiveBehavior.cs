@@ -17,14 +17,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
-        IDataBus dataBus;
-        IDataBusSerializer dataBusSerializer;
-
-        public DataBusReceiveBehavior(IDataBusSerializer dataBusSerializer, IDataBus dataBus)
-        {
-            this.dataBusSerializer = dataBusSerializer;
-            this.dataBus = dataBus;
-        }
+        public IDataBus DataBus { get; set; }
+        public IDataBusSerializer DataBusSerializer { get; set; }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
@@ -54,9 +48,9 @@
                 }
 
                 using (new TransactionScope(TransactionScopeOption.Suppress))
-                using (var stream = dataBus.Get(dataBusKey))
+                using (var stream = DataBus.Get(dataBusKey))
                 {
-                    var value = dataBusSerializer.Deserialize(stream);
+                    var value = DataBusSerializer.Deserialize(stream);
 
                     if (dataBusProperty != null)
                     {

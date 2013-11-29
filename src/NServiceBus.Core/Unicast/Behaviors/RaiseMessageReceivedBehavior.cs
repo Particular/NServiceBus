@@ -12,16 +12,11 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class RaiseMessageReceivedBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        UnicastBus unicastBus;
-
-        public RaiseMessageReceivedBehavior(UnicastBus unicastBus)
-        {
-            this.unicastBus = unicastBus;
-        }
+        public UnicastBus UnicastBus { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
-            unicastBus.OnMessageReceived(context.PhysicalMessage);
+            UnicastBus.OnMessageReceived(context.PhysicalMessage);
             next();
         }
     }

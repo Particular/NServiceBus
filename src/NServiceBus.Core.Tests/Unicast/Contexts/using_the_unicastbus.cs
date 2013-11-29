@@ -59,7 +59,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         [SetUp]
         public void SetUp()
         {
-          
+
 
             LicenseManager.Verify();
             HandlerInvocationCache.Clear();
@@ -76,17 +76,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
             MessageMetadataRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = false
-                };
+            {
+                DefaultToNonPersistentMessages = false
+            };
 
-            try
-            {
-                Address.InitializeLocalAddress(localAddress);
-            }
-            catch // intentional
-            {
-            }
+            Address.InitializeLocalAddress(localAddress);
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
@@ -95,26 +89,25 @@ namespace NServiceBus.Unicast.Tests.Contexts
             messageSender = MockRepository.GenerateStub<ISendMessages>();
             subscriptionStorage = new FakeSubscriptionStorage();
             subscriptionManager = new MessageDrivenSubscriptionManager
-                {
-                    Builder = FuncBuilder,
-                    MessageSender = messageSender,
-                    SubscriptionStorage = subscriptionStorage
-                };
+            {
+                Builder = FuncBuilder,
+                MessageSender = messageSender,
+                SubscriptionStorage = subscriptionStorage
+            };
 
-            pipelineFactory = new PipelineFactory(FuncBuilder);
+            pipelineFactory = new PipelineFactory (FuncBuilder );
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
             FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
 
-            var logicalMessageFactory = new LogicalMessageFactory(pipelineFactory,MessageMapper,MessageMetadataRegistry);
-            FuncBuilder.Register<LogicalMessageFactory>(() => logicalMessageFactory);
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
-                {
-                    SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
-                });
+            {
+                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
+            });
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
@@ -123,10 +116,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior(MessageSerializer, unicastBus, logicalMessageFactory,pipelineFactory,MessageMetadataRegistry)
-                                                             {
-                                                             });
-            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior(MockRepository.GenerateStub<ExtractIncomingPrincipal>()));
+            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
+            {
+                MessageSerializer = MessageSerializer,
+                MessageMetadataRegistry = MessageMetadataRegistry,
+            });
+            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
+            {
+                ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
+            });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);

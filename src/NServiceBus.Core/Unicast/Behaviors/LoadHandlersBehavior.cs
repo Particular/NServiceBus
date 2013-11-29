@@ -13,15 +13,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
-        IMessageHandlerRegistry handlerRegistry;
-        PipelineFactory pipelineFactory;
-
-        public LoadHandlersBehavior(IMessageHandlerRegistry handlerRegistry, PipelineFactory pipelineFactory)
-        {
-            this.handlerRegistry = handlerRegistry;
-            this.pipelineFactory = pipelineFactory;
-        }
-
+        public IMessageHandlerRegistry HandlerRegistry { get; set; }
+        public PipelineFactory PipelineFactory { get; set; }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
@@ -30,7 +23,7 @@
             // for now we cheat and pull it from the behavior context:
             var callbackInvoked = context.Get<bool>(CallbackInvocationBehavior.CallbackInvokedKey);
 
-            var handlerTypedToInvoke = handlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
+            var handlerTypedToInvoke = HandlerRegistry.GetHandlerTypes(messageToHandle.MessageType).ToList();
 
             if (!callbackInvoked && !handlerTypedToInvoke.Any())
             {
@@ -46,7 +39,7 @@
                     Invocation = (handlerInstance, message) => HandlerInvocationCache.InvokeHandle(handlerInstance, message)
                 };
 
-                if (pipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
+                if (PipelineFactory.InvokeHandlerPipeline(loadedHandler).ChainAborted)
                 {
                     //if the chain was aborted skip the other handlers
                     break;

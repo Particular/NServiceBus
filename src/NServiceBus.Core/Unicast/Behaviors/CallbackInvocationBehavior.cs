@@ -18,12 +18,7 @@
     {
         public const string CallbackInvokedKey = "NServiceBus.CallbackInvocationBehavior.CallbackWasInvoked";
 
-        UnicastBus unicastBus;
-
-        public CallbackInvocationBehavior(UnicastBus unicastBus)
-        {
-            this.unicastBus = unicastBus;
-        }
+        public UnicastBus UnicastBus { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -49,7 +44,7 @@
 
             BusAsyncResult busAsyncResult;
 
-            if (!unicastBus.messageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
+            if (!UnicastBus.messageIdToAsyncResultLookup.TryRemove(transportMessage.CorrelationId, out busAsyncResult))
             {
                 return false;
             }

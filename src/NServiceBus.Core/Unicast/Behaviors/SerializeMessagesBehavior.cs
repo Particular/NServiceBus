@@ -16,12 +16,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
     {
-        IMessageSerializer messageSerializer;
-
-        public SerializeMessagesBehavior(IMessageSerializer messageSerializer)
-        {
-            this.messageSerializer = messageSerializer;
-        }
+        public IMessageSerializer MessageSerializer { get; set; }
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
@@ -31,9 +26,9 @@
                 {
                     var messages = context.LogicalMessages.Select(m => m.Instance).ToArray();
 
-                    messageSerializer.Serialize(messages, ms);
+                    MessageSerializer.Serialize(messages, ms);
 
-                    context.MessageToSend.Headers[Headers.ContentType] = messageSerializer.ContentType;
+                    context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
                     context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessages);
 

@@ -18,14 +18,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
     {
-        IDataBus dataBus;
-        IDataBusSerializer dataBusSerializer;
-
-        public DataBusSendBehavior(IDataBus dataBus, IDataBusSerializer dataBusSerializer)
-        {
-            this.dataBus = dataBus;
-            this.dataBusSerializer = dataBusSerializer;
-        }
+        public IDataBus DataBus { get; set; }
+        public IDataBusSerializer DataBusSerializer { get; set; }
 
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
@@ -50,14 +44,14 @@
                         propertyValue = dataBusProperty.GetValue();
                     }
 
-                    dataBusSerializer.Serialize(propertyValue, stream);
+                    DataBusSerializer.Serialize(propertyValue, stream);
                     stream.Position = 0;
 
                     string headerValue;
 
                     using (new TransactionScope(TransactionScopeOption.Suppress))
                     {
-                        headerValue = dataBus.Put(stream, timeToBeReceived);
+                        headerValue = DataBus.Put(stream, timeToBeReceived);
                     }
 
                     string headerKey;

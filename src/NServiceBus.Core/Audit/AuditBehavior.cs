@@ -11,17 +11,12 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class AuditBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        MessageAuditer messageAuditer;
-
-        public AuditBehavior(MessageAuditer messageAuditer)
-        {
-            this.messageAuditer = messageAuditer;
-        }
+        public MessageAuditer MessageAuditer { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             next();
-            messageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
+            MessageAuditer.ForwardMessageToAuditQueue(context.PhysicalMessage);
         }
     }
 }

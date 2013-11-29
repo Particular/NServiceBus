@@ -20,20 +20,12 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        IMessageSerializer messageSerializer;
-        UnicastBus unicastBus;
-        LogicalMessageFactory logicalMessageFactory;
-        PipelineFactory pipelineFactory;
-        MessageMetadataRegistry messageMetadataRegistry;
+        public IMessageSerializer MessageSerializer { get; set; }
+        public UnicastBus UnicastBus { get; set; }
+        public LogicalMessageFactory LogicalMessageFactory { get; set; }
+        public PipelineFactory PipelineFactory { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-        public ExtractLogicalMessagesBehavior(IMessageSerializer messageSerializer, UnicastBus unicastBus, LogicalMessageFactory logicalMessageFactory, PipelineFactory pipelineFactory, MessageMetadataRegistry messageMetadataRegistry)
-        {
-            this.messageSerializer = messageSerializer;
-            this.unicastBus = unicastBus;
-            this.logicalMessageFactory = logicalMessageFactory;
-            this.pipelineFactory = pipelineFactory;
-            this.messageMetadataRegistry = messageMetadataRegistry;
-        }
 
         internal bool SkipDeserialization { get; set; }
 
@@ -44,7 +36,7 @@
                 return;
             }
 
-            if (SkipDeserialization || unicastBus.SkipDeserialization)
+            if (SkipDeserialization || UnicastBus.SkipDeserialization)
             {
                 next();
                 return;
@@ -73,7 +65,7 @@
           
             foreach (var message in messages)
             {
-                pipelineFactory.InvokeLogicalMessagePipeline(message);
+                PipelineFactory.InvokeLogicalMessagePipeline(message);
             }
 
             if (!messages.Any())
@@ -91,14 +83,14 @@
                 return new List<LogicalMessage>();
             }
 
-            var messageMetadata = messageMetadataRegistry.GetMessageTypes(physicalMessage);
+            var messageMetadata = MessageMetadataRegistry.GetMessageTypes(physicalMessage);
 
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
 
-                return messageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => 
-                    logicalMessageFactory.Create(rawMessage.GetType(),rawMessage,physicalMessage.Headers))
+                return MessageSerializer.Deserialize(stream, messageTypesToDeserialize).Select(rawMessage => 
+                    LogicalMessageFactory.Create(rawMessage.GetType(),rawMessage,physicalMessage.Headers))
                     .ToList();
             }
 

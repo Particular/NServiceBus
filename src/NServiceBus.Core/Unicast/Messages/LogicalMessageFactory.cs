@@ -14,16 +14,9 @@ namespace NServiceBus.Unicast.Messages
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class LogicalMessageFactory
     {
-        PipelineFactory pipelineFactory;
-        IMessageMapper messageMapper;
-        MessageMetadataRegistry messageMetadataRegistry;
-
-        public LogicalMessageFactory(PipelineFactory pipelineFactory, IMessageMapper messageMapper, MessageMetadataRegistry messageMetadataRegistry)
-        {
-            this.pipelineFactory = pipelineFactory;
-            this.messageMapper = messageMapper;
-            this.messageMetadataRegistry = messageMetadataRegistry;
-        }
+        public PipelineFactory PipelineFactory { get; set; }
+        public IMessageMapper MessageMapper { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public List<LogicalMessage> Create<T>(T message)
         {
@@ -39,9 +32,9 @@ namespace NServiceBus.Unicast.Messages
 
         internal LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
         {
-            var realMessageType = messageMapper.GetMappedTypeFor(messageType);
+            var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
 
-            return new LogicalMessage(messageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
+            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
         }
 
 
@@ -58,10 +51,10 @@ namespace NServiceBus.Unicast.Messages
 
             return messages.Select(m =>
             {
-                var messageType = messageMapper.GetMappedTypeFor(m.GetType());
+                var messageType = MessageMapper.GetMappedTypeFor(m.GetType());
                 var headers = GetMessageHeaders(m);
        
-                return new LogicalMessage(messageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
+                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
             }).ToList();
         }
 
@@ -70,7 +63,7 @@ namespace NServiceBus.Unicast.Messages
         {
             Dictionary<object, Dictionary<string, string>> outgoingHeaders;
 
-            if (!pipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+            if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
             {
                 return new Dictionary<string, string>();
             }

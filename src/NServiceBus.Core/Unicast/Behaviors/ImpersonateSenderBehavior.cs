@@ -13,12 +13,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        ExtractIncomingPrincipal extractIncomingPrincipal;
+    public     ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set;}
 
-        public ImpersonateSenderBehavior(ExtractIncomingPrincipal extractIncomingPrincipal)
-        {
-            this.extractIncomingPrincipal = extractIncomingPrincipal;
-        }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -28,7 +24,7 @@
                 return;
             }
 
-            var principal = extractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
+            var principal = ExtractIncomingPrincipal.GetPrincipal(context.PhysicalMessage);
 
             if (principal == null)
             {

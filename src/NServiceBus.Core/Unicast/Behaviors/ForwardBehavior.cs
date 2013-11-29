@@ -13,15 +13,9 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        ISendMessages messageSender;
+        public ISendMessages MessageSender { get; set; }
 
-        UnicastBus unicastBus;
-
-        public ForwardBehavior(UnicastBus unicastBus, ISendMessages messageSender)
-        {
-            this.unicastBus = unicastBus;
-            this.messageSender = messageSender;
-        }
+        public UnicastBus UnicastBus { get; set; }
 
         internal Address ForwardReceivedMessagesTo { get; set; }
 
@@ -33,14 +27,14 @@
 
             if (ForwardReceivedMessagesTo != null && ForwardReceivedMessagesTo != Address.Undefined)
             {
-                messageSender.ForwardMessage(context.PhysicalMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
+                MessageSender.ForwardMessage(context.PhysicalMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
             }
             //To cope with people hacking UnicastBus.ForwardReceivedMessagesTo at runtime. will be removed when we remove UnicastBus.ForwardReceivedMessagesTo
-            if (unicastBus.ForwardReceivedMessagesTo != ForwardReceivedMessagesTo)
+            if (UnicastBus.ForwardReceivedMessagesTo != ForwardReceivedMessagesTo)
             {
-                if (unicastBus.ForwardReceivedMessagesTo != null && unicastBus.ForwardReceivedMessagesTo != Address.Undefined)
+                if (UnicastBus.ForwardReceivedMessagesTo != null && UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
                 {
-                    messageSender.ForwardMessage(context.PhysicalMessage, unicastBus.TimeToBeReceivedOnForwardedMessages, unicastBus.ForwardReceivedMessagesTo);
+                    MessageSender.ForwardMessage(context.PhysicalMessage, UnicastBus.TimeToBeReceivedOnForwardedMessages, UnicastBus.ForwardReceivedMessagesTo);
                 }
             }
         }

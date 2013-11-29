@@ -20,14 +20,8 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
-        ISagaPersister sagaPersister;
-        IDeferMessages messageDeferrer;
-
-        public SagaPersistenceBehavior(ISagaPersister sagaPersister, IDeferMessages messageDeferrer)
-        {
-            this.sagaPersister = sagaPersister;
-            this.messageDeferrer = messageDeferrer;
-        }
+        public ISagaPersister SagaPersister { get; set; }
+        public IDeferMessages MessageDeferrer { get; set; }
 
         public void Invoke(HandlerInvocationContext context, Action next)
         {
@@ -91,7 +85,7 @@
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Complete(saga.Entity);
+                    SagaPersister.Complete(saga.Entity);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
@@ -105,11 +99,11 @@
             {
                 if (sagaInstanceState.IsNew)
                 {
-                    sagaPersister.Save(saga.Entity);
+                    SagaPersister.Save(saga.Entity);
                 }
                 else
                 {
-                    sagaPersister.Update(saga.Entity);
+                    SagaPersister.Update(saga.Entity);
                 }
             }
         }
@@ -153,7 +147,7 @@
 
         void NotifyTimeoutManagerThatSagaHasCompleted(ISaga saga)
         {
-            messageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
+            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
         }
 
         static IContainSagaData UseFinderToFindSaga(IFinder finder, object message)

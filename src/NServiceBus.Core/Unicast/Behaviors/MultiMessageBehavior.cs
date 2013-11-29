@@ -12,18 +12,13 @@
     [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
     public class MultiMessageBehavior : IBehavior<SendLogicalMessagesContext>
     {
-        PipelineFactory pipelineFactory;
-
-        public MultiMessageBehavior(PipelineFactory pipelineFactory)
-        {
-            this.pipelineFactory = pipelineFactory;
-        }
+        public PipelineFactory PipelineFactory { get; set; }
 
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
             foreach (var logicalMessage in context.LogicalMessages)
             {
-                pipelineFactory.InvokeSendPipeline(context.SendOptions, logicalMessage);
+                PipelineFactory.InvokeSendPipeline(context.SendOptions, logicalMessage);
             }
             next();
         }

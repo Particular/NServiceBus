@@ -23,14 +23,14 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class PipelineFactory : IDisposable
     {
-        public IBuilder RootBuilder { get; set; }
+        IBuilder rootBuilder;
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
         List<PipelineOverride> pipelineOverrides;
     
         public PipelineFactory(IBuilder builder)
 	        {
-	            RootBuilder = builder;
+	            rootBuilder = builder;
 	            pipelineOverrides = builder.BuildAll<PipelineOverride>().ToList();
 	        }
 
@@ -194,7 +194,7 @@
                     return current;
                 }
 
-                contextStacker.Push(new RootContext(RootBuilder));
+                contextStacker.Push(new RootContext(rootBuilder));
 
                 return contextStacker.Current;
             }

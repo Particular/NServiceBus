@@ -16,16 +16,9 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
     {
-        ISendMessages messageSender;
-        IPublishMessages messagePublisher;
-        IDeferMessages messageDeferral;
-
-        public DispatchMessageToTransportBehavior(IDeferMessages messageDeferral, IPublishMessages messagePublisher, ISendMessages messageSender)
-        {
-            this.messageDeferral = messageDeferral;
-            this.messagePublisher = messagePublisher;
-            this.messageSender = messageSender;
-        }
+        public ISendMessages MessageSender { get; set; }
+        public IPublishMessages MessagePublisher { get; set; }
+        public IDeferMessages MessageDeferral { get; set; }
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
@@ -45,7 +38,7 @@
             {
                 if (sendOptions.Intent == MessageIntentEnum.Publish)
                 {
-                    if (messagePublisher == null)
+                    if (MessagePublisher == null)
                     {
                         throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
                     }
@@ -54,7 +47,7 @@
                         .Distinct()
                         .ToList();
 
-                    var subscribersFound = messagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
+                    var subscribersFound = MessagePublisher.Publish(context.MessageToSend, eventTypesToPublish);
 
                     context.Set("SubscribersFound", subscribersFound);
                 }
@@ -78,11 +71,11 @@
 
                         SetDelayDeliveryWithHeader(context, sendOptions.DelayDeliveryWith);
 
-                        messageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
+                        MessageDeferral.Defer(context.MessageToSend, deliverAt, sendOptions.Destination);
                     }
                     else
                     {
-                        messageSender.Send(context.MessageToSend, sendOptions.Destination);    
+                        MessageSender.Send(context.MessageToSend, sendOptions.Destination);    
                     }
                 }
             }
