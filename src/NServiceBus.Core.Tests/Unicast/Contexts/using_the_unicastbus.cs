@@ -79,8 +79,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
             {
                 DefaultToNonPersistentMessages = false
             };
-
-            Address.InitializeLocalAddress(localAddress);
+            try
+            {
+                Address.InitializeLocalAddress(localAddress);
+            }
+            catch (InvalidOperationException)
+            {
+            }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
