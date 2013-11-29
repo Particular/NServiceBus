@@ -9,12 +9,17 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class MessagingBestPractices
     {
+        public static bool TurnOffAllChecks { get; set; }
+
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object[])"/>.
         /// </summary>
         /// <param name="messageType">Event, Command or message</param>
         public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
         {
+            if (TurnOffAllChecks)
+                return;
+
             if (MessageConventionExtensions.IsEventType(messageType) && messageIntent != MessageIntentEnum.Publish)
             {
                 throw new InvalidOperationException("Events can have multiple recipient so they should be published");
@@ -27,13 +32,16 @@ namespace NServiceBus.Unicast
         /// <param name="messages">Collection of messages to enforce messaging rules on.</param>
         public static void AssertIsValidForReply(IEnumerable<object> messages)
         {
+            if (TurnOffAllChecks)
+                return;
+
             foreach (var message in messages)
             {
-                if (MessageConventionExtensions.IsCommand(message)) 
+                if (MessageConventionExtensions.IsCommand(message))
                 {
                     throw new InvalidOperationException("Reply is not supported for Commands. Commands should be sent to their logical owner using bus.Send and bus.");
                 }
-                if (MessageConventionExtensions.IsEvent(message)) 
+                if (MessageConventionExtensions.IsEvent(message))
                 {
                     throw new InvalidOperationException("Reply is not supported for Events. Events should be Published with bus.Publish.");
                 }
@@ -42,9 +50,12 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object[])"/>.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public static void AssertIsValidForReply(Type messageType)
         {
+            if (TurnOffAllChecks)
+                return;
+
             if (MessageConventionExtensions.IsCommandType(messageType) || MessageConventionExtensions.IsEventType(messageType))
             {
                 throw new InvalidOperationException("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
@@ -55,6 +66,9 @@ namespace NServiceBus.Unicast
         /// </summary>
         public static void AssertIsValidForPubSub(Type messageType)
         {
+            if (TurnOffAllChecks)
+                return;
+
             if (MessageConventionExtensions.IsCommandType(messageType))
             {
                 throw new InvalidOperationException("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.");
