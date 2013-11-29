@@ -1,10 +1,16 @@
 ﻿namespace NServiceBus.Pipeline.MessageMutator
 {
     using System;
+    using System.ComponentModel;
     using Contexts;
     using NServiceBus.MessageMutator;
 
-    class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceiveLogicalMessageContext>
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ApplyIncomingMessageMutatorsBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {

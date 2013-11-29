@@ -9,23 +9,23 @@
         protected IDataBus dataBus;
         protected DataBusSendBehavior sendBehavior;
         protected DataBusReceiveBehavior receiveBehavior;
-    
+
         [SetUp]
         public void SetUp()
         {
             dataBus = MockRepository.GenerateMock<IDataBus>();
-            
+
             receiveBehavior = new DataBusReceiveBehavior
-            {
-                DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
-            };
+                {
+                    DataBusSerializer = new DefaultDataBusSerializer(),
+                    DataBus = dataBus
+                };
 
             sendBehavior = new DataBusSendBehavior
-            {
-                DataBus = dataBus,
-                DataBusSerializer = new DefaultDataBusSerializer()
-            };
+                {
+                    DataBus = dataBus,
+                    DataBusSerializer = new DefaultDataBusSerializer()
+                };
         }
 
     }

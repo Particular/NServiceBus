@@ -19,7 +19,7 @@
             foreach (var licensePath in Directory.EnumerateFiles(allTheLicensesDir, "license.xml", SearchOption.AllDirectories))
             {
                 var licenseManager = LicenseDeserializer.Deserialize(File.ReadAllText(licensePath));
-                Debug.WriteLine(licenseManager.UpgradeProtectionExpiration);
+                Trace.WriteLine(licenseManager.UpgradeProtectionExpiration);
             }
         }
 

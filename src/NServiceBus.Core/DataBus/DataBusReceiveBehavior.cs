@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
@@ -10,17 +11,18 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
-
         public IDataBusSerializer DataBusSerializer { get; set; }
-
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {
             var message = context.LogicalMessage.Instance;
-
 
             foreach (var property in GetDataBusProperties(message))
             {
@@ -85,5 +87,6 @@
         }
 
         readonly static ConcurrentDictionary<Type, List<PropertyInfo>> cache = new ConcurrentDictionary<Type, List<PropertyInfo>>();
+
     }
 }

@@ -1,12 +1,16 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
-    class MultiMessageBehavior:IBehavior<SendLogicalMessagesContext>
+    public class MultiMessageBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public PipelineFactory PipelineFactory { get; set; }
 
@@ -14,7 +18,7 @@
         {
             foreach (var logicalMessage in context.LogicalMessages)
             {
-                PipelineFactory.InvokeSendPipeline(context.SendOptions,logicalMessage);
+                PipelineFactory.InvokeSendPipeline(context.SendOptions, logicalMessage);
             }
             next();
         }

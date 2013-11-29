@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -11,12 +12,14 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DataBusSendBehavior : IBehavior<SendLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
-
         public IDataBusSerializer DataBusSerializer { get; set; }
-
 
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

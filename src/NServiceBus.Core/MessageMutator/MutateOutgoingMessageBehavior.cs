@@ -1,10 +1,16 @@
 ﻿namespace NServiceBus.MessageMutator
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class MutateOutgoingMessageBehavior : IBehavior<SendLogicalMessageContext>
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

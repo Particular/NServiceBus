@@ -1,10 +1,16 @@
 namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ChildContainerBehavior:IBehavior<ReceivePhysicalMessageContext>
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ChildContainerBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

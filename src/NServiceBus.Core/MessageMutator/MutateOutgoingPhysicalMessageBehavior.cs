@@ -1,11 +1,17 @@
 ﻿namespace NServiceBus.MessageMutator
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendPhysicalMessageContext>
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class MutateOutgoingPhysicalMessageBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {

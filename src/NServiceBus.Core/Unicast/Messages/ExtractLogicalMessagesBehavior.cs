@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -13,20 +14,20 @@
     using Transport;
     using Unicast;
 
-    class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ExtractLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-
         public IMessageSerializer MessageSerializer { get; set; }
-    
         public UnicastBus UnicastBus { get; set; }
-
         public LogicalMessageFactory LogicalMessageFactory { get; set; }
-
-        public bool SkipDeserialization { get; set; }
-
         public PipelineFactory PipelineFactory { get; set; }
-
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
+
+
+        internal bool SkipDeserialization { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

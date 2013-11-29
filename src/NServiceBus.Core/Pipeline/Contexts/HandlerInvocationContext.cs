@@ -1,9 +1,14 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System.ComponentModel;
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    class HandlerInvocationContext : BehaviorContext
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class HandlerInvocationContext : BehaviorContext
     {
         public HandlerInvocationContext(BehaviorContext parentContext, MessageHandler messageHandler)
             : base(parentContext)

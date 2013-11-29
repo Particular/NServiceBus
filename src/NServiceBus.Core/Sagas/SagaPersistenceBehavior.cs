@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using IdGeneration;
     using Logging;
@@ -13,10 +14,13 @@
     using Unicast;
     using Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
         public ISagaPersister SagaPersister { get; set; }
-
         public IDeferMessages MessageDeferrer { get; set; }
 
         public void Invoke(HandlerInvocationContext context, Action next)
@@ -73,7 +77,9 @@
             next();
 
             if (sagaInstanceState.NotFound)
+            {
                 return;
+            }
 
             if (saga.Completed)
             {
@@ -157,7 +163,7 @@
 
         IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
-            string sagaId = null;
+            string sagaId;
 
             physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
@@ -199,5 +205,6 @@
         TransportMessage physicalMessage;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
+
     }
 }

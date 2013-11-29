@@ -2,31 +2,35 @@ namespace NServiceBus.Unicast.Messages
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using MessageInterfaces;
     using Pipeline;
 
-    class LogicalMessageFactory
-    {
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-        
-        public IMessageMapper MessageMapper { get; set; }
 
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LogicalMessageFactory
+    {
         public PipelineFactory PipelineFactory { get; set; }
+        public IMessageMapper MessageMapper { get; set; }
+        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public List<LogicalMessage> Create<T>(T message)
         {
             return new[] { Create(message.GetType(), message) }.ToList();
         }
 
-        public LogicalMessage Create(Type messageType, object message)
+        internal LogicalMessage Create(Type messageType, object message)
         {
              var headers = GetMessageHeaders(message);
 
             return Create(messageType, message, headers);
         }
 
-        public LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
+        internal LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
         {
             var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
 
@@ -37,7 +41,7 @@ namespace NServiceBus.Unicast.Messages
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
         // the real message type without using the mapper
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        public List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
+        internal List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
         {
             if (messages == null)
             {

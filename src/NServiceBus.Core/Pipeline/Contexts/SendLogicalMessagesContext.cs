@@ -1,12 +1,17 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Unicast;
     using Unicast.Messages;
 
-    class SendLogicalMessagesContext : BehaviorContext
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SendLogicalMessagesContext : BehaviorContext
     {
-        public SendLogicalMessagesContext(BehaviorContext parentContext, SendOptions sendOptions,IEnumerable<LogicalMessage> messages)
+        public SendLogicalMessagesContext(BehaviorContext parentContext, SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
             : base(parentContext)
         {
             Set(sendOptions);

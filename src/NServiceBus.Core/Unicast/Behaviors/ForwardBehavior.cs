@@ -1,20 +1,25 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
     using Unicast;
 
-    class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
 
         public UnicastBus UnicastBus { get; set; }
 
-        public Address ForwardReceivedMessagesTo { get; set; }
+        internal Address ForwardReceivedMessagesTo { get; set; }
 
-        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        internal TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

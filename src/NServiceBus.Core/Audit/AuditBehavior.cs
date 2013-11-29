@@ -1,10 +1,15 @@
 ﻿namespace NServiceBus.Audit
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class AuditBehavior : IBehavior<ReceivePhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class AuditBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public MessageAuditer MessageAuditer { get; set; }
 

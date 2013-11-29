@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using Messages;
@@ -9,7 +10,11 @@
     using Pipeline.Contexts;
     using Serialization;
 
-    class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SerializeMessagesBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public IMessageSerializer MessageSerializer { get; set; }
 

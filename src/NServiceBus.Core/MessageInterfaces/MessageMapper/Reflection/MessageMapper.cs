@@ -409,7 +409,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
             }
 
-            ConstructorInfo constructor = null;
+            ConstructorInfo constructor;
             typeToConstructor.TryGetValue(mapped, out constructor);
             if (constructor != null)
             {

@@ -2,7 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.ComponentModel;
+    using System.Linq;
     using Audit;
     using Contexts;
     using DataBus;
@@ -15,9 +16,23 @@
     using Unicast.Messages;
     using UnitOfWork;
 
-    class PipelineFactory : IDisposable
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class PipelineFactory : IDisposable
     {
-        public IBuilder RootBuilder { get; set; }
+        IBuilder rootBuilder;
+
+        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
+        List<PipelineOverride> pipelineOverrides;
+    
+        public PipelineFactory(IBuilder builder)
+	        {
+	            rootBuilder = builder;
+	            pipelineOverrides = builder.BuildAll<PipelineOverride>().ToList();
+	        }
 
         public void PreparePhysicalMessagePipelineContext(TransportMessage message, bool messageHandlingDisabled)
         {
@@ -33,19 +48,25 @@
                 throw new InvalidOperationException("Can't invoke the receive pipeline when the current context is: " + contextStacker.Current.GetType().Name);
             }
 
-            var pipeline = new BehaviorChain<ReceivePhysicalMessageContext>();
+            var behaviorList = new BehaviorList<ReceivePhysicalMessageContext>();
 
-            pipeline.Add<ChildContainerBehavior>();
-            pipeline.Add<MessageHandlingLoggingBehavior>();
-            pipeline.Add<ImpersonateSenderBehavior>();
-            pipeline.Add<AuditBehavior>();
-            pipeline.Add<ForwardBehavior>();
-            pipeline.Add<UnitOfWorkBehavior>();
-            pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            pipeline.Add<RaiseMessageReceivedBehavior>();
-            pipeline.Add<ExtractLogicalMessagesBehavior>();
-            pipeline.Add<CallbackInvocationBehavior>();
+            behaviorList.Add<ChildContainerBehavior>();
+            behaviorList.Add<MessageHandlingLoggingBehavior>();
+            behaviorList.Add<ImpersonateSenderBehavior>();
+            behaviorList.Add<AuditBehavior>();
+            behaviorList.Add<ForwardBehavior>();
+            behaviorList.Add<UnitOfWorkBehavior>();
+            behaviorList.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
+            behaviorList.Add<RaiseMessageReceivedBehavior>();
+            behaviorList.Add<ExtractLogicalMessagesBehavior>();
+            behaviorList.Add<CallbackInvocationBehavior>();
 
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+            var pipeline = new BehaviorChain<ReceivePhysicalMessageContext>(behaviorList);
             pipeline.Invoke(context);
         }
 
@@ -56,12 +77,19 @@
 
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
-            var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>();
-
-            pipeline.Add<ApplyIncomingMessageMutatorsBehavior>();
+            var behaviorList = new BehaviorList<ReceiveLogicalMessageContext>();
+            behaviorList.Add<ApplyIncomingMessageMutatorsBehavior>();
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
-            pipeline.Add<DataBusReceiveBehavior>();
-            pipeline.Add<LoadHandlersBehavior>();
+            behaviorList.Add<DataBusReceiveBehavior>();
+            behaviorList.Add<LoadHandlersBehavior>();
+
+
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+            var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>(behaviorList);
 
             var context = new ReceiveLogicalMessageContext(CurrentContext, message);
 
@@ -71,10 +99,17 @@
 
         public HandlerInvocationContext InvokeHandlerPipeline(MessageHandler handler)
         {
-            var pipeline = new BehaviorChain<HandlerInvocationContext>();
+            var behaviorList = new BehaviorList<HandlerInvocationContext>();
+            behaviorList.Add<SagaPersistenceBehavior>();
+            behaviorList.Add<InvokeHandlersBehavior>();
 
-            pipeline.Add<SagaPersistenceBehavior>();
-            pipeline.Add<InvokeHandlersBehavior>();
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+
+            var pipeline = new BehaviorChain<HandlerInvocationContext>(behaviorList);
 
             var context = new HandlerInvocationContext(CurrentContext, handler);
 
@@ -85,11 +120,17 @@
 
         public SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
         {
-            var pipeline = new BehaviorChain<SendLogicalMessagesContext>();
+            var behaviorList = new BehaviorList<SendLogicalMessagesContext>();
+            behaviorList.Add<MultiSendValidatorBehavior>();
+            behaviorList.Add<MultiMessageBehavior>();
+            behaviorList.Add<CreatePhysicalMessageBehavior>();
 
-            pipeline.Add<MultiSendValidatorBehavior>();
-            pipeline.Add<MultiMessageBehavior>();
-            pipeline.Add<CreatePhysicalMessageBehavior>();
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+            var pipeline = new BehaviorChain<SendLogicalMessagesContext>(behaviorList);
 
             var context = new SendLogicalMessagesContext(CurrentContext, sendOptions, messages);
 
@@ -100,14 +141,20 @@
 
         public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
-            var pipeline = new BehaviorChain<SendLogicalMessageContext>();
 
-            pipeline.Add<SendValidatorBehavior>();
-            pipeline.Add<SagaSendBehavior>();
-            pipeline.Add<MutateOutgoingMessageBehavior>();
-
+            var behaviorList = new BehaviorList<SendLogicalMessageContext>();
+            behaviorList.Add<SendValidatorBehavior>();
+            behaviorList.Add<SagaSendBehavior>();
+            behaviorList.Add<MutateOutgoingMessageBehavior>();
             //todo: we'll make this optional as soon as we have a way to manipulate the pipeline
-            pipeline.Add<DataBusSendBehavior>();
+            behaviorList.Add<DataBusSendBehavior>();
+
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+            var pipeline = new BehaviorChain<SendLogicalMessageContext>(behaviorList);
 
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 
@@ -118,11 +165,18 @@
 
         public void InvokeSendPipeline(SendOptions sendOptions, TransportMessage physicalMessage)
         {
-            var pipeline = new BehaviorChain<SendPhysicalMessageContext>();
+            var behaviorList = new BehaviorList<SendPhysicalMessageContext>();
+            behaviorList.Add<SerializeMessagesBehavior>();
+            behaviorList.Add<MutateOutgoingPhysicalMessageBehavior>();
+            behaviorList.Add<DispatchMessageToTransportBehavior>();
 
-            pipeline.Add<SerializeMessagesBehavior>();
-            pipeline.Add<MutateOutgoingPhysicalMessageBehavior>();
-            pipeline.Add<DispatchMessageToTransportBehavior>();
+            foreach (var pipelineOverride in pipelineOverrides)
+            {
+                pipelineOverride.Override(behaviorList);
+            }
+
+            var pipeline = new BehaviorChain<SendPhysicalMessageContext>(behaviorList);
+
 
             var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
 
@@ -140,7 +194,7 @@
                     return current;
                 }
 
-                contextStacker.Push(new RootContext(RootBuilder));
+                contextStacker.Push(new RootContext(rootBuilder));
 
                 return contextStacker.Current;
             }
@@ -165,8 +219,6 @@
                 contextStacker.Pop();
             }
         }
-
-        BehaviorContextStacker contextStacker = new BehaviorContextStacker();
 
     }
 }

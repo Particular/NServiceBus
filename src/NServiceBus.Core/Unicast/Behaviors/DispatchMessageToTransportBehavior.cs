@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Configuration;
     using System.Linq;
     using Logging;
@@ -9,14 +10,15 @@
     using Transports;
     using Queuing;
 
-    class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
-
         public IPublishMessages MessagePublisher { get; set; }
-
         public IDeferMessages MessageDeferral { get; set; }
-
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {

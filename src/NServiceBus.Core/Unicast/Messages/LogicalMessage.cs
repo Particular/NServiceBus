@@ -2,8 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
-    class LogicalMessage
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LogicalMessage
     {
         public LogicalMessage(MessageMetadata metadata, object message,Dictionary<string,string> headers)
         {

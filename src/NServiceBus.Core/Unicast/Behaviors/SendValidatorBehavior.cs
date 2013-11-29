@@ -1,11 +1,16 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
 
-    class SendValidatorBehavior : IBehavior<SendLogicalMessageContext>
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SendValidatorBehavior : IBehavior<SendLogicalMessageContext>
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {

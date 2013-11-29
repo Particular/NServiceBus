@@ -1,10 +1,16 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Unicast;
     using Unicast.Messages;
 
-    class SendPhysicalMessageContext : BehaviorContext
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SendPhysicalMessageContext : BehaviorContext
     {
         public SendPhysicalMessageContext(BehaviorContext parentContext, SendOptions sendOptions, TransportMessage message)
             : base(parentContext)
