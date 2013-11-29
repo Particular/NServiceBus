@@ -29,7 +29,7 @@ namespace NServiceBus.Distributor.Config
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);
 
             SettingsHolder.Set("Worker.Enabled", true);
-
+            SettingsHolder.Set("Distributor.Version", 1);
             SettingsHolder.Set("MasterNode.Address", masterNodeAddress);
         }
     }

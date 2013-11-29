@@ -84,7 +84,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             {
                 Address.InitializeLocalAddress(localAddress);
             }
-            // ReSharper disable once EmptyGeneralCatchClause
             catch // intentional
             {
             }
@@ -102,13 +101,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory (FuncBuilder );
+            pipelineFactory = new PipelineFactory(FuncBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
 
             FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
-            
+
             var logicalMessageFactory = new LogicalMessageFactory();
             FuncBuilder.Register<LogicalMessageFactory>(() => logicalMessageFactory);
 
@@ -124,13 +123,12 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
-            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior(MessageSerializer, unicastBus, logicalMessageFactory, pipelineFactory, MessageMetadataRegistry));
+            FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior(MessageSerializer, unicastBus, logicalMessageFactory,pipelineFactory,MessageMetadataRegistry)
+                                                             {
+                                                             });
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior(MockRepository.GenerateStub<ExtractIncomingPrincipal>()));
 
-            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior(pipelineFactory,MessageMetadataRegistry,unicastBus)
-            {
-                DefaultReplyToAddress = Address.Local
-            });
+            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
 
             var messagePublisher = new StorageDrivenPublisher
@@ -201,7 +199,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterRoute(typeof(T), Address.Local);
+            router.RegisterMessageRoute(typeof(T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -215,7 +213,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            router.RegisterRoute(typeof(T), address);
+            router.RegisterMessageRoute(typeof(T), address);
             MessageMetadataRegistry.RegisterMessageType(typeof(T));
 
         }

@@ -28,7 +28,7 @@ try {
 	}
 
 	if (!(Test-Path $nserviceBusVersionPath)){
-		$versionToAdd = $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
+		$versionToAdd = $nservicebusVersion.Major.ToString() + "." + $nservicebusVersion.Minor.ToString()
 		New-Item -Path $nserviceBusKeyPath -Name $versionToAdd | Out-Null
 		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "false" | Out-Null
 	}
@@ -47,7 +47,10 @@ try {
 			exit
 		}
 	}
-} Catch [Exception] {}
+} Catch [Exception] { 
+	Write-Warning "There was a problem checking if this machine is properly setup:"	
+	Write-Warning $error[0]
+}
 
 $perfCountersInstalled = $false
 $msmqInstalled = $false

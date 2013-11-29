@@ -14,9 +14,9 @@ namespace NServiceBus.Unicast.Messages
 
         public PipelineFactory PipelineFactory { get; set; }
 
-        public IEnumerable<LogicalMessage> Create<T>(T message)
+        public List<LogicalMessage> Create<T>(T message)
         {
-            return new[] { Create(message.GetType(), message) };
+            return new[] { Create(message.GetType(), message) }.ToList();
         }
 
         public LogicalMessage Create(Type messageType, object message)
@@ -37,7 +37,7 @@ namespace NServiceBus.Unicast.Messages
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
         // the real message type without using the mapper
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        public IEnumerable<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
+        public List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
         {
             if (messages == null)
             {

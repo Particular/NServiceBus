@@ -180,7 +180,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>
         /// </summary>
-        public IRouteMessages MessageRouter { get; set; }
+        public StaticMessageRouter MessageRouter { get; set; }
 
         /// <summary>
         /// Event raised when no subscribers found for the published message.
@@ -195,7 +195,6 @@ namespace NServiceBus.Unicast
             add { throw new NotImplementedException(); }
             remove { throw new NotImplementedException(); }
         }
-
 
         /// <summary>
         /// Handles the filtering of messages on the subscriber side
@@ -302,7 +301,8 @@ namespace NServiceBus.Unicast
                 {
                     Intent = MessageIntentEnum.Publish
                 };
-            var context = PipelineFactory.InvokeSendPipeline(sendOptions, LogicalMessageFactory.CreateMultiple(messagesToPublish));
+
+            var context = InvokeSendPipeline(sendOptions, LogicalMessageFactory.CreateMultiple(messagesToPublish));
 
             if (!context.Get<bool>("SubscribersFound") && NoSubscribersForMessage != null)
             {
@@ -336,11 +336,12 @@ namespace NServiceBus.Unicast
             var p = new Predicate<object>(m =>
             {
                 if (m is T)
+                {
                     return condition((T)m);
+                }
 
                 return true;
-            }
-            );
+            });
 
             Subscribe(typeof(T), p);
         }
@@ -356,22 +357,37 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
+            }
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
-            if (Address.Self == destination)
-                throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
-
-
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Subscribe(messageType, destination);
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
 
-            if (SubscriptionPredicatesEvaluator != null)
-                SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+            foreach (var destination in addresses)
+            {
+                if (Address.Self == destination)
+                {
+                    throw new InvalidOperationException(string.Format("Message {0} is owned by the same endpoint that you're trying to subscribe", messageType));
+                }
+
+                SubscriptionManager.Subscribe(messageType, destination);
+
+                if (SubscriptionPredicatesEvaluator != null)
+                {
+                    SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
+                }
+            }
         }
 
         /// <summary>
@@ -390,18 +406,30 @@ namespace NServiceBus.Unicast
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
             if (Configure.SendOnlyMode)
+            {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
+            }
 
             AssertHasLocalAddress();
 
-            var destination = GetAddressForMessageType(messageType);
 
             if (SubscriptionManager == null)
+            {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
 
-            SubscriptionManager.Unsubscribe(messageType, destination);
+            var addresses = GetAddressForMessageType(messageType);
+            if (addresses.Count == 0)
+            {
+                throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
+            }
+
+            foreach (var destination in addresses)
+            {
+                SubscriptionManager.Unsubscribe(messageType, destination);
+            }
+
         }
-
 
         public void Reply(params object[] messages)
         {
@@ -432,8 +460,8 @@ namespace NServiceBus.Unicast
             returnMessage.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
             var options = SendOptions.ReplyTo(MessageBeingProcessed.ReplyToAddress);
-            
-            PipelineFactory.InvokeSendPipeline(options,returnMessage);
+
+            PipelineFactory.InvokeSendPipeline(options, returnMessage);
         }
 
         public void HandleCurrentMessageLater()
@@ -493,9 +521,31 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(params object[] messages)
         {
-            var destination = GetAddressForMessages(messages);
+            var destinations = GetAddressForMessages(messages)
+                .Distinct()
+                .ToList();
+
+            if (destinations.Count > 1)
+            {
+                throw new InvalidOperationException("Sends can only target one address.");
+            }
+
+            var destination = destinations.SingleOrDefault();
 
             return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(messages));
+        }
+
+        IEnumerable<Address> GetAddressForMessages(IEnumerable<object> messages)
+        {
+            if (messages == null)
+            {
+                yield break;
+            }
+
+            foreach (var address in messages.SelectMany(message => GetAddressForMessageType(message.GetType())))
+            {
+                yield return address;
+            }
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
@@ -606,7 +656,7 @@ namespace NServiceBus.Unicast
         {
             return Defer(delay, new[] { message });
         }
-        
+
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
             return SendMessages(new SendOptions(Address.Local) { DelayDeliveryWith = delay }, LogicalMessageFactory.CreateMultiple(messages));
@@ -623,9 +673,9 @@ namespace NServiceBus.Unicast
         }
 
 
-        ICallback SendMessages(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
+        ICallback SendMessages(SendOptions sendOptions, List<LogicalMessage> messages)
         {
-            var context = PipelineFactory.InvokeSendPipeline(sendOptions, messages);
+            var context = InvokeSendPipeline(sendOptions, messages);
 
             if (MessagesSent != null)
             {
@@ -635,6 +685,21 @@ namespace NServiceBus.Unicast
             var physicalMessage = context.Get<TransportMessage>();
 
             return SetupCallback(physicalMessage.Id);
+        }
+
+        SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, List<LogicalMessage> messages)
+        {
+            if (sendOptions.ReplyToAddress == null && !Configure.SendOnlyMode)
+            {
+                sendOptions.ReplyToAddress = Address.Local;
+            }
+
+            if (PropagateReturnAddressOnSend && CurrentMessageContext != null)
+            {
+                sendOptions.ReplyToAddress = CurrentMessageContext.ReplyToAddress;
+            }
+
+            return PipelineFactory.InvokeSendPipeline(sendOptions, messages);
         }
 
 
@@ -881,7 +946,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The list of message dispatcher factories to use
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
         public IDictionary<Type, Type> MessageDispatcherMappings { get; set; }
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
@@ -890,7 +955,7 @@ namespace NServiceBus.Unicast
             get { return skipDeserialization; }
             set { skipDeserialization = value; }
         }
-        
+
         internal bool skipDeserialization;
 
         public void Raise<T>(Action<T> messageConstructor)
@@ -902,13 +967,13 @@ namespace NServiceBus.Unicast
             var messageType = typeof(T);
 
             EnsureMessageIsRegistered(messageType);
-         
+
             var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
 
             PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0" ,Message ="In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
+        [ObsoleteEx(RemoveInVersion = "5.0", Message = "In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
         void EnsureMessageIsRegistered(Type messageType)
         {
             var registry = Builder.Build<MessageMetadataRegistry>();
@@ -957,7 +1022,7 @@ namespace NServiceBus.Unicast
                     module.HandleEndMessage();
                 });
             }
-            finally 
+            finally
             {
                 PipelineFactory.CompletePhysicalMessagePipelineContext();
             }
@@ -977,39 +1042,28 @@ namespace NServiceBus.Unicast
             });
         }
 
-
-
-        /// <summary>
-        /// Uses the first message in the array to pass to <see cref="GetAddressForMessageType"/>.
-        /// </summary>
-        Address GetAddressForMessages(object[] messages)
-        {
-            if (messages == null || messages.Length == 0)
-                return Address.Undefined;
-
-            return GetAddressForMessageType(messages[0].GetType());
-        }
-
         /// <summary>
         /// Gets the destination address For a message type.
         /// </summary>
         /// <param name="messageType">The message type to get the destination for.</param>
         /// <returns>The address of the destination associated with the message type.</returns>
-        Address GetAddressForMessageType(Type messageType)
+        List<Address> GetAddressForMessageType(Type messageType)
         {
             var destination = MessageRouter.GetDestinationFor(messageType);
 
-            if (destination != Address.Undefined)
+            if (destination.Any())
+            {
                 return destination;
-
+            }
 
             if (messageMapper != null && !messageType.IsInterface)
             {
                 var t = messageMapper.GetMappedTypeFor(messageType);
                 if (t != null && t != messageType)
+                {
                     return GetAddressForMessageType(t);
+                }
             }
-
 
             return destination;
         }
@@ -1070,8 +1124,8 @@ namespace NServiceBus.Unicast
         Task[] thingsToRunAtStartupTask = new Task[0];
         SatelliteLauncher satelliteLauncher;
 
-        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>(); 
-       
+        Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
+
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
         PipelineFactory PipelineFactory
