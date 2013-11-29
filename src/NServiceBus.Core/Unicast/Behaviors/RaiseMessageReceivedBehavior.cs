@@ -14,7 +14,7 @@
     {
         UnicastBus unicastBus;
 
-        internal RaiseMessageReceivedBehavior(UnicastBus unicastBus)
+        public RaiseMessageReceivedBehavior(UnicastBus unicastBus)
         {
             this.unicastBus = unicastBus;
         }

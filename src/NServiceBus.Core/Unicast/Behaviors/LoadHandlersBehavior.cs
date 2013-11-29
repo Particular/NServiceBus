@@ -16,7 +16,7 @@
         IMessageHandlerRegistry handlerRegistry;
         PipelineFactory pipelineFactory;
 
-        internal LoadHandlersBehavior(IMessageHandlerRegistry handlerRegistry, PipelineFactory pipelineFactory)
+        public LoadHandlersBehavior(IMessageHandlerRegistry handlerRegistry, PipelineFactory pipelineFactory)
         {
             this.handlerRegistry = handlerRegistry;
             this.pipelineFactory = pipelineFactory;

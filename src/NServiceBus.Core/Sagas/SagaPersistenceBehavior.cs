@@ -23,7 +23,7 @@
         ISagaPersister sagaPersister;
         IDeferMessages messageDeferrer;
 
-        internal SagaPersistenceBehavior(ISagaPersister sagaPersister, IDeferMessages messageDeferrer)
+        public SagaPersistenceBehavior(ISagaPersister sagaPersister, IDeferMessages messageDeferrer)
         {
             this.sagaPersister = sagaPersister;
             this.messageDeferrer = messageDeferrer;

@@ -20,7 +20,7 @@
 
         UnicastBus unicastBus;
 
-        internal CallbackInvocationBehavior(UnicastBus unicastBus)
+        public CallbackInvocationBehavior(UnicastBus unicastBus)
         {
             this.unicastBus = unicastBus;
         }

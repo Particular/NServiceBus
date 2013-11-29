@@ -26,7 +26,7 @@
         PipelineFactory pipelineFactory;
         MessageMetadataRegistry messageMetadataRegistry;
 
-        internal ExtractLogicalMessagesBehavior(IMessageSerializer messageSerializer, UnicastBus unicastBus, LogicalMessageFactory logicalMessageFactory, PipelineFactory pipelineFactory, MessageMetadataRegistry messageMetadataRegistry)
+        public ExtractLogicalMessagesBehavior(IMessageSerializer messageSerializer, UnicastBus unicastBus, LogicalMessageFactory logicalMessageFactory, PipelineFactory pipelineFactory, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.messageSerializer = messageSerializer;
             this.unicastBus = unicastBus;

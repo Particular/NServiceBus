@@ -17,7 +17,7 @@
 
         UnicastBus unicastBus;
 
-        internal ForwardBehavior(UnicastBus unicastBus, ISendMessages messageSender)
+        public ForwardBehavior(UnicastBus unicastBus, ISendMessages messageSender)
         {
             this.unicastBus = unicastBus;
             this.messageSender = messageSender;

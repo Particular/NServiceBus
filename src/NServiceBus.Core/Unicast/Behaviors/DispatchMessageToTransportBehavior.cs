@@ -20,7 +20,7 @@
         IPublishMessages messagePublisher;
         IDeferMessages messageDeferral;
 
-        internal DispatchMessageToTransportBehavior(IDeferMessages messageDeferral, IPublishMessages messagePublisher, ISendMessages messageSender)
+        public DispatchMessageToTransportBehavior(IDeferMessages messageDeferral, IPublishMessages messagePublisher, ISendMessages messageSender)
         {
             this.messageDeferral = messageDeferral;
             this.messagePublisher = messagePublisher;

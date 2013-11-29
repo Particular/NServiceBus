@@ -20,7 +20,7 @@
         IDataBus dataBus;
         IDataBusSerializer dataBusSerializer;
 
-        internal DataBusReceiveBehavior(IDataBusSerializer dataBusSerializer, IDataBus dataBus)
+        public DataBusReceiveBehavior(IDataBusSerializer dataBusSerializer, IDataBus dataBus)
         {
             this.dataBusSerializer = dataBusSerializer;
             this.dataBus = dataBus;

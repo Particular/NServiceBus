@@ -2,42 +2,53 @@ namespace NServiceBus.Unicast.Messages
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using MessageInterfaces;
     using Pipeline;
 
-    class LogicalMessageFactory
-    {
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-        
-        public IMessageMapper MessageMapper { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LogicalMessageFactory
+    {
+        PipelineFactory pipelineFactory;
+        IMessageMapper messageMapper;
+        MessageMetadataRegistry messageMetadataRegistry;
+
+        public LogicalMessageFactory(PipelineFactory pipelineFactory, IMessageMapper messageMapper, MessageMetadataRegistry messageMetadataRegistry)
+        {
+            this.pipelineFactory = pipelineFactory;
+            this.messageMapper = messageMapper;
+            this.messageMetadataRegistry = messageMetadataRegistry;
+        }
 
         public List<LogicalMessage> Create<T>(T message)
         {
             return new[] { Create(message.GetType(), message) }.ToList();
         }
 
-        public LogicalMessage Create(Type messageType, object message)
+        internal LogicalMessage Create(Type messageType, object message)
         {
              var headers = GetMessageHeaders(message);
 
             return Create(messageType, message, headers);
         }
 
-        public LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
+        internal LogicalMessage Create(Type messageType, object message, Dictionary<string, string> headers)
         {
-            var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
+            var realMessageType = messageMapper.GetMappedTypeFor(messageType);
 
-            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
+            return new LogicalMessage(messageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
         }
 
 
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
         // the real message type without using the mapper
         [ObsoleteEx(RemoveInVersion = "5.0")]
-        public List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
+        internal List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
         {
             if (messages == null)
             {
@@ -47,10 +58,10 @@ namespace NServiceBus.Unicast.Messages
 
             return messages.Select(m =>
             {
-                var messageType = MessageMapper.GetMappedTypeFor(m.GetType());
+                var messageType = messageMapper.GetMappedTypeFor(m.GetType());
                 var headers = GetMessageHeaders(m);
        
-                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
+                return new LogicalMessage(messageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
             }).ToList();
         }
 
@@ -59,7 +70,7 @@ namespace NServiceBus.Unicast.Messages
         {
             Dictionary<object, Dictionary<string, string>> outgoingHeaders;
 
-            if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+            if (!pipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
             {
                 return new Dictionary<string, string>();
             }

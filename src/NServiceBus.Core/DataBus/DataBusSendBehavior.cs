@@ -21,7 +21,7 @@
         IDataBus dataBus;
         IDataBusSerializer dataBusSerializer;
 
-        internal DataBusSendBehavior(IDataBus dataBus, IDataBusSerializer dataBusSerializer)
+        public DataBusSendBehavior(IDataBus dataBus, IDataBusSerializer dataBusSerializer)
         {
             this.dataBus = dataBus;
             this.dataBusSerializer = dataBusSerializer;

@@ -18,7 +18,7 @@
     {
         IMessageSerializer messageSerializer;
 
-        internal SerializeMessagesBehavior(IMessageSerializer messageSerializer)
+        public SerializeMessagesBehavior(IMessageSerializer messageSerializer)
         {
             this.messageSerializer = messageSerializer;
         }

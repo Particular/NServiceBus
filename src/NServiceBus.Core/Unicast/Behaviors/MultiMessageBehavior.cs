@@ -5,8 +5,6 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-
-
     /// <summary>
     /// Not for public consumption. May change in minor version releases.
     /// </summary>
@@ -16,7 +14,7 @@
     {
         PipelineFactory pipelineFactory;
 
-        internal MultiMessageBehavior(PipelineFactory pipelineFactory)
+        public MultiMessageBehavior(PipelineFactory pipelineFactory)
         {
             this.pipelineFactory = pipelineFactory;
         }

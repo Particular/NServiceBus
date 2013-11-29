@@ -13,7 +13,7 @@
     {
         MessageAuditer messageAuditer;
 
-        internal AuditBehavior(MessageAuditer messageAuditer)
+        public AuditBehavior(MessageAuditer messageAuditer)
         {
             this.messageAuditer = messageAuditer;
         }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using Audit;
     using Contexts;
@@ -15,7 +16,12 @@
     using Unicast.Messages;
     using UnitOfWork;
 
-    class PipelineFactory : IDisposable
+
+    /// <summary>
+    /// Not for public consumption. May change in minor version releases.
+    /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class PipelineFactory : IDisposable
     {
         public IBuilder RootBuilder { get; set; }
 

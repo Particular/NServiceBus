@@ -15,7 +15,7 @@
     {
         ExtractIncomingPrincipal extractIncomingPrincipal;
 
-        internal ImpersonateSenderBehavior(ExtractIncomingPrincipal extractIncomingPrincipal)
+        public ImpersonateSenderBehavior(ExtractIncomingPrincipal extractIncomingPrincipal)
         {
             this.extractIncomingPrincipal = extractIncomingPrincipal;
         }

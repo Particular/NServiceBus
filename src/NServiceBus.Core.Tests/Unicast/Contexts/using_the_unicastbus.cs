@@ -108,7 +108,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
 
-            var logicalMessageFactory = new LogicalMessageFactory();
+            var logicalMessageFactory = new LogicalMessageFactory(pipelineFactory,MessageMapper,MessageMetadataRegistry);
             FuncBuilder.Register<LogicalMessageFactory>(() => logicalMessageFactory);
 
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
