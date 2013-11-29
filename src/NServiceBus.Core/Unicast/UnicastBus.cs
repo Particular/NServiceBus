@@ -926,17 +926,15 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
 
-            PipelineFactory.Dispose();
-
-            ExecuteIWantToRunAtStartupStopMethods();
-
-            satelliteLauncher.Stop();
-
             transport.Stop();
             transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
             transport.TransportMessageReceived -= TransportMessageReceived;
             transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
             transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+
+            ExecuteIWantToRunAtStartupStopMethods();
+
+            satelliteLauncher.Stop();
 
             Log.Info("Shutdown complete.");
 
