@@ -876,7 +876,6 @@ namespace NServiceBus.Unicast
         public void DisposeManaged()
         {
             InnerShutdown();
-            PipelineFactory.Dispose();
             Configure.Instance.Builder.Dispose();
         }
 
@@ -926,6 +925,8 @@ namespace NServiceBus.Unicast
             }
 
             Log.Info("Initiating shutdown.");
+
+            PipelineFactory.Dispose();
 
             ExecuteIWantToRunAtStartupStopMethods();
 

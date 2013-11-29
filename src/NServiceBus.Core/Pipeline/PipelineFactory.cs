@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using Audit;
     using Contexts;
     using DataBus;
@@ -151,6 +150,11 @@
             //Injected
         }
 
+        public void DisposeManaged()
+        {
+            contextStacker.Dispose();
+        }
+
         void Execute<T>(BehaviorChain<T> pipelineAction, T context) where T : BehaviorContext
         {
             try
@@ -167,6 +171,5 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
     }
 }
