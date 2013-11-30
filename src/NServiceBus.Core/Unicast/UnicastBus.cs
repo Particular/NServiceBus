@@ -659,7 +659,13 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(TimeSpan delay, params object[] messages)
         {
-            return SendMessages(new SendOptions(Address.Local) { DelayDeliveryWith = delay }, LogicalMessageFactory.CreateMultiple(messages));
+            var options = new SendOptions(Address.Local)
+            {
+                DelayDeliveryWith = delay,
+                EnforceMessagingBestPractices = false
+            };
+
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
         public ICallback Defer(DateTime processAt, object message)
@@ -669,7 +675,12 @@ namespace NServiceBus.Unicast
 
         public ICallback Defer(DateTime processAt, params object[] messages)
         {
-            return SendMessages(new SendOptions(Address.Local) { DeliverAt = processAt }, LogicalMessageFactory.CreateMultiple(messages));
+            var options = new SendOptions(Address.Local)
+            {
+                DeliverAt = processAt,
+                EnforceMessagingBestPractices = false
+            };
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(messages));
         }
 
 
