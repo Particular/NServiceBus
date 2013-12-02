@@ -42,11 +42,10 @@
 
             var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);
 
-
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType,context.LogicalMessage.MessageType))
+                if (!Features.Sagas.ShouldMessageStartSaga(sagaInstanceState.SagaType, context.LogicalMessage.MessageType))
                 {
                     sagaInstanceState.MarkAsNotFound();
 
@@ -73,7 +72,9 @@
             next();
 
             if (sagaInstanceState.NotFound)
+            {
                 return;
+            }
 
             if (saga.Completed)
             {
@@ -104,7 +105,7 @@
 
         void InvokeSagaNotFoundHandlers()
         {
-            logger.InfoFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName, physicalMessage.Id);
+            logger.WarnFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName, physicalMessage.Id);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -112,8 +113,6 @@
                 handler.Handle(currentContext.LogicalMessage.Instance);
             }
         }
-
-
 
         static bool IsTimeoutMessage(LogicalMessage message)
         {
@@ -133,7 +132,9 @@
                 var sagaEntity = UseFinderToFindSaga(finder, message.Instance);
 
                 if (sagaEntity != null)
+                {
                     return sagaEntity;
+                }
             }
 
             return null;
@@ -149,15 +150,16 @@
             var method = Features.Sagas.GetFindByMethodForFinder(finder, message);
 
             if (method != null)
+            {
                 return method.Invoke(finder, new[] { message }) as IContainSagaData;
+            }
 
             return null;
         }
 
-
         IEnumerable<IFinder> GetFindersFor(Type messageType, Type sagaEntityType)
         {
-            string sagaId = null;
+            string sagaId;
 
             physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
@@ -166,7 +168,9 @@
                 var finders = Features.Sagas.GetFindersForMessageAndEntity(messageType, sagaEntityType).Select(t => currentContext.Builder.Build(t) as IFinder).ToList();
 
                 if (logger.IsDebugEnabled)
+                {
                     logger.DebugFormat("The following finders:{0} was allocated to message of type {1}", string.Join(";", finders.Select(t => t.GetType().Name)), messageType);
+                }
 
                 return finders;
             }
@@ -181,14 +185,18 @@
             var sagaEntityType = Features.Sagas.GetSagaEntityTypeForSagaType(sagaType);
 
             if (sagaEntityType == null)
+            {
                 throw new InvalidOperationException("No saga entity type could be found for saga: " + sagaType);
+            }
 
             var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
 
             if (physicalMessage.ReplyToAddress != null)
+            {
                 sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
+            }
 
             sagaEntity.OriginalMessageId = physicalMessage.Id;
 
