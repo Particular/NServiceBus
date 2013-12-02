@@ -74,6 +74,7 @@
             public SiteA()
             {
                 EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                    .AllowExceptions()
                         .WithConfig<GatewayConfig>(c =>
                         {
                             c.Channels = new ChannelCollection
