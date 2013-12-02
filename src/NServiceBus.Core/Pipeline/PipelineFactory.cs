@@ -44,6 +44,7 @@
             pipeline.Add<RaiseMessageReceivedBehavior>();
             pipeline.Add<ExtractLogicalMessagesBehavior>();
             pipeline.Add<CallbackInvocationBehavior>();
+            pipeline.Add<ExecuteLogicalMessagesBehavior>();
 
             pipeline.Invoke(context);
         }
@@ -72,7 +73,6 @@
         {
             var pipeline = new BehaviorChain<HandlerInvocationContext>();
 
-            pipeline.Add<SetCurrentMessageBeingHandledBehavior>();
             pipeline.Add<SagaPersistenceBehavior>();
             pipeline.Add<InvokeHandlersBehavior>();
 

@@ -55,14 +55,7 @@
                 }
             }
 
-            IEnumerable<LogicalMessage> messages;
-
-            if (!context.TryGet(out messages))
-            {
-                messages = new List<LogicalMessage>();
-            }
-
-            busAsyncResult.Complete(statusCode, messages.Select(lm=>lm.Instance).ToArray());
+            busAsyncResult.Complete(statusCode, context.LogicalMessages.Select(lm => lm.Instance).ToArray());
 
             return true;
         }
