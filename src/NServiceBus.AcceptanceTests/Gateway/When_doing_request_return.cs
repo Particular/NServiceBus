@@ -6,10 +6,10 @@
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class Issue_1821 : NServiceBusAcceptanceTest
+    public class When_doing_request_return : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public void Callback_should_be_fired()
         {
             var context = new Context();
 
@@ -20,7 +20,7 @@
                             .Register(result => c.GotCallback = true)))
                 .WithEndpoint<SiteB>()
                 .Done(c => c.GotCallback)
-                .Run(TimeSpan.FromSeconds(20));
+                .Run(TimeSpan.FromSeconds(2000));
 
             Assert.IsTrue(context.GotCallback);
         }
@@ -43,7 +43,7 @@
                             new SiteConfig
                             {
                                 Key = "SiteB",
-                                Address = "http://localhost:25899/SiteB/",
+                                Address = "http://localhost:25699/SiteB/",
                                 ChannelType = "http"
                             }
                         };
@@ -52,7 +52,7 @@
                         {
                             new ChannelConfig
                             {
-                                Address = "http://localhost:25899/SiteA/",
+                                Address = "http://localhost:25699/SiteA/",
                                 ChannelType = "http",
                                 Default = true
                             }
@@ -72,7 +72,7 @@
                         {
                             new ChannelConfig
                             {
-                                Address = "http://localhost:25899/SiteB/",
+                                Address = "http://localhost:25699/SiteB/",
                                 ChannelType = "http",
                                 Default = true
                             }
@@ -84,11 +84,9 @@
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
                 public IBus Bus { get; set; }
-                public Context Context { get; set; }
-
                 public void Handle(MyRequest request)
                 {
-                    
+                    Bus.Return(1);
                 }
             }
         }

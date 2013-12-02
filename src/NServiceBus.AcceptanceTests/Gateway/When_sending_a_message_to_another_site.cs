@@ -18,10 +18,7 @@
                     .Done(c => c.GotResponseBack)
                     .Repeat(r => r.For(Transports.Default)
                     )
-                    .Should(c =>
-                        {
-                            Assert.IsTrue(c.GotResponseBack);
-                        })
+                    .Should(c => Assert.IsTrue(c.GotResponseBack))
                     .Run();
         }
 
