@@ -18,10 +18,7 @@
                     .Done(c => c.GotResponseBack)
                     .Repeat(r => r.For(Transports.Default)
                     )
-                    .Should(c =>
-                        {
-                            Assert.IsTrue(c.GotResponseBack);
-                        })
+                    .Should(c => Assert.IsTrue(c.GotResponseBack))
                     .Run();
         }
 
@@ -77,6 +74,7 @@
             public SiteA()
             {
                 EndpointSetup<DefaultServer>(c => c.RunGateway().UseInMemoryGatewayPersister())
+                    .AllowExceptions()
                         .WithConfig<GatewayConfig>(c =>
                         {
                             c.Channels = new ChannelCollection

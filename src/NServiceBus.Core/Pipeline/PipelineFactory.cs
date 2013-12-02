@@ -44,6 +44,7 @@
             pipeline.Add<RaiseMessageReceivedBehavior>();
             pipeline.Add<ExtractLogicalMessagesBehavior>();
             pipeline.Add<CallbackInvocationBehavior>();
+            pipeline.Add<ExecuteLogicalMessagesBehavior>();
 
             pipeline.Invoke(context);
         }
