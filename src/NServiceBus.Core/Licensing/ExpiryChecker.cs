@@ -6,7 +6,7 @@ namespace NServiceBus.Licensing
     {
         public static bool IsExpired(DateTime expiry)
         {
-            var oneDayGrace = expiry.AddDays(1);
+            var oneDayGrace = expiry >= DateTime.MaxValue.Date ? expiry : expiry.AddDays(1);
             return oneDayGrace < DateTime.UtcNow.Date;
         }
     }
