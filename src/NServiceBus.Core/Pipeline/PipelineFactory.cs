@@ -73,6 +73,7 @@
         {
             var pipeline = new BehaviorChain<HandlerInvocationContext>();
 
+            pipeline.Add<SetCurrentMessageBeingHandledBehavior>();
             pipeline.Add<SagaPersistenceBehavior>();
             pipeline.Add<InvokeHandlersBehavior>();
 
