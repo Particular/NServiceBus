@@ -20,11 +20,7 @@
         {
             var logicalMessage = context.Get<LogicalMessage>();
 
-            ExtensionMethods.CurrentMessageBeingHandled = logicalMessage.Instance;
-
             DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler, context);
-
-            ExtensionMethods.CurrentMessageBeingHandled = null;
 
             next();
         }

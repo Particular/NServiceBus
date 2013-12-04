@@ -6,7 +6,8 @@ namespace NServiceBus.Unicast
     {
         public SendOptions()
         {
-            Intent = MessageIntentEnum.Send;    
+            Intent = MessageIntentEnum.Send;
+            EnforceMessagingBestPractices = true;
         }
 
         public SendOptions(Address destination):this()
@@ -24,6 +25,7 @@ namespace NServiceBus.Unicast
         public Address ReplyToAddress { get; set; }
         public DateTime? DeliverAt { get; set; }
         public TimeSpan? DelayDeliveryWith { get; set; }
+        public bool EnforceMessagingBestPractices { get; set; }
 
 
         public static SendOptions ReplyTo(Address replyToAddress)

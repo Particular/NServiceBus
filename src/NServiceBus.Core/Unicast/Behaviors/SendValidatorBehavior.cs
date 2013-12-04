@@ -9,6 +9,17 @@
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
+            VerifyBestPractices(context);
+
+            next();
+        }
+
+        static void VerifyBestPractices(SendLogicalMessageContext context)
+        {
+            if (!context.SendOptions.EnforceMessagingBestPractices)
+            {
+                return;
+            }
             if (context.SendOptions.Destination == Address.Undefined)
             {
                 throw new InvalidOperationException("No destination specified for message: " + context.MessageToSend.MessageType);
@@ -32,8 +43,6 @@
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            next();
         }
     }
 }

@@ -11,7 +11,9 @@
             get
             {
                 if (behaviorContextStack.Value.Count == 0)
+                {
                     return null;
+                }
 
                 return behaviorContextStack.Value.Peek();
             }

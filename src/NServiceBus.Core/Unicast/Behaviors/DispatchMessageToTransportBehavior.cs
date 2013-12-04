@@ -60,7 +60,7 @@
 
                     if (sendOptions.DeliverAt.HasValue)
                     {
-                        deliverAt = sendOptions.DeliverAt.Value;
+                        deliverAt = sendOptions.DeliverAt.Value.ToUniversalTime();
                     }
 
                     if (deliverAt > DateTime.UtcNow)

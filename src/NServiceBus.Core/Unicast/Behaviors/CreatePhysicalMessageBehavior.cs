@@ -22,9 +22,13 @@
             var toSend = new TransportMessage
             {
                 MessageIntent = sendOptions.Intent,
-                CorrelationId = sendOptions.CorrelationId,
                 ReplyToAddress = sendOptions.ReplyToAddress
             };
+
+            if (sendOptions.CorrelationId != null)
+            {
+                toSend.CorrelationId = sendOptions.CorrelationId;
+            }
 
             //apply static headers
             foreach (var kvp in UnicastBus.OutgoingHeaders)

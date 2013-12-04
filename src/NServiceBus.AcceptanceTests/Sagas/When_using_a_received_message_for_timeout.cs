@@ -9,7 +9,7 @@
 
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
     {
-        [Test, Ignore("Not working!")]
+        [Test]
         public void Timeout_should_be_received_after_expiration()
         {
             Scenario.Define(() => new Context {Id = Guid.NewGuid()})

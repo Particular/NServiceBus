@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using Audit;
     using Contexts;
     using DataBus;
@@ -45,6 +44,7 @@
             pipeline.Add<RaiseMessageReceivedBehavior>();
             pipeline.Add<ExtractLogicalMessagesBehavior>();
             pipeline.Add<CallbackInvocationBehavior>();
+            pipeline.Add<ExecuteLogicalMessagesBehavior>();
 
             pipeline.Invoke(context);
         }
@@ -73,6 +73,7 @@
         {
             var pipeline = new BehaviorChain<HandlerInvocationContext>();
 
+            pipeline.Add<SetCurrentMessageBeingHandledBehavior>();
             pipeline.Add<SagaPersistenceBehavior>();
             pipeline.Add<InvokeHandlersBehavior>();
 
@@ -151,6 +152,11 @@
             //Injected
         }
 
+        public void DisposeManaged()
+        {
+            contextStacker.Dispose();
+        }
+
         void Execute<T>(BehaviorChain<T> pipelineAction, T context) where T : BehaviorContext
         {
             try
@@ -167,6 +173,5 @@
         }
 
         BehaviorContextStacker contextStacker = new BehaviorContextStacker();
-
     }
 }

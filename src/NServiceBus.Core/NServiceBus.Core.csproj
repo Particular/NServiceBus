@@ -156,6 +156,8 @@
     <Compile Include="Unicast\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
+    <Compile Include="Unicast\Behaviors\SetCurrentMessageBeingHandledBehavior.cs" />
+    <Compile Include="Unicast\Messages\ExecuteLogicalMessagesBehavior.cs" />
     <Compile Include="Unicast\Messages\LogicalMessage.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandler.cs" />
     <Compile Include="Unicast\Behaviors\MessageHandlingLoggingBehavior.cs" />
@@ -629,14 +631,14 @@
   <Import Project="Fody.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\RippleRestoreTask.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
-	<MakeDir Directories="$(TargetDir)temp\"/>
-	<Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <MakeDir Directories="$(TargetDir)temp\" />
+    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Interop.MSMQ.dll&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
-        <TempFiles Include="$(TargetDir)temp\*.*"/>
-	</ItemGroup>
-	<Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
-	<Delete Files="@(TempFiles)" />
-	<RemoveDir Directories="$(TargetDir)temp\" />
+      <TempFiles Include="$(TargetDir)temp\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
+    <Delete Files="@(TempFiles)" />
+    <RemoveDir Directories="$(TargetDir)temp\" />
   </Target>
   <Import Project="$(SolutionDir)..\BuildSupport\Timestamp\build\Timestamp.targets" />
   <Import Project="$(SolutionDir)..\BuildSupport\GitFlowVersion\build\GitFlowVersionTask.targets" />
