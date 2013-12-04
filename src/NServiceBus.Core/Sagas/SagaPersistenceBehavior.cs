@@ -29,7 +29,6 @@
             }
             
             currentContext = context;
-            physicalMessage = context.PhysicalMessage;
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
 
@@ -98,7 +97,7 @@
 
         void InvokeSagaNotFoundHandlers()
         {
-            logger.WarnFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName, physicalMessage.Id);
+            logger.WarnFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -154,7 +153,8 @@
         {
             string sagaId;
 
-            physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
+
+            currentContext.LogicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
@@ -186,18 +186,22 @@
 
             sagaEntity.Id = CombGuid.Generate();
 
-            if (physicalMessage.ReplyToAddress != null)
-            {
-                sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
-            }
+            TransportMessage physicalMessage;
 
-            sagaEntity.OriginalMessageId = physicalMessage.Id;
+            if (currentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out physicalMessage))
+            {
+                sagaEntity.OriginalMessageId = physicalMessage.Id;
+
+                if (physicalMessage.ReplyToAddress != null)
+                {
+                    sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
+                }
+            }
 
             return sagaEntity;
         }
 
         HandlerInvocationContext currentContext;
-        TransportMessage physicalMessage;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
     }
