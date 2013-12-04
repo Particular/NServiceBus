@@ -42,6 +42,7 @@
             pipeline.Add<UnitOfWorkBehavior>();
             pipeline.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
             pipeline.Add<RaiseMessageReceivedBehavior>();
+            pipeline.Add<RemoveIncomingHeadersBehavior>();
             pipeline.Add<ExtractLogicalMessagesBehavior>();
             pipeline.Add<CallbackInvocationBehavior>();
             pipeline.Add<ExecuteLogicalMessagesBehavior>();

@@ -3,8 +3,10 @@
     using System;
     using System.Collections.Generic;
     using Contexts;
+    using Mono.CSharp;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Saga;
 
     [TestFixture]
     public class When_sending_a_message_with_databusProperty : using_the_unicastBus
@@ -230,7 +232,7 @@
     [TestFixture]
     public class When_raising_an_in_memory_message : using_the_unicastBus
     {
-        [Test,Ignore("Not supported for now")]
+        [Test]
         public void Should_invoke_registered_message_handlers()
         {
             RegisterMessageType<TestMessage>();
@@ -248,6 +250,35 @@
             Assert.True(TestMessageHandler2.Called);
         }
 
+        [Test]
+        public void Should_invoke_registered_saga_handlers()
+        {
+            RegisterMessageType<TestMessage>();
+
+            RegisterMessageHandlerType<TestSaga>();
+
+            var messageToRaise = new TestMessage();
+            Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
+
+
+            bus.InMemory.Raise(messageToRaise);
+
+        }
+
+        class TestSaga : Saga<MySagaData>,IAmStartedByMessages<TestMessage>
+        {
+
+            public void Handle(TestMessage message)
+            {
+              
+            }
+
+          
+        }
+        class MySagaData : ContainSagaData
+        {
+
+        }
         public class TestMessageHandler1 : IHandleMessages<TestMessage>
         {
             public static bool Called;
