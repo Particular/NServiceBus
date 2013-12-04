@@ -82,8 +82,8 @@
             RegisterMessageType<TestMessage>();
             bus.Send(new TestMessage());
 
-            
-            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => 
+
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m =>
                 m.Headers[Headers.ContentType] == "text/xml" &&
                 m.Headers["MyStaticHeader"] == "StaticHeaderValue"), Arg<Address>.Is.Anything));
         }
@@ -121,7 +121,7 @@
             RegisterMessageType<TestMessage>();
 
 
-            bus.Send<TestMessage>(m=>m.SetHeader(Headers.ConversationId,"my order id"));
+            bus.Send<TestMessage>(m => m.SetHeader(Headers.ConversationId, "my order id"));
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Headers[Headers.ConversationId] == "my order id"), Arg<Address>.Is.Anything));
         }
@@ -173,8 +173,8 @@
             var secondAddress = Address.Parse("second");
             RegisterMessageType<NonPersistentMessage>(firstAddress);
             RegisterMessageType<PersistentMessage>(secondAddress);
-            
-            Assert.Throws<InvalidOperationException >(()=> bus.Send(new NonPersistentMessage(), new PersistentMessage()));
+
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new NonPersistentMessage(), new PersistentMessage()));
         }
 
 
@@ -250,35 +250,7 @@
             Assert.True(TestMessageHandler2.Called);
         }
 
-        [Test]
-        public void Should_invoke_registered_saga_handlers()
-        {
-            RegisterMessageType<TestMessage>();
-
-            RegisterMessageHandlerType<TestSaga>();
-
-            var messageToRaise = new TestMessage();
-            Headers.SetMessageHeader(messageToRaise, "MyHeader", "MyHeaderValue");
-
-
-            bus.InMemory.Raise(messageToRaise);
-
-        }
-
-        class TestSaga : Saga<MySagaData>,IAmStartedByMessages<TestMessage>
-        {
-
-            public void Handle(TestMessage message)
-            {
-              
-            }
-
-          
-        }
-        class MySagaData : ContainSagaData
-        {
-
-        }
+    
         public class TestMessageHandler1 : IHandleMessages<TestMessage>
         {
             public static bool Called;
@@ -313,23 +285,23 @@
             receivedMessage.Headers["HeaderOnPhysicalMessage"] = "SomeValue";
 
             RegisterMessageType<StartMessage>();
-           
+
             RegisterMessageHandlerType<StartHandler>();
             RegisterMessageHandlerType<RaisedMessageHandler>();
 
             ReceiveMessage(receivedMessage);
-            
+
             Assert.True(RaisedMessageHandler.Called);
         }
 
-        class StartMessage:IMessage
+        class StartMessage : IMessage
         {
-             
+
         }
 
         class RaisedMessage
         {
-             
+
         }
 
         class StartHandler : IHandleMessages<StartMessage>
@@ -351,7 +323,7 @@
 
             public void Handle(RaisedMessage message)
             {
-                Assert.AreEqual("MyHeaderValue",Headers.GetMessageHeader(message, "MyHeader"));
+                Assert.AreEqual("MyHeaderValue", Headers.GetMessageHeader(message, "MyHeader"));
 
                 Assert.AreEqual("SomeValue", Headers.GetMessageHeader(message, "HeaderOnPhysicalMessage"));
 
@@ -384,9 +356,9 @@
             AssertSendWithHeaders(headers => headers[Headers.SagaId] == sagaId.ToString() && headers[Headers.SagaType] == sagaType);
         }
 
-        void AssertSendWithHeaders(Func<IDictionary<string,string>,bool> condition)
+        void AssertSendWithHeaders(Func<IDictionary<string, string>, bool> condition)
         {
-            messageSender.AssertWasCalled(x =>x.Send(Arg<TransportMessage>.Matches(m =>condition(m.Headers)), Arg<Address>.Is.Anything));
+            messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => condition(m.Headers)), Arg<Address>.Is.Anything));
         }
 
 
