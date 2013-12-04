@@ -51,6 +51,19 @@ namespace ObjectBuilder.Tests
         }
 
         [Test]
+        public void A_registration_should_update_default_component_for_interface()
+        {
+
+            ForAllBuilders(builder =>
+            {
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerCall);
+
+                Assert.IsInstanceOf<SomeOtherClass>(builder.Build(typeof(ISomeInterface)));
+            });
+        }
+
+        [Test]
         public void Register_singleton_should_be_supported()
         {
             ForAllBuilders(builder =>
