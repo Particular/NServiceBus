@@ -18,6 +18,11 @@
             throw new Exception(message);
         }
 
+        public bool HasDefinitionFor(Type messageType)
+        {
+            return messages.ContainsKey(messageType);
+        }
+
         public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
         {
             var messageMetadatas = new List<MessageMetadata>();
@@ -81,7 +86,50 @@
             if (MessageConventionExtensions.IsExpressMessageType(messageType))
                 metadata.Recoverable = false;
 
+            //get the parent types
+            var parentMessages = GetParentTypes(messageType)
+                .Where(MessageConventionExtensions.IsMessageType)
+                .OrderByDescending(PlaceInMessageHierarchy)
+                .ToList();
+
+            metadata.MessageHierarchy = new[]{messageType}.Concat(parentMessages);
+                
             messages[messageType] = metadata;
+        }
+
+        int PlaceInMessageHierarchy(Type type)
+        {
+            if (type.IsInterface)
+            {
+                return type.GetInterfaces().Count();
+            }
+            var result = 0;
+
+            while (type.BaseType != null)
+            {
+                result++;
+
+                type = type.BaseType;
+            }
+
+            return result;
+        }
+
+        static IEnumerable<Type> GetParentTypes(Type type)
+        {
+            foreach (var i in type.GetInterfaces())
+            {
+                yield return i;
+            }
+
+            // return all inherited types
+            var currentBaseType = type.BaseType;
+            var objectType = typeof(Object);
+            while (currentBaseType != null && currentBaseType != objectType)
+            {
+                yield return currentBaseType;
+                currentBaseType = currentBaseType.BaseType;
+            }
         }
 
         readonly Dictionary<Type, MessageMetadata> messages = new Dictionary<Type, MessageMetadata>();

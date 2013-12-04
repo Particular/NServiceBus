@@ -1,14 +1,11 @@
 namespace ObjectBuilder.Tests
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using Autofac;
     using NServiceBus;
     using NServiceBus.ObjectBuilder.Autofac;
     using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder;
     using NServiceBus.ObjectBuilder.Ninject;
     using NServiceBus.ObjectBuilder.Spring;
     using NServiceBus.ObjectBuilder.Unity;
@@ -173,7 +170,7 @@ namespace ObjectBuilder.Tests
             {
                 builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (builder.BuildChildContainer())
                 {
                    //no-op
                 }

@@ -45,8 +45,10 @@ namespace System.Threading.Tasks.Schedulers
                                {
                                    TryExecuteTask(t);
                                }
-                           });
-                           thread.IsBackground = true;
+                           })
+                           {
+                               IsBackground = true
+                           };
                            thread.SetApartmentState(ApartmentState.MTA);
                            thread.Name = String.Format("{0} - {1}", nameFormat, thread.ManagedThreadId);
                            return thread;

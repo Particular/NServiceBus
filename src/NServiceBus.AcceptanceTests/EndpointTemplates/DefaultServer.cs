@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
@@ -16,8 +15,9 @@
         public Configure GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource)
         {
             var settings = runDescriptor.Settings;
-            
-            SetupLogging(endpointConfiguration);
+
+            SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
+
 
             var types = GetTypesToUse(endpointConfiguration);
 
@@ -35,9 +35,9 @@
                             .DefineTransport(settings)
                             .DefineSagaPersister(settings.GetOrNull("SagaPersister"));
 
-            if (transportToUse == null || 
-                transportToUse.Contains("Msmq") || 
-                transportToUse.Contains("SqlServer") || 
+            if (transportToUse == null ||
+                transportToUse.Contains("Msmq") ||
+                transportToUse.Contains("SqlServer") ||
                 transportToUse.Contains("RabbitMq"))
                 config.UseInMemoryTimeoutPersister();
 
@@ -52,7 +52,7 @@
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
             var types = assemblies.Assemblies
-                                    //exclude all test types by default
+                //exclude all test types by default
                                   .Where(a => a != Assembly.GetExecutingAssembly())
                                   .SelectMany(a => a.GetTypes());
 
@@ -64,7 +64,7 @@
             return types.Where(t => !endpointConfiguration.TypesToExclude.Contains(t)).ToList();
         }
 
-        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType,Type builderType)
+        static IEnumerable<Type> GetNestedTypeRecursive(Type rootType, Type builderType)
         {
             yield return rootType;
 
@@ -77,26 +77,5 @@
             }
         }
 
-        static void SetupLogging(EndpointConfiguration endpointConfiguration)
-        {
-            var logDir = ".\\logfiles\\";
-
-            if (!Directory.Exists(logDir))
-                Directory.CreateDirectory(logDir);
-
-            var logFile = Path.Combine(logDir, endpointConfiguration.EndpointName + ".txt");
-
-            if (File.Exists(logFile))
-                File.Delete(logFile);
-
-            var logLevel = "WARN";
-            var logLevelOverride =  Environment.GetEnvironmentVariable("tests_loglevel");
-
-            if (!string.IsNullOrEmpty(logLevelOverride))
-                logLevel = logLevelOverride;
-
-            SetLoggingLibrary.Log4Net(null,
-                                      Logging.Loggers.Log4NetAdapter.Log4NetAppenderFactory.CreateRollingFileAppender(logLevel, logFile));
-        }
     }
 }

@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -39,6 +41,9 @@
     <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnotherSagaWithTwoUniqueProperties.cs" />
+    <Compile Include="AnotherSimpleSageEntity.cs" />
+    <Compile Include="SagaWithTwoUniqueProperties.cs" />
     <Compile Include="SagaWithUniqueProperty.cs" />
     <Compile Include="SimpleSagaEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,7 +60,6 @@
     <Compile Include="When_updating_a_saga_with_the_same_unique_property_value.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>

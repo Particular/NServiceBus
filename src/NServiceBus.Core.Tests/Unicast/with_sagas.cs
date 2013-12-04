@@ -13,7 +13,7 @@
         protected InMemorySagaPersister persister;
 
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
 
             persister = new InMemorySagaPersister();
@@ -23,6 +23,10 @@
         }
 
 
+        protected void RegisterCustomFinder<T>() where T : IFinder
+        {
+            Features.Sagas.ConfigureFinder(typeof(T));
+        }
         protected void RegisterSaga<T>(object sagaEntity = null) where T : new()
         {
             var sagaEntityType = GetSagaEntityType<T>();

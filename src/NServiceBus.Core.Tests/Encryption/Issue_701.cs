@@ -8,8 +8,10 @@
         [Test]
         public void No_get_on_property()
         {
-            var message = new TestMessageWithSets();
-            message.Name = "John";
+            var message = new TestMessageWithSets
+            {
+                Name = "John"
+            };
 
             var result = (TestMessageWithSets)mutator.MutateOutgoing(message);
 
@@ -19,8 +21,10 @@
         [Test]
         public void No_set_on_property()
         {
-            var message = new TestMessageWithGets();
-            message.Name = "John";
+            var message = new TestMessageWithGets
+            {
+                Name = "John"
+            };
 
             var result = (TestMessageWithGets)mutator.MutateOutgoing(message);
 
@@ -33,6 +37,7 @@
 
             public string Options1
             {
+// ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing
@@ -41,6 +46,7 @@
 
             public int Options2
             {
+// ReSharper disable once ValueParameterNotUsed
                 set
                 {
                     //do nothing

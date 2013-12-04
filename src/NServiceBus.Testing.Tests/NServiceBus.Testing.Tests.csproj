@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -42,7 +44,6 @@
     <Compile Include="Issue508.cs" />
     <Compile Include="InvocationTests.cs" />
     <Compile Include="Issue_933.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SagaTests.cs" />
     <Compile Include="TestHandlerFixture.cs" />
     <Compile Include="Timeouts.cs" />

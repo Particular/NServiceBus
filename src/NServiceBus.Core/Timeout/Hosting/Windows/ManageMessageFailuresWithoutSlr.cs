@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Transports;
     using Unicast.Queuing;
 
-    internal class ManageMessageFailuresWithoutSlr : IManageMessageFailures
+    class ManageMessageFailuresWithoutSlr : IManageMessageFailures
     {
         static readonly ILog Logger = LogManager.GetLogger(typeof(ManageMessageFailuresWithoutSlr));
 
@@ -81,7 +81,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 message.Headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
 
             message.Headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.Message;
+            message.Headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage();
             message.Headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
             message.Headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
 

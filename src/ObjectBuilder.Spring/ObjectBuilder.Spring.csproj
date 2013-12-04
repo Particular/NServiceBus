@@ -25,7 +25,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\spring\NServiceBus.ObjectBuilder.Spring.XML</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1573</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,7 +36,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>..\..\binaries\containers\spring\NServiceBus.ObjectBuilder.Spring.XML</DocumentationFile>
-    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <NoWarn>1591,1573</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">

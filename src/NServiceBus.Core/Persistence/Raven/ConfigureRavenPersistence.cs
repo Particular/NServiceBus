@@ -284,7 +284,7 @@ namespace NServiceBus
 
                 var request = WebRequest.Create(string.Format("{0}/build/version", store.Url));
                 request.Timeout = 2000;
-                using (var response = request.GetResponse() as HttpWebResponse)
+                using (var response = (HttpWebResponse)request.GetResponse())
                 {
                     if (response.StatusCode != HttpStatusCode.OK)
                         throw new InvalidOperationException("Call failed - " + response.StatusDescription);

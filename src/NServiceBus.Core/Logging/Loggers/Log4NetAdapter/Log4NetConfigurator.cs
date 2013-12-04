@@ -31,7 +31,10 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
             Configure();
 
             if (appenderForNServiceBusToLogTo.Layout == null)
+            {
+                // ReSharper disable once RedundantCast
                 appenderForNServiceBusToLogTo.Layout = (dynamic)Activator.CreateInstance(PatternLayoutType, "%d [%t] %-5p %c [%x] <%X{auth}> - %m%n");
+            }
 
             if (thresholdForNServiceBusToLogWith != null)
                 appenderForNServiceBusToLogTo.Threshold = Log4NetAppenderFactory.ConvertToLogLevel(thresholdForNServiceBusToLogWith);

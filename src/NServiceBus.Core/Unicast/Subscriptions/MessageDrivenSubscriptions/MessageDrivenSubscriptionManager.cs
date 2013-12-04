@@ -49,7 +49,7 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            SendMessage(publisherAddress, subscriptionMessage);
+            MessageSender.Send(subscriptionMessage, publisherAddress);
         }
 
         public event EventHandler<SubscriptionEventArgs> ClientSubscribed;
@@ -140,20 +140,12 @@
             return subscriptionMessage;
         }
 
-        void SendMessage(Address publisherAddress, TransportMessage subscriptionMessage)
-        {
-            //todo - not sure that we need to invoke the mutators
-            InvokeOutgoingTransportMessagesMutators(new object[] { }, subscriptionMessage);
-
-            MessageSender.Send(subscriptionMessage, publisherAddress);
-        }
-
-
         void SendSubscribeMessageWithRetries(Address destination, TransportMessage subscriptionMessage, string messageType, int retriesCount = 0)
         {
             try
             {
-                SendMessage(destination, subscriptionMessage);
+
+                MessageSender.Send(subscriptionMessage, destination);
             }
             catch (QueueNotFoundException ex)
             {
@@ -169,23 +161,13 @@
             }
         }
 
-        void InvokeOutgoingTransportMessagesMutators(object[] messages, TransportMessage result)
-        {
-            var mutators = Builder.BuildAll<IMutateOutgoingTransportMessages>();
-            if (mutators != null)
-                foreach (var mutator in mutators)
-                {
-                    Logger.DebugFormat("Invoking transport message mutator: {0}", mutator.GetType().FullName);
-                    mutator.MutateOutgoing(messages, result);
-                }
-        }
-
+     
 
     
-        readonly static ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
-
+     
         IAuthorizeSubscriptions subscriptionAuthorizer;
 
+        readonly static ILog Logger = LogManager.GetLogger(typeof(MessageDrivenSubscriptionManager));
     }
 
     class StorageInitializer : IWantToRunWhenBusStartsAndStops

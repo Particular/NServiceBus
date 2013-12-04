@@ -121,8 +121,6 @@
             [SetUp]
             public void Context()
             {
-                var loadThisIntoAppDomain = new SomeHandlerThatEnsuresThatWeKeepReferencingNsbCore();
-
                 var someDir = Path.Combine(Path.GetTempPath(), "empty");
                 Directory.CreateDirectory(someDir);
 

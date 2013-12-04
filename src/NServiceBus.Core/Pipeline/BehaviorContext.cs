@@ -1,37 +1,23 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using System;
     using System.Collections.Generic;
     using ObjectBuilder;
 
-    /// <summary>
-    ///     yeah, we should probably see if we can come up with better names :)
-    /// </summary>
-    internal class BehaviorContext : IDisposable
+    abstract class BehaviorContext
     {
-        public BehaviorContext(IBuilder builder, TransportMessage transportMessage, BehaviorContextStacker contextStacker)
+        protected BehaviorContext(BehaviorContext parentContext)
         {
-            this.contextStacker = contextStacker;
-            Builder = builder;
-            handleCurrentMessageLaterWasCalled = false;
-
-            contextStacker.Push(this);
-
-            Set(transportMessage);
-        }
-
-        public TransportMessage TransportMessage
-        {
-            get { return Get<TransportMessage>(); }
+            this.parentContext = parentContext;
         }
 
         public bool ChainAborted { get; private set; }
 
-        public IBuilder Builder { get; private set; }
-
-        public void Dispose()
+        public IBuilder Builder
         {
-            //Injected at compile time
+            get
+            {
+                return Get<IBuilder>();
+            }
         }
 
         public void AbortChain()
@@ -44,11 +30,44 @@
             return Get<T>(typeof(T).FullName);
         }
 
+        public bool TryGet<T>(out T result)
+        {
+            return TryGet(typeof(T).FullName, out result);
+        }
+
+        public bool TryGet<T>(string key,out T result)
+        {
+            if (stash.ContainsKey(key))
+            {
+                result = (T)stash[key];
+                return true;
+            }
+
+            if (parentContext != null)
+            {
+                return parentContext.TryGet(key, out result);
+            }
+
+            if (typeof(T).IsValueType)
+            {
+                result=default(T);
+
+                return true;
+            }
+            result = default(T);
+            return false;
+        }
+
         public T Get<T>(string key)
         {
-            return stash.ContainsKey(key)
-                ? (T) stash[key]
-                : default(T);
+            T result;
+
+            if (!TryGet(key, out result))
+            {
+                throw new KeyNotFoundException("No item found in behavior context with key: " + key);
+            }
+
+            return result;
         }
 
         public void Set<T>(T t)
@@ -61,13 +80,8 @@
             stash[key] = t;
         }
 
-        public void DisposeManaged()
-        {
-            // Pop the stack.
-            contextStacker.Pop();
-        }
 
-        readonly BehaviorContextStacker contextStacker;
+        protected readonly BehaviorContext parentContext;
 
         internal bool handleCurrentMessageLaterWasCalled;
 

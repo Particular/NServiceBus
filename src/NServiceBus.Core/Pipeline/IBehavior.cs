@@ -2,8 +2,9 @@
 {
     using System;
 
-    interface IBehavior
+    interface IBehavior<T> where T : BehaviorContext
     {
-        void Invoke(BehaviorContext context, Action next);
+        void Invoke(T context, Action next);
     }
+
 }

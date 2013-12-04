@@ -9,8 +9,10 @@
         [Test]
         public void null_element_in_primitive_array()
         {
-            var message = new TestMessageWithPrimitives();
-            message.Data = new int?[] { null, 1 };
+            var message = new TestMessageWithPrimitives
+            {
+                Data = new int?[] {null, 1}
+            };
 
             mutator.MutateOutgoing(message);
 
@@ -20,9 +22,11 @@
         [Test]
         public void null_element_in_object_array()
         {
-            var message = new TestMessageWithObjects();
-            message.Data = new object[] { null, this, null };
-            
+            var message = new TestMessageWithObjects
+            {
+                Data = new object[] {null, this, null}
+            };
+
             mutator.MutateOutgoing(message);
 
             Assert.AreEqual(new object[] { null, this,null }, message.Data);

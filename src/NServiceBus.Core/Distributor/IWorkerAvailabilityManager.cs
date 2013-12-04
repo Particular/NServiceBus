@@ -4,6 +4,7 @@ namespace NServiceBus.Distributor
 	/// Defines a manager class that determines the availability
 	/// of a worker for the <see cref="DistributorSatellite"/>.
 	/// </summary>
+    [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "This class was moved into NServiceBus.Distributor.MSMQ.dll and is now in NServiceBus.Distributor.MSMQ namespace.")]
     public interface IWorkerAvailabilityManager
     {
 	    ///<summary>

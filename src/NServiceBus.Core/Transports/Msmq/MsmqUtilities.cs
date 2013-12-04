@@ -7,32 +7,35 @@ namespace NServiceBus.Transports.Msmq
     using System.Messaging;
     using System.Net;
     using System.Net.NetworkInformation;
+    using System.Text;
     using System.Xml;
     using System.Xml.Serialization;
     using Logging;
 
-    ///<summary>
-    /// MSMQ-related utility functions
-    ///</summary>
+    /// <summary>
+    ///     MSMQ-related utility functions
+    /// </summary>
     public class MsmqUtilities
     {
         /// <summary>
-        /// Turns a '@' separated value into a full path.
-        /// Format is 'queue@machine', or 'queue@ipaddress'
+        ///     Turns a '@' separated value into a full path.
+        ///     Format is 'queue@machine', or 'queue@ipaddress'
         /// </summary>
         public static string GetFullPath(Address value)
         {
             IPAddress ipAddress;
             if (IPAddress.TryParse(value.Machine, out ipAddress))
+            {
                 return PREFIX_TCP + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
+            }
 
             return PREFIX + MsmqQueueCreator.GetFullPathWithoutPrefix(value);
         }
 
         /// <summary>
-        /// Gets the name of the return address from the provided value.
-        /// If the target includes a machine name, uses the local machine name in the returned value
-        /// otherwise uses the local IP address in the returned value.
+        ///     Gets the name of the return address from the provided value.
+        ///     If the target includes a machine name, uses the local machine name in the returned value
+        ///     otherwise uses the local IP address in the returned value.
         /// </summary>
         public static string GetReturnAddress(string value, string target)
         {
@@ -40,9 +43,9 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// Gets the name of the return address from the provided value.
-        /// If the target includes a machine name, uses the local machine name in the returned value
-        /// otherwise uses the local IP address in the returned value.
+        ///     Gets the name of the return address from the provided value.
+        ///     If the target includes a machine name, uses the local machine name in the returned value
+        ///     otherwise uses the local IP address in the returned value.
         /// </summary>
         public static string GetReturnAddress(Address value, Address target)
         {
@@ -54,7 +57,9 @@ namespace NServiceBus.Transports.Msmq
             if (IPAddress.TryParse(machine, out targetIpAddress))
             {
                 if (string.IsNullOrEmpty(localIp))
+                {
                     localIp = LocalIpAddress(targetIpAddress);
+                }
 
                 return PREFIX_TCP + localIp + PRIVATE + value.Queue;
             }
@@ -69,45 +74,53 @@ namespace NServiceBus.Transports.Msmq
             var availableAddresses =
                 networkInterfaces.Where(
                     ni =>
-                    ni.OperationalStatus == OperationalStatus.Up &&
-                    ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                        ni.OperationalStatus == OperationalStatus.Up &&
+                        ni.NetworkInterfaceType != NetworkInterfaceType.Loopback)
                     .SelectMany(ni => ni.GetIPProperties().UnicastAddresses).ToList();
 
             var firstWithMatchingFamily =
                 availableAddresses.FirstOrDefault(a => a.Address.AddressFamily == targetIpAddress.AddressFamily);
 
             if (firstWithMatchingFamily != null)
+            {
                 return firstWithMatchingFamily.Address.ToString();
+            }
 
             var fallbackToDifferentFamily = availableAddresses.FirstOrDefault();
 
             if (fallbackToDifferentFamily != null)
+            {
                 return fallbackToDifferentFamily.Address.ToString();
+            }
 
             return "127.0.0.1";
         }
 
-        static string localIp;
-
         /// <summary>
-        /// Gets an independent address for the queue in the form:
-        /// queue@machine.
+        ///     Gets an independent address for the queue in the form:
+        ///     queue@machine.
         /// </summary>
         public static Address GetIndependentAddressForQueue(MessageQueue q)
         {
             if (q == null)
+            {
                 return null;
+            }
 
             var arr = q.FormatName.Split('\\');
             var queueName = arr[arr.Length - 1];
 
             var directPrefixIndex = arr[0].IndexOf(DIRECTPREFIX);
             if (directPrefixIndex >= 0)
+            {
                 return new Address(queueName, arr[0].Substring(directPrefixIndex + DIRECTPREFIX.Length));
+            }
 
             var tcpPrefixIndex = arr[0].IndexOf(DIRECTPREFIX_TCP);
             if (tcpPrefixIndex >= 0)
+            {
                 return new Address(queueName, arr[0].Substring(tcpPrefixIndex + DIRECTPREFIX_TCP.Length));
+            }
 
             try
             {
@@ -123,7 +136,7 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// Converts an MSMQ message to a TransportMessage.
+        ///     Converts an MSMQ message to a TransportMessage.
         /// </summary>
         public static TransportMessage Convert(Message m)
         {
@@ -133,13 +146,14 @@ namespace NServiceBus.Transports.Msmq
             {
                 Recoverable = m.Recoverable,
                 TimeToBeReceived = m.TimeToBeReceived,
-                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue)
+                ReplyToAddress = GetIndependentAddressForQueue(m.ResponseQueue),
+                CorrelationId = GetCorrelationId(m, headers)
             };
 
-            result.CorrelationId = GetCorrelationId(m, headers);
-
             if (Enum.IsDefined(typeof(MessageIntentEnum), m.AppSpecific))
-                result.MessageIntent = (MessageIntentEnum)m.AppSpecific;
+            {
+                result.MessageIntent = (MessageIntentEnum) m.AppSpecific;
+            }
 
             m.BodyStream.Position = 0;
             result.Body = new byte[m.BodyStream.Length];
@@ -153,10 +167,14 @@ namespace NServiceBus.Transports.Msmq
             string correlationId;
 
             if (headers.TryGetValue(Headers.CorrelationId, out correlationId))
+            {
                 return correlationId;
+            }
 
             if (message.CorrelationId == "00000000-0000-0000-0000-000000000000\\0")
+            {
                 return null;
+            }
 
             //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end that the sender added to make it compatible
             //The replace can be removed in v5 since only v3 messages will need this
@@ -174,17 +192,20 @@ namespace NServiceBus.Transports.Msmq
 
             //This is to make us compatible with v3 messages that are affected by this bug:
             //http://stackoverflow.com/questions/3779690/xml-serialization-appending-the-0-backslash-0-or-null-character
-            var extension = System.Text.Encoding.UTF8.GetString(m.Extension).TrimEnd('\0');
+            var extension = Encoding.UTF8.GetString(m.Extension).TrimEnd('\0');
             object o;
             using (var stream = new StringReader(extension))
             {
-                using (var reader = XmlReader.Create(stream, new XmlReaderSettings { CheckCharacters = false }))
+                using (var reader = XmlReader.Create(stream, new XmlReaderSettings
+                {
+                    CheckCharacters = false
+                }))
                 {
                     o = headerSerializer.Deserialize(reader);
                 }
             }
 
-            foreach (var pair in o as List<HeaderInfo>)
+            foreach (var pair in (List<HeaderInfo>)o)
             {
                 if (pair.Key != null)
                 {
@@ -196,8 +217,8 @@ namespace NServiceBus.Transports.Msmq
         }
 
         /// <summary>
-        /// Converts a TransportMessage to an Msmq message.
-        /// Doesn't set the ResponseQueue of the result.
+        ///     Converts a TransportMessage to an Msmq message.
+        ///     Doesn't set the ResponseQueue of the result.
         /// </summary>
         public static Message Convert(TransportMessage message)
         {
@@ -220,18 +241,21 @@ namespace NServiceBus.Transports.Msmq
 
             using (var stream = new MemoryStream())
             {
-                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo { Key = pair.Key, Value = pair.Value }).ToList());
+                headerSerializer.Serialize(stream, message.Headers.Select(pair => new HeaderInfo
+                {
+                    Key = pair.Key,
+                    Value = pair.Value
+                }).ToList());
                 result.Extension = stream.ToArray();
             }
 
-            result.AppSpecific = (int)message.MessageIntent;
+            result.AppSpecific = (int) message.MessageIntent;
 
             return result;
         }
 
         static void AssignMsmqNativeCorrelationId(TransportMessage message, Message result)
         {
-
             if (string.IsNullOrEmpty(message.CorrelationId))
             {
                 return;
@@ -260,7 +284,6 @@ namespace NServiceBus.Transports.Msmq
                         result.CorrelationId = message.CorrelationId;
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -269,11 +292,12 @@ namespace NServiceBus.Transports.Msmq
         }
 
         const string DIRECTPREFIX = "DIRECT=OS:";
-        static readonly string DIRECTPREFIX_TCP = "DIRECT=TCP:";
-        readonly static string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
-        static readonly string PREFIX = "FormatName:" + DIRECTPREFIX;
-        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
+        const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
+        const string PREFIX_TCP = "FormatName:" + DIRECTPREFIX_TCP;
+        const string PREFIX = "FormatName:" + DIRECTPREFIX;
         internal const string PRIVATE = "\\private$\\";
+        static string localIp;
+        static readonly XmlSerializer headerSerializer = new XmlSerializer(typeof(List<HeaderInfo>));
         static ILog Logger = LogManager.GetLogger(typeof(MsmqUtilities));
     }
 }

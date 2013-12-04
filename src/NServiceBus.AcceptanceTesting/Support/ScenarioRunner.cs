@@ -31,7 +31,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             int maxParallelism;
             if (int.TryParse(maxParallelismSetting, out maxParallelism))
             {
-                Console.Out.WriteLine("Parallelism limited to: {0}",maxParallelism);
+                Console.Out.WriteLine("Parallelism limited to: {0}", maxParallelism);
 
                 po.MaxDegreeOfParallelism = maxParallelism;
             }
@@ -96,7 +96,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             return results;
         }
 
-       
+
         static void DisplayRunResult(RunSummary summary, int totalRuns)
         {
             var runDescriptor = summary.RunDescriptor;
@@ -128,7 +128,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                 foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
                 {
-                    Console.Out.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext,null));    
+                    Console.Out.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
                 }
             }
             else
@@ -158,7 +158,15 @@ namespace NServiceBus.AcceptanceTesting.Support
                 {
                     runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
 
-                    PerformScenarios(runDescriptor,runners, () => done(runDescriptor.ScenarioContext));
+                    PerformScenarios(runDescriptor, runners, () =>
+                    {
+                        if (!string.IsNullOrEmpty(runDescriptor.ScenarioContext.Exceptions))
+                        {
+                            Console.Out.WriteLine(runDescriptor.ScenarioContext.Exceptions);
+                            throw new Exception("Failures in endpoints");
+                        }
+                        return done(runDescriptor.ScenarioContext);
+                    });
                 }
                 finally
                 {
@@ -191,9 +199,9 @@ namespace NServiceBus.AcceptanceTesting.Support
                     }
                     catch (CannotUnloadAppDomainException ex)
                     {
-                        Console.Out.WriteLine("Failed to unload appdomain {0}, reason: {1}",runner.AppDomain.FriendlyName,ex.ToString());
+                        Console.Out.WriteLine("Failed to unload appdomain {0}, reason: {1}", runner.AppDomain.FriendlyName, ex.ToString());
                     }
-                    
+
                 });
         }
 
@@ -220,12 +228,12 @@ namespace NServiceBus.AcceptanceTesting.Support
             Console.WriteLine();
         }
 
-        static void PerformScenarios(RunDescriptor runDescriptor,IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static void PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
         {
             var endpoints = runners.Select(r => r.Instance).ToList();
 
             StartEndpoints(endpoints);
-            
+
             runDescriptor.ScenarioContext.EndpointsStarted = true;
 
             var startTime = DateTime.UtcNow;
@@ -265,10 +273,10 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                     if (result.Failed)
                         throw new ScenarioException(string.Format("Endpoint failed to start - {0}", result.ExceptionMessage));
-           
+
                 })).ToArray();
 
-            if(!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
+            if (!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
                 throw new Exception("Starting endpoints took longer than 2 minutes");
         }
 
@@ -286,11 +294,11 @@ namespace NServiceBus.AcceptanceTesting.Support
                     if (result.Failed)
                         throw new ScenarioException(string.Format("Endpoint failed to stop - {0}", result.ExceptionMessage));
 
-                    Console.Out.WriteLine("Endpoint: {0} stopped ({1}s)",endpoint.Name(),sw.Elapsed);
+                    Console.Out.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), sw.Elapsed);
 
                 })).ToArray();
 
-            if(!Task.WaitAll(tasks,TimeSpan.FromMinutes(2)))
+            if (!Task.WaitAll(tasks, TimeSpan.FromMinutes(2)))
                 throw new Exception("Stopping endpoints took longer than 2 minutes");
         }
 
@@ -306,7 +314,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 var result = runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName);
 
                 // Extend the lease to the timeout value specified.
-                ILease serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
+                var serverLease = (ILease)RemotingServices.GetLifetimeService(runner.Instance);
 
                 // Add the execution time + additional time for the endpoints to be able to stop gracefully
                 var totalLifeTime = runDescriptor.TestExecutionTimeout.Add(TimeSpan.FromMinutes(2));
@@ -344,7 +352,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
 
             var appDomain = AppDomain.CreateDomain(endpointName, AppDomain.CurrentDomain.Evidence, domainSetup);
-            
+
 
             return new ActiveRunner
                 {
@@ -363,7 +371,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public TimeSpan TotalTime { get; set; }
 
-        public ScenarioContext ScenarioContext{ get; set; }
+        public ScenarioContext ScenarioContext { get; set; }
 
 
         public IEnumerable<string> ActiveEndpoints

@@ -9,7 +9,7 @@
 
     public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
     {
-        [Test, Ignore("Not working!")]
+        [Test]
         public void Timeout_should_be_received_after_expiration()
         {
             Scenario.Define(() => new Context {Id = Guid.NewGuid()})
@@ -84,12 +84,12 @@
 
             public class TestSagaData : IContainSagaData
             {
-                public Guid Id { get; set; }
-                public string Originator { get; set; }
-                public string OriginalMessageId { get; set; }
+                public virtual Guid Id { get; set; }
+                public virtual string Originator { get; set; }
+                public virtual string OriginalMessageId { get; set; }
 
                 [Unique]
-                public Guid SomeId { get; set; }
+                public virtual Guid SomeId { get; set; }
             }
         }
 

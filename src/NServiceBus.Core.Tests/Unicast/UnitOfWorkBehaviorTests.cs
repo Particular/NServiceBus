@@ -5,7 +5,7 @@
     using Core.Tests;
     using NUnit.Framework;
     using ObjectBuilder;
-    using Pipeline;
+    using Pipeline.Contexts;
     using UnitOfWork;
 
     [TestFixture]
@@ -47,10 +47,9 @@
         {
             var runner = new UnitOfWorkBehavior();
 
-            using (var context = new BehaviorContext(builder, new TransportMessage(), new BehaviorContextStacker()))
-            {
-                runner.Invoke(context, () => { });
-            }
+            var context = new ReceivePhysicalMessageContext(new RootContext(builder), new TransportMessage(), false);
+
+            runner.Invoke(context, () => { });
 
         }
 

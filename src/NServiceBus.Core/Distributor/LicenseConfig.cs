@@ -8,6 +8,7 @@ namespace NServiceBus.Distributor
     /// <summary>
     /// Limit number of workers in accordance with Licensing policy
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public static class LicenseConfig
     {
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
@@ -16,7 +17,7 @@ namespace NServiceBus.Distributor
 
         static LicenseConfig()
         {
-            allowedWorkerNodes = LicenseManager.CurrentLicense.AllowedNumberOfWorkerNodes;
+            allowedWorkerNodes = LicenseManager.License.AllowedNumberOfWorkerNodes;
         }
 
         internal static bool LimitNumberOfWorkers(Address workerAddress)

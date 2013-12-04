@@ -29,8 +29,10 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
             if (type.IsPrimitive || type == typeof(string) || type == typeof(object) || type == typeof(Guid) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(DateTimeOffset) || type.IsEnum || type == typeof(Decimal))
                 return null;
 
-            var complex = new ComplexType();
-            complex.Name = Reflect.GetTypeNameFrom(type);
+            var complex = new ComplexType
+            {
+                Name = Reflect.GetTypeNameFrom(type)
+            };
 
             if (Repository.IsNormalizedList(type))
             {
@@ -100,8 +102,6 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
         private static bool IsKeyValuePair(Type t)
         {
             var args = t.GetGenericArguments();
-            if (args == null)
-                return false;
             if (args.Length != 2)
                 return false;
             return (typeof(KeyValuePair<,>).MakeGenericType(args) == t);

@@ -9,10 +9,10 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class BusAsyncResult : IAsyncResult
     {
-        private readonly AsyncCallback callback;
-        private readonly CompletionResult result;
-        private volatile bool completed;
-        private readonly ManualResetEvent sync;
+        readonly AsyncCallback callback;
+        readonly CompletionResult result;
+        volatile bool completed;
+        readonly ManualResetEvent sync;
 
         /// <summary>
         /// Creates a new object storing the given callback and state.
@@ -20,8 +20,10 @@ namespace NServiceBus.Unicast
         public BusAsyncResult(AsyncCallback callback, object state)
         {
             this.callback = callback;
-            result = new CompletionResult();
-            result.State = state;
+            result = new CompletionResult
+            {
+                State = state
+            };
             sync = new ManualResetEvent(false);
         }
 

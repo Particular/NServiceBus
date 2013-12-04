@@ -41,7 +41,7 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateTransportMessages, NServiceBus.INeedInitialization
+            class BodyMutator : IMutateTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -86,7 +86,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            class BodySpy : IMutateIncomingTransportMessages, NServiceBus.INeedInitialization
+            class BodySpy : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -104,7 +104,7 @@
 
         public static byte Checksum(byte[] data)
         {
-            long longSum = data.Sum(x => (long)x);
+            var longSum = data.Sum(x => (long)x);
             return unchecked((byte)longSum);
         }
 

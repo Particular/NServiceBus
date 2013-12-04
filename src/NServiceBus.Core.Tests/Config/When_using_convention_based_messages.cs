@@ -1,6 +1,7 @@
 namespace NServiceBus.Core.Tests.Config
 {
     using System.Linq;
+    using ConventionBasedHandlers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -10,7 +11,7 @@ namespace NServiceBus.Core.Tests.Config
         [Explicit("//TODO: re-enable when we make message scanning lazy #1617")]
         public void Should_include_messages_of_a_handler()
         {
-            Configure.With(new[] { typeof(x64.ConventionBasedHandler) });
+            Configure.With(new[] { typeof(ConventionBasedHandler) });
 
             var typesToScan = Configure.TypesToScan;
 

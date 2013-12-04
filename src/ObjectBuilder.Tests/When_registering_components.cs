@@ -271,7 +271,7 @@ namespace ObjectBuilder.Tests
     {
     }
 
-    public class ComponentWithMultipleInterfaces : ISomeInterface, ISomeOtherInterface, IYetAnotherInterface
+    public class ComponentWithMultipleInterfaces : ISomeInterface, ISomeOtherInterface
     {
     }
 

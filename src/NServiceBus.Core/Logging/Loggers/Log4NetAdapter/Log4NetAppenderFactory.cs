@@ -56,9 +56,11 @@ namespace NServiceBus.Logging.Loggers.Log4NetAdapter
             appender.CountDirection = 1;
             appender.DatePattern = "yyyy-MM-dd";
 
+            // ReSharper disable once RedundantCast
             appender.RollingStyle = (dynamic)Enum.Parse(RollingModeType, "Composite");
             appender.MaxFileSize = 1024*1024;
             appender.MaxSizeRollBackups = 10;
+            // ReSharper disable once RedundantCast
             appender.LockingModel = (dynamic)Activator.CreateInstance(MinimalLockType);
             appender.StaticLogFileName = true;
             appender.File =filename;

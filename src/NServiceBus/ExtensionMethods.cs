@@ -218,7 +218,7 @@
         /// </summary>
         [ObsoleteEx(
             Message = "No longer required since the IBus batch operations have been trimmed",
-            TreatAsErrorFromVersion = "4.3",
+            TreatAsErrorFromVersion = "5.0",
             RemoveInVersion = "5.0")]
         public static IMessageCreator MessageCreator { get; set; }
 
@@ -251,6 +251,7 @@
         /// <summary>
         /// The <see cref="Func{TResult}"/> used to get all the headers for a message.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
         public static Func<IDictionary<string, string>> GetStaticOutgoingHeadersAction { get; set; }
     }
 }

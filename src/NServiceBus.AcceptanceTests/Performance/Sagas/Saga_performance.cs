@@ -19,7 +19,7 @@
             Scenario.Define(() => new Context { NumberOfTestMessages = NumberOfTestMessages })
                     .WithEndpoint<SagaEndpoint>(SendTestMessages)
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For<AllSagaPersisters>())
+                    .Repeat(r => r.For(SagaPersisters.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
@@ -35,15 +35,15 @@
                             SendTestMessages(b);
                         })
                     .Done(c => c.Complete)
-                    .Repeat(r => r.For<AllSagaPersisters>())
+                    .Repeat(r => r.For(SagaPersisters.Default))
                     .Report(DisplayTestResults)
                     .MaxTestParallelism(1)
                     .Run();
         }
-       
+
         public class Context : PerformanceTestContext
         {
-          
+
             public bool Complete { get; set; }
         }
 
@@ -55,7 +55,7 @@
                     .WithConfig<TransportConfig>(c => c.MaximumConcurrencyLevel = MaxConcurrencyLevel);
             }
 
-            public class MySaga : Saga<MySaga.MySagaData>,IAmStartedByMessages<MyMessage>
+            public class MySaga : Saga<MySaga.MySagaData>, IAmStartedByMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
@@ -83,9 +83,9 @@
 
                 public override void ConfigureHowToFindSaga()
                 {
-                    ConfigureMapping<MyMessage>(m=>m.SomeId)
-                        .ToSaga(s=>s.SomeId);
-                        
+                    ConfigureMapping<MyMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
+
                 }
 
 

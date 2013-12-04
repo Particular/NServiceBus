@@ -45,7 +45,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithInvalidCharacter;
+                var m = (MessageWithInvalidCharacter)msgArray[0];
                 Assert.AreEqual(sb.ToString(), m.Special);
             }
         }
@@ -207,20 +207,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">";
 
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(new[] { msg }, stream);
-                stream.Position = 0;
-
-                string result;
-                using (var reader = new StreamReader(stream))
-                {
-                    reader.ReadLine();
-                    result = reader.ReadLine();
-                }
-
-                Assert.AreEqual(expected, result);
-            }
+            AssertSerializedEquals(serializer, msg, expected);
         }
 
         [Test]
@@ -232,6 +219,25 @@ namespace NServiceBus.Serializers.XML.Test
             var msg = new EmptyMessage();
 
             var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+
+            AssertSerializedEquals(serializer, msg, expected);
+        }
+
+        [Test]
+        public void Should_be_able_to_serialize_single_message_with_specified_namespace_with_trailing_forward_slashes()
+        {
+            var serializer = SerializerFactory.Create<EmptyMessage>();
+            serializer.SkipWrappingElementForSingleMessages = true;
+            serializer.Namespace = "http://super.com///";
+            var msg = new EmptyMessage();
+
+            var expected = @"<EmptyMessage xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://super.com/NServiceBus.Serializers.XML.Test"">";
+
+            AssertSerializedEquals(serializer, msg, expected);
+        }
+
+        static void AssertSerializedEquals(IMessageSerializer serializer, IMessage msg, string expected)
+        {
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(new[] { msg }, stream);
@@ -337,7 +343,7 @@ namespace NServiceBus.Serializers.XML.Test
 
             stream.Position = 0;
             var msgArray = serializer.Deserialize(stream);
-            var m = msgArray[0] as MessageWithDouble;
+            var m = (MessageWithDouble)msgArray[0];
 
             Assert.AreEqual(val, m.Double);
 
@@ -421,15 +427,19 @@ namespace NServiceBus.Serializers.XML.Test
             var sw = new Stopwatch();
             sw.Start();
 
-            var xmlWriterSettings = new XmlWriterSettings();
-            xmlWriterSettings.OmitXmlDeclaration = false;
+            var xmlWriterSettings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = false
+            };
 
-            var xmlReaderSettings = new XmlReaderSettings();
-            xmlReaderSettings.IgnoreProcessingInstructions = true;
-            xmlReaderSettings.ValidationType = ValidationType.None;
-            xmlReaderSettings.IgnoreWhitespace = true;
-            xmlReaderSettings.CheckCharacters = false;
-            xmlReaderSettings.ConformanceLevel = ConformanceLevel.Auto;
+            var xmlReaderSettings = new XmlReaderSettings
+            {
+                IgnoreProcessingInstructions = true, 
+                ValidationType = ValidationType.None, 
+                IgnoreWhitespace = true, 
+                CheckCharacters = false,
+                ConformanceLevel = ConformanceLevel.Auto
+            };
 
             for (var i = 0; i < numberOfIterations; i++)
                 using (var stream = new MemoryStream())
@@ -474,7 +484,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithList;
+                var m = (MessageWithList)msgArray[0];
                 Assert.AreEqual("Hello", m.Items.First().Data);
             }
         }
@@ -494,7 +504,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespace;
+				var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First().Data);
 			}
 		}
@@ -591,29 +601,40 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        private M2 CreateM2()
+        M2 CreateM2()
         {
-            var o = new M2();
-            o.Id = Guid.NewGuid();
-            o.Age = 10;
-            o.Address = Guid.NewGuid().ToString();
-            o.Int = 7;
-            o.Name = "udi";
-            o.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
-            o.Some = SomeEnum.B;
-            o.Start = DateTime.Now;
-            o.Duration = TimeSpan.Parse("-01:15:27.123");
-            o.Offset = DateTimeOffset.Now;
+            var o = new M2
+            {
+                Id = Guid.NewGuid(),
+                Age = 10,
+                Address = Guid.NewGuid().ToString(),
+                Int = 7,
+                Name = "udi",
+                Risk = new Risk
+                {
+                    Percent = 0.15D,
+                    Annum = true,
+                    Accuracy = 0.314M
+                },
+                Some = SomeEnum.B,
+                Start = DateTime.Now,
+                Duration = TimeSpan.Parse("-01:15:27.123"),
+                Offset = DateTimeOffset.Now,
+                Parent = new M1
+                {
+                    Age = 10,
+                    Address = Guid.NewGuid().ToString(), Int = 7,
+                    Name = "-1",
+                    Risk = new Risk
+                    {
+                        Percent = 0.15D,
+                        Annum = true,
+                        Accuracy = 0.314M
+                    }
+                },
+                Names = new List<M1>()
+            };
 
-            o.Parent = new M1();
-            o.Parent.Name = "udi";
-            o.Parent.Age = 10;
-            o.Parent.Address = Guid.NewGuid().ToString();
-            o.Parent.Int = 7;
-            o.Parent.Name = "-1";
-            o.Parent.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
-
-            o.Names = new List<M1>();
             for (var i = 0; i < number; i++)
             {
                 var m1 = new M1();
@@ -622,7 +643,12 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Address = Guid.NewGuid().ToString();
                 m1.Int = 7;
                 m1.Name = i.ToString();
-                m1.Risk = new Risk { Percent = 0.15D, Annum = true, Accuracy = 0.314M };
+                m1.Risk = new Risk
+                {
+                    Percent = 0.15D,
+                    Annum = true, 
+                    Accuracy = 0.314M
+                };
             }
 
             o.MoreNames = o.Names.ToArray();
@@ -659,24 +685,7 @@ namespace NServiceBus.Serializers.XML.Test
             Debug.WriteLine("Deserializing: " + watch.Elapsed);
         }
 
-        public void TestSchemaValidation()
-        {
-            try
-            {
-                var settings = new XmlReaderSettings();
-                settings.Schemas.Add(null, "schema0.xsd");
-                settings.Schemas.Add(null, "schema1.xsd");
-                settings.ValidationType = ValidationType.Schema;
-                var document = new XmlDocument();
-                document.Load("XMLFile1.xml");
-                var xmlReader = XmlReader.Create(new StringReader(document.InnerXml), settings);
-                while (xmlReader.Read()) { }
-            }
-            catch (Exception e)
-            {
-                var s = e.Message;
-            }
-        }
+
         [Test]
         public void NestedObjectWithNullPropertiesShouldBeSerialized()
         {
@@ -960,7 +969,7 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
 
 	public class AlternateItemListMultipleIEnumerableImplementations : List<MessageWithListItemAlternate>, IEnumerable<string>
 	{
-		public IEnumerator<string> GetEnumerator()
+		public new IEnumerator<string> GetEnumerator()
 		{
 			return ToArray().Select(item => item.Data).GetEnumerator();
 		}

@@ -17,7 +17,7 @@ namespace NServiceBus.ObjectBuilder.Common.Config
             config.Builder = b;
             config.Configurer = b;
 
-            var cfg = config.Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
+            config.Configurer.ConfigureComponent<CommonObjectBuilder>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(c => c.Container, container);
 
             SyncConfig.MarkConfigured();

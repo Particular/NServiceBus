@@ -50,12 +50,15 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
             dynamic target = Activator.CreateInstance(FileTargetType);
 
             var archiveFilename = string.Format("{0}.{{#}}", filename);
-
+            
+            // ReSharper disable RedundantCast
             target.FileName = (dynamic)LayoutType.InvokeStaticMethod("FromString", filename);
+
             target.ArchiveFileName = (dynamic)LayoutType.InvokeStaticMethod("FromString", archiveFilename);
             target.ArchiveAboveSize = 1024 * 1024;
             target.ArchiveEvery = (dynamic)Enum.Parse(FileArchivePeriodType, "Day");
             target.ArchiveNumbering = (dynamic)Enum.Parse(ArchiveNumberingModeType, "Rolling");
+            // ReSharper restore RedundantCast
             target.MaxArchiveFiles = 10;
             target.KeepFileOpen = false;
 
@@ -68,6 +71,7 @@ namespace NServiceBus.Logging.Loggers.NLogAdapter
         {
             if (layout != null)
             {
+                // ReSharper disable once RedundantCast
                 target.Layout= (dynamic)Activator.CreateInstance(SimpleLayoutType, layout);
             }
         }

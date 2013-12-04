@@ -4,6 +4,7 @@
     using MessageMutator;
     using Timeout;
 
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "Exist only for compatibility between V4 and V3. No longer needed in V5")]
     public class SetIsSagaMessageHeaderForV3XMessages : IMutateIncomingMessages, INeedInitialization
     {
         public IBus Bus { get; set; }

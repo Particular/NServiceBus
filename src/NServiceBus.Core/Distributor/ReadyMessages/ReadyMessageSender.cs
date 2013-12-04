@@ -1,10 +1,12 @@
 namespace NServiceBus.Distributor.ReadyMessages
 {
     using System;
+    using Settings;
     using Transports;
     using Unicast;
     using Unicast.Transport;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]    
     public class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
     {
         public ISendMessages MessageSender { get; set; }
@@ -17,8 +19,10 @@ namespace NServiceBus.Distributor.ReadyMessages
 
         public void Start()
         {
-            if (!Configure.Instance.WorkerRunsOnThisEndpoint())
+            if (!Configure.Instance.WorkerRunsOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1)
+            {
                 return;
+            }
 
             transport = Bus.Transport;
             var capacityAvailable = transport.MaximumConcurrencyLevel;

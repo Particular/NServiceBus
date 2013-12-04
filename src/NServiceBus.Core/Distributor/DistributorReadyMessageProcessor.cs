@@ -4,11 +4,13 @@ namespace NServiceBus.Distributor
     using Logging;
     using ReadyMessages;
     using Satellites;
+    using Settings;
     using Unicast.Transport;
 
     /// <summary>
     ///     Part of the Distributor infrastructure.
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class DistributorReadyMessageProcessor : IAdvancedSatellite
     {
         private static readonly ILog Logger = LogManager.GetLogger("NServiceBus.Distributor." + Configure.EndpointName);
@@ -18,7 +20,7 @@ namespace NServiceBus.Distributor
         static DistributorReadyMessageProcessor()
         {
             Address = Configure.Instance.GetMasterNodeAddress().SubScope("distributor.control");
-            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint();
+            Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1;
         }
 
         /// <summary>

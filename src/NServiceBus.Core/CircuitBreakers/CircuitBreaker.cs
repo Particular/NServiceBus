@@ -8,10 +8,11 @@ namespace NServiceBus.CircuitBreakers
     /// </summary>
     public class CircuitBreaker : IDisposable
     {
-        private readonly int threshold;
-        private int firedTimes;
-        private readonly Timer timer;
-        private int failureCount;
+        readonly int threshold;
+        int firedTimes;
+        // ReSharper disable once NotAccessedField.Local
+        readonly Timer timer;
+        int failureCount;
 
         /// <summary>
         /// Create a <see cref="CircuitBreaker"/>.

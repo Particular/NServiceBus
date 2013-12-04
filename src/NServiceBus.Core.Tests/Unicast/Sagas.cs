@@ -2,10 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Linq;
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
+    using Rhino.Mocks;
     using Saga;
 
     [TestFixture]
@@ -311,6 +310,119 @@
         {
             public Guid PropertyThatCorrelatesToSaga { get; set; }
         }
+    }
+
+
+    [TestFixture]
+    public class When_using_custom_finders_to_find_sagas : with_sagas
+    {
+        [Test]
+        public void Should_use_the_most_specific_finder_first_when_receiving_a_message()
+        {
+            RegisterSaga<SagaWithDerivedMessage>();
+            RegisterCustomFinder<MyFinderForBaseClass>();
+            RegisterCustomFinder<MyFinderForFoo2>();
+          
+            ReceiveMessage(new Foo2());
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+            var sagaData = (MySagaData) persister.CurrentSagaEntities.First().Value.SagaEntity;
+
+            Assert.AreEqual(typeof(MyFinderForFoo2).FullName,sagaData.SourceFinder);
+
+        }
+
+        [Test]
+        public void Should_use_base_class_finder_if_needed()
+        {
+            RegisterSaga<SagaWithDerivedMessage>();
+            RegisterCustomFinder<MyFinderForBaseClass>();
+
+            ReceiveMessage(new Foo2());
+
+            Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+            var sagaData = (MySagaData)persister.CurrentSagaEntities.First().Value.SagaEntity;
+
+            Assert.AreEqual(typeof(MyFinderForBaseClass).FullName, sagaData.SourceFinder);
+
+        }
+
+        class SagaWithDerivedMessage : Saga<MySagaData>, IHandleMessages<Foo2>
+        {
+            public void Handle(Foo2 message)
+            {
+            }
+        }
+        class MySagaData : ContainSagaData
+        {
+            public string SourceFinder { get; set; }
+        }
+
+        class Foo2 : Foo
+        {
+        }
+        abstract class Foo : IMessage
+        {
+        }
+
+        class MyFinderForBaseClass : IFindSagas<MySagaData>.Using<Foo>
+        {
+            public MySagaData FindBy(Foo message)
+            {
+                return new MySagaData { SourceFinder = typeof(MyFinderForBaseClass).FullName };
+            }
+        }
+
+        class MyFinderForFoo2 : IFindSagas<MySagaData>.Using<Foo2>
+        {
+            public MySagaData FindBy(Foo2 message)
+            {
+                return new MySagaData { SourceFinder = typeof(MyFinderForFoo2).FullName };
+            }
+        }
+    }
+
+
+    [TestFixture]
+    public class When_sending_messages_from_a_saga : with_sagas
+    {
+        [Test]
+        public void Should_attach_the_originating_saga_id_as_a_header()
+        {
+            RegisterMessageType<MessageSentFromSaga>();
+            RegisterSaga<MySaga>();
+
+            ReceiveMessage(new MessageToProcess());
+
+            var sagaData = (MySagaData)persister.CurrentSagaEntities.First().Value.SagaEntity;
+
+            messageSender.AssertWasCalled(x =>
+                x.Send(Arg<TransportMessage>.Matches(m => 
+                    m.Headers[Headers.OriginatingSagaId] == sagaData.Id.ToString() && //id of the current saga
+                    //todo: should we really us the AssemblyQualifiedName here? (what if users move sagas btw assemblies
+                    m.Headers[Headers.OriginatingSagaType] == typeof(MySaga).AssemblyQualifiedName 
+                    ), Arg<Address>.Is.Anything));
+        }
+
+
+        class MySaga : Saga<MySagaData>, IAmStartedByMessages<MessageToProcess>
+        {
+            public void Handle(MessageToProcess message)
+            {
+                Bus.Send(new MessageSentFromSaga());
+            }
+        }
+
+        class MySagaData : ContainSagaData
+        {
+        }
+
+        class MessageToProcess : IMessage { }
+
+        class MessageSentFromSaga : IMessage{ }
+
     }
 
 }

@@ -1,9 +1,11 @@
 namespace NServiceBus.Distributor.Config
 {
     using Logging;
+    using Settings;
     using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class DistributorInitializer
     {
         public static void Init(bool withWorker)
@@ -22,6 +24,9 @@ namespace NServiceBus.Distributor.Config
                     DependencyLifecycle.SingleInstance)
                     .ConfigureProperty(r => r.StorageQueueAddress, Address.Local.SubScope("distributor.storage"));
             }
+
+            SettingsHolder.Set("Distributor.Enabled", true);
+            SettingsHolder.Set("Distributor.Version", 1);
 
             Logger.InfoFormat("Endpoint configured to host the distributor, applicative input queue re routed to {0}",
                               applicativeInputQueue);

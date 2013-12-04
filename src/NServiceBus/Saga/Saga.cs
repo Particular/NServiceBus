@@ -76,6 +76,7 @@ namespace NServiceBus.Saga
         /// <summary>
         /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
         /// </summary>
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
         public IHandleReplyingToNullOriginator HandleReplyingToNullOriginator { get; set; }
 
 
@@ -271,7 +272,12 @@ namespace NServiceBus.Saga
         protected virtual void ReplyToOriginator(params object[] messages)
         {
             if (string.IsNullOrEmpty(Data.Originator))
-                HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();
+            {
+                if (HandleReplyingToNullOriginator != null)
+                {
+                    HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();    
+                }
+            }
             else
                 Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }
@@ -307,6 +313,5 @@ namespace NServiceBus.Saga
         public virtual void Timeout(object state)
         {
         }
-
     }
 }

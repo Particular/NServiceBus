@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Configuration;
-    using NServiceBus.Config;
-    using NServiceBus.Config.ConfigurationSource;
+    using Config;
+    using Config.ConfigurationSource;
 
     public class ScenarioConfigSource : IConfigurationSource
     {

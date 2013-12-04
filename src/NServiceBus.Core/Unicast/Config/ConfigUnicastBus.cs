@@ -4,16 +4,13 @@ namespace NServiceBus.Unicast.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+    using Behaviors;
     using Features;
     using Logging;
     using Messages;
-    using NServiceBus.Config;
     using ObjectBuilder;
-    using Pipeline.Behaviors;
-    using Routing;
-    using Sagas;
-    using Settings;
-    using UnitOfWork;
+    using Pipeline;
+    using Pipeline.Contexts;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -23,6 +20,7 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Wrap the given configure object storing its builder and configurer.
         /// </summary>
+        /// <param name="config"></param>
         public void Configure(Configure config)
         {
             Builder = config.Builder;
@@ -30,61 +28,21 @@ namespace NServiceBus.Unicast.Config
             busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.MasterNodeAddress, config.GetMasterNodeAddress());
 
-            var knownMessages = TypesToScan
-                .Where(MessageConventionExtensions.IsMessageType)
-                .ToList();
-
             ConfigureSubscriptionAuthorization();
-
             RegisterMessageModules();
 
+            Configurer.ConfigureComponent<PipelineFactory>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors();
-            RegisterMessageOwnersAndBusAddress(knownMessages);
-          
-            ConfigureMessageRegistry(knownMessages);
-
         }
 
         void ConfigureBehaviors()
         {
-            Configurer.ConfigureComponent<ApplyIncomingMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ApplyIncomingTransportMessageMutatorsBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<AuditBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<CallbackInvocationBehavior>(DependencyLifecycle.InstancePerCall);
-            extractLogicalMessagesConfig = Configurer.ConfigureComponent<ExtractLogicalMessagesBehavior>(DependencyLifecycle.InstancePerCall);
-            forwardConfig = Configurer.ConfigureComponent<ForwardBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<ImpersonateSenderBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<InvokeHandlersBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<LoadHandlersBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<MessageHandlingLoggingBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<UnitOfWorkBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<RaiseMessageReceivedBehavior>(DependencyLifecycle.InstancePerCall);
-            Configurer.ConfigureComponent<SagaPersistenceBehavior>(DependencyLifecycle.InstancePerCall);
-        }
-
-        void ConfigureMessageRegistry(List<Type> knownMessages)
-        {
-            var messageRegistry = new MessageMetadataRegistry
-                {
-                    DefaultToNonPersistentMessages = !SettingsHolder.Get<bool>("Endpoint.DurableMessages")
-                };
-
-            knownMessages.ForEach(messageRegistry.RegisterMessageType);
-
-            Configurer.RegisterSingleton<MessageMetadataRegistry>(messageRegistry);
-            
-            if(!Logger.IsInfoEnabled)
-                return;
-            
-            var messageDefinitions = messageRegistry.GetAllMessages().ToList();
-
-            Logger.InfoFormat("Number of messages found: {0}" , messageDefinitions.Count());
-
-            if (!Logger.IsDebugEnabled)
-                return;
-
-
-            Logger.DebugFormat("Message definitions: \n {0}",string.Concat(messageDefinitions.Select(md => md.ToString() + "\n")));
+            Instance.ForAllTypes<IBehavior<HandlerInvocationContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<ReceiveLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<ReceivePhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendLogicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendLogicalMessagesContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
+            Instance.ForAllTypes<IBehavior<SendPhysicalMessageContext>>(t => Configurer.ConfigureComponent(t, DependencyLifecycle.InstancePerCall));
         }
 
 #pragma warning disable 0618
@@ -104,56 +62,17 @@ namespace NServiceBus.Unicast.Config
             if (authType != null)
                 Configurer.ConfigureComponent(authType, DependencyLifecycle.SingleInstance);
         }
-
-
-        void RegisterMessageOwnersAndBusAddress(IEnumerable<Type> knownMessages)
-        {
-            var unicastConfig = GetConfigSection<UnicastBusConfig>();
-            var router = new StaticMessageRouter(knownMessages);
-
-            Configurer.RegisterSingleton<IRouteMessages>(router);
-
-            if (unicastConfig == null)
-            {
-                return;
-            }
-            if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
-            {
-                var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-                forwardConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, forwardAddress);
-            }
-            busConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-            forwardConfig.ConfigureProperty(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
-
-            var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()
-                .OrderByDescending(m=>m)
-                .ToList();
-
-            foreach (var mapping in messageEndpointMappings)
-            {
-                mapping.Configure((messageType, address) =>
-                    {
-                        if (!MessageConventionExtensions.IsMessageType(messageType))
-                        {
-                            return;
-                        }
-
-                        router.RegisterRoute(messageType,address);
-                    });
-            }
-        }
-
-
-
-        IComponentConfig<ForwardBehavior> forwardConfig;
+        
+        /// <summary>
+        /// Used to configure the bus.
+        /// </summary>
         IComponentConfig<UnicastBus> busConfig;
-        IComponentConfig<ExtractLogicalMessagesBehavior> extractLogicalMessagesConfig;
 
         /// <summary>
         /// 
         /// Loads all message handler assemblies in the runtime directory.
         /// </summary>
+        /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers()
         {
             var types = new List<Type>();
@@ -185,6 +104,8 @@ namespace NServiceBus.Unicast.Config
         /// 
         /// Use First{T} to indicate the type to load from.
         /// </summary>
+        /// <typeparam name="TFirst"></typeparam>
+        /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<TFirst>()
         {
             var args = typeof(TFirst).GetGenericArguments();
@@ -204,6 +125,9 @@ namespace NServiceBus.Unicast.Config
         /// and specifies that the handlers in the given 'order' are to 
         /// run before all others and in the order specified.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="order"></param>
+        /// <returns></returns>
         public ConfigUnicastBus LoadMessageHandlers<T>(First<T> order)
         {
             return LoadMessageHandlers(order.Types);
@@ -227,6 +151,8 @@ namespace NServiceBus.Unicast.Config
         /// then uses the Configurer to configure them into the container as single call components,
         /// finally passing them to the bus as its MessageHandlerTypes.
         /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
         ConfigUnicastBus ConfigureMessageHandlersIn(IEnumerable<Type> types)
         {
             var handlerRegistry = new MessageHandlerRegistry();
@@ -251,6 +177,7 @@ namespace NServiceBus.Unicast.Config
 
             //configure the message dispatcher for each handler
             busConfig.ConfigureProperty(b => b.MessageDispatcherMappings, dispatcherMappings);
+            Configurer.ConfigureProperty<InvokeHandlersBehavior>(b => b.MessageDispatcherMappings, dispatcherMappings);
 
             availableDispatcherFactories.ToList().ForEach(factory => Configurer.ConfigureComponent(factory, DependencyLifecycle.InstancePerUnitOfWork));
 
@@ -287,6 +214,8 @@ namespace NServiceBus.Unicast.Config
         /// recipients of messages sent by this endpoint will see the address
         /// of endpoints that sent the incoming messages.
         /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "PropagateReturnAddressOnSend")]
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
@@ -299,6 +228,8 @@ namespace NServiceBus.Unicast.Config
         /// recipients of messages sent by this endpoint will see the address
         /// of endpoints that sent the incoming messages.
         /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public ConfigUnicastBus PropagateReturnAddressOnSend(bool value)
         {
             busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
@@ -308,6 +239,8 @@ namespace NServiceBus.Unicast.Config
         /// Forwards all received messages to a given endpoint (queue@machine).
         /// This is useful as an auditing/debugging mechanism.
         /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public ConfigUnicastBus ForwardReceivedMessagesTo(string value)
         {
             busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
@@ -320,6 +253,7 @@ namespace NServiceBus.Unicast.Config
         /// 
         /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
         /// </summary>
+        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.Disable<AutoSubscribe>()")]
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
@@ -334,6 +268,7 @@ namespace NServiceBus.Unicast.Config
         /// 
         /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
         /// </summary>
+        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotAutoSubscribeSagas())")]
         public ConfigUnicastBus DoNotAutoSubscribeSagas()
         {
@@ -345,6 +280,7 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
+        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotRequireExplicitRouting())")]
         public ConfigUnicastBus AllowSubscribeToSelf()
         {
@@ -356,6 +292,7 @@ namespace NServiceBus.Unicast.Config
         /// Tells the bus to auto subscribe plain messages in addition to events
         /// Commands will NOT be auto subscribed
         /// </summary>
+        /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.AutoSubscribePlainMessages())")]
         public ConfigUnicastBus AutoSubscribePlainMessages()
         {
@@ -368,16 +305,20 @@ namespace NServiceBus.Unicast.Config
         /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
         /// your self.
         /// </summary>
+        /// <returns></returns>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Replacement = "Should instead be writing a Satelite")]
         public ConfigUnicastBus SkipDeserialization()
         {
             busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
-            extractLogicalMessagesConfig.ConfigureProperty(b => b.SkipDeserialization, true);
+            Configurer.ConfigureProperty<ExtractLogicalMessagesBehavior>(b => b.SkipDeserialization, true);
+
             return this;
         }
 
         /// <summary>
         /// Allow the bus to subscribe to itself
         /// </summary>
+        /// <returns></returns>
         public ConfigUnicastBus DefaultDispatcherFactory<T>() where T : IMessageDispatcherFactory
         {
             defaultDispatcherFactory = typeof(T);
@@ -389,6 +330,7 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Returns true if the given type is a message handler.
         /// </summary>
+        /// <param name="type"></param>
         internal static bool IsMessageHandler(Type type)
         {
             if (type.IsAbstract || type.IsGenericTypeDefinition)
@@ -409,6 +351,8 @@ namespace NServiceBus.Unicast.Config
         /// <summary>
         /// Returns the message type handled by the given message handler type.
         /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         static Type GetMessageTypeFromMessageHandler(Type t)
         {
             if (t.IsGenericType)

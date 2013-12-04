@@ -2,7 +2,9 @@ namespace NServiceBus.Distributor.Config
 {
     using NServiceBus.Config;
     using ReadyMessages;
+    using Settings;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
     public class WorkerInitializer
     {
         public static void Init()
@@ -25,6 +27,10 @@ namespace NServiceBus.Distributor.Config
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);
+
+            SettingsHolder.Set("Worker.Enabled", true);
+            SettingsHolder.Set("Distributor.Version", 1);
+            SettingsHolder.Set("MasterNode.Address", masterNodeAddress);
         }
     }
 }

@@ -10,6 +10,7 @@ http://www.lostechies.com/blogs/jimmy_bogard/archive/2009/08/05/late-bound-invoc
 
 namespace NServiceBus.Utils.Reflection
 {
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -20,37 +21,49 @@ namespace NServiceBus.Utils.Reflection
     /// </summary>
     /// <param name="target">Target object</param>
     /// <param name="arguments">Arguments</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundMethod(object target, object[] arguments);
 
     /// <summary>
     /// Late Bound Property
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundProperty(object target);
 
     /// <summary>
     /// Late Bound Field
     /// </summary>
     /// <param name="target">Target Objects </param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate object LateBoundField(object target);
 
     /// <summary>
     /// Late Bound Field Set
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate void LateBoundFieldSet(object target, object value);
 
     /// <summary>
     /// Late Bound Property Set
     /// </summary>
     /// <param name="target">Target Object</param>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
     public delegate void LateBoundPropertySet(object target, object value);
 
     /// <summary>
     /// Delegate Factory
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "An internal API. Not for public use.")]
 	public static class DelegateFactory
 	{
+        static readonly ConcurrentDictionary<PropertyInfo, LateBoundProperty> PropertyInfoToLateBoundProperty = new ConcurrentDictionary<PropertyInfo, LateBoundProperty>();
+        static readonly ConcurrentDictionary<FieldInfo, LateBoundField> FieldInfoToLateBoundField = new ConcurrentDictionary<FieldInfo, LateBoundField>();
+        static readonly ConcurrentDictionary<PropertyInfo, LateBoundPropertySet> PropertyInfoToLateBoundPropertySet = new ConcurrentDictionary<PropertyInfo, LateBoundPropertySet>();
+        static readonly ConcurrentDictionary<FieldInfo, LateBoundFieldSet> FieldInfoToLateBoundFieldSet = new ConcurrentDictionary<FieldInfo, LateBoundFieldSet>();
+        static readonly ConcurrentDictionary<MethodInfo, LateBoundMethod> MethodInfoToLateBoundMethod = new ConcurrentDictionary<MethodInfo, LateBoundMethod>();
+
         /// <summary>
         /// Create Late Bound methods
         /// </summary>
@@ -58,20 +71,28 @@ namespace NServiceBus.Utils.Reflection
         /// <returns>LateBoundMethod</returns>
 		public static LateBoundMethod Create(MethodInfo method)
 		{
-			var instanceParameter = Expression.Parameter(typeof(object), "target");
-			var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
+            LateBoundMethod lateBoundMethod;
 
-			var call = Expression.Call(
-				Expression.Convert(instanceParameter, method.DeclaringType),
-				method,
-				CreateParameterExpressions(method, argumentsParameter));
+            if (!MethodInfoToLateBoundMethod.TryGetValue(method, out lateBoundMethod))
+            {
+                var instanceParameter = Expression.Parameter(typeof(object), "target");
+                var argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 
-			var lambda = Expression.Lambda<LateBoundMethod>(
-				Expression.Convert(call, typeof(object)),
-				instanceParameter,
-				argumentsParameter);
+                var call = Expression.Call(
+                    Expression.Convert(instanceParameter, method.DeclaringType),
+                    method,
+                    CreateParameterExpressions(method, argumentsParameter));
 
-			return lambda.Compile();
+                var lambda = Expression.Lambda<LateBoundMethod>(
+                    Expression.Convert(call, typeof(object)),
+                    instanceParameter,
+                    argumentsParameter);
+
+                lateBoundMethod = lambda.Compile();
+                MethodInfoToLateBoundMethod[method] = lateBoundMethod;
+            }
+
+            return lateBoundMethod;
 		}
 
         /// <summary>
@@ -79,30 +100,46 @@ namespace NServiceBus.Utils.Reflection
         /// </summary>
         public static LateBoundProperty Create(PropertyInfo property)
         {
-            var instanceParameter = Expression.Parameter(typeof(object), "target");
+            LateBoundProperty lateBoundProperty;
 
-            var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
+            if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out lateBoundProperty))
+            {
+                var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            var lambda = Expression.Lambda<LateBoundProperty>(
-                Expression.Convert(member, typeof(object)),
-                instanceParameter
-                );
+                var member = Expression.Property(Expression.Convert(instanceParameter, property.DeclaringType), property);
 
-            return lambda.Compile();
+                var lambda = Expression.Lambda<LateBoundProperty>(
+                    Expression.Convert(member, typeof(object)),
+                    instanceParameter
+                    );
+
+                lateBoundProperty = lambda.Compile();
+                PropertyInfoToLateBoundProperty[property] = lateBoundProperty;
+            }
+
+            return lateBoundProperty;
         }
         
         public static LateBoundField Create(FieldInfo field)
         {
-            var instanceParameter = Expression.Parameter(typeof(object), "target");
+            LateBoundField lateBoundField;
 
-            var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
+            if (!FieldInfoToLateBoundField.TryGetValue(field, out lateBoundField))
+            {
+                var instanceParameter = Expression.Parameter(typeof(object), "target");
 
-            var lambda = Expression.Lambda<LateBoundField>(
-                Expression.Convert(member, typeof(object)),
-                instanceParameter
-                );
+                var member = Expression.Field(Expression.Convert(instanceParameter, field.DeclaringType), field);
 
-            return lambda.Compile();
+                var lambda = Expression.Lambda<LateBoundField>(
+                    Expression.Convert(member, typeof(object)),
+                    instanceParameter
+                    );
+
+                lateBoundField = lambda.Compile();
+                FieldInfoToLateBoundField[field] = lateBoundField;
+            }
+
+            return lateBoundField;
         }
 
         /// <summary>
@@ -110,18 +147,24 @@ namespace NServiceBus.Utils.Reflection
         /// </summary>
         public static LateBoundFieldSet CreateSet(FieldInfo field)
         {
-            var sourceType = field.DeclaringType;
-            var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, true);
-            var gen = method.GetILGenerator();
-            
-            gen.Emit(OpCodes.Ldarg_0); // Load input to stack
-            gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
-            gen.Emit(OpCodes.Ldarg_1); // Load value to stack
-            gen.Emit(OpCodes.Unbox_Any, field.FieldType); // Unbox the value to its proper value type
-            gen.Emit(OpCodes.Stfld, field); // Set the value to the input field
-            gen.Emit(OpCodes.Ret);
+            LateBoundFieldSet callback;
 
-            var callback = (LateBoundFieldSet)method.CreateDelegate(typeof(LateBoundFieldSet));
+            if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out callback))
+            {
+                var sourceType = field.DeclaringType;
+                var method = new DynamicMethod("Set" + field.Name, null, new[] { typeof(object), typeof(object) }, true);
+                var gen = method.GetILGenerator();
+
+                gen.Emit(OpCodes.Ldarg_0); // Load input to stack
+                gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+                gen.Emit(OpCodes.Ldarg_1); // Load value to stack
+                gen.Emit(OpCodes.Unbox_Any, field.FieldType); // Unbox the value to its proper value type
+                gen.Emit(OpCodes.Stfld, field); // Set the value to the input field
+                gen.Emit(OpCodes.Ret);
+
+                callback = (LateBoundFieldSet)method.CreateDelegate(typeof(LateBoundFieldSet));
+                FieldInfoToLateBoundFieldSet[field] = callback;
+            }
 
             return callback;
         }
@@ -133,20 +176,26 @@ namespace NServiceBus.Utils.Reflection
         /// <returns>LateBoundPropertySet</returns>
         public static LateBoundPropertySet CreateSet(PropertyInfo property)
         {
-            var method = new DynamicMethod("Set" + property.Name, null, new[] { typeof(object), typeof(object) }, true);
-            var gen = method.GetILGenerator();
+            LateBoundPropertySet result;
 
-            var sourceType = property.DeclaringType;
-            var setter = property.GetSetMethod(true);
+            if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out result))
+            {
+                var method = new DynamicMethod("Set" + property.Name, null, new[] { typeof(object), typeof(object) }, true);
+                var gen = method.GetILGenerator();
 
-            gen.Emit(OpCodes.Ldarg_0); // Load input to stack
-            gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
-            gen.Emit(OpCodes.Ldarg_1); // Load value to stack
-            gen.Emit(OpCodes.Unbox_Any, property.PropertyType); // Unbox the value to its proper value type
-            gen.Emit(OpCodes.Callvirt, setter); // Call the setter method
-            gen.Emit(OpCodes.Ret);
+                var sourceType = property.DeclaringType;
+                var setter = property.GetSetMethod(true);
 
-            var result = (LateBoundPropertySet)method.CreateDelegate(typeof(LateBoundPropertySet));
+                gen.Emit(OpCodes.Ldarg_0); // Load input to stack
+                gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+                gen.Emit(OpCodes.Ldarg_1); // Load value to stack
+                gen.Emit(OpCodes.Unbox_Any, property.PropertyType); // Unbox the value to its proper value type
+                gen.Emit(OpCodes.Callvirt, setter); // Call the setter method
+                gen.Emit(OpCodes.Ret);
+
+                result = (LateBoundPropertySet)method.CreateDelegate(typeof(LateBoundPropertySet));
+                PropertyInfoToLateBoundPropertySet[property] = result;
+            }
 
             return result;
         }

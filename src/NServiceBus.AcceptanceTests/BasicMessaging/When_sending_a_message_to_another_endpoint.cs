@@ -13,10 +13,18 @@
         public void Should_receive_the_message()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MyMessage { Id = context.Id })))
+                    .WithEndpoint<Sender>(b => b.Given((bus, context) =>
+                    {
+                        bus.OutgoingHeaders["MyStaticHeader"] = "StaticHeaderValue";
+                        bus.Send<MyMessage>(m=>
+                        {
+                            m.Id = context.Id;
+                            m.SetHeader("MyHeader","MyHeaderValue");
+                        });
+                    }))
                     .WithEndpoint<Receiver>()
                     .Done(c => c.WasCalled)
-                    .Repeat(r =>r.For<AllSerializers>()
+                    .Repeat(r =>r.For(Serializers.Binary)
                                   .For<AllBuilders>()
                     )
                     .Should(c =>
@@ -27,6 +35,8 @@
                             Assert.True(c.ReceivedHeaders[Headers.OriginatingEndpoint].Contains("Sender"), "The sender should attach its endpoint name as a header");
                             Assert.AreEqual(Environment.MachineName, c.ReceivedHeaders[Headers.ProcessingMachine], "The receiver should attach the machine name as a header");
                             Assert.True(c.ReceivedHeaders[Headers.ProcessingEndpoint].Contains("Receiver"), "The receiver should attach its endpoint name as a header");
+                            Assert.AreEqual("StaticHeaderValue",c.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
+                            Assert.AreEqual("MyHeaderValue", c.MyHeader, "Static headers should be attached to outgoing messages");
                         })
                     .Run();
         }
@@ -40,6 +50,8 @@
             public IDictionary<string, string> ReceivedHeaders { get; set; }
 
             public Guid Id { get; set; }
+
+            public string MyHeader { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -77,6 +89,8 @@
                     return;
 
                 Context.TimesCalled++;
+
+                Context.MyHeader = message.GetHeader("MyHeader");
 
                 Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
 

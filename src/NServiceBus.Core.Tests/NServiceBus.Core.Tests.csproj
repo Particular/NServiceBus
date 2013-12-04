@@ -23,6 +23,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>618,67</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +33,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>618,67</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AWS.Extensions">
@@ -39,6 +43,10 @@
     </Reference>
     <Reference Include="AWSSDK">
       <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
+    </Reference>
+    <Reference Include="ConventionBasedHandlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ConventionBasedHandlers.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop">
       <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
@@ -102,6 +110,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Linq" />
@@ -123,6 +132,15 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Licensing\LicenseDeserializerTests.cs" />
+    <Compile Include="Licensing\LicenseDowngraderTests.cs" />
+    <Compile Include="Licensing\NServiceBusVersionTests.cs" />
+    <Compile Include="Licensing\ResourceReader.cs" />
+    <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
+    <Compile Include="Licensing\TimestampTests.cs" />
+    <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
+    <Compile Include="Licensing\TrialLicenseReaderTests.cs" />
+    <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
@@ -165,6 +183,7 @@
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
+    <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
@@ -199,8 +218,6 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
-    <Compile Include="Pipeline\MessAround.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
@@ -258,13 +275,13 @@
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
     <Compile Include="Unicast\Sagas.cs" />
     <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
+    <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
     <Compile Include="Unicast\HandlerInvocationCache.cs" />
     <Compile Include="Unicast\DeferedMessages.cs" />
     <Compile Include="Unicast\Helpers\FakeSubscriptionStorage.cs" />
     <Compile Include="Unicast\Helpers\FakeTransport.cs" />
     <Compile Include="Unicast\Helpers\Helpers.cs" />
-    <Compile Include="Unicast\Helpers\MessageHeaderManager.cs" />
     <Compile Include="Unicast\MessageModules.cs" />
     <Compile Include="Unicast\Messages\ANamespace\ASubNamespace\MessageD.cs" />
     <Compile Include="Unicast\Messages\ANamespace\MessageC.cs" />
@@ -280,7 +297,9 @@
     <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Unicast\Impersonation.cs" />
     <Compile Include="Unicast\with_sagas.cs" />
+    <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
+    <Compile Include="Utils\StackTracePreserverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -289,10 +308,6 @@
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Core.Tests.x64\ConventionBasedHandler.Tests.csproj">
-      <Project>{0bd67228-1286-4732-a589-5248f774c3d8}</Project>
-      <Name>ConventionBasedHandler.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
@@ -306,6 +321,13 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Licensing\LicenseWithNoUpgradeProtection.xml" />
+    <EmbeddedResource Include="Licensing\SignedInvalid.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Licensing\SignedValid.xml" />
+    <EmbeddedResource Include="Licensing\LicenseWithNonMaxThresholds.xml" />
+    <EmbeddedResource Include="Licensing\LicenseWithAllProperties.xml" />
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

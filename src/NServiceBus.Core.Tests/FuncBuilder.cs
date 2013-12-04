@@ -37,30 +37,35 @@
             try
             {
                 var fn = funcs.FirstOrDefault(f => f.Item1 == typeToBuild);
-
+          
                 if (fn == null)
                 {
                     var @interface = typeToBuild.GetInterfaces().FirstOrDefault();
                     if (@interface != null)
                     {
                         fn = funcs.FirstOrDefault(f => f.Item1 == @interface);
-                        if (fn == null)
-                        {
-                            throw new Exception(string.Format("Could not build type of '{0}'", typeToBuild));
-                        }
                     }
                 }
 
-                var obj = fn.Item2();
+                object result = null;
+
+                if (fn != null)
+                {
+                    result = fn.Item2();                    
+                }
+                else
+                {
+                    result = Activator.CreateInstance(typeToBuild);
+                }
 
                 //enable property injection
-                obj.GetType().GetProperties()
+                result.GetType().GetProperties()
                     .Select(p => p.PropertyType)
                     .Intersect(funcs.Select(f => f.Item1)).ToList()
-                    .ForEach(propertyTypeToSet => obj.GetType().GetProperties().First(p => p.PropertyType == propertyTypeToSet)
-                                                      .SetValue(obj, Build(propertyTypeToSet), null));
+                    .ForEach(propertyTypeToSet => result.GetType().GetProperties().First(p => p.PropertyType == propertyTypeToSet)
+                                                      .SetValue(result, Build(propertyTypeToSet), null));
 
-                return obj;
+                return result;
 
             }
             catch (Exception ex)

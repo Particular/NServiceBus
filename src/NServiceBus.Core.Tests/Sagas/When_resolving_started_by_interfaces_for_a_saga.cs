@@ -43,7 +43,7 @@
         {
             var exception = Assert.Throws<Exception>(() =>
                 {
-                    var types = NServiceBus.Features.Sagas.GetMessageTypesThatRequireStartingTheSaga(typeof (SagaStartedByInValidMessage)).ToList();
+                    NServiceBus.Features.Sagas.GetMessageTypesThatRequireStartingTheSaga(typeof (SagaStartedByInValidMessage)).ToList();
                 });
             Assert.AreEqual("The saga 'NServiceBus.Core.Tests.Sagas.When_resolving_started_by_interfaces_for_a_saga+SagaStartedByInValidMessage' implements 'IAmStartedByMessages`1' but the message type 'NServiceBus.Core.Tests.Sagas.When_resolving_started_by_interfaces_for_a_saga+InValidMessage' is not classified as a message. You should either use 'Unobtrusive Mode Messages' or the message should implement either 'IMessage', 'IEvent' or 'ICommand'.", exception.Message);
 

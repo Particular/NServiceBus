@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using Config;
     using Logging;
@@ -13,8 +14,6 @@
     {
         public override void Initialize()
         {
-            Configure.Component<ReplyingToNullOriginatorDispatcher>(DependencyLifecycle.SingleInstance);
-
             var sagasFound = FindAndConfigureSagasIn(Configure.TypesToScan);
 
             if (sagasFound)
@@ -82,10 +81,7 @@
 
         public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
 
-        /// <summary>
-        /// Creates an <see cref="NullSagaFinder{T}" /> for each saga type that doesn't have a finder configured.
-        /// </summary>
-        private void CreateAdditionalFindersAsNecessary()
+        void CreateAdditionalFindersAsNecessary()
         {
             foreach (var sagaEntityType in SagaEntityToMessageToPropertyLookup.Keys)
                 foreach (var messageType in SagaEntityToMessageToPropertyLookup[sagaEntityType].Keys)
@@ -97,11 +93,6 @@
             foreach (var sagaType in SagaTypeToSagaEntityTypeLookup.Keys)
             {
                 var sagaEntityType = SagaTypeToSagaEntityTypeLookup[sagaType];
-
-
-                var nullFinder = typeof(NullSagaFinder<>).MakeGenericType(sagaEntityType);
-                Configure.Component(nullFinder, DependencyLifecycle.InstancePerCall);
-                ConfigureFinder(nullFinder);
 
                 var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
                 Configure.Component(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
@@ -123,9 +114,6 @@
         /// <summary>
         /// True if the given message are configure to start the saga
         /// </summary>
-        /// <param name="sagaType"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
         public static bool ShouldMessageStartSaga(Type sagaType, Type messageType)
         {
             List<Type> messageTypes;
@@ -241,11 +229,11 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="entityType"></param>
-        /// <returns></returns>
         public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
         {
+            var findersWithExactMatch = new List<Type>();
+            var findersMatchingBaseTypes = new List<Type>();
+
             foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
             {
                 var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
@@ -254,9 +242,21 @@
 
                 if (messageToMethodInfo.TryGetValue(messageType, out methodInfo) && methodInfo.ReturnType == entityType)
                 {
-                    yield return finderType;
+                    findersWithExactMatch.Add(finderType);
+                }
+                else
+                {
+                    foreach (var otherMessage in messageToMethodInfo.Keys)
+                    {
+                        if (otherMessage.IsAssignableFrom(messageType) && messageToMethodInfo[otherMessage].ReturnType == entityType)
+                        {
+                           findersMatchingBaseTypes.Add(finderType);
+                        }
+                    }
                 }
             }
+
+            return findersWithExactMatch.Concat(findersMatchingBaseTypes);
         }
 
         /// <summary>
@@ -440,7 +440,7 @@
 
         static readonly IConfigureHowToFindSagaWithMessage SagaMessageFindingConfiguration = new ConfigureHowToFindSagaWithMessageDispatcher();
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(ReplyingToNullOriginatorDispatcher));
+        static readonly ILog Logger = LogManager.GetLogger(typeof(Sagas));
 
         /// <summary>
         /// Until we get rid of those statics

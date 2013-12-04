@@ -84,7 +84,7 @@ namespace NServiceBus.Gateway.Channels.Http
             }
             catch (ChannelException ex)
             {
-                CloseResponseAndWarn(context, ex.Message, ex.StatusCode);
+                CloseResponseAndWarn(context, ex.GetMessage(), ex.StatusCode);
             }
             catch (Exception ex)
             {

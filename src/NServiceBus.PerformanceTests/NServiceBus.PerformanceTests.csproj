@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,20 +33,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Configuration">
-      <HintPath>..\packages\Autofac\lib\net40\Autofac.Configuration.dll</HintPath>
-    </Reference>
-    <Reference Include="Iesi.Collections">
-      <HintPath>..\packages\Iesi.Collections\lib\Net35\Iesi.Collections.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate">
-      <HintPath>..\packages\NHibernate\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="Raven.Abstractions">
       <HintPath>..\packages\RavenDB.Client\lib\net40\Raven.Abstractions.dll</HintPath>
@@ -61,12 +54,14 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Encryption\ClassForNesting.cs" />
+    <Compile Include="Encryption\EncryptionTestMessageHandler.cs" />
     <Compile Include="Saga\CompleteSagaMessage.cs" />
     <Compile Include="MessageBase.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Saga\SagaData.cs" />
     <Compile Include="Saga\StartSagaMessage.cs" />
+    <Compile Include="Encryption\EncryptionTestMessage.cs" />
     <Compile Include="StatisticsUoW.cs" />
     <Compile Include="TestMessage.cs" />
     <Compile Include="TestMessageHandler.cs" />
@@ -79,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ripple.dependencies.config" />
+    <None Include="TestSuites\Mutators.ps1" />
     <None Include="TestSuites\Sagas-Concurrency.ps1" />
     <None Include="TestSuites\SqlServer.ps1" />
     <None Include="TestSuites\Transports-Sagas.ps1" />
@@ -98,10 +94,6 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.NHibernate\NServiceBus.NHibernate.csproj">
-      <Project>{281646e3-32e0-4f4d-bcf6-1dc5efc6c268}</Project>
-      <Name>NServiceBus.NHibernate</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>

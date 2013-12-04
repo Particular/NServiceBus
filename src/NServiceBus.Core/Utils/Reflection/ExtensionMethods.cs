@@ -2,16 +2,19 @@ namespace NServiceBus.Utils.Reflection
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     /// <summary>
     /// Contains extension methods
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message= "These will be made internal in version 5.0")]
     public static class ExtensionMethods
     {
         /// <summary>
         /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
-        /// </summary>
+        /// </summary>  
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message= "No longer used. to be deleted")]
         public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
         {
             var result = false;
@@ -37,13 +40,17 @@ namespace NServiceBus.Utils.Reflection
             {
                 var args = i.GetGenericArguments();
 
-                if (args.Length == 1)
-                    if (genericArg.IsAssignableFrom(args[0]))
-                        if (openGenericType.MakeGenericType(args[0]) == i)
-                        {
-                            act(args[0]);
-                            break;
-                        }
+                if (args.Length != 1)
+                {
+                    continue;
+                }
+
+                if (genericArg.IsAssignableFrom(args[0])
+                    && openGenericType.MakeGenericType(args[0]) == i)
+                {
+                    act(args[0]);
+                    break;
+                }
             }
         }
 
@@ -72,29 +79,26 @@ namespace NServiceBus.Utils.Reflection
                 if (TypeToNameLookup.ContainsKey(t))
                     return TypeToNameLookup[t];
 
-            var args = t.GetGenericArguments();
-            if (args != null)
+            var index = t.Name.IndexOf('`');
+            if (index >= 0)
             {
-                var index = t.Name.IndexOf('`');
-                if (index >= 0)
+                var result = t.Name.Substring(0, index) + "Of";
+                var args = t.GetGenericArguments();
+                for (var i = 0; i < args.Length; i++)
                 {
-                    var result = t.Name.Substring(0, index) + "Of";
-                    for (var i = 0; i < args.Length; i++)
-                    {
-                        result += args[i].SerializationFriendlyName();
-                        if (i != args.Length - 1)
-                            result += "And";
-                    }
-
-                    if (args.Length == 2)
-                        if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
-                            result = "NServiceBus." + result;
-
-                    lock(TypeToNameLookup)  
-                        TypeToNameLookup[t] = result;
-
-                    return result;
+                    result += args[i].SerializationFriendlyName();
+                    if (i != args.Length - 1)
+                        result += "And";
                 }
+
+                if (args.Length == 2)
+                    if (typeof(KeyValuePair<,>).MakeGenericType(args) == t)
+                        result = "NServiceBus." + result;
+
+                lock(TypeToNameLookup)  
+                    TypeToNameLookup[t] = result;
+
+                return result;
             }
 
             lock(TypeToNameLookup)
@@ -111,13 +115,20 @@ namespace NServiceBus.Utils.Reflection
             return structuralEquatable.Equals(MsPublicKeyToken, StructuralComparisons.StructuralEqualityComparer);
         }
 
+        private static readonly ConcurrentDictionary<Type, bool> IsSystemTypeCache = new ConcurrentDictionary<Type, bool>();
+
         public static bool IsSystemType(this Type type)
         {
-            var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+            bool result;
 
-            return IsClrType(nameOfContainingAssembly);
+            if (!IsSystemTypeCache.TryGetValue(type, out result))
+            {
+                var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
+                IsSystemTypeCache[type] = result = IsClrType(nameOfContainingAssembly);
+            }
+
+            return result;
         }
-
 
         public static bool IsNServiceBusMarkerInterface(this Type type)
         {

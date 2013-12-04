@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using Pipeline;
+    using Pipeline.Contexts;
 
-    internal class UnitOfWorkBehavior : IBehavior
+    class UnitOfWorkBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-       public void Invoke(BehaviorContext context, Action next)
+       public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             try
             {

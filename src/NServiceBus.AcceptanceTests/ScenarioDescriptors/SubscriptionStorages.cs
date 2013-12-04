@@ -5,7 +5,6 @@
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
     using Persistence.Raven.SubscriptionStorage;
-    using Unicast.Subscriptions.NHibernate;
 
     public static class SubscriptionStorages
     {
@@ -36,19 +35,7 @@
                         }
             };
 
-        public static readonly RunDescriptor NHibernate = new RunDescriptor
-            {
-                Key = "NHibernateSubscriptionStorage",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "SubscriptionStorage",
-                                typeof (SubscriptionStorage).AssemblyQualifiedName
-                            }
-                        }
-            };
-
+      
         public static readonly RunDescriptor Msmq = new RunDescriptor
             {
                 Key = "MsmqSubscriptionStorage",

@@ -2,31 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using AcceptanceTesting;
-    using NServiceBus.ObjectBuilder.Autofac;
-    using NServiceBus.ObjectBuilder.CastleWindsor;
-    using NServiceBus.ObjectBuilder.Common.Config;
-    using NServiceBus.ObjectBuilder.Ninject;
-    using NServiceBus.ObjectBuilder.Spring;
-    using NServiceBus.ObjectBuilder.StructureMap;
-    using NServiceBus.ObjectBuilder.Unity;
-    using NServiceBus.Serializers.Binary;
-    using NServiceBus.Serializers.Json;
-    using NServiceBus.Serializers.XML;
+    using ObjectBuilder.Common;
+    using ObjectBuilder.Common.Config;
+    using ScenarioDescriptors;
+    using Serializers.Binary;
+    using Serializers.Json;
+    using Serializers.XML;
     using Persistence.InMemory.SagaPersister;
     using Persistence.InMemory.SubscriptionStorage;
     using Persistence.Msmq.SubscriptionStorage;
-    using Persistence.NHibernate;
     using Persistence.Raven.SagaPersister;
     using Persistence.Raven.SubscriptionStorage;
-    using SagaPersisters.NHibernate;
-    using Unicast.Subscriptions.NHibernate;
 
     public static class ConfigureExtensions
     {
-        static string NHibernateConnectionString = @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;";
-
         public static string GetOrNull(this IDictionary<string, string> dictionary, string key)
         {
             if (!dictionary.ContainsKey(key))
@@ -48,7 +38,7 @@
         public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)
         {
             if (!settings.ContainsKey("Transport"))
-                settings = ScenarioDescriptors.Transports.Default.Settings;
+                settings = Transports.Default.Settings;
 
             var transportType = Type.GetType(settings["Transport"]);
 
@@ -95,36 +85,38 @@
         public static Configure DefineSagaPersister(this Configure config, string persister)
         {
             if (string.IsNullOrEmpty(persister))
+            {
+                persister = SagaPersisters.Default.Settings["SagaPersister"];
+            }
+
+
+
+            if (persister.Contains(typeof(InMemorySagaPersister).FullName))
+            {
                 return config.InMemorySagaPersister();
+            }
 
-            var type = Type.GetType(persister);
 
-            if (type == typeof(InMemorySagaPersister))
-                return config.InMemorySagaPersister();
-
-            if (type == typeof(RavenSagaPersister))
+            if (persister.Contains(typeof(RavenSagaPersister).FullName))
             {
                 config.RavenPersistence(() => "url=http://localhost:8080");
                 return config.RavenSagaPersister();
 
             }
 
-            if (type == typeof(SagaPersister))
-            {
-                NHibernateSettingRetriever.ConnectionStrings = () =>
-                {
-                    var c = new ConnectionStringSettingsCollection();
 
-                    c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
-                    return c;
+            var type = Type.GetType(persister);
 
-                };
-                return config.UseNHibernateSagaPersister();
-            }
+            var typeName = "Configure" + type.Name;
 
-            throw new InvalidOperationException("Unknown persister:" + persister);
+            var configurer = Activator.CreateInstance(Type.GetType(typeName));
+
+            dynamic dc = configurer;
+
+            dc.Configure(config);
+
+            return config;
         }
-
 
         public static Configure DefineSubscriptionStorage(this Configure config, string persister)
         {
@@ -143,20 +135,7 @@
 
             }
 
-            if (type == typeof(SubscriptionStorage))
-            {
-                NHibernateSettingRetriever.ConnectionStrings = () =>
-                    {
-                        var c = new ConnectionStringSettingsCollection();
-                        
-                        c.Add(new ConnectionStringSettings("NServiceBus/Persistence", NHibernateConnectionString));
-                        return c;
-
-                    };
-                return config.UseNHibernateSubscriptionPersister();
-            }
-
-
+          
             if (type == typeof(MsmqSubscriptionStorage))
             {
                 return config.MsmqSubscriptionStorage();
@@ -170,32 +149,12 @@
             if (string.IsNullOrEmpty(builder))
                 return config.DefaultBuilder();
 
-            var type = Type.GetType(builder);
 
-            if (type == typeof(AutofacObjectBuilder))
-            {
-                ConfigureCommon.With(config, new AutofacObjectBuilder(null));
+            var container = (IContainer)Activator.CreateInstance(Type.GetType(builder));
 
-                return config;
-            }
+            ConfigureCommon.With(config, container);
 
-            if (type == typeof(WindsorObjectBuilder))
-                return config.CastleWindsorBuilder();
-
-            if (type == typeof(NinjectObjectBuilder))
-                return config.NinjectBuilder();
-
-            if (type == typeof(SpringObjectBuilder))
-                return config.SpringFrameworkBuilder();
-
-            if (type == typeof(StructureMapObjectBuilder))
-                return config.StructureMapBuilder();
-
-            if (type == typeof(UnityObjectBuilder))
-                return config.StructureMapBuilder();
-
-
-            throw new InvalidOperationException("Unknown builder:" + builder);
+            return config;
         }
     }
 }

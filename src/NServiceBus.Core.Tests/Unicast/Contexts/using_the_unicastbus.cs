@@ -5,20 +5,23 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using System.Collections.ObjectModel;
     using System.Threading;
     using Audit;
+    using Behaviors;
     using Core.Tests;
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
+    using Licensing;
+    using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using MessageMutator;
     using Monitoring;
     using NUnit.Framework;
-    using Pipeline.Behaviors;
+    using Pipeline;
     using Publishing;
     using Rhino.Mocks;
     using Routing;
-    using Sagas;
+    using Serialization;
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
@@ -37,7 +40,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FakeSubscriptionStorage subscriptionStorage;
 
         protected Address gatewayAddress;
-        MessageHeaderManager headerManager = new MessageHeaderManager();
         protected MessageMapper MessageMapper = new MessageMapper();
 
         protected FakeTransport Transport;
@@ -51,11 +53,15 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
-      
+
+        PipelineFactory pipelineFactory;
 
         [SetUp]
         public void SetUp()
         {
+          
+
+            LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();
@@ -83,7 +89,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
-            ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
+            //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
             gatewayAddress = MasterNodeAddress.SubScope("gateway");
 
             messageSender = MockRepository.GenerateStub<ISendMessages>();
@@ -95,75 +101,75 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => headerManager);
+            pipelineFactory = new PipelineFactory { RootBuilder = FuncBuilder };
+
+            FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
+            FuncBuilder.Register<ISendMessages>(() => messageSender);
+
+            FuncBuilder.Register<MessageAuditer>(() => new MessageAuditer());
+
+            FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
+
             FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
                 {
                     SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
                 });
-            FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new SentTimeMutator());
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
-            FuncBuilder.Register<DefaultDispatcherFactory>(() => new DefaultDispatcherFactory());
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
+            FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
+
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
             FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
-            
-            FuncBuilder.Register<IDeferMessages>(()=>new FakeMessageDeferrer());
 
-            FuncBuilder.Register<UnitOfWorkBehavior>();
-            FuncBuilder.Register<MessageHandlingLoggingBehavior>();
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
                                                              {
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<ApplyIncomingMessageMutatorsBehavior>();
-            FuncBuilder.Register<AuditBehavior>();
-            FuncBuilder.Register<MessageAuditer>();
-            
-            FuncBuilder.Register<ForwardBehavior>();
             FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
                 {
                     ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
                 });
-            FuncBuilder.Register<LoadHandlersBehavior>();
-            FuncBuilder.Register<SagaPersistenceBehavior>();
-            FuncBuilder.Register<InvokeHandlersBehavior>();
 
-            FuncBuilder.Register<RaiseMessageReceivedBehavior>();
-            FuncBuilder.Register<CallbackInvocationBehavior>(() => new CallbackInvocationBehavior());
-            FuncBuilder.Register<ApplyIncomingTransportMessageMutatorsBehavior>();
+            FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
+            FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
+
+            var messagePublisher = new StorageDrivenPublisher
+            {
+                MessageSender = messageSender,
+                SubscriptionStorage = subscriptionStorage
+            };
+
+            var deferer = new TimeoutManagerDeferrer
+            {
+                MessageSender = messageSender,
+                TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
+            };
+
+            FuncBuilder.Register<IDeferMessages>(() => deferer);
+            FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
             unicastBus = new UnicastBus
             {
                 MasterNodeAddress = MasterNodeAddress,
-                MessageSerializer = MessageSerializer,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,
                 MessageMapper = MessageMapper,
-                MessagePublisher = new StorageDrivenPublisher
-                    {
-                        MessageSender = messageSender,
-                        SubscriptionStorage = subscriptionStorage
-                    },
-                MessageDeferrer = new TimeoutManagerDeferrer
-                    {
-                        MessageSender = messageSender,
-                        TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
-                    },
                 SubscriptionManager = subscriptionManager,
-                MessageMetadataRegistry = MessageMetadataRegistry,
                 SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
-                MessageRouter = router,
+                MessageRouter = router
             };
             bus = unicastBus;
 
             FuncBuilder.Register<IMutateOutgoingTransportMessages>(() => new CausationMutator { Bus = bus });
             FuncBuilder.Register<IBus>(() => bus);
             FuncBuilder.Register<UnicastBus>(() => unicastBus);
-
-            ExtensionMethods.SetHeaderAction = headerManager.SetHeader;
+            new HeaderBootstrapper
+            {
+                Builder = FuncBuilder
+            }.SetupHeaderActions();
         }
 
         protected virtual IEnumerable<Type> KnownMessageTypes()
@@ -197,7 +203,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         }
         protected void RegisterOwnedMessageType<T>()
         {
-            router.RegisterRoute(typeof(T), Address.Local);
+            router.RegisterMessageRoute(typeof(T), Address.Local);
         }
         protected Address RegisterMessageType<T>()
         {
@@ -211,7 +217,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
             MessageMapper.Initialize(new[] { typeof(T) });
             MessageSerializer.Initialize(new[] { typeof(T) });
-            router.RegisterRoute(typeof(T), address);
+            router.RegisterMessageRoute(typeof(T), address);
             MessageMetadataRegistry.RegisterMessageType(typeof(T));
 
         }
@@ -302,7 +308,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
         }
 
-        protected void ReceiveMessage<T>(T message, IDictionary<string,string> headers = null)
+        protected void ReceiveMessage<T>(T message, IDictionary<string, string> headers = null)
         {
             RegisterMessageType<T>();
             var messageToReceive = Helpers.Serialize(message);
@@ -316,7 +322,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
             }
 
 
-        
+
             ReceiveMessage(messageToReceive);
         }
 

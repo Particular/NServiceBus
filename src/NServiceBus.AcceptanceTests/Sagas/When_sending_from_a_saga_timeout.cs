@@ -33,7 +33,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class Saga1 : Saga<Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>
+            public class Saga1 : Saga<Saga1.Saga1Data>, IAmStartedByMessages<StartSaga1>, IHandleTimeouts<Saga1Timeout>
             {
                 public Context Context { get; set; }
 
@@ -47,12 +47,14 @@
                     Bus.SendLocal(new StartSaga2());
                     MarkAsComplete();
                 }
+                public class Saga1Data : ContainSagaData
+                {
+                }
             }
 
-            public class Saga1Data : ContainSagaData
-            {
-            }
-            public class Saga2 : Saga<Saga2Data>, IAmStartedByMessages<StartSaga2>
+
+
+            public class Saga2 : Saga<Saga2.Saga2Data>, IAmStartedByMessages<StartSaga2>
             {
                 public Context Context { get; set; }
 
@@ -61,11 +63,11 @@
                     Context.DidSaga2ReceiveMessage = true;
                 }
 
+                public class Saga2Data : ContainSagaData
+                {
+                }
             }
 
-            public class Saga2Data : ContainSagaData
-            {
-            }
         }
 
 
