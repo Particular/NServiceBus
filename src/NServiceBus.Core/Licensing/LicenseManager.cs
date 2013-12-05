@@ -32,7 +32,7 @@ namespace NServiceBus.Licensing
                 //TODO: should we display dialog if UpgradeProtection is not valid?
                 if (ExpiryChecker.IsExpired(License.ExpirationDate))
                 {
-                    License = LicenseExpiredFormDisplayer.PromptUserForLicense();
+                    license = LicenseExpiredFormDisplayer.PromptUserForLicense();
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace NServiceBus.Licensing
                 {
                     Logger.WarnFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", NServiceBusVersion.MajorAndMinor);
 
-                    License = LicenseDeserializer.GetBasicLicense();
+                    license = LicenseDeserializer.GetBasicLicense();
                 }
                 else
                 {
@@ -66,14 +66,14 @@ namespace NServiceBus.Licensing
                     Logger.Info(message);
 
                     //Run in unlimited mode during trial period
-                    License = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
+                    license = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
                 }
                 return;
             }
 
             Logger.Warn("Could not access registry for the current user sid. Falling back to run in Basic license mode.");
 
-            License = LicenseDeserializer.GetBasicLicense();
+            license = LicenseDeserializer.GetBasicLicense();
         }
 
         internal static void Verify()
@@ -96,18 +96,29 @@ namespace NServiceBus.Licensing
             {
                 message = message + " You can renew it at http://particular.net/licensing. Downgrading to basic mode";
                 Logger.Warn(message);
-                License = LicenseDeserializer.GetBasicLicense();
+                license = LicenseDeserializer.GetBasicLicense();
             }
             else
             {
-                License = tempLicense;
+                license = tempLicense;
             }
             WriteLicenseInfo();
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
 
-        public static License License;
+        public static License License
+        {
+            get
+            {
+                if (license == null)
+                {
+                    Verify();
+                }
+                return license;
+            }
+        }
         static string licenseText;
+        static License license;
     }
 }

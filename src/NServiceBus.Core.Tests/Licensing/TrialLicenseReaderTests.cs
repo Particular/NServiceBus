@@ -13,7 +13,8 @@
         public void When_no_sub_key_exists_one_is_created()
         {
             var subKeyPath = String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor);
-            Registry.CurrentUser.DeleteSubKey(subKeyPath);
+            
+            Registry.CurrentUser.DeleteSubKey(subKeyPath,false);
             var expirationFromRegistry = TrialLicenseReader.GetTrialExpirationFromRegistry();
             Assert.AreEqual(DateTime.UtcNow.AddDays(TrialLicenseReader.TRIAL_DAYS).Date, expirationFromRegistry.Date);
             Assert.IsNotNull(Registry.CurrentUser.OpenSubKey(subKeyPath));
