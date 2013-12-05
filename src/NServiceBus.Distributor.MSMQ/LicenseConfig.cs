@@ -10,18 +10,13 @@ namespace NServiceBus.Distributor.MSMQ
     /// </summary>
     internal static class LicenseConfig
     {
-        static LicenseConfig()
-        {
-            allowedWorkerNodes = LicenseManager.License.AllowedNumberOfWorkerNodes;
-        }
-
         internal static bool LimitNumberOfWorkers(Address workerAddress)
         {
             if (WorkersList.Contains(workerAddress))
             {
                 return false;
             }
-
+            var allowedWorkerNodes = LicenseManager.License.AllowedNumberOfWorkerNodes;
             if (WorkersList.Count < allowedWorkerNodes)
             {
                 WorkersList.Add(workerAddress);
@@ -34,7 +29,6 @@ namespace NServiceBus.Distributor.MSMQ
         }
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseConfig));
-        static readonly int allowedWorkerNodes;
         static readonly ConcurrentBag<Address> WorkersList = new ConcurrentBag<Address>();
     }
 }
