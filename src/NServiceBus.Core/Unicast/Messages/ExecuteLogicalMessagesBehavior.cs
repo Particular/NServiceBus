@@ -6,6 +6,7 @@
     using Logging;
     using Pipeline;
     using Pipeline.Contexts;
+    using Transport;
 
     class ExecuteLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
@@ -25,9 +26,13 @@
                 PipelineFactory.InvokeLogicalMessagePipeline(message);
             }
 
-            if (!logicalMessages.Any())
+
+            if (!context.PhysicalMessage.IsControlMessage())
             {
-                log.Warn("Received an empty message - ignoring.");
+                if (!logicalMessages.Any())
+                {
+                    log.Warn("Received an empty message - ignoring.");
+                }
             }
 
             next();
