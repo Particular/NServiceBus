@@ -122,7 +122,6 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
-    <Compile Include="Licensing\LicenseVerifier.cs" />
     <Compile Include="Licensing\ExpiryChecker.cs" />
     <Compile Include="Licensing\LicenseDowngrader.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
