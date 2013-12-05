@@ -44,10 +44,6 @@
     <Reference Include="AWSSDK">
       <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
     </Reference>
-    <Reference Include="ConventionBasedHandlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ConventionBasedHandlers.dll</HintPath>
-    </Reference>
     <Reference Include="Esent.Interop">
       <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
     </Reference>
@@ -308,6 +304,10 @@
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ConventionBasedHandlers\ConventionBasedHandlers.csproj">
+      <Project>{2311CBF3-5381-4151-B2D0-EE14A89F870B}</Project>
+      <Name>ConventionBasedHandlers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>

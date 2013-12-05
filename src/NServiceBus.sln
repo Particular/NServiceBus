@@ -1,7 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus", "NServiceBus\NServiceBus.csproj", "{73867D40-8CBB-48E9-BFFA-12BBDD48A341}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectBuilder.CastleWindsor", "ObjectBuilder.CastleWindsor\ObjectBuilder.CastleWindsor.csproj", "{9A9A0BD5-AC37-4B90-B90F-FD1C1395FEBD}"
@@ -61,6 +59,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.PerformanceTests", "NServiceBus.PerformanceTests\NServiceBus.PerformanceTests.csproj", "{2F2FBB64-FE67-4204-8E27-E1DB39ED843D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Distributor.MSMQ", "NServiceBus.Distributor.MSMQ\NServiceBus.Distributor.MSMQ.csproj", "{5A2F57E3-4D2B-439C-9481-1DE2DD101789}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConventionBasedHandlers", "ConventionBasedHandlers\ConventionBasedHandlers.csproj", "{2311CBF3-5381-4151-B2D0-EE14A89F870B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -316,6 +316,16 @@ Global
 		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5A2F57E3-4D2B-439C-9481-1DE2DD101789}.Release|x86.ActiveCfg = Release|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -328,6 +338,7 @@ Global
 		{2C8F181B-9BAF-4858-968B-1C16F5DDCFA7} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
 		{389628F6-2FB4-4AFF-BACC-16726C44FFA4} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
 		{5A2F57E3-4D2B-439C-9481-1DE2DD101789} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
+		{2311CBF3-5381-4151-B2D0-EE14A89F870B} = {258A3F0E-FAFA-4C13-9D5A-9E46661B22D2}
 		{C05E5B87-EB74-4A3F-B4FC-AFDD28570850} = {A650DE92-3B6D-4228-A1A2-FB06E74C1BD2}
 		{73EC4EBE-826D-4A0A-8837-51D3458FC2A8} = {A650DE92-3B6D-4228-A1A2-FB06E74C1BD2}
 		{343B2E7A-E228-4B31-ABB5-F5437B2E7A4C} = {A650DE92-3B6D-4228-A1A2-FB06E74C1BD2}
