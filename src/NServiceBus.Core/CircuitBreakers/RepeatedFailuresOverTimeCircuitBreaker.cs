@@ -72,7 +72,7 @@ namespace NServiceBus.CircuitBreakers
 
         readonly TimeSpan delayAfterFailure;
         readonly string name;
-        readonly TimeSpan timeToWaitBeforeTriggering;
+        TimeSpan timeToWaitBeforeTriggering;
         Timer timer;
         readonly Action<Exception> triggerAction;
         long failureCount;
