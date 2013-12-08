@@ -31,6 +31,6 @@ namespace NServiceBus.Transports.Msmq
             currentTransaction.Value = null;
         }
 
-        readonly ThreadLocal<MessageQueueTransaction> currentTransaction = new ThreadLocal<MessageQueueTransaction>();
+        ThreadLocal<MessageQueueTransaction> currentTransaction = new ThreadLocal<MessageQueueTransaction>();
     }
 }
