@@ -122,13 +122,17 @@
             if (messageTypes == null)
                 return false;
 
-            return messageTypes.Contains(messageType);
+            if (messageTypes.Contains(messageType))
+                return true;
+
+            return messageTypes.Any(msgTypeHandleBySaga => msgTypeHandleBySaga.IsAssignableFrom(messageType));
         }
 
         /// <summary>
         /// Gets the saga type to instantiate and invoke if an existing saga couldn't be found by
         /// the given finder using the given message.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.4")]
         public static Type GetSagaTypeToStartIfMessageNotFoundByFinder(object message, IFinder finder)
         {
             Type sagaEntityType;
