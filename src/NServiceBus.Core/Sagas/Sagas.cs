@@ -129,6 +129,41 @@
         }
 
         /// <summary>
+        /// Gets the saga type to instantiate and invoke if an existing saga couldn't be found by
+        /// the given finder using the given message.
+        /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.4")]
+        public static Type GetSagaTypeToStartIfMessageNotFoundByFinder(object message, IFinder finder)
+        {
+            Type sagaEntityType;
+            FinderTypeToSagaEntityTypeLookup.TryGetValue(finder.GetType(), out sagaEntityType);
+
+            if (sagaEntityType == null)
+                return null;
+
+            Type sagaType;
+            SagaEntityTypeToSagaTypeLookup.TryGetValue(sagaEntityType, out sagaType);
+
+            if (sagaType == null)
+                return null;
+
+            List<Type> messageTypes;
+            SagaTypeToMessageTypesRequiringSagaStartLookup.TryGetValue(sagaType, out messageTypes);
+
+            if (messageTypes == null)
+                return null;
+
+            if (messageTypes.Contains(message.GetType()))
+                return sagaType;
+
+            foreach (var msgTypeHandleBySaga in messageTypes)
+                if (msgTypeHandleBySaga.IsInstanceOfType(message))
+                    return sagaType;
+
+            return null;
+        }
+
+        /// <summary>
         /// Returns the saga type configured for the given entity type.
         /// </summary>
         public static Type GetSagaTypeForSagaEntityType(Type sagaEntityType)
