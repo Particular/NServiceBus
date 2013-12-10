@@ -18,6 +18,7 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Serialization;
+    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
@@ -369,6 +370,20 @@ namespace NServiceBus.Unicast
             }
 
             var addresses = GetAddressForMessageType(messageType);
+            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            if (transportDefinition.HasSupportForCentralizedPubSub)
+            {
+                // We are dealing with a brokered transport wired for auto pub/sub.
+                SubscriptionManager.Subscribe(messageType, null);
+                if (addresses.Count > 0)
+                {
+                    Log.WarnFormat(@"MessageEndpointMappings for event {0} has been defined in the app.config in the UnicastBusConfig section.
+MessageEndpointMappings are not necessary for defining event subscriptions, since you are using a brokered transport which supports pub/sub natively.
+MessageEndpointMappings is only needed for specifying commands, i.e. Bus.Send destinations.", messageType.ToString());
+                }
+                return;
+            }
+
             if (addresses.Count == 0)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
@@ -419,6 +434,20 @@ namespace NServiceBus.Unicast
             }
 
             var addresses = GetAddressForMessageType(messageType);
+            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
+            if (transportDefinition.HasSupportForCentralizedPubSub)
+            {
+                // We are dealing with a brokered transport wired for auto pub/sub.
+                SubscriptionManager.Unsubscribe(messageType, null);
+                if (addresses.Count > 0)
+                {
+                    Log.WarnFormat(@"MessageEndpointMappings for event {0} has been defined in the app.config in the UnicastBusConfig section.
+MessageEndpointMappings are not necessary for defining event subscriptions, since you are using a brokered transport which supports pub/sub natively.
+MessageEndpointMappings is only needed for specifying commands, i.e. Bus.Send destinations.", messageType.ToString());
+                }
+                return;
+            }
+
             if (addresses.Count == 0)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
