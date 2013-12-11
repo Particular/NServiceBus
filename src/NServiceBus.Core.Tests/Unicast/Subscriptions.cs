@@ -2,7 +2,9 @@ namespace NServiceBus.Unicast.Tests
 {
     using System;
     using Contexts;
+    using Core.Tests.Fakes;
     using NUnit.Framework;
+    using Settings;
 
     [TestFixture]
     public class When_subscribing_to_messages : using_the_unicastBus
@@ -14,7 +16,9 @@ namespace NServiceBus.Unicast.Tests
         [SetUp]
         public new void SetUp()
         {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new Msmq());
             router.RegisterMessageRoute(typeof(TestMessage), addressToOwnerOfTestMessage);
+            
         }
         [Test]
         public void Should_send_the_assemblyQualified_name_as_subscription_type()
@@ -41,9 +45,17 @@ namespace NServiceBus.Unicast.Tests
     public class When_subscribing_to_a_message_that_has_no_configured_address : using_the_unicastBus
     {
         [Test]
-        public void Should_throw()
+        public void Should_throw_when_not_using_a_centralized_pub_sub_transport()
         {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new Msmq());
             Assert.Throws<InvalidOperationException>(() => bus.Subscribe<EventMessage>());
+        }
+
+        [Test]
+        public void Should_not_throw_when_using_a_centralized_pub_sub_transport()
+        {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new FakeCentralizedPubSubTransportDefinition() );
+            Assert.DoesNotThrow(() => bus.Subscribe<EventMessage>());
         }
     }
 
@@ -51,9 +63,17 @@ namespace NServiceBus.Unicast.Tests
     public class When_unsubscribing_to_a_message_that_has_no_configured_address : using_the_unicastBus
     {
         [Test]
-        public void Should_throw()
+        public void Should_throw_when_not_using_a_centralized_pub_sub_transport()
         {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new Msmq());
             Assert.Throws<InvalidOperationException>(() => bus.Unsubscribe<EventMessage>());
+        }
+
+        [Test]
+        public void Should_not_throw_when_using_a_centralized_pub_sub_transport()
+        {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new FakeCentralizedPubSubTransportDefinition());
+            Assert.DoesNotThrow(() => bus.Unsubscribe<EventMessage>());
         }
     }
     [TestFixture]

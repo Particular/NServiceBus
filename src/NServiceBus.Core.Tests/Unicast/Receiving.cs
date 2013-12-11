@@ -7,6 +7,7 @@
     using Contexts;
     using NUnit.Framework;
     using Rhino.Mocks;
+    using Settings;
     using Subscriptions;
     using Timeout;
 
@@ -175,6 +176,14 @@
     [TestFixture]
     public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastBus
     {
+        /// <summary>
+        /// Set Up
+        /// </summary>
+        [SetUp]
+        public new void SetUp()
+        {
+            SettingsHolder.Set("NServiceBus.Transport.SelectedTransport", new Msmq());
+        }
         [Test]
         public void Should_not_invoke_the_handlers()
         {
