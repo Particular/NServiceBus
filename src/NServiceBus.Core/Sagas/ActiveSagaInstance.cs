@@ -1,9 +1,13 @@
 namespace NServiceBus.Sagas
 {
     using System;
+    using System.ComponentModel;
     using Saga;
 
-    class ActiveSagaInstance
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ActiveSagaInstance
     {
         public ActiveSagaInstance(ISaga saga)
         {

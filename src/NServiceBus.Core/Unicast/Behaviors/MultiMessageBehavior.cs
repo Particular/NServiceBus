@@ -4,9 +4,8 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-
     [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
-    class MultiMessageBehavior:IBehavior<SendLogicalMessagesContext>
+    public class MultiMessageBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public PipelineFactory PipelineFactory { get; set; }
 

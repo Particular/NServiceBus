@@ -5,10 +5,13 @@
 
     class BehaviorChain<T> where T : BehaviorContext
     {
-        public void Add<TBehavior>() where TBehavior : IBehavior<T>
+        public BehaviorChain(BehaviorList<T> behaviorList)
         {
-            itemDescriptors.Enqueue(typeof(TBehavior));
-        }
+            foreach (var behaviorType in behaviorList.InnerList)
+            {
+                itemDescriptors.Enqueue(behaviorType);
+            }
+        } 
 
         public void Invoke(T context)
         {

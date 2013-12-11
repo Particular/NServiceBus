@@ -1,11 +1,14 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Messages;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class SetCurrentMessageBeingHandledBehavior : IBehavior<HandlerInvocationContext>
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SetCurrentMessageBeingHandledBehavior : IBehavior<HandlerInvocationContext>
     {
         public void Invoke(HandlerInvocationContext context, Action next)
         {

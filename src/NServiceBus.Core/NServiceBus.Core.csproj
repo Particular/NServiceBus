@@ -148,6 +148,9 @@
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
+    <Compile Include="Pipeline\BehaviorList.cs" />
+    <Compile Include="Pipeline\PipelineOverride.cs" />
+    <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
     <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="TypesToBeRemovedInVersion5.cs" />

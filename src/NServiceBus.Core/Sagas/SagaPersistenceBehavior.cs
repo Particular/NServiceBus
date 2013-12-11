@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using IdGeneration;
     using Logging;
@@ -13,7 +14,10 @@
     using Unicast;
     using Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
