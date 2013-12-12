@@ -1,4 +1,8 @@
-﻿namespace MyServer
+﻿using System.IO;
+using Raven.Client;
+using Raven.Client.Embedded;
+
+namespace MyServer
 {
     using NServiceBus;
     using NServiceBus.MessageMutator;
@@ -7,6 +11,9 @@
     {
         public void Init()
         {
+
+
+
             Configure.With()
                 .DefaultBuilder()
                 //shows multi tenant operations of the sagas
@@ -17,6 +24,19 @@
 
                                                             return string.Empty;
                                                         });
+
+            var documentStore = new EmbeddableDocumentStore
+            {
+                EnlistInDistributedTransactions = false,
+               DataDirectory = Path.GetTempPath()
+            };
+
+
+            documentStore.Initialize();
+
+            Configure.Instance.Configurer.RegisterSingleton<IDocumentStore>(documentStore);
+            Configure.Instance.RavenPersistenceWithStore(documentStore);
+
 
         }
     }
