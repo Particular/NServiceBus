@@ -369,8 +369,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
-            if (transportDefinition.HasSupportForCentralizedPubSub)
+            if (TransportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Subscribe(messageType, null);
@@ -427,8 +426,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            var transportDefinition = SettingsHolder.GetOrDefault<TransportDefinition>("NServiceBus.Transport.SelectedTransport");
-            if (transportDefinition.HasSupportForCentralizedPubSub)
+            if (TransportDefinition.HasSupportForCentralizedPubSub)
             {
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Unsubscribe(messageType, null);
@@ -1170,5 +1168,15 @@ namespace NServiceBus.Unicast
                 return Builder.Build<LogicalMessageFactory>();
             }
         }
+
+        TransportDefinition TransportDefinition
+        {
+            get
+            {
+                return Builder.Build<TransportDefinition>();
+            }
+        }
+
+
     }
 }
