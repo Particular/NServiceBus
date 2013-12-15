@@ -12,7 +12,13 @@
         static ILog Logger = LogManager.GetLogger(typeof(LicenseExpiredForm));
         public LicenseExpiredForm()
         {
-            InitializeComponent();
+            InitializeComponent(); 
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            Visible = true;
         }
 
         void browseButton_Click(object sender, EventArgs e)
