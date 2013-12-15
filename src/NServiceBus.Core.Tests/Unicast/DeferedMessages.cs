@@ -56,7 +56,7 @@
     }
 
     [TestFixture]
-    public class When_shortcutting_defered_messages_that_already_has_expired : using_the_unicastBus
+    public class When_short_cutting_deferred_messages_that_already_has_expired : using_the_unicastBus
     {
         [Test]
         public void Should_use_utc_when_comparing()
@@ -66,7 +66,7 @@
 
             bus.Defer(time, new DeferredMessage());
 
-            //no expiry header should be there since this message will be trated as a send local
+            //no expiry header should be there since this message will be treated as a send local
             VerifyThatMessageWasSentWithHeaders(h => !h.ContainsKey(TimeoutManagerHeaders.Expire));
         }
     }

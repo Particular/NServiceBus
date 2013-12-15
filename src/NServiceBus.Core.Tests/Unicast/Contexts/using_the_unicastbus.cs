@@ -142,13 +142,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionStorage = subscriptionStorage
             };
 
-            var deferer = new TimeoutManagerDeferrer
+            var deferrer = new TimeoutManagerDeferrer
             {
                 MessageSender = messageSender,
                 TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
             };
 
-            FuncBuilder.Register<IDeferMessages>(() => deferer);
+            FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
             unicastBus = new UnicastBus

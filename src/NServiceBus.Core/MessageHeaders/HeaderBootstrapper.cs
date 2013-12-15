@@ -19,14 +19,14 @@ namespace NServiceBus.MessageHeaders
 
                 if (message == ExtensionMethods.CurrentMessageBeingHandled)
                 {
-                    LogicalMessage messageBeeingReceived;
+                    LogicalMessage messageBeingReceived;
 
                     //first try to get the header from the current logical message
-                    if (pipelineFactory.CurrentContext.TryGet(out messageBeeingReceived))
+                    if (pipelineFactory.CurrentContext.TryGet(out messageBeingReceived))
                     {
                         string value;
 
-                        messageBeeingReceived.Headers.TryGetValue(key, out value);
+                        messageBeingReceived.Headers.TryGetValue(key, out value);
 
                         return value;
                     }
