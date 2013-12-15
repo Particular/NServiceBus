@@ -139,7 +139,6 @@
     <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
-    <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
     <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
@@ -169,7 +168,6 @@
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
-    <Compile Include="Gateway\InMemoryDataBus.cs" />
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
