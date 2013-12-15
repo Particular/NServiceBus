@@ -18,7 +18,6 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Serialization;
-    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;

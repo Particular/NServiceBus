@@ -32,7 +32,7 @@
             if (SubscriptionStorage == null)
                 throw new InvalidOperationException("Cannot publish on this endpoint - no subscription storage has been configured. Add either 'MsmqSubscriptionStorage()' or 'DbSubscriptionStorage()' after 'NServiceBus.Configure.With()'.");
 
-            var subscribers = Enumerable.ToList<Address>(SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypes.Select(t => new MessageType(t))));
+            var subscribers = SubscriptionStorage.GetSubscriberAddressesForMessage(eventTypes.Select(t => new MessageType(t))).ToList();
 
             if (!subscribers.Any())
                 return false;
