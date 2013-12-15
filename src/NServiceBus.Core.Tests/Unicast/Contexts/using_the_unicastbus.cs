@@ -53,6 +53,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+        protected TransportDefinition transportDefinition;
 
         PipelineFactory pipelineFactory;
 
@@ -60,7 +61,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         public void SetUp()
         {
           
-
+            transportDefinition = new Msmq();
             LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
@@ -134,6 +135,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
+            FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
+
 
             var messagePublisher = new StorageDrivenPublisher
             {
