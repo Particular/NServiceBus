@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.IO;
     using NServiceBus.DataBus;
     using NServiceBus.DataBus.Config;
+    using NServiceBus.DataBus.InMemory;
     using NUnit.Framework;
 
     [TestFixture]
