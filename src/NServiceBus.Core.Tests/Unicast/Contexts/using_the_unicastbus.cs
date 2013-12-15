@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
-        protected Address MasterNodeAddress;
+        public static Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
@@ -56,6 +56,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected TransportDefinition transportDefinition;
 
         PipelineFactory pipelineFactory;
+
+        static using_a_configured_unicastBus()
+        {
+            var localAddress = "endpointA";
+            MasterNodeAddress = new Address(localAddress, "MasterNode");
+            Address.InitializeLocalAddress(localAddress);
+        }
 
         [SetUp]
         public void SetUp()
@@ -71,8 +78,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
-            const string localAddress = "endpointA";
-            MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
@@ -81,13 +86,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     DefaultToNonPersistentMessages = false
                 };
 
-            try
-            {
-                Address.InitializeLocalAddress(localAddress);
-            }
-            catch // intentional
-            {
-            }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
