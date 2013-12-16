@@ -6,7 +6,7 @@
 
     public static class AuditSettingsExtensions
     {
-        public static FeatureSettings Audit(this FeatureSettings settings, Action<IAuditFilters> customSettings)
+        public static FeatureSettings Audit(this FeatureSettings settings, Action<AuditFilters> customSettings)
         {
             var auditFilters = new AuditFilters();
             customSettings(auditFilters);

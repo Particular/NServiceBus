@@ -2,9 +2,9 @@
 {
     using System;
 
-    public static class IAuditFiltersExtensions
+    public static class AuditFiltersExtensions
     {
-        public static IAuditFilters ExcludeMessageTypeFromAudit(this IAuditFilters auditFilters, Type typeToExclude)
+        public static AuditFilters ExcludeMessageTypeFromAudit(this AuditFilters auditFilters, Type typeToExclude)
         {
             auditFilters.ExcludeFromAudit(message =>
             {

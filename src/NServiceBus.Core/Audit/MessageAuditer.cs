@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Linq;
     using Features;
     using Transports;
 
@@ -41,7 +42,7 @@
                 return;
             }
 
-            if (!AuditFilters.AuditMessage(transportMessage))
+            if (AuditFilters.Filters.Any(f => f(transportMessage)))
             {
                 return;
             }
