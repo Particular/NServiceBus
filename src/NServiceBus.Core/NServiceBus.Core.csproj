@@ -90,6 +90,11 @@
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
+    <Compile Include="Audit\AuditFilters.cs" />
+    <Compile Include="Audit\Config\AuditSettingsExtensions.cs" />
+    <Compile Include="Audit\Config\DefaultAuditSettings.cs" />
+    <Compile Include="Audit\IAuditFilters.cs" />
+    <Compile Include="Audit\IAuditFiltersExtensions.cs" />
     <Compile Include="Audit\InitMessageAuditer.cs" />
     <Compile Include="Audit\MessageAuditer.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscribe.cs" />
