@@ -31,7 +31,8 @@ namespace NServiceBus.Unicast.Config
             ConfigureSubscriptionAuthorization();
             RegisterMessageModules();
 
-            Configurer.ConfigureComponent<PipelineFactory>(DependencyLifecycle.SingleInstance);
+            Configurer.ConfigureComponent<PipelineExecutor>(DependencyLifecycle.SingleInstance);
+            Configurer.ConfigureComponent<PipelineBuilder>(DependencyLifecycle.SingleInstance);
             ConfigureBehaviors();
         }
 

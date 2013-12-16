@@ -15,7 +15,7 @@ namespace NServiceBus.MessageHeaders
         {
             ExtensionMethods.GetHeaderAction = (message, key) =>
             {
-                var pipelineFactory = Builder.Build<PipelineFactory>();
+                var pipelineFactory = Builder.Build<PipelineExecutor>();
 
                 if (message == ExtensionMethods.CurrentMessageBeingHandled)
                 {
@@ -67,7 +67,7 @@ namespace NServiceBus.MessageHeaders
 
             ExtensionMethods.SetHeaderAction = (message, key, value) =>
             {
-                var pipelineFactory = Builder.Build<PipelineFactory>();
+                var pipelineFactory = Builder.Build<PipelineExecutor>();
 
                 //are we in the process of sending a logical message
                 var outgoingLogicalMessageContext = pipelineFactory.CurrentContext as SendLogicalMessageContext;

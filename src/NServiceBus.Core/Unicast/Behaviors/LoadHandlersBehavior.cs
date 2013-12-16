@@ -17,7 +17,7 @@
 
         public IMessageMapper MessageMapper { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineFactory { get; set; }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {

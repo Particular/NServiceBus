@@ -14,7 +14,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ExecuteLogicalMessagesBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineExecutor { get; set; }
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
@@ -27,7 +27,7 @@
             var logicalMessages = context.LogicalMessages;
             foreach (var message in logicalMessages)
             {
-                PipelineFactory.InvokeLogicalMessagePipeline(message);
+                PipelineExecutor.InvokeLogicalMessagePipeline(message);
             }
 
 

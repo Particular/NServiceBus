@@ -1138,11 +1138,11 @@ namespace NServiceBus.Unicast
 
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
-        PipelineFactory PipelineFactory
+        PipelineExecutor PipelineFactory
         {
             get
             {
-                return Builder.Build<PipelineFactory>();
+                return Builder.Build<PipelineExecutor>();
             }
         }
 

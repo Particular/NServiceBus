@@ -54,7 +54,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected MessageHandlerRegistry handlerRegistry;
 
-        PipelineFactory pipelineFactory;
+        PipelineExecutor pipelineFactory;
 
         [SetUp]
         public void SetUp()
@@ -101,7 +101,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory(FuncBuilder );
+            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -133,7 +134,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
+            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
+            FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
 
             var messagePublisher = new StorageDrivenPublisher
             {

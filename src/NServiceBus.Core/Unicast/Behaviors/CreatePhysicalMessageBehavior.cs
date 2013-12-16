@@ -16,7 +16,7 @@
 
         public UnicastBus UnicastBus { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineExecutor { get; set; }
 
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
@@ -52,7 +52,7 @@
 
             context.Set(toSend);
 
-            PipelineFactory.InvokeSendPipeline(sendOptions,toSend);
+            PipelineExecutor.InvokeSendPipeline(sendOptions,toSend);
 
             next();
         }

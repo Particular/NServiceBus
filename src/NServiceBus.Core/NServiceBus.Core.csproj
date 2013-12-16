@@ -149,6 +149,7 @@
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
     <Compile Include="Pipeline\BehaviorList.cs" />
+    <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineOverride.cs" />
     <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
     <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
@@ -174,7 +175,7 @@
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\ReceivePhysicalMessageContext.cs" />
-    <Compile Include="Pipeline\PipelineFactory.cs" />
+    <Compile Include="Pipeline\PipelineExecutor.cs" />
     <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\SendLogicalMessageContext.cs" />

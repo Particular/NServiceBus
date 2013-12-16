@@ -5,9 +5,9 @@
 
     class BehaviorChain<T> where T : BehaviorContext
     {
-        public BehaviorChain(BehaviorList<T> behaviorList)
+        public BehaviorChain(IEnumerable<Type> behaviorList)
         {
-            foreach (var behaviorType in behaviorList.InnerList)
+            foreach (var behaviorType in behaviorList)
             {
                 itemDescriptors.Enqueue(behaviorType);
             }
