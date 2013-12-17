@@ -135,7 +135,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         }
 
 
-        string NoMessageFoundErrorFormat = string.Format("INFO: No message found with ID '{0}'. Going to check headers of all messages for one with '{0}' or '{1}'.", Headers.MessageId, Headers.CorrelationId);
+        const string NoMessageFoundErrorFormat = "INFO: No message found with ID '{0}'. Checking headers of all messages.";
 
         TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
         MessageQueue queue;
