@@ -113,6 +113,8 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
                             return;
                         }
+
+                        Console.WriteLine(NoMessageFoundInHeadersErrorFormat, messageId);
                     }
                 }
             }
@@ -136,6 +138,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
 
         const string NoMessageFoundErrorFormat = "INFO: No message found with ID '{0}'. Checking headers of all messages.";
+        const string NoMessageFoundInHeadersErrorFormat = "INFO: No message found with ID '{0}' in any headers.";
 
         TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
         MessageQueue queue;
