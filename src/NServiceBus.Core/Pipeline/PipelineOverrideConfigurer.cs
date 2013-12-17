@@ -4,7 +4,7 @@
     {
         public void Init()
         {
-            Configure.Instance.ForAllTypes<IPipelineOverride>(s => Configure.Instance.Configurer.ConfigureComponent(s, DependencyLifecycle.SingleInstance));
+            Configure.Instance.ForAllTypes<IPipelineOverride>(s => Configure.Instance.Configurer.ConfigureComponent(s, DependencyLifecycle.InstancePerCall));
         }
     }
 }
