@@ -128,6 +128,7 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Licensing\LicenseDeserializerTests.cs" />
     <Compile Include="Licensing\LicenseDowngraderTests.cs" />
     <Compile Include="Licensing\NServiceBusVersionTests.cs" />
@@ -139,7 +140,6 @@
     <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
-    <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
     <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
@@ -169,7 +169,6 @@
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
-    <Compile Include="Gateway\InMemoryDataBus.cs" />
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
@@ -181,7 +180,6 @@
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Raven_saga_persistence_concern.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithoutUniqueProperties.cs" />

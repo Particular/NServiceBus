@@ -80,7 +80,8 @@ namespace NServiceBus
         /// </summary>
         public static bool RunOtherInstallers { private get; set; }
 
-        private static bool installedOthersInstallers;
+        // ReSharper disable once StaticFieldInGenericType
+        static bool installedOthersInstallers;
 
         /// <summary>
         /// Invokes installers for the given environment
@@ -96,7 +97,7 @@ namespace NServiceBus
         /// <summary>
         /// Invokes only 'Something' - other than infrastructure,  installers for the given environment.
         /// </summary>
-        private void InstallOtherInstallers()
+        void InstallOtherInstallers()
         {
             if (installedOthersInstallers)
                 return;

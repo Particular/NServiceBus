@@ -1,5 +1,7 @@
 namespace NServiceBus
 {
+    using System.ComponentModel;
+
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
     /// </summary>
@@ -15,6 +17,10 @@ namespace NServiceBus
             return config;
         }
 
-        internal static bool DontCreateQueues { get; private set; }
+        /// <summary>
+        /// Gets whether or not queues should be created
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public static bool DontCreateQueues { get; private set; }
     }
 }

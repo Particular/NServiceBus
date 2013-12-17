@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         [Test]
         public void Public_setters_and_getters_of_concrete_classes_should_be_persisted()
         {
-            Assert.AreEqual(entity.TestComponent, savedEntity.TestComponent);
+            Assert.AreEqual(entity.TestComponent.Property, savedEntity.TestComponent.Property);
         }
     }
 }

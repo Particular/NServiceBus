@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
-        protected Address MasterNodeAddress;
+        public static Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
@@ -53,14 +53,22 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
+        protected TransportDefinition transportDefinition;
 
         PipelineExecutor pipelineFactory;
+
+        static using_a_configured_unicastBus()
+        {
+            var localAddress = "endpointA";
+            MasterNodeAddress = new Address(localAddress, "MasterNode");
+            Address.InitializeLocalAddress(localAddress);
+        }
 
         [SetUp]
         public void SetUp()
         {
           
-
+            transportDefinition = new Msmq();
             LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
@@ -70,8 +78,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
-            const string localAddress = "endpointA";
-            MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
@@ -80,13 +86,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     DefaultToNonPersistentMessages = false
                 };
 
-            try
-            {
-                Address.InitializeLocalAddress(localAddress);
-            }
-            catch // intentional
-            {
-            }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
@@ -136,6 +135,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
             FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
+            FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
+
 
             var messagePublisher = new StorageDrivenPublisher
             {
@@ -143,13 +144,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionStorage = subscriptionStorage
             };
 
-            var deferer = new TimeoutManagerDeferrer
+            var deferrer = new TimeoutManagerDeferrer
             {
                 MessageSender = messageSender,
                 TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
             };
 
-            FuncBuilder.Register<IDeferMessages>(() => deferer);
+            FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
             unicastBus = new UnicastBus

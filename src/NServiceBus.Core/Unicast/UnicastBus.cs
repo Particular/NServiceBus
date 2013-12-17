@@ -368,6 +368,13 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
+            if (TransportDefinition.HasSupportForCentralizedPubSub)
+            {
+                // We are dealing with a brokered transport wired for auto pub/sub.
+                SubscriptionManager.Subscribe(messageType, null);
+                return;
+            }
+
             var addresses = GetAddressForMessageType(messageType);
             if (addresses.Count == 0)
             {
@@ -416,6 +423,13 @@ namespace NServiceBus.Unicast
             if (SubscriptionManager == null)
             {
                 throw new InvalidOperationException("No subscription manager is available");
+            }
+
+            if (TransportDefinition.HasSupportForCentralizedPubSub)
+            {
+                // We are dealing with a brokered transport wired for auto pub/sub.
+                SubscriptionManager.Unsubscribe(messageType, null);
+                return;
             }
 
             var addresses = GetAddressForMessageType(messageType);
@@ -1153,5 +1167,15 @@ namespace NServiceBus.Unicast
                 return Builder.Build<LogicalMessageFactory>();
             }
         }
+
+        TransportDefinition TransportDefinition
+        {
+            get
+            {
+                return Builder.Build<TransportDefinition>();
+            }
+        }
+
+
     }
 }

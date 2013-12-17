@@ -12,7 +12,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         [Test]
         public void Related_entities_should_also_be_persisted()
         {
-            Assert.AreEqual(entity, savedEntity.RelatedClass.ParentSaga);
+            Assert.AreEqual(entity.Id, savedEntity.RelatedClass.ParentSaga.Id);
         }
 
         [Test]

@@ -32,10 +32,10 @@ namespace NServiceBus.Serializers.XML
         public string Namespace
         {
             get { return nameSpace; }
-            set { nameSpace = TrimPotentialTralingForwardSlashes(value); }
+            set { nameSpace = TrimPotentialTrailingForwardSlashes(value); }
         }
 
-        string TrimPotentialTralingForwardSlashes(string value)
+        string TrimPotentialTrailingForwardSlashes(string value)
         {
             if (value == null)
             {

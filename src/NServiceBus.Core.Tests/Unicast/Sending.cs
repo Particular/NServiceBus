@@ -3,10 +3,8 @@
     using System;
     using System.Collections.Generic;
     using Contexts;
-    using Mono.CSharp;
     using NUnit.Framework;
     using Rhino.Mocks;
-    using Saga;
 
     [TestFixture]
     public class When_sending_a_message_with_databusProperty : using_the_unicastBus

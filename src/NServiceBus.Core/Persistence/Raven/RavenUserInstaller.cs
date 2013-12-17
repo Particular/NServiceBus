@@ -157,6 +157,7 @@ namespace NServiceBus.Persistence.Raven
             public List<WindowsAuthData> RequiredUsers = new List<WindowsAuthData>();
         }
 
+        // ReSharper disable NotAccessedField.Local
         class WindowsAuthData
         {
             public string Name;
@@ -170,6 +171,7 @@ namespace NServiceBus.Persistence.Raven
             public bool ReadOnly;
             public string TenantId;
         }
+        // ReSharper restore NotAccessedField.Local
     }
 
 }
