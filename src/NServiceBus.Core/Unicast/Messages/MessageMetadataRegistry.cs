@@ -43,7 +43,7 @@
 
                 if (messageType == null)
                 {
-                    Logger.InfoFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.MessageId: {1}", messageTypeString, message.Id);
+                    Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.MessageId: {1}", messageTypeString, message.Id);
 
                     var messageMetadata = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
                     if (messageMetadata == null)
