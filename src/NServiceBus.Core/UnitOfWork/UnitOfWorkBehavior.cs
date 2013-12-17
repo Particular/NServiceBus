@@ -2,10 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class UnitOfWorkBehavior : IBehavior<ReceivePhysicalMessageContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class UnitOfWorkBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

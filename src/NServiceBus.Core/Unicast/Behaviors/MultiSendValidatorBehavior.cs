@@ -1,11 +1,14 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class MultiSendValidatorBehavior : IBehavior<SendLogicalMessagesContext>
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class MultiSendValidatorBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {

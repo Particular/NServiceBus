@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
@@ -10,7 +11,10 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DataBusReceiveBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public IDataBus DataBus { get; set; }
 

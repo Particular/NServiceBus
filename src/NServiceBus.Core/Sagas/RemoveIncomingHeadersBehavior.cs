@@ -5,7 +5,7 @@
     using Pipeline.Contexts;
 
     [ObsoleteEx(RemoveInVersion="5.0")]
-    class RemoveIncomingHeadersBehavior : IBehavior<ReceivePhysicalMessageContext>
+    public class RemoveIncomingHeadersBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {

@@ -1,8 +1,12 @@
 namespace NServiceBus.Unicast
 {
     using System;
+    using System.ComponentModel;
 
-    class SendOptions
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SendOptions
     {
         public SendOptions()
         {

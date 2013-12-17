@@ -2,8 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
 
-    class LogicalMessage
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LogicalMessage
     {
         public LogicalMessage(MessageMetadata metadata, object message,Dictionary<string,string> headers)
         {

@@ -1,12 +1,16 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Threading;
     using Impersonation;
     using Pipeline;
     using Pipeline.Contexts;
 
-    class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ImpersonateSenderBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public ExtractIncomingPrincipal ExtractIncomingPrincipal { get; set; }
 

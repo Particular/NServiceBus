@@ -1,19 +1,22 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
     using Messages;
 
-    class CreatePhysicalMessageBehavior:IBehavior<SendLogicalMessagesContext>
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class CreatePhysicalMessageBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
         public UnicastBus UnicastBus { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineExecutor { get; set; }
 
         public void Invoke(SendLogicalMessagesContext context, Action next)
         {
@@ -49,7 +52,7 @@
 
             context.Set(toSend);
 
-            PipelineFactory.InvokeSendPipeline(sendOptions,toSend);
+            PipelineExecutor.InvokeSendPipeline(sendOptions,toSend);
 
             next();
         }

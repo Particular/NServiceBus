@@ -1,12 +1,15 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
     using Unicast;
 
-    class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
 

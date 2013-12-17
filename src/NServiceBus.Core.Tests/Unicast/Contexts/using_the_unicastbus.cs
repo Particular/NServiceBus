@@ -55,7 +55,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
 
-        PipelineFactory pipelineFactory;
+        PipelineExecutor pipelineFactory;
 
         static using_a_configured_unicastBus()
         {
@@ -100,7 +100,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory { RootBuilder = FuncBuilder };
+            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -132,7 +133,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
+            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
+            FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
 
 
