@@ -366,8 +366,6 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            var addresses = GetAddressForMessageType(messageType);
-
             if (TransportDefinition.HasSupportForCentralizedPubSub && !IsAzureTransport())
             {   
                 // We are dealing with a brokered transport wired for auto pub/sub.
@@ -375,6 +373,7 @@ namespace NServiceBus.Unicast
                 return;
             }
 
+            var addresses = GetAddressForMessageType(messageType);
             if (addresses.Count == 0)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
