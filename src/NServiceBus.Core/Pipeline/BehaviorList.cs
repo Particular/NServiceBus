@@ -26,7 +26,7 @@
             return InnerList.Remove(typeof(T));
         }
 
-        public bool Replace<TExisting, TToReplace>()
+        public void Replace<TExisting, TToReplace>()
             where TExisting : IBehavior<TContext>
             where TToReplace : IBehavior<TContext>
         {
@@ -34,12 +34,12 @@
             if (indexOf > -1)
             {
                 InnerList[indexOf] = typeof(TToReplace);
-                return true;
+                return;
             }
-            return false;
+            throw new Exception(string.Format("Could not replace since '{0}' does not exist.", typeof(TExisting).Name));
         }
 
-        public bool InsertAfter<TExisting, TToAdd>()
+        public void InsertAfter<TExisting, TToAdd>()
             where TExisting : IBehavior<TContext>
             where TToAdd : IBehavior<TContext>
         {
@@ -49,13 +49,13 @@
                 if (type == typeof(TExisting))
                 {
                     InnerList.Insert(index + 1, typeof(TToAdd));
-                    return true;
+                    return;
                 }
             }
-            return false;
+            throw new Exception(string.Format("Could not InsertAfter since '{0}' does not exist.", typeof(TExisting).Name));
         }
 
-        public bool InsertBefore<TExisting, TToAdd>()
+        public void InsertBefore<TExisting, TToAdd>()
             where TExisting : IBehavior<TContext>
             where TToAdd : IBehavior<TContext>
         {
@@ -65,10 +65,10 @@
                 if (type == typeof(TExisting))
                 {
                     InnerList.Insert(index, typeof(TToAdd));
-                    return true;
+                    return;
                 }
             }
-            return false;
+            throw new Exception(string.Format("Could not InsertBefore  since '{0}' does not exist.", typeof(TExisting).Name));
         }
     }
 }
