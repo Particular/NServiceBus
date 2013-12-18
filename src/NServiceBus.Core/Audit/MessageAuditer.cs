@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.Linq;
     using Features;
     using Transports;
 
@@ -22,7 +23,8 @@
         /// The TTR to set on forwarded messages. 
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-        
+
+        public AuditFilters AuditFilters { get; set; } 
 
         /// <summary>
         /// <see cref="Address"/> where the messages needs to be forwarded when the auditing feature is turned on
@@ -36,6 +38,11 @@
         public virtual void ForwardMessageToAuditQueue(TransportMessage transportMessage)
         {
             if (!Feature.IsEnabled<Audit>())
+            {
+                return;
+            }
+
+            if (AuditFilters.Filters.Any(f => f(transportMessage)))
             {
                 return;
             }
