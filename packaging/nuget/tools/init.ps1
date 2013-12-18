@@ -18,8 +18,14 @@ Write-Host ""
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
 $machinePrepared = $false
-$nservicebusVersion = Get-NServiceBusVersion
-$nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion.Major + "." + $nservicebusVersion.Minor
+$versionParts = $package.Version.Split('.')
+$nservicebusVersion = $versionParts[0]
+
+if($versionParts.Length -gt 1) {
+    $nservicebusVersion += "." + $versionParts[1]
+}
+
+$nserviceBusVersionPath =  $nserviceBusKeyPath +  "\" + $nservicebusVersion
 
 #Figure out if this machine is properly setup
 try {
@@ -28,7 +34,7 @@ try {
 	}
 
 	if (!(Test-Path $nserviceBusVersionPath)){
-		$versionToAdd = $nservicebusVersion.Major.ToString() + "." + $nservicebusVersion.Minor.ToString()
+		$versionToAdd = $nservicebusVersion
 		New-Item -Path $nserviceBusKeyPath -Name $versionToAdd | Out-Null
 		New-ItemProperty -Path $nserviceBusVersionPath -Name $machinePreparedKey -PropertyType String -Value "false" | Out-Null
 	}
