@@ -366,14 +366,15 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            if (TransportDefinition.HasSupportForCentralizedPubSub)
-            {
+            var addresses = GetAddressForMessageType(messageType);
+
+            if (TransportDefinition.HasSupportForCentralizedPubSub && !IsAzureTransport())
+            {   
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Subscribe(messageType, null);
                 return;
             }
 
-            var addresses = GetAddressForMessageType(messageType);
             if (addresses.Count == 0)
             {
                 throw new InvalidOperationException(string.Format("No destination could be found for message type {0}. Check the <MessageEndpointMappings> section of the configuration of this endpoint for an entry either for this specific message type or for its assembly.", messageType));
@@ -393,6 +394,12 @@ namespace NServiceBus.Unicast
                     SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
                 }
             }
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        bool IsAzureTransport()
+        {
+            return TransportDefinition.GetType().Name.ToLower().Contains("azure");
         }
 
         /// <summary>
