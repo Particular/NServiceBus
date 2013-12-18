@@ -2,9 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using Logging;
 
     class BehaviorChain<T> where T : BehaviorContext
     {
+        // ReSharper disable once StaticFieldInGenericType
+        // The number of T's is small and they willa all log to the same point due to the typeof(BehaviorChain<>)
+        static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
+        Queue<Type> itemDescriptors = new Queue<Type>();
+
         public BehaviorChain(IEnumerable<Type> behaviorList)
         {
             foreach (var behaviorType in behaviorList)
@@ -26,12 +32,12 @@
             }
 
             var behaviorType = itemDescriptors.Dequeue();
+            Log.Debug(behaviorType.Name);
             var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
 
             instance.Invoke(context, () => InvokeNext(context));
         }
 
 
-        Queue<Type> itemDescriptors = new Queue<Type>();
     }
 }
