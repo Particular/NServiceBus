@@ -9,22 +9,17 @@
     using Unicast.Messages;
 
     //This is a demo on how the pipeline overrides can be used to create endpoints that doesn't deserialize incoming messages and there by
-    // allows the user to handle the raw transport message
-    public class SkipSerialization : NServiceBusAcceptanceTest
+    // allows the user to handle the raw transport message. This replaces the old feature on the UnicastBus where SkipDeserialization could be set to tru
+    public class SkipDeserialization : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_handle_timeouts_properly()
+        public void RunDemo()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<NonSerializingEndpoint>(
                         b => b.Given(bus => bus.SendLocal(new SomeMessage())))
                     .Done(c => c.GotTheRawMessage)
                     .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
-            public bool GotTheRawMessage { get; set; }
         }
 
         public class NonSerializingEndpoint : EndpointConfigurationBuilder
@@ -36,7 +31,7 @@
 
 
 #pragma warning disable 618
-            //first we override the default deserialization behavior
+            //first we override the default "extraction" behavior
             class MyOverride : PipelineOverride
             {
                 public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
@@ -68,6 +63,11 @@
                     Assert.Fail();
                 }
             }
+        }
+
+        public class Context : ScenarioContext
+        {
+            public bool GotTheRawMessage { get; set; }
         }
 
         [Serializable]
