@@ -17,7 +17,7 @@
                     .WithEndpoint<EndpointThatHostsASaga>(
                         b => b.Given(bus => bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
                     .Done(c => c.DidAllSagaInstancesReceiveTimeouts)
-                    .Repeat(r => r.For(Transports.SqlServer))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                         {
                             Assert.True(c.DidAllSagaInstancesReceiveTimeouts);

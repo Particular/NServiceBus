@@ -127,6 +127,7 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
+    <Compile Include="PipelineExtention\SkipSerialization.cs" />
     <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
