@@ -18,7 +18,6 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Serialization;
-    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
@@ -281,7 +280,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>()
         {
-            Publish(new object[] { });
+            Publish(CreateInstance<T>());
         }
 
         /// <summary>
@@ -289,10 +288,8 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>(params T[] messages)
         {
-
-            if (messages == null || messages.Length == 0) // Bus.Publish<IFoo>();
+            if (messages == null || messages.Length == 0)
             {
-                Publish(CreateInstance<T>(m => { }));
                 return;
             }
 
@@ -369,8 +366,8 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            if (TransportDefinition.HasSupportForCentralizedPubSub)
-            {
+            if (TransportDefinition.HasSupportForCentralizedPubSub && !IsAzureTransport())
+            {   
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Subscribe(messageType, null);
                 return;
@@ -396,6 +393,12 @@ namespace NServiceBus.Unicast
                     SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
                 }
             }
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        bool IsAzureTransport()
+        {
+            return TransportDefinition.GetType().Name.ToLower().Contains("azure");
         }
 
         /// <summary>

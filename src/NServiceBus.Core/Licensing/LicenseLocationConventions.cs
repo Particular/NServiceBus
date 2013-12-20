@@ -12,7 +12,7 @@ namespace NServiceBus.Licensing
 
         public static void StoreLicenseInRegistry(string license)
         {
-            var keyPath = String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor);
+            var keyPath = @"SOFTWARE\ParticularSoftware\NServiceBus";
 
             try
             {
@@ -71,25 +71,93 @@ namespace NServiceBus.Licensing
                 return NonLockingFileReader.ReadAllTextWithoutLocking(oldLocalLicenseFile);
             }
 
-            var hkcuLicense = GetHKCULicense();
-            if (!String.IsNullOrEmpty(hkcuLicense))
+            var registryLicence = LoadLicenseFromRegistry();
+            if (!String.IsNullOrEmpty(registryLicence))
             {
-                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", NServiceBusVersion.MajorAndMinor);
-                return hkcuLicense;
+                return registryLicence;
             }
 
-            var hklmLicense = GetHKLMLicense();
-            if (!String.IsNullOrEmpty(hklmLicense))
+            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.3");
+            if (!String.IsNullOrEmpty(registryLicence))
             {
-                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\NServiceBus\{0}\License].", NServiceBusVersion.MajorAndMinor);
-                return hklmLicense;
+                return registryLicence;
             }
+
+            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.2");
+            if (!String.IsNullOrEmpty(registryLicence))
+            {
+                return registryLicence;
+            }
+
+            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.1");
+            if (!String.IsNullOrEmpty(registryLicence))
+            {
+                return registryLicence;
+            }
+
+            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.0");
+            if (!String.IsNullOrEmpty(registryLicence))
+            {
+                return registryLicence;
+            }
+
             return null;
         }
 
-        public static string GetHKCULicense()
+        static string LoadLicenseFromRegistry()
         {
-            using (var registryKey = Registry.CurrentUser.OpenSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor)))
+            var hkcuLicense = GetHKCULicense(@"ParticularSoftware\NServiceBus");
+            
+            if (!String.IsNullOrEmpty(hkcuLicense))
+            {
+                Logger.Info(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\ParticularSoftware\NServiceBus\License].");
+
+                return hkcuLicense;
+            }
+
+            var hklmLicense = GetHKLMLicense(@"ParticularSoftware\NServiceBus");
+            if (!String.IsNullOrEmpty(hklmLicense))
+            {
+                Logger.Info(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\ParticularSoftware\NServiceBus\License].");
+
+                return hklmLicense;
+            }
+
+            return null;
+        }
+
+        static string LoadLicenseFromPreviousRegistryLocation(string version)
+        {
+            var hkcuLicense = GetHKCULicense(subKey: version);
+
+            if (!String.IsNullOrEmpty(hkcuLicense))
+            {
+                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_CURRENT_USER\Software\NServiceBus\{0}\License].", version);
+
+                return hkcuLicense;
+            }
+
+            var hklmLicense = GetHKLMLicense(subKey: version);
+            if (!String.IsNullOrEmpty(hklmLicense))
+            {
+                Logger.InfoFormat(@"Using embedded license found in registry [HKEY_LOCAL_MACHINE\Software\NServiceBus\{0}\License].", version);
+
+                return hklmLicense;
+            }
+
+            return null;
+        }
+
+        static string GetHKCULicense(string softwareKey = "NServiceBus", string subKey = null)
+        {
+            var keyPath = @"SOFTWARE\" + softwareKey;
+            
+            if (subKey != null)
+            {
+                keyPath += @"\" + subKey;
+            }
+
+            using (var registryKey = Registry.CurrentUser.OpenSubKey(keyPath))
             {
                 if (registryKey != null)
                 {
@@ -99,11 +167,18 @@ namespace NServiceBus.Licensing
             return null;
         }
 
-        public static string GetHKLMLicense()
+        static string GetHKLMLicense(string softwareKey = "NServiceBus", string subKey = null)
         {
+            var keyPath = @"SOFTWARE\" + softwareKey;
+
+            if (subKey != null)
+            {
+                keyPath += @"\" + subKey;
+            }
+
             try
             {
-                using (var registryKey = Registry.LocalMachine.OpenSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor)))
+                using (var registryKey = Registry.LocalMachine.OpenSubKey(keyPath))
                 {
                     if (registryKey != null)
                     {

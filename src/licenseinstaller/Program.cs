@@ -62,9 +62,7 @@
                 rootKey = RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, view);
             }
 
-            using (
-                var registryKey =
-                    rootKey.CreateSubKey(String.Format(@"SOFTWARE\NServiceBus\{0}", GetNServiceBusVersion().ToString(2))))
+            using (var registryKey = rootKey.CreateSubKey(@"SOFTWARE\ParticularSoftware\NServiceBus"))
             {
                 if (registryKey == null)
                 {
@@ -87,7 +85,7 @@
                 {
                     {
                         "current-user|c",
-                        @"Installs license in HKEY_CURRENT_USER\SOFTWARE\NServiceBus, by default if not specified the license is installed in HKEY_LOCAL_MACHINE\SOFTWARE\NServiceBus"
+                        @"Installs license in HKEY_CURRENT_USER\SOFTWARE\ParticularSoftware\NServiceBus, by default if not specified the license is installed in HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\NServiceBus"
                         , s => action = () =>
                             {
                                 useHKCU = true;
