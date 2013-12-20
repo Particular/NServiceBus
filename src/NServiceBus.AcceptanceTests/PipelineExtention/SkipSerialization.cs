@@ -8,7 +8,8 @@
     using Pipeline.Contexts;
     using Unicast.Messages;
 
-    // Repro for #SB-191
+    //This is a demo on how the pipeline overrides can be used to create endpoints that doesn't deserialize incoming messages and there by
+    // allows the user to handle the raw transport message
     public class SkipSerialization : NServiceBusAcceptanceTest
     {
         [Test]
