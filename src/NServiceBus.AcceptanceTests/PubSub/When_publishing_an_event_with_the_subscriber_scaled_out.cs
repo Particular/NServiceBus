@@ -49,7 +49,7 @@
                               context.NumberOfSubcriptionsReceived++;
                       }))
                     .Done(c => c.SubcribersOfTheEvent != null)
-                    .Repeat(r => r.For(Transports.Default)
+                    .Repeat(r => r.For<AllTransports>(Transports.Msmq)
                         .For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
                     .Should(c =>
                     {
