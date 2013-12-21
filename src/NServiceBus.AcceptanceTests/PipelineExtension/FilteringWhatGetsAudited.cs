@@ -1,9 +1,9 @@
 ﻿
-namespace NServiceBus.AcceptanceTests.Audit
+namespace NServiceBus.AcceptanceTests.PipelineExtension
 {
     using System;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NServiceBus.Audit;
     using NUnit.Framework;
     using Pipeline;

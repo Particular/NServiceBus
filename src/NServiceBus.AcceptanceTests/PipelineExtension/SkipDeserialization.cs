@@ -1,8 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.PipelineExtension
 {
     using System;
-    using EndpointTemplates;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
     using Pipeline;
     using Pipeline.Contexts;
