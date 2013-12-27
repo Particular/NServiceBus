@@ -6,8 +6,9 @@ namespace NServiceBus.AcceptanceTests
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
     /// </summary>
-    [TestFixture]    
-    public abstract class NServiceBusAcceptanceTest
+    [TestFixture]
+// ReSharper disable once PartialTypeWithSinglePart
+    public abstract partial class NServiceBusAcceptanceTest
     {
         [SetUp]
         public void SetUp()
