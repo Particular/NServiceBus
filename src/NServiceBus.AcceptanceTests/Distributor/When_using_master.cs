@@ -9,7 +9,7 @@
 
     public class When_using_master : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test, Ignore("https://github.com/Particular/NServiceBus/issues/1878")]
         public void Master_and_workers_should_receive_messages()
         {
             var context = new Context();
