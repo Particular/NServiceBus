@@ -6,6 +6,7 @@
     using System.Reflection;
     using AcceptanceTesting.Support;
     using Hosting.Helpers;
+    using NServiceBus.Transports;
 
     public class AllTransports : ScenarioDescriptor
     {
@@ -37,8 +38,11 @@
     public class AllDtcTransports : AllTransports
     {
         public AllDtcTransports()
-        {   
-            Remove(Transports.RabbitMQ);
+        {
+            // TODO: introduce a SupportsDtc property on the transport definition
+            AllTransportsFilter.Run(t => t.GetType().Name.Contains("RabbitMQ"), Remove);
+            AllTransportsFilter.Run(t => t.GetType().Name.Contains("AzureServiceBus"), Remove);
+            AllTransportsFilter.Run(t => t.GetType().Name.Contains("AzureStorageQueue"), Remove);
         }
     }
 
@@ -46,7 +50,7 @@
     {
         public AllBrokerTransports()
         {
-            Remove(Transports.Msmq);
+            AllTransportsFilter.Run(t => !t.HasNativePubSubSupport, Remove);
         }
     }
 
@@ -54,8 +58,7 @@
     {
         public AllTransportsWithCentralizedPubSubSupport()
         {
-            Remove(Transports.Msmq);
-            Remove(Transports.SqlServer);
+            AllTransportsFilter.Run(t => !t.HasSupportForCentralizedPubSub, Remove);
         }
     }
 
@@ -63,8 +66,7 @@
     {
         public AllTransportsWithMessageDrivenPubSub()
         {
-            Remove(Transports.ActiveMQ);
-            Remove(Transports.RabbitMQ);
+            AllTransportsFilter.Run(t => t.HasNativePubSubSupport, Remove);
         }
     }
 
@@ -104,5 +106,25 @@
         }
 
         static List<Assembly> assemblies;
+    }
+
+    public static class AllTransportsFilter
+    {
+        public static void Run(Func<TransportDefinition, bool> condition, Func<RunDescriptor, bool> remove)
+        {
+            foreach (var rundescriptor in Transports.AllAvailable)
+            {
+                var transportAssemblyQualifiedName = rundescriptor.Settings["Transport"];
+                var type = Type.GetType(transportAssemblyQualifiedName);
+                if (type != null)
+                {
+                    var transport = Activator.CreateInstance(type) as TransportDefinition;
+                    if (condition(transport))
+                    {
+                        remove(rundescriptor);
+                    }
+                }
+            }
+        }
     }
 }
