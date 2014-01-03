@@ -34,7 +34,7 @@
                     }))
                       
                     .Done(c => c.Subscriber3GotTheEvent)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.Subscriber3GotTheEvent))
                     .Run();
         }
