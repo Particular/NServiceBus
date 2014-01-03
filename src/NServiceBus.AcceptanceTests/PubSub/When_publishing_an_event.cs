@@ -10,6 +10,36 @@
     public class When_publishing_an_event : NServiceBusAcceptanceTest
     {
         [Test]
+        public void Issue_1851()
+        {
+            Scenario.Define<Context>()
+                    .WithEndpoint<Publisher>(b =>
+                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        {
+                            if (s.SubscriberReturnAddress.Queue.Contains("Subscriber3"))
+                            {
+                                context.Subscriber3Subscribed = true;
+                            }
+                        }))
+                        .When(c => c.Subscriber3Subscribed, bus => bus.Publish<IFoo>())
+                     )
+                    .WithEndpoint<Subscriber3>(b => b.Given((bus, context) =>
+                    {
+                        bus.Subscribe<IFoo>();
+
+                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                        {
+                            context.Subscriber3Subscribed = true;
+                        }
+                    }))
+                      
+                    .Done(c => c.Subscriber3GotTheEvent)
+                    .Repeat(r => r.For(Transports.Msmq))
+                    .Should(c => Assert.True(c.Subscriber3GotTheEvent))
+                    .Run();
+        }
+
+        [Test]
         public void Should_be_delivered_to_allsubscribers()
         {
             Scenario.Define<Context>()
@@ -52,13 +82,11 @@
         public class Context : ScenarioContext
         {
             public bool Subscriber1GotTheEvent { get; set; }
-
             public bool Subscriber2GotTheEvent { get; set; }
-
-           
+            public bool Subscriber3GotTheEvent { get; set; }
             public bool Subscriber1Subscribed { get; set; }
-
             public bool Subscriber2Subscribed { get; set; }
+            public bool Subscriber3Subscribed { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -66,6 +94,25 @@
             public Publisher()
             {
                 EndpointSetup<DefaultServer>();
+            }
+        }
+
+        public class Subscriber3 : EndpointConfigurationBuilder
+        {
+            public Subscriber3()
+            {
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
+                    .AddMapping<IFoo>(typeof(Publisher));
+            }
+
+            public class MyEventHandler : IHandleMessages<IFoo>
+            {
+                public Context Context { get; set; }
+
+                public void Handle(IFoo messageThatIsEnlisted)
+                {
+                    Context.Subscriber3GotTheEvent = true;
+                }
             }
         }
 
@@ -105,6 +152,10 @@
                     Context.Subscriber2GotTheEvent = true;
                 }
             }
+        }
+
+        public interface IFoo : IEvent
+        {
         }
 
         [Serializable]
