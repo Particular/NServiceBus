@@ -41,18 +41,18 @@
                         string downgradeReason;
                         if (LicenseDowngrader.ShouldLicenseDowngrade(license, out downgradeReason))
                         {
-                            var message = string.Format("The license you provided has expired.\r\nReason:{0}\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis massage has been appended to your log.", downgradeReason);
+                            var message = string.Format("The license you provided has expired.\r\nReason:{0}\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.", downgradeReason);
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
                         }
-                        MessageBox.Show(this, "The new license has bee been verified. It will now be stored in the Registry for future use.", "License applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, "The new license has been verified. It will now be stored in the Registry for future use.", "License applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ResultingLicenseText = licenseText;
                         Close();
                     }
                     catch (Exception exception)
                     {
-                        var message = string.Format("An error occurred parsing the license.\r\nMessage: {0}\r\nThe exception details have appended to your log.", exception.Message);
+                        var message = string.Format("An error occurred when parsing the license.\r\nMessage: {0}\r\nThe exception details have been appended to your log.", exception.Message);
                         Logger.Warn("Error parsing license", exception);
                         MessageBox.Show(this, message, "Error parsing license", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
