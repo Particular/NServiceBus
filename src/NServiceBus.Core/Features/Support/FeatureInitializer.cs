@@ -47,20 +47,20 @@
 
                     if (feature.Category != FeatureCategory.None)
                     {
-                        statusText.AppendLine(string.Format("{0} - Controlled by category {1}", feature.Name,
+                        statusText.AppendLine(string.Format("{0} - Controlled by category {1}", feature,
                                                             feature.Category.Name));
                         return;
                     }
 
                     if (!Feature.IsEnabled(t))
                     {
-                        statusText.AppendLine(string.Format("{0} - Disabled", feature.Name));
+                        statusText.AppendLine(string.Format("{0} - Disabled", feature));
                         return;
                     }
 
                     feature.Initialize();
 
-                    statusText.AppendLine(string.Format("{0} - Enabled", feature.Name));
+                    statusText.AppendLine(string.Format("{0} - Enabled", feature));
                 });
 
             Logger.InfoFormat("Features: \n{0}", statusText);
