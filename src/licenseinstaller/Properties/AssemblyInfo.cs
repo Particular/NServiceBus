@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright 2010-2014 NServiceBus. All rights reserved")]
 [assembly: AssemblyProduct("LicenseInstaller")]
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
-[assembly: AssemblyConfiguration("release")]
 [assembly: ComVisible(false)]		
 [assembly: CLSCompliant(true)]
 
