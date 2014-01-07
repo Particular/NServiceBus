@@ -57,11 +57,6 @@ namespace NServiceBus.Unicast
             set
             {
                 transport = value;
-
-                transport.StartedMessageProcessing += TransportStartedMessageProcessing;
-                transport.TransportMessageReceived += TransportMessageReceived;
-                transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
-                transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
             get { return transport; }
         }
@@ -756,14 +751,16 @@ namespace NServiceBus.Unicast
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
             if (started)
+            {
                 return this;
+            }
 
             lock (startLocker)
             {
                 if (started)
+                {
                     return this;
-
-                starting = true;
+                }
 
                 Address.PreventChanges();
 
@@ -774,9 +771,12 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-
                 if (!DoNotStartTransport)
                 {
+                    transport.StartedMessageProcessing += TransportStartedMessageProcessing;
+                    transport.TransportMessageReceived += TransportMessageReceived;
+                    transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
+                    transport.FailedMessageProcessing += TransportFailedMessageProcessing;
                     transport.Start(InputAddress);
                 }
 
@@ -816,7 +816,9 @@ namespace NServiceBus.Unicast
         private void ExecuteIWantToRunAtStartupStopMethods()
         {
             if (thingsToRunAtStartup == null)
+            {
                 return;
+            }
 
             //Ensure Start has been called on all thingsToRunAtStartup
             Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
@@ -955,11 +957,14 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
 
-            transport.Stop();
-            transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-            transport.TransportMessageReceived -= TransportMessageReceived;
-            transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-            transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+            if (!DoNotStartTransport)
+            {
+                transport.Stop();
+                transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+                transport.TransportMessageReceived -= TransportMessageReceived;
+                transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+                transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+            }
 
             ExecuteIWantToRunAtStartupStopMethods();
 
@@ -1096,15 +1101,6 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-        /// <summary>
-        /// Throws an exception if the bus hasn't begun the startup process.
-        /// </summary>
-        protected void AssertBusIsStarted()
-        {
-            if (starting == false)
-                throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
-        }
-
         Address inputAddress;
 
 
@@ -1137,7 +1133,6 @@ namespace NServiceBus.Unicast
         }
 
         volatile bool started;
-        volatile bool starting;
         object startLocker = new object();
 
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
