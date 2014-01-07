@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using EndpointTemplates;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using PubSub;
     using Saga;
     using ScenarioDescriptors;
 
@@ -15,7 +16,19 @@ namespace NServiceBus.AcceptanceTests.Sagas
         public void Should_invoke_all_handlers_on_all_sagas()
         {
             Scenario.Define<Context>()
-                    .WithEndpoint<EndpointThatHostsTwoSagas>(b => b.Given(bus => bus.SendLocal(new StartSaga2 { DataId = Guid.NewGuid() })))
+                    .WithEndpoint<EndpointThatHostsTwoSagas>(b => 
+                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s =>
+                        {
+                            if (s.SubscriberReturnAddress.Queue.Contains("Saga1"))
+                            {
+                                context.Subscribed = true;
+                            }
+                        }))
+                        .When(c => true, bus => bus.SendLocal(new StartSaga2
+                        {
+                            DataId = Guid.NewGuid()
+                        }))
+                     )
                     .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>()
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
                     .Repeat(r => r.For(Transports.Default))
@@ -28,6 +41,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
         public class Context : ScenarioContext
         {
+            public bool Subscribed { get; set; }
             public bool DidSaga1EventHandlerGetInvoked { get; set; }
             public bool DidSaga2EventHandlerGetInvoked { get; set; }
         }
@@ -69,7 +83,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     Data.DataId = message.DataId;
                     Console.Out.WriteLine("Saga1 received GroupPendingEvent for DataId: {0}", message.DataId);
                     Context.DidSaga1EventHandlerGetInvoked = true;
-                    Bus.SendLocal(new CompleteSaga1Start { DataId = message.DataId });
+                    Bus.SendLocal(new CompleteSaga1Now { DataId = message.DataId });
                 }
 
                 public void Handle(CompleteSaga1Now message)
@@ -138,11 +152,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
         [Serializable]
         public class StartSaga2 : ICommand
-        {
-            public Guid DataId { get; set; }
-        }
-
-        public class CompleteSaga1Start : ICommand
         {
             public Guid DataId { get; set; }
         }
