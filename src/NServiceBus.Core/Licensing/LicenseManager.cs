@@ -42,10 +42,26 @@ namespace NServiceBus.Licensing
             Logger.InfoFormat("Expires on {0}", License.ExpirationDate);
             if (License.UpgradeProtectionExpiration != null)
             {
-                Logger.InfoFormat("UpgradeProtectionExpiration {0}", License.UpgradeProtectionExpiration);
+                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", License.UpgradeProtectionExpiration);
             }
-            Logger.InfoFormat("MaxThroughputPerSecond {0}", License.MaxThroughputPerSecond);
-            Logger.InfoFormat("AllowedNumberOfWorkerNodes {0}", License.AllowedNumberOfWorkerNodes);
+            
+            if (License.MaxThroughputPerSecond == LicenseDeserializer.MaxThroughputPerSecond)
+            {
+                Logger.Info("MaxThroughputPerSecond: unlimited");   
+            }
+            else
+            {
+                Logger.InfoFormat("MaxThroughputPerSecond: {0}", License.MaxThroughputPerSecond);
+            }
+
+            if (License.AllowedNumberOfWorkerNodes == LicenseDeserializer.MaxWorkerNodes)
+            {
+                Logger.Info("AllowedNumberOfWorkerNodes: unlimited");
+            }
+            else
+            {
+                Logger.InfoFormat("AllowedNumberOfWorkerNodes: {0}", License.AllowedNumberOfWorkerNodes);
+            }
         }
 
         static void ConfigureNServiceBusToRunInTrialMode()
