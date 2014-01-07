@@ -811,7 +811,7 @@ namespace NServiceBus.Unicast
             return this;
         }
 
-        private void ExecuteIWantToRunAtStartupStopMethods()
+        void ExecuteIWantToRunAtStartupStopMethods()
         {
             if (thingsToRunAtStartup == null)
             {
@@ -826,48 +826,32 @@ namespace NServiceBus.Unicast
             var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
 
             var tasks = thingsToRunAtStartup.Select(toRun =>
+            {
+                var name = toRun.GetType().AssemblyQualifiedName;
+
+                var task = new Task(() =>
                 {
-                    var name = toRun.GetType().AssemblyQualifiedName;
+                    try
+                    {
+                        toRun.Stop();
+                        Log.DebugFormat("Stopped {0}.", name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                    }
+                }, TaskCreationOptions.LongRunning);
 
-                    var task = new Task(() =>
-                        {
-                            try
-                            {
-                                toRun.Stop();
-                                Log.DebugFormat("Stopped {0}.", name);
-                            }
-                            catch (Exception ex)
-                            {
-                                Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
-                            }
-                        }, TaskCreationOptions.LongRunning);
+                mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
 
-                    mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
+                task.Start();
 
-                    task.Start();
+                return task;
 
-                    return task;
+            }).ToArray();
 
-                }).ToArray();
-
-            // Wait for a period here otherwise the process may be killed too early!
-            var timeout = TimeSpan.FromSeconds(20);
-            if (Task.WaitAll(tasks, timeout))
-            {
-                return;
-            }
-
-            Log.WarnFormat("Not all IWantToRunWhenBusStartsAndStops.Stop methods were successfully called within {0}secs", timeout.Seconds);
-
-            var sb = new StringBuilder();
-            foreach (var task in tasks.Where(task => !task.IsCompleted))
-            {
-                sb.AppendLine(mapTaskToThingsToRunAtStartup[task.Id]);
-            }
-
-            Log.WarnFormat("List of tasks that did not finish within {0}secs:\n{1}", timeout.Seconds, sb.ToString());
+            Task.WaitAll(tasks);
         }
-
 
         /// <summary>
         /// Allow disabling the unicast bus.
