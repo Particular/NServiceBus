@@ -13,7 +13,9 @@ namespace NServiceBus.SecondLevelRetries
         static TimeSpan Validate(TransportMessage message)
         {
             if (HasReachedMaxTime(message))
+            {
                 return TimeSpan.MinValue;
+            }
 
             var numberOfRetries = TransportMessageHelpers.GetNumberOfRetries(message);
 
@@ -42,6 +44,9 @@ namespace NServiceBus.SecondLevelRetries
                 }
             }
             // ReSharper disable once EmptyGeneralCatchClause
+            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
+            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+            // forwarded to the error queue.
             catch (Exception)
             {
             }
