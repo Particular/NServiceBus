@@ -18,7 +18,7 @@ Write-Host ""
 $nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
 $machinePreparedKey = "MachinePrepared"
 $machinePrepared = $false
-$versionParts = $package.Version.Split('.')
+$versionParts = $package.Version.ToString().Split('.')
 $nservicebusVersion = $versionParts[0]
 
 if($versionParts.Length -gt 1) {
