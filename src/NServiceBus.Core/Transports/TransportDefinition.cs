@@ -18,6 +18,6 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Indicates that the transport has support for distributed transactions
         /// </summary>
-        public bool HasSupportForDistributedTransactions { get; protected set; }
+        public bool? HasSupportForDistributedTransactions { get; protected set; }
     }
 }
