@@ -13,8 +13,8 @@
         [Test]
         public void Should_do_5_retries_by_default_with_dtc_on()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<RetryEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+                    .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried{ Id = context.Id })))
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
                     .Repeat(r => r.For<AllDtcTransports>())
                     .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
@@ -25,11 +25,11 @@
         [Test]
         public void Should_do_5_retries_by_default_with_native_transactions()
         {
-            Scenario.Define<Context>()
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b =>
                         {
                             b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
-                            b.Given(bus => bus.SendLocal(new MessageToBeRetried()));
+                            b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }));
                         })
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
                     .Repeat(r => r.For(Transports.Default))
@@ -41,14 +41,14 @@
         [Test]
         public void Should_not_do_any_retries_if_transactions_are_off()
         {
-            Scenario.Define<Context>()
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b =>
                     {
                         b.CustomConfig(c => Configure.Transactions.Disable());
                         b.Given((bus, context) =>
                             {
-                                bus.SendLocal(new MessageToBeRetried());
-                                bus.SendLocal(new MessageToBeRetried { SecondMessage = true });
+                                bus.SendLocal(new MessageToBeRetried { Id = context.Id });
+                                bus.SendLocal(new MessageToBeRetried { Id = context.Id, SecondMessage = true });
                             });
                     })
                     .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
@@ -60,6 +60,8 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
+
             public int NumberOfTimesInvoked { get; set; }
 
             public bool HandedOverToSlr { get; set; }
@@ -103,6 +105,8 @@
 
                 public void Handle(MessageToBeRetried message)
                 {
+                    if (message.Id != Context.Id) return; // messages from previous test runs must be ignored
+
                     if (message.SecondMessage)
                     {
                         Context.SecondMessageReceived = true;
@@ -119,6 +123,8 @@
         [Serializable]
         public class MessageToBeRetried : IMessage
         {
+            public Guid Id { get; set; }
+
             public bool SecondMessage { get; set; }
         }
     }
