@@ -799,14 +799,12 @@ namespace NServiceBus.Unicast
 
                 try
                 {
-                    Log.DebugFormat("Starting {0}.", name);
                     toRun.Start();
                     Log.DebugFormat("Started {0}.", name);
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorFormat("{0} could not be started.", ex, name);
-                    //don't rethrow so that thread doesn't die before log message is shown.
+                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
@@ -835,14 +833,12 @@ namespace NServiceBus.Unicast
                         {
                             try
                             {
-                                Log.DebugFormat("Stopping {0}.", name);
                                 toRun.Stop();
                                 Log.DebugFormat("Stopped {0}.", name);
                             }
                             catch (Exception ex)
                             {
-                                Log.ErrorFormat("{0} could not be stopped.", ex, name);
-                                // no need to rethrow, closing the process anyway
+                                Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
                             }
                         }, TaskCreationOptions.LongRunning);
 
