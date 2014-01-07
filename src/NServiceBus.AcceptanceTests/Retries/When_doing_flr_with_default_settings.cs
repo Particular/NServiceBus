@@ -34,7 +34,7 @@
                     .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
-                    .Run();
+                    .Run(TimeSpan.FromMinutes(5));
 
         }
 
