@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
     using Microsoft.Win32;
     using NDesk.Options;
 
@@ -67,9 +66,7 @@
                 if (registryKey == null)
                 {
                     Console.Out.WriteLine("License file not installed.");
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 registryKey.SetValue("License", selectedLicenseText, RegistryValueKind.String);
             }
@@ -152,11 +149,5 @@ Options:", DateTime.Now.Year);
             }
         }
 
-        static Version GetNServiceBusVersion()
-        {
-            var assemblyVersion = Assembly.GetExecutingAssembly().GetName().Version;
-
-            return new Version(assemblyVersion.Major, assemblyVersion.Minor);
-        }
     }
 }
