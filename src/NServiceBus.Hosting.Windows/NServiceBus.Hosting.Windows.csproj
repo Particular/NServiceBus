@@ -112,7 +112,6 @@
     <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\TimeoutProfileHandler.cs" />
-    <Compile Include="Profiles\Handlers\WindowsInstallerRunner.cs" />
     <Compile Include="Profiles\Handlers\WorkerProfileHandler.cs" />
     <Compile Include="Profiles\Master.cs" />
     <Compile Include="Profiles\Time.cs" />
@@ -167,10 +166,10 @@
     <CallTarget Targets="Build32BitVersion" />
   </Target>
   <Target Name="ReleaseAfterBuild" AfterTargets="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
-    <MakeDir Directories="$(TargetDir)temp\"/>
+    <MakeDir Directories="$(TargetDir)temp\" />
     <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)log4net.dll&quot; &quot;$(TargetDir)Microsoft.Practices.ServiceLocation.dll&quot; &quot;$(TargetDir)Topshelf.dll&quot; /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
-      <TempFiles Include="$(TargetDir)temp\*.*"/>
+      <TempFiles Include="$(TargetDir)temp\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
     <Delete Files="@(TempFiles)" />

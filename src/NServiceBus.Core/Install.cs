@@ -90,8 +90,10 @@ namespace NServiceBus
         {
             Configure.Instance.Initialize();
 
-            if(RunOtherInstallers)            
+            if (RunOtherInstallers)
+            {
                 InstallOtherInstallers();
+            }
         }
 
         /// <summary>
@@ -100,7 +102,9 @@ namespace NServiceBus
         void InstallOtherInstallers()
         {
             if (installedOthersInstallers)
+            {
                 return;
+            }
 
             Configure.Instance.Builder.BuildAll<INeedToInstallSomething>().ToList()
                 .ForEach(i=>i.Install(identity.Name));
