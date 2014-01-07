@@ -39,10 +39,10 @@
     {
         public AllDtcTransports()
         {
-            // TODO: introduce a SupportsDtc property on the transport definition
+            AllTransportsFilter.Run(t => !t.HasSupportForDistributedTransactions, Remove);
+
+            // todo set HasSupportForDistributedTransactions to false on Rabbit MQ
             AllTransportsFilter.Run(t => t.GetType().Name.Contains("RabbitMQ"), Remove);
-            AllTransportsFilter.Run(t => t.GetType().Name.Contains("AzureServiceBus"), Remove);
-            AllTransportsFilter.Run(t => t.GetType().Name.Contains("AzureStorageQueue"), Remove);
         }
     }
 

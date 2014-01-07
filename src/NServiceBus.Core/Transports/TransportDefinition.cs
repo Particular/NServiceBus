@@ -14,5 +14,10 @@ namespace NServiceBus.Transports
         /// Indicates that the transport has a central store for subscriptions
         /// </summary>
         public bool HasSupportForCentralizedPubSub { get; protected set; }
+
+        /// <summary>
+        /// Indicates that the transport has support for distributed transactions
+        /// </summary>
+        public bool HasSupportForDistributedTransactions { get; protected set; }
     }
 }
