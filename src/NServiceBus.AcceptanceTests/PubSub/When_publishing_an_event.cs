@@ -69,7 +69,7 @@
                               context.Subscriber2Subscribed = true;
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                     {
                         Assert.True(c.Subscriber1GotTheEvent);
