@@ -116,7 +116,9 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
+    <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
+    <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />

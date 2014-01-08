@@ -89,27 +89,31 @@ namespace NServiceBus.Gateway.Receiving
                 });
         }
 
-        CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
+        internal static CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
         {
-            var headers = receivedData.Headers;
+            
+            var callType = ReadCallType(receivedData.Headers);
 
-            var callType = headers[GatewayHeaders.CallTypeHeader];
-            if (!Enum.IsDefined(typeof(CallType), callType))
+            var clientId = ReadClientId(receivedData.Headers);
+
+            VerifyData(receivedData);
+
+            return new CallInfo
             {
-                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
-            }
+                ClientId = clientId,
+                Type = callType,
+                Headers = receivedData.Headers,
+                Data = receivedData.Data,
+                AutoAck = receivedData.Headers.ContainsKey(GatewayHeaders.AutoAck)
+            };
+        }
 
-            var type = (CallType) Enum.Parse(typeof(CallType), callType);
+        internal static void VerifyData(DataReceivedOnChannelArgs receivedData)
+        {
+            string md5;
+            receivedData.Headers.TryGetValue(HttpHeaders.ContentMd5Key, out md5);
 
-            var clientId = headers[GatewayHeaders.ClientIdHeader];
-            if (clientId == null)
-            {
-                throw new ChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
-            }
-
-            var md5 = headers[HttpHeaders.ContentMd5Key];
-
-            if (md5 == null)
+            if (string.IsNullOrWhiteSpace(md5))
             {
                 throw new ChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
             }
@@ -118,19 +122,34 @@ namespace NServiceBus.Gateway.Receiving
 
             if (receivedData.Data.Length > 0 && hash != md5)
             {
-                throw new ChannelException(412,
-                    "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
+                throw new ChannelException(412, "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
             }
+        }
 
-
-            return new CallInfo
+        internal static string ReadClientId(IDictionary<string, string> headers)
+        {
+            string clientIdString;
+            headers.TryGetValue(GatewayHeaders.ClientIdHeader, out clientIdString);
+            if (string.IsNullOrWhiteSpace(clientIdString))
             {
-                ClientId = clientId,
-                Type = type,
-                Headers = headers,
-                Data = receivedData.Data,
-                AutoAck = headers.ContainsKey(GatewayHeaders.AutoAck)
-            };
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
+            }
+            return clientIdString;
+        }
+
+        internal static CallType ReadCallType(IDictionary<string, string> headers)
+        {
+            string callTypeString;
+            CallType callType;
+            if (!headers.TryGetValue(GatewayHeaders.CallTypeHeader, out callTypeString))
+            {
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
+            }
+            if (!Enum.TryParse(callTypeString, out callType))
+            {
+                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
+            }
+            return callType;
         }
 
         void HandleSubmit(CallInfo callInfo)

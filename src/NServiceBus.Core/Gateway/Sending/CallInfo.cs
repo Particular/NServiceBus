@@ -13,14 +13,4 @@ namespace NServiceBus.Gateway.Sending
         [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public bool AutoAck { get; set; }
     }
-
-    public enum CallType
-    {
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")] Submit,
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")] Ack,
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")] DatabusProperty,
-
-        SingleCallSubmit,
-        SingleCallDatabusProperty
-    }
 }
