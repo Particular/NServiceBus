@@ -99,6 +99,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />

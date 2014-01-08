@@ -5,7 +5,6 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
-    using System.Text;
     using System.Threading.Tasks;
     using Audit;
     using Licensing;
@@ -975,6 +974,7 @@ namespace NServiceBus.Unicast
         {
             Raise(CreateInstance(messageConstructor));
         }
+
         public void Raise<T>(T @event)
         {
             var messageType = typeof(T);
@@ -983,7 +983,18 @@ namespace NServiceBus.Unicast
 
             var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
 
-            PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+            if (PipelineFactory.CurrentContext is RootContext)
+            {
+                using (var childBuilder = Builder.CreateChildBuilder())
+                {
+                    PipelineFactory.CurrentContext.Set(childBuilder);
+                    PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+                }
+            }
+            else
+            {
+                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);                
+            }
         }
 
         [ObsoleteEx(RemoveInVersion = "5.0", Message = "In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
