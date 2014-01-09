@@ -3,6 +3,7 @@
     using System;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
 
     public class When_calling_DoNotContinueDispatchingCurrentMessageToHandlers_from_inmemory : NServiceBusAcceptanceTest
@@ -45,7 +46,7 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>());
             }
 
             class EnsureOrdering : ISpecifyMessageHandlerOrdering
