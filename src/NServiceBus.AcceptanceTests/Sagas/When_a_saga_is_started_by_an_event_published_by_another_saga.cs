@@ -31,7 +31,13 @@
                                                                    bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()}))
                 )
                     .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                        b => b.Given((bus, context) => bus.Subscribe<SomethingHappenedEvent>()))
+                        b => b.Given((bus, context) =>
+                        {
+                            bus.Subscribe<SomethingHappenedEvent>();
+
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                                context.IsEventSubscriptionReceived = true;
+                        }))
 
                     .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                     .Repeat(r => r.For(Transports.Default))
@@ -66,7 +72,13 @@
                                                                 bus.Publish<SomethingHappenedEvent>(m=> { m.DataId = Guid.NewGuid(); }))
              )
                  .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                     b => b.Given((bus, context) => bus.Subscribe<BaseEvent>()))
+                     b => b.Given((bus, context) =>
+                     {
+                         bus.Subscribe<BaseEvent>();
+
+                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                              context.IsEventSubscriptionReceived = true;
+                     }))
                  .Done(c => c.DidSagaComplete)
                  .Repeat(r => r.For(Transports.Default))
                  .Should(c => Assert.True(c.DidSagaComplete))

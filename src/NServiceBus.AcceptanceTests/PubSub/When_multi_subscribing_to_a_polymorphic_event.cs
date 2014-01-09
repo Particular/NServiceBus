@@ -44,6 +44,12 @@
                     {
                         bus.Subscribe<IMyEvent>();
                         bus.Subscribe<MyEvent2>();
+
+                        if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                        {
+                            context.SubscribedToIMyEvent = true;
+                            context.SubscribedToMyEvent2 = true;
+                        }
                     }))
                     .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
                     .Run();
