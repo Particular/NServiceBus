@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
     using Saga;
     using ScenarioDescriptors;
@@ -20,7 +21,10 @@
                             b.When(context => context.StartSagaMessageReceived,
                                    (bus, context) =>
                                        {
-                                           bus.EnsureSubscriptionMessagesHaveArrived();
+                                           if (Feature.IsEnabled<MessageDrivenSubscriptions>())
+                                           {
+                                               bus.EnsureSubscriptionMessagesHaveArrived();
+                                           }
                                            bus.Publish(new SomeEvent {SomeId = context.Id});
                                        });
                         })
