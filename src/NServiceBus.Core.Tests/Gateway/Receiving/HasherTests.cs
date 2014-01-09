@@ -1,5 +1,6 @@
 namespace NServiceBus.Core.Tests
 {
+    using Gateway.Receiving;
     using Gateway.Utils;
     using NUnit.Framework;
 
@@ -16,7 +17,7 @@ namespace NServiceBus.Core.Tests
         [Test]
         public void Invalid_hash_throws_ChannelException()
         {
-            Hasher.Verify("myData".ConvertToStream(), "invalidHash");
+            Assert.Throws<ChannelException>(() => Hasher.Verify("myData".ConvertToStream(), "invalidHash"));
         }
 
     }
