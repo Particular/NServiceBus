@@ -11,10 +11,10 @@
         [Test]
         public void Run()
         {
-            var context = new Context();
+            var context = new Context { Id = Guid.NewGuid() };
 
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new StartSaga1())))
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new StartSaga1 { ContextId = c.Id })))
                     .Done(c => (c.Saga1TimeoutFired && c.Saga2TimeoutFired) || c.SagaNotFound)
                     .Run(TimeSpan.FromSeconds(20));
 
@@ -25,6 +25,7 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public bool Saga1TimeoutFired { get; set; }
             public bool Saga2TimeoutFired { get; set; }
             public bool SagaNotFound { get; set; }
@@ -43,18 +44,23 @@
 
                 public void Handle(StartSaga1 message)
                 {
-                    RequestTimeout<Saga1Timeout>(TimeSpan.FromSeconds(5));
-                    RequestTimeout<Saga2Timeout>(new DateTime(2011, 10, 14, 23, 08, 0, DateTimeKind.Local));
+                    if (message.ContextId != Context.Id) return;
+
+                    RequestTimeout(TimeSpan.FromSeconds(5), new Saga1Timeout { ContextId = Context.Id });
+                    RequestTimeout(new DateTime(2011, 10, 14, 23, 08, 0, DateTimeKind.Local), new Saga2Timeout { ContextId = Context.Id });
                 }
 
                 public void Timeout(Saga1Timeout state)
                 {
                     MarkAsComplete();
+
+                    if (state.ContextId != Context.Id) return;
                     Context.Saga1TimeoutFired = true;
                 }
 
                 public void Timeout(Saga2Timeout state)
                 {
+                    if (state.ContextId != Context.Id) return;
                     Context.Saga2TimeoutFired = true;
                 }
 
@@ -69,6 +75,8 @@
 
                 public void Handle(object message)
                 {
+                    if (((dynamic)message).ContextId != Context.Id) return;
+
                     Context.SagaNotFound = true;
                 }
             }
@@ -81,7 +89,7 @@
                 }
             }
 
-            public class Foo: ISpecifyMessageHandlerOrdering
+            public class Foo : ISpecifyMessageHandlerOrdering
             {
                 public void SpecifyOrder(Order order)
                 {
@@ -93,15 +101,18 @@
         [Serializable]
         public class StartSaga1 : ICommand
         {
+            public Guid ContextId { get; set; }
         }
 
 
         public class Saga1Timeout
         {
+            public Guid ContextId { get; set; }
         }
 
         public class Saga2Timeout
         {
+            public Guid ContextId { get; set; }
         }
     }
 }
