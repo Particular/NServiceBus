@@ -19,11 +19,26 @@ namespace NServiceBus.Gateway.Receiving
                     Type = ReadCallType(receivedData.Headers),
                     Headers = receivedData.Headers,
                     Data = receivedData.Data,
-                    AutoAck = receivedData.Headers.ContainsKey(GatewayHeaders.AutoAck),
+                    AutoAck = ReadAutoAck(receivedData.Headers),
                     Md5 = ReadMd5(receivedData.Headers)
                 };
         }
 
+        static bool ReadAutoAck(IDictionary<string, string> headers)
+        {
+            string autoAckString;
+            if (headers.TryGetValue(GatewayHeaders.AutoAck, out autoAckString))
+            {
+                bool autoAck;
+                if (bool.TryParse(autoAckString, out autoAck))
+                {
+                    return autoAck;
+                }
+                var message = string.Format("Invalid AutoAck header '{0}'. Found '{1}'", GatewayHeaders.AutoAck, autoAckString);
+                throw new ChannelException(400, message);
+            }
+            return false;
+        }
         static TimeSpan ReadTimeToBeReceived(IDictionary<string, string> headers)
         {
             string timeToBeReceivedString;
