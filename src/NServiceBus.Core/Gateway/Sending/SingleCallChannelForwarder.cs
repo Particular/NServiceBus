@@ -8,7 +8,7 @@
     using Channels.Http;
     using DataBus;
     using HeaderManagement;
-    using log4net;
+    using Logging;
     using Routing;
     using Utils;
 

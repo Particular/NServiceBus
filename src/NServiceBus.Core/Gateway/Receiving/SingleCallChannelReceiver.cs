@@ -8,7 +8,7 @@
     using DataBus;
     using Deduplication;
     using HeaderManagement;
-    using log4net;
+    using Logging;
     using Notifications;
     using Sending;
     using Utils;
