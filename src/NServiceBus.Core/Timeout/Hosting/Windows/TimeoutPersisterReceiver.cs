@@ -34,6 +34,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
+            TimeoutManager.TimeoutPushed -= TimeoutsManagerOnTimeoutPushed;
             tokenSource.Cancel();
             resetEvent.WaitOne();
         }
