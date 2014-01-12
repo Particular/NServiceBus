@@ -3,7 +3,6 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -11,6 +10,7 @@
     using NServiceBus;
     using NServiceBus.Features;
     using Encryption;
+    using NServiceBus.Unicast.Transport;
     using Saga;
     using System;
     
@@ -18,6 +18,8 @@
     {
         static void Main(string[] args)
         {
+            TransportConnectionString.Override(() => "deadLetter=false;journal=false");
+
             var testCaseToRun = args[0];
 
             int numberOfThreads;
