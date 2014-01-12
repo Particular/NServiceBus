@@ -42,13 +42,15 @@
 
         public void DisposeManaged()
         {
+            if (receiver != null)
+            {
+                receiver.MessageReceived -= MessageReceivedOnOldChannel;
+                receiver.Dispose();
+            }
+
             if (channelReceiver != null)
             {
                 channelReceiver.DataReceived -= DataReceivedOnChannel;
-                if (receiver != null)
-                {
-                    receiver.MessageReceived -= MessageReceivedOnOldChannel;
-                }
                 channelReceiver.Dispose();
             }
         }
