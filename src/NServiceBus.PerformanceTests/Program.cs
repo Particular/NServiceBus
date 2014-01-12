@@ -3,6 +3,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,12 +13,25 @@
     using Encryption;
     using Saga;
     using System;
-
+    
     class Program
     {
         static void Main(string[] args)
         {
-            var numberOfThreads = int.Parse(args[0]);
+            var testCaseToRun = args[0];
+
+            int numberOfThreads;
+
+            if (!int.TryParse(testCaseToRun, out numberOfThreads))
+            {
+                var testCase = TestCase.Load(testCaseToRun,args);
+
+                testCase.Run();
+                testCase.DumpSettings();
+              
+                return;
+            }
+
             var volatileMode = (args[4].ToLower() == "volatile");
             var suppressDTC = (args[4].ToLower() == "suppressdtc");
             var twoPhaseCommit = (args[4].ToLower() == "twophasecommit");

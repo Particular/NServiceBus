@@ -16,4 +16,17 @@
                 };
         }
     }
+
+
+    class MsmqConfigOverride : IProvideConfiguration<MsmqMessageQueueConfig>
+    {
+        public MsmqMessageQueueConfig GetConfiguration()
+        {
+            return new MsmqMessageQueueConfig
+            {
+              UseDeadLetterQueue=false,
+              UseJournalQueue = false
+            };
+        }
+    }
 }
