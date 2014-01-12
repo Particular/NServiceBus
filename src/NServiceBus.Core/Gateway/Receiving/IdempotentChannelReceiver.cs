@@ -176,12 +176,7 @@ namespace NServiceBus.Gateway.Receiving
                 timeToBeReceived = TimeSpan.FromHours(1);
             }
 
-            string newDatabusKey;
-
-            using (callInfo.Data)
-            {
-                newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
-            }
+            var newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
 
             var specificDataBusHeaderToUpdate = callInfo.Headers[GatewayHeaders.DatabusKey];
 
