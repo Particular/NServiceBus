@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using NServiceBus;
 using NServiceBus.Features;
 using NServiceBus.Transports.Msmq;
@@ -53,6 +54,9 @@ public class PubSubTestCase : TestCase
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
         Feature.Disable<Audit>();
+
+        Configure.Transactions.Enable();
+
         var config = Configure.With()
             .DefineEndpointName(endpointName)
             .DefaultBuilder()
@@ -72,10 +76,13 @@ public class PubSubTestCase : TestCase
                 break;
         }
 
-        using (var bus = config.InMemorySubscriptionStorage()
-            .UnicastBus()
+        using (var bus = config.UnicastBus()
             .CreateBus())
         {
+
+
+            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
+
             var subscriptionStorage = Configure.Instance.Builder.Build<ISubscriptionStorage>();
          
             var testEventMessage = new MessageType(typeof(RavenTestEvent));
@@ -89,20 +96,23 @@ public class PubSubTestCase : TestCase
                 Settings = new MsmqSettings { UseTransactionalQueues = true }
             };
 
-
-            for (var i = 0; i < NumberOfSubscribers; i++)
+            using (var tx = new TransactionScope())
             {
-                var subscriberAddress = Address.Parse(endpointName + ".Subscriber" + i);
-                creator.CreateQueueIfNecessary(subscriberAddress, null);
-                subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                for (var i = 0; i < NumberOfSubscribers; i++)
+                {
+                    var subscriberAddress = Address.Parse(endpointName + ".Subscriber" + i);
+                    creator.CreateQueueIfNecessary(subscriberAddress, null);
+                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
                 {
                     testEventMessage
                 });
+                }
+
+                tx.Complete();
             }
 
 
 
-            Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install();
 
             Parallel.For(
           0,
