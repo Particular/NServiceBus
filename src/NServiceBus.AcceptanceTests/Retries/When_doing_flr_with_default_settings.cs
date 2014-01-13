@@ -10,20 +10,22 @@
 
     public class When_doing_flr_with_default_settings : NServiceBusAcceptanceTest
     {
+        public static Func<int> X = () => 5;
+            
         [Test]
-        public void Should_do_5_retries_by_default_with_dtc_on()
+        public void Should_do_X_retries_by_default_with_dtc_on()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried{ Id = context.Id })))
-                    .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
+                    .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > X())
                     .Repeat(r => r.For<AllDtcTransports>())
-                    .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
+                    .Should(c => Assert.AreEqual(X(), c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", X())))
                     .Run();
 
         }
 
         [Test]
-        public void Should_do_5_retries_by_default_with_native_transactions()
+        public void Should_do_X_retries_by_default_with_native_transactions()
         {
             Scenario.Define(() => new Context { Id = Guid.NewGuid() })
                     .WithEndpoint<RetryEndpoint>(b =>
@@ -31,10 +33,10 @@
                             b.CustomConfig(c => Configure.Transactions.Advanced(a => a.DisableDistributedTransactions()));
                             b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id }));
                         })
-                    .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > 5)
+                    .Done(c => c.HandedOverToSlr || c.NumberOfTimesInvoked > X())
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.AreEqual(5, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times"))
-                    .Run(TimeSpan.FromMinutes(5));
+                    .Should(c => Assert.AreEqual(X(), c.NumberOfTimesInvoked, string.Format("The FLR should by default retry {0} times", X())))
+                    .Run(TimeSpan.FromMinutes(X()));
 
         }
 
