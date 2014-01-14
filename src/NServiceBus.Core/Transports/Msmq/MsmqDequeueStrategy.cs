@@ -96,6 +96,8 @@ namespace NServiceBus.Transports.Msmq
         /// <param name="maximumConcurrencyLevel">The maximum concurrency level supported.</param>
         public void Start(int maximumConcurrencyLevel)
         {
+            MessageQueue.ClearConnectionCache();
+
             this.maximumConcurrencyLevel = maximumConcurrencyLevel;
             throttlingSemaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
