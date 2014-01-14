@@ -88,6 +88,27 @@
         }
 
 
+        [Test]
+        public void Should_enrich_the_audit_data_with_the_saga_type_and_id()
+        {
+            var sagaId = Guid.NewGuid();
+            var correlationId = Guid.NewGuid();
+
+            RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
+
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
+
+            var sagaAuditTrail = AuditedMessage.Headers[Headers.InvokedSagas];
+
+            var sagas = sagaAuditTrail.Split(';');
+
+            var sagaInfo = sagas.Single();
+
+            Assert.AreEqual(typeof(MySaga).FullName,sagaInfo.Split(':').First());
+            Assert.AreEqual(sagaId.ToString(), sagaInfo.Split(':').Last());
+        }
+
+
         class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
             public void Handle(MessageThatHitsExistingSaga message)

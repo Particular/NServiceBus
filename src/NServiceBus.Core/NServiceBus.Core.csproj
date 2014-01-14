@@ -156,6 +156,7 @@
     <Compile Include="Pipeline\PipelineBuilder.cs" />
     <Compile Include="Pipeline\PipelineOverride.cs" />
     <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
+    <Compile Include="Sagas\AuditInvokedSagaBehavior.cs" />
     <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />

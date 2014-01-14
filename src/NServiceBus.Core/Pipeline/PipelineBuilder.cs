@@ -98,6 +98,7 @@
             var behaviorList = new BehaviorList<HandlerInvocationContext>();
 
             behaviorList.Add<SetCurrentMessageBeingHandledBehavior>();
+            behaviorList.Add<AuditInvokedSagaBehavior>();
             behaviorList.Add<SagaPersistenceBehavior>();
             behaviorList.Add<InvokeHandlersBehavior>();
 

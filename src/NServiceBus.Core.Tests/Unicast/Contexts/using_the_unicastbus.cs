@@ -289,6 +289,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected Exception ResultingException;
 
+        protected TransportMessage AuditedMessage;
+
         protected void ReceiveMessage(TransportMessage transportMessage)
         {
             try
@@ -303,6 +305,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
 
                 Transport.FakeMessageBeingProcessed(transportMessage);
+
+                AuditedMessage = transportMessage;
             }
             catch (Exception ex)
             {

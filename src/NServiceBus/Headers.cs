@@ -55,6 +55,12 @@
         public const string SagaId = "NServiceBus.SagaId";
 
         /// <summary>
+        /// Header containing a list of saga types and ids that this message invoked, the format is "{sagatype}={sagaid};{sagatype}={sagaid}"
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string InvokedSagas = "NServiceBus.InvokedSagas";
+
+        /// <summary>
         /// Header telling the timeout manager to clear previous timeouts
         /// This header is considered an applicative header.
         /// </summary>

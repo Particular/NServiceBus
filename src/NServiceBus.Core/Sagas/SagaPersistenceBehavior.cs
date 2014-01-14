@@ -36,6 +36,9 @@
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
 
+            //so that other behaviors can access the saga
+            context.Set(sagaInstanceState);
+
             var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);
 
             if (loadedEntity == null)
@@ -62,8 +65,6 @@
                 context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
             }
 
-            //so that other behaviors can access the saga
-            context.Set(sagaInstanceState);
 
             next();
 
