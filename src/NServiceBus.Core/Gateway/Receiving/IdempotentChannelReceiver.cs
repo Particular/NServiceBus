@@ -105,13 +105,8 @@ namespace NServiceBus.Gateway.Receiving
             {
                 throw new InvalidOperationException("Databus transmission received without a databus configured");
             }
-            
-            string newDatabusKey;
 
-            using (callInfo.Data)
-            {
-                newDatabusKey = DataBus.Put(callInfo.Data, callInfo.TimeToBeReceived);
-            }
+            var newDatabusKey = DataBus.Put(callInfo.Data, callInfo.TimeToBeReceived);
 
             var specificDataBusHeaderToUpdate = callInfo.ReadDataBus();
 

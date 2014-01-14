@@ -10,14 +10,30 @@
     using NServiceBus;
     using NServiceBus.Features;
     using Encryption;
+    using NServiceBus.Unicast.Transport;
     using Saga;
     using System;
-
+    
     class Program
     {
         static void Main(string[] args)
         {
-            var numberOfThreads = int.Parse(args[0]);
+            TransportConnectionString.Override(() => "deadLetter=false;journal=false");
+
+            var testCaseToRun = args[0];
+
+            int numberOfThreads;
+
+            if (!int.TryParse(testCaseToRun, out numberOfThreads))
+            {
+                var testCase = TestCase.Load(testCaseToRun,args);
+
+                testCase.Run();
+                testCase.DumpSettings();
+              
+                return;
+            }
+
             var volatileMode = (args[4].ToLower() == "volatile");
             var suppressDTC = (args[4].ToLower() == "suppressdtc");
             var twoPhaseCommit = (args[4].ToLower() == "twophasecommit");

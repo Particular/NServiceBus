@@ -40,7 +40,7 @@
         }
 
         [Test]
-        public void Should_be_delivered_to_allsubscribers()
+        public void Should_be_delivered_to_all_subscribers()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>

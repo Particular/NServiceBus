@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics;
     using Config;
-    using log4net;
+    using Logging;
     using NServiceBus.Audit;
     using Utils;
 
