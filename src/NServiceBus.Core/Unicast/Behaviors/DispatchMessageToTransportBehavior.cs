@@ -79,7 +79,7 @@
             }
             catch (QueueNotFoundException ex)
             {
-                throw new ConfigurationErrorsException("The destination queue '" + sendOptions.Destination +
+                throw new ConfigurationErrorsException("The destination queue '" + ex.Queue +
                                                        "' could not be found. You may have misconfigured the destination for this kind of message (" +
                                                        messageDescription +
                                                        ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +
