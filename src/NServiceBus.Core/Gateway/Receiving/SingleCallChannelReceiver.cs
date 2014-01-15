@@ -67,7 +67,7 @@
 
                 Logger.DebugFormat("Received message of type {0} for client id: {1}", callInfo.Type, callInfo.ClientId);
 
-                using (var scope = DefaultTransactionScope())
+                using (var scope = GatewayTransaction.Scope())
                 {
                     switch (callInfo.Type)
                     {
@@ -85,17 +85,6 @@
                 }
             }
         }
-
-        static TransactionScope DefaultTransactionScope()
-        {
-            return new TransactionScope(TransactionScopeOption.RequiresNew,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.ReadCommitted,
-                    Timeout = TimeSpan.FromSeconds(30)
-                });
-        }
-
 
         void HandleSubmit(CallInfo callInfo)
         {

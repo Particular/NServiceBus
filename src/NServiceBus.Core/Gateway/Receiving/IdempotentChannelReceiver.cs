@@ -55,7 +55,7 @@ namespace NServiceBus.Gateway.Receiving
                 Hasher.Verify(callInfo.Data,callInfo.Md5);
                 Logger.DebugFormat("Received message of type {0} for client id: {1}", callInfo.Type, callInfo.ClientId);
 
-                using (var scope = DefaultTransactionScope())
+                using (var scope = GatewayTransaction.Scope())
                 {
                     DispatchReceivedCallInfo(callInfo);
                     scope.Complete();
@@ -77,16 +77,6 @@ namespace NServiceBus.Gateway.Receiving
                     HandleAck(callInfo);
                     break;
             }
-        }
-
-        static TransactionScope DefaultTransactionScope()
-        {
-            return new TransactionScope(TransactionScopeOption.Required,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.ReadCommitted,
-                    Timeout = TimeSpan.FromSeconds(30)
-                });
         }
 
         void HandleSubmit(CallInfo callInfo)

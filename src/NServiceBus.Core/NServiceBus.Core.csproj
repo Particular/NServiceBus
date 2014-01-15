@@ -120,6 +120,7 @@
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
+    <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
