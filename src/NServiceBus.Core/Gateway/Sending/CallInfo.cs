@@ -1,5 +1,6 @@
 namespace NServiceBus.Gateway.Sending
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
 
@@ -12,5 +13,8 @@ namespace NServiceBus.Gateway.Sending
 
         [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
         public bool AutoAck { get; set; }
+
+        public TimeSpan TimeToBeReceived { get; set; }
+        public string Md5 { get; set; }
     }
 }
