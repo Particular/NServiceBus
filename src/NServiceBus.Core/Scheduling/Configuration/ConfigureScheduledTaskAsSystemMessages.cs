@@ -4,7 +4,7 @@ namespace NServiceBus.Scheduling.Configuration
     {
         public void Init()
         {
-            Configure.Instance.AddSystemMessagesAs(t => typeof(Messages.ScheduledTask).IsAssignableFrom(t));
+            MessageConventionExtensions.AddSystemMessagesConventions(t => typeof(Messages.ScheduledTask).IsAssignableFrom(t));
         }
     }
 }

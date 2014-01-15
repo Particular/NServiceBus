@@ -5,12 +5,12 @@ namespace NServiceBus.Config.Conventions
     /// <summary>
     /// Define system message convention
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
     public static class SystemMessageConventions
     {
         /// <summary>
         /// Add system messages convention
         /// </summary>
-        [ObsoleteEx(Message = "Moved to NServiceBus namespace.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
         public static Configure AddSystemMessagesAs(this Configure config, Func<Type, bool> definesMessageType)
         {
             MessageConventionExtensions.AddSystemMessagesConventions(definesMessageType);
@@ -26,6 +26,7 @@ namespace NServiceBus
     /// <summary>
     /// Define system message convention
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
     public static class SystemMessageConventions
     {
         /// <summary>
