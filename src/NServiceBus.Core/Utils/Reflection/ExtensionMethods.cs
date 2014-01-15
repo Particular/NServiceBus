@@ -76,8 +76,13 @@ namespace NServiceBus.Utils.Reflection
         public static string SerializationFriendlyName(this Type t)
         {
             lock(TypeToNameLookup)
-                if (TypeToNameLookup.ContainsKey(t))
-                    return TypeToNameLookup[t];
+            {
+                string typeName;
+                if (TypeToNameLookup.TryGetValue(t, out typeName))
+                {
+                    return typeName;
+                }
+            }
 
             var index = t.Name.IndexOf('`');
             if (index >= 0)

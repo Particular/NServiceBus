@@ -18,12 +18,13 @@ namespace NServiceBus.ObjectBuilder.Unity
 
         public static void SetPropertyValue(Type type, string name,object value)
         {
-            if (!configuredProperties.ContainsKey(type))
+            List<Tuple<string, object>> properties;
+            if (!configuredProperties.TryGetValue(type, out properties))
             {
-                configuredProperties.Add(type,new List<Tuple<string, object>>());
+                configuredProperties[type] = properties = new List<Tuple<string, object>>();
             }
 
-            configuredProperties[type].Add(new Tuple<string, object>(name,value));
+            properties.Add(new Tuple<string, object>(name, value));
         }
 
         public override void PreBuildUp(IBuilderContext context)
@@ -44,9 +45,10 @@ namespace NServiceBus.ObjectBuilder.Unity
                         property.SetValue(context.Existing, unityContainer.Resolve(property.PropertyType),null);
                     }
 
-                    if(configuredProperties.ContainsKey(type))
+                    List<Tuple<string, object>> configuredProperty;
+                    if(configuredProperties.TryGetValue(type, out configuredProperty))
                     {
-                        var p = configuredProperties[type].FirstOrDefault(t => t.Item1 == property.Name);
+                        var p = configuredProperty.FirstOrDefault(t => t.Item1 == property.Name);
 
                         if (p != null)
                         {

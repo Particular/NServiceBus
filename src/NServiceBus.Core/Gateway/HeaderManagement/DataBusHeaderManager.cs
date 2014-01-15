@@ -40,12 +40,13 @@
 
                 foreach (var propertyHeader in expectedDatabusProperties)
                 {
-                    if (!collection.ContainsKey(propertyHeader.Key))
+                    string propertyValue;
+                    if (!collection.TryGetValue(propertyHeader.Key, out propertyValue))
                     {
                         var message = string.Format("Databus property {0} was never received. Please resubmit.",propertyHeader.Key);
                         throw new ChannelException(412,message);
                     }
-                    input[propertyHeader.Key] = collection[propertyHeader.Key];
+                    input[propertyHeader.Key] = propertyValue;
                 }
 
                 headers.Remove(clientId);
@@ -53,7 +54,7 @@
             return input;
         }
 
-        readonly IDictionary<string, IDictionary<string, string>> headers
+        readonly IDictionary<string, IDictionary<string, string>> headers 
             = new Dictionary<string, IDictionary<string, string>>();
     }
 }

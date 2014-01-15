@@ -21,15 +21,20 @@
         {
             var type = typeof(T);
 
-            if (configuration.UserDefinedConfigSections.ContainsKey(type))
-                return configuration.UserDefinedConfigSections[type] as T;
+            object configurationSection;
+            if (configuration.UserDefinedConfigSections.TryGetValue(type, out configurationSection))
+            {
+                return configurationSection as T;
+            }
 
 
             if (type == typeof(MessageForwardingInCaseOfFaultConfig))
+            {
                 return new MessageForwardingInCaseOfFaultConfig
                     {
                         ErrorQueue = "error"
                     } as T;
+            }
 
             if (type == typeof(UnicastBusConfig))
             {
@@ -56,10 +61,12 @@
             }
 
             if (type == typeof(Logging))
+            {
                 return new Logging
                 {
                     Threshold = "WARN"
                 } as T;
+            }
 
 
             return ConfigurationManager.GetSection(type.Name) as T;

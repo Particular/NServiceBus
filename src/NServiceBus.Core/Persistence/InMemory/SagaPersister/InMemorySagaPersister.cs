@@ -60,9 +60,10 @@ namespace NServiceBus.Persistence.InMemory.SagaPersister
             {
                 ValidateUniqueProperties(saga);
 
-                if (data.ContainsKey(saga.Id))
+                VersionedSagaEntity sagaEntity;
+                if (data.TryGetValue(saga.Id, out sagaEntity))
                 {
-                    data[saga.Id].ConcurrencyCheck();
+                    sagaEntity.ConcurrencyCheck();
                 }
 
                 data[saga.Id] = new VersionedSagaEntity { SagaEntity = DeepClone(saga) };

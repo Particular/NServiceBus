@@ -20,9 +20,10 @@
             var legacyMode = true;
 
             // Gateway v3 would never have sent this header
-            if (message.Headers.ContainsKey(GatewayHeaders.LegacyMode))
+            string legacyModeString;
+            if (message.Headers.TryGetValue(GatewayHeaders.LegacyMode, out legacyModeString))
             {
-                bool.TryParse(message.Headers[GatewayHeaders.LegacyMode], out legacyMode);
+                bool.TryParse(legacyModeString, out legacyMode);
             }
 
             return legacyMode;

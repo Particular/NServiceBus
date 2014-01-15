@@ -16,15 +16,17 @@ namespace NServiceBus.Gateway.Routing.Sites
 
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
-            if (messageToDispatch.Headers.ContainsKey(Headers.DestinationSites))
+            string destinationSites;
+            if (messageToDispatch.Headers.TryGetValue(Headers.DestinationSites, out destinationSites))
             {
-                var siteKeys = messageToDispatch.Headers[Headers.DestinationSites].Split(',');
+                var siteKeys = destinationSites.Split(',');
 
                 foreach (var siteKey in siteKeys)
                 {
-                    if (sites.ContainsKey(siteKey))
+                    Site site;
+                    if (sites.TryGetValue(siteKey, out site))
                     {
-                        yield return sites[siteKey];
+                        yield return site;
                     }
                 }
             }

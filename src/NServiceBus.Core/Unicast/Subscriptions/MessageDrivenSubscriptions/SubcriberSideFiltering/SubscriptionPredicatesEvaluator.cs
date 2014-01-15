@@ -22,11 +22,18 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subcriber
             var result = new List<Predicate<object>>();
 
             lock (locker)
-                if (messageTypeToConditionLookup.ContainsKey(message.GetType()))
-                    foreach (var condition in messageTypeToConditionLookup[message.GetType()])
+            {
+                List<Predicate<object>> conditionLookup;
+                if (messageTypeToConditionLookup.TryGetValue(message.GetType(), out conditionLookup))
+                {
+                    foreach (var condition in conditionLookup)
+                    {
                         result.Add(condition);
+                    }
+                }
+            }
 
-            return result;
+		    return result;
         }
 
 		/// <summary>
@@ -39,17 +46,24 @@ namespace NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions.Subcriber
 		/// are to be published to a subscriber.</remarks>
         public void AddConditionForSubscriptionToMessageType(Type messageType, Predicate<object> condition)
         {
-            if (condition == null)
-                return;
+		    if (condition == null)
+		    {
+		        return;
+		    }
 
-            lock (locker)
-            {
-                if (!messageTypeToConditionLookup.ContainsKey(messageType))
-                    messageTypeToConditionLookup.Add(messageType, new List<Predicate<object>>());
+		    lock (locker)
+		    {
+		        List<Predicate<object>> conditionLookup;
+		        if (!messageTypeToConditionLookup.TryGetValue(messageType, out conditionLookup))
+		        {
+		            messageTypeToConditionLookup[messageType] = conditionLookup = new List<Predicate<object>>();
+		        }
 
-                if (!messageTypeToConditionLookup[messageType].Contains(condition))
-                    messageTypeToConditionLookup[messageType].Add(condition);
-            }
+		        if (!conditionLookup.Contains(condition))
+		        {
+		            conditionLookup.Add(condition);
+		        }
+		    }
         }
 
         private readonly IDictionary<Type, List<Predicate<object>>> messageTypeToConditionLookup = new Dictionary<Type, List<Predicate<object>>>();

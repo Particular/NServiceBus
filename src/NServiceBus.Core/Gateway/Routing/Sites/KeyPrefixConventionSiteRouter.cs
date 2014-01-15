@@ -7,10 +7,10 @@ namespace NServiceBus.Gateway.Routing.Sites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
-            if (messageToDispatch.Headers.ContainsKey(Headers.DestinationSites))
+            string sites;
+            if (messageToDispatch.Headers.TryGetValue(Headers.DestinationSites, out sites))
             {
-                var siteKeys = messageToDispatch.Headers[Headers.DestinationSites].Split(',');
-
+                var siteKeys = sites.Split(',');
 
                 foreach (var siteKey in siteKeys)
                 {
@@ -20,7 +20,11 @@ namespace NServiceBus.Gateway.Routing.Sites
                     {
                         yield return new Site
                         {
-                            Channel = new Channel {Address = siteKey, Type = parts[0]},
+                            Channel = new Channel
+                                {
+                                    Address = siteKey, 
+                                    Type = parts[0]
+                                },
                             Key = siteKey
                         };
                     }

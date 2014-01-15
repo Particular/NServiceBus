@@ -26,7 +26,9 @@ namespace NServiceBus.SecondLevelRetries.Helpers
 
         public static string GetHeader(TransportMessage message, string key)
         {
-            return message.Headers.ContainsKey(key) ? message.Headers[key] : null;
+            string value;
+            message.Headers.TryGetValue(key, out value);
+            return value;
         }
 
         public static bool HeaderExists(TransportMessage message, string key)

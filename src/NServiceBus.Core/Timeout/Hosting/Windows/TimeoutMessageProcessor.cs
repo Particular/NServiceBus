@@ -45,9 +45,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             //dispatch request will arrive at the same input so we need to make sure to call the correct handler
             if (message.Headers.ContainsKey(TimeoutIdToDispatchHeader))
+            {
                 HandleBackwardsCompatibility(message);
+            }
             else
+            {
                 HandleInternal(message);
+            }
 
             return true;
         }
@@ -62,9 +66,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
             message.Headers.Remove(TimeoutIdToDispatchHeader);
             message.Headers.Remove(TimeoutDestinationHeader);
 
-            if (message.Headers.ContainsKey(TimeoutManagerHeaders.RouteExpiredTimeoutTo))
+            string routeExpiredTimeoutTo;
+            if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
             {
-                destination = Address.Parse(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
+                destination = Address.Parse(routeExpiredTimeoutTo);
             }
 
             TimeoutManager.RemoveTimeout(timeoutId);
@@ -75,9 +80,10 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var sagaId = Guid.Empty;
 
-            if (message.Headers.ContainsKey(Headers.SagaId))
+            string sagaIdString;
+            if (message.Headers.TryGetValue(Headers.SagaId, out sagaIdString))
             {
-                sagaId = Guid.Parse(message.Headers[Headers.SagaId]);
+                sagaId = Guid.Parse(sagaIdString);
             }
 
             if (message.Headers.ContainsKey(TimeoutManagerHeaders.ClearTimeouts))
@@ -89,14 +95,18 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
             else
             {
-                if (!message.Headers.ContainsKey(TimeoutManagerHeaders.Expire))
+                string expire;
+                if (!message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+                {
                     throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + message.Id);
+                }
 
                 var destination = message.ReplyToAddress;
 
-                if (message.Headers.ContainsKey(TimeoutManagerHeaders.RouteExpiredTimeoutTo))
+                string routeExpiredTimeoutTo;
+                if (message.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
                 {
-                    destination = Address.Parse(message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo]);
+                    destination = Address.Parse(routeExpiredTimeoutTo);
                 }
                 
                 var data = new TimeoutData
@@ -104,7 +114,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     Destination = destination,
                     SagaId = sagaId,
                     State = message.Body,
-                    Time = DateTimeExtensions.ToUtcDateTime(message.Headers[TimeoutManagerHeaders.Expire]),
+                    Time = DateTimeExtensions.ToUtcDateTime(expire),
                     CorrelationId = GetCorrelationIdToStore(message),
                     Headers = message.Headers,
                     OwningTimeoutManager = Configure.EndpointName

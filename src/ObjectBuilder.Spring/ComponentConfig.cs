@@ -9,9 +9,9 @@
 
         public void Configure(ObjectDefinitionBuilder builder)
         {
-            foreach (var key in properties.Keys)
+            foreach (var keyValue in properties)
             {
-                builder.AddPropertyValue(key, properties[key]);
+                builder.AddPropertyValue(keyValue.Key, keyValue.Value);
             }
         }
 

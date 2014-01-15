@@ -47,11 +47,11 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             var result = new Dictionary<string, string>();
 
-            foreach (var header in from.Keys)
+            foreach (var pair in from)
             {
-                if (header.Contains(NServiceBus + Headers.HeaderName))
+                if (pair.Key.Contains(NServiceBus + Headers.HeaderName))
                 {
-                    result.Add(header.Replace(NServiceBus + Headers.HeaderName + ".", String.Empty), from[header]);
+                    result.Add(pair.Key.Replace(NServiceBus + Headers.HeaderName + ".", String.Empty), pair.Value);
                 }
             }
 
@@ -72,9 +72,10 @@ namespace NServiceBus.Gateway.HeaderManagement
 
             SetBackwardsCompatibilityHeaders(to);
 
-            if (from.Headers.ContainsKey(ReplyToAddress))
+            string replyToAddress;
+            if (from.Headers.TryGetValue(ReplyToAddress, out replyToAddress))
             {
-                to[Headers.RouteTo] = from.Headers[ReplyToAddress];
+                to[Headers.RouteTo] = replyToAddress;
             }
 
             from.Headers.ToList()

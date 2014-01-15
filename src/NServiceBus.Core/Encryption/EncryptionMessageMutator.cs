@@ -244,14 +244,15 @@ namespace NServiceBus.Encryption
 
             var messageType = target.GetType();
 
-            if (!cache.ContainsKey(messageType))
+            IEnumerable<MemberInfo> members;
+            if (!cache.TryGetValue(messageType, out members))
             {
                 cache[messageType] = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                     .Where(m => m is FieldInfo || m is PropertyInfo)
                     .ToList();
             }
 
-            return cache[messageType];
+            return members;
         }
 
         HashSet<object> visitedMembers = new HashSet<object>();
