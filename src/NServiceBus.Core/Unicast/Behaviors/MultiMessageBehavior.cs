@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using Pipeline;
     using Pipeline.Contexts;
 
     [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class MultiMessageBehavior : IBehavior<SendLogicalMessagesContext>
     {
         public PipelineExecutor PipelineExecutor { get; set; }
