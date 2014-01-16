@@ -247,7 +247,7 @@ namespace NServiceBus.Encryption
             IEnumerable<MemberInfo> members;
             if (!cache.TryGetValue(messageType, out members))
             {
-                cache[messageType] = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
+                cache[messageType] = members = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
                     .Where(m => m is FieldInfo || m is PropertyInfo)
                     .ToList();
             }
