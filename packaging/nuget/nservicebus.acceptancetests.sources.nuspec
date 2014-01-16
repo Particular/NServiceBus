@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <id>nservicebus.acceptancetests.sources</id>
+    <id>NServiceBus.AcceptanceTests.Sources</id>
     <title>Source only package containing the NServiceBus acceptance test suite</title>
     <version>4.0.0-alpha0</version>
     <authors>NServiceBus Ltd</authors>
