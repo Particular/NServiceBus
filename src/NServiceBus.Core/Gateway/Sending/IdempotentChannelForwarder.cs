@@ -30,7 +30,9 @@ namespace NServiceBus.Gateway.Sending
 
             var channelSender = channelFactory.GetSender(targetSite.Channel.Type);
 
-            using (var messagePayload = new MemoryStream(message.Body))
+            var bodyToSend = message.Body ?? new byte[0];
+
+            using (var messagePayload = new MemoryStream(bodyToSend))
             {
                 Transmit(channelSender, targetSite, CallType.Submit, headers, messagePayload);
             }
