@@ -2,7 +2,6 @@
 {
     using System;
     using System.IO;
-    using System.Transactions;
     using Channels;
     using DataBus;
     using Deduplication;

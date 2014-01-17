@@ -2,7 +2,6 @@ namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
-    using System.Transactions;
     using Channels;
     using DataBus;
     using HeaderManagement;
