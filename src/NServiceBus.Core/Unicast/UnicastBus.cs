@@ -790,66 +790,43 @@ namespace NServiceBus.Unicast
             satelliteLauncher = new SatelliteLauncher { Builder = Builder };
             satelliteLauncher.Start();
 
-            thingsToRunAtStartup = Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList();
+            thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
 
-            thingsToRunAtStartupTask = thingsToRunAtStartup.Select(toRun => Task.Factory.StartNew(() =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                try
+            thingsToRunAtStartupTask = ProcessStartupItems(
+                Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
+                toRun =>
                 {
                     toRun.Start();
-                    Log.DebugFormat("Started {0}.", name);
-                }
-                catch (Exception ex)
-                {
-                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
-                }
-            }, TaskCreationOptions.LongRunning)).ToArray();
+                    thingsRanAtStartup.Add(toRun);
+                    Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => Configure.Instance.RaiseCriticalError("Startup task failed to complete.", ex));
 
             return this;
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()
         {
-            if (thingsToRunAtStartup == null)
+            if (thingsRanAtStartup.IsEmpty)
             {
                 return;
             }
 
             //Ensure Start has been called on all thingsToRunAtStartup
             Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
-            Task.WaitAll(thingsToRunAtStartupTask);
+            Task.WaitAny(thingsToRunAtStartupTask);
             Log.DebugFormat("All IWantToRunAtStartup.Start should have completed now.");
 
-            var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
-
-            var tasks = thingsToRunAtStartup.Select(toRun =>
-            {
-                var name = toRun.GetType().AssemblyQualifiedName;
-
-                var task = new Task(() =>
+            var task = ProcessStartupItems(
+                thingsRanAtStartup.ToList(),
+                toRun =>
                 {
-                    try
-                    {
-                        toRun.Stop();
-                        Log.DebugFormat("Stopped {0}.", name);
-                    }
-                    catch (Exception ex)
-                    {
-                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
-                    }
-                }, TaskCreationOptions.LongRunning);
+                    toRun.Stop();
+                    Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
+                },
+                ex => Log.Fatal("Startup task failed to stop.", ex));
 
-                mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
-
-                task.Start();
-
-                return task;
-
-            }).ToArray();
-
-            Task.WaitAll(tasks);
+            Task.WaitAny(task);
         }
 
         /// <summary>
@@ -1128,14 +1105,14 @@ namespace NServiceBus.Unicast
 
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
-        IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
+        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup;
 
 #pragma warning disable 3005
         protected ITransport transport;
 #pragma warning restore 3005
 
         IMessageMapper messageMapper;
-        Task[] thingsToRunAtStartupTask = new Task[0];
+        Task thingsToRunAtStartupTask;
         SatelliteLauncher satelliteLauncher;
 
         Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
@@ -1166,6 +1143,18 @@ namespace NServiceBus.Unicast
             }
         }
 
+        static Task ProcessStartupItems<T>(IEnumerable<T> items, Action<T> action, Action<Exception> inCaseOfFault)
+        {
+            var task = Task.Factory.StartNew(() => Parallel.ForEach(items, action),
+                TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness);
 
+            task.ContinueWith(item =>
+            {
+                task.Exception.Handle(ex => true);
+                inCaseOfFault(task.Exception);
+            }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
+
+            return task;
+        }
     }
 }
