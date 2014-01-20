@@ -34,8 +34,11 @@ namespace NServiceBus.Unicast.Tests
         {
             bus.Subscribe<TestMessage>();
 
-            AssertSubscription(m => m.MessageIntent == MessageIntentEnum.Subscribe,
-                                addressToOwnerOfTestMessage);
+
+            AssertSubscription(m => m.MessageIntent == MessageIntentEnum.Subscribe &&  
+                                    m.Headers.ContainsKey(Headers.NServiceBusVersion) &&
+                                    m.Headers.ContainsKey(Headers.TimeSent)
+                                    ,addressToOwnerOfTestMessage);
         }
     }
     
