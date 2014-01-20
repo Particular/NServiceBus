@@ -27,6 +27,8 @@ namespace NServiceBus
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
             Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
             MessageIntent = MessageIntentEnum.Send;
+            Headers[NServiceBus.Headers.NServiceBusVersion] = NServiceBusVersion.Version;
+            Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
         }
 
         /// <summary>
