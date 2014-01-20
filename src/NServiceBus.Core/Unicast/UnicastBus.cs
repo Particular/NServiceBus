@@ -5,6 +5,7 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Audit;
     using Licensing;
@@ -790,9 +791,7 @@ namespace NServiceBus.Unicast
             satelliteLauncher = new SatelliteLauncher { Builder = Builder };
             satelliteLauncher.Start();
 
-            thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
-
-            thingsToRunAtStartupTask = ProcessStartupItems(
+            ProcessStartupItems(
                 Builder.BuildAll<IWantToRunWhenBusStartsAndStops>().ToList(),
                 toRun =>
                 {
@@ -800,33 +799,33 @@ namespace NServiceBus.Unicast
                     thingsRanAtStartup.Add(toRun);
                     Log.DebugFormat("Started {0}.", toRun.GetType().AssemblyQualifiedName);
                 },
-                ex => Configure.Instance.RaiseCriticalError("Startup task failed to complete.", ex));
+                ex => Configure.Instance.RaiseCriticalError("Startup task failed to complete.", ex),
+                startCompletedEvent);
 
             return this;
         }
 
         void ExecuteIWantToRunAtStartupStopMethods()
         {
-            if (thingsRanAtStartup.IsEmpty)
-            {
+            Log.DebugFormat("Ensuring IWantToRunWhenBusStartsAndStops.Start has been called.");
+            startCompletedEvent.WaitOne();
+            Log.DebugFormat("All IWantToRunWhenBusStartsAndStops.Start have completed now.");
+
+            var tasksToStop = Interlocked.Exchange(ref thingsRanAtStartup, new ConcurrentBag<IWantToRunWhenBusStartsAndStops>());
+            if (!tasksToStop.Any())
                 return;
-            }
 
-            //Ensure Start has been called on all thingsToRunAtStartup
-            Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
-            Task.WaitAny(thingsToRunAtStartupTask);
-            Log.DebugFormat("All IWantToRunAtStartup.Start should have completed now.");
-
-            var task = ProcessStartupItems(
-                thingsRanAtStartup.ToList(),
+            ProcessStartupItems(
+                tasksToStop,
                 toRun =>
                 {
                     toRun.Stop();
                     Log.DebugFormat("Stopped {0}.", toRun.GetType().AssemblyQualifiedName);
                 },
-                ex => Log.Fatal("Startup task failed to stop.", ex));
+                ex => Log.Fatal("Startup task failed to stop.", ex),
+                stopCompletedEvent);
 
-            Task.WaitAny(task);
+            stopCompletedEvent.WaitOne();
         }
 
         /// <summary>
@@ -1105,14 +1104,15 @@ namespace NServiceBus.Unicast
 
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
-        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup;
+        ConcurrentBag<IWantToRunWhenBusStartsAndStops> thingsRanAtStartup = new ConcurrentBag<IWantToRunWhenBusStartsAndStops>();
+        ManualResetEvent startCompletedEvent = new ManualResetEvent(false);
+        ManualResetEvent stopCompletedEvent = new ManualResetEvent(true);
 
 #pragma warning disable 3005
         protected ITransport transport;
 #pragma warning restore 3005
 
         IMessageMapper messageMapper;
-        Task thingsToRunAtStartupTask;
         SatelliteLauncher satelliteLauncher;
 
         Dictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
@@ -1143,18 +1143,20 @@ namespace NServiceBus.Unicast
             }
         }
 
-        static Task ProcessStartupItems<T>(IEnumerable<T> items, Action<T> action, Action<Exception> inCaseOfFault)
+        static void ProcessStartupItems<T>(IEnumerable<T> items, Action<T> iteration, Action<Exception> inCaseOfFault, EventWaitHandle eventToSet)
         {
-            var task = Task.Factory.StartNew(() => Parallel.ForEach(items, action),
-                TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness);
+            eventToSet.Reset();
 
-            task.ContinueWith(item =>
+            Task.Factory.StartNew(() =>
             {
-                task.Exception.Handle(ex => true);
+                Parallel.ForEach(items, iteration);
+                eventToSet.Set();
+            }, TaskCreationOptions.LongRunning | TaskCreationOptions.PreferFairness)
+            .ContinueWith(task =>
+            {
+                eventToSet.Set();
                 inCaseOfFault(task.Exception);
             }, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.LongRunning);
-
-            return task;
         }
     }
 }
