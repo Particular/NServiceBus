@@ -194,14 +194,19 @@ namespace NServiceBus.Persistence.Msmq.SubscriptionStorage
 		/// </summary>
         private void AddToLookup(Address subscriber, MessageType typeName, string messageId)
         {
-            lock (lookup)
-            {
-                if (!lookup.ContainsKey(subscriber))
-                    lookup.Add(subscriber, new Dictionary<MessageType, string>());
+		    lock (lookup)
+		    {
+		        Dictionary<MessageType, string> dictionary;
+		        if (!lookup.TryGetValue(subscriber, out dictionary))
+		        {
+		            lookup[subscriber] = dictionary = new Dictionary<MessageType, string>();
+		        }
 
-                if (!lookup[subscriber].ContainsKey(typeName))
-                    lookup[subscriber].Add(typeName, messageId);
-            }
+		        if (!dictionary.ContainsKey(typeName))
+		        {
+		            dictionary.Add(typeName, messageId);
+		        }
+		    }
         }
 
 		string RemoveFromLookup(Address subscriber, MessageType typeName)

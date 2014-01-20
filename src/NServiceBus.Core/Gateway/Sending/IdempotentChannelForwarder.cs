@@ -57,13 +57,11 @@ namespace NServiceBus.Gateway.Sending
             channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
-        void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite,
-            IDictionary<string, string> headers)
+        void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite, IDictionary<string, string> headers)
         {
             var headersToSend = new Dictionary<string, string>(headers);
 
-            foreach (
-                var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
+            foreach (var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
             {
                 if (DataBus == null)
                 {

@@ -27,9 +27,10 @@ namespace NServiceBus.Unicast
         {
             get
             {
-                if (transportMessage.Headers.ContainsKey(Headers.TimeSent))
+                string timeSent;
+                if (transportMessage.Headers.TryGetValue(Headers.TimeSent, out timeSent))
                 {
-                    return DateTimeExtensions.ToUtcDateTime(transportMessage.Headers[Headers.TimeSent]);
+                    return DateTimeExtensions.ToUtcDateTime(timeSent);
                 }
 
                 return DateTime.MinValue;

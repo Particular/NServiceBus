@@ -67,10 +67,14 @@ namespace NServiceBus.Timeout.Core
         public TransportMessage ToTransportMessage()
         {
             var replyToAddress = Address.Local;
-            if (Headers != null && Headers.ContainsKey(OriginalReplyToAddress))
+            if (Headers != null)
             {
-                replyToAddress = Address.Parse(Headers[OriginalReplyToAddress]);
-                Headers.Remove(OriginalReplyToAddress);
+                string originalReplyToAddressValue;
+                if (Headers.TryGetValue(OriginalReplyToAddress, out originalReplyToAddressValue))
+                {
+                    replyToAddress = Address.Parse(originalReplyToAddressValue);
+                    Headers.Remove(OriginalReplyToAddress);
+                }
             }
 
             var transportMessage = new TransportMessage(Id,Headers)

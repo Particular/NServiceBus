@@ -83,17 +83,17 @@
 
         void CreateAdditionalFindersAsNecessary()
         {
-            foreach (var sagaEntityType in SagaEntityToMessageToPropertyLookup.Keys)
-                foreach (var messageType in SagaEntityToMessageToPropertyLookup[sagaEntityType].Keys)
-                {
-                    var pair = SagaEntityToMessageToPropertyLookup[sagaEntityType][messageType];
-                    CreatePropertyFinder(sagaEntityType, messageType, pair.Key, pair.Value);
-                }
-
-            foreach (var sagaType in SagaTypeToSagaEntityTypeLookup.Keys)
+            foreach (var sagaEntityPair in SagaEntityToMessageToPropertyLookup)
             {
-                var sagaEntityType = SagaTypeToSagaEntityTypeLookup[sagaType];
+                foreach (var messageType in sagaEntityPair.Value.Keys)
+                {
+                    var pair = sagaEntityPair.Value[messageType];
+                    CreatePropertyFinder(sagaEntityPair.Key, messageType, pair.Key, pair.Value);
+                }
+            }
 
+            foreach (var sagaEntityType in SagaTypeToSagaEntityTypeLookup.Values)
+            {
                 var sagaHeaderIdFinder = typeof(HeaderSagaIdFinder<>).MakeGenericType(sagaEntityType);
                 Configure.Component(sagaHeaderIdFinder, DependencyLifecycle.InstancePerCall);
                 ConfigureFinder(sagaHeaderIdFinder);
@@ -201,9 +201,15 @@
                 methods.TryGetValue(message.GetType(), out result);
 
                 if (result == null)
-                    foreach (var messageType in methods.Keys)
-                        if (messageType.IsInstanceOfType(message))
-                            result = methods[messageType];
+                {
+                    foreach (var messageTypePair in methods)
+                    {
+                        if (messageTypePair.Key.IsInstanceOfType(message))
+                        {
+                            result = messageTypePair.Value;
+                        }
+                    }
+                }
             }
 
             return result;
@@ -215,18 +221,18 @@
         [ObsoleteEx(Replacement = "GetFindersForMessageAndEntity", TreatAsErrorFromVersion = "4.3")]
         public static IEnumerable<Type> GetFindersFor(object m)
         {
-            foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
+            foreach (var finderPair in FinderTypeToMessageToMethodInfoLookup)
             {
-                var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
+                var messageToMethodInfo = finderPair.Value;
                 if (messageToMethodInfo.ContainsKey(m.GetType()))
                 {
-                    yield return finderType;
+                    yield return finderPair.Key;
                     continue;
                 }
 
                 foreach (var messageType in messageToMethodInfo.Keys)
                     if (messageType.IsInstanceOfType(m))
-                        yield return finderType;
+                        yield return finderPair.Key;
             }
         }
 
@@ -238,23 +244,23 @@
             var findersWithExactMatch = new List<Type>();
             var findersMatchingBaseTypes = new List<Type>();
 
-            foreach (var finderType in FinderTypeToMessageToMethodInfoLookup.Keys)
+            foreach (var finderPair in FinderTypeToMessageToMethodInfoLookup)
             {
-                var messageToMethodInfo = FinderTypeToMessageToMethodInfoLookup[finderType];
+                var messageToMethodInfo = finderPair.Value;
 
                 MethodInfo methodInfo;
 
                 if (messageToMethodInfo.TryGetValue(messageType, out methodInfo) && methodInfo.ReturnType == entityType)
                 {
-                    findersWithExactMatch.Add(finderType);
+                    findersWithExactMatch.Add(finderPair.Key);
                 }
                 else
                 {
-                    foreach (var otherMessage in messageToMethodInfo.Keys)
+                    foreach (var otherMessagePair in messageToMethodInfo)
                     {
-                        if (otherMessage.IsAssignableFrom(messageType) && messageToMethodInfo[otherMessage].ReturnType == entityType)
+                        if (otherMessagePair.Key.IsAssignableFrom(messageType) && otherMessagePair.Value.ReturnType == entityType)
                         {
-                           findersMatchingBaseTypes.Add(finderType);
+                            findersMatchingBaseTypes.Add(finderPair.Key);
                         }
                     }
                 }

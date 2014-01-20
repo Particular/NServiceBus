@@ -42,9 +42,10 @@
 
         public bool TryGet<T>(string key,out T result)
         {
-            if (stash.ContainsKey(key))
+            object value;
+            if (stash.TryGetValue(key, out value))
             {
-                result = (T)stash[key];
+                result = (T)value;
                 return true;
             }
 

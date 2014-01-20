@@ -58,12 +58,12 @@ namespace NServiceBus
         {
             get
             {
-                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+                string headerId;
+                if (Headers.TryGetValue(NServiceBus.Headers.MessageId, out headerId))
                 {
-                    return id;
+                    return headerId;
                 }
-
-                return Headers[NServiceBus.Headers.MessageId];
+                return id;
             }
         }
 
@@ -116,9 +116,10 @@ namespace NServiceBus
             {
                 var messageIntent = default(MessageIntentEnum);
 
-                if (Headers.ContainsKey(NServiceBus.Headers.MessageIntent))
+                string messageIntentString;
+                if (Headers.TryGetValue(NServiceBus.Headers.MessageIntent, out messageIntentString))
                 {
-                    Enum.TryParse(Headers[NServiceBus.Headers.MessageIntent], true, out messageIntent);
+                    Enum.TryParse(messageIntentString, true, out messageIntent);
                 }
 
                 return messageIntent;

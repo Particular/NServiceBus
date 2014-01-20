@@ -35,20 +35,25 @@ namespace NServiceBus.Unicast.Monitoring
 
             Bus.CurrentMessageContext.Headers[Headers.ProcessingEnded] = DateTimeExtensions.ToWireFormattedString(now);
 
-            if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.TimeSent))
+            string timeSent;
+            if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.TimeSent, out timeSent))
             {
-                UpdateCounters(DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.TimeSent]), DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
+                UpdateCounters(DateTimeExtensions.ToUtcDateTime(timeSent), DateTimeExtensions.ToUtcDateTime(Bus.CurrentMessageContext.Headers[Headers.ProcessingStarted]), now);
             }
         }
 
         void UpdateCounters(DateTime timeSent, DateTime processingStarted, DateTime processingEnded)
         {
-            if(CriticalTimeCounter != null)
+            if (CriticalTimeCounter != null)
+            {
                 CriticalTimeCounter.Update(timeSent, processingStarted,processingEnded);
+            }
 
 
             if (EstimatedTimeToSLABreachCalculator != null)
+            {
                 EstimatedTimeToSLABreachCalculator.Update(timeSent, processingStarted, processingEnded);
+            }
         }
 
         public void Init()

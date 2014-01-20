@@ -15,19 +15,18 @@ namespace NServiceBus.Impersonation.Windows
     {
         public IPrincipal GetPrincipal(TransportMessage message)
         {
-            if (!message.Headers.ContainsKey(Headers.WindowsIdentityName))
+            string windowsIdentityName;
+            if (!message.Headers.TryGetValue(Headers.WindowsIdentityName, out windowsIdentityName))
             {
                 return null;
             }
 
-            var name = message.Headers[Headers.WindowsIdentityName];
-
-            if (name == null)
+            if (windowsIdentityName == null)
             {
                 return null;
             }
 
-            return new GenericPrincipal(new GenericIdentity(name), new string[0]);
+            return new GenericPrincipal(new GenericIdentity(windowsIdentityName), new string[0]);
         }
     }
 }

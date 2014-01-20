@@ -15,10 +15,9 @@ namespace NServiceBus.Scheduling
 
         public ScheduledTask Get(Guid taskId)
         {
-            if (scheduledTasks.ContainsKey(taskId))
-                return scheduledTasks[taskId];
-
-            return null;
+            ScheduledTask task;
+            scheduledTasks.TryGetValue(taskId, out task);
+            return task;
         }
 
         public IDictionary<Guid, ScheduledTask> Tasks

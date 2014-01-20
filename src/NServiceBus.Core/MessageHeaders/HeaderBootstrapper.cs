@@ -35,14 +35,15 @@ namespace NServiceBus.MessageHeaders
                     // when we remove the multi message feature we can remove this and instead
                     // share the same header collection btw physical and logical message
                     var bus = Builder.Build<IBus>();
-                    if (bus.CurrentMessageContext != null && bus.CurrentMessageContext.Headers.ContainsKey(key))
+                    if (bus.CurrentMessageContext != null)
                     {
-                        return bus.CurrentMessageContext.Headers[key];
+                        string value;
+                        if (bus.CurrentMessageContext.Headers.TryGetValue(key, out value))
+                        {
+                            return value;
+                        }
                     }
-                    else
-                    {
-                        return null;
-                    }
+                    return null;
                 }
 
                 Dictionary<object, Dictionary<string, string>> outgoingHeaders;
