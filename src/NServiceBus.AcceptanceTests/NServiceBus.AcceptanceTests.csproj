@@ -114,7 +114,6 @@
     <Compile Include="BusStartStop\When_bus_start_and_stops_with_a_pending_message.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
-    <Compile Include="EndpointTemplates\BusExtensions.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
     <Compile Include="Gateway\When_doing_request_return.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
