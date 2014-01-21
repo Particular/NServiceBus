@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Audit;
+    using Hosting;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -28,8 +29,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-
-
         bool messageHandlingDisabled;
 
         /// <summary>
