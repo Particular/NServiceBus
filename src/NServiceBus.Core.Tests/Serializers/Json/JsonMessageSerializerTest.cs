@@ -27,7 +27,7 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SuperMessage {SomeProperty = "John"} }, stream);
+                Serializer.Serialize(new object[] { new SuperMessage { SomeProperty = "John" } }, stream);
 
                 stream.Position = 0;
 
@@ -60,12 +60,12 @@ namespace NServiceBus.Serializers.Json.Tests
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
 
-                Serializer.Serialize(new object[] { new SimpleMessage{SomeProperty = "test"} }, stream);
+                Serializer.Serialize(new object[] { new SimpleMessage { SomeProperty = "test" } }, stream);
 
                 stream.Position = 0;
-                var result = (SimpleMessage) Serializer.Deserialize(stream, new[]{typeof(SimpleMessage)})[0];
+                var result = (SimpleMessage)Serializer.Deserialize(stream, new[] { typeof(SimpleMessage) })[0];
 
-                Assert.AreEqual("test",result.SomeProperty);
+                Assert.AreEqual("test", result.SomeProperty);
             }
 
         }
@@ -90,8 +90,8 @@ namespace NServiceBus.Serializers.Json.Tests
         public void Serialize_message_without_concrete_implementation()
         {
             var mapper = new MessageMapper();
-            mapper.Initialize(new []{ typeof(ISuperMessageWithoutConcreteImpl)});
-            
+            mapper.Initialize(new[] { typeof(ISuperMessageWithoutConcreteImpl) });
+
             using (var stream = new MemoryStream())
             {
                 Serializer.SkipArrayWrappingForSingleMessages = true;
@@ -132,7 +132,7 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Deserialize_message_with_concrete_implementation_and_interface()
         {
-            var map = new[] {typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl)};
+            var map = new[] { typeof(SuperMessageWithConcreteImpl), typeof(ISuperMessageWithConcreteImpl) };
             var mapper = new MessageMapper();
             mapper.Initialize(map);
 
@@ -151,7 +151,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual("test", result.SomeProperty);
             }
         }
-        
+
 
         [Test]
         public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
@@ -194,6 +194,30 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual(XmlElement, json.Substring(13, json.Length - 15).Replace("\\", string.Empty));
             }
         }
+
+        [Test]
+        public void Deserialize_message_without_abstract_properties()
+        {
+            var mapper = new MessageMapper();
+            mapper.Initialize(new[] { typeof(IVehicleConcrete) });
+
+            using (var stream = new MemoryStream())
+            {
+                Serializer.SkipArrayWrappingForSingleMessages = true;
+
+                var msg = mapper.CreateInstance<IVehicleConcrete>();
+                msg.Vehicle = new Car() { Color = "Red", Wheels = 4 };
+
+                Serializer.Serialize(new object[] { msg }, stream);
+
+                stream.Position = 0;
+
+                var result = (IVehicleConcrete)Serializer.Deserialize(stream, new[] { typeof(IVehicleConcrete) })[0];
+
+                Assert.AreEqual("Red", result.Vehicle.Color);
+                Assert.AreEqual(4, ((Car)result.Vehicle).Wheels);
+            }
+        }
     }
 
     public class SimpleMessage
@@ -228,6 +252,21 @@ namespace NServiceBus.Serializers.Json.Tests
     public interface ISuperMessageWithConcreteImpl : IMyEvent
     {
         string SomeProperty { get; set; }
+    }
+
+
+    public interface IVehicleConcrete
+    {
+        Vehicle Vehicle { get; set; }
+    }
+    public abstract class Vehicle
+    {
+        public string Color { get; set; }
+    }
+
+    public class Car : Vehicle
+    {
+        public int Wheels { get; set; }
     }
 
     public class SuperMessageWithConcreteImpl : ISuperMessageWithConcreteImpl
