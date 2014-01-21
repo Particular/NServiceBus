@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
+    <Compile Include="HostInformation\When_defining_outoing_message_mutators.cs" />
     <Compile Include="MessageMutators\When_defining_outoing_message_mutators.cs" />
     <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
