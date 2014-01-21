@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
     using PubSub;
     using Saga;
@@ -16,13 +17,25 @@
             Scenario.Define(() => new Context {Id = Guid.NewGuid()})
                     .WithEndpoint<SagaEndpoint>(b =>
                     {
-                        b.Given((bus, context) => Subscriptions.OnEndpointSubscribed(s => bus.SendLocal(new StartSagaMessage{ SomeId = context.Id })));
-                      
+                        b.Given((bus, context) =>
+                        {
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            {
+                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
+                            }
+                            else
+                            {
+                                Subscriptions.OnEndpointSubscribed(s => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                            }
+
+                        });
+
                         b.When(context => context.StartSagaMessageReceived,
-                                (bus, context) =>
-                                    {
-                                        bus.Publish(new SomeEvent {SomeId = context.Id});
-                                    });
+                            (bus, context) =>
+                            {
+                                bus.Publish(new SomeEvent { SomeId = context.Id });
+                            });
+
                     })
                     .Done(c => c.TimeoutReceived)
                     .Repeat(r => r.For(Transports.Default))
