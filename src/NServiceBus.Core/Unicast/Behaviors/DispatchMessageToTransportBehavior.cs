@@ -30,8 +30,6 @@
                 messageDescription = logicalMessage.MessageType.FullName;
             }
 
-            context.MessageToSend.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
             try
             {
                 if (sendOptions.Intent == MessageIntentEnum.Publish)
