@@ -3,6 +3,7 @@ namespace NServiceBus.Hosting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
     using System.Reflection;
     using Settings;
     using Support;
@@ -21,17 +22,14 @@ namespace NServiceBus.Hosting
     {
         public static HostInformation GetCurrent()
         {
-            var assembly = Assembly.GetEntryAssembly();
+            var commandLine = Environment.CommandLine;
 
-            if (assembly == null)
-            {
-                assembly = Assembly.GetCallingAssembly();
-            }
+            var fullPathToStartingExe = commandLine.Split('"')[1];
 
             return new HostInformation
             {
-                HostId = DeterministicGuid.Create(assembly.Location), //todo is this what we need?
-                DisplayName = string.Format("{0}@{1}", assembly.Location, RuntimeEnvironment.MachineName),
+                HostId = DeterministicGuid.Create(fullPathToStartingExe), //todo is this what we need?
+                DisplayName = string.Format("{0}@{1}", fullPathToStartingExe, RuntimeEnvironment.MachineName),
                 Properties = new Dictionary<string, string>
                 {
                    {"Machine", RuntimeEnvironment.MachineName},
