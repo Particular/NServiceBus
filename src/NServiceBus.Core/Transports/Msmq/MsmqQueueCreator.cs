@@ -107,13 +107,14 @@ namespace NServiceBus.Transports.Msmq
         public static string GetFullPathWithoutPrefix(Address address)
         {
             var queueName = address.Queue;
+            var msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + queueName;
 
-            if (queueName.Length >= 115)
+            if (msmqTotalQueueName.Length >= 124)
             {
-                queueName = DeterministicGuidBuilder(queueName).ToString();
+                msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + DeterministicGuidBuilder(queueName).ToString();
             }
 
-            return address.Machine + MsmqUtilities.PRIVATE + queueName;
+            return msmqTotalQueueName;
         }
 
         private static Guid DeterministicGuidBuilder(string input)
