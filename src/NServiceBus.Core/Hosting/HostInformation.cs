@@ -11,6 +11,17 @@ namespace NServiceBus.Hosting
 
     public class HostInformation
     {
+        public HostInformation()
+        {
+            Properties = new Dictionary<string, string>
+            {
+                {"Machine", Environment.MachineName},
+                {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+                {"UserName", Environment.UserName}, //check this
+                {"CommandLine", Environment.CommandLine}
+            };
+        }
+
         public Guid HostId { get; set; }
 
         public string DisplayName { get; set; }
@@ -28,18 +39,9 @@ namespace NServiceBus.Hosting
 
             return new HostInformation
             {
-                HostId = DeterministicGuid.Create(fullPathToStartingExe), //todo is this what we need?
-                DisplayName = string.Format("{0}@{1}", fullPathToStartingExe, RuntimeEnvironment.MachineName),
-                Properties = new Dictionary<string, string>
-                {
-                   {"Machine", RuntimeEnvironment.MachineName},
-                   {"ProcessID",Process.GetCurrentProcess().Id.ToString()},
-                   {"WorkingDirectory",Environment.CurrentDirectory},
-                   {"UserName",Environment.UserName},
-                   {"CommandLine",Environment.CommandLine},
-                   {"InDebugMode",Debugger.IsAttached.ToString()},
-
-                }
+                HostId = DeterministicGuid.Create(fullPathToStartingExe,Environment.MachineName), //todo is this what we need?
+                DisplayName = string.Format("{0}", fullPathToStartingExe)
+               
             };
         }
     }
@@ -57,7 +59,7 @@ namespace NServiceBus.Hosting
         {
             var hostInformation = SettingsHolder.Get<HostInformation>(typeof(HostInformation).FullName);
 
-            Configure.Component(() => hostInformation, DependencyLifecycle.InstancePerCall);
+            Configure.Component(() => hostInformation, DependencyLifecycle.SingleInstance);
         }
     }
 
