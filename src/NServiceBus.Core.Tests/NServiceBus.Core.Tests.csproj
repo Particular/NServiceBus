@@ -263,6 +263,7 @@
     <Compile Include="Fakes\FakeReceiver.cs" />
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
+    <Compile Include="Transport\When_specifying_a_queu_name_for_msmq_with_total_length_including_machine_name_and_private_identifier_exceeding_114_characters.cs" />
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
