@@ -1,5 +1,6 @@
 namespace NServiceBus.Persistence.Raven.SubscriptionStorage
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using global::Raven.Client;
@@ -63,6 +64,8 @@ namespace NServiceBus.Persistence.Raven.SubscriptionStorage
         {
             using (var session = OpenSession())
             {
+                session.Advanced.DocumentStore.AggressivelyCacheFor(TimeSpan.FromSeconds(30));
+
                 var subscriptions = GetSubscriptions(messageTypes, session);
                 return subscriptions.SelectMany(s => s.Clients)
                                     .Distinct()
