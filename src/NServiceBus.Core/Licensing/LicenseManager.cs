@@ -21,7 +21,7 @@ namespace NServiceBus.Licensing
             }
 
             bool createdNew;
-            using (new Mutex(true, string.Format("NServiceBus-{0}", NServiceBusVersion.MajorAndMinor), out createdNew))
+            using (new Mutex(true, string.Format("NServiceBus-{0}", GitFlowVersion.MajorMinor), out createdNew))
             {
                 if (!createdNew)
                 {
@@ -72,13 +72,13 @@ namespace NServiceBus.Licensing
                 //Check trial is still valid
                 if (ExpiryChecker.IsExpired(trialExpirationDate))
                 {
-                    Logger.WarnFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", NServiceBusVersion.MajorAndMinor);
+                    Logger.WarnFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", GitFlowVersion.MajorMinor);
 
                     license = LicenseDeserializer.GetBasicLicense();
                 }
                 else
                 {
-                    var message = string.Format("Trial for NServiceBus v{0} is still active, trial expires on {1}. Configuring NServiceBus to run in trial mode.", NServiceBusVersion.MajorAndMinor, trialExpirationDate.ToLocalTime().ToShortDateString());
+                    var message = string.Format("Trial for NServiceBus v{0} is still active, trial expires on {1}. Configuring NServiceBus to run in trial mode.", GitFlowVersion.MajorMinor, trialExpirationDate.ToLocalTime().ToShortDateString());
                     Logger.Info(message);
 
                     //Run in unlimited mode during trial period

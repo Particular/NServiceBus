@@ -88,6 +88,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus\GitFlowVersion.cs">
+      <Link>GitFlowVersion.cs</Link>
+    </Compile>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Audit\InitMessageAuditer.cs" />
@@ -132,7 +135,6 @@
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\LicenseDeserializer.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
-    <Compile Include="Licensing\NServiceBusVersion.cs" />
     <Compile Include="Licensing\SignedXmlVerifier.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\TimestampReader.cs" />

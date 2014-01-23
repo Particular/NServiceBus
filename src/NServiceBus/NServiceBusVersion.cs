@@ -3,11 +3,12 @@ namespace NServiceBus
     /// <summary>
     /// The semver version of NServiceBus
     /// </summary>
+    [ObsoleteEx(RemoveInVersion = "5.0")]
     public static class NServiceBusVersion
     {
         /// <summary>
         /// The semver version of NServiceBus
         /// </summary>
-        public const string Version = "4.3.3";
+        public string Version = GitFlowVersion.MajorMinorPatch;
     }
 }

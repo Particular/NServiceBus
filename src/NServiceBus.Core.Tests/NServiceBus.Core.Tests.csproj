@@ -129,13 +129,13 @@
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
+    <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="Pipeline\BehaviorConventions.cs" />
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Gateway\Receiving\HasherTests.cs" />
     <Compile Include="Licensing\LicenseDeserializerTests.cs" />
     <Compile Include="Licensing\LicenseDowngraderTests.cs" />
-    <Compile Include="Licensing\NServiceBusVersionTests.cs" />
     <Compile Include="Licensing\ResourceReader.cs" />
     <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
     <Compile Include="Licensing\TimestampTests.cs" />
