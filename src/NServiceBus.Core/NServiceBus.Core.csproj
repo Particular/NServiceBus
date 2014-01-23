@@ -88,9 +88,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\NServiceBus\GitFlowVersion.cs">
-      <Link>GitFlowVersion.cs</Link>
-    </Compile>
     <Compile Include="AllAssemblies.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Audit\InitMessageAuditer.cs" />
@@ -124,6 +121,7 @@
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
+    <Compile Include="GitFlowVersion.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />

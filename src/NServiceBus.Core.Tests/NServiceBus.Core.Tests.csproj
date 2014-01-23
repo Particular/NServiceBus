@@ -130,6 +130,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
+    <Compile Include="NServiceBusVersionTests.cs" />
     <Compile Include="Pipeline\BehaviorConventions.cs" />
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />

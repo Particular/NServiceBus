@@ -61,7 +61,6 @@
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="ExpressAttribute.cs" />
-    <Compile Include="GitFlowVersion.cs" />
     <Compile Include="RecoverableAttribute.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="ExtensionMethods.cs" />
