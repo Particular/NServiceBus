@@ -109,9 +109,9 @@ namespace NServiceBus.Transports.Msmq
             var queueName = address.Queue;
             var msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + queueName;
 
-            if (msmqTotalQueueName.Length >= 124)
+            if (msmqTotalQueueName.Length >= 114) //Setpermission is limiting us here, docs say it should be 380 + 124
             {
-                msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + DeterministicGuidBuilder(queueName).ToString();
+                msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + DeterministicGuidBuilder(queueName);
             }
 
             return msmqTotalQueueName;
