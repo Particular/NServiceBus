@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using IdGeneration;
-    using Support;
+    using Unicast;
 
     /// <summary>
     ///     An envelope used by NServiceBus to package messages for transmission.
@@ -25,7 +25,7 @@ namespace NServiceBus
             Headers[NServiceBus.Headers.MessageId] = id;
             CorrelationId = id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
-            Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            Headers.Add(NServiceBus.Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
             MessageIntent = MessageIntentEnum.Send;
             Headers[NServiceBus.Headers.NServiceBusVersion] = NServiceBusVersion.Version;
             Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);

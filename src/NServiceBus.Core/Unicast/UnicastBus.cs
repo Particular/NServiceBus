@@ -20,7 +20,6 @@ namespace NServiceBus.Unicast
     using Serialization;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
-    using Support;
     using Transport;
     using Transports;
 
@@ -33,6 +32,14 @@ namespace NServiceBus.Unicast
 
         HostInformation hostInformation = HostInformation.CreateDefault();
 
+        // HACK: Statics are bad, remove
+        internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
+
+        public UnicastBus()
+        {
+            HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+        }
+
         public HostInformation HostInformation
         {
             get { return hostInformation; }
@@ -43,6 +50,7 @@ namespace NServiceBus.Unicast
                     throw new ArgumentNullException();
                 }
 
+                HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = value.HostId;
                 hostInformation = value;
             }
         }
@@ -1030,7 +1038,7 @@ namespace NServiceBus.Unicast
             var incomingMessage = e.Message;
 
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
-            incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+            incomingMessage.Headers[Headers.ProcessingHostId] = HostInformation.HostId.ToString("N");
 
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 

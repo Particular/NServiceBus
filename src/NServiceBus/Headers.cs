@@ -193,7 +193,13 @@
         /// <summary>
         /// Machine name of the endpoint where the given message originated
         /// </summary>
+        [ObsoleteEx(Message = "The OriginatingMachine headers is replaced by the OriginatingHostId to be more environment agnostic", RemoveInVersion = "5.0")]
         public const string OriginatingMachine = "NServiceBus.OriginatingMachine";
+
+        /// <summary>
+        /// HostId of the endpoint where the given message originated
+        /// </summary>
+        public const string OriginatingHostId = "NServiceBus.OriginatingHostId";
 
         /// <summary>
         /// Name of the endpoint where the given message was processed(success or failure)
@@ -203,7 +209,13 @@
         /// <summary>
         /// Machine name of the endpoint where the given message was processed(success or failure)
         /// </summary>
+        [ObsoleteEx(Message = "The ProcessingMachine headers is replaced by the ProcessingHostId to be more environment agnostic", RemoveInVersion = "5.0")]       
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
+
+        /// <summary>
+        /// HostId of the endpoint where the given message was processed(success or failure)
+        /// </summary>
+        public const string ProcessingHostId = "NServiceBus.ProcessingHostId";
 
         /// <summary>
         /// The original reply to address for successfully processed messages
