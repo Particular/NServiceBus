@@ -96,23 +96,21 @@ public class PubSubTestCase : TestCase
                 Settings = new MsmqSettings { UseTransactionalQueues = true }
             };
 
-            using (var tx = new TransactionScope())
-            {
                 for (var i = 0; i < NumberOfSubscribers; i++)
                 {
                     var subscriberAddress = Address.Parse(endpointName + ".Subscriber" + i);
                     creator.CreateQueueIfNecessary(subscriberAddress, null);
-                    subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
-                {
-                    testEventMessage
-                });
+
+                    using (var tx = new TransactionScope())
+                    {
+                        subscriptionStorage.Subscribe(subscriberAddress, new List<MessageType>
+                        {
+                            testEventMessage
+                        });
+
+                        tx.Complete();
+                    }
                 }
-
-                tx.Complete();
-            }
-
-
-
 
             Parallel.For(
           0,
