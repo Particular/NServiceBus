@@ -9,6 +9,6 @@ namespace NServiceBus
         /// <summary>
         /// The semver version of NServiceBus
         /// </summary>
-        public string Version = GitFlowVersion.MajorMinorPatch;
+        public static string Version = GitFlowVersion.MajorMinorPatch;
     }
 }
