@@ -1,4 +1,5 @@
 using MyServer.Scheduling;
+using NServiceBus.Hosting;
 
 namespace MyServer
 {
@@ -12,6 +13,8 @@ namespace MyServer
     class Starter : IWantToRunWhenBusStartsAndStops
     {
         public IBus Bus { get; set; }
+
+        public HostInformation HostInformation { get; set; }
 
         public void Start()
         {

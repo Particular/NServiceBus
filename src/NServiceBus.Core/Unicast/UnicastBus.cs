@@ -7,6 +7,7 @@ namespace NServiceBus.Unicast
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Audit;
+    using Hosting;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -28,9 +29,32 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-
-
         bool messageHandlingDisabled;
+
+        HostInformation hostInformation = HostInformation.CreateDefault();
+
+        // HACK: Statics are bad, remove
+        internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
+
+        public UnicastBus()
+        {
+            HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+        }
+
+        public HostInformation HostInformation
+        {
+            get { return hostInformation; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = value.HostId;
+                hostInformation = value;
+            }
+        }
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -1015,6 +1039,7 @@ namespace NServiceBus.Unicast
             var incomingMessage = e.Message;
 
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
+            incomingMessage.Headers[Headers.ProcessingHostId] = HostInformation.HostId.ToString("N");
             incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
 
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
