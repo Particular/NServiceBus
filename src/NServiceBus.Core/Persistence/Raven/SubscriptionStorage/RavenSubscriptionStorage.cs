@@ -63,13 +63,12 @@ namespace NServiceBus.Persistence.Raven.SubscriptionStorage
         IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
         {
             using (var session = OpenSession())
+            using (session.Advanced.DocumentStore.AggressivelyCacheFor(TimeSpan.FromSeconds(30)))
             {
-                session.Advanced.DocumentStore.AggressivelyCacheFor(TimeSpan.FromSeconds(30));
-
                 var subscriptions = GetSubscriptions(messageTypes, session);
                 return subscriptions.SelectMany(s => s.Clients)
-                                    .Distinct()
-                                    .ToArray();
+                    .Distinct()
+                    .ToArray();
             }
         }
 
