@@ -5,7 +5,6 @@
     using System.Linq;
     using EndpointTemplates;
     using AcceptanceTesting;
-    using Hosting;
     using NUnit.Framework;
     using Unicast;
 
