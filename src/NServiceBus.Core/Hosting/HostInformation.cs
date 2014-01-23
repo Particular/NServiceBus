@@ -3,65 +3,52 @@ namespace NServiceBus.Hosting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Reflection;
-    using Settings;
-    using Support;
     using Utils;
 
     public class HostInformation
     {
+        readonly Guid hostId;
+        readonly string displayName;
+
         public HostInformation()
         {
             Properties = new Dictionary<string, string>
             {
                 {"Machine", Environment.MachineName},
                 {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
-                {"UserName", Environment.UserName}, //check this
+                {"UserName", Environment.UserName},
                 {"CommandLine", Environment.CommandLine}
             };
         }
 
-        public Guid HostId { get; set; }
-
-        public string DisplayName { get; set; }
-
-        public Dictionary<string, string> Properties { get; set; }
-    }
-
-    class DefaultHostInformation
-    {
-        public static HostInformation GetCurrent()
+        public static HostInformation CreateDefault()
         {
+
             var commandLine = Environment.CommandLine;
 
             var fullPathToStartingExe = commandLine.Split('"')[1];
 
-            return new HostInformation
-            {
-                HostId = DeterministicGuid.Create(fullPathToStartingExe,Environment.MachineName), //todo is this what we need?
-                DisplayName = string.Format("{0}", fullPathToStartingExe)
-               
-            };
+            var hostId = DeterministicGuid.Create(fullPathToStartingExe, Environment.MachineName);
+
+            return new HostInformation(hostId, String.Format("{0}", fullPathToStartingExe));
         }
-    }
-    class Defaults : ISetDefaultSettings
-    {
-        public Defaults()
+
+        public HostInformation(Guid hostId, string displayName)
         {
-            SettingsHolder.SetDefault<HostInformation>(DefaultHostInformation.GetCurrent());
+            this.hostId = hostId;
+            this.displayName = displayName;
         }
-    }
 
-    class RegisterHostInformation:IWantToRunBeforeConfigurationIsFinalized
-    {
-        public void Run()
+        public Guid HostId
         {
-            var hostInformation = SettingsHolder.Get<HostInformation>(typeof(HostInformation).FullName);
-
-            Configure.Component(() => hostInformation, DependencyLifecycle.SingleInstance);
+            get { return hostId; }
         }
-    }
 
-    
+        public string DisplayName
+        {
+            get { return displayName; }
+        }
+
+        public Dictionary<string, string> Properties { get; set; }
+    }
 }

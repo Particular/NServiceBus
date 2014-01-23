@@ -80,7 +80,6 @@ namespace NServiceBus.Settings
             Set(typeof(T).FullName + "." + prop.Name, value);
         }
 
-
         /// <summary>
         /// Sets the default value of the given property
         /// </summary>
@@ -90,7 +89,6 @@ namespace NServiceBus.Settings
 
             SetDefault(typeof(T).FullName + "." + prop.Name, value);
         }
-
 
         /// <summary>
         /// Sets the default setting value.

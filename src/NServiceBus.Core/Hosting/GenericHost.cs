@@ -66,9 +66,6 @@ namespace NServiceBus.Hosting
         {
             PerformConfiguration();
 
-            //do it here
-            //SettingsHolder.SetDefault<>();
-
             bus = Configure.Instance.CreateBus();
             if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
             {

@@ -31,6 +31,22 @@ namespace NServiceBus.Unicast
     {
         bool messageHandlingDisabled;
 
+        HostInformation hostInformation = HostInformation.CreateDefault();
+
+        public HostInformation HostInformation
+        {
+            get { return hostInformation; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                hostInformation = value;
+            }
+        }
+
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Disables the handling of incoming messages.
