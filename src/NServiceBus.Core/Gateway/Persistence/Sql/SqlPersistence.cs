@@ -125,11 +125,10 @@ namespace NServiceBus.Gateway.Persistence.Sql
 
         public int DeleteDeliveredMessages(DateTime until)
         {
-            int result;
-
             using (var cn = new SqlConnection(ConnectionString))
             {
                 cn.Open();
+                int result;
                 using (var tx = cn.BeginTransaction())
                 {
                     var command = cn.CreateCommand();

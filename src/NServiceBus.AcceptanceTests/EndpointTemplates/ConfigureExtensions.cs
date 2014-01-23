@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using AcceptanceTesting;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
     using ScenarioDescriptors;
