@@ -20,6 +20,7 @@ namespace NServiceBus.Unicast
     using Serialization;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
+    using Support;
     using Transport;
     using Transports;
 
@@ -1039,6 +1040,7 @@ namespace NServiceBus.Unicast
 
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
             incomingMessage.Headers[Headers.ProcessingHostId] = HostInformation.HostId.ToString("N");
+            incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
 
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 

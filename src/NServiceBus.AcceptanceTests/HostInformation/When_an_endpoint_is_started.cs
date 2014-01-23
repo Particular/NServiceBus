@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.HostInformation
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@
     using AcceptanceTesting;
     using Hosting;
     using NUnit.Framework;
+    using Unicast;
 
     public class When_an_endpoint_is_started : NServiceBusAcceptanceTest
     {
@@ -22,6 +23,8 @@
 
             Console.Out.WriteLine(context.HostDisplayName);
             Console.Out.WriteLine(string.Join(Environment.NewLine,context.HostProperties.Select(kvp => string.Format("{0}:{1}", kvp.Key, kvp.Value)).ToList()));
+
+            Assert.True(context.HostDisplayName.Contains(".exe"));
         }
 
         public class Context : ScenarioContext
@@ -41,14 +44,14 @@
 
             class MyStartUpTask:IWantToRunWhenBusStartsAndStops
             {
-                public HostInformation HostInformation { get; set; }
+                public UnicastBus UnicastBus { get; set; }
 
                 public Context Context { get; set; }
                 public void Start()
                 {
-                    Context.HostId = HostInformation.HostId;
-                    Context.HostDisplayName = HostInformation.DisplayName;
-                    Context.HostProperties = HostInformation.Properties;
+                    Context.HostId = UnicastBus.HostInformation.HostId;
+                    Context.HostDisplayName = UnicastBus.HostInformation.DisplayName;
+                    Context.HostProperties = UnicastBus.HostInformation.Properties;
                 }
 
                 public void Stop()

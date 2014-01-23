@@ -7,20 +7,6 @@ namespace NServiceBus.Hosting
 
     public class HostInformation
     {
-        readonly Guid hostId;
-        readonly string displayName;
-
-        public HostInformation()
-        {
-            Properties = new Dictionary<string, string>
-            {
-                {"Machine", Environment.MachineName},
-                {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
-                {"UserName", Environment.UserName},
-                {"CommandLine", Environment.CommandLine}
-            };
-        }
-
         public static HostInformation CreateDefault()
         {
 
@@ -35,20 +21,22 @@ namespace NServiceBus.Hosting
 
         public HostInformation(Guid hostId, string displayName)
         {
-            this.hostId = hostId;
-            this.displayName = displayName;
+            HostId = hostId;
+            DisplayName = displayName;
+
+            Properties = new Dictionary<string, string>
+            {
+                {"Machine", Environment.MachineName},
+                {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+                {"UserName", Environment.UserName},
+                {"CommandLine", Environment.CommandLine}
+            };
         }
 
-        public Guid HostId
-        {
-            get { return hostId; }
-        }
+        public Guid HostId { get; private set; }
 
-        public string DisplayName
-        {
-            get { return displayName; }
-        }
+        public string DisplayName { get; private set; }
 
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; private set; }
     }
 }

@@ -209,7 +209,6 @@
         /// <summary>
         /// Machine name of the endpoint where the given message was processed(success or failure)
         /// </summary>
-        [ObsoleteEx(Message = "The ProcessingMachine headers is replaced by the ProcessingHostId to be more environment agnostic", RemoveInVersion = "5.0")]       
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
 
         /// <summary>
