@@ -350,8 +350,8 @@
     {
         protected EncryptionMessageMutator mutator;
 
-        public const string EncryptedBase64Value = "encrypted value";
-        public const string MySecretMessage = "A secret";
+        protected string EncryptedBase64Value = "encrypted value";
+        protected string MySecretMessage = "A secret";
 
         [SetUp]
         public void BaseSetUp()

@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace ConventionBasedHandlers
+﻿namespace ConventionBasedHandlers
 {
+    using System;
     using ConventionBasedMessages;
     using NServiceBus;
 

@@ -51,7 +51,8 @@ public abstract class TestCase
 
 
     protected Dictionary<string, string> parameters = new Dictionary<string, string>();
-    public void WithParameters(Dictionary<string, string> testCaseParameters)
+
+    void WithParameters(Dictionary<string, string> testCaseParameters)
     {
         parameters = testCaseParameters;
     }

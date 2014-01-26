@@ -212,9 +212,9 @@
         }
 
         public const string EncryptedBase64Value = "encrypted value";
-        public const string MySecretMessage = "A secret";
+        const string MySecretMessage = "A secret";
 
-        private static MessageBase CreateMessage(bool encryption)
+        static MessageBase CreateMessage(bool encryption)
         {
             if (encryption)
             {

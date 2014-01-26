@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NServiceBus;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 namespace Runner.Encryption
 {
     public class EncryptionTestMessage : MessageBase
@@ -17,3 +18,5 @@ namespace Runner.Encryption
         public byte[] LargeByteArray { get; set; }
     }
 }
+
+// ReSharper restore UnusedAutoPropertyAccessor.Global
