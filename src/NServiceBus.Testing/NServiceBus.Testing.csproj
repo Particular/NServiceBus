@@ -91,7 +91,7 @@
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

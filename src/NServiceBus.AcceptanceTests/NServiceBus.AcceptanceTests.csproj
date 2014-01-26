@@ -210,9 +210,9 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\NServiceBus\NServiceBus.csproj">
+    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>
