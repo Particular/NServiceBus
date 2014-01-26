@@ -14,43 +14,30 @@ using Runner;
 
 public class PubSubTestCase : TestCase
 {
-    protected int NumberOfSubscribers
+    int GetNumberOfSubscribers()
     {
-        get
+        int value;
+        if (!int.TryParse(GetParameterValue("numberofsubscribers"), out value))
         {
-            int value;
-
-            if (!int.TryParse(GetParameterValue("numberofsubscribers"), out value))
-            {
-                return 10;
-            }
-
-            return value;
+            return 10;
         }
+        return value;
     }
 
-    protected string StorageType
+    string GetStorageType()
     {
-        get
-        {
-            var value = GetParameterValue("storage");
+        var value = GetParameterValue("storage");
 
-            if (string.IsNullOrEmpty(value))
-            {
-                return "raven";
-            }
-            return value.ToLower();
+        if (string.IsNullOrEmpty(value))
+        {
+            return "raven";
         }
+        return value.ToLower();
     }
 
 
     public override void Run()
     {
-        var endpointName = "PubSubPerformanceTest";
-     
-     
-
-
         TransportConfigOverride.MaximumConcurrencyLevel = NumberOfThreads;
 
         Feature.Disable<Audit>();
@@ -58,12 +45,12 @@ public class PubSubTestCase : TestCase
         Configure.Transactions.Enable();
 
         var config = Configure.With()
-            .DefineEndpointName(endpointName)
+            .DefineEndpointName("PubSubPerformanceTest")
             .DefaultBuilder()
             .UseTransport<Msmq>()
             .InMemoryFaultManagement();
 
-        switch (StorageType)
+        switch (GetStorageType())
         {
             case "raven":
                 config.RavenSubscriptionStorage();
@@ -96,9 +83,9 @@ public class PubSubTestCase : TestCase
                 Settings = new MsmqSettings { UseTransactionalQueues = true }
             };
 
-                for (var i = 0; i < NumberOfSubscribers; i++)
+                for (var i = 0; i < GetNumberOfSubscribers(); i++)
                 {
-                    var subscriberAddress = Address.Parse(endpointName + ".Subscriber" + i);
+                    var subscriberAddress = Address.Parse("PubSubPerformanceTest.Subscriber" + i);
                     creator.CreateQueueIfNecessary(subscriberAddress, null);
 
                     using (var tx = new TransactionScope())
