@@ -193,6 +193,42 @@
         }
 
         /// <summary>
+        /// Check that the handler defers a message of the given type
+        /// </summary>
+        public Handler<T> ExpectDefer<TMessage>(Func<TMessage, TimeSpan, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedDeferMessageInvocation<TMessage, TimeSpan> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler defers a message of the given type
+        /// </summary>
+        public Handler<T> ExpectDefer<TMessage>(Func<TMessage, DateTime, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedDeferMessageInvocation<TMessage, DateTime> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler doesn't defer a message of the given type
+        /// </summary>
+        public Handler<T> ExpectNotDefer<TMessage>(Func<TMessage, TimeSpan, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotDeferMessageInvocation<TMessage, TimeSpan> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Check that the handler doesn't defer a message of the given type
+        /// </summary>
+        public Handler<T> ExpectNotDefer<TMessage>(Func<TMessage, DateTime, bool> check)
+        {
+            expectedInvocations.Add(new ExpectedNotDeferMessageInvocation<TMessage, DateTime> { Check = check });
+            return this;
+        }
+
+        /// <summary>
         /// Activates the test that has been set up passing in the given message.
         /// </summary>
         public void OnMessage<TMessage>(Action<TMessage> initializeMessage = null)

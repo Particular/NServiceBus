@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Testing.Tests
 {
+    using System;
     using NUnit.Framework;
 
     [TestFixture]
@@ -156,6 +157,25 @@
         {
             var i = new SendToSitesInvocation<MessageA> { Messages = new[] { new MessageA() }, Value = new[] { "SiteA" } };
             var exp = new ExpectedNotSendToSitesInvocation<MessageA> { Check = (m, a) => false };
+
+            exp.Validate(i);
+        }
+
+        [Test]
+        public void DeferMessageBasicPositive()
+        {
+            var timespan = TimeSpan.FromMinutes(10);
+            var i = new DeferMessageInvocation<MessageA, TimeSpan> { Messages = new object[] { new MessageA() }, Value = timespan };
+            var exp = new ExpectedDeferMessageInvocation<MessageA, TimeSpan> { Check = (m, v) => v == timespan };
+
+            exp.Validate(i);
+        }
+
+        [Test]
+        public void DeferMessageBasicNegative()
+        {
+            var i = new DeferMessageInvocation<MessageA, TimeSpan> { Messages = new object[] { new MessageA() }, Value = TimeSpan.FromMinutes(10) };
+            var exp = new ExpectedNotDeferMessageInvocation<MessageA, TimeSpan> { Check = (m, v) => false };
 
             exp.Validate(i);
         }

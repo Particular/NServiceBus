@@ -334,6 +334,15 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// Verifies that the saga is not setting the specified timeout
+        /// </summary>
+        public Saga<T> ExpectNoTimeoutToBeSetIn<TMessage>(Func<TMessage, TimeSpan, bool> check = null)
+        {
+            expectedInvocations.Add(new ExpectedNotDeferMessageInvocation<TMessage, TimeSpan> { Check = check });
+            return this;
+        }
+
+        /// <summary>
         /// Verifies that the saga is setting the specified timeout
         /// </summary>
         public Saga<T> ExpectTimeoutToBeSetIn<TMessage>(Action<TMessage, TimeSpan> check)
@@ -347,6 +356,15 @@ namespace NServiceBus.Testing
         public Saga<T> ExpectTimeoutToBeSetAt<TMessage>(Func<TMessage, DateTime, bool> check = null)
         {
             expectedInvocations.Add(new ExpectedDeferMessageInvocation<TMessage, DateTime> { Check = check });
+            return this;
+        }
+
+        /// <summary>
+        /// Verifies that the saga is not setting the specified timeout
+        /// </summary>
+        public Saga<T> ExpectNoTimeoutToBeSetAt<TMessage>(Func<TMessage, DateTime, bool> check = null)
+        {
+            expectedInvocations.Add(new ExpectedNotDeferMessageInvocation<TMessage, DateTime> { Check = check });
             return this;
         }
 
