@@ -9,7 +9,6 @@ namespace NServiceBus.Hosting
     {
         public static HostInformation CreateDefault()
         {
-
             var commandLine = Environment.CommandLine;
 
             var fullPathToStartingExe = commandLine.Split('"')[1];

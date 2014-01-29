@@ -1045,7 +1045,9 @@ namespace NServiceBus.Unicast
             var incomingMessage = e.Message;
 
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
-            incomingMessage.Headers[Headers.ProcessingHostId] = HostInformation.HostId.ToString("N");
+            incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
+            incomingMessage.Headers[Headers.HostDisplayName] = RuntimeEnvironment.MachineName;
+
             AddBackwardsCompatibilityHeaders(incomingMessage);
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 

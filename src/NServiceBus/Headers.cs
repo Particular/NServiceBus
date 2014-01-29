@@ -202,20 +202,25 @@
         public const string OriginatingHostId = "NServiceBus.OriginatingHostId";
 
         /// <summary>
-        /// Name of the endpoint where the given message was processed(success or failure)
+        /// Name of the endpoint where the given message was processed (success or failure)
         /// </summary>
         public const string ProcessingEndpoint = "NServiceBus.ProcessingEndpoint";
 
         /// <summary>
-        /// Machine name of the endpoint where the given message was processed(success or failure)
+        /// Machine name of the endpoint where the given message was processed (success or failure)
         /// </summary>
-        [ObsoleteEx(Message = "The ProcessingMachine header is replaced by the ProcessingHostId to be more environment agnostic", RemoveInVersion = "5.0")]
+        [ObsoleteEx(Message = "The ProcessingMachine header is replaced by the HostDisplayName to be more environment agnostic", RemoveInVersion = "5.0")]
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
 
         /// <summary>
-        /// HostId of the endpoint where the given message was processed(success or failure)
+        /// The display name of the host where the given message was processed (success or failure), eg the MachineName.
         /// </summary>
-        public const string ProcessingHostId = "NServiceBus.ProcessingHostId";
+        public const string HostDisplayName = "NServiceBus.HostDisplayName";
+
+        /// <summary>
+        /// HostId of the endpoint where the given message was processed (success or failure)
+        /// </summary>
+        public const string HostId = "NServiceBus.HostId";
 
         /// <summary>
         /// The original reply to address for successfully processed messages
