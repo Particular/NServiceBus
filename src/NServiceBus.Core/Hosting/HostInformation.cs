@@ -2,9 +2,12 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using Utils;
 
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class HostInformation
     {
         public static HostInformation CreateDefault()

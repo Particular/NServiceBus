@@ -215,12 +215,12 @@
         /// <summary>
         /// The display name of the host where the given message was processed (success or failure), eg the MachineName.
         /// </summary>
-        public const string HostDisplayName = "NServiceBus.HostDisplayName";
+        public const string HostDisplayName = "$.diagnostics.hostdisplayname";
 
         /// <summary>
         /// HostId of the endpoint where the given message was processed (success or failure)
         /// </summary>
-        public const string HostId = "NServiceBus.HostId";
+        public const string HostId = "$.diagnostics.hostid";
 
         /// <summary>
         /// The original reply to address for successfully processed messages

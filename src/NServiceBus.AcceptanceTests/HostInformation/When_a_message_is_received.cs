@@ -63,7 +63,9 @@
 
             public void Run()
             {
+#pragma warning disable 618
                 var hostInformation = new Hosting.HostInformation(hostId, displayName, displayInstanceIdentifier);
+#pragma warning restore 618
 
                 UnicastBus.HostInformation = hostInformation;
             }
