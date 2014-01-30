@@ -2,9 +2,12 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Diagnostics;
     using Utils;
 
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class HostInformation
     {
         public static HostInformation CreateDefault()
@@ -15,27 +18,26 @@ namespace NServiceBus.Hosting
 
             var hostId = DeterministicGuid.Create(fullPathToStartingExe, Environment.MachineName);
 
-            return new HostInformation(hostId, String.Format("{0}", fullPathToStartingExe));
+            return new HostInformation(hostId, Environment.MachineName, String.Format("{0}", fullPathToStartingExe));
         }
 
-        public HostInformation(Guid hostId, string displayName)
+        public HostInformation(Guid hostId, string displayName, string displayInstanceIdentifier)
         {
             HostId = hostId;
             DisplayName = displayName;
+            DisplayInstanceIdentifier = displayInstanceIdentifier;
 
             Properties = new Dictionary<string, string>
             {
                 {"Machine", Environment.MachineName},
                 {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
                 {"UserName", Environment.UserName},
-                {"CommandLine", Environment.CommandLine}
             };
         }
 
         public Guid HostId { get; private set; }
-
         public string DisplayName { get; private set; }
-
+        public string DisplayInstanceIdentifier { get; private set; }
         public Dictionary<string, string> Properties { get; private set; }
     }
 }
