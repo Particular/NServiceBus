@@ -32,7 +32,6 @@ namespace NServiceBus.Hosting
                 {"Machine", Environment.MachineName},
                 {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
                 {"UserName", Environment.UserName},
-                {"CommandLine", Environment.CommandLine}
             };
         }
 
