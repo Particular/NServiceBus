@@ -8,7 +8,7 @@ namespace SendOnlyEndpoint.Custom
         static void Main()
         {
             var bus = Configure.With()
-                .UnityBuilder()
+                .DefaultBuilder()
                 .UseTransport<Msmq>()
                 .UnicastBus()
                 .SendOnly();
@@ -21,5 +21,6 @@ namespace SendOnlyEndpoint.Custom
             Console.ReadKey();
         }
     }
+
     public class TestMessage : IMessage{}
 }
