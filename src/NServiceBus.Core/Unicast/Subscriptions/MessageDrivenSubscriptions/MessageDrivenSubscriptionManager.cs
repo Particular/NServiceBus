@@ -10,7 +10,7 @@
     using Queuing;
     using Transport;
     using Transports;
-
+    
     /// <summary>
     /// Implements message driven subscriptions for transports that doesn't have native support for it (MSMQ , SqlServer, Azure Queues etc)
     /// </summary>
@@ -23,6 +23,7 @@
         public IBuilder Builder { get; set; }
         public ISubscriptionStorage SubscriptionStorage { get; set; }
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); } set { subscriptionAuthorizer = value; } }
+        public Address DistributorDataAddress { get; set; }
 
         public void Subscribe(Type eventType, Address publisherAddress)
         {
@@ -33,6 +34,10 @@
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
+            if (DistributorDataAddress != null)
+            {
+                subscriptionMessage.ReplyToAddress = DistributorDataAddress;
+            }
 
             ThreadPool.QueueUserWorkItem(state =>
                                          SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
@@ -48,6 +53,11 @@
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
+
+            if (DistributorDataAddress != null)
+            {
+                subscriptionMessage.ReplyToAddress = DistributorDataAddress;
+            }
 
             MessageSender.Send(subscriptionMessage, publisherAddress);
         }
@@ -144,7 +154,6 @@
         {
             try
             {
-
                 MessageSender.Send(subscriptionMessage, destination);
             }
             catch (QueueNotFoundException ex)
