@@ -199,7 +199,7 @@
         /// <summary>
         /// HostId of the endpoint where the given message originated
         /// </summary>
-        public const string OriginatingHostId = "NServiceBus.OriginatingHostId";
+        public const string OriginatingHostId = "$.diagnostics.originating.hostid";
 
         /// <summary>
         /// Name of the endpoint where the given message was processed (success or failure)
