@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using Internal;
+    using Logging;
     using Logging.Loggers.Log4NetAdapter;
     using Logging.Loggers.NLogAdapter;
 
@@ -14,6 +15,9 @@
     {
         void IConfigureLogging.Configure(IConfigureThisEndpoint specifier)
         {
+            if (LogManager.IsConfigured)
+                return;
+
             var logToConsole = GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero;
 
             if (Log4NetConfigurator.Log4NetExists)
