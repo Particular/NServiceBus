@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
 
     public class When_raising_an_in_memory_event : NServiceBusAcceptanceTest
@@ -32,7 +33,7 @@
         {
             public InMemoryEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>());
             }
 
             public class CommandHandler : IHandleMessages<SomeCommand>

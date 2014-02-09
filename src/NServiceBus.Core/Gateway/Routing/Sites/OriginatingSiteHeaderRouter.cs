@@ -7,11 +7,12 @@ namespace NServiceBus.Gateway.Routing.Sites
     {
         public IEnumerable<Site> GetDestinationSitesFor(TransportMessage messageToDispatch)
         {
-            if (messageToDispatch.Headers.ContainsKey(Headers.OriginatingSite))
+            string originatingSite;
+            if (messageToDispatch.Headers.TryGetValue(Headers.OriginatingSite, out originatingSite))
             {
                 yield return new Site
                 {
-                    Channel = Channel.Parse(messageToDispatch.Headers[Headers.OriginatingSite]),
+                    Channel = Channel.Parse(originatingSite),
                     Key = "Default reply channel",
                     LegacyMode = messageToDispatch.IsLegacyGatewayMessage()
                 };

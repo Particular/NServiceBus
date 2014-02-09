@@ -46,9 +46,9 @@ namespace NServiceBus.Gateway.Channels.Http
         {
             var webHeaders = new WebHeaderCollection();
 
-            foreach (var header in headers.Keys)
+            foreach (var pair in headers)
             {
-                webHeaders.Add(HttpUtility.UrlEncode(header), HttpUtility.UrlEncode(headers[header]));
+                webHeaders.Add(HttpUtility.UrlEncode(pair.Key), HttpUtility.UrlEncode(pair.Value));
             }
 
             return webHeaders;

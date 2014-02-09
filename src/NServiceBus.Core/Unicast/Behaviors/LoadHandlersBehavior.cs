@@ -1,19 +1,23 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Linq;
     using MessageInterfaces;
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast;
 
-    class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LoadHandlersBehavior : IBehavior<ReceiveLogicalMessageContext>
     {
         public IMessageHandlerRegistry HandlerRegistry { get; set; }
 
         public IMessageMapper MessageMapper { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineFactory { get; set; }
 
         public void Invoke(ReceiveLogicalMessageContext context, Action next)
         {

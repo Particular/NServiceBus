@@ -12,7 +12,9 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
         [Test]
         public void Inherited_property_classes_should_be_persisted()
         {
-            Assert.AreEqual(entity.PolymorphicRelatedProperty, savedEntity.PolymorphicRelatedProperty);
+            var polymorphicRelatedProperty = (PolymorphicProperty)savedEntity.PolymorphicRelatedProperty;
+            var polymorphicProperty = (PolymorphicProperty)entity.PolymorphicRelatedProperty;
+            Assert.AreEqual(polymorphicProperty.SomeInt, polymorphicRelatedProperty.SomeInt);
         }
     }
 }

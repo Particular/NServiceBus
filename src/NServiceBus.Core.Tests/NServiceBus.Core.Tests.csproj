@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,10 +44,6 @@
     </Reference>
     <Reference Include="AWSSDK">
       <HintPath>..\packages\RavenDB.Database\lib\net40\AWSSDK.dll</HintPath>
-    </Reference>
-    <Reference Include="ConventionBasedHandlers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ConventionBasedHandlers.dll</HintPath>
     </Reference>
     <Reference Include="Esent.Interop">
       <HintPath>..\packages\RavenDB.Database\lib\net40\Esent.Interop.dll</HintPath>
@@ -132,10 +129,15 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
+    <Compile Include="GitFlowVersionTests.cs" />
+    <Compile Include="NServiceBusVersionTests.cs" />
+    <Compile Include="Pipeline\BehaviorConventions.cs" />
+    <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
+    <Compile Include="Gateway\Receiving\HasherTests.cs" />
     <Compile Include="Licensing\LicenseDeserializerTests.cs" />
     <Compile Include="Licensing\LicenseDowngraderTests.cs" />
-    <Compile Include="Licensing\NServiceBusVersionTests.cs" />
     <Compile Include="Licensing\ResourceReader.cs" />
     <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
     <Compile Include="Licensing\TimestampTests.cs" />
@@ -144,7 +146,6 @@
     <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
-    <Compile Include="DataBus\InMemoryDataBus.cs" />
     <Compile Include="DataBus\MessageWithDataBusProperty.cs" />
     <Compile Include="DataBus\MessageWithExplicitTimeToLive.cs" />
     <Compile Include="DataBus\MessageWithNonSerializableDataBusProperty.cs" />
@@ -174,7 +175,6 @@
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_duplicate_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_storing_a_new_message.cs" />
     <Compile Include="Gateway\Idempotency\Raven\When_updating_a_header_of_message.cs" />
-    <Compile Include="Gateway\InMemoryDataBus.cs" />
     <Compile Include="Gateway\RegularMessage.cs" />
     <Compile Include="Gateway\Routing\When_routing_a_reply_message.cs" />
     <Compile Include="Gateway\Routing\When_routing_using_the_configuration_source.cs" />
@@ -186,7 +186,6 @@
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
     <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
-    <Compile Include="Persistence\RavenDB\SagaPersister\EqualityExtensions.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Persisting_a_saga_entity_with_a_raven_saga_persister.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\Raven_saga_persistence_concern.cs" />
     <Compile Include="Persistence\RavenDB\SagaPersister\SagaWithoutUniqueProperties.cs" />
@@ -219,6 +218,7 @@
     <Compile Include="Persistence\RavenDB\When_configuring_persistence_to_use_a_raven_server_instance_with_the_default_settings.cs" />
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
+    <Compile Include="Pipeline\BehaviorListTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
@@ -264,6 +264,7 @@
     <Compile Include="Fakes\FakeReceiver.cs" />
     <Compile Include="Transport\for_the_transactional_transport.cs" />
     <Compile Include="Transport\When_specifying_a_non_zero_throughput_limit.cs" />
+    <Compile Include="Transport\When_specifying_a_queu_name_for_msmq_with_total_length_including_machine_name_and_private_identifier_exceeding_114_characters.cs" />
     <Compile Include="Transport\When_specifying_a_zero_throughput_limit.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
@@ -315,7 +316,7 @@
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,8 @@ namespace NServiceBus.SecondLevelRetries
     using System;
     using Helpers;
 
+
+    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "Should not be public")]
     public static class DefaultRetryPolicy
     {
         public static int NumberOfRetries = 3;
@@ -13,7 +15,9 @@ namespace NServiceBus.SecondLevelRetries
         static TimeSpan Validate(TransportMessage message)
         {
             if (HasReachedMaxTime(message))
+            {
                 return TimeSpan.MinValue;
+            }
 
             var numberOfRetries = TransportMessageHelpers.GetNumberOfRetries(message);
 
@@ -41,6 +45,10 @@ namespace NServiceBus.SecondLevelRetries
                     return true;
                 }
             }
+            // ReSharper disable once EmptyGeneralCatchClause
+            // this code won't usually throw but in case a user has decided to hack a message/headers and for some bizarre reason 
+            // they changed the date and that parse fails, we want to make sure that doesn't prevent the message from being 
+            // forwarded to the error queue.
             catch (Exception)
             {
             }

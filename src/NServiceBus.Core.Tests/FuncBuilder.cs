@@ -47,7 +47,7 @@
                     }
                 }
 
-                object result = null;
+                object result;
 
                 if (fn != null)
                 {

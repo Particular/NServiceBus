@@ -31,7 +31,13 @@
                                                                    bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()}))
                 )
                     .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                        b => b.Given((bus, context) => bus.Subscribe<SomethingHappenedEvent>()))
+                        b => b.Given((bus, context) =>
+                        {
+                            bus.Subscribe<SomethingHappenedEvent>();
+
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                                context.IsEventSubscriptionReceived = true;
+                        }))
 
                     .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
                     .Repeat(r => r.For(Transports.Default))
@@ -48,6 +54,7 @@
 
 
         [Test]
+        [Explicit]
         public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
             Scenario.Define<SagaContext>()
@@ -66,11 +73,17 @@
                                                                 bus.Publish<SomethingHappenedEvent>(m=> { m.DataId = Guid.NewGuid(); }))
              )
                  .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                     b => b.Given((bus, context) => bus.Subscribe<BaseEvent>()))
+                     b => b.Given((bus, context) =>
+                     {
+                         bus.Subscribe<BaseEvent>();
+
+                          if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                              context.IsEventSubscriptionReceived = true;
+                     }))
                  .Done(c => c.DidSagaComplete)
                  .Repeat(r => r.For(Transports.Default))
                  .Should(c => Assert.True(c.DidSagaComplete))
-                 .Run();
+                 .Run(TimeSpan.FromMinutes(3));
         }
 
         public class SagaContext : ScenarioContext

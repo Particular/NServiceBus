@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>The most popular open-source service bus for .net</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2010-2013 NServiceBus. All rights reserved</copyright>
+    <copyright>Copyright 2010-2014 NServiceBus. All rights reserved</copyright>
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="net40" />

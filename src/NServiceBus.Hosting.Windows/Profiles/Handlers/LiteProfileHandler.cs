@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Hosting.Windows.Profiles.Handlers
 {
+    using Config;
     using Faults;
     using Hosting.Profiles;
     using Persistence.InMemory;

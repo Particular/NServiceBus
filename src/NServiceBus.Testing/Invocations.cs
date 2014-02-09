@@ -185,6 +185,14 @@
         }
     }
 
+    public class ExpectedNotDeferMessageInvocation<M, D> : ExpectedDeferMessageInvocation<M, D>
+    {
+        public ExpectedNotDeferMessageInvocation()
+        {
+            Negate = true;
+        }
+    }
+
     public class ExpectedReplyToOriginatorInvocation<M> : ExpectedInvocation<ReplyToOriginatorInvocation<M>>
     {
         public Func<M, Address, string, bool> Check { get; set; }

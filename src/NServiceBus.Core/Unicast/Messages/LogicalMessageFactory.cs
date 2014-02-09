@@ -2,17 +2,21 @@ namespace NServiceBus.Unicast.Messages
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using MessageInterfaces;
     using Pipeline;
 
-    class LogicalMessageFactory
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class LogicalMessageFactory
     {
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
         
         public IMessageMapper MessageMapper { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
+        public PipelineExecutor PipelineExecutor { get; set; }
 
         public List<LogicalMessage> Create<T>(T message)
         {
@@ -59,7 +63,7 @@ namespace NServiceBus.Unicast.Messages
         {
             Dictionary<object, Dictionary<string, string>> outgoingHeaders;
 
-            if (!PipelineFactory.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
+            if (!PipelineExecutor.CurrentContext.TryGet("NServiceBus.OutgoingHeaders", out outgoingHeaders))
             {
                 return new Dictionary<string, string>();
             }

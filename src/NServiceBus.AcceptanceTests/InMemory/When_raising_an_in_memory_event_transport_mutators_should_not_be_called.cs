@@ -3,6 +3,7 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using MessageMutator;
     using NUnit.Framework;
 
@@ -51,7 +52,7 @@
         {
             public InMemoryEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>());
             }
 
         }

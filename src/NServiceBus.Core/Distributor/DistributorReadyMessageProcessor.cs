@@ -98,9 +98,10 @@ namespace NServiceBus.Distributor
                 Logger.InfoFormat("Worker {0} has started up, clearing previous reported capacity", replyToAddress);
             }
 
-            if (controlMessage.Headers.ContainsKey(Headers.WorkerCapacityAvailable))
+            string workerCapacityAvailable;
+            if (controlMessage.Headers.TryGetValue(Headers.WorkerCapacityAvailable, out workerCapacityAvailable))
             {
-                var capacity = int.Parse(controlMessage.Headers[Headers.WorkerCapacityAvailable]);
+                var capacity = int.Parse(workerCapacityAvailable);
 
                 WorkerAvailabilityManager.WorkerAvailable(replyToAddress, capacity);
 

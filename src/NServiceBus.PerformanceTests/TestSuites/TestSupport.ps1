@@ -19,7 +19,7 @@
 {
 
   
-    ..\.\bin\debug\Runner.exe $numThreads $numMessages $serializationFormat $transport $mode $messagemode $persistence $concurrency
+    ..\.\bin\release\Runner.exe $numThreads $numMessages $serializationFormat $transport $mode $messagemode $persistence $concurrency
 
 }
 

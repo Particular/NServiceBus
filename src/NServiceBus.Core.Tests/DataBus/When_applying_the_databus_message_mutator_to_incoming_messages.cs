@@ -4,8 +4,8 @@ namespace NServiceBus.Core.Tests.DataBus
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
+    using NServiceBus.Pipeline.Contexts;
     using NUnit.Framework;
-    using Pipeline.Contexts;
     using Rhino.Mocks;
     using Unicast.Messages;
 

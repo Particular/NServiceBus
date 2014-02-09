@@ -9,23 +9,22 @@ namespace NServiceBus.Gateway.HeaderManagement
         {
             returnInfo = null;
 
-            if (!transportMessage.Headers.ContainsKey(Headers.HttpFrom) &&
-                !transportMessage.Headers.ContainsKey(Headers.OriginatingSite))
+            var headers = transportMessage.Headers;
+            if (!headers.ContainsKey(Headers.HttpFrom) &&
+                !headers.ContainsKey(Headers.OriginatingSite))
             {
                 return;
             }
 
+            string originatingSite;
+            headers.TryGetValue(Headers.OriginatingSite, out originatingSite);
+            string httpFrom;
+            headers.TryGetValue(Headers.HttpFrom, out httpFrom);
             returnInfo = new HttpReturnInfo
             {
                 //we preserve the httpFrom to be backwards compatible with NServiceBus 2.X 
-                HttpFrom =
-                    transportMessage.Headers.ContainsKey(Headers.HttpFrom)
-                        ? transportMessage.Headers[Headers.HttpFrom]
-                        : null,
-                OriginatingSite =
-                    transportMessage.Headers.ContainsKey(Headers.OriginatingSite)
-                        ? transportMessage.Headers[Headers.OriginatingSite]
-                        : null,
+                HttpFrom = httpFrom,
+                OriginatingSite = originatingSite,
                 ReplyToAddress = transportMessage.ReplyToAddress,
                 LegacyMode = transportMessage.IsLegacyGatewayMessage()
             };

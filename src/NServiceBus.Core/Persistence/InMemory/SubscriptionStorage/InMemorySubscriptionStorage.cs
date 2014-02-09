@@ -15,11 +15,16 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
         {
             messageTypes.ToList().ForEach(m =>
             {
-                if (!storage.ContainsKey(m))
-                    storage[m] = new List<Address>();
+                List<Address> list;
+                if (!storage.TryGetValue(m, out list))
+                {
+                  storage[m] = list = new List<Address>();
+                }
 
-                if (!storage[m].Contains(address))
-                    storage[m].Add(address);
+                if (!list.Contains(address))
+                {
+                    list.Add(address);
+                }
             });
         }
 
@@ -27,8 +32,11 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
         {
             messageTypes.ToList().ForEach(m =>
             {
-                if (storage.ContainsKey(m))
-                    storage[m].Remove(address);
+                List<Address> list;
+                if (storage.TryGetValue(m, out list))
+                {
+                    list.Remove(address);
+                }
             });
         }
 
@@ -38,8 +46,11 @@ namespace NServiceBus.Persistence.InMemory.SubscriptionStorage
             var result = new List<Address>();
             messageTypes.ToList().ForEach(m =>
             {
-                if (storage.ContainsKey(m))
-                    result.AddRange(storage[m]);
+                List<Address> list;
+                if (storage.TryGetValue(m, out list))
+                {
+                    result.AddRange(list);
+                }
             });
 
             return result.Distinct();

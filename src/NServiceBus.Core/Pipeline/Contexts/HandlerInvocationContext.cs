@@ -1,9 +1,14 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System;
+    using System.ComponentModel;
     using Unicast.Behaviors;
     using Unicast.Messages;
 
-    class HandlerInvocationContext : BehaviorContext
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class HandlerInvocationContext : BehaviorContext
     {
         public HandlerInvocationContext(BehaviorContext parentContext, MessageHandler messageHandler)
             : base(parentContext)
@@ -19,11 +24,6 @@
         public LogicalMessage LogicalMessage
         {
             get { return Get<LogicalMessage>(); }
-        }
-
-        public TransportMessage PhysicalMessage
-        {
-            get { return Get<TransportMessage>(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey); }
         }
     }
 }

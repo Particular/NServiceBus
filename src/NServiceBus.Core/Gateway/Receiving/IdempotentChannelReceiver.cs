@@ -2,9 +2,7 @@ namespace NServiceBus.Gateway.Receiving
 {
     using System;
     using System.Collections.Generic;
-    using System.Transactions;
     using Channels;
-    using Channels.Http;
     using DataBus;
     using HeaderManagement;
     using Logging;
@@ -51,11 +49,12 @@ namespace NServiceBus.Gateway.Receiving
         {
             using (e.Data)
             {
-                var callInfo = GetCallInfo(e);
+                var callInfo = ChannelReceiverHeaderReader.GetCallInfo(e);
 
+                Hasher.Verify(callInfo.Data,callInfo.Md5);
                 Logger.DebugFormat("Received message of type {0} for client id: {1}", callInfo.Type, callInfo.ClientId);
 
-                using (var scope = DefaultTransactionScope())
+                using (var scope = GatewayTransaction.Scope())
                 {
                     DispatchReceivedCallInfo(callInfo);
                     scope.Complete();
@@ -79,60 +78,6 @@ namespace NServiceBus.Gateway.Receiving
             }
         }
 
-        static TransactionScope DefaultTransactionScope()
-        {
-            return new TransactionScope(TransactionScopeOption.Required,
-                new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.ReadCommitted,
-                    Timeout = TimeSpan.FromSeconds(30)
-                });
-        }
-
-        CallInfo GetCallInfo(DataReceivedOnChannelArgs receivedData)
-        {
-            var headers = receivedData.Headers;
-
-            var callType = headers[GatewayHeaders.CallTypeHeader];
-            if (!Enum.IsDefined(typeof(CallType), callType))
-            {
-                throw new ChannelException(400, "Required header '" + GatewayHeaders.CallTypeHeader + "' missing.");
-            }
-
-            var type = (CallType) Enum.Parse(typeof(CallType), callType);
-
-            var clientId = headers[GatewayHeaders.ClientIdHeader];
-            if (clientId == null)
-            {
-                throw new ChannelException(400, "Required header '" + GatewayHeaders.ClientIdHeader + "' missing.");
-            }
-
-            var md5 = headers[HttpHeaders.ContentMd5Key];
-
-            if (md5 == null)
-            {
-                throw new ChannelException(400, "Required header '" + HttpHeaders.ContentMd5Key + "' missing.");
-            }
-
-            var hash = Hasher.Hash(receivedData.Data);
-
-            if (receivedData.Data.Length > 0 && hash != md5)
-            {
-                throw new ChannelException(412,
-                    "MD5 hash received does not match hash calculated on server. Consider resubmitting.");
-            }
-
-
-            return new CallInfo
-            {
-                ClientId = clientId,
-                Type = type,
-                Headers = headers,
-                Data = receivedData.Data,
-                AutoAck = headers.ContainsKey(GatewayHeaders.AutoAck)
-            };
-        }
-
         void HandleSubmit(CallInfo callInfo)
         {
             persister.InsertMessage(callInfo.ClientId, DateTime.UtcNow, callInfo.Data, callInfo.Headers);
@@ -150,24 +95,13 @@ namespace NServiceBus.Gateway.Receiving
                 throw new InvalidOperationException("Databus transmission received without a databus configured");
             }
 
-            TimeSpan timeToBeReceived;
+            var newDatabusKey = DataBus.Put(callInfo.Data, callInfo.TimeToBeReceived);
 
-            if (!TimeSpan.TryParse(callInfo.Headers["NServiceBus.TimeToBeReceived"], out timeToBeReceived))
-            {
-                timeToBeReceived = TimeSpan.FromHours(1);
-            }
-
-            string newDatabusKey;
-
-            using (callInfo.Data)
-            {
-                newDatabusKey = DataBus.Put(callInfo.Data, timeToBeReceived);
-            }
-
-            var specificDataBusHeaderToUpdate = callInfo.Headers[GatewayHeaders.DatabusKey];
+            var specificDataBusHeaderToUpdate = callInfo.ReadDataBus();
 
             persister.UpdateHeader(callInfo.ClientId, specificDataBusHeaderToUpdate, newDatabusKey);
         }
+
 
         void HandleAck(CallInfo callInfo)
         {
@@ -188,7 +122,7 @@ namespace NServiceBus.Gateway.Receiving
             MessageReceived(this, new MessageReceivedOnChannelArgs {Message = msg});
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));
+        static ILog Logger = LogManager.GetLogger(typeof(IdempotentChannelReceiver));
 
         IChannelFactory channelFactory;
         IPersistMessages persister;

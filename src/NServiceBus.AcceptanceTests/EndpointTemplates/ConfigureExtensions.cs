@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using AcceptanceTesting;
     using ObjectBuilder.Common;
     using ObjectBuilder.Common.Config;
     using ScenarioDescriptors;
@@ -25,14 +24,6 @@
             }
 
             return dictionary[key];
-        }
-
-        public static Configure DefineHowManySubscriptionMessagesToWaitFor(this Configure config, int numberOfSubscriptionsToWaitFor)
-        {
-            config.Configurer.ConfigureProperty<EndpointConfigurationBuilder.SubscriptionsSpy>(
-                    spy => spy.NumberOfSubscriptionsToWaitFor, numberOfSubscriptionsToWaitFor);
-
-            return config;
         }
 
         public static Configure DefineTransport(this Configure config, IDictionary<string, string> settings)

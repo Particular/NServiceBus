@@ -1,9 +1,14 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
+    using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using Unicast.Messages;
 
-    class ReceivePhysicalMessageContext : BehaviorContext
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class ReceivePhysicalMessageContext : BehaviorContext
     {
         public ReceivePhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage, bool messageHandlingDisabled)
             : base(parentContext)

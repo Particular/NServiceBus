@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
+    using System.ComponentModel;
     using System.Configuration;
     using System.Linq;
     using Logging;
@@ -9,7 +10,9 @@
     using Transports;
     using Queuing;
 
-    class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class DispatchMessageToTransportBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
 
@@ -77,7 +80,7 @@
             }
             catch (QueueNotFoundException ex)
             {
-                throw new ConfigurationErrorsException("The destination queue '" + sendOptions.Destination +
+                throw new ConfigurationErrorsException("The destination queue '" + ex.Queue +
                                                        "' could not be found. You may have misconfigured the destination for this kind of message (" +
                                                        messageDescription +
                                                        ") in the MessageEndpointMappings of the UnicastBusConfig section in your configuration file. " +

@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using IdGeneration;
     using Support;
+    using Unicast;
 
     /// <summary>
     ///     An envelope used by NServiceBus to package messages for transmission.
@@ -25,10 +26,18 @@ namespace NServiceBus
             Headers[NServiceBus.Headers.MessageId] = id;
             CorrelationId = id;
             Headers.Add(NServiceBus.Headers.OriginatingEndpoint, Configure.EndpointName);
-            Headers.Add(NServiceBus.Headers.OriginatingMachine, RuntimeEnvironment.MachineName);
+            Headers.Add(NServiceBus.Headers.OriginatingHostId, UnicastBus.HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor.ToString("N"));
             MessageIntent = MessageIntentEnum.Send;
-            Headers[NServiceBus.Headers.NServiceBusVersion] = NServiceBusVersion.Version;
+            Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
             Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
+
+            AddBackwardsCompatibilityHeaders();
+        }
+
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        void AddBackwardsCompatibilityHeaders()
+        {
+            Headers.Add("NServiceBus.OriginatingMachine", RuntimeEnvironment.MachineName);
         }
 
         /// <summary>
@@ -58,12 +67,12 @@ namespace NServiceBus
         {
             get
             {
-                if (!Headers.ContainsKey(NServiceBus.Headers.MessageId))
+                string headerId;
+                if (Headers.TryGetValue(NServiceBus.Headers.MessageId, out headerId))
                 {
-                    return id;
+                    return headerId;
                 }
-
-                return Headers[NServiceBus.Headers.MessageId];
+                return id;
             }
         }
 
@@ -116,9 +125,10 @@ namespace NServiceBus
             {
                 var messageIntent = default(MessageIntentEnum);
 
-                if (Headers.ContainsKey(NServiceBus.Headers.MessageIntent))
+                string messageIntentString;
+                if (Headers.TryGetValue(NServiceBus.Headers.MessageIntent, out messageIntentString))
                 {
-                    Enum.TryParse(Headers[NServiceBus.Headers.MessageIntent], true, out messageIntent);
+                    Enum.TryParse(messageIntentString, true, out messageIntent);
                 }
 
                 return messageIntent;

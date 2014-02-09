@@ -27,8 +27,11 @@ namespace NServiceBus.Unicast.Monitoring
             {
                 transportMessage.Headers[Headers.RelatedTo] = Bus.CurrentMessageContext.Id;
 
-                if (Bus.CurrentMessageContext.Headers.ContainsKey(Headers.ConversationId))
-                    conversationId = Bus.CurrentMessageContext.Headers[Headers.ConversationId];
+                string conversationIdFromCurrentMessageContext;
+                if (Bus.CurrentMessageContext.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
+                {
+                    conversationId = conversationIdFromCurrentMessageContext;
+                }
             }
 
             transportMessage.Headers[Headers.ConversationId] = conversationId;

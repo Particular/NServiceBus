@@ -45,7 +45,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected FakeTransport Transport;
         protected XmlMessageSerializer MessageSerializer;
         protected FuncBuilder FuncBuilder;
-        protected Address MasterNodeAddress;
+        public static Address MasterNodeAddress;
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
@@ -55,7 +55,14 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected MessageHandlerRegistry handlerRegistry;
         protected TransportDefinition transportDefinition;
 
-        PipelineFactory pipelineFactory;
+        PipelineExecutor pipelineFactory;
+
+        static using_a_configured_unicastBus()
+        {
+            var localAddress = "endpointA";
+            MasterNodeAddress = new Address(localAddress, "MasterNode");
+            Address.InitializeLocalAddress(localAddress);
+        }
 
         [SetUp]
         public void SetUp()
@@ -71,8 +78,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
-            const string localAddress = "endpointA";
-            MasterNodeAddress = new Address(localAddress, "MasterNode");
             subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
@@ -81,13 +86,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     DefaultToNonPersistentMessages = false
                 };
 
-            try
-            {
-                Address.InitializeLocalAddress(localAddress);
-            }
-            catch // intentional
-            {
-            }
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
@@ -102,7 +100,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                     SubscriptionStorage = subscriptionStorage
                 };
 
-            pipelineFactory = new PipelineFactory { RootBuilder = FuncBuilder };
+            var pipelineBuilder = new PipelineBuilder(FuncBuilder);
+            pipelineFactory = new PipelineExecutor(FuncBuilder , pipelineBuilder);
 
             FuncBuilder.Register<IMessageSerializer>(() => MessageSerializer);
             FuncBuilder.Register<ISendMessages>(() => messageSender);
@@ -134,7 +133,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
-            FuncBuilder.Register<PipelineFactory>(() => pipelineFactory);
+            FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);
+            FuncBuilder.Register<PipelineExecutor>(() => pipelineFactory);
             FuncBuilder.Register<TransportDefinition>(() => transportDefinition);
 
 
@@ -144,13 +144,13 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 SubscriptionStorage = subscriptionStorage
             };
 
-            var deferer = new TimeoutManagerDeferrer
+            var deferrer = new TimeoutManagerDeferrer
             {
                 MessageSender = messageSender,
                 TimeoutManagerAddress = MasterNodeAddress.SubScope("Timeouts")
             };
 
-            FuncBuilder.Register<IDeferMessages>(() => deferer);
+            FuncBuilder.Register<IDeferMessages>(() => deferrer);
             FuncBuilder.Register<IPublishMessages>(() => messagePublisher);
 
             unicastBus = new UnicastBus
@@ -289,6 +289,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
         protected Exception ResultingException;
 
+        protected TransportMessage AuditedMessage;
+
         protected void ReceiveMessage(TransportMessage transportMessage)
         {
             try
@@ -303,6 +305,8 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 ExtensionMethods.SetHeaderAction = (o, s, v) => { transportMessage.Headers[s] = v; };
 
                 Transport.FakeMessageBeingProcessed(transportMessage);
+
+                AuditedMessage = transportMessage;
             }
             catch (Exception ex)
             {

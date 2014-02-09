@@ -43,12 +43,12 @@
             return WithEndpoint<T>(b => { });
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehaviour) where T : EndpointConfigurationBuilder
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior) where T : EndpointConfigurationBuilder
         {
 
             var builder = new EndpointBehaviorBuilder<TContext>(typeof (T));
 
-            defineBehaviour(builder);
+            defineBehavior(builder);
 
             behaviours.Add(builder.Build());
 

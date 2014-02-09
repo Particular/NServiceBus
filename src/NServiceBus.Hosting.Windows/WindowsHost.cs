@@ -4,7 +4,7 @@ namespace NServiceBus.Hosting.Windows
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
-    using Profiles.Handlers;
+    using Config;
 
     /// <summary>
     /// A windows implementation of the NServiceBus hosting solution

@@ -93,6 +93,14 @@
                     Context.CatchAllHandlerGotTheMessage = true;
                 }
             }
+
+            class DummyHandler : IHandleMessages<EventHandledByLocalEndpoint> //explicit handler for the event is needed
+            {
+                public Context Context { get; set; }
+                public void Handle(EventHandledByLocalEndpoint message)
+                {
+                }
+            }
         }
         [Serializable]
         public class EventHandledByLocalEndpoint : IEvent

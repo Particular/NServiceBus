@@ -3,7 +3,9 @@
     using System;
     using EndpointTemplates;
     using AcceptanceTesting;
+    using Features;
     using NUnit.Framework;
+    using PubSub;
     using Saga;
     using ScenarioDescriptors;
 
@@ -14,16 +16,27 @@
         {
             Scenario.Define(() => new Context {Id = Guid.NewGuid()})
                     .WithEndpoint<SagaEndpoint>(b =>
+                    {
+                        b.Given((bus, context) =>
                         {
-                            b.Given((bus, context) => bus.SendLocal(new StartSagaMessage {SomeId = context.Id}));
+                            if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
+                            {
+                                bus.SendLocal(new StartSagaMessage { SomeId = context.Id });
+                            }
+                            else
+                            {
+                                Subscriptions.OnEndpointSubscribed(s => bus.SendLocal(new StartSagaMessage { SomeId = context.Id }));
+                            }
 
-                            b.When(context => context.StartSagaMessageReceived,
-                                   (bus, context) =>
-                                       {
-                                           bus.EnsureSubscriptionMessagesHaveArrived();
-                                           bus.Publish(new SomeEvent {SomeId = context.Id});
-                                       });
-                        })
+                        });
+
+                        b.When(context => context.StartSagaMessageReceived,
+                            (bus, context) =>
+                            {
+                                bus.Publish(new SomeEvent { SomeId = context.Id });
+                            });
+
+                    })
                     .Done(c => c.TimeoutReceived)
                     .Repeat(r => r.For(Transports.Default))
                     .Run();
@@ -45,7 +58,6 @@
             public SagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.RavenSagaPersister()
-                                                   .DefineHowManySubscriptionMessagesToWaitFor(1)
                                                    .UnicastBus())
                     .AddMapping<SomeEvent>(typeof (SagaEndpoint));
             }

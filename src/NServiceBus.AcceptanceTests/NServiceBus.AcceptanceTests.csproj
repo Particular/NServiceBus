@@ -11,6 +11,7 @@
     <AssemblyName>NServiceBus.AcceptanceTests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -99,6 +100,13 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
+    <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
+    <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
+    <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
+    <Compile Include="HostInformation\When_a_message_is_received.cs" />
+    <Compile Include="MessageMutators\When_defining_outoing_message_mutators.cs" />
+    <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="BasicMessaging\When_sending_a_message_with_no_correlation_id.cs" />
@@ -110,9 +118,7 @@
     <Compile Include="BasicMessaging\When_using_callbacks_in_a_scaleout_scenario.cs" />
     <Compile Include="BusStartStop\When_bus_start_and_stops_with_a_pending_message.cs" />
     <Compile Include="Configuration\When_a_config_override_is_found.cs" />
-    <Compile Include="Distributor\When_using_master.cs" />
     <Compile Include="Encryption\When_using_encryption.cs" />
-    <Compile Include="EndpointTemplates\BusExtensions.cs" />
     <Compile Include="EndpointTemplates\ContextAppender.cs" />
     <Compile Include="Gateway\When_doing_request_return.cs" />
     <Compile Include="Gateway\When_doing_request_response_between_sites.cs" />
@@ -126,14 +132,11 @@
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
-    <Compile Include="Performance\RequestResponse\Request_response_performance.cs" />
-    <Compile Include="Performance\NServiceBusPerformanceTest.cs" />
-    <Compile Include="Performance\Receive\Receive_performance.cs" />
-    <Compile Include="Performance\Sagas\Saga_performance.cs" />
+    <Compile Include="PipelineExtension\SkipDeserialization.cs" />
     <Compile Include="PubSub\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_only_local_messagehandlers.cs" />
     <Compile Include="PubSub\When_publishing_an_event_with_the_subscriber_scaled_out.cs" />
-    <Compile Include="PubSub\PubSubAcceptanceTest.cs" />
+    <Compile Include="PubSub\Subscriptions.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_base_event_from_different_publishers.cs" />
     <Compile Include="PubSub\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="PubSub\When_publishing_an_event_using_a_broker_transport_with_centralized_routing.cs" />
@@ -211,9 +214,9 @@
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\NServiceBus\NServiceBus.csproj">
+    <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
     <ProjectReference Include="..\NServiceBus.AcceptanceTesting\NServiceBus.AcceptanceTesting.csproj">
       <Project>{758357f6-cd31-4337-80c4-ba377fc257af}</Project>

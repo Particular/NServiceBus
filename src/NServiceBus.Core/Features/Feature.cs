@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Settings;
+    using Utils;
 
     /// <summary>
     /// Used to control the various features supported by the framework.
@@ -152,6 +153,20 @@
             });
 
             return result;
+        }
+
+        public string Version
+        {
+            get
+            {
+                return FileVersionRetriever.GetFileVersion(GetType());
+            }
+        }
+
+        public override string ToString()
+        {
+            
+            return string.Format("{0} [{1}]",Name, Version);
         }
 
         protected bool Equals(Feature other)

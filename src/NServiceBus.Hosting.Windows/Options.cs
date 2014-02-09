@@ -812,10 +812,9 @@ namespace NDesk.Options
             if (!GetOptionParts(argument, out f, out n, out s, out v))
                 return false;
 
-            Option p;
             if (Contains(n))
             {
-                p = this[n];
+                var p = this[n];
                 c.OptionName = f + n;
                 c.Option = p;
                 switch (p.OptionValueType)
@@ -864,12 +863,11 @@ namespace NDesk.Options
 
         private bool ParseBool(string option, string n, OptionContext c)
         {
-            Option p;
             string rn;
             if (n.Length >= 1 && (n[n.Length - 1] == '+' || n[n.Length - 1] == '-') &&
                     Contains((rn = n.Substring(0, n.Length - 1))))
             {
-                p = this[rn];
+                var p = this[rn];
                 var v = n[n.Length - 1] == '+' ? option : null;
                 c.OptionName = option;
                 c.Option = p;
@@ -978,7 +976,7 @@ namespace NDesk.Options
                     i < names.Length; i = GetNextOptionIndex(names, i + 1))
             {
                 Write(o, ref written, ", ");
-                Write(o, ref written, names[i].Length == 1 ? "-" : "-");
+                Write(o, ref written, names[i].Length == 1 ? "-" : "--");
                 Write(o, ref written, names[i]);
             }
 

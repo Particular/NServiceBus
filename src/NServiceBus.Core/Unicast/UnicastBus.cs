@@ -5,9 +5,9 @@ namespace NServiceBus.Unicast
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Principal;
-    using System.Text;
     using System.Threading.Tasks;
     using Audit;
+    using Hosting;
     using Licensing;
     using Logging;
     using MessageInterfaces;
@@ -29,9 +29,32 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-
-
         bool messageHandlingDisabled;
+
+        HostInformation hostInformation = HostInformation.CreateDefault();
+
+        // HACK: Statics are bad, remove
+        internal static Guid HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor;
+
+        public UnicastBus()
+        {
+            HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = hostInformation.HostId;
+        }
+
+        public HostInformation HostInformation
+        {
+            get { return hostInformation; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException();
+                }
+
+                HostIdForTransportMessageBecauseEverythingIsStaticsInTheConstructor = value.HostId;
+                hostInformation = value;
+            }
+        }
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -57,11 +80,6 @@ namespace NServiceBus.Unicast
             set
             {
                 transport = value;
-
-                transport.StartedMessageProcessing += TransportStartedMessageProcessing;
-                transport.TransportMessageReceived += TransportMessageReceived;
-                transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
-                transport.FailedMessageProcessing += TransportFailedMessageProcessing;
             }
             get { return transport; }
         }
@@ -756,14 +774,16 @@ namespace NServiceBus.Unicast
             LicenseManager.PromptUserForLicenseIfTrialHasExpired();
 
             if (started)
+            {
                 return this;
+            }
 
             lock (startLocker)
             {
                 if (started)
+                {
                     return this;
-
-                starting = true;
+                }
 
                 Address.PreventChanges();
 
@@ -774,9 +794,12 @@ namespace NServiceBus.Unicast
 
                 AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-
                 if (!DoNotStartTransport)
                 {
+                    transport.StartedMessageProcessing += TransportStartedMessageProcessing;
+                    transport.TransportMessageReceived += TransportMessageReceived;
+                    transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
+                    transport.FailedMessageProcessing += TransportFailedMessageProcessing;
                     transport.Start(InputAddress);
                 }
 
@@ -799,24 +822,24 @@ namespace NServiceBus.Unicast
 
                 try
                 {
-                    Log.DebugFormat("Starting {0}.", name);
                     toRun.Start();
                     Log.DebugFormat("Started {0}.", name);
                 }
                 catch (Exception ex)
                 {
-                    Log.ErrorFormat("{0} could not be started.", ex, name);
-                    //don't rethrow so that thread doesn't die before log message is shown.
+                    Configure.Instance.RaiseCriticalError(String.Format("{0} could not be started.", name), ex);
                 }
             }, TaskCreationOptions.LongRunning)).ToArray();
 
             return this;
         }
 
-        private void ExecuteIWantToRunAtStartupStopMethods()
+        void ExecuteIWantToRunAtStartupStopMethods()
         {
             if (thingsToRunAtStartup == null)
+            {
                 return;
+            }
 
             //Ensure Start has been called on all thingsToRunAtStartup
             Log.DebugFormat("Ensuring IWantToRunAtStartup.Start has been called.");
@@ -826,50 +849,32 @@ namespace NServiceBus.Unicast
             var mapTaskToThingsToRunAtStartup = new ConcurrentDictionary<int, string>();
 
             var tasks = thingsToRunAtStartup.Select(toRun =>
+            {
+                var name = toRun.GetType().AssemblyQualifiedName;
+
+                var task = new Task(() =>
                 {
-                    var name = toRun.GetType().AssemblyQualifiedName;
+                    try
+                    {
+                        toRun.Stop();
+                        Log.DebugFormat("Stopped {0}.", name);
+                    }
+                    catch (Exception ex)
+                    {
+                        Configure.Instance.RaiseCriticalError(String.Format("{0} could not be stopped.", name), ex);
+                    }
+                }, TaskCreationOptions.LongRunning);
 
-                    var task = new Task(() =>
-                        {
-                            try
-                            {
-                                Log.DebugFormat("Stopping {0}.", name);
-                                toRun.Stop();
-                                Log.DebugFormat("Stopped {0}.", name);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.ErrorFormat("{0} could not be stopped.", ex, name);
-                                // no need to rethrow, closing the process anyway
-                            }
-                        }, TaskCreationOptions.LongRunning);
+                mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
 
-                    mapTaskToThingsToRunAtStartup.TryAdd(task.Id, name);
+                task.Start();
 
-                    task.Start();
+                return task;
 
-                    return task;
+            }).ToArray();
 
-                }).ToArray();
-
-            // Wait for a period here otherwise the process may be killed too early!
-            var timeout = TimeSpan.FromSeconds(20);
-            if (Task.WaitAll(tasks, timeout))
-            {
-                return;
-            }
-
-            Log.WarnFormat("Not all IWantToRunWhenBusStartsAndStops.Stop methods were successfully called within {0}secs", timeout.Seconds);
-
-            var sb = new StringBuilder();
-            foreach (var task in tasks.Where(task => !task.IsCompleted))
-            {
-                sb.AppendLine(mapTaskToThingsToRunAtStartup[task.Id]);
-            }
-
-            Log.WarnFormat("List of tasks that did not finish within {0}secs:\n{1}", timeout.Seconds, sb.ToString());
+            Task.WaitAll(tasks);
         }
-
 
         /// <summary>
         /// Allow disabling the unicast bus.
@@ -955,11 +960,14 @@ namespace NServiceBus.Unicast
 
             Log.Info("Initiating shutdown.");
 
-            transport.Stop();
-            transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-            transport.TransportMessageReceived -= TransportMessageReceived;
-            transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-            transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+            if (!DoNotStartTransport)
+            {
+                transport.Stop();
+                transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+                transport.TransportMessageReceived -= TransportMessageReceived;
+                transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+                transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+            }
 
             ExecuteIWantToRunAtStartupStopMethods();
 
@@ -990,6 +998,7 @@ namespace NServiceBus.Unicast
         {
             Raise(CreateInstance(messageConstructor));
         }
+
         public void Raise<T>(T @event)
         {
             var messageType = typeof(T);
@@ -998,7 +1007,18 @@ namespace NServiceBus.Unicast
 
             var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
 
-            PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+            if (PipelineFactory.CurrentContext is RootContext)
+            {
+                using (var childBuilder = Builder.CreateChildBuilder())
+                {
+                    PipelineFactory.CurrentContext.Set(childBuilder);
+                    PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
+                }
+            }
+            else
+            {
+                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);                
+            }
         }
 
         [ObsoleteEx(RemoveInVersion = "5.0", Message = "In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
@@ -1014,13 +1034,21 @@ namespace NServiceBus.Unicast
             registry.RegisterMessageType(messageType);
         }
 
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        void AddBackwardsCompatibilityHeaders(TransportMessage incomingMessage)
+        {
+            incomingMessage.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
+        }
+
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
             var incomingMessage = e.Message;
 
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
-            incomingMessage.Headers[Headers.ProcessingMachine] = RuntimeEnvironment.MachineName;
+            incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
+            incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
+            AddBackwardsCompatibilityHeaders(incomingMessage);
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 
 #pragma warning disable 0618
@@ -1096,15 +1124,6 @@ namespace NServiceBus.Unicast
             return destination;
         }
 
-        /// <summary>
-        /// Throws an exception if the bus hasn't begun the startup process.
-        /// </summary>
-        protected void AssertBusIsStarted()
-        {
-            if (starting == false)
-                throw new InvalidOperationException("The bus is not started yet, call Bus.Start() before attempting to use the bus.");
-        }
-
         Address inputAddress;
 
 
@@ -1137,7 +1156,6 @@ namespace NServiceBus.Unicast
         }
 
         volatile bool started;
-        volatile bool starting;
         object startLocker = new object();
 
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
@@ -1156,11 +1174,11 @@ namespace NServiceBus.Unicast
 
 
         //we need to not inject since at least Autofac doesn't seem to inject internal properties
-        PipelineFactory PipelineFactory
+        PipelineExecutor PipelineFactory
         {
             get
             {
-                return Builder.Build<PipelineFactory>();
+                return Builder.Build<PipelineExecutor>();
             }
         }
 

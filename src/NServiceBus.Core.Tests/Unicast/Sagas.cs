@@ -88,6 +88,27 @@
         }
 
 
+        [Test]
+        public void Should_enrich_the_audit_data_with_the_saga_type_and_id()
+        {
+            var sagaId = Guid.NewGuid();
+            var correlationId = Guid.NewGuid();
+
+            RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId });
+
+            ReceiveMessage(new MessageThatHitsExistingSaga { PropertyThatCorrelatesToSaga = correlationId });
+
+            var sagaAuditTrail = AuditedMessage.Headers[Headers.InvokedSagas];
+
+            var sagas = sagaAuditTrail.Split(';');
+
+            var sagaInfo = sagas.Single();
+
+            Assert.AreEqual(typeof(MySaga).FullName,sagaInfo.Split(':').First());
+            Assert.AreEqual(sagaId.ToString(), sagaInfo.Split(':').Last());
+        }
+
+
         class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
         {
             public void Handle(MessageThatHitsExistingSaga message)
@@ -422,6 +443,47 @@
         class MessageToProcess : IMessage { }
 
         class MessageSentFromSaga : IMessage{ }
+
+    }
+
+
+    [TestFixture]
+    public class When_using_in_memory_raise_from_non_message_handlers : with_sagas
+    {
+        [Test]
+        public void Should_start_the_saga()
+        {
+            RegisterMessageType<MessageSentFromSaga>();
+            RegisterSaga<MySaga>();
+
+            bus.InMemory.Raise(new MessageToProcess());
+
+            var sagaData = (MySagaData)persister.CurrentSagaEntities.First().Value.SagaEntity;
+
+            messageSender.AssertWasCalled(x =>
+                x.Send(Arg<TransportMessage>.Matches(m =>
+                    m.Headers[Headers.OriginatingSagaId] == sagaData.Id.ToString() && //id of the current saga
+                        //todo: should we really us the AssemblyQualifiedName here? (what if users move sagas btw assemblies
+                    m.Headers[Headers.OriginatingSagaType] == typeof(MySaga).AssemblyQualifiedName
+                    ), Arg<Address>.Is.Anything));
+        }
+
+
+        class MySaga : Saga<MySagaData>, IAmStartedByMessages<MessageToProcess>
+        {
+            public void Handle(MessageToProcess message)
+            {
+                Bus.Send(new MessageSentFromSaga());
+            }
+        }
+
+        class MySagaData : ContainSagaData
+        {
+        }
+
+        class MessageToProcess : IMessage { }
+
+        class MessageSentFromSaga : IMessage { }
 
     }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
     using IdGeneration;
     using Logging;
@@ -13,7 +14,10 @@
     using Unicast;
     using Unicast.Messages;
 
-    class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
+
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public class SagaPersistenceBehavior : IBehavior<HandlerInvocationContext>
     {
         public ISagaPersister SagaPersister { get; set; }
 
@@ -29,16 +33,11 @@
             }
             
             currentContext = context;
-            physicalMessage = context.PhysicalMessage;
-
-            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
-            if (physicalMessage.MessageIntent == MessageIntentEnum.Publish)
-            {
-                physicalMessage.Headers.Remove(Headers.SagaId);
-                physicalMessage.Headers.Remove(Headers.SagaType);
-            }
 
             var sagaInstanceState = new ActiveSagaInstance(saga);
+
+            //so that other behaviors can access the saga
+            context.Set(sagaInstanceState);
 
             var loadedEntity = TryLoadSagaEntity(saga, context.LogicalMessage);
 
@@ -66,8 +65,6 @@
                 context.MessageHandler.Invocation = HandlerInvocationCache.InvokeTimeout;
             }
 
-            //so that other behaviors can access the saga
-            context.Set(sagaInstanceState);
 
             next();
 
@@ -105,7 +102,7 @@
 
         void InvokeSagaNotFoundHandlers()
         {
-            logger.WarnFormat("Could not find a saga for the message type {0} with id {1}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName, physicalMessage.Id);
+            logger.WarnFormat("Could not find a saga for the message type {0}. Going to invoke SagaNotFoundHandlers.", currentContext.LogicalMessage.MessageType.FullName);
 
             foreach (var handler in currentContext.Builder.BuildAll<IHandleSagaNotFound>())
             {
@@ -161,7 +158,8 @@
         {
             string sagaId;
 
-            physicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
+
+            currentContext.LogicalMessage.Headers.TryGetValue(Headers.SagaId, out sagaId);
 
             if (sagaEntityType == null || string.IsNullOrEmpty(sagaId))
             {
@@ -193,18 +191,22 @@
 
             sagaEntity.Id = CombGuid.Generate();
 
-            if (physicalMessage.ReplyToAddress != null)
-            {
-                sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
-            }
+            TransportMessage physicalMessage;
 
-            sagaEntity.OriginalMessageId = physicalMessage.Id;
+            if (currentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out physicalMessage))
+            {
+                sagaEntity.OriginalMessageId = physicalMessage.Id;
+
+                if (physicalMessage.ReplyToAddress != null)
+                {
+                    sagaEntity.Originator = physicalMessage.ReplyToAddress.ToString();
+                }
+            }
 
             return sagaEntity;
         }
 
         HandlerInvocationContext currentContext;
-        TransportMessage physicalMessage;
 
         readonly ILog logger = LogManager.GetLogger(typeof(SagaPersistenceBehavior));
     }

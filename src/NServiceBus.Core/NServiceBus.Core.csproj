@@ -14,6 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <FodyPath>..\packages\Fody</FodyPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -99,6 +100,7 @@
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Config\WindowsInstallerRunner.cs" />
     <Compile Include="Distributor\Config\DistributorInitializer.cs" />
     <Compile Include="Distributor\Config\WorkerInitializer.cs" />
     <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
@@ -115,10 +117,16 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
+    <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
+    <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
+    <Compile Include="Gateway\Sending\CallType.cs" />
+    <Compile Include="Gateway\GatewayTransaction.cs" />
+    <Compile Include="GitFlowVersion.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
+    <Compile Include="Hosting\HostInformation.cs" />
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
@@ -127,7 +135,6 @@
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\LicenseDeserializer.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
-    <Compile Include="Licensing\NServiceBusVersion.cs" />
     <Compile Include="Licensing\SignedXmlVerifier.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\TimestampReader.cs" />
@@ -148,6 +155,13 @@
     <Compile Include="MessageMutator\ApplyIncomingMessageMutatorsBehavior.cs" />
     <Compile Include="MessageMutator\ApplyIncomingTransportMessageMutatorsBehavior.cs" />
     <Compile Include="Audit\AuditBehavior.cs" />
+    <Compile Include="Pipeline\BehaviorList.cs" />
+    <Compile Include="Pipeline\IPipelineOverride.cs" />
+    <Compile Include="Pipeline\PipelineBuilder.cs" />
+    <Compile Include="Pipeline\PipelineOverride.cs" />
+    <Compile Include="Pipeline\PipelineOverrideConfigurer.cs" />
+    <Compile Include="Sagas\AuditInvokedSagaBehavior.cs" />
+    <Compile Include="Sagas\RemoveIncomingHeadersBehavior.cs" />
     <Compile Include="Sagas\SagaSendBehavior.cs" />
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="TypesToBeRemovedInVersion5.cs" />
@@ -171,7 +185,7 @@
     <Compile Include="MessageMutator\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\ReceivePhysicalMessageContext.cs" />
-    <Compile Include="Pipeline\PipelineFactory.cs" />
+    <Compile Include="Pipeline\PipelineExecutor.cs" />
     <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\SendLogicalMessageContext.cs" />
@@ -584,6 +598,7 @@
     <Compile Include="CircuitBreakers\CircuitBreaker.cs" />
     <Compile Include="Utils\BackOff.cs" />
     <Compile Include="CircuitBreakers\RepeatedFailuresOverTimeCircuitBreaker.cs" />
+    <Compile Include="Utils\DeterministicGuid.cs" />
     <Compile Include="Utils\FileVersionRetriever.cs" />
     <Compile Include="Utils\Reflection\DelegateFactory.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
@@ -624,7 +639,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus\NServiceBus.csproj">
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
-      <Name>NServiceBus %28NServiceBus\NServiceBus%29</Name>
+      <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

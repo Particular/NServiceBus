@@ -104,9 +104,16 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public static string GetFullPathWithoutPrefix(Address address)
         {
-            return address.Machine + MsmqUtilities.PRIVATE + address.Queue;
+            var queueName = address.Queue;
+            var msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + queueName;
+
+            if (msmqTotalQueueName.Length >= 114) //Setpermission is limiting us here, docs say it should be 380 + 124
+            {
+                msmqTotalQueueName = address.Machine + MsmqUtilities.PRIVATE + Utils.DeterministicGuid.Create(queueName);
+            }
+
+            return msmqTotalQueueName;
         }
-        
     }
 
 }

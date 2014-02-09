@@ -14,8 +14,8 @@
         [Test]
         public void Should_be_moved_to_slr()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<SLREndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeRetried())))
+            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
+                    .WithEndpoint<SLREndpoint>(b => b.Given((bus, context) => bus.SendLocal(new MessageToBeRetried { Id = context.Id })))
                     .Done(c => c.NumberOfTimesInvoked >= 2)
                     .Repeat(r => r.For(Transports.Default))
                     .Should(context =>
@@ -28,6 +28,8 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
+
             public int NumberOfTimesInvoked { get; set; }
 
             public DateTime TimeOfFirstAttempt { get; set; }
@@ -62,6 +64,8 @@
 
                 public void Handle(MessageToBeRetried message)
                 {
+                    if (message.Id != Context.Id) return; // ignore messages from previous test runs
+
                     Context.NumberOfTimesInvoked++;
 
                     if (Context.NumberOfTimesInvoked == 1)
@@ -82,6 +86,7 @@
         [Serializable]
         public class MessageToBeRetried : IMessage
         {
+            public Guid Id { get; set; }
         }
     }
 

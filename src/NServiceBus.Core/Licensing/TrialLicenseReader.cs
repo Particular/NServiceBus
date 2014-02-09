@@ -15,7 +15,7 @@ namespace NServiceBus.Licensing
             //If first time run, configure expire date
             try
             {
-                var subKeyPath = String.Format(@"SOFTWARE\NServiceBus\{0}", NServiceBusVersion.MajorAndMinor);
+                var subKeyPath = String.Format(@"SOFTWARE\NServiceBus\{0}", GitFlowVersion.MajorMinor);
                 using (var registryKey = Registry.CurrentUser.CreateSubKey(subKeyPath))
                 {
                     //CreateSubKey does not return null http://stackoverflow.com/questions/19849870/under-what-circumstances-will-registrykey-createsubkeystring-return-null
@@ -27,7 +27,7 @@ namespace NServiceBus.Licensing
                         trialStartDateString = trialStart.ToString("yyyy-MM-dd");
                         registryKey.SetValue("TrialStart", trialStartDateString, RegistryValueKind.String);
 
-                        Logger.DebugFormat("First time running NServiceBus v{0}, setting trial license start.", NServiceBusVersion.MajorAndMinor);
+                        Logger.DebugFormat("First time running NServiceBus v{0}, setting trial license start.", GitFlowVersion.MajorMinor);
                         return trialStart.AddDays(TRIAL_DAYS);
                     }
                     else

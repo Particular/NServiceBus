@@ -55,6 +55,12 @@
         public const string SagaId = "NServiceBus.SagaId";
 
         /// <summary>
+        /// Header containing a list of saga types and ids that this message invoked, the format is "{sagatype}={sagaid};{sagatype}={sagaid}"
+        /// This header is considered an applicative header.
+        /// </summary>
+        public const string InvokedSagas = "NServiceBus.InvokedSagas";
+
+        /// <summary>
         /// Header telling the timeout manager to clear previous timeouts
         /// This header is considered an applicative header.
         /// </summary>
@@ -187,17 +193,34 @@
         /// <summary>
         /// Machine name of the endpoint where the given message originated
         /// </summary>
+        [ObsoleteEx(Message = "The OriginatingMachine header is replaced by the OriginatingHostId to be more environment agnostic", RemoveInVersion = "5.0")]
         public const string OriginatingMachine = "NServiceBus.OriginatingMachine";
 
         /// <summary>
-        /// Name of the endpoint where the given message was processed(success or failure)
+        /// HostId of the endpoint where the given message originated
+        /// </summary>
+        public const string OriginatingHostId = "$.diagnostics.originating.hostid";
+
+        /// <summary>
+        /// Name of the endpoint where the given message was processed (success or failure)
         /// </summary>
         public const string ProcessingEndpoint = "NServiceBus.ProcessingEndpoint";
 
         /// <summary>
-        /// Machine name of the endpoint where the given message was processed(success or failure)
+        /// Machine name of the endpoint where the given message was processed (success or failure)
         /// </summary>
+        [ObsoleteEx(Message = "The ProcessingMachine header is replaced by the HostDisplayName to be more environment agnostic", RemoveInVersion = "5.0")]
         public const string ProcessingMachine = "NServiceBus.ProcessingMachine";
+
+        /// <summary>
+        /// The display name of the host where the given message was processed (success or failure), eg the MachineName.
+        /// </summary>
+        public const string HostDisplayName = "$.diagnostics.hostdisplayname";
+
+        /// <summary>
+        /// HostId of the endpoint where the given message was processed (success or failure)
+        /// </summary>
+        public const string HostId = "$.diagnostics.hostid";
 
         /// <summary>
         /// The original reply to address for successfully processed messages

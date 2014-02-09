@@ -6,8 +6,9 @@ namespace NServiceBus.AcceptanceTests
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
     /// </summary>
-    [TestFixture]    
-    public abstract class NServiceBusAcceptanceTest
+    [TestFixture]
+// ReSharper disable once PartialTypeWithSinglePart
+    public abstract partial class NServiceBusAcceptanceTest
     {
         [SetUp]
         public void SetUp()
@@ -16,7 +17,8 @@ namespace NServiceBus.AcceptanceTests
                 {
                     var baseNs = typeof (NServiceBusAcceptanceTest).Namespace;
                     var testName = GetType().Name;
-                    return t.FullName.Replace(baseNs + ".", "").Replace(testName + "+", "");
+                    return t.FullName.Replace(baseNs + ".", "").Replace(testName + "+", "")
+                            + "." + System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName).Replace("_", "");
                 };
 
             Conventions.DefaultRunDescriptor = () => ScenarioDescriptors.Transports.Default;

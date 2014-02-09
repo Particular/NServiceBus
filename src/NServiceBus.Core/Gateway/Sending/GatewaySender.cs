@@ -3,7 +3,6 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Config;
     using Features;
     using HeaderManagement;
     using Notifications;
@@ -71,11 +70,8 @@ namespace NServiceBus.Gateway.Sending
         {
             return transport =>
             {
-                var configSection = Configure.ConfigurationSource.GetConfiguration<GatewayConfig>();
-                if (configSection != null && configSection.TransactionTimeout > transport.TransactionSettings.TransactionTimeout)
-                {
-                    transport.TransactionSettings.TransactionTimeout = configSection.TransactionTimeout;
-                }
+                transport.TransactionSettings.TransactionTimeout =
+                    GatewayTransaction.Timeout(transport.TransactionSettings.TransactionTimeout);
             };
         }
 

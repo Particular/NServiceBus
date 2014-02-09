@@ -55,6 +55,86 @@ namespace NServiceBus.Testing.Tests
         }
 
         [Test]
+        public void ShouldAssertDeferWasCalledWithTimeSpan()
+        {
+            var timespan = TimeSpan.FromMinutes(10);
+            Test.Handler<DeferingTimeSpanHandler>()
+                .WithExternalDependencies(h => h.Defer = timespan)
+                .ExpectDefer<TestMessage>((m, t) => t == timespan)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldAssertDeferWasCalledWithDateTime()
+        {
+            var datetime = DateTime.Now;
+            Test.Handler<DeferingDateTimeHandler>()
+                .WithExternalDependencies(h => h.Defer = datetime)
+                .ExpectDefer<TestMessage>((m, t) => t == datetime)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailAssertingDeferWasCalledWithTimeSpan()
+        {
+            var timespan = TimeSpan.FromMinutes(10);
+            Test.Handler<EmptyHandler>()
+                .ExpectDefer<TestMessage>((m, t) => t == timespan)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailAssertingDeferWasCalledWithDateTime()
+        {
+            var datetime = DateTime.Now;
+            Test.Handler<EmptyHandler>()
+                .ExpectDefer<TestMessage>((m, t) => t == datetime)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldAssertDeferWasNotCalledWithTimeSpan()
+        {
+            var timespan = TimeSpan.FromMinutes(10);
+            Test.Handler<EmptyHandler>()
+                .ExpectNotDefer<TestMessage>((m, t) => t == timespan)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        public void ShouldAssertDeferWasNotCalledWithDateTime()
+        {
+            var datetime = DateTime.Now;
+            Test.Handler<EmptyHandler>()
+                .ExpectNotDefer<TestMessage>((m, t) => t == datetime)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailAssertingDeferWasNotCalledWithTimeSpan()
+        {
+            var timespan = TimeSpan.FromMinutes(10);
+            Test.Handler<DeferingTimeSpanHandler>()
+                .WithExternalDependencies(h => h.Defer = timespan)
+                .ExpectNotDefer<TestMessage>((m, t) => t == timespan)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
+        [ExpectedException]
+        public void ShouldFailAssertingDeferWasNotCalledWithDateTime()
+        {
+            var datetime = DateTime.Now;
+            Test.Handler<DeferingDateTimeHandler>()
+                .WithExternalDependencies(h => h.Defer = datetime)
+                .ExpectNotDefer<TestMessage>((m, t) => t == datetime)
+                .OnMessage<TestMessage>();
+        }
+
+        [Test]
         [ExpectedException]
         public void ShouldFailAssertingHandleCurrentMessageLaterWasCalled()
         {
@@ -348,6 +428,28 @@ namespace NServiceBus.Testing.Tests
 
         public class Incoming : IMessage
         {
+        }
+
+        public class DeferingTimeSpanHandler : IHandleMessages<TestMessage>
+        {
+            public IBus Bus { get; set; }
+            public TimeSpan Defer { get; set; }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.Defer(Defer, message);
+            }
+        }
+
+        public class DeferingDateTimeHandler : IHandleMessages<TestMessage>
+        {
+            public IBus Bus { get; set; }
+            public DateTime Defer { get; set; }
+
+            public void Handle(TestMessage message)
+            {
+                Bus.Defer(Defer, message);
+            }
         }
 
         public class PublishingManyHandler : IHandleMessages<Incoming>

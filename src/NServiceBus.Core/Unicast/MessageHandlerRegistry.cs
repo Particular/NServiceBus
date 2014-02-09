@@ -47,14 +47,15 @@
 
             foreach (var messageType in messageTypesThisHandlerHandles)
             {
-                if (!handlerList.ContainsKey(handlerType))
+                List<Type> typeList;
+                if (!handlerList.TryGetValue(handlerType, out typeList))
                 {
-                    handlerList.Add(handlerType, new List<Type>());
+                    handlerList[handlerType] = typeList = new List<Type>();
                 }
 
-                if (!(handlerList[handlerType].Contains(messageType)))
+                if (!typeList.Contains(messageType))
                 {
-                    handlerList[handlerType].Add(messageType);
+                    typeList.Add(messageType);
                     Log.DebugFormat("Associated '{0}' message with '{1}' handler", messageType, handlerType);
                 }
 

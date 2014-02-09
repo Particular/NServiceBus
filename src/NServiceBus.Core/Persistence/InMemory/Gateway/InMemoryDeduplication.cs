@@ -35,7 +35,7 @@
 
         public int DeleteDeliveredMessages(DateTime until)
         {
-            var count = 0;
+            int count;
             lock (persistence)
             {
                 var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();

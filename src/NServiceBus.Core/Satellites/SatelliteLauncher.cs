@@ -35,7 +35,7 @@ namespace NServiceBus.Satellites
                 {
                     var satellite = satellitesList[index];
 
-                    Logger.DebugFormat("Starting {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
+                    Logger.DebugFormat("Starting {1}/{2} {0} satellite", satellite.GetType().AssemblyQualifiedName,
                                        index + 1, satellitesList.Count);
 
                     var satelliteContext = new SatelliteContext
@@ -60,7 +60,7 @@ namespace NServiceBus.Satellites
 
                     satelliteContexts[index] = satelliteContext;
 
-                    Logger.InfoFormat("Started {1}/{2} '{0}' satellite", satellite.GetType().AssemblyQualifiedName,
+                    Logger.InfoFormat("Started {1}/{2} {0} satellite", satellite.GetType().AssemblyQualifiedName,
                                        index + 1, satellitesList.Count);
 
                 });
@@ -72,7 +72,7 @@ namespace NServiceBus.Satellites
         {
             Parallel.ForEach(satellites, (context, state, index) =>
                 {
-                    Logger.DebugFormat("Stopping {1}/{2} '{0}' satellite", context.Instance.GetType().AssemblyQualifiedName,
+                    Logger.DebugFormat("Stopping {1}/{2} {0} satellite", context.Instance.GetType().AssemblyQualifiedName,
                                        index + 1, satellites.Count);
 
                     if (context.Transport != null)
@@ -82,7 +82,7 @@ namespace NServiceBus.Satellites
 
                     context.Instance.Stop();
 
-                    Logger.InfoFormat("Stopped {1}/{2} '{0}' satellite", context.Instance.GetType().AssemblyQualifiedName,
+                    Logger.InfoFormat("Stopped {1}/{2} {0} satellite", context.Instance.GetType().AssemblyQualifiedName,
                                        index + 1, satellites.Count);
                 });
         }

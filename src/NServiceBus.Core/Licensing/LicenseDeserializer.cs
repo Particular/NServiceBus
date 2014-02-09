@@ -67,8 +67,8 @@
             return license;
         }
 
-        const int MaxWorkerNodes = int.MaxValue;
-        const int MaxThroughputPerSecond = 0;
+        internal const int MaxWorkerNodes = int.MaxValue;
+        internal const int MaxThroughputPerSecond = 0;
         const int MinNumberOfWorkerNodes = 2;
         const int MinMessagePerSecondThroughput = 1;
     }

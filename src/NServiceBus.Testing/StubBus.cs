@@ -31,11 +31,11 @@
 
         public void Publish<T>(T message)
         {
-            Publish<T>(new []{message} );
+            Publish(new []{message} );
         }
         public void Publish<T>()
         {
-            Publish<T>(new T[0]);
+            Publish(new T[0]);
         }
 
         public void Publish<T>(params T[] messages)

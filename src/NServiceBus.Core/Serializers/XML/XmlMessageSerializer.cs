@@ -32,10 +32,10 @@ namespace NServiceBus.Serializers.XML
         public string Namespace
         {
             get { return nameSpace; }
-            set { nameSpace = TrimPotentialTralingForwardSlashes(value); }
+            set { nameSpace = TrimPotentialTrailingForwardSlashes(value); }
         }
 
-        string TrimPotentialTralingForwardSlashes(string value)
+        string TrimPotentialTrailingForwardSlashes(string value)
         {
             if (value == null)
             {
@@ -779,9 +779,10 @@ namespace NServiceBus.Serializers.XML
                     typeToCreate = typesToCreateForArrays[type];
                 }
 
-                if (typesToCreateForEnumerables.ContainsKey(type)) //handle IEnumerable<Something>
+                Type typeToCreateForEnumerables;
+                if (typesToCreateForEnumerables.TryGetValue(type, out typeToCreateForEnumerables)) //handle IEnumerable<Something>
                 {
-                    typeToCreate = typesToCreateForEnumerables[type];
+                    typeToCreate = typeToCreateForEnumerables;
                 }
 
                 if (typeof(IList).IsAssignableFrom(typeToCreate))
@@ -907,12 +908,13 @@ namespace NServiceBus.Serializers.XML
                 return;
             }
 
-            if (!typeToProperties.ContainsKey(t))
+            IEnumerable<PropertyInfo> properties;
+            if (!typeToProperties.TryGetValue(t, out properties))
             {
                 throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
             }
 
-            foreach (var prop in typeToProperties[t])
+            foreach (var prop in properties)
             {
                 if (IsIndexedProperty(prop))
                 {

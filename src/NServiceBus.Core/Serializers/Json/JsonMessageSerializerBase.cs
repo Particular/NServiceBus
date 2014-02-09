@@ -80,6 +80,7 @@ namespace NServiceBus.Serializers.Json
 
             var jsonSerializer = JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = new MessageContractResolver(messageMapper);
+            jsonSerializer.Binder = new MessageSerializationBinder(messageMapper, messageTypes);
 
             var reader = CreateJsonReader(stream);
             reader.Read();

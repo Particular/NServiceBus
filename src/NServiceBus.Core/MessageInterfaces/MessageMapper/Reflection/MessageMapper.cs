@@ -363,9 +363,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 name = typeName.Substring(0, typeName.Length - SUFFIX.Length);
             }
 
-            if (nameToType.ContainsKey(name))
+            Type type;
+            if (nameToType.TryGetValue(name, out type))
             {
-                return nameToType[name];
+                return type;
             }
 
             return Type.GetType(name);
@@ -409,7 +410,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
             }
 
-            ConstructorInfo constructor = null;
+            ConstructorInfo constructor;
             typeToConstructor.TryGetValue(mapped, out constructor);
             if (constructor != null)
             {

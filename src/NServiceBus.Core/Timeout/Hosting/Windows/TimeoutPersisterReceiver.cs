@@ -34,6 +34,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         public void Stop()
         {
+            TimeoutManager.TimeoutPushed -= TimeoutsManagerOnTimeoutPushed;
             tokenSource.Cancel();
             resetEvent.WaitOne();
         }
@@ -146,14 +147,14 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(TimeoutPersisterReceiver));
 
-        readonly RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
+        RepeatedFailuresOverTimeCircuitBreaker circuitBreaker =
             new RepeatedFailuresOverTimeCircuitBreaker("TimeoutStorageConnectivity", TimeSpan.FromMinutes(2),
                 ex =>
                     Configure.Instance.RaiseCriticalError(
                         "Repeated failures when fetching timeouts from storage, endpoint will be terminated.", ex));
 
         readonly object lockObject = new object();
-        readonly ManualResetEvent resetEvent = new ManualResetEvent(true);
+        ManualResetEvent resetEvent = new ManualResetEvent(true);
         DateTime nextRetrieval = DateTime.UtcNow;
         volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;

@@ -80,7 +80,8 @@ namespace NServiceBus
         /// </summary>
         public static bool RunOtherInstallers { private get; set; }
 
-        private static bool installedOthersInstallers;
+        // ReSharper disable once StaticFieldInGenericType
+        static bool installedOthersInstallers;
 
         /// <summary>
         /// Invokes installers for the given environment
@@ -89,17 +90,21 @@ namespace NServiceBus
         {
             Configure.Instance.Initialize();
 
-            if(RunOtherInstallers)            
+            if (RunOtherInstallers)
+            {
                 InstallOtherInstallers();
+            }
         }
 
         /// <summary>
         /// Invokes only 'Something' - other than infrastructure,  installers for the given environment.
         /// </summary>
-        private void InstallOtherInstallers()
+        void InstallOtherInstallers()
         {
             if (installedOthersInstallers)
+            {
                 return;
+            }
 
             Configure.Instance.Builder.BuildAll<INeedToInstallSomething>().ToList()
                 .ForEach(i=>i.Install(identity.Name));

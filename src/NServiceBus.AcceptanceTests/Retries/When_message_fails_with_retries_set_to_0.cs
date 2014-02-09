@@ -11,7 +11,7 @@
     public class When_message_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_retry_the_message()
+        public void Should_not_retry_the_message_using_flr()
         {
             var context = new Context();
 
@@ -21,7 +21,6 @@
                     .Run();
 
             Assert.AreEqual(1, context.NumberOfTimesInvoked,"No FLR should be in use if MaxRetries is set to 0");
-            Assert.AreEqual(Environment.MachineName, context.HeadersOfTheFailedMessage[Headers.ProcessingMachine], "The receiver should attach the machine name as a header");
             Assert.True(context.HeadersOfTheFailedMessage[Headers.ProcessingEndpoint].Contains("RetryEndpoint"), "The receiver should attach its endpoint name as a header");
         }
 

@@ -30,7 +30,9 @@ namespace NServiceBus.Gateway.Sending
 
             var channelSender = channelFactory.GetSender(targetSite.Channel.Type);
 
-            using (var messagePayload = new MemoryStream(message.Body))
+            var bodyToSend = message.Body ?? new byte[0];
+
+            using (var messagePayload = new MemoryStream(bodyToSend))
             {
                 Transmit(channelSender, targetSite, CallType.Submit, headers, messagePayload);
             }
@@ -55,13 +57,11 @@ namespace NServiceBus.Gateway.Sending
             channelSender.Send(targetSite.Channel.Address, headers, data);
         }
 
-        void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite,
-            IDictionary<string, string> headers)
+        void TransmitDataBusProperties(IChannelSender channelSender, Site targetSite, IDictionary<string, string> headers)
         {
             var headersToSend = new Dictionary<string, string>(headers);
 
-            foreach (
-                var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
+            foreach (var headerKey in headers.Keys.Where(headerKey => headerKey.Contains(HeaderMapper.DATABUS_PREFIX)))
             {
                 if (DataBus == null)
                 {

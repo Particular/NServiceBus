@@ -8,53 +8,25 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     [JsonObject(IsReference = true)]
     public class TestSaga : IContainSagaData
     {
-        public virtual Guid Id { get; set; }
-
-        public virtual string Originator { get; set; }
-
-        public virtual string OriginalMessageId { get; set; }
-
-        public virtual RelatedClass RelatedClass { get; set; }
-
-        public virtual IList<OrderLine> OrderLines { get; set; }
-
-        public virtual StatusEnum Status { get; set; }
-
-        public virtual DateTime DateTimeProperty { get; set; }
-
-        public virtual TestComponent TestComponent { get; set; }
-
-        public virtual PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return this.EqualTo(obj, (x, y) => x.Id == y.Id);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public Guid Id { get; set; }
+        public string Originator { get; set; }
+        public string OriginalMessageId { get; set; }
+        public RelatedClass RelatedClass { get; set; }
+        public IList<OrderLine> OrderLines { get; set; }
+        public StatusEnum Status { get; set; }
+        public DateTime DateTimeProperty { get; set; }
+        public TestComponent TestComponent { get; set; }
+        public PolymorphicPropertyBase PolymorphicRelatedProperty { get; set; }
     }
 
     public class PolymorphicProperty : PolymorphicPropertyBase
     {
-        public virtual int SomeInt { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return this.EqualTo(obj, (x, y) => x.Id == y.Id && x.SomeInt == y.SomeInt);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public int SomeInt { get; set; }
     }
 
     public class PolymorphicPropertyBase
     {
-        public virtual Guid Id { get; set; }
+        public Guid Id { get; set; }
     }
 
     public enum StatusEnum
@@ -66,32 +38,17 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SagaPersister
     {
         public string Property { get; set; }
         public string AnotherProperty { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return this.EqualTo(obj, (x, y) =>
-                x.Property == y.Property &&
-                x.AnotherProperty == y.AnotherProperty);
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
     }
 
     public class OrderLine
     {
-        public virtual Guid Id { get; set; }
-
-        public virtual Guid ProductId { get; set; }
-
+        public Guid Id { get; set; }
+        public Guid ProductId { get; set; }
     }
 
     public class RelatedClass
     {
-        public virtual Guid Id { get; set; }
-
-        public virtual TestSaga ParentSaga { get; set; }
+        public Guid Id { get; set; }
+        public TestSaga ParentSaga { get; set; }
     }
 }

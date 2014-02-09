@@ -34,13 +34,13 @@
                     }))
                       
                     .Done(c => c.Subscriber3GotTheEvent)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c => Assert.True(c.Subscriber3GotTheEvent))
                     .Run();
         }
 
         [Test]
-        public void Should_be_delivered_to_allsubscribers()
+        public void Should_be_delivered_to_all_subscribers()
         {
             Scenario.Define<Context>()
                     .WithEndpoint<Publisher>(b =>
@@ -69,7 +69,7 @@
                               context.Subscriber2Subscribed = true;
                       }))
                     .Done(c => c.Subscriber1GotTheEvent && c.Subscriber2GotTheEvent)
-                    .Repeat(r => r.For(Transports.Msmq))
+                    .Repeat(r => r.For(Transports.Default))
                     .Should(c =>
                     {
                         Assert.True(c.Subscriber1GotTheEvent);
