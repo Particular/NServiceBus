@@ -54,6 +54,7 @@
 
 
         [Test]
+        [Explicit]
         public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
             Scenario.Define<SagaContext>()
@@ -82,7 +83,7 @@
                  .Done(c => c.DidSagaComplete)
                  .Repeat(r => r.For(Transports.Default))
                  .Should(c => Assert.True(c.DidSagaComplete))
-                 .Run();
+                 .Run(TimeSpan.FromMinutes(3));
         }
 
         public class SagaContext : ScenarioContext
