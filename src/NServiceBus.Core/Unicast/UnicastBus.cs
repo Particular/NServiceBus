@@ -1043,7 +1043,6 @@ namespace NServiceBus.Unicast
             incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
             incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
-            AddBackwardsCompatibilityHeaders(incomingMessage);
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 
 #pragma warning disable 0618
