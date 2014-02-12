@@ -9,15 +9,15 @@ namespace NServiceBus.Saga
     public class ToSagaExpression<TSaga,TMessage> where TSaga : IContainSagaData
     {
         readonly IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration;
-        readonly Expression<Func<TMessage, object>> messageProperty;
+        readonly Func<TMessage, object> messageFunc;
 
         /// <summary>
         /// Constructs the expression
         /// </summary>
-        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TMessage, object>> messageProperty)
+        public ToSagaExpression(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Func<TMessage, object> messageFunc)
         {
             this.sagaMessageFindingConfiguration = sagaMessageFindingConfiguration;
-            this.messageProperty = messageProperty;
+            this.messageFunc = messageFunc;
         }
 
 
@@ -27,7 +27,7 @@ namespace NServiceBus.Saga
         /// <param name="sagaEntityProperty">The property to map</param>
         public void ToSaga(Expression<Func<TSaga, object>> sagaEntityProperty)
         {
-            sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
+            sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageFunc);
         }
     }
 }

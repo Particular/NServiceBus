@@ -38,7 +38,7 @@ namespace NServiceBus.Saga
 
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
-        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{T,object}},System.Linq.Expressions.Expression{System.Func{TMessage,object}})"/> for each property of each message you want
+        /// Call <see cref="ConfigureMapping{TMessage}(System.Linq.Expressions.Expression{System.Func{T,object}},System.Func{TMessage,object})"/> for each property of each message you want
         /// to use for lookup.
         /// </summary>
         public virtual void ConfigureHowToFindSaga()
@@ -51,12 +51,12 @@ namespace NServiceBus.Saga
         /// which saga entity property in the persistent saga store.
         /// </summary>
         [ObsoleteEx(Message = "Use the more explicit ConfigureMapping<T>.ToSaga<TSaga>(...) instead. For example 'ConfigureMapping<MyMessage>(message => message.MyProp).ToSaga(sagaData => sagaData.MyProp);'.", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Expression<Func<TMessage, object>> messageProperty)
+        protected virtual void ConfigureMapping<TMessage>(Expression<Func<T, object>> sagaEntityProperty, Func<TMessage, object> messageFunc)
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
 
-            SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);
+            SagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageFunc);
         }
 
         /// <summary>
@@ -64,12 +64,12 @@ namespace NServiceBus.Saga
         /// this specifies which message property should be matched to 
         /// which saga entity property in the persistent saga store.
         /// </summary>
-        protected virtual ToSagaExpression<T, TMessage> ConfigureMapping<TMessage>(Expression<Func<TMessage, object>> messageProperty)
+        protected virtual ToSagaExpression<T, TMessage> ConfigureMapping<TMessage>(Func<TMessage, object> messageFunc)
         {
             if (!configuring)
                 throw new InvalidOperationException("Cannot configure mappings outside of 'ConfigureHowToFindSaga'.");
 
-            return new ToSagaExpression<T, TMessage>(SagaMessageFindingConfiguration, messageProperty);
+            return new ToSagaExpression<T, TMessage>(SagaMessageFindingConfiguration, messageFunc);
         }
 
 

@@ -65,21 +65,21 @@
             return sagasWereFound;
         }
 
-        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, PropertyInfo messageProp)
+        internal static void ConfigureHowToFindSagaWithMessage(Type sagaType, PropertyInfo sagaProp, Type messageType, Func<object,object> messageFunc)
         {
-            IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>> messageToProperties;
+            IDictionary<Type, KeyValuePair<PropertyInfo, Func<object, object>>> messageToProperties;
             SagaEntityToMessageToPropertyLookup.TryGetValue(sagaType, out messageToProperties);
 
             if (messageToProperties == null)
             {
-                messageToProperties = new Dictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>();
+                messageToProperties = new Dictionary<Type, KeyValuePair<PropertyInfo, Func<object, object>>>();
                 SagaEntityToMessageToPropertyLookup[sagaType] = messageToProperties;
             }
 
-            messageToProperties[messageType] = new KeyValuePair<PropertyInfo, PropertyInfo>(sagaProp, messageProp);
+            messageToProperties[messageType] = new KeyValuePair<PropertyInfo, Func<object, object>>(sagaProp, messageFunc);
         }
 
-        public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, PropertyInfo>>>();
+        public static readonly IDictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, Func<object, object>>>> SagaEntityToMessageToPropertyLookup = new Dictionary<Type, IDictionary<Type, KeyValuePair<PropertyInfo, Func<object, object>>>>();
 
         void CreateAdditionalFindersAsNecessary()
         {
@@ -100,13 +100,13 @@
             }
         }
 
-        private void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, PropertyInfo messageProperty)
+        private void CreatePropertyFinder(Type sagaEntityType, Type messageType, PropertyInfo sagaProperty, Func<object,object> messageFunc)
         {
             var finderType = typeof(PropertySagaFinder<,>).MakeGenericType(sagaEntityType, messageType);
 
             Configure.Component(finderType, DependencyLifecycle.InstancePerCall)
                 .ConfigureProperty("SagaProperty", sagaProperty)
-                .ConfigureProperty("MessageProperty", messageProperty);
+                .ConfigureProperty("MessageFunc", messageFunc);
 
             ConfigureFinder(finderType);
         }
