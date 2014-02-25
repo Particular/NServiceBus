@@ -14,7 +14,18 @@ namespace NServiceBus.Hosting
         {
             var commandLine = Environment.CommandLine;
 
-            var fullPathToStartingExe = commandLine.Split('"')[1];
+            var commandLineParts = commandLine.Split('"');
+
+            var fullPathToStartingExe = "";
+
+            if (commandLineParts.Length > 1)
+            {
+                fullPathToStartingExe = commandLineParts[1];
+            }
+            else if (commandLineParts.Length == 1)
+            {
+                fullPathToStartingExe = commandLineParts[0];
+            }
 
             var hostId = DeterministicGuid.Create(fullPathToStartingExe, Environment.MachineName);
 
