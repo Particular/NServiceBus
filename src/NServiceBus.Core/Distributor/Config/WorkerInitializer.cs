@@ -24,6 +24,8 @@ namespace NServiceBus.Distributor.Config
             config.Configurer.ConfigureComponent<ReadyMessageSender>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.DistributorControlAddress, distributorControlAddress);
 
+            Address.OverridePublicReturnAddress(distributorControlAddress);
+
             config.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);

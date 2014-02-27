@@ -23,6 +23,8 @@
         public IBuilder Builder { get; set; }
         public ISubscriptionStorage SubscriptionStorage { get; set; }
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); } set { subscriptionAuthorizer = value; } }
+        
+        [ObsoleteEx(TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
         public Address DistributorDataAddress { get; set; }
 
         public void Subscribe(Type eventType, Address publisherAddress)
@@ -34,10 +36,7 @@
 
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Subscribe;
-            if (DistributorDataAddress != null)
-            {
-                subscriptionMessage.ReplyToAddress = DistributorDataAddress;
-            }
+            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
             ThreadPool.QueueUserWorkItem(state =>
                                          SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName));
@@ -54,10 +53,7 @@
             var subscriptionMessage = CreateControlMessage(eventType);
             subscriptionMessage.MessageIntent = MessageIntentEnum.Unsubscribe;
 
-            if (DistributorDataAddress != null)
-            {
-                subscriptionMessage.ReplyToAddress = DistributorDataAddress;
-            }
+            subscriptionMessage.ReplyToAddress = Address.PublicReturnAddress;
 
             MessageSender.Send(subscriptionMessage, publisherAddress);
         }

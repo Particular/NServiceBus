@@ -22,6 +22,8 @@ namespace NServiceBus.Distributor.MSMQ.Config
             Configure.Instance.Configurer.ConfigureComponent<ReadyMessageSender>(DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(p => p.DistributorControlAddress, distributorControlAddress);
 
+            Address.OverridePublicReturnAddress(distributorControlAddress);
+
             Configure.Instance.Configurer.ConfigureComponent<ReturnAddressRewriter>(
                 DependencyLifecycle.SingleInstance)
                 .ConfigureProperty(r => r.DistributorDataAddress, masterNodeAddress);
