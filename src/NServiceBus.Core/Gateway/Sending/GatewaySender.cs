@@ -5,7 +5,6 @@ namespace NServiceBus.Gateway.Sending
     using System.Linq;
     using Features;
     using HeaderManagement;
-    using Mono.CSharp;
     using Notifications;
     using ObjectBuilder;
     using Receiving;

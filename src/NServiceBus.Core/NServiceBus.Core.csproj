@@ -47,9 +47,6 @@
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\packages\RavenDB.Database\lib\net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="Interop.MSMQ">
       <HintPath>..\..\lib\Interop.MSMQ.dll</HintPath>
     </Reference>
