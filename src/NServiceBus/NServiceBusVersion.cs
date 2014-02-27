@@ -6,6 +6,7 @@ namespace NServiceBus
     [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0")]
     public static class NServiceBusVersion
     {
+
         static NServiceBusVersion()
         {
             var assembly = typeof(NServiceBusVersion).Assembly;
@@ -16,5 +17,6 @@ namespace NServiceBus
         }
 
         public static readonly string Version;
+
     }
 }
