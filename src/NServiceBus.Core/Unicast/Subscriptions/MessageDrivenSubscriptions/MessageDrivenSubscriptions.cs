@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
 
     public class MessageDrivenSubscriptions : Feature
@@ -8,7 +9,7 @@
         {
             Configure.Component<FilteringMutator>(DependencyLifecycle.InstancePerCall);
             Configure.Component<SubscriptionPredicatesEvaluator>(DependencyLifecycle.SingleInstance);
-
+            Configure.Component<MessageDrivenSubscriptionManager>(DependencyLifecycle.SingleInstance);
         }
     }
 }
