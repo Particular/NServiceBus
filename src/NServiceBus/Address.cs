@@ -28,6 +28,7 @@
         /// </summary>
         public static Address Local { get; private set; }
 
+
         /// <summary>
         /// Sets the address of this endpoint.
         /// </summary>
@@ -35,9 +36,25 @@
         public static void InitializeLocalAddress(string queue)
         {
             Local = Parse(queue);
+            PublicReturnAddress = Local;
 
             if (preventChanges)
                 throw new InvalidOperationException("Overwriting a previously set local address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
+        }
+
+
+        public static Address PublicReturnAddress { get; private set; }
+
+        /// <summary>
+        /// Sets the public return address of this endpoint.
+        /// </summary>
+        /// <param name="address">The public address.</param>
+        public static void OverridePublicReturnAddress(Address address)
+        {
+            PublicReturnAddress = address;
+
+            if (preventChanges)
+                throw new InvalidOperationException("Overwriting a previously set public return address is a very dangerous operation. If you think that your scenario warrants it, you can catch this exception and continue.");
         }
 
         /// <summary>
