@@ -28,8 +28,8 @@
                         "The large payload should be marshalled correctly using the databus");
                     Assert.AreEqual(PayloadToSend, c.SiteAReceivedPayloadInResponse,
                         "The large payload should be marshalled correctly using the databus");
-                    Assert.AreEqual(@"http,http://localhost:25899/SiteA/NumberOfWorkerThreads=1Default=True", c.OriginatingSiteForRequest);
-                    Assert.AreEqual(@"http,http://localhost:25899/SiteB/NumberOfWorkerThreads=1Default=True", c.OriginatingSiteForResponse);
+                    Assert.AreEqual(@"http,http://localhost:25899/SiteA/", c.OriginatingSiteForRequest);
+                    Assert.AreEqual(@"http,http://localhost:25899/SiteB/", c.OriginatingSiteForResponse);
                 })
                 .Run();
         }
