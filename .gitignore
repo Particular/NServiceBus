@@ -1,5 +1,4 @@
 nugets
-build
 build32
 binaries
 obj
@@ -35,5 +34,4 @@ csx
 _NCrunch_NServiceBus/*
 logs
 run-git.cmd
-
-*.jtconfig
+src/Chocolatey/Build/*
