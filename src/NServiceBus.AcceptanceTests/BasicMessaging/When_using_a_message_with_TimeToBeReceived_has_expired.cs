@@ -12,8 +12,8 @@
         {
             var context = new Context();
             Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Defer(TimeSpan.FromSeconds(2), new MyMessage())))
-                    .Run(TimeSpan.FromSeconds(3));
+                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Defer(TimeSpan.FromSeconds(5), new MyMessage())))
+                    .Run(TimeSpan.FromSeconds(10));
             Assert.IsFalse(context.WasCalled);
         }
 
