@@ -13,7 +13,7 @@
         {
             var context = new Context();
 
-            var timeToWaitFor = DateTime.Now.AddSeconds(10);
+            var timeToWaitFor = DateTime.Now.AddSeconds(15);
             Scenario.Define(context)
                     .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new MyMessage())))
                     .Done(c => DateTime.Now > timeToWaitFor )
@@ -44,7 +44,7 @@
                     if (!hasSkipped)
                     {
                         hasSkipped = true;
-                        Thread.Sleep(TimeSpan.FromSeconds(2));
+                        Thread.Sleep(TimeSpan.FromSeconds(4));
                         Bus.HandleCurrentMessageLater();
                         return;
                     }
