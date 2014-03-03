@@ -7,7 +7,7 @@
         public void Init()
         {
             Configure.With()
-                .CastleWindsorBuilder()
+                .DefaultBuilder()
                 .FileShareDataBus(@"..\..\..\DataBusShare\");
         }
     }

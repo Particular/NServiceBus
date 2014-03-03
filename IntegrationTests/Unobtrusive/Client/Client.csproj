@@ -36,15 +36,6 @@
     <Reference Include="log4net">
       <HintPath>..\..\..\binaries\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Ninject">
-      <HintPath>..\packages\Ninject.3.0.2-unstable-9037\lib\net40\Ninject.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.Extensions.ContextPreservation">
-      <HintPath>..\packages\Ninject.Extensions.ContextPreservation.3.0.2-unstable-9009\lib\net40\Ninject.Extensions.ContextPreservation.dll</HintPath>
-    </Reference>
-    <Reference Include="Ninject.Extensions.NamedScope">
-      <HintPath>..\packages\Ninject.Extensions.NamedScope.3.0.2-unstable-9017\lib\net40\Ninject.Extensions.NamedScope.dll</HintPath>
-    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\..\..\binaries\NServiceBus.dll</HintPath>
     </Reference>
@@ -53,9 +44,6 @@
     </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\..\..\binaries\NServiceBus.Host.exe</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.Ninject">
-      <HintPath>..\..\..\binaries\containers\ninject\NServiceBus.ObjectBuilder.Ninject.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,7 +59,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Commands\Commands.csproj">
