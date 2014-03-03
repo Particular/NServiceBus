@@ -2,6 +2,7 @@ namespace NServiceBus.Scheduling
 {
     using System;
 
+    [Serializable]
     public class ScheduledTask
     {
         public ScheduledTask()
@@ -9,7 +10,7 @@ namespace NServiceBus.Scheduling
             Id = Guid.NewGuid();
         }
 
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public Action Task { get; set; }
         public TimeSpan Every { get; set; }
