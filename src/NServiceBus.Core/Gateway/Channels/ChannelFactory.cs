@@ -14,12 +14,16 @@ namespace NServiceBus.Gateway.Channels
     {
         public IChannelReceiver GetReceiver(string channelType)
         {
-            return Activator.CreateInstance(receivers[channelType.ToLower()]) as IChannelReceiver;
+            var receiver = receivers[channelType.ToLower()];
+
+            return Configure.Instance.Builder.Build(receiver) as IChannelReceiver;
         }
 
         public IChannelSender GetSender(string channelType)
         {
-            return Activator.CreateInstance(senders[channelType.ToLower()]) as IChannelSender;
+            var sender = senders[channelType.ToLower()];
+
+            return Configure.Instance.Builder.Build(sender) as IChannelSender;
         }
 
 
@@ -31,6 +35,11 @@ namespace NServiceBus.Gateway.Channels
         public void RegisterReceiver(Type receiver, string type)
         {
             receivers.Add(type.ToLower(), receiver);
+
+            if (!Configure.HasComponent(receiver))
+            {
+                Configure.Component(receiver, DependencyLifecycle.InstancePerCall);
+            }
         }
 
 
@@ -51,6 +60,11 @@ namespace NServiceBus.Gateway.Channels
         public void RegisterSender(Type sender, string type)
         {
             senders.Add(type.ToLower(), sender);
+
+            if (!Configure.HasComponent(sender))
+            {
+                Configure.Component(sender, DependencyLifecycle.InstancePerCall);
+            }
         }
 
         readonly IDictionary<string, Type> receivers = new Dictionary<string, Type>();
