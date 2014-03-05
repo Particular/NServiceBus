@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
@@ -30,24 +31,29 @@
         {
             var registry = new ChannelTypeRegistry();
 
-            FillChannelTypeRegistry(registry);
+            FillChannelTypeRegistryAndContainer(registry);
 
-            Configure.Instance.Configurer.RegisterSingleton<ChannelTypeRegistry>(registry);
+            Configure.Instance.Configurer.RegisterSingleton<IChannelTypeRegistry>(registry);
             Configure.Instance.Configurer.ConfigureComponent<ChannelFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        static void FillChannelTypeRegistry(IChannelTypeRegistry registry)
+        static void FillChannelTypeRegistryAndContainer(IChannelTypeRegistry registry)
         {
             foreach (var type in Configure.TypesToScan.Where(t => typeof(IChannelReceiver).IsAssignableFrom(t) && !t.IsInterface))
             {
                 var channelTypes = type.GetCustomAttributes(true).OfType<ChannelTypeAttribute>().ToList();
                 if (channelTypes.Any())
                 {
-                    channelTypes.ForEach(t => registry.AddReceiver(t.Type, type));
+                    channelTypes.ForEach(t =>
+                    {
+                        registry.AddReceiver(t.Type, type);
+                        AddToContainerIfNecessary(type);
+                    });
                 }
                 else
                 {
                     registry.AddReceiver(type.Name.Substring(0, type.Name.IndexOf("Channel")), type);
+                    AddToContainerIfNecessary(type);
                 }
             }
 
@@ -56,12 +62,25 @@
                 var channelTypes = type.GetCustomAttributes(true).OfType<ChannelTypeAttribute>().ToList();
                 if (channelTypes.Any())
                 {
-                    channelTypes.ForEach(t => registry.AddSender(t.Type, type));
+                    channelTypes.ForEach(t =>
+                    {
+                        registry.AddSender(t.Type, type);
+                        AddToContainerIfNecessary(type);
+                    });
                 }
                 else
                 {
                     registry.AddSender(type.Name.Substring(0, type.Name.IndexOf("Channel")), type);
+                    AddToContainerIfNecessary(type);
                 }
+            }
+        }
+
+        static void AddToContainerIfNecessary(Type type)
+        {
+            if (!Configure.HasComponent(type))
+            {
+                Configure.Component(type, DependencyLifecycle.InstancePerCall);
             }
         }
 
