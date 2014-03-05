@@ -97,10 +97,13 @@
                 var msg = HeaderMapper.Map(headerManager.Reassemble(callInfo.ClientId, callInfo.Headers));
                 msg.Body = new byte[stream.Length];
                 stream.Read(msg.Body, 0, msg.Body.Length);
-
-                if (deduplicator.DeduplicateMessage(callInfo.ClientId, DateTime.UtcNow))
+               
+                if (!channelReceiver.RequiresDeduplication || deduplicator.DeduplicateMessage(callInfo.ClientId, DateTime.UtcNow))
                 {
-                    MessageReceived(this, new MessageReceivedOnChannelArgs {Message = msg});
+                    MessageReceived(this, new MessageReceivedOnChannelArgs
+                    {
+                        Message = msg
+                    });
                 }
                 else
                 {
