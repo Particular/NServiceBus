@@ -4,6 +4,8 @@ namespace NServiceBus.Gateway.Channels
 
     public interface IChannelReceiver : IDisposable
     {
+        bool RequiresDeduplication { get; }
+
         event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
         void Start(string address, int numberOfWorkerThreads);
