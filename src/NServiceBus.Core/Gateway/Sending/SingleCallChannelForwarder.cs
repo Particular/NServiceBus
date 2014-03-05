@@ -33,7 +33,7 @@
             //before the body of the message is forwarded on the bus
             TransmitDataBusProperties(channelSender, targetSite, headers);
 
-            using (var messagePayload = new MemoryStream(message.Body))
+            using (var messagePayload = new MemoryStream(message.Body, 0, message.Body.Length, true, true))
             {
                 Transmit(channelSender, targetSite, CallType.SingleCallSubmit, headers, messagePayload);
             }
