@@ -38,10 +38,10 @@
                         SignedXmlVerifier.VerifyXml(licenseText);
                         var license = LicenseDeserializer.Deserialize(licenseText);
 
-                        string downgradeReason;
-                        if (LicenseDowngrader.ShouldLicenseDowngrade(license, out downgradeReason))
+                        string expirationReason;
+                        if (LicenseExpirationChecker.HasLicenseExpired(license, out expirationReason))
                         {
-                            var message = string.Format("The license you provided has expired.\r\nReason:{0}\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.", downgradeReason);
+                            var message = string.Format("The license you provided has expired.\r\nReason:{0}\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.", expirationReason);
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;

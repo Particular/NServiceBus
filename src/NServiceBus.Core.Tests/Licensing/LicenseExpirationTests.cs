@@ -6,7 +6,7 @@
 
 
     [TestFixture]
-    public class LicenseDowngraderTests
+    public class LicenseExpirationTests
     {
 
         [Test]
@@ -17,7 +17,7 @@
                 {
                     ExpirationDate = DateTime.UtcNow.AddDays(-2)
                 };
-           Assert.IsTrue(LicenseDowngrader.ShouldLicenseDowngrade(expiredLicense, out reason));
+           Assert.IsTrue(LicenseExpirationChecker.HasLicenseExpired(expiredLicense, out reason));
            Assert.AreEqual("Your license has expired.", reason);
         }
 
@@ -29,7 +29,7 @@
                 {
                     ExpirationDate = DateTime.UtcNow.AddDays(2)
                 };
-           Assert.IsFalse(LicenseDowngrader.ShouldLicenseDowngrade(expiredLicense, out reason));
+           Assert.IsFalse(LicenseExpirationChecker.HasLicenseExpired(expiredLicense, out reason));
            Assert.IsNull(reason);
         }
 
@@ -42,7 +42,7 @@
                     ExpirationDate = DateTime.UtcNow.AddDays(2),
                     UpgradeProtectionExpiration = TimestampReader.GetBuildTimestamp().AddDays(2)
                 };
-           Assert.IsFalse(LicenseDowngrader.ShouldLicenseDowngrade(expiredLicense, out reason));
+           Assert.IsFalse(LicenseExpirationChecker.HasLicenseExpired(expiredLicense, out reason));
            Assert.IsNull(reason);
         }
 
@@ -55,7 +55,7 @@
                     ExpirationDate = DateTime.UtcNow.AddDays(2),
                     UpgradeProtectionExpiration = TimestampReader.GetBuildTimestamp().AddDays(-2)
                 };
-           Assert.IsTrue(LicenseDowngrader.ShouldLicenseDowngrade(expiredLicense, out reason));
+           Assert.IsTrue(LicenseExpirationChecker.HasLicenseExpired(expiredLicense, out reason));
            Assert.AreEqual("Your upgrade protection does not cover this version of NServiceBus.", reason);
         }
     }

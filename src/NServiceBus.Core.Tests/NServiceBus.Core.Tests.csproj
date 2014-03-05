@@ -137,7 +137,7 @@
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Gateway\Receiving\HasherTests.cs" />
     <Compile Include="Licensing\LicenseDeserializerTests.cs" />
-    <Compile Include="Licensing\LicenseDowngraderTests.cs" />
+    <Compile Include="Licensing\LicenseExpirationTests.cs" />
     <Compile Include="Licensing\ResourceReader.cs" />
     <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
     <Compile Include="Licensing\TimestampTests.cs" />
