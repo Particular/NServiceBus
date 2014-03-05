@@ -14,6 +14,8 @@ namespace NServiceBus.Gateway.Channels.Http
     using Logging;
     using Receiving;
 
+    [ChannelType("http")]
+    [ChannelType("https")]
     public class HttpChannelReceiver : IChannelReceiver
     {
         public bool RequiresDeduplication {

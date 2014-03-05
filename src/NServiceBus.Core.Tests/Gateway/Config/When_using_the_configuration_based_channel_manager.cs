@@ -7,7 +7,7 @@ namespace NServiceBus.Gateway.Tests.Routing
     using Receiving;
 
     [TestFixture]
-    public class When_using_the_configuration_bases_channel_manager
+    public class When_using_the_configuration_based_channel_manager
     {
         IManageReceiveChannels config;
         IEnumerable<ReceiveChannel> activeChannels;
@@ -18,7 +18,7 @@ namespace NServiceBus.Gateway.Tests.Routing
         {
             config = new ConfigurationBasedChannelManager();
             activeChannels = config.GetReceiveChannels();
-            defaultChannel = config.GetDefaultChannel();
+            defaultChannel = config.GetDefaultChannel(new []{ "http" });
 
         }
 

@@ -16,7 +16,7 @@ namespace NServiceBus.Gateway.Receiving
             };
         }
 
-        public Channel GetDefaultChannel()
+        public Channel GetDefaultChannel(IEnumerable<string> types)
         {
             return GetReceiveChannels().First();
         }
