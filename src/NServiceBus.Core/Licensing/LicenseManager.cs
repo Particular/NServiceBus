@@ -1,5 +1,6 @@
 namespace NServiceBus.Licensing
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
@@ -39,7 +40,7 @@ namespace NServiceBus.Licensing
 
                 if (LicenseExpirationChecker.HasLicenseDateExpired(License.ExpirationDate))
                 {
-                    license = LicenseExpiredFormDisplayer.PromptUserForLicense();
+                    license = LicenseExpiredFormDisplayer.PromptUserForLicense() ?? LicenseDeserializer.GetTrialLicense(License.ExpirationDate);
                 }
             }
         }
@@ -76,29 +77,25 @@ namespace NServiceBus.Licensing
             if (UserSidChecker.IsNotSystemSid())
             {
                 var trialExpirationDate = TrialLicenseReader.GetTrialExpirationFromRegistry();
+                license = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
+
                 //Check trial is still valid
                 if (LicenseExpirationChecker.HasLicenseDateExpired(trialExpirationDate))
                 {
-                    Logger.FatalFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", GitFlowVersion.MajorMinor);
-                    license = LicenseDeserializer.GetBasicLicense();
+                    Logger.FatalFormat("Trial for NServiceBus v{0} has expired.", GitFlowVersion.MajorMinor);
                 }
                 else
                 {
                     var message = string.Format("Trial for NServiceBus v{0} is still active, trial expires on {1}. Configuring NServiceBus to run in trial mode.", GitFlowVersion.MajorMinor, trialExpirationDate.ToLocalTime().ToShortDateString());
                     Logger.Info(message);
-
-                    //Run in unlimited mode during trial period
-                    license = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
                 }
                 return;
             }
-
-            Logger.Fatal("Could not access registry for the current user sid. Falling back to run in Basic license mode.");
-
-            license = LicenseDeserializer.GetBasicLicense();
+            Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
+            license = LicenseDeserializer.GetTrialLicense(DateTime.Today);
         }
 
-        internal static void Verify()
+        internal static void InitializeLicense()
         {
             //only do this if not been configured by the fluent API
             if (licenseText == null)
@@ -110,20 +107,15 @@ namespace NServiceBus.Licensing
                     return;
                 }
             }
-            SignedXmlVerifier.VerifyXml(licenseText);
-            var tempLicense = LicenseDeserializer.Deserialize(licenseText);
 
+            SignedXmlVerifier.VerifyXml(licenseText);
+            license = LicenseDeserializer.Deserialize(licenseText);
             string message;
-            if (LicenseExpirationChecker.HasLicenseExpired(tempLicense, out message))
+            if (LicenseExpirationChecker.HasLicenseExpired(license, out message))
             {
-                message = message + " You can renew it at http://particular.net/licensing. Downgrading to basic mode";
+                message = message + " You can renew it at http://particular.net/licensing.";
                 Logger.Fatal(message);
-                license = LicenseDeserializer.GetBasicLicense();
-            }
-            else
-            {
-                license = tempLicense;
-            }
+            }            
             WriteLicenseInfo();
         }
 
@@ -135,7 +127,7 @@ namespace NServiceBus.Licensing
             {
                 if (license == null)
                 {
-                    Verify();
+                    InitializeLicense();
                 }
                 return license;
             }

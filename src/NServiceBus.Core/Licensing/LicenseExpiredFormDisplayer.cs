@@ -9,7 +9,7 @@ namespace NServiceBus.Licensing
                 form.ShowDialog();
                 if (form.ResultingLicenseText == null)
                 {
-                    return LicenseDeserializer.GetBasicLicense();
+                    return null;
                 }
                 LicenseLocationConventions.StoreLicenseInRegistry(form.ResultingLicenseText);
                 return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
