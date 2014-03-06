@@ -173,7 +173,6 @@
             public void only_files_explicitly_included_are_returned()
             {
                 Assert.That(results.Assemblies, Has.Count.EqualTo(1));
-                Assert.That(results.Errors, Has.Count.EqualTo(0));
                 Assert.That(skippedFiles, Has.Count.GreaterThan(0));
 
                 Assert.That(results.Assemblies.Single().GetName().Name, Is.EqualTo("NServiceBus.Core.Tests"));
@@ -272,7 +271,6 @@
             {
                 //TODO: change back to "Has.Count.EqualTo(1)" when we make message scanning lazy #1617"
                 Assert.That(results.Assemblies, Has.Count.EqualTo(2));
-                Assert.That(results.Errors, Has.Count.EqualTo(0));
 
                 var containsHandlers = "NServiceBus.Core.Tests"; //< assembly name, not file name
                 var assembly = results.Assemblies
