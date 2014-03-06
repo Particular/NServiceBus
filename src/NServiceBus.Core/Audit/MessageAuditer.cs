@@ -40,6 +40,7 @@
                 return;
             }
 
+            Licensing.LicenseManager.RecordIfLicenseHasExpiredInTheHeader(transportMessage);
             MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, AuditQueue);
         }
     }

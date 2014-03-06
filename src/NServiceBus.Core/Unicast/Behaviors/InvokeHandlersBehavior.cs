@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using Logging;
@@ -22,6 +23,15 @@
 
         public void Invoke(HandlerInvocationContext context, Action next)
         {
+            if (Debugger.IsAttached)
+            {
+                string reason;
+                if (Licensing.LicenseExpirationChecker.HasLicenseExpired(Licensing.LicenseManager.License, out reason))
+                {
+                    log.FatalFormat("License has expired");
+                }
+            }
+
             var logicalMessage = context.Get<LogicalMessage>();
 
             DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler, context);
