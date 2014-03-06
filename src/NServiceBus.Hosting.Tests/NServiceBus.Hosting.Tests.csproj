@@ -75,9 +75,9 @@
       <Project>{73867d40-8cbb-48e9-bffa-12bbdd48a341}</Project>
       <Name>NServiceBus</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NServiceBus.Hosting.Windows\NServiceBus.Hosting.Windows.csproj">
+    <ProjectReference Include="..\NServiceBus.Hosting.Windows\NServiceBus.Hosting.WindowsAnyCpu.csproj">
       <Project>{85E813C0-4A94-4946-8B1F-DE1E39AA7D11}</Project>
-      <Name>NServiceBus.Hosting.Windows</Name>
+      <Name>NServiceBus.Hosting.WindowsAnyCpu</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
