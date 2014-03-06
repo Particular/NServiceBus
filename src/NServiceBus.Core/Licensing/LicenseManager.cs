@@ -7,6 +7,14 @@ namespace NServiceBus.Licensing
 
     public static class LicenseManager
     {
+
+
+        public static void RecordIfLicenseHasExpiredInTheHeader(TransportMessage transportMessage)
+        {
+            string expirationReason;
+            transportMessage.Headers[Headers.HasLicenseExpired] = LicenseExpirationChecker.HasLicenseExpired(License, out expirationReason).ToString().ToLower();
+        }
+
         internal static void InitializeLicenseText(string license)
         {
             licenseText = license;
@@ -29,8 +37,7 @@ namespace NServiceBus.Licensing
                     return;
                 }
 
-                //TODO: should we display dialog if UpgradeProtection is not valid?
-                if (ExpiryChecker.IsExpired(License.ExpirationDate))
+                if (LicenseExpirationChecker.HasLicenseDateExpired(License.ExpirationDate))
                 {
                     license = LicenseExpiredFormDisplayer.PromptUserForLicense();
                 }
@@ -44,10 +51,10 @@ namespace NServiceBus.Licensing
             {
                 Logger.InfoFormat("UpgradeProtectionExpiration: {0}", License.UpgradeProtectionExpiration);
             }
-            
+
             if (License.MaxThroughputPerSecond == LicenseDeserializer.MaxThroughputPerSecond)
             {
-                Logger.Info("MaxThroughputPerSecond: unlimited");   
+                Logger.Info("MaxThroughputPerSecond: unlimited");
             }
             else
             {
@@ -70,10 +77,9 @@ namespace NServiceBus.Licensing
             {
                 var trialExpirationDate = TrialLicenseReader.GetTrialExpirationFromRegistry();
                 //Check trial is still valid
-                if (ExpiryChecker.IsExpired(trialExpirationDate))
+                if (LicenseExpirationChecker.HasLicenseDateExpired(trialExpirationDate))
                 {
-                    Logger.WarnFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", GitFlowVersion.MajorMinor);
-
+                    Logger.FatalFormat("Trial for NServiceBus v{0} has expired. Falling back to run in Basic1 license mode.", GitFlowVersion.MajorMinor);
                     license = LicenseDeserializer.GetBasicLicense();
                 }
                 else
@@ -87,7 +93,7 @@ namespace NServiceBus.Licensing
                 return;
             }
 
-            Logger.Warn("Could not access registry for the current user sid. Falling back to run in Basic license mode.");
+            Logger.Fatal("Could not access registry for the current user sid. Falling back to run in Basic license mode.");
 
             license = LicenseDeserializer.GetBasicLicense();
         }
@@ -108,10 +114,10 @@ namespace NServiceBus.Licensing
             var tempLicense = LicenseDeserializer.Deserialize(licenseText);
 
             string message;
-            if (LicenseDowngrader.ShouldLicenseDowngrade(tempLicense, out message))
+            if (LicenseExpirationChecker.HasLicenseExpired(tempLicense, out message))
             {
                 message = message + " You can renew it at http://particular.net/licensing. Downgrading to basic mode";
-                Logger.Warn(message);
+                Logger.Fatal(message);
                 license = LicenseDeserializer.GetBasicLicense();
             }
             else

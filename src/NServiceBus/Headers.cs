@@ -221,6 +221,11 @@
         public const string HostId = "$.diagnostics.hostid";
 
         /// <summary>
+        /// HostId of the endpoint where the given message was processed (success or failure)
+        /// </summary>
+        public const string HasLicenseExpired = "$.diagnostics.license.expired";
+
+        /// <summary>
         /// The original reply to address for successfully processed messages
         /// </summary>
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
