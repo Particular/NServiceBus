@@ -163,14 +163,12 @@
         [Serializable]
         public class Result : MarshalByRefObject
         {
-            public string ExceptionMessage { get; set; }
+            public Exception Exception { get; set; }
 
             public bool Failed
             {
-                get { return ExceptionMessage != null; }
+                get { return Exception != null; }
             }
-
-            public Type ExceptionType { get; set; }
 
             public static Result Success()
             {
@@ -179,10 +177,19 @@
 
             public static Result Failure(Exception ex)
             {
+                var baseException = ex.GetBaseException();
+
+                if (ex.GetType().IsSerializable)
+                {
+                    return new Result
+                    {
+                        Exception = baseException
+                    };
+                }
+
                 return new Result
                 {
-                    ExceptionMessage = ex.ToString(),
-                    ExceptionType = ex.GetType()
+                    Exception = new Exception(baseException.Message)
                 };
             }
         }

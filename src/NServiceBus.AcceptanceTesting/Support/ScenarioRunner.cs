@@ -96,7 +96,6 @@ namespace NServiceBus.AcceptanceTesting.Support
             return results;
         }
 
-
         static void DisplayRunResult(RunSummary summary, int totalRuns)
         {
             var runDescriptor = summary.RunDescriptor;
@@ -272,7 +271,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                     var result = endpoint.Start();
 
                     if (result.Failed)
-                        throw new ScenarioException(string.Format("Endpoint failed to start - {0}", result.ExceptionMessage));
+                        throw new ScenarioException("Endpoint failed to start", result.Exception);
 
                 })).ToArray();
 
@@ -292,7 +291,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                     sw.Stop();
                     if (result.Failed)
-                        throw new ScenarioException(string.Format("Endpoint failed to stop - {0}", result.ExceptionMessage));
+                        throw new ScenarioException("Endpoint failed to stop", result.Exception);
 
                     Console.Out.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), sw.Elapsed);
 
@@ -322,7 +321,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
                 if (result.Failed)
                 {
-                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize - {1}", runner.Instance.Name(), result.ExceptionMessage));
+                    throw new ScenarioException(string.Format("Endpoint {0} failed to initialize", runner.Instance.Name()), result.Exception);
                 }
 
                 runners.Add(runner);
