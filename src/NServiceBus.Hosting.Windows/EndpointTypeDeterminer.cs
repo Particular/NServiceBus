@@ -127,7 +127,6 @@
             var endpoints = ScanAssembliesForEndpoints().ToList();
             if (!endpoints.Any())
             {
-                Console.Out.WriteLine(assemblyScannerResults.FormattedErrors());
                 type = null;
                 return false;
             }
