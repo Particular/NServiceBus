@@ -1,6 +1,5 @@
 namespace NServiceBus.Gateway.Channels
 {
-    using System;
     using ObjectBuilder;
 
     public interface IChannelFactory
