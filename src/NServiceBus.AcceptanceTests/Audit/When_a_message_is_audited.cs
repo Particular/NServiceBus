@@ -54,7 +54,7 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateTransportMessages, INeedInitialization
+            class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -65,21 +65,11 @@
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
 
-                    var decryptedBody = new byte[originalBody.Length];
+                    var decryptedBody = new byte[originalBody.Length - 1];
 
-                    Buffer.BlockCopy(originalBody,0,decryptedBody,0,originalBody.Length);
-                   
-                    //decrypt
-                    decryptedBody[0]++;
+                    Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length - 1);
 
                     transportMessage.Body = decryptedBody;
-                }
-
-
-                public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
-                {
-                    //not the way to do it for real but good enough for this test
-                    transportMessage.Body[0]--;
                 }
 
                 public void Init()
@@ -87,7 +77,6 @@
                     Configure.Component<BodyMutator>(DependencyLifecycle.InstancePerCall);
                 }
             }
-
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>{ public void Handle(MessageToBeAudited message) {}}
         }
