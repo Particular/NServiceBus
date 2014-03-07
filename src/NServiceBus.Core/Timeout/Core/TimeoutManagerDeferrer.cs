@@ -23,9 +23,7 @@
             }
             catch (Exception ex)
             {
-                Log.Error(
-                    "There was a problem deferring the message. Make sure that make sure DisableTimeoutManager was not called for your endpoint.",
-                    ex);
+                Log.Error("There was a problem deferring the message. Make sure that DisableTimeoutManager was not called for your endpoint.", ex);
                 throw;
             }
         }
