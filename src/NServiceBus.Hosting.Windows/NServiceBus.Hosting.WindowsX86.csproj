@@ -43,6 +43,9 @@
   <PropertyGroup>
     <DelaySign>true</DelaySign>
   </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyName>NServiceBus.Host32</AssemblyName>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="Fody.targets" />
     <None Include="FodyWeavers.xml">
