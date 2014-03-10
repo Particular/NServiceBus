@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Reflection;
-    using System.Text;
 
     /// <summary>
     /// Holds GetScannableAssemblies results.
@@ -15,36 +14,10 @@
         /// </summary>
         public AssemblyScannerResults()
         {
-            Errors = new List<string>();
             Assemblies = new List<Assembly>();
             SkippedFiles = new List<SkippedFile>();
         }
-
-        /// <summary>
-        /// Format errors.
-        /// </summary>
-        public string FormattedErrors()
-        {
-            if ((Errors == null) || (Errors.Count < 1))
-            {
-                return string.Empty;
-            }
-
-            var sb = new StringBuilder();
-            
-            foreach (var error in Errors)
-            {
-                sb.Append(error);
-            }
-            
-            return sb.ToString();
-        }
-        
-        /// <summary>
-        /// List of errors that occurred while attempting to load an assembly
-        /// </summary>
-        public List<string> Errors { get; private set; }
-        
+       
         /// <summary>
         /// List of successfully found and loaded assemblies
         /// </summary>
