@@ -132,11 +132,10 @@ namespace NServiceBus.Hosting.Helpers
                     return;
                 }
             }
-            catch (BadImageFormatException)
+            catch (BadImageFormatException ex)
             {
                 var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
-                results.Errors.Add(errorMessage);
-                return;
+                throw new Exception(errorMessage, ex);
             }
 
             try
@@ -147,8 +146,7 @@ namespace NServiceBus.Hosting.Helpers
             catch (ReflectionTypeLoadException e)
             {
                 var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
-                results.Errors.Add(errorMessage);
-                return;
+                throw new Exception(errorMessage);
             }
 
             results.Assemblies.Add(assembly);
@@ -184,17 +182,64 @@ namespace NServiceBus.Hosting.Helpers
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine(string.Format("Could not enumerate all types for '{0}'. Exception message: {1}.", fileName, e));
+            sb.AppendLine(string.Format("Could not enumerate all types for '{0}'.", fileName));
 
             if (!e.LoaderExceptions.Any())
             {
+                sb.AppendLine(string.Format("Exception message: {0}", e));
                 return sb.ToString();
             }
 
-            sb.AppendLine("Scanned type errors:");
+            var nsbAssemblyName = typeof(AssemblyScanner).Assembly.GetName();
+            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+            var displayBindingRedirects = false;
+
+            var displayHeader = true;
             foreach (var ex in e.LoaderExceptions)
             {
-                sb.AppendLine(ex.ToString());
+                var loadException = ex as FileLoadException;
+
+                if (loadException != null)
+                {
+                    var assemblyName = new AssemblyName(loadException.FileName);
+                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+                    if (nsbAssemblyName.Name == assemblyName.Name && nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() && nsbPublicKeyToken == assemblyPublicKeyToken)
+                    {
+                        displayBindingRedirects = true;
+                    }
+                }
+                else
+                {
+                    if (displayHeader)
+                    {
+                        sb.AppendLine("Assembly scanner errors:");
+                        displayHeader = false;
+                    }
+                    sb.AppendLine(ex.ToString());
+                }
+            }
+
+            if (displayBindingRedirects)
+            {
+                sb.AppendLine();
+                sb.AppendLine("It looks like you may be missing binding redirects in your config file, try to add the following binding redirects:");
+
+                const string bindingRedirects = @"<runtime>
+    <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
+        <dependentAssembly>
+        <assemblyIdentity name=""NServiceBus.Core"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
+        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
+        </dependentAssembly>
+        <dependentAssembly>
+        <assemblyIdentity name=""NServiceBus"" publicKeyToken=""9fc386479f8a226c"" culture=""neutral"" />
+        <bindingRedirect oldVersion=""0.0.0.0-{0}"" newVersion=""{0}"" />
+        </dependentAssembly>
+    </assemblyBinding>
+</runtime>";
+
+                sb.AppendFormat(bindingRedirects, nsbAssemblyName.Version.ToString(4));
+                sb.AppendLine();
+
             }
 
             return sb.ToString();
