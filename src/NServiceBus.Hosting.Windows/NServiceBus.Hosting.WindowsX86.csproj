@@ -46,6 +46,9 @@
   <PropertyGroup>
     <AssemblyName>NServiceBus.Host32</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>NServiceBus.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <None Include="Fody.targets" />
     <None Include="FodyWeavers.xml">
@@ -137,6 +140,9 @@
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="NServiceBus.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" />
