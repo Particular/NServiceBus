@@ -1,20 +1,30 @@
 namespace NServiceBus.Licensing
 {
+    using System.Threading;
+
     static class LicenseExpiredFormDisplayer
     {
         public static License PromptUserForLicense()
         {
-            using (var form = new LicenseExpiredForm())
+            SynchronizationContext synchronizationContext = null;
+            try
             {
-                form.ShowDialog();
-                if (form.ResultingLicenseText == null)
+                synchronizationContext = SynchronizationContext.Current;
+                using (var form = new LicenseExpiredForm())
                 {
-                    return null;
+                    form.ShowDialog();
+                    if (form.ResultingLicenseText == null)
+                    {
+                        return null;
+                    }
+                    LicenseLocationConventions.StoreLicenseInRegistry(form.ResultingLicenseText);
+                    return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
                 }
-                LicenseLocationConventions.StoreLicenseInRegistry(form.ResultingLicenseText);
-                return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
             }
-
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(synchronizationContext);
+            }
         }
     }
 }
