@@ -42,21 +42,20 @@ namespace NServiceBus
         /// </summary>
         public static Configure Log4Net(this Configure config, object appenderSkeleton)
         {
-            var threshold = GetThresholdFromConfigSection();
+            var threshold = GetThresholdFromConfigSection(Configure.GetConfigSection<Config.Logging>());
 
             Logging.Loggers.Log4NetAdapter.Log4NetConfigurator.Configure(appenderSkeleton, threshold);
 
             return config;
         }
 
-        static string GetThresholdFromConfigSection()
+        internal static string GetThresholdFromConfigSection(Config.Logging loggingConfigSection)
         {
-            var cfg = Configure.GetConfigSection<Config.Logging>();
-            if (cfg != null)
+            if (loggingConfigSection != null)
             {
-                if (cfg.Threshold == String.Empty)
+                if (loggingConfigSection.Threshold != String.Empty)
                 {
-                    return cfg.Threshold;
+                    return loggingConfigSection.Threshold;
                 }
             }
             return null;
@@ -99,7 +98,7 @@ namespace NServiceBus
                 throw new ArgumentNullException("targetsForNServiceBusToLogTo", "Must not contain null values.");
             }
 
-            var threshold = GetThresholdFromConfigSection();
+            var threshold = GetThresholdFromConfigSection(Configure.GetConfigSection<Config.Logging>());
             NLogConfigurator.Configure(targetsForNServiceBusToLogTo, threshold);
 
             return config;
