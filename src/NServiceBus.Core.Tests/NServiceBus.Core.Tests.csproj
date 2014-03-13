@@ -129,6 +129,7 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="NServiceBusVersionTests.cs" />
