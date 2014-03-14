@@ -77,12 +77,12 @@
                         continue;
                     }
 
-                    var metaData = MessageMetadataRegistry.GetMessageMetaData(messageTypeString);
-                    if (metaData == null)
+                    var metadata = MessageMetadataRegistry.GetMessageMetadata(messageTypeString);
+                    if (metadata == null)
                     {
                         continue;
                     }
-                    messageMetadata.Add(metaData);
+                    messageMetadata.Add(metadata);
                 }
 
                 if (messageMetadata.Count == 0 && physicalMessage.MessageIntent != MessageIntentEnum.Publish)

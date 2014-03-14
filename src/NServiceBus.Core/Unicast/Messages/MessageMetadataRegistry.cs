@@ -38,11 +38,11 @@
             }
             foreach (var messageTypeString in header.Split(';'))
             {
-                yield return GetMessageMetaData(messageTypeString);
+                yield return GetMessageMetadata(messageTypeString);
             }
         }
 
-        public MessageMetadata GetMessageMetaData(string messageTypeIdentifier)
+        public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
             if (string.IsNullOrEmpty(messageTypeIdentifier))
             {
