@@ -9,6 +9,8 @@
         void IHandleProfile.ProfileActivated()
         {
             Log.Warn("MultiSite Profile is obsolete as Gateway is a feature now, you can use Feature.Enable<Gateway> to turn it on.");
+
+            Configure.Instance.RunGateway();
         }
 
         private readonly static ILog Log = LogManager.GetLogger(typeof(GatewayProfileHandler));
