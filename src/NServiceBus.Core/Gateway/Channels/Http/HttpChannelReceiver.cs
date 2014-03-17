@@ -16,10 +16,6 @@ namespace NServiceBus.Gateway.Channels.Http
 
     public class HttpChannelReceiver : IChannelReceiver
     {
-        public bool RequiresDeduplication {
-            get { return true; }
-        }
-
         public event EventHandler<DataReceivedOnChannelArgs> DataReceived;
 
         public void Start(string address, int numberOfWorkerThreads)
