@@ -18,11 +18,14 @@ namespace NServiceBus.Gateway.Receiving
             return channels;
         }
 
-        public Channel GetDefaultChannel(IEnumerable<string> types)
+        public Channel GetDefaultChannel()
         {
-            var channelsFortypes = channels.Where(c => types.Contains(c.Type)).ToList();
-            var defaultChannel = channelsFortypes.SingleOrDefault(c => c.Default) ?? channelsFortypes.First();
+            var defaultChannel = channels.Where(c => c.Default).SingleOrDefault();
 
+            if (defaultChannel == null)
+            {
+                defaultChannel = channels.First();
+            }
             return defaultChannel;
         }
 
