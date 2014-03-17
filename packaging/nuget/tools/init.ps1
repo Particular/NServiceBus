@@ -62,7 +62,7 @@ Catch [Exception] {
 	Write-Warning $error[0]
 }
 
-$url = "http://particular.net/download-the-particular-service-platform?&version=$packageVersion" 
+$url = "http://particular.net/download-the-particular-service-platform?version=$packageVersion" 
 $url = $url.ToLowerInvariant(); 
 
 if($dte){
