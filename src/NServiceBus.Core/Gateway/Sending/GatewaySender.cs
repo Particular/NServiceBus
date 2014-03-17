@@ -3,7 +3,6 @@ namespace NServiceBus.Gateway.Sending
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Channels;
     using Features;
     using HeaderManagement;
     using Notifications;
@@ -21,8 +20,7 @@ namespace NServiceBus.Gateway.Sending
         public IManageReceiveChannels ChannelManager { get; set; }
         public IMessageNotifier Notifier { get; set; }
         public ISendMessages MessageSender { get; set; }
-        public IChannelTypeRegistry TypeRegistry { get; set; }
-
+       
         public bool Handle(TransportMessage message)
         {
             var destinationSites = GetDestinationSitesFor(message);
@@ -93,7 +91,7 @@ namespace NServiceBus.Gateway.Sending
 
         void SendToSite(TransportMessage transportMessage, Site targetSite)
         {
-            transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite(targetSite);
+            transportMessage.Headers[Headers.OriginatingSite] = GetDefaultAddressForThisSite();
 
             //TODO: derive this from the message and the channelType
             var forwarder = HandleLegacy(transportMessage, targetSite) ??
@@ -111,11 +109,9 @@ namespace NServiceBus.Gateway.Sending
             return targetSite.LegacyMode ? Builder.Build<IdempotentChannelForwarder>() : null;
         }
 
-        string GetDefaultAddressForThisSite(Site targetSite)
+        string GetDefaultAddressForThisSite()
         {
-            var senderType = TypeRegistry.GetSenderType(targetSite.Channel.Type);
-            var types = TypeRegistry.GetChannelTypesForSenderType(senderType);
-            var defaultChannel = ChannelManager.GetDefaultChannel(types);
+            var defaultChannel = ChannelManager.GetDefaultChannel();
             return string.Format("{0},{1}", defaultChannel.Type, defaultChannel.Address);
         }
     }

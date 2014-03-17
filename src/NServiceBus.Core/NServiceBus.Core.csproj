@@ -114,10 +114,8 @@
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
-    <Compile Include="Gateway\Channels\ChannelTypeRegistry.cs" />
     <Compile Include="Gateway\Channels\DataReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Channels\Http\SetDefaultResponder.cs" />
-    <Compile Include="Gateway\Channels\IChannelTypeRegistry.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReader.cs" />
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
