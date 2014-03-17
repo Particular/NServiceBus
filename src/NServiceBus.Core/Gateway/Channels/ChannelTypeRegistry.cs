@@ -23,7 +23,7 @@ namespace NServiceBus.Gateway.Channels
 
         public IEnumerable<string> GetChannelTypesForReceiverType(Type type)
         {
-            if (channelTypesByReceiverType.ContainsKey(type))
+            if (!channelTypesByReceiverType.ContainsKey(type))
             {
                 return channelTypesByReceiverType[type];
             }
@@ -32,7 +32,7 @@ namespace NServiceBus.Gateway.Channels
 
         public IEnumerable<string> GetChannelTypesForSenderType(Type type)
         {
-            if (channelTypesBySenderType.ContainsKey(type))
+            if (!channelTypesBySenderType.ContainsKey(type))
             {
                 return channelTypesBySenderType[type];
             }
