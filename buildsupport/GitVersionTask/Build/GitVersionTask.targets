@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <UsingTask
-      TaskName="GitFlowVersionTask.UpdateAssemblyInfo"
-      AssemblyFile="$(MSBuildThisFileDirectory)..\GitFlowVersionTask.dll" />
+      TaskName="GitVersionTask.UpdateAssemblyInfo"
+      AssemblyFile="$(MSBuildThisFileDirectory)..\GitVersionTask.dll" />
   <UsingTask
-      TaskName="GitFlowVersionTask.WriteVersionInfoToBuildLog"
-      AssemblyFile="$(MSBuildThisFileDirectory)..\GitFlowVersionTask.dll" />
+      TaskName="GitVersionTask.WriteVersionInfoToBuildLog"
+      AssemblyFile="$(MSBuildThisFileDirectory)..\GitVersionTask.dll" />
 
     <Target Name="UpdateAssemblyInfo"
             BeforeTargets="CoreCompile">
@@ -34,10 +34,10 @@
 
   <!--Support for ncrunch-->
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)..\GitFlowVersionTask.dll" />
-    <None Include="$(MSBuildThisFileDirectory)..\GitFlowVersionTask.pdb" />
-    <None Include="$(MSBuildThisFileDirectory)..\GitFlowVersion.exe" />
-    <None Include="$(MSBuildThisFileDirectory)..\GitFlowVersion.pdb" />
+    <None Include="$(MSBuildThisFileDirectory)..\GitVersionTask.dll" />
+    <None Include="$(MSBuildThisFileDirectory)..\GitVersionTask.pdb" />
+    <None Include="$(MSBuildThisFileDirectory)..\GitVersion.exe" />
+    <None Include="$(MSBuildThisFileDirectory)..\GitVersion.pdb" />
     <None Include="$(MSBuildThisFileDirectory)..\LibGit2Sharp.dll" />
     <None Include="$(MSBuildThisFileDirectory)..\NativeBinaries\**\*" />
   </ItemGroup>
