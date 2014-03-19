@@ -89,9 +89,6 @@ namespace NServiceBus.Distributor
         {
             var replyToAddress = controlMessage.ReplyToAddress;
 
-            if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
-                return;
-
             if (controlMessage.Headers.ContainsKey(Headers.WorkerStarting))
             {
                 WorkerAvailabilityManager.ClearAvailabilityForWorker(replyToAddress);

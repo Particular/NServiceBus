@@ -5,6 +5,7 @@
     using System.Windows.Forms;
     using Janitor;
     using Logging;
+    using Particular.Licensing;
 
     [SkipWeaving]
     partial class LicenseExpiredForm : Form
@@ -35,13 +36,12 @@
                     var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(openDialog.FileName);
                     try
                     {
-                        SignedXmlVerifier.VerifyXml(licenseText);
+                        LicenseVerifier.Verify(licenseText);
                         var license = LicenseDeserializer.Deserialize(licenseText);
 
-                        string expirationReason;
-                        if (LicenseExpirationChecker.HasLicenseExpired(license, out expirationReason))
+                        if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = string.Format("The license you provided has expired.\r\nReason:{0}\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.", expirationReason);
+                            var message = string.Format("The license you provided has expired.\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.");
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;

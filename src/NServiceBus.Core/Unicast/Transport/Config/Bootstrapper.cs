@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast.Transport.Config
 {
     using System.Configuration;
-    using Licensing;
     using NServiceBus.Config;
     using INeedInitialization = INeedInitialization;
 
@@ -10,12 +9,6 @@ namespace NServiceBus.Unicast.Transport.Config
         public void Init()
         {
             LoadConfigurationSettings();
-
-            if (LicenseManager.License.MaxThroughputPerSecond > 0)
-            {
-                if (maximumThroughput == 0 || LicenseManager.License.MaxThroughputPerSecond < maximumThroughput)
-                    maximumThroughput = LicenseManager.License.MaxThroughputPerSecond;
-            }
 
             var transactionSettings = new TransactionSettings
                 {

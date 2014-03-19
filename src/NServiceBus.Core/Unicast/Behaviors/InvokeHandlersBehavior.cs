@@ -25,8 +25,7 @@
         {
             if (Debugger.IsAttached)
             {
-                string reason;
-                if (Licensing.LicenseExpirationChecker.HasLicenseExpired(Licensing.LicenseManager.License, out reason))
+                if (Licensing.LicenseManager.HasLicenseExpired())
                 {
                     log.FatalFormat("License has expired");
                 }
