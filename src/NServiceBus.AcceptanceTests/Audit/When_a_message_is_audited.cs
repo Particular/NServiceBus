@@ -64,12 +64,6 @@
                     var originalBody = transportMessage.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
-
-                    var decryptedBody = new byte[originalBody.Length - 1];
-
-                    Buffer.BlockCopy(originalBody, 0, decryptedBody, 0, originalBody.Length - 1);
-
-                    transportMessage.Body = decryptedBody;
                 }
 
                 public void Init()
