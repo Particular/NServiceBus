@@ -2,7 +2,6 @@ namespace NServiceBus.Distributor
 {
     using System.Collections.Concurrent;
     using System.Linq;
-    using Licensing;
     using Logging;
 
     /// <summary>
@@ -17,7 +16,7 @@ namespace NServiceBus.Distributor
 
         static LicenseConfig()
         {
-            allowedWorkerNodes = LicenseManager.License.AllowedNumberOfWorkerNodes;
+            allowedWorkerNodes = int.MaxValue;
         }
 
         internal static bool LimitNumberOfWorkers(Address workerAddress)

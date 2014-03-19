@@ -1,19 +1,17 @@
 namespace NServiceBus.Licensing
 {
-    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
     using Logging;
+    using Particular.Licensing;
 
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
     public static class LicenseManager
     {
-
-
-        public static void RecordIfLicenseHasExpiredInTheHeader(TransportMessage transportMessage)
+        internal static bool HasLicenseExpired()
         {
-            string expirationReason;
-            transportMessage.Headers[Headers.HasLicenseExpired] = LicenseExpirationChecker.HasLicenseExpired(License, out expirationReason).ToString().ToLower();
+            return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
         }
 
         internal static void InitializeLicenseText(string license)
@@ -38,61 +36,41 @@ namespace NServiceBus.Licensing
                     return;
                 }
 
-                if (LicenseExpirationChecker.HasLicenseDateExpired(License.ExpirationDate))
+                if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
                 {
-                    license = LicenseExpiredFormDisplayer.PromptUserForLicense() ?? LicenseDeserializer.GetTrialLicense(License.ExpirationDate);
+                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense();
+
+                    if (licenseProvidedByUser != null)
+                    {
+                        license = licenseProvidedByUser;
+                    }
                 }
             }
         }
 
-        static void WriteLicenseInfo()
-        {
-            Logger.InfoFormat("Expires on {0}", License.ExpirationDate);
-            if (License.UpgradeProtectionExpiration != null)
-            {
-                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", License.UpgradeProtectionExpiration);
-            }
-
-            if (License.MaxThroughputPerSecond == LicenseDeserializer.MaxThroughputPerSecond)
-            {
-                Logger.Info("MaxThroughputPerSecond: unlimited");
-            }
-            else
-            {
-                Logger.InfoFormat("MaxThroughputPerSecond: {0}", License.MaxThroughputPerSecond);
-            }
-
-            if (License.AllowedNumberOfWorkerNodes == LicenseDeserializer.MaxWorkerNodes)
-            {
-                Logger.Info("AllowedNumberOfWorkerNodes: unlimited");
-            }
-            else
-            {
-                Logger.InfoFormat("AllowedNumberOfWorkerNodes: {0}", License.AllowedNumberOfWorkerNodes);
-            }
-        }
-
-        static void ConfigureNServiceBusToRunInTrialMode()
+        static Particular.Licensing.License ConfigureNServiceBusToRunInTrialMode()
         {
             if (UserSidChecker.IsNotSystemSid())
             {
-                var trialExpirationDate = TrialLicenseReader.GetTrialExpirationFromRegistry();
-                license = LicenseDeserializer.GetTrialLicense(trialExpirationDate);
+                var trialStartDate = TrialStartDateStore.GetTrialStartDate();
+                var trialLicense = Particular.Licensing.License.TrialLicense(trialStartDate);
 
                 //Check trial is still valid
-                if (LicenseExpirationChecker.HasLicenseDateExpired(trialExpirationDate))
+                if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
                 {
-                    Logger.FatalFormat("Trial for NServiceBus v{0} has expired.", GitFlowVersion.MajorMinor);
+                    Logger.WarnFormat("Trial for the Particular Service Platform has expired");
                 }
                 else
                 {
-                    var message = string.Format("Trial for NServiceBus v{0} is still active, trial expires on {1}. Configuring NServiceBus to run in trial mode.", GitFlowVersion.MajorMinor, trialExpirationDate.ToLocalTime().ToShortDateString());
+                    var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialStartDate.ToLocalTime().ToShortDateString());
                     Logger.Info(message);
                 }
-                return;
+                return trialLicense;
             }
+
             Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
-            license = LicenseDeserializer.GetTrialLicense(DateTime.Today);
+
+            return null;
         }
 
         internal static void InitializeLicense()
@@ -100,27 +78,47 @@ namespace NServiceBus.Licensing
             //only do this if not been configured by the fluent API
             if (licenseText == null)
             {
-                licenseText = LicenseLocationConventions.TryFindLicenseText();
-                if (string.IsNullOrWhiteSpace(licenseText))
+                //look in the new platform locations
+                if (!(new RegistryLicenseStore().TryReadLicense(out licenseText)))
                 {
-                    ConfigureNServiceBusToRunInTrialMode();
-                    return;
+                    //legacy locations
+                    licenseText = LicenseLocationConventions.TryFindLicenseText();
+
+                    if (string.IsNullOrWhiteSpace(licenseText))
+                    {
+                        license = ConfigureNServiceBusToRunInTrialMode();
+                        return;
+                    }
                 }
             }
 
-            SignedXmlVerifier.VerifyXml(licenseText);
-            license = LicenseDeserializer.Deserialize(licenseText);
-            string message;
-            if (LicenseExpirationChecker.HasLicenseExpired(license, out message))
+            LicenseVerifier.Verify(licenseText);
+
+            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
+
+            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                message = message + " You can renew it at http://particular.net/licensing.";
-                Logger.Fatal(message);
-            }            
-            WriteLicenseInfo();
+                Logger.Fatal(" You can renew it at http://particular.net/licensing.");
+                return;
+            }
+
+            if (foundLicense.UpgradeProtectionExpiration != null)
+            {
+                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", foundLicense.UpgradeProtectionExpiration);
+            }
+            else
+            {
+                Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
+            }
+
+            license = foundLicense;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+        static string licenseText;
+        static Particular.Licensing.License license;
 
+        [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
         public static License License
         {
             get
@@ -129,10 +127,27 @@ namespace NServiceBus.Licensing
                 {
                     InitializeLicense();
                 }
-                return license;
+
+                var nsbLicense = new License
+                {
+                    AllowedNumberOfWorkerNodes = int.MaxValue,
+                    MaxThroughputPerSecond = int.MaxValue,
+                };
+
+                if (license.ExpirationDate.HasValue)
+                {
+                    nsbLicense.ExpirationDate = license.ExpirationDate.Value;
+                }
+
+                if (license.UpgradeProtectionExpiration.HasValue)
+                {
+                    nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
+                }
+
+                return nsbLicense;
             }
         }
-        static string licenseText;
-        static License license;
+
+
     }
 }

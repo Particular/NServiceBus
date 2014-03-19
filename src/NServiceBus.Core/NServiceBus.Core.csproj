@@ -87,6 +87,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllAssemblies.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\License.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\LicenseVerifier.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\RegistryLicenseStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\ReleaseDateReader.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\TrialStartDateStore.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\UniversalDateParser.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Audit\InitMessageAuditer.cs" />
     <Compile Include="Audit\MessageAuditer.cs" />
@@ -127,16 +135,12 @@
     <Compile Include="Impersonation\Windows\ConfigureWindowsIdentityEnricher.cs" />
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
-    <Compile Include="Licensing\LicenseExpirationChecker.cs" />
+    <Compile Include="Licensing\License.cs" />
+    <Compile Include="Licensing\LicenseInitializer.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
-    <Compile Include="Licensing\LicenseDeserializer.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
-    <Compile Include="Licensing\SignedXmlVerifier.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
-    <Compile Include="Licensing\TimestampReader.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
-    <Compile Include="Licensing\TrialLicenseReader.cs" />
-    <Compile Include="Licensing\UniversalDateParser.cs" />
     <Compile Include="Licensing\UserSidChecker.cs" />
     <Compile Include="Persistence\Raven\RavenUserInstaller.cs" />
     <Compile Include="Installation\PerformanceMonitorUsersInstaller.cs" />
@@ -403,7 +407,6 @@
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
     <Compile Include="IWcfService.cs" />
-    <Compile Include="Licensing\License.cs" />
     <Compile Include="Licensing\LicenseManager.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />

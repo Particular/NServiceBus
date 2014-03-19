@@ -98,11 +98,6 @@ namespace NServiceBus.Distributor.MSMQ
         {
             var replyToAddress = controlMessage.ReplyToAddress;
 
-            if (LicenseConfig.LimitNumberOfWorkers(replyToAddress))
-            {
-                return;
-            }
-
             string messageSessionId;
             if (!controlMessage.Headers.TryGetValue(Headers.WorkerSessionId, out messageSessionId))
             {

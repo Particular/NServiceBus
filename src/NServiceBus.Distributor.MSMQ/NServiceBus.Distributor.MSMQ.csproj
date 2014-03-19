@@ -61,7 +61,6 @@
     <Compile Include="DistributorReadyMessageProcessor.cs" />
     <Compile Include="DistributorSatellite.cs" />
     <Compile Include="IWorkerAvailabilityManager.cs" />
-    <Compile Include="LicenseConfig.cs" />
     <Compile Include="Config\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Profiles\DistributorProfileHandler.cs" />
