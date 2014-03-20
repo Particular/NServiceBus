@@ -18,7 +18,6 @@
 
             SetLoggingLibrary.Log4Net(null, new ContextAppender(runDescriptor.ScenarioContext, endpointConfiguration));
 
-
             var types = GetTypesToUse(endpointConfiguration);
 
             var transportToUse = settings.GetOrNull("Transport");
@@ -39,10 +38,14 @@
                 transportToUse.Contains("Msmq") ||
                 transportToUse.Contains("SqlServer") ||
                 transportToUse.Contains("RabbitMq"))
-                config.UseInMemoryTimeoutPersister();
+            {
+                config.DefineTimeoutPersister(settings.GetOrNull("TimeoutPersister"));
+            }
 
             if (transportToUse == null || transportToUse.Contains("Msmq") || transportToUse.Contains("SqlServer"))
+            {
                 config.DefineSubscriptionStorage(settings.GetOrNull("SubscriptionStorage"));
+            }
 
             return config.UnicastBus();
         }
