@@ -72,15 +72,12 @@
             throw new InvalidOperationException("Unknown serializer:" + serializer);
         }
 
-
         public static Configure DefineSagaPersister(this Configure config, string persister)
         {
             if (string.IsNullOrEmpty(persister))
             {
                 persister = SagaPersisters.Default.Settings["SagaPersister"];
             }
-
-
 
             if (persister.Contains(typeof(InMemorySagaPersister).FullName))
             {
@@ -94,7 +91,6 @@
                 return config.RavenSagaPersister();
 
             }
-
 
             var type = Type.GetType(persister);
 
