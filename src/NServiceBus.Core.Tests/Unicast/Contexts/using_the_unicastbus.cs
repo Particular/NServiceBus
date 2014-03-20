@@ -69,7 +69,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
           
             transportDefinition = new Msmq();
-            LicenseManager.InitializeLicense();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();
