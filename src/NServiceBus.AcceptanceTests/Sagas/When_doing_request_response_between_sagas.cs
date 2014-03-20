@@ -43,7 +43,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public void Handle(InitiateRequestingSaga message)
                 {
                     Data.DataId = message.DataId;
-                    Bus.SendLocal(new RequestToRespondingSaga());
+                    Bus.SendLocal(new RequestToRespondingSaga { DataId = message.DataId });
                 }
 
                 public void Handle(ResponseFromOtherSaga message)
@@ -63,9 +63,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
             }
 
-          
-
-
             public class RespondingSaga : Saga<RespondingSaga.RespondingSagaData>, 
                 IAmStartedByMessages<RequestToRespondingSaga>
             {
@@ -73,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public void Handle(RequestToRespondingSaga message)
                 {
-                    Bus.Reply(new ResponseFromOtherSaga());
+                    Bus.Reply(new ResponseFromOtherSaga { DataId = message.DataId });
                 }
 
                 public override void ConfigureHowToFindSaga()
@@ -82,8 +79,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class RespondingSagaData : ContainSagaData
                 {
-                    [Unique]
-                    public virtual Guid DataId { get; set; }
                 }
             }
         }
@@ -94,15 +89,16 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public Guid DataId { get; set; }
         }
 
-
         [Serializable]
         public class RequestToRespondingSaga : ICommand
         {
+            public Guid DataId { get; set; }
         }
 
         [Serializable]
         public class ResponseFromOtherSaga : IMessage
         {
+            public Guid DataId { get; set; }
         }
     }
 }
