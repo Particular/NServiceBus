@@ -7,6 +7,7 @@ namespace NServiceBus.Hosting
     using Configuration;
     using Helpers;
     using Installation;
+    using Logging;
     using Profiles;
     using Roles;
     using Settings;
@@ -64,16 +65,24 @@ namespace NServiceBus.Hosting
         /// </summary>
         public void Start()
         {
-            PerformConfiguration();
-
-            bus = Configure.Instance.CreateBus();
-            if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+            try
             {
-                bus.Start();
-            }
+                PerformConfiguration();
 
-            configManager.Startup();
-            wcfManager.Startup();
+                bus = Configure.Instance.CreateBus();
+                if (bus != null && !SettingsHolder.Get<bool>("Endpoint.SendOnly"))
+                {
+                    bus.Start();
+                }
+
+                configManager.Startup();
+                wcfManager.Startup();
+            }
+            catch (Exception ex)
+            {
+                LogManager.GetLogger(typeof(GenericHost)).Fatal("Exception when starting endpoint.", ex);
+                throw;
+            }
         }
 
         /// <summary>
