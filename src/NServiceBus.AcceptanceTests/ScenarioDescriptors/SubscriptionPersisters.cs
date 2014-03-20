@@ -4,13 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using Persistence.InMemory.SagaPersister;
-    using Persistence.Raven.SagaPersister;
-    using Saga;
+    using Persistence.InMemory.SubscriptionStorage;
+    using Persistence.Msmq.SubscriptionStorage;
+    using Persistence.Raven.SubscriptionStorage;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    public class SagaPersisters : ScenarioDescriptor
+    public class SubscriptionPersisters : ScenarioDescriptor
     {
-        public SagaPersisters()
+        public SubscriptionPersisters()
         {
             var persisters = AvailablePersisters;
 
@@ -19,7 +20,7 @@
                 Add(new RunDescriptor
                 {
                     Key = persister.Name,
-                    Settings = new Dictionary<string, string> { { "SagaPersister", persister.AssemblyQualifiedName } }
+                    Settings = new Dictionary<string, string> { { "SubscriptionStorage", persister.AssemblyQualifiedName } }
                 });
             }
         }
@@ -28,7 +29,7 @@
         {
             get
             {
-                var persisters = TypeScanner.GetAllTypesAssignableTo<ISagaPersister>()
+                var persisters = TypeScanner.GetAllTypesAssignableTo<ISubscriptionStorage>()
                     .Where(t => !t.IsInterface)
                     .ToList();
                 return persisters;
@@ -40,11 +41,11 @@
             get
             {
                 var persisters = AvailablePersisters;
-                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySagaPersister) && p != typeof(RavenSagaPersister));
+                var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySubscriptionStorage) && p != typeof(RavenSubscriptionStorage) && p != typeof(MsmqSubscriptionStorage));
 
                 if (persister == null)
                 {
-                    persister = typeof(InMemorySagaPersister);
+                    persister = typeof(InMemorySubscriptionStorage);
                 }
 
                 return new RunDescriptor
@@ -52,7 +53,7 @@
                     Key = persister.Name,
                     Settings = new Dictionary<string, string>
                     {
-                        {"SagaPersister", persister.AssemblyQualifiedName}
+                        {"SubscriptionStorage", persister.AssemblyQualifiedName}
                     }
                 };
             }

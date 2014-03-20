@@ -1,6 +1,5 @@
 namespace NServiceBus.Gateway.Channels
 {
-    using ObjectBuilder;
     using System;
     using System.Collections.Generic;
     using System.Linq;
