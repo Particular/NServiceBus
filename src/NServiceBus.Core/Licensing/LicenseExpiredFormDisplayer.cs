@@ -18,14 +18,13 @@ namespace NServiceBus.Licensing
                     {
                         return null;
                     }
-                    LicenseLocationConventions.StoreLicenseInRegistry(form.ResultingLicenseText);
+
+                    new RegistryLicenseStore()
+                        .StoreLicense(form.ResultingLicenseText);
+
                     return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
                 }
 
-                new RegistryLicenseStore()
-                    .StoreLicense(form.ResultingLicenseText);
-
-                return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
             }
             finally
             {

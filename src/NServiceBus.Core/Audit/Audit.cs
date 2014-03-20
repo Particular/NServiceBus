@@ -29,7 +29,6 @@
             // initialization happens, so we already have an instance of the MessageAuditer)
             Configure.Instance.Configurer
                 .ConfigureProperty<MessageAuditer>(p => p.AuditQueue, GetConfiguredAuditQueue())
-                .ConfigureProperty<MessageAuditer>(p => p.LicenseExpired, LicenseManager.HasLicenseExpired())
                 .ConfigureProperty<MessageAuditer>(t => t.TimeToBeReceivedOnForwardedMessages, GetTimeToBeReceivedFromAuditConfig());
         }
 

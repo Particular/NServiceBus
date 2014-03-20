@@ -48,7 +48,7 @@ namespace NServiceBus.Licensing
             }
         }
 
-        static Particular.Licensing.License ConfigureNServiceBusToRunInTrialMode()
+        static Particular.Licensing.License GetTrialLicense()
         {
             if (UserSidChecker.IsNotSystemSid())
             {
@@ -86,7 +86,7 @@ namespace NServiceBus.Licensing
 
                     if (string.IsNullOrWhiteSpace(licenseText))
                     {
-                        license = ConfigureNServiceBusToRunInTrialMode();
+                        license = GetTrialLicense();
                         return;
                     }
                 }
