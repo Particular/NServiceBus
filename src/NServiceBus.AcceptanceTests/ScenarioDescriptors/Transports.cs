@@ -8,13 +8,14 @@
 
     public static class Transports
     {
-
         public static IEnumerable<RunDescriptor> AllAvailable
         {
             get
             {
                 if (availableTransports == null)
+                {
                     availableTransports = GetAllAvailable().ToList();
+                }
 
                 return availableTransports;
             }
