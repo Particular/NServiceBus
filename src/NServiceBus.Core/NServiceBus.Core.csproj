@@ -136,6 +136,7 @@
     <Compile Include="Installation\GatewayHttpListenerInstaller.cs" />
     <Compile Include="Installation\ElevateChecker.cs" />
     <Compile Include="Licensing\License.cs" />
+    <Compile Include="Licensing\LicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseInitializer.cs" />
     <Compile Include="Licensing\LicenseLocationConventions.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />

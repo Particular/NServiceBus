@@ -30,11 +30,6 @@
         public Address AuditQueue { get; set; }
 
         /// <summary>
-        /// Indicates if the current endpoint has a valid license
-        /// </summary>
-        public bool LicenseExpired { get; set; }
-
-        /// <summary>
         /// If the auditing feature is turned on, forward the given transport to the configured audit queue.
         /// </summary>
         public virtual void ForwardMessageToAuditQueue(TransportMessage transportMessage)
@@ -44,7 +39,6 @@
                 return;
             }
 
-            transportMessage.Headers[Headers.HasLicenseExpired] = LicenseExpired.ToString().ToLower();
             MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, AuditQueue);
         }
     }
