@@ -1,10 +1,11 @@
 namespace NServiceBus.Licensing
 {
     using System.Threading;
+    using Particular.Licensing;
 
     static class LicenseExpiredFormDisplayer
     {
-        public static License PromptUserForLicense()
+        public static Particular.Licensing.License PromptUserForLicense()
         {
             SynchronizationContext synchronizationContext = null;
             try
@@ -17,9 +18,13 @@ namespace NServiceBus.Licensing
                     {
                         return null;
                     }
-                    LicenseLocationConventions.StoreLicenseInRegistry(form.ResultingLicenseText);
+
+                    new RegistryLicenseStore()
+                        .StoreLicense(form.ResultingLicenseText);
+
                     return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
                 }
+
             }
             finally
             {

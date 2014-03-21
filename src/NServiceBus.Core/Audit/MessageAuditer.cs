@@ -11,7 +11,7 @@
     /// <see cref="ISendMessages"/> which will be injected by the bus.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Advanced)]
-    public class MessageAuditer 
+    public class MessageAuditer
     {
         /// <summary>
         /// This will be used to forward messages to the specified audit queue.
@@ -22,13 +22,12 @@
         /// The TTR to set on forwarded messages. 
         /// </summary>
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-        
+
 
         /// <summary>
         /// <see cref="Address"/> where the messages needs to be forwarded when the auditing feature is turned on
         /// </summary>
         public Address AuditQueue { get; set; }
-        
 
         /// <summary>
         /// If the auditing feature is turned on, forward the given transport to the configured audit queue.
@@ -40,7 +39,6 @@
                 return;
             }
 
-            Licensing.LicenseManager.RecordIfLicenseHasExpiredInTheHeader(transportMessage);
             MessageSender.ForwardMessage(transportMessage, TimeToBeReceivedOnForwardedMessages, AuditQueue);
         }
     }
