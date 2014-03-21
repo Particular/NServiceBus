@@ -1,10 +1,10 @@
 namespace NServiceBus.Gateway.Receiving
 {
+    using System;
     using System.Collections.Generic;
     using Features;
     using Logging;
     using Notifications;
-    using ObjectBuilder;
     using Routing;
     using Satellites;
     using Settings;
@@ -20,7 +20,7 @@ namespace NServiceBus.Gateway.Receiving
         public ISendMessages MessageSender { get; set; }
         public IManageReceiveChannels ChannelManager { get; set; }
         public IRouteMessagesToEndpoints EndpointRouter { get; set; }
-        public IBuilder builder { get; set; }
+        public Func<IReceiveMessagesFromSites> builder { get; set; }
 
         public void Stop()
         {
@@ -61,7 +61,7 @@ namespace NServiceBus.Gateway.Receiving
 
             foreach (var receiveChannel in ChannelManager.GetReceiveChannels())
             {
-                var receiver = builder.Build<IReceiveMessagesFromSites>();
+                var receiver = builder();
 
                 receiver.MessageReceived += MessageReceivedOnChannel;
                 receiver.Start(receiveChannel, receiveChannel.NumberOfWorkerThreads);
