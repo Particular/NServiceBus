@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics;
     using Config;
-    using Licensing;
     using Logging;
     using NServiceBus.Audit;
     using Utils;
