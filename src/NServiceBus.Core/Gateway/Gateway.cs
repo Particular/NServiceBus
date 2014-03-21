@@ -87,9 +87,10 @@
                 Configure.Component<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
                 Configure.Component<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<SingleCallChannelReceiver>(), DependencyLifecycle.InstancePerCall);
             }
-
-            if (!Configure.HasComponent<Func<IReceiveMessagesFromSites>>())
-	            Configure.Component<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<IReceiveMessagesFromSites>(), DependencyLifecycle.InstancePerCall);
+            else
+            {
+                Configure.Component<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<IReceiveMessagesFromSites>(), DependencyLifecycle.InstancePerCall);
+            }
 
             Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
