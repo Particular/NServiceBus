@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using System.Linq;
     using Config;
     using NServiceBus.Gateway.Channels;
@@ -80,11 +81,15 @@
 
         static void ConfigureReceiver()
         {
-            if (!Configure.Instance.Configurer.HasComponent<IReceiveMessagesFromSites>())
+            if (!Configure.HasComponent<IReceiveMessagesFromSites>())
             {
                 Configure.Component<IdempotentChannelReceiver>(DependencyLifecycle.InstancePerCall);
                 Configure.Component<SingleCallChannelReceiver>(DependencyLifecycle.InstancePerCall);
+                Configure.Component<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<SingleCallChannelReceiver>(), DependencyLifecycle.InstancePerCall);
             }
+
+            if (!Configure.HasComponent<Func<IReceiveMessagesFromSites>>())
+	            Configure.Component<Func<IReceiveMessagesFromSites>>(builder => () => builder.Build<IReceiveMessagesFromSites>(), DependencyLifecycle.InstancePerCall);
 
             Configure.Component<DataBusHeaderManager>(DependencyLifecycle.InstancePerCall);
 
