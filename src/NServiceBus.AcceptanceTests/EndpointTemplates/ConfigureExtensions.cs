@@ -156,7 +156,14 @@
 
             var typeName = "Configure" + type.Name;
 
-            var configurer = Activator.CreateInstance(Type.GetType(typeName));
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType == null)
+            {
+                return;
+            }
+
+            var configurer = Activator.CreateInstance(configurerType);
 
             dynamic dc = configurer;
 
