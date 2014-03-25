@@ -159,9 +159,9 @@ namespace NServiceBus.MessageInterfaces.Tests
 
         public CustomAttributeWithValueProperties(string name, bool flag, int age)
         {
-            this.Name = name;
-            this.FlagIsSet = flag;
-            this.MyAge = age;
+            Name = name;
+            FlagIsSet = flag;
+            MyAge = age;
         }
 
         public string Name { get; set; }
