@@ -88,12 +88,15 @@ namespace NServiceBus.Distributor.MSMQ
                 var address = MsmqUtilities.GetIndependentAddressForQueue(availableWorker.ResponseQueue);
                 string registeredWorkerSessionId;
 
+                var sessionId = availableWorker.Label;
+
                 if (!registeredWorkerAddresses.TryGetValue(address, out registeredWorkerSessionId))
                 {
-                    return NextAvailableWorker();
-                }
+                    // Distributor could have been restarted, hence the reason we do not have the worker registered.
+                    registeredWorkerAddresses[address] = sessionId;
 
-                var sessionId = availableWorker.Label;
+                    Logger.InfoFormat("Worker '{0}' has been re-registered with distributor.", address);
+                }
 
                 if (registeredWorkerSessionId != sessionId)
                 {
@@ -139,7 +142,7 @@ namespace NServiceBus.Distributor.MSMQ
 
         public void UnregisterWorker(Address address)
         {
-            registeredWorkerAddresses.Remove(address);
+            registeredWorkerAddresses[address] = "disconnected";
         }
 
         public void RegisterNewWorker(Worker worker, int capacity)
