@@ -2,10 +2,10 @@ param($installPath, $toolsPath, $package, $project)
 
 if($toolsPath){
 	if (Get-Module NServiceBus.Powershell) {
-		Remove-Module NServiceBus.Powershell
+		Remove-Module NServiceBus.Powershell.Development
 	}
 
-	$pathToNServiceBusPSCmdLets = Join-Path $toolsPath NServiceBus.Powershell.dll
+	$pathToNServiceBusPSCmdLets = Join-Path $toolsPath NServiceBus.Powershell.Development.dll
 
 	if(Test-Path $pathToNServiceBusPSCmdLets){
 		Import-Module $pathToNServiceBusPSCmdLets
