@@ -34,7 +34,9 @@
             this.thanksLabel = new System.Windows.Forms.Label();
             this.browseButton = new System.Windows.Forms.Button();
             this.purchaseButton = new System.Windows.Forms.Button();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.warningText = new System.Windows.Forms.RichTextBox();
+            this.instructionsText = new System.Windows.Forms.RichTextBox();
+            this.getTrialLicenseButton = new System.Windows.Forms.Button();
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -71,17 +73,18 @@
             this.thanksLabel.Name = "thanksLabel";
             this.thanksLabel.Size = new System.Drawing.Size(562, 48);
             this.thanksLabel.TabIndex = 2;
-            this.thanksLabel.Text = "Thank you for using Particular Software NServiceBus.";
+            this.thanksLabel.Text = "Thank you for using NServiceBus in Particular";
+            this.thanksLabel.Click += new System.EventHandler(this.thanksLabel_Click);
             // 
             // browseButton
             // 
             this.browseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.browseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.browseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.browseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.browseButton.Location = new System.Drawing.Point(296, 268);
+            this.browseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.browseButton.Location = new System.Drawing.Point(423, 268);
             this.browseButton.Name = "browseButton";
-            this.browseButton.Size = new System.Drawing.Size(101, 31);
+            this.browseButton.Size = new System.Drawing.Size(140, 30);
             this.browseButton.TabIndex = 2;
             this.browseButton.Text = "Browse...";
             this.browseButton.UseVisualStyleBackColor = false;
@@ -92,27 +95,56 @@
             this.purchaseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.purchaseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.purchaseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.purchaseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.purchaseButton.Location = new System.Drawing.Point(165, 268);
+            this.purchaseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.purchaseButton.Location = new System.Drawing.Point(277, 268);
             this.purchaseButton.Name = "purchaseButton";
-            this.purchaseButton.Size = new System.Drawing.Size(111, 31);
+            this.purchaseButton.Size = new System.Drawing.Size(140, 30);
             this.purchaseButton.TabIndex = 1;
-            this.purchaseButton.Text = "Purchase";
+            this.purchaseButton.Text = "Buy Now";
             this.purchaseButton.UseVisualStyleBackColor = false;
             this.purchaseButton.Click += new System.EventHandler(this.PurchaseButton_Click);
             // 
-            // richTextBox1
+            // warningText
             // 
-            this.richTextBox1.BackColor = System.Drawing.Color.White;
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.richTextBox1.Location = new System.Drawing.Point(43, 138);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.richTextBox1.Size = new System.Drawing.Size(520, 112);
-            this.richTextBox1.TabIndex = 17;
-            this.richTextBox1.Text = resources.GetString("richTextBox1.Text");
+            this.warningText.BackColor = System.Drawing.Color.White;
+            this.warningText.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.warningText.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.warningText.ForeColor = System.Drawing.Color.Red;
+            this.warningText.Location = new System.Drawing.Point(43, 138);
+            this.warningText.Name = "warningText";
+            this.warningText.ReadOnly = true;
+            this.warningText.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.warningText.Size = new System.Drawing.Size(520, 28);
+            this.warningText.TabIndex = 17;
+            this.warningText.Text = "The Trial period is now over";
+            // 
+            // instructionsText
+            // 
+            this.instructionsText.BackColor = System.Drawing.Color.White;
+            this.instructionsText.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.instructionsText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.instructionsText.ForeColor = System.Drawing.Color.Black;
+            this.instructionsText.Location = new System.Drawing.Point(43, 185);
+            this.instructionsText.Name = "instructionsText";
+            this.instructionsText.ReadOnly = true;
+            this.instructionsText.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
+            this.instructionsText.Size = new System.Drawing.Size(520, 77);
+            this.instructionsText.TabIndex = 18;
+            this.instructionsText.Text = "Instructions....";
+            // 
+            // getTrialLicenseButton
+            // 
+            this.getTrialLicenseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.getTrialLicenseButton.BackColor = System.Drawing.Color.Gainsboro;
+            this.getTrialLicenseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.getTrialLicenseButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.getTrialLicenseButton.Location = new System.Drawing.Point(131, 268);
+            this.getTrialLicenseButton.Name = "getTrialLicenseButton";
+            this.getTrialLicenseButton.Size = new System.Drawing.Size(140, 30);
+            this.getTrialLicenseButton.TabIndex = 19;
+            this.getTrialLicenseButton.Text = "Get trial";
+            this.getTrialLicenseButton.UseVisualStyleBackColor = false;
+            this.getTrialLicenseButton.Click += new System.EventHandler(this.getTrialLicenseButton_Click);
             // 
             // LicenseExpiredForm
             // 
@@ -120,7 +152,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(579, 322);
-            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.getTrialLicenseButton);
+            this.Controls.Add(this.instructionsText);
+            this.Controls.Add(this.warningText);
             this.Controls.Add(this.purchaseButton);
             this.Controls.Add(this.browseButton);
             this.Controls.Add(this.thanksLabel);
@@ -132,6 +166,7 @@
             this.Name = "LicenseExpiredForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NServiceBus - Trial Expired";
+            this.Load += new System.EventHandler(this.LicenseExpiredForm_Load);
             this.headerPanel.ResumeLayout(false);
             this.headerPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).EndInit();
@@ -146,6 +181,8 @@
         private System.Windows.Forms.Label thanksLabel;
         private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.Button purchaseButton;
-        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.RichTextBox warningText;
+        private System.Windows.Forms.RichTextBox instructionsText;
+        private System.Windows.Forms.Button getTrialLicenseButton;
     }
 }

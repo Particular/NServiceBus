@@ -13,12 +13,30 @@
         static ILog Logger = LogManager.GetLogger(typeof(LicenseExpiredForm));
         public LicenseExpiredForm()
         {
-            InitializeComponent(); 
+            InitializeComponent();
         }
+
+        public Particular.Licensing.License CurrentLicense { get; set; }
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            warningText.Text = "The trial period is now over";
+
+            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            {
+                Text = "NServiceBus - Initial Trial Expired";
+                instructionsText.Text = "To extend your free trial, click 'Extend trial' and register online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                getTrialLicenseButton.Text = "Extend Trial";
+            }
+            else
+            {
+                Text = "NServiceBus - Extended Trial Expired";
+                instructionsText.Text = "Please contact sales to purchase a license or to request an extension to your free trial. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                getTrialLicenseButton.Text = "Contact Sales";
+            }
+
             Visible = true;
         }
 
@@ -65,6 +83,28 @@
         void PurchaseButton_Click(object sender, EventArgs e)
         {
             Process.Start("http://particular.net/licensing");
+        }
+
+        private void LicenseExpiredForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void thanksLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void getTrialLicenseButton_Click(object sender, EventArgs e)
+        {
+            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            {
+                Process.Start("http://particular.net/extend-your-trial-14");
+            }
+            else
+            {
+                Process.Start("http://particular.net/extend-your-trial-45");
+            }
         }
     }
 }

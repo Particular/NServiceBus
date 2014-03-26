@@ -38,7 +38,7 @@ namespace NServiceBus.Licensing
 
                 if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
                 {
-                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense();
+                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense(license);
 
                     if (licenseProvidedByUser != null)
                     {
