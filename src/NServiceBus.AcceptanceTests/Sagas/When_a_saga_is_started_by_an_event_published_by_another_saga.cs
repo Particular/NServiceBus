@@ -54,7 +54,6 @@
 
 
         [Test]
-        [Explicit]
         public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
             Scenario.Define<SagaContext>()
