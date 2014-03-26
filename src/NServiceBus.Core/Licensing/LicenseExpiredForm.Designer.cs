@@ -85,7 +85,7 @@
             this.browseButton.Location = new System.Drawing.Point(423, 268);
             this.browseButton.Name = "browseButton";
             this.browseButton.Size = new System.Drawing.Size(140, 30);
-            this.browseButton.TabIndex = 2;
+            this.browseButton.TabIndex = 4;
             this.browseButton.Text = "Browse...";
             this.browseButton.UseVisualStyleBackColor = false;
             this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
@@ -99,7 +99,7 @@
             this.purchaseButton.Location = new System.Drawing.Point(277, 268);
             this.purchaseButton.Name = "purchaseButton";
             this.purchaseButton.Size = new System.Drawing.Size(140, 30);
-            this.purchaseButton.TabIndex = 1;
+            this.purchaseButton.TabIndex = 3;
             this.purchaseButton.Text = "Buy Now";
             this.purchaseButton.UseVisualStyleBackColor = false;
             this.purchaseButton.Click += new System.EventHandler(this.PurchaseButton_Click);
@@ -141,7 +141,7 @@
             this.getTrialLicenseButton.Location = new System.Drawing.Point(131, 268);
             this.getTrialLicenseButton.Name = "getTrialLicenseButton";
             this.getTrialLicenseButton.Size = new System.Drawing.Size(140, 30);
-            this.getTrialLicenseButton.TabIndex = 19;
+            this.getTrialLicenseButton.TabIndex = 2;
             this.getTrialLicenseButton.Text = "Get trial";
             this.getTrialLicenseButton.UseVisualStyleBackColor = false;
             this.getTrialLicenseButton.Click += new System.EventHandler(this.getTrialLicenseButton_Click);

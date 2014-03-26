@@ -29,11 +29,13 @@
                 Text = "NServiceBus - Initial Trial Expired";
                 instructionsText.Text = "To extend your free trial, click 'Extend trial' and register online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
+                purchaseButton.Visible = false;
+                getTrialLicenseButton.Left = purchaseButton.Left;
             }
             else
             {
                 Text = "NServiceBus - Extended Trial Expired";
-                instructionsText.Text = "Please contact sales to purchase a license or to request an extension to your free trial. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "Please click 'Contact Sales' to request an extension to your free trial, or click 'Buy Now' to purchase a license online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Contact Sales";
             }
 
