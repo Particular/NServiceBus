@@ -85,16 +85,6 @@
             Process.Start("http://particular.net/licensing");
         }
 
-        private void LicenseExpiredForm_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void thanksLabel_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
             if (CurrentLicense != null && CurrentLicense.IsTrialLicense)

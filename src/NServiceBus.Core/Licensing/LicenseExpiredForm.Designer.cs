@@ -74,7 +74,6 @@
             this.thanksLabel.Size = new System.Drawing.Size(562, 48);
             this.thanksLabel.TabIndex = 2;
             this.thanksLabel.Text = "Thank you for using NServiceBus in Particular";
-            this.thanksLabel.Click += new System.EventHandler(this.thanksLabel_Click);
             // 
             // browseButton
             // 
@@ -166,7 +165,6 @@
             this.Name = "LicenseExpiredForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NServiceBus - Trial Expired";
-            this.Load += new System.EventHandler(this.LicenseExpiredForm_Load);
             this.headerPanel.ResumeLayout(false);
             this.headerPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).EndInit();
