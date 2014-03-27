@@ -49,7 +49,7 @@
 
                     var finder = Activator.CreateInstance(propertyFinder);
                     propertyFinder.GetProperty("SagaProperty").SetValue(finder, propertyLookups.Key);
-                    propertyFinder.GetProperty("MessageProperty").SetValue(finder, propertyLookups.Value);
+                    propertyFinder.GetProperty("MessageFunc").SetValue(finder, propertyLookups.Value);
                     FuncBuilder.Register(propertyFinder, () => finder);
                 }
             }

@@ -87,6 +87,21 @@
             Assert.AreEqual("Test", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
         }
 
+        [Test]
+        public void Should_find_existing_instance_by_custom_function()
+        {
+          var sagaId = Guid.NewGuid();
+          var correlationId = Guid.NewGuid();
+
+          RegisterSaga<MySaga>(new MySagaData { Id = sagaId, PropertyThatCorrelatesToMessage = correlationId, ComposedId = "4321;6521"});
+
+          ReceiveMessage(new MessageThatHitsExistingSaga2 { CorrelationId1 = "4321", CorrelationId2 = "6521" });
+
+          Assert.AreEqual(1, persister.CurrentSagaEntities.Count(), "Existing saga should be found");
+
+          Assert.AreEqual("Test2", ((MySagaData)persister.CurrentSagaEntities[sagaId].SagaEntity).SomeValue, "Entity should be updated");
+        }
+
 
         [Test]
         public void Should_enrich_the_audit_data_with_the_saga_type_and_id()
@@ -109,17 +124,27 @@
         }
 
 
-        class MySaga : Saga<MySagaData>, IHandleMessages<MessageThatHitsExistingSaga>
+        class MySaga : Saga<MySagaData>
+          , IHandleMessages<MessageThatHitsExistingSaga>
+          , IHandleMessages<MessageThatHitsExistingSaga2>
         {
             public void Handle(MessageThatHitsExistingSaga message)
             {
                 Data.SomeValue = "Test";
             }
 
+            public void Handle(MessageThatHitsExistingSaga2 message)
+            {
+                Data.SomeValue = "Test2";
+            }
+
             public override void ConfigureHowToFindSaga()
             {
                 ConfigureMapping<MessageThatHitsExistingSaga>(m => m.PropertyThatCorrelatesToSaga)
                     .ToSaga(s => s.PropertyThatCorrelatesToMessage);
+
+                ConfigureMapping<MessageThatHitsExistingSaga2>(m => String.Format("{0};{1}", m.CorrelationId1,m.CorrelationId2))
+                    .ToSaga(s => s.ComposedId);
             }
         }
 
@@ -127,11 +152,18 @@
         {
             public string SomeValue { get; set; }
             public Guid PropertyThatCorrelatesToMessage { get; set; }
+            public string ComposedId { get; set; }
         }
 
         class MessageThatHitsExistingSaga : IMessage
         {
             public Guid PropertyThatCorrelatesToSaga { get; set; }
+        }
+
+        class MessageThatHitsExistingSaga2 : IMessage
+        {
+            public string CorrelationId1 { get; set; }
+            public string CorrelationId2 { get; set; }
         }
     }
 

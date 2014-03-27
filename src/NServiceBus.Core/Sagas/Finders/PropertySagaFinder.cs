@@ -21,9 +21,9 @@ namespace NServiceBus.Sagas.Finders
         public PropertyInfo SagaProperty { get; set; }
         
         /// <summary>
-        /// Property of the message whose value will be used for the lookup.
+        /// Lambda used to fetch the value from the message used for the lookup.
         /// </summary>
-        public PropertyInfo MessageProperty { get; set; }
+        public Func<object,object> MessageFunc { get; set; }
 
         /// <summary>
         /// Uses the saga persister to find the saga.
@@ -33,8 +33,8 @@ namespace NServiceBus.Sagas.Finders
             if (SagaPersister == null)
                 throw new InvalidOperationException(
                     "No saga persister configured. Please configure a saga persister if you want to use the nservicebus saga support");
-            
-            var propertyValue = MessageProperty.GetValue(message, null);
+
+            var propertyValue = MessageFunc(message);
             
             if(SagaProperty.Name.ToLower() == "id")
                 return SagaPersister.Get<TSaga>((Guid)propertyValue);
