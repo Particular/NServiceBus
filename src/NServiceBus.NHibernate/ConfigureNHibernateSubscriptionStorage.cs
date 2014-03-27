@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using Config;
     using NHibernate;
-    using NHibernate.Cfg;
+    using global::NHibernate.Cfg;
     using Persistence.NHibernate;
     using Unicast.Subscriptions.NHibernate;
     using Unicast.Subscriptions.NHibernate.Config;
