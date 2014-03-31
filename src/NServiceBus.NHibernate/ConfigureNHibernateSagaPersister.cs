@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Config;
     using NHibernate;
-    using NHibernate.Cfg;
+    using global::NHibernate.Cfg;
     using Persistence.NHibernate;
     using SagaPersisters.NHibernate;
     using SagaPersisters.NHibernate.Config.Internal;

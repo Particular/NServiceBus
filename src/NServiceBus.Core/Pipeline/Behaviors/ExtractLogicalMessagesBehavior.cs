@@ -40,6 +40,13 @@
 
             var transportMessage = context.TransportMessage;
 
+            if (transportMessage.IsControlMessage())
+            {
+                log.Info("Received a control message. Skipping deserilization as control message data is contained in the header.");
+                next();
+                return;
+            }
+
             object[] rawMessages;
 
             try
@@ -51,7 +58,7 @@
                 throw new SerializationException(string.Format("An error occurred while attempting to extract logical messages from transport message {0}", transportMessage), exception);
             }
 
-            if (!transportMessage.IsControlMessage() && !rawMessages.Any())
+            if (!rawMessages.Any())
             {
                 log.Warn("Received an empty message - ignoring.");
                 return;

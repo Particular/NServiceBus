@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Config;
-    using NHibernate.Cfg;
+    using global::NHibernate.Cfg;
     using Persistence.NHibernate;
     using TimeoutPersisters.NHibernate;
     using TimeoutPersisters.NHibernate.Config;
