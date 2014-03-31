@@ -61,12 +61,11 @@
 
                         if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = string.Format("The license you provided has expired.\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.");
+                            var message = string.Format("The license you provided has expired, please select another file.");
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
                         }
-                        MessageBox.Show(this, "The new license has been verified. It will now be stored in the Registry for future use.", "License applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ResultingLicenseText = licenseText;
                         Close();
                     }
