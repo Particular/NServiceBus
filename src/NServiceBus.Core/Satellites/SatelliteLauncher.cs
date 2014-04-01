@@ -45,7 +45,7 @@ namespace NServiceBus.Satellites
 
                     if (satellite.InputAddress != null)
                     {
-                        satelliteContext.Transport = Configure.Instance.Builder.Build<TransportReceiver>();
+                        satelliteContext.Transport = Builder.Build<TransportReceiver>();
 
                         var advancedSatellite = satellite as IAdvancedSatellite;
                         if (advancedSatellite != null)

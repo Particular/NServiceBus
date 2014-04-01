@@ -1034,21 +1034,15 @@ namespace NServiceBus.Unicast
             registry.RegisterMessageType(messageType);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        void AddBackwardsCompatibilityHeaders(TransportMessage incomingMessage)
-        {
-            incomingMessage.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
-        }
-
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
         {
             var incomingMessage = e.Message;
 
+            incomingMessage.Headers["NServiceBus.ProcessingMachine"] = RuntimeEnvironment.MachineName;
             incomingMessage.Headers[Headers.ProcessingEndpoint] = Configure.EndpointName;
             incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
             incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
-            AddBackwardsCompatibilityHeaders(incomingMessage);
             PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
 
 #pragma warning disable 0618

@@ -155,36 +155,20 @@ namespace NServiceBus.MessageInterfaces.Tests
     
     public class CustomAttributeWithValueProperties : Attribute
     {
-        private string name;
-        private bool flag;
-        private int age;
-
         public CustomAttributeWithValueProperties(){}
 
         public CustomAttributeWithValueProperties(string name, bool flag, int age)
         {
-            this.name = name;
-            this.flag = flag;
-            this.age = age;
+            Name = name;
+            FlagIsSet = flag;
+            MyAge = age;
         }
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string Name { get; set; }
 
-        public bool FlagIsSet
-        {
-            get { return flag; }
-            set { flag = value; }
-        }
-        public int MyAge
-        {
-            get { return age; }
-            set { age = value; }
-        }
+        public bool FlagIsSet { get; set; }
 
+        public int MyAge { get; set; }
     }
     public interface IMyEventWithAttributeWithBoolProperty
     {

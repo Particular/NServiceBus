@@ -106,6 +106,7 @@
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\When_defining_outoing_message_mutators.cs" />
+    <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
     <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
     <Compile Include="Audit\When_using_auditing_as_a_feature.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
@@ -159,6 +160,9 @@
     <Compile Include="Sagas\When_receiving_a_message_that_should_start_a_saga.cs" />
     <Compile Include="Sagas\When_a_saga_message_goes_through_the_slr.cs" />
     <Compile Include="Sagas\When_using_containsagadata.cs" />
+    <Compile Include="ScenarioDescriptors\Builders.cs" />
+    <Compile Include="ScenarioDescriptors\SubscriptionPersisters.cs" />
+    <Compile Include="ScenarioDescriptors\TimeoutPersisters.cs" />
     <Compile Include="ScenarioDescriptors\SagaPersisters.cs" />
     <Compile Include="ScenarioDescriptors\AllSubscriptionStorages.cs" />
     <Compile Include="ScenarioDescriptors\AllTransports.cs" />
@@ -183,10 +187,6 @@
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NServiceBus.Distributor.MSMQ\NServiceBus.Distributor.MSMQ.csproj">
-      <Project>{5a2f57e3-4d2b-439c-9481-1de2dd101789}</Project>
-      <Name>NServiceBus.Distributor.MSMQ</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ObjectBuilder.Autofac\ObjectBuilder.Autofac.csproj">
       <Project>{73ec4ebe-826d-4a0a-8837-51d3458fc2a8}</Project>
       <Name>ObjectBuilder.Autofac</Name>

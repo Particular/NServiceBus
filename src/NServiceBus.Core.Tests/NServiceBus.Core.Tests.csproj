@@ -129,6 +129,8 @@
     <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
+    <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
+    <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="NServiceBusVersionTests.cs" />
@@ -136,13 +138,7 @@
     <Compile Include="StringStreamExtensions.cs" />
     <Compile Include="Fakes\FakeCentralizedPubSubTransportDefinition.cs" />
     <Compile Include="Gateway\Receiving\HasherTests.cs" />
-    <Compile Include="Licensing\LicenseDeserializerTests.cs" />
-    <Compile Include="Licensing\LicenseDowngraderTests.cs" />
-    <Compile Include="Licensing\ResourceReader.cs" />
-    <Compile Include="Licensing\SignedXmlVerifierTests.cs" />
-    <Compile Include="Licensing\TimestampTests.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayerTests.cs" />
-    <Compile Include="Licensing\TrialLicenseReaderTests.cs" />
     <Compile Include="Licensing\UserSidCheckerTests.cs" />
     <Compile Include="MessageConventionExtensionsTests.cs" />
     <Compile Include="DataBus\FileShare\AcceptanceTests.cs" />
@@ -323,13 +319,6 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Licensing\LicenseWithNoUpgradeProtection.xml" />
-    <EmbeddedResource Include="Licensing\SignedInvalid.xml">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Licensing\SignedValid.xml" />
-    <EmbeddedResource Include="Licensing\LicenseWithNonMaxThresholds.xml" />
-    <EmbeddedResource Include="Licensing\LicenseWithAllProperties.xml" />
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

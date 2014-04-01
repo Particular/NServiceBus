@@ -111,7 +111,8 @@ namespace NServiceBus.Gateway.Sending
 
         string GetDefaultAddressForThisSite()
         {
-            return ChannelManager.GetDefaultChannel().ToString();
+            var defaultChannel = ChannelManager.GetDefaultChannel();
+            return string.Format("{0},{1}", defaultChannel.Type, defaultChannel.Address);
         }
     }
 }

@@ -7,7 +7,7 @@
         public void Init()
         {
             Configure.With()
-                     .NinjectBuilder()
+                     .DefaultBuilder()
                      .FileShareDataBus(@"..\..\..\DataBusShare\");
 
         }

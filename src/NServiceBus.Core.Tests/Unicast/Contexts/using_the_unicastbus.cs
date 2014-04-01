@@ -10,7 +10,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Helpers;
     using Impersonation;
     using Impersonation.Windows;
-    using Licensing;
     using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -69,7 +68,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         {
           
             transportDefinition = new Msmq();
-            LicenseManager.Verify();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();

@@ -4,6 +4,8 @@ namespace NServiceBus.Hosting
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Linq;
+    using System.Text.RegularExpressions;
     using Utils;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
@@ -14,22 +16,26 @@ namespace NServiceBus.Hosting
         {
             var commandLine = Environment.CommandLine;
 
-            var commandLineParts = commandLine.Split('"');
+            return CreateHostInformation(commandLine, Environment.MachineName);
+        }
 
-            var fullPathToStartingExe = "";
+        internal static HostInformation CreateHostInformation(string commandLine, string machineName)
+        {
+            string fullPathToStartingExe;
 
-            if (commandLineParts.Length > 1)
+            if (commandLine.StartsWith("\""))
             {
-                fullPathToStartingExe = commandLineParts[1];
+                fullPathToStartingExe = (from Match match in Regex.Matches(commandLine, "\"([^\"]*)\"")
+                    select match.ToString()).First().Trim('"');
             }
-            else if (commandLineParts.Length == 1)
+            else
             {
-                fullPathToStartingExe = commandLineParts[0];
+                fullPathToStartingExe = commandLine.Split(' ').First();
             }
 
-            var hostId = DeterministicGuid.Create(fullPathToStartingExe, Environment.MachineName);
+            var hostId = DeterministicGuid.Create(fullPathToStartingExe, machineName);
 
-            return new HostInformation(hostId, Environment.MachineName, String.Format("{0}", fullPathToStartingExe));
+            return new HostInformation(hostId, machineName, String.Format("{0}", fullPathToStartingExe));
         }
 
         public HostInformation(Guid hostId, string displayName, string displayInstanceIdentifier)

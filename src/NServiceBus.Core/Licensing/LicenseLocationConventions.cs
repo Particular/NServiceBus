@@ -10,32 +10,6 @@ namespace NServiceBus.Licensing
     {
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseLocationConventions));
 
-        public static void StoreLicenseInRegistry(string license)
-        {
-            var keyPath = @"SOFTWARE\ParticularSoftware\NServiceBus";
-
-            try
-            {
-                using (var registryKey = Registry.CurrentUser.CreateSubKey(keyPath))
-                {
-                    if (registryKey == null)
-                    {
-                        var failureMessage = string.Format("CreateSubKey for HKCU '{0}' returned null. Do you have permission to write to this key", keyPath);
-
-                        throw new Exception(failureMessage);
-                    }
-
-                    registryKey.SetValue("License", license, RegistryValueKind.String);
-                }
-            }
-            catch (UnauthorizedAccessException exception)
-            {
-                var failureMessage = string.Format("Failed to access HKCU '{0}'. Do you have permission to write to this key?", keyPath);
-                Logger.Debug(failureMessage, exception);
-                throw new Exception(failureMessage, exception);
-            }
-        }
-
         public static string TryFindLicenseText()
         {
             var appConfigLicenseString = ConfigurationManager.AppSettings["NServiceBus/License"];

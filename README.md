@@ -40,11 +40,6 @@ If you do use the code in a commercial product, I would appreciate hearing about
 
 On the other hand, I don't provide support. The code is actually simple enough that it shouldn't need it. 
 
-### [Fluent NHibernate](http://github.com/jagregory/fluent-nhibernate) 
-
-Fluent NHibernate is licensed under the BSD license as described [here](http://github.com/jagregory/fluent-nhibernate/raw/master/LICENSE.txt).
-
-Fluent NHibernate binaries are merged into NServiceBus allowed under the terms of the license.
 
 ### [Autofac](http://code.google.com/p/autofac/) 
 
@@ -58,11 +53,6 @@ Spring.NET is licensed under the Apache license version 2.0 as described [here](
 
 Spring.NET binaries are merged into NServiceBus allowed under the license terms found [here](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
-### [Antlr](http://antlr.org)
-
-Antlr is licensed under the BSD license as described [here](http://antlr.org/license.html).
-
-Antlr binaries are merged into NServiceBus allowed under the license terms described above.
 
 ### [Common.Logging](http://netcommon.sourceforge.net)
 
@@ -100,11 +90,6 @@ TopShelf is licensed under the Apache License, Version 2.0 as described here:
 
 TopShelf binaries are merged into NServiceBus as allowed under the license terms described [here](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
-### [Rhino Mocks](http://www.hibernatingrhinos.com/oss/rhino-mocks)
-
-Rhino Mocks is licensed under the BSD License as described [here](http://www.hibernatingrhinos.com/oss/rhino-mocks).
-
-Rhino Mocks binaries are merged into NServiceBus allowed under the license terms described [here](http://www.opensource.org/licenses/bsd-license.php).
 
 ### [RavenDB](http://ravendb.net)
 

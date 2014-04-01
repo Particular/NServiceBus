@@ -8,7 +8,6 @@
     {
         private readonly IMessageCreator messageCreator;
         private readonly IDictionary<string, string> outgoingHeaders = new Dictionary<string, string>();
-        private IMessageContext messageContext;
         private readonly List<ActualInvocation> actualInvocations = new List<ActualInvocation>();
         private readonly TimeoutManager timeoutManager = new TimeoutManager();
 
@@ -263,11 +262,7 @@
             get { return outgoingHeaders; }
         }
 
-        public IMessageContext CurrentMessageContext
-        {
-            get { return messageContext; }
-            set { messageContext = value; }
-        }
+        public IMessageContext CurrentMessageContext { get; set; }
 
         public IInMemoryOperations InMemory
         {

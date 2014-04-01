@@ -14,7 +14,7 @@
             if (Configure.Instance.Configurer.HasComponent<ISubscriptionStorage>())
             {
                 Feature.Enable<StorageDrivenPublisher>();
-                Logger.InfoFormat("ISubscriptionStorage found in the container. The message driven publisher feature will be activeated");
+                Logger.InfoFormat("ISubscriptionStorage found in the container. The message driven publisher feature will be activated");
             }
                 
         }

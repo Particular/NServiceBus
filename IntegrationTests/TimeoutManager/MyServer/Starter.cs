@@ -14,8 +14,6 @@ namespace MyServer
     {
         public IBus Bus { get; set; }
 
-        public HostInformation HostInformation { get; set; }
-
         public void Start()
         {
             Console.WriteLine("Press 'S' to start the saga");

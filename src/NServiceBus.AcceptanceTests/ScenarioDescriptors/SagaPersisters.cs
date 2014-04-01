@@ -12,7 +12,7 @@
     {
         public SagaPersisters()
         {
-            var persisters = AvailablePeristers;
+            var persisters = AvailablePersisters;
 
             foreach (var persister in persisters)
             {
@@ -24,7 +24,7 @@
             }
         }
 
-        static List<Type> AvailablePeristers
+        static List<Type> AvailablePersisters
         {
             get
             {
@@ -39,7 +39,7 @@
         {
             get
             {
-                var persisters = AvailablePeristers;
+                var persisters = AvailablePersisters;
                 var persister = persisters.FirstOrDefault(p => p != typeof(InMemorySagaPersister) && p != typeof(RavenSagaPersister));
 
                 if (persister == null)
@@ -58,5 +58,4 @@
             }
         }
     }
-
 }

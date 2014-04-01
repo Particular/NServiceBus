@@ -5,6 +5,7 @@ namespace NServiceBus.Licensing
     /// <summary>
     /// NServiceBus License information
     /// </summary>
+    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
     public class License
     {
         public int MaxThroughputPerSecond { get; internal set; }

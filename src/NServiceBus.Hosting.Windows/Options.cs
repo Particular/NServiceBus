@@ -241,9 +241,6 @@ namespace NDesk.Options
 
     public class OptionContext
     {
-        private Option option;
-        private string name;
-        private int index;
         private OptionSet set;
         private OptionValueCollection c;
 
@@ -253,23 +250,11 @@ namespace NDesk.Options
             c = new OptionValueCollection(this);
         }
 
-        public Option Option
-        {
-            get { return option; }
-            set { option = value; }
-        }
+        public Option Option { get; set; }
 
-        public string OptionName
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string OptionName { get; set; }
 
-        public int OptionIndex
-        {
-            get { return index; }
-            set { index = value; }
-        }
+        public int OptionIndex { get; set; }
 
         public OptionSet OptionSet
         {

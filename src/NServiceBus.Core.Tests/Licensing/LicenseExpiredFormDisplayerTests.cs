@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Licensing
 {
+    using System;
     using NServiceBus.Licensing;
     using NUnit.Framework;
 
@@ -9,9 +10,17 @@
 
         [Test]
         [Explicit]
-        public void ShowForm()
+        public void ShowForm14Days()
         {
-            LicenseExpiredFormDisplayer.PromptUserForLicense();
+            LicenseExpiredFormDisplayer.PromptUserForLicense(Particular.Licensing.License.TrialLicense(DateTime.Today.AddDays(33)));
+        }
+
+
+        [Test]
+        [Explicit]
+        public void ShowForm45Days()
+        {
+            LicenseExpiredFormDisplayer.PromptUserForLicense(null);
         }
     }
 }

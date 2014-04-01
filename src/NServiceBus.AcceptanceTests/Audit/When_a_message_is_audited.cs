@@ -24,13 +24,26 @@
 
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
-       
+
+        [Test]
+        public void Should_add_the_license_diagnostic_headers()
+        {
+            var context = new Context();
+
+            Scenario.Define(context)
+                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
+                    .WithEndpoint<AuditSpyEndpoint>()
+                    .Done(c => c.HasDiagnosticLicensingHeaders)
+                    .Run();
+            Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+        }
+
 
         public class Context : ScenarioContext
         {
             public byte OriginalBodyChecksum { get; set; }
-
             public byte AuditChecksum { get; set; }
+            public bool HasDiagnosticLicensingHeaders { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -41,7 +54,7 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BodyMutator : IMutateTransportMessages, INeedInitialization
+            class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
@@ -51,22 +64,6 @@
                     var originalBody = transportMessage.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
-
-                    var decryptedBody = new byte[originalBody.Length];
-
-                    Buffer.BlockCopy(originalBody,0,decryptedBody,0,originalBody.Length);
-                   
-                    //decrypt
-                    decryptedBody[0]++;
-
-                    transportMessage.Body = decryptedBody;
-                }
-
-
-                public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
-                {
-                    //not the way to do it for real but good enough for this test
-                    transportMessage.Body[0]--;
                 }
 
                 public void Init()
@@ -74,7 +71,6 @@
                     Configure.Component<BodyMutator>(DependencyLifecycle.InstancePerCall);
                 }
             }
-
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>{ public void Handle(MessageToBeAudited message) {}}
         }
@@ -93,6 +89,8 @@
                 public void MutateIncoming(TransportMessage transportMessage)
                 {
                     Context.AuditChecksum = Checksum(transportMessage.Body);
+                    string licenseExpired;
+                    Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
                 }
 
                 public void Init()
