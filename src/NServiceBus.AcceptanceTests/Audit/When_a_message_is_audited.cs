@@ -64,6 +64,15 @@
                     var originalBody = transportMessage.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
+
+                    // modifying the body by adding a line break
+                    var modifiedBody = new byte[originalBody.Length + 1];
+
+                    Buffer.BlockCopy(originalBody, 0, modifiedBody, 0, originalBody.Length);
+
+                    modifiedBody[modifiedBody.Length - 1] = 13;
+
+                    transportMessage.Body = modifiedBody;
                 }
 
                 public void Init()
@@ -72,7 +81,7 @@
                 }
             }
 
-            class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>{ public void Handle(MessageToBeAudited message) {}}
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
         }
 
         class AuditSpyEndpoint : EndpointConfigurationBuilder
@@ -98,6 +107,8 @@
                     Configure.Component<BodySpy>(DependencyLifecycle.InstancePerCall);
                 }
             }
+
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited> { public void Handle(MessageToBeAudited message) { } }
         }
 
         public static byte Checksum(byte[] data)
@@ -110,6 +121,8 @@
         public class MessageToBeAudited : IMessage
         {
         }
+
+        
     }
 
 #pragma warning restore  612, 618
