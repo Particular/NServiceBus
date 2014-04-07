@@ -150,7 +150,7 @@
         /// Begin the test script for the passed in saga instance.
         /// Callers need to instantiate the saga's data class as well as give it an ID.
         /// </summary>
-        public static Saga<T> Saga<T>(T saga) where T : ISaga, new()
+        public static Saga<T> Saga<T>(T saga) where T : ISaga
         {
             bus = new StubBus(messageCreator);
             ExtensionMethods.Bus = bus;
