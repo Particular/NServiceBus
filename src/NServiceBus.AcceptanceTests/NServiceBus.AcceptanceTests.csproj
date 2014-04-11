@@ -105,6 +105,8 @@
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
+    <Compile Include="MessageMutators\Issue_1980.cs" />
+    <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
     <Compile Include="MessageMutators\When_defining_outoing_message_mutators.cs" />
     <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
     <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
