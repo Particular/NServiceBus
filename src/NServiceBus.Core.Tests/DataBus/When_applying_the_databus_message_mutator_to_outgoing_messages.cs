@@ -22,7 +22,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var message = new LogicalMessage(metadata, new MessageWithDataBusProperty
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>());
+            }, new Dictionary<string, string>(), null);
 
             Invoke(message);
 
@@ -49,7 +49,7 @@ namespace NServiceBus.Core.Tests.DataBus
             var message = new LogicalMessage(metadata, new MessageWithExplicitTimeToLive
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>());
+            }, new Dictionary<string, string>(), null);
 
             Invoke(message);
            

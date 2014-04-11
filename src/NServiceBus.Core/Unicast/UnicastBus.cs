@@ -586,17 +586,17 @@ namespace NServiceBus.Unicast
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.CreateMultiple(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.CreateMultiple(message));
         }
 
         public ICallback Send(string destination, params object[] messages)
@@ -611,7 +611,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(message));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.CreateMultiple(message));
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -621,7 +621,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
@@ -631,7 +631,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, string correlationId, object message)
@@ -641,7 +641,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(message));
         }
 
         public ICallback Send(string destination, string correlationId, params object[] messages)
@@ -671,14 +671,14 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessages(options, LogicalMessageFactory.CreateMultiple(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
+            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.CreateMultiple(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)

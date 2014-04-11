@@ -105,6 +105,8 @@
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
     <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
+    <Compile Include="MessageMutators\Issue_1980.cs" />
+    <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
     <Compile Include="MessageMutators\When_defining_outoing_message_mutators.cs" />
     <Compile Include="PipelineExtension\MutingHandlerExceptions.cs" />
     <Compile Include="PipelineExtension\FilteringWhatGetsAudited.cs" />
@@ -147,6 +149,7 @@
     <Compile Include="Retries\When_messages_fails_flr.cs" />
     <Compile Include="Retries\When_message_fails_with_retries_set_to_0.cs" />
     <Compile Include="Retries\When_doing_flr_with_default_settings.cs" />
+    <Compile Include="Sagas\Issue_2044.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas.cs" />
     <Compile Include="Sagas\Issue_1819.cs" />
     <Compile Include="Sagas\When_sending_from_a_saga_timeout.cs" />
