@@ -24,7 +24,7 @@ namespace NServiceBus.Core.Tests.DataBus
                                   {
                                       Key = propertyKey
                                   }
-                              }, new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } });
+                              }, new Dictionary<string, string> { { "NServiceBus.DataBus." + propertyKey, databusKey } }, null);
                 
             using (var stream = new MemoryStream())
             {
