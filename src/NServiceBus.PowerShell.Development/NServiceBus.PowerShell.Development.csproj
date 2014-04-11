@@ -64,6 +64,9 @@
     <EmbeddedResource Include="RavenResources\*.*">
       <Visible>false</Visible>
     </EmbeddedResource>
+    <Content Include="NServiceBus.PowerShell.Development.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="ripple.dependencies.config">
       <SubType>Designer</SubType>
     </None>
