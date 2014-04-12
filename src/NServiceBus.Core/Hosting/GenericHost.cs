@@ -2,7 +2,6 @@ namespace NServiceBus.Hosting
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using Configuration;
     using Helpers;
@@ -47,9 +46,7 @@ namespace NServiceBus.Hosting
             }
             else
             {
-                assembliesToScan = scannableAssembliesFullName
-                    .Select(Assembly.Load)
-                    .ToList();
+                assembliesToScan = SelectAssembliesToScan(scannableAssembliesFullName);
             }
 
             profileManager = new ProfileManager(assembliesToScan, specifier, args, defaultProfiles);
@@ -110,6 +107,25 @@ namespace NServiceBus.Hosting
             PerformConfiguration();
             //HACK: to ensure the installer runner performs its installation
             Configure.Instance.Initialize();
+        }
+
+        private static List<Assembly> SelectAssembliesToScan(IEnumerable<string> scannableAssembliesFullName)
+        {
+            var assembliesToScan = new List<Assembly>();
+            foreach (var assemblyName in scannableAssembliesFullName)
+            {
+                try
+                {
+                    assembliesToScan.Add(Assembly.Load(assemblyName));
+                }
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch (Exception)
+                {
+                    // If loading an assembly throws an exception, eat it.
+                }
+            }
+
+            return assembliesToScan;
         }
 
         void PerformConfiguration()
