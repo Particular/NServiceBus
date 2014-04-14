@@ -4,6 +4,7 @@ namespace NServiceBus.Licensing
     using System.Threading;
     using System.Windows.Forms;
     using Logging;
+    using Microsoft.Win32;
     using Particular.Licensing;
 
     [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
@@ -78,19 +79,15 @@ namespace NServiceBus.Licensing
             //only do this if not been configured by the fluent API
             if (licenseText == null)
             {
-                //look in the new platform locations
-                if (!(new RegistryLicenseStore().TryReadLicense(out licenseText)))
-                {
-                    //legacy locations
-                    licenseText = LicenseLocationConventions.TryFindLicenseText();
-
-                    if (string.IsNullOrWhiteSpace(licenseText))
-                    {
-                        license = GetTrialLicense();
-                        return;
-                    }
-                }
+                licenseText = GetExistingLicense();
             }
+
+            if (string.IsNullOrWhiteSpace(licenseText))
+            {
+                license = GetTrialLicense();
+                return;
+            }
+
 
             LicenseVerifier.Verify(licenseText);
 
@@ -112,6 +109,26 @@ namespace NServiceBus.Licensing
             }
 
             license = foundLicense;
+        }
+
+        static string GetExistingLicense()
+        {
+            string existingLicense;
+
+            //look in HKCU
+            if (new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+            //look in HKLM
+            if (new RegistryLicenseStore(Registry.LocalMachine).TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+
+            return LicenseLocationConventions.TryFindLicenseText();
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
