@@ -88,7 +88,7 @@ namespace NServiceBus.Licensing
             catch (Exception ex)
             {
                 // We should not fail the endpoint if we run into issues trying to read the license
-                Logger.ErrorFormat("Unable to initialize the license: {0}", ex.ToString());
+                Logger.Error("Unable to initialize the license", ex);
             }
 
             if (string.IsNullOrWhiteSpace(licenseText))
