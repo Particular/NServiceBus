@@ -1,5 +1,6 @@
 namespace NServiceBus.Licensing
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
@@ -76,10 +77,18 @@ namespace NServiceBus.Licensing
 
         internal static void InitializeLicense()
         {
-            //only do this if not been configured by the fluent API
-            if (licenseText == null)
+            try
             {
-                licenseText = GetExistingLicense();
+                //only do this if not been configured by the fluent API
+                if (licenseText == null)
+                {
+                    licenseText = GetExistingLicense();
+                }
+            }
+            catch (Exception ex)
+            {
+                // We should not fail the endpoint if we run into issues trying to read the license
+                Logger.ErrorFormat("Unable to initialize the license: {0}", ex.ToString());
             }
 
             if (string.IsNullOrWhiteSpace(licenseText))
@@ -109,6 +118,7 @@ namespace NServiceBus.Licensing
             }
 
             license = foundLicense;
+           
         }
 
         static string GetExistingLicense()
