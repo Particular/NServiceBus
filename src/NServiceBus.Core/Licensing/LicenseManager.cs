@@ -69,10 +69,12 @@ namespace NServiceBus.Licensing
                 }
                 return trialLicense;
             }
-
-            Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
-
-            return null;
+            else
+            {
+                Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
+                // We have been unable to check existing trial license.  Use a current trial license instead to run the endpoint for this run. 
+                return Particular.Licensing.License.TrialLicense(DateTime.Today);
+            }
         }
 
         internal static void InitializeLicense()
@@ -84,24 +86,26 @@ namespace NServiceBus.Licensing
                 {
                     licenseText = GetExistingLicense();
                 }
+                if (string.IsNullOrWhiteSpace(licenseText))
+                {
+                    // Check to see if the user is on trial and initialize trial license accordingly based on the days left on the license
+                    license = GetTrialLicense();
+                    return;
+                }
             }
             catch (Exception ex)
             {
                 // We should not fail the endpoint if we run into issues trying to read the license
                 Logger.Error("Unable to initialize the license", ex);
-            }
 
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                license = GetTrialLicense();
+                // Use a current trial license instead to run the endpoint for this run.
+                license = Particular.Licensing.License.TrialLicense(DateTime.Today);
                 return;
             }
 
-
             LicenseVerifier.Verify(licenseText);
-
             var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-
+                
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
                 Logger.Fatal(" You can renew it at http://particular.net/licensing.");
@@ -117,8 +121,8 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
             }
 
-            license = foundLicense;
-           
+            license = foundLicense;   
+                 
         }
 
         static string GetExistingLicense()
