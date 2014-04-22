@@ -14,7 +14,7 @@
         {
             ActiveSagaInstance saga;
 
-            if (context.TryGet(out saga))
+            if (context.TryGet(out saga) && !saga.NotFound)
             {
                 context.MessageToSend.Headers[Headers.OriginatingSagaId] = saga.Instance.Entity.Id.ToString();
                 context.MessageToSend.Headers[Headers.OriginatingSagaType] = saga.SagaType.AssemblyQualifiedName;

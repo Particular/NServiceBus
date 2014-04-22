@@ -29,11 +29,13 @@
                 Text = "NServiceBus - Initial Trial Expired";
                 instructionsText.Text = "To extend your free trial, click 'Extend trial' and register online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
+                purchaseButton.Visible = false;
+                getTrialLicenseButton.Left = purchaseButton.Left;
             }
             else
             {
                 Text = "NServiceBus - Extended Trial Expired";
-                instructionsText.Text = "Please contact sales to purchase a license or to request an extension to your free trial. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "Please click 'Contact Sales' to request an extension to your free trial, or click 'Buy Now' to purchase a license online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Contact Sales";
             }
 
@@ -59,12 +61,11 @@
 
                         if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = string.Format("The license you provided has expired.\r\nClick 'Purchase' to obtain a new license. Or try a different file.\r\nThis message has been appended to your log.");
+                            var message = string.Format("The license you provided has expired, please select another file.");
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
                         }
-                        MessageBox.Show(this, "The new license has been verified. It will now be stored in the Registry for future use.", "License applied", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ResultingLicenseText = licenseText;
                         Close();
                     }

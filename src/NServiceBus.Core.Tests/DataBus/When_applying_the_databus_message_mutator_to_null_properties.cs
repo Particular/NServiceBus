@@ -20,7 +20,7 @@ namespace NServiceBus.Core.Tests.DataBus
                 TimeToBeReceived = TimeSpan.FromDays(1)
             };
 
-            var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>());
+            var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>(), null);
             var context = new SendLogicalMessageContext(null,new SendOptions(), message);
 
             

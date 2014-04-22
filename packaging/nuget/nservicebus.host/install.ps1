@@ -3,12 +3,12 @@ param($installPath, $toolsPath, $package, $project)
 if(!$toolsPath){
 	$project = Get-Project
 }
+
 function Get-ConfigureThisEndpointClass($elem) {
 
-    if ($elem.IsCodeType -and ($elem.Kind -eq [EnvDTE.vsCMElement]::vsCMElementClass)) 
-    {            
+    if ($elem.IsCodeType -and ($elem.Kind -eq [EnvDTE.vsCMElement]::vsCMElementClass)) {            
         foreach ($e in $elem.ImplementedInterfaces) {
-            if($e.FullName -eq "NServiceBus.IConfigureThisEndpoint") {
+            if ($e.FullName -eq "NServiceBus.IConfigureThisEndpoint") {
                 return $elem
             }
             
@@ -25,22 +25,36 @@ function Get-ConfigureThisEndpointClass($elem) {
             }
         }
     }
-    
+
     $null
 }
 
 function Test-HasConfigureThisEndpoint($project) {
        
     foreach ($item in $project.ProjectItems) {
-        foreach ($codeElem in $item.FileCodeModel.CodeElements) {
-            $elem = Get-ConfigureThisEndpointClass($codeElem)
-            if($elem -ne $null) {
-                return $true
-            }
-        }
+		if ($projItem.Name -eq "EndpointConfig.cs") {
+			return $true
+		}
+	
+		if (HasConfigureThisEndpoint($item)){
+			return $true
+		}
     }
 
     $false
+}
+
+function HasConfigureThisEndpoint($projItem) {
+	foreach ($codeElem in $projItem.FileCodeModel.CodeElements) {
+		$elem = Get-ConfigureThisEndpointClass($codeElem)
+		if($elem -ne $null) {
+			return $true
+		}
+	}
+	
+	foreach ($item in $projItem.ProjectItems) {
+		return HasConfigureThisEndpoint($item)
+	}
 }
 
 function Add-StartProgramIfNeeded {

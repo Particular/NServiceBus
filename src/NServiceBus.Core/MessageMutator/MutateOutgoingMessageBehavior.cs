@@ -12,9 +12,12 @@
     {
         public void Invoke(SendLogicalMessageContext context, Action next)
         {
-            foreach (var mutator in  context.Builder.BuildAll<IMutateOutgoingMessages>())
+            var currentMessageToSend = context.MessageToSend.Instance;
+
+            foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
-                context.MessageToSend.UpdateMessageInstance(mutator.MutateOutgoing(context.MessageToSend.Instance));
+                currentMessageToSend = mutator.MutateOutgoing(currentMessageToSend);
+                context.MessageToSend.UpdateMessageInstance(currentMessageToSend);
             }
 
             next();

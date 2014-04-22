@@ -1,9 +1,11 @@
 namespace NServiceBus.Licensing
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
     using Logging;
+    using Microsoft.Win32;
     using Particular.Licensing;
 
     [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
@@ -62,40 +64,48 @@ namespace NServiceBus.Licensing
                 }
                 else
                 {
-                    var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialStartDate.ToLocalTime().ToShortDateString());
+                    var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
                     Logger.Info(message);
                 }
                 return trialLicense;
             }
-
-            Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
-
-            return null;
+            else
+            {
+                Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
+                // We have been unable to check existing trial license.  Use a current trial license instead to run the endpoint for this run. 
+                return Particular.Licensing.License.TrialLicense(DateTime.Today);
+            }
         }
 
         internal static void InitializeLicense()
         {
-            //only do this if not been configured by the fluent API
-            if (licenseText == null)
+            try
             {
-                //look in the new platform locations
-                if (!(new RegistryLicenseStore().TryReadLicense(out licenseText)))
+                //only do this if not been configured by the fluent API
+                if (licenseText == null)
                 {
-                    //legacy locations
-                    licenseText = LicenseLocationConventions.TryFindLicenseText();
-
-                    if (string.IsNullOrWhiteSpace(licenseText))
-                    {
-                        license = GetTrialLicense();
-                        return;
-                    }
+                    licenseText = GetExistingLicense();
                 }
+                if (string.IsNullOrWhiteSpace(licenseText))
+                {
+                    // Check to see if the user is on trial and initialize trial license accordingly based on the days left on the license
+                    license = GetTrialLicense();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                // We should not fail the endpoint if we run into issues trying to read the license
+                Logger.Error("Unable to initialize the license", ex);
+
+                // Use a current trial license instead to run the endpoint for this run.
+                license = Particular.Licensing.License.TrialLicense(DateTime.Today);
+                return;
             }
 
             LicenseVerifier.Verify(licenseText);
-
             var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-
+                
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
                 Logger.Fatal(" You can renew it at http://particular.net/licensing.");
@@ -111,7 +121,28 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
             }
 
-            license = foundLicense;
+            license = foundLicense;   
+                 
+        }
+
+        static string GetExistingLicense()
+        {
+            string existingLicense;
+
+            //look in HKCU
+            if (new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+            //look in HKLM
+            if (new RegistryLicenseStore(Registry.LocalMachine).TryReadLicense(out existingLicense))
+            {
+                return existingLicense;
+            }
+
+
+            return LicenseLocationConventions.TryFindLicenseText();
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));

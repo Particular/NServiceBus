@@ -18,9 +18,9 @@ namespace NServiceBus.Unicast.Messages
 
         public PipelineExecutor PipelineExecutor { get; set; }
 
-        public List<LogicalMessage> Create<T>(T message)
+        public LogicalMessage Create(object message)
         {
-            return new[] { Create(message.GetType(), message) }.ToList();
+            return Create(message.GetType(), message);
         }
 
         public LogicalMessage Create(Type messageType, object message)
@@ -34,12 +34,17 @@ namespace NServiceBus.Unicast.Messages
         {
             var realMessageType = MessageMapper.GetMappedTypeFor(messageType);
 
-            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers);
+            return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(realMessageType), message, headers, this);
         }
-
 
         //in v5 we can skip this since we'll only support one message and the creation of messages happens under our control so we can capture 
         // the real message type without using the mapper
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        public List<LogicalMessage> CreateMultiple(params object[] messages)
+        {
+            return CreateMultiple((IEnumerable<object>)messages);
+        }
+
         [ObsoleteEx(RemoveInVersion = "5.0")]
         public List<LogicalMessage> CreateMultiple(IEnumerable<object> messages)
         {
@@ -48,16 +53,14 @@ namespace NServiceBus.Unicast.Messages
                 return new List<LogicalMessage>();
             }
 
-
             return messages.Select(m =>
             {
                 var messageType = MessageMapper.GetMappedTypeFor(m.GetType());
                 var headers = GetMessageHeaders(m);
-       
-                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m,headers);
+
+                return new LogicalMessage(MessageMetadataRegistry.GetMessageDefinition(messageType), m, headers, this);
             }).ToList();
         }
-
 
         Dictionary<string, string> GetMessageHeaders(object message)
         {
@@ -79,6 +82,5 @@ namespace NServiceBus.Unicast.Messages
 
             return outgoingHeadersForThisMessage;
         }
-
     }
 }
