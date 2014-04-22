@@ -21,6 +21,7 @@ namespace NServiceBus.Hosting.Helpers
 
         public AssemblyScanner(string baseDirectoryToScan)
         {
+            ThrowExceptions = true;
             AssembliesToInclude = new List<string>();
             AssembliesToSkip = new List<string>();
             MustReferenceAtLeastOneAssembly = new List<Assembly>();
@@ -127,6 +128,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 assembly = Assembly.LoadFrom(assemblyPath);
+
                 if (results.Assemblies.Contains(assembly))
                 {
                     return;
@@ -134,8 +136,17 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (BadImageFormatException ex)
             {
-                var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
-                throw new Exception(errorMessage, ex);
+                assembly = null;
+                if (ThrowExceptions)
+                {
+                    var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
+                    throw new Exception(errorMessage, ex);
+                }
+            }
+
+            if (assembly == null)
+            {
+                return;
             }
 
             try
@@ -145,8 +156,13 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (ReflectionTypeLoadException e)
             {
-                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
-                throw new Exception(errorMessage);
+                if (ThrowExceptions)
+                {
+                    var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
+                    throw new Exception(errorMessage);
+                }
+
+                return;
             }
 
             results.Assemblies.Add(assembly);
@@ -356,8 +372,7 @@ namespace NServiceBus.Hosting.Helpers
         internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories = true;
-
-
+        public bool ThrowExceptions { get; set; }
 
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =

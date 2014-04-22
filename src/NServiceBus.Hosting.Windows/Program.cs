@@ -29,10 +29,14 @@
                 return;
             }
 
-            var assemblyScanner = new AssemblyScanner();
+            var assemblyScanner = new AssemblyScanner
+            {
+                ThrowExceptions = false
+            };
+
             var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScanner, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
-            assemblyScannerResults = endpointTypeDeterminer.AssemblyScannerResults;
             var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);
+            assemblyScannerResults = endpointTypeDeterminer.AssemblyScannerResults;
 
             var endpointConfigurationFile = endpointConfigurationType.EndpointConfigurationFile;
             var endpointName = endpointConfigurationType.EndpointName;
