@@ -30,13 +30,8 @@
             }
 
             var assemblyScanner = new AssemblyScanner();
-            //TODO: re-enable when we make message scanning lazy
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IConfigureThisEndpoint).Assembly);
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(Program).Assembly);
-            assemblyScannerResults = assemblyScanner.GetScannableAssemblies();
-
-            var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
+            var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScanner, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
+            assemblyScannerResults = endpointTypeDeterminer.AssemblyScannerResults;
             var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);
 
             var endpointConfigurationFile = endpointConfigurationType.EndpointConfigurationFile;
