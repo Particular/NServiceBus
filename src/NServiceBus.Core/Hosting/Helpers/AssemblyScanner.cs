@@ -85,6 +85,8 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
+        public bool ThrowExceptions { get; set; }
+
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
         {
             Assembly assembly;
@@ -137,6 +139,8 @@ namespace NServiceBus.Hosting.Helpers
             catch (BadImageFormatException ex)
             {
                 assembly = null;
+                results.ErrorsThrownDuringScanning = true;
+
                 if (ThrowExceptions)
                 {
                     var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
@@ -156,6 +160,8 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (ReflectionTypeLoadException e)
             {
+                results.ErrorsThrownDuringScanning = true;
+
                 if (ThrowExceptions)
                 {
                     var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
@@ -372,7 +378,6 @@ namespace NServiceBus.Hosting.Helpers
         internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories = true;
-        public bool ThrowExceptions { get; set; }
 
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =

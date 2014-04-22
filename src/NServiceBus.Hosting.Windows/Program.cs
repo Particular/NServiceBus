@@ -118,7 +118,7 @@
                                                                        serviceCommandLine.Add(String.Format(@"/serviceName:""{0}""", serviceName));
                                                                    }
 
-                                                                   if (arguments.ScannedAssemblies.Count > 0)
+                                                                   if (!assemblyScannerResults.ErrorsThrownDuringScanning && arguments.ScannedAssemblies.Count > 0)
                                                                    {
                                                                        serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
                                                                    }
