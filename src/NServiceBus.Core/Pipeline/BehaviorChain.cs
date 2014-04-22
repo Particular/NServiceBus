@@ -3,13 +3,15 @@
     using System;
     using System.Collections.Generic;
     using Logging;
+    using Utils;
 
     class BehaviorChain<T> where T : BehaviorContext
     {
         // ReSharper disable once StaticFieldInGenericType
-        // The number of T's is small and they willa all log to the same point due to the typeof(BehaviorChain<>)
+        // The number of T's is small and they will all log to the same point due to the typeof(BehaviorChain<>)
         static ILog Log = LogManager.GetLogger(typeof(BehaviorChain<>));
         Queue<Type> itemDescriptors = new Queue<Type>();
+        bool stackTracePreserved;
 
         public BehaviorChain(IEnumerable<Type> behaviorList)
         {
@@ -17,7 +19,7 @@
             {
                 itemDescriptors.Enqueue(behaviorType);
             }
-        } 
+        }
 
         public void Invoke(T context)
         {
@@ -33,11 +35,23 @@
 
             var behaviorType = itemDescriptors.Dequeue();
             Log.Debug(behaviorType.Name);
-            var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
 
-            instance.Invoke(context, () => InvokeNext(context));
+            try
+            {
+                var instance = (IBehavior<T>)context.Builder.Build(behaviorType);
+                instance.Invoke(context, () => InvokeNext(context));
+            }
+            catch (Exception exception)
+            {
+                if (!stackTracePreserved)
+                {
+                    exception.PreserveStackTrace();
+                }
+                stackTracePreserved = true;
+                // ReSharper disable once PossibleIntendedRethrow
+                // need to rethrow explicit exception to preserve the stack trace
+                throw exception;
+            }
         }
-
-
     }
 }
