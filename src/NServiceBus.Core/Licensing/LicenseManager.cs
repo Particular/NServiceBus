@@ -1,5 +1,6 @@
 namespace NServiceBus.Licensing
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Windows.Forms;
@@ -116,7 +117,7 @@ namespace NServiceBus.Licensing
             string existingLicense;
 
             //look in HKCU
-            if (new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            if (UserSidChecker.IsNotSystemSid() && new RegistryLicenseStore().TryReadLicense(out existingLicense))
             {
                 return existingLicense;
             }
@@ -126,7 +127,6 @@ namespace NServiceBus.Licensing
             {
                 return existingLicense;
             }
-
 
             return LicenseLocationConventions.TryFindLicenseText();
         }
@@ -142,23 +142,35 @@ namespace NServiceBus.Licensing
             {
                 if (license == null)
                 {
-                    InitializeLicense();
+                    try
+                    {
+                        InitializeLicense();
+                    }
+                    catch (Exception ex)
+                    {
+                        //we only log here to prevent licensing issue to abort startup and cause production outages
+                        Logger.Fatal("Failed to initialize the license", ex);
+                    }
                 }
 
                 var nsbLicense = new License
                 {
                     AllowedNumberOfWorkerNodes = int.MaxValue,
                     MaxThroughputPerSecond = int.MaxValue,
+                    ExpirationDate = DateTime.MaxValue
                 };
 
-                if (license.ExpirationDate.HasValue)
+                if (license != null)
                 {
-                    nsbLicense.ExpirationDate = license.ExpirationDate.Value;
-                }
+                    if (license.ExpirationDate.HasValue)
+                    {
+                        nsbLicense.ExpirationDate = license.ExpirationDate.Value;
+                    }
 
-                if (license.UpgradeProtectionExpiration.HasValue)
-                {
-                    nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
+                    if (license.UpgradeProtectionExpiration.HasValue)
+                    {
+                        nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
+                    }
                 }
 
                 return nsbLicense;
