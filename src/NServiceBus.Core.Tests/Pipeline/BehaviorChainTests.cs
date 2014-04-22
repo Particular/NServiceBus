@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using System.Runtime.Serialization;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -25,7 +24,7 @@
             var exception = Assert.Throws<FakeException>(() => behaviorChain.Invoke(new FakeContext(null)));
             var stackTraceLines = exception.StackTrace
                 .Split(new [] { '\r', '\n' },StringSplitOptions.RemoveEmptyEntries);
-            Debug.WriteLine(exception.StackTrace);
+          
             Assert.AreEqual(1, CountStringOccurrences(exception.StackTrace,".Invoke(FakeContext"),"Should be only one 'Behavior.Invoke' in the stack trace");
             Assert.IsTrue(stackTraceLines[0].Contains("BehaviorThatThrows.Invoke(FakeContext context, Action next)"),"Fist line should be the method that threw");
             Assert.IsTrue(stackTraceLines[1].Contains("BehaviorChain`1.InvokeNext(T context)"), "Second line should be the Recursive Invoke");
@@ -58,7 +57,6 @@
         {
             public void Invoke(FakeContext context, Action next)
             {
-
                 next();
             }
         }
