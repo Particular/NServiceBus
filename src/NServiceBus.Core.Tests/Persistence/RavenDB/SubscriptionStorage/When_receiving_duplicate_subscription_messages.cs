@@ -10,7 +10,7 @@ namespace NServiceBus.Core.Tests.Persistence.RavenDB.SubscriptionStorage
     public class When_receiving_duplicate_subscription_messages : WithRavenSubscriptionStorage
     {
         [Test]
-        public void shouldnt_create_additional_db_rows()
+        public void Should_not_create_additional_db_rows()
         {
 
             storage.Subscribe(new Address("testEndPoint", "localhost"), new List<MessageType> { new MessageType("SomeMessageType","1.0.0.0") });

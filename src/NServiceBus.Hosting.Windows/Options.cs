@@ -1,4 +1,6 @@
-﻿//
+﻿// ReSharper disable ConvertToLambdaExpression
+// ReSharper disable IdentifierTypo
+//
 // Options.cs
 //
 // Authors:

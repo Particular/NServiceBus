@@ -45,34 +45,34 @@ namespace NServiceBus.Licensing
                 return NonLockingFileReader.ReadAllTextWithoutLocking(oldLocalLicenseFile);
             }
 
-            var registryLicence = LoadLicenseFromRegistry();
-            if (!String.IsNullOrEmpty(registryLicence))
+            var registryLicense = LoadLicenseFromRegistry();
+            if (!String.IsNullOrEmpty(registryLicense))
             {
-                return registryLicence;
+                return registryLicense;
             }
 
-            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.3");
-            if (!String.IsNullOrEmpty(registryLicence))
+            registryLicense = LoadLicenseFromPreviousRegistryLocation("4.3");
+            if (!String.IsNullOrEmpty(registryLicense))
             {
-                return registryLicence;
+                return registryLicense;
             }
 
-            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.2");
-            if (!String.IsNullOrEmpty(registryLicence))
+            registryLicense = LoadLicenseFromPreviousRegistryLocation("4.2");
+            if (!String.IsNullOrEmpty(registryLicense))
             {
-                return registryLicence;
+                return registryLicense;
             }
 
-            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.1");
-            if (!String.IsNullOrEmpty(registryLicence))
+            registryLicense = LoadLicenseFromPreviousRegistryLocation("4.1");
+            if (!String.IsNullOrEmpty(registryLicense))
             {
-                return registryLicence;
+                return registryLicense;
             }
 
-            registryLicence = LoadLicenseFromPreviousRegistryLocation("4.0");
-            if (!String.IsNullOrEmpty(registryLicence))
+            registryLicense = LoadLicenseFromPreviousRegistryLocation("4.0");
+            if (!String.IsNullOrEmpty(registryLicense))
             {
-                return registryLicence;
+                return registryLicense;
             }
 
             return null;

@@ -218,6 +218,7 @@ namespace NServiceBus.Unicast.Config
         /// <param name="value"></param>
         /// <returns></returns>
         [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "PropagateReturnAddressOnSend")]
+        // ReSharper disable once IdentifierTypo
         public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
         {
             busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
