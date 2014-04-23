@@ -3,7 +3,7 @@
     using System;
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class ChannelTypeAttribute : Attribute
+    public sealed class ChannelTypeAttribute : Attribute
     {
         public ChannelTypeAttribute(string type)
         {

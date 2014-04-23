@@ -6,7 +6,7 @@ namespace NServiceBus
     /// Attribute to indicate that a message has a period of time in which to be received.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-    public class TimeToBeReceivedAttribute : Attribute
+    public sealed class TimeToBeReceivedAttribute : Attribute
     {
         /// <summary>
         /// Sets the time to be received to be unlimited.

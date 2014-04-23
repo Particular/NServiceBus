@@ -7,7 +7,7 @@ namespace NServiceBus
     /// This will make the message vulnerable to server crashes or restarts.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
-    public class ExpressAttribute : Attribute
+    public sealed class ExpressAttribute : Attribute
     {
     }
 }
