@@ -23,7 +23,16 @@
 
         public void Invoke(T context)
         {
-            InvokeNext(context);
+            try
+            {
+                InvokeNext(context);
+            }
+            catch (Exception exception)
+            {
+                // ReSharper disable once PossibleIntendedRethrow
+                // need to rethrow explicit exception to preserve the stack trace
+                throw exception;
+            }
         }
 
         void InvokeNext(T context)
