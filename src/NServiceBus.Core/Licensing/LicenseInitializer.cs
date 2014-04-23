@@ -1,5 +1,7 @@
 namespace NServiceBus.Licensing
 {
+    using System;
+    using Logging;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -7,10 +9,22 @@ namespace NServiceBus.Licensing
     {
         public void Init()
         {
-            LicenseManager.InitializeLicense();
+            var expiredLicense = true;
+            try
+            {
+                LicenseManager.InitializeLicense();
+
+                expiredLicense = LicenseManager.HasLicenseExpired();
+            }
+            catch (Exception ex)
+            {
+                //we only log here to prevent licensing issue to abort startup and cause production outages
+                Logger.Fatal("Failed to initialize the license",ex);
+            }
+            
 
             Configure.Component<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.LicenseExpired, LicenseManager.HasLicenseExpired());
+                .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
 
         }
 
@@ -18,5 +32,7 @@ namespace NServiceBus.Licensing
         {
             behaviorList.Add<LicenseBehavior>();
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseInitializer));
     }
 }
