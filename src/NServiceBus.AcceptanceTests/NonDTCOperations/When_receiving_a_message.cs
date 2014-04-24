@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.NonDTCOperations
 {
     using System;
     using Config;
@@ -69,7 +69,13 @@
                 {
                     InfrastructureServices.SetDefaultFor<IOutboxStorage>(() => 
                         Configure.Component<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance));
-           
+
+                    Configure.Transactions.Advanced(t =>
+                    {
+                        t.DisableDistributedTransactions();
+                        t.DoNotWrapHandlersExecutionInATransactionScope();
+                    });
+
                     Configure.Features.Enable<Features.Outbox>();
                 });
             }
