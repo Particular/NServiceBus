@@ -193,32 +193,44 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Check that the saga replies to the originator with the given message type.
         /// </summary>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
+        // ReSharper disable once IdentifierTypo
         public Saga<T> ExpectReplyToOrginator<TMessage>(Func<TMessage, bool> check = null)
         {
+            return ExpectReplyToOriginator(check);
+        }
+
+        /// <summary>
+        /// Check that the saga replies to the originator with the given message type.
+        /// </summary>
+        public Saga<T> ExpectReplyToOriginator<TMessage>(Func<TMessage, bool> check = null)
+        {
             expectedInvocations.Add(new ExpectedReplyToOriginatorInvocation<TMessage>
-                                        {
-                                            Check = (msg, address, correlationId) =>
-                                                        {
-                                                            if (address != Address.Parse(saga.Entity.Originator))
-                                                            {
-                                                                throw new Exception(
-                                                                    "Expected ReplyToOriginator. Messages were sent to " +
-                                                                    address + " instead.");
-                                                            }
+                {
+                    Check = (msg, address, correlationId) =>
+                    {
+                        if (address != Address.Parse(saga.Entity.Originator))
+                        {
+                            throw new Exception(
+                                "Expected ReplyToOriginator. Messages were sent to " +
+                                address + " instead.");
+                        }
 
-                                                            if (correlationId != saga.Entity.OriginalMessageId)
-                                                            {
-                                                                throw new Exception(
-                                                                    "Expected ReplyToOriginator. Messages were sent with correlation ID " +
-                                                                    correlationId + " instead of " + saga.Entity.OriginalMessageId);
-                                                            }
+                        if (correlationId != saga.Entity.OriginalMessageId)
+                        {
+                            throw new Exception(
+                                "Expected ReplyToOriginator. Messages were sent with correlation ID " +
+                                correlationId + " instead of " + saga.Entity.OriginalMessageId);
+                        }
 
-                                                            if (check != null)
-                                                                return check(msg);
+                        if (check != null)
+                        {
+                            return check(msg);
+                        }
 
-                                                            return true;
-                                                        }
-                                        }
+                        return true;
+                    }
+                }
                 );
             return this;
         }
@@ -227,9 +239,20 @@ namespace NServiceBus.Testing
         /// Check that the saga replies to the originator with the given message type.
         /// </summary>
         /// <param name="check">An action that performs assertions on the message.</param>
+        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
+        // ReSharper disable once IdentifierTypo
         public Saga<T> ExpectReplyToOrginator<TMessage>(Action<TMessage> check)
         {
-            return ExpectReplyToOrginator(CheckActionToFunc(check));
+            return ExpectReplyToOriginator(CheckActionToFunc(check));
+        }
+
+        /// <summary>
+        /// Check that the saga replies to the originator with the given message type.
+        /// </summary>
+        /// <param name="check">An action that performs assertions on the message.</param>
+        public Saga<T> ExpectReplyToOriginator<TMessage>(Action<TMessage> check)
+        {
+            return ExpectReplyToOriginator(CheckActionToFunc(check));
         }
         
         /// <summary>

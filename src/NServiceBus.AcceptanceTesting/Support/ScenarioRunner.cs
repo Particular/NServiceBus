@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class ScenarioRunner
     {
-        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports)
+        public static IEnumerable<RunSummary> Run(IList<RunDescriptor> runDescriptors, IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports)
         {
             var totalRuns = runDescriptors.Count();
 
@@ -138,7 +138,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
         }
 
-        static RunResult PerformTestRun(IList<EndpointBehaviour> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static RunResult PerformTestRun(IList<EndpointBehavior> behaviorDescriptors, IList<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult
                 {
@@ -204,7 +204,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 });
         }
 
-        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<EndpointBehaviour> behaviorDescriptors)
+        static IDictionary<Type, string> CreateRoutingTable(RunDescriptor runDescriptor, IEnumerable<EndpointBehavior> behaviorDescriptors)
         {
             var routingTable = new Dictionary<Type, string>();
 
@@ -301,7 +301,7 @@ namespace NServiceBus.AcceptanceTesting.Support
                 throw new Exception("Stopping endpoints took longer than 2 minutes");
         }
 
-        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehaviour> behaviorDescriptors)
+        static List<ActiveRunner> InitializeRunners(RunDescriptor runDescriptor, IList<EndpointBehavior> behaviorDescriptors)
         {
             var runners = new List<ActiveRunner>();
             var routingTable = CreateRoutingTable(runDescriptor, behaviorDescriptors);
@@ -330,9 +330,9 @@ namespace NServiceBus.AcceptanceTesting.Support
             return runners;
         }
 
-        static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehaviour endpointBehaviour)
+        static string GetEndpointNameForRun(RunDescriptor runDescriptor, EndpointBehavior endpointBehavior)
         {
-            var endpointName = Conventions.EndpointNamingConvention(endpointBehaviour.EndpointBuilderType) + "." +
+            var endpointName = Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType) + "." +
                                runDescriptor.Key;
             return endpointName;
         }
@@ -394,7 +394,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public RunDescriptor RunDescriptor { get; set; }
 
-        public IEnumerable<EndpointBehaviour> Endpoints { get; set; }
+        public IEnumerable<EndpointBehavior> Endpoints { get; set; }
     }
 
 }

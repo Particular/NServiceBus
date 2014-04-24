@@ -26,11 +26,11 @@
                                 if (s.SubscriberReturnAddress.Queue != "MyEndpoint")
                                     return;
 
-                                context.NumberOfSubcriptionsReceived++;
+                                context.NumberOfSubscriptionsReceived++;
                             }))
-                        .When(c => c.NumberOfSubcriptionsReceived >= 2, (bus, c) =>
+                        .When(c => c.NumberOfSubscriptionsReceived >= 2, (bus, c) =>
                             {
-                                c.SubcribersOfTheEvent = Configure.Instance.Builder.Build<ISubscriptionStorage>()
+                                c.SubscribersOfTheEvent = Configure.Instance.Builder.Build<ISubscriptionStorage>()
                                                                   .GetSubscriberAddressesForMessage(new[] { new MessageType(typeof(MyEvent)) }).Select(a => a.ToString()).ToList();
                             })
                      )
@@ -39,21 +39,21 @@
                             bus.Subscribe<MyEvent>();
 
                             if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
-                                context.NumberOfSubcriptionsReceived++;
+                                context.NumberOfSubscriptionsReceived++;
                         }))
                       .WithEndpoint<Subscriber2>(b => b.Given((bus, context) =>
                       {
                           bus.Subscribe<MyEvent>();
 
                           if (!Feature.IsEnabled<MessageDrivenSubscriptions>())
-                              context.NumberOfSubcriptionsReceived++;
+                              context.NumberOfSubscriptionsReceived++;
                       }))
-                    .Done(c => c.SubcribersOfTheEvent != null)
+                    .Done(c => c.SubscribersOfTheEvent != null)
                     .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>(Transports.Msmq)
                         .For<AllSubscriptionStorages>(SubscriptionStorages.Msmq))
                     .Should(c =>
                     {
-                        Assert.AreEqual(1, c.SubcribersOfTheEvent.Count(), "There should only be one logical subscriber");
+                        Assert.AreEqual(1, c.SubscribersOfTheEvent.Count(), "There should only be one logical subscriber");
                     })
                     .MaxTestParallelism(1)//we force the endpoint names so we can't run this is parallel
                     .Run();
@@ -61,9 +61,9 @@
 
         public class Context : ScenarioContext
         {
-            public int NumberOfSubcriptionsReceived { get; set; }
+            public int NumberOfSubscriptionsReceived { get; set; }
 
-            public IEnumerable<string> SubcribersOfTheEvent { get; set; }
+            public IEnumerable<string> SubscribersOfTheEvent { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
