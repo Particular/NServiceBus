@@ -4,13 +4,13 @@
     using Pipeline;
     using Pipeline.Contexts;
 
-    class OutboxReceiveBehavior : IBehavior<PhysicalMessageContext>
+    class OutboxReceiveBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
 
-        public PipelineFactory PipelineFactory { get; set; }
-
-        public void Invoke(PhysicalMessageContext context, Action next)
+        public PipelineExecutor PipelineExecutor { get; set; }
+        
+        public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var messageId = context.PhysicalMessage.Id;
 
@@ -45,7 +45,7 @@
             foreach (var transportOperation in outboxMessage.TransportOperations)
             {
                 //dispatch to transport
-                PipelineFactory.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.PhysicalMessage);
+                PipelineExecutor.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.PhysicalMessage);
             }
         }
 
