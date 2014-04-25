@@ -31,10 +31,7 @@
                         });
 
                         b.When(context => context.StartSagaMessageReceived,
-                            (bus, context) =>
-                            {
-                                bus.Publish(new SomeEvent { SomeId = context.Id });
-                            });
+                            (bus, context) => bus.Publish(new SomeEvent { SomeId = context.Id }));
 
                     })
                     .Done(c => c.TimeoutReceived)

@@ -31,11 +31,7 @@
                         }))
                     .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
                     .Repeat(r => r.For(Transports.Default)) //not stable for sqlserver
-                    .Should(c =>
-                        {
-                            Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,"The transport should preserve the order in which the transactional messages are delivered to the queuing system");
-                        }
-                    )
+                    .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage,"The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
                     .Run();
         }
 

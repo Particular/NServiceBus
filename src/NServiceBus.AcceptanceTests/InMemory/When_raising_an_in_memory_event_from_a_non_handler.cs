@@ -40,10 +40,7 @@
               
                 public void Start()
                 {
-                    Bus.InMemory.Raise<MyInMemoryEvent>(m =>
-                    {
-                        m.SetHeader("MyHeader","MyValue");
-                    });      
+                    Bus.InMemory.Raise<MyInMemoryEvent>(m => m.SetHeader("MyHeader","MyValue"));      
                 }
 
                 public void Stop()

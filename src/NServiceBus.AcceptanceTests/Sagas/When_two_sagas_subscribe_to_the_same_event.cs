@@ -32,10 +32,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     .WithEndpoint<EndpointThatHandlesAMessageAndPublishesEvent>()
                     .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                        {
-                            Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked);
-                        })
+                    .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
                     .Run();
         }
 

@@ -244,7 +244,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             {
                 if ((DateTime.UtcNow - startTime) > maxTime)
                 {
-                    throw new ScenarioException(GenerateTestTimedOutMessage(endpoints, maxTime));
+                    throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
                 }
             }
             finally
@@ -253,7 +253,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             }
         }
 
-        static string GenerateTestTimedOutMessage(List<EndpointRunner> endpoints, TimeSpan maxTime)
+        static string GenerateTestTimedOutMessage(TimeSpan maxTime)
         {
             var sb = new StringBuilder();
 
