@@ -76,7 +76,9 @@ namespace NServiceBus.DataBus
     public class DataBusMessageMutator : IMessageMutator
     {
 
+// ReSharper disable UnusedParameter.Local
         public DataBusMessageMutator(IDataBus dataBus, IDataBusSerializer serializer)
+// ReSharper restore UnusedParameter.Local
         {
         }
 

@@ -19,7 +19,9 @@
         /// <summary>
         /// Creates a new instance of the handler tester.
         /// </summary>
+// ReSharper disable UnusedParameter.Local
         public Handler(T handler, StubBus bus, IMessageCreator messageCreator, IEnumerable<Type> types)
+// ReSharper restore UnusedParameter.Local
         {
             this.handler = handler;
             this.bus = bus;

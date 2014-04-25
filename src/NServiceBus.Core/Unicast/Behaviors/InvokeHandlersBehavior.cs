@@ -24,12 +24,12 @@
         {
             var logicalMessage = context.Get<LogicalMessage>();
 
-            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler, context);
+            DispatchMessageToHandlersBasedOnType(context.Builder, logicalMessage, context.MessageHandler);
 
             next();
         }
 
-        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler, BehaviorContext context)
+        void DispatchMessageToHandlersBasedOnType(IBuilder builder, LogicalMessage toHandle, MessageHandler messageHandler)
         {
             var handlerInstance = messageHandler.Instance;
             var handlerTypeToInvoke = handlerInstance.GetType();
