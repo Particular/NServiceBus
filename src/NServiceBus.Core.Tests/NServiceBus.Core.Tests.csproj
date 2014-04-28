@@ -131,6 +131,7 @@
     <Compile Include="Conventions\MessageConventionSpecs.cs" />
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
+    <Compile Include="Pipeline\BehaviorChainTests.cs" />
     <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
