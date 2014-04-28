@@ -26,8 +26,12 @@
         static IEnumerable<Type> GetAttributeTypes(Assembly assembly)
         {
             return assembly.GetTypes()
-                .Where(type => 
-                    typeof(Attribute).IsAssignableFrom(type) && 
+                .Where(type =>
+                    typeof(Attribute).IsAssignableFrom(type) &&
+                    //Ignore log4net attributes
+                    !type.Namespace.Contains("log4net") &&
+                        //Ignore Newtonsoft attributes
+                    !type.Namespace.Contains("Newtonsoft") &&
                     //TODO: remove when gitversion is updated
                     !type.Name.EndsWith("ReleaseDateAttribute") &&
                     !type.Name.EndsWith("NugetVersionAttribute"));
