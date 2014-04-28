@@ -37,15 +37,6 @@
                     .Run();
         }
 
-        public class OverrideLocalAddress : IWantToRunWhenConfigurationIsComplete
-        {
-            public void Run()
-            {
-                if (Address.Local.Queue.Contains("Subscriber1"))
-                    Address.InitializeLocalAddress("myinputqueue");
-            }
-        }
-
         public class Context : ScenarioContext
         {
             public bool Subscriber1GotTheEvent { get; set; }
@@ -59,13 +50,21 @@
                 EndpointSetup<DefaultServer>();
             }
         }
-        
+
         public class Subscriber1 : EndpointConfigurationBuilder
         {
             public Subscriber1()
             {
                 EndpointSetup<DefaultServer>(c => Configure.Features.Disable<AutoSubscribe>())
                     .AddMapping<MyEvent>(typeof(Publisher));
+            }
+
+            public class OverrideLocalAddress : IWantToRunBeforeConfiguration
+            {
+                public void Init()
+                {
+                    Address.InitializeLocalAddress("myinputqueue");
+                }
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
