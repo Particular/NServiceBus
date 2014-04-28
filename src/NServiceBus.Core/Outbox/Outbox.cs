@@ -13,7 +13,6 @@
             InfrastructureServices.Enable<IOutboxStorage>();
         }
 
-
         public class PipelineOverride : Pipeline.PipelineOverride
         {
             public override void Override(BehaviorList<ReceivePhysicalMessageContext> behaviorList)
@@ -23,7 +22,7 @@
                     return;
                 }
 
-                behaviorList.InsertAfter<ChildContainerBehavior,OutboxReceiveBehavior>();
+                behaviorList.InsertAfter<ChildContainerBehavior, OutboxReceiveBehavior>();
             }
 
 

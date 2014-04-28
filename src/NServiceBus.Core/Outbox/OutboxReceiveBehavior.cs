@@ -33,13 +33,13 @@
                 return;
             }
 
-            DispachOperationToTransport(outboxMessage);
+            DispatchOperationToTransport(outboxMessage);
 
             outboxMessage.Dispatched = true;
             OutboxStorage.SetAsDispatched(outboxMessage);
         }
 
-        void DispachOperationToTransport(OutboxMessage outboxMessage)
+        void DispatchOperationToTransport(OutboxMessage outboxMessage)
         {
             outboxMessage.StartDispatching();
             foreach (var transportOperation in outboxMessage.TransportOperations)
