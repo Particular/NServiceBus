@@ -178,10 +178,10 @@ namespace NServiceBus.Gateway.Channels.Http
         {
             var newStatus = status;
 
-            var jsonp = context.Request.QueryString["callback"];
-            if (string.IsNullOrEmpty(jsonp) == false)
+            var jsonCallback = context.Request.QueryString["callback"];
+            if (string.IsNullOrEmpty(jsonCallback) == false)
             {
-                newStatus = jsonp + "({ status: '" + newStatus + "'})";
+                newStatus = jsonCallback + "({ status: '" + newStatus + "'})";
                 context.Response.AddHeader("Content-Type", "application/javascript; charset=utf-8");
             }
             else

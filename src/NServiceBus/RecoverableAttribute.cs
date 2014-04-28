@@ -13,7 +13,7 @@ namespace NServiceBus
     /// delivery will continue when the machine is brought back online.</remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     [ObsoleteEx(TreatAsErrorFromVersion = "4.0")]
-    public class RecoverableAttribute : Attribute
+    public sealed class RecoverableAttribute : Attribute
     {
     }
 }

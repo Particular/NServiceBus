@@ -48,6 +48,7 @@ namespace ObjectBuilder.Tests
 
         public class ExistingComponentWithUnsatisfiedDependency
         {
+            // ReSharper disable once UnusedParameter.Local
             public ExistingComponentWithUnsatisfiedDependency(NonExistingComponent dependency)
             {
 

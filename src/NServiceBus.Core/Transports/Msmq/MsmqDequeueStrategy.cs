@@ -162,14 +162,11 @@ namespace NServiceBus.Transports.Msmq
 
             Task.Factory
                 .StartNew(Action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ContinueWith(task =>
+                .ContinueWith(task => task.Exception.Handle(ex =>
                 {
-                    task.Exception.Handle(ex =>
-                    {
-                        Logger.Error("Error processing message.", ex);
-                        return true;
-                    });
-                }, TaskContinuationOptions.OnlyOnFaulted);
+                    Logger.Error("Error processing message.", ex);
+                    return true;
+                }), TaskContinuationOptions.OnlyOnFaulted);
 
             //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
             peekResetEvent.WaitOne();

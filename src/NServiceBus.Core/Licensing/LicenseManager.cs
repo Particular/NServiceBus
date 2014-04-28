@@ -69,43 +69,31 @@ namespace NServiceBus.Licensing
                 }
                 return trialLicense;
             }
-            else
-            {
-                Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
-                // We have been unable to check existing trial license.  Use a current trial license instead to run the endpoint for this run. 
-                return Particular.Licensing.License.TrialLicense(DateTime.Today);
-            }
+
+            Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
+
+            return null;
         }
 
         internal static void InitializeLicense()
         {
-            try
+            //only do this if not been configured by the fluent API
+            if (licenseText == null)
             {
-                //only do this if not been configured by the fluent API
-                if (licenseText == null)
-                {
-                    licenseText = GetExistingLicense();
-                }
-                if (string.IsNullOrWhiteSpace(licenseText))
-                {
-                    // Check to see if the user is on trial and initialize trial license accordingly based on the days left on the license
-                    license = GetTrialLicense();
-                    return;
-                }
+                licenseText = GetExistingLicense();
             }
-            catch (Exception ex)
-            {
-                // We should not fail the endpoint if we run into issues trying to read the license
-                Logger.Error("Unable to initialize the license", ex);
 
-                // Use a current trial license instead to run the endpoint for this run.
-                license = Particular.Licensing.License.TrialLicense(DateTime.Today);
+            if (string.IsNullOrWhiteSpace(licenseText))
+            {
+                license = GetTrialLicense();
                 return;
             }
 
+
             LicenseVerifier.Verify(licenseText);
+
             var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-                
+
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
                 Logger.Fatal(" You can renew it at http://particular.net/licensing.");
@@ -121,8 +109,7 @@ namespace NServiceBus.Licensing
                 Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
             }
 
-            license = foundLicense;   
-                 
+            license = foundLicense;
         }
 
         static string GetExistingLicense()
@@ -130,7 +117,7 @@ namespace NServiceBus.Licensing
             string existingLicense;
 
             //look in HKCU
-            if (new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            if (UserSidChecker.IsNotSystemSid() && new RegistryLicenseStore().TryReadLicense(out existingLicense))
             {
                 return existingLicense;
             }
@@ -140,7 +127,6 @@ namespace NServiceBus.Licensing
             {
                 return existingLicense;
             }
-
 
             return LicenseLocationConventions.TryFindLicenseText();
         }
@@ -156,23 +142,35 @@ namespace NServiceBus.Licensing
             {
                 if (license == null)
                 {
-                    InitializeLicense();
+                    try
+                    {
+                        InitializeLicense();
+                    }
+                    catch (Exception ex)
+                    {
+                        //we only log here to prevent licensing issue to abort startup and cause production outages
+                        Logger.Fatal("Failed to initialize the license", ex);
+                    }
                 }
 
                 var nsbLicense = new License
                 {
                     AllowedNumberOfWorkerNodes = int.MaxValue,
                     MaxThroughputPerSecond = int.MaxValue,
+                    ExpirationDate = DateTime.MaxValue
                 };
 
-                if (license.ExpirationDate.HasValue)
+                if (license != null)
                 {
-                    nsbLicense.ExpirationDate = license.ExpirationDate.Value;
-                }
+                    if (license.ExpirationDate.HasValue)
+                    {
+                        nsbLicense.ExpirationDate = license.ExpirationDate.Value;
+                    }
 
-                if (license.UpgradeProtectionExpiration.HasValue)
-                {
-                    nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
+                    if (license.UpgradeProtectionExpiration.HasValue)
+                    {
+                        nsbLicense.UpgradeProtectionExpiration = license.UpgradeProtectionExpiration.Value;
+                    }
                 }
 
                 return nsbLicense;

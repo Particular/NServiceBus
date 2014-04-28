@@ -126,6 +126,7 @@ namespace MessageMapperTests
         public class CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters : Attribute
         {
             public string Name { get; set; }
+            // ReSharper disable once UnusedParameter.Local
             public CustomAttributeWithNoDefaultConstructorAndNoMatchingParameters(string someParam, string someOtherParam)
             {
                 Name = someParam;

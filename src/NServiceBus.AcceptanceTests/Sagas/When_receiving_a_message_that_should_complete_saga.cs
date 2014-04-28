@@ -20,10 +20,7 @@
                         })
                     .Done(c => c.SagaCompleted)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                    {
-                        Assert.IsNull(c.UnhandledException);
-                    })
+                    .Should(c => Assert.IsNull(c.UnhandledException))
 
                     .Run();
         }

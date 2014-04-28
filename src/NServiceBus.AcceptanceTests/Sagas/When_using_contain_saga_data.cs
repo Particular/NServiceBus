@@ -8,7 +8,7 @@
     using ScenarioDescriptors;
 
     // Repro for #SB-191
-    public class When_using_containsagadata : NServiceBusAcceptanceTest
+    public class When_using_contain_saga_data : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_handle_timeouts_properly()
@@ -18,10 +18,7 @@
                         b => b.Given(bus => bus.SendLocal(new StartSaga {DataId = Guid.NewGuid()})))
                     .Done(c => c.DidAllSagaInstancesReceiveTimeouts)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                        {
-                            Assert.True(c.DidAllSagaInstancesReceiveTimeouts);
-                        })
+                    .Should(c => Assert.True(c.DidAllSagaInstancesReceiveTimeouts))
                     .Run();
         }
 

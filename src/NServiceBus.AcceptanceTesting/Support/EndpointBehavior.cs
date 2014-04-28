@@ -6,9 +6,9 @@
     using System.Threading;
 
     [Serializable]
-    public class EndpointBehaviour : MarshalByRefObject
+    public class EndpointBehavior : MarshalByRefObject
     {
-        public EndpointBehaviour(Type builderType)
+        public EndpointBehavior(Type builderType)
         {
             EndpointBuilderType = builderType;
             CustomConfig = new List<Action<Configure>>();

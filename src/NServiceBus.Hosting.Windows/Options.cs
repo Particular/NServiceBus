@@ -1,4 +1,7 @@
-﻿//
+﻿// ReSharper disable ConvertToLambdaExpression
+// ReSharper disable IdentifierTypo
+// ReSharper disable UnusedMethodReturnValue.Local
+//
 // Options.cs
 //
 // Authors:

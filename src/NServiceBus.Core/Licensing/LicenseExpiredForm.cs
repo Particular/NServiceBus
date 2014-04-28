@@ -50,7 +50,7 @@
                 openDialog.Filter = "License files (*.xml)|*.xml|All files (*.*)|*.*";
                 openDialog.Title = "Select License file";
 
-                var dialogResult = StaThreadRunner.ShowDialogInSTA(() => { return openDialog.ShowDialog(); });
+                var dialogResult = StaThreadRunner.ShowDialogInSTA(openDialog.ShowDialog);
                 if (dialogResult == DialogResult.OK)
                 {
                     var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(openDialog.FileName);
