@@ -6,6 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
+#pragma warning disable 612, 618
     public class When_bus_start_raises_an_inmemory_message : NServiceBusAcceptanceTest
     {
         [Test]
@@ -63,6 +64,6 @@
         }
 
     }
-
+#pragma warning restore  612, 618
 
 }

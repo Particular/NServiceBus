@@ -6,6 +6,8 @@
     using Features;
     using NUnit.Framework;
 
+#pragma warning disable 612, 618
+
     public class When_raising_an_in_memory_event_from_a_non_handler : NServiceBusAcceptanceTest
     {
         [Test]
@@ -72,4 +74,5 @@
         {
         }
     }
+#pragma warning restore  612, 618
 }

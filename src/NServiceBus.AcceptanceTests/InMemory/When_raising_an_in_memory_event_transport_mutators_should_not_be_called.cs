@@ -7,6 +7,7 @@
     using MessageMutator;
     using NUnit.Framework;
 
+#pragma warning disable 612, 618
     public class When_raising_an_in_memory_event_transport_mutators_should_not_be_called : NServiceBusAcceptanceTest
     {
         [Test]
@@ -72,4 +73,5 @@
         {
         }
     }
+#pragma warning restore  612, 618
 }
