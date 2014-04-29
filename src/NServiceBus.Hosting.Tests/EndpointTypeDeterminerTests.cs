@@ -78,6 +78,27 @@ namespace NServiceBus.Hosting.Tests
         }
 
         [TestFixture]
+        public class GetEndpointConfigurationType_Tests_2 : TestContext
+        {
+            [TestFixtureSetUp]
+            public void TestFixtureSetup()
+            {
+                AssemblyScanner = new AssemblyScanner();
+            }
+
+            [Test]
+            [ExpectedException(typeof(InvalidOperationException),
+                ExpectedMessage = "Host doesn't support hosting of multiple endpoints",
+                MatchType = MessageMatch.StartsWith)]
+            public void when_multiple_endpoint_types_found_via_assembly_scanning_it_should_blow_up()
+            {
+                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner, () => null);
+
+                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
+            }
+        }
+
+        [TestFixture]
         public class GetEndpointConfigurationType_Tests : TestContext
         {
             [TestFixtureSetUp]
@@ -108,7 +129,7 @@ namespace NServiceBus.Hosting.Tests
                     IncludeAppDomainAssemblies = true,
                     AssembliesToInclude = new List<string> { endpointTypeInAssembly.Assembly.GetName().Name },
                 };
-                Console.Out.WriteLine(endpointTypeInAssembly.AssemblyQualifiedName);
+
                 EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner, () => null);
 
                 RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
@@ -135,17 +156,6 @@ namespace NServiceBus.Hosting.Tests
             {
                 EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner,
                                                  () => "I am an invalid type name");
-
-                RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
-            }
-
-            [Test]
-            [ExpectedException(typeof (InvalidOperationException),
-                ExpectedMessage = "Host doesn't support hosting of multiple endpoints",
-                MatchType = MessageMatch.StartsWith)]
-            public void when_multiple_endpoint_types_found_via_assembly_scanning_it_should_blow_up()
-            {
-                EndpointTypeDeterminer = new EndpointTypeDeterminer(AssemblyScanner, () => null);
 
                 RetrievedEndpointType = EndpointTypeDeterminer.GetEndpointConfigurationType().Type;
             }
