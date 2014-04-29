@@ -4,7 +4,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
+    using System.ComponentModel;
 
+    [Obsolete("This is a prototype API. May change in minor version releases.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class MessageMetadataRegistry
     {
         public MessageMetadata GetMessageDefinition(Type messageType)
@@ -23,49 +26,46 @@
             return messages.ContainsKey(messageType);
         }
 
+
+        [ObsoleteEx(RemoveInVersion = "5.0")]
         public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
         {
-            var messageMetadatas = new List<MessageMetadata>();
             string header;
 
             if (!message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out header))
             {
-                return messageMetadatas;
+                yield break;
             }
-            if (string.IsNullOrEmpty(header))
-            {
-                return messageMetadatas;
-            }
-
             foreach (var messageTypeString in header.Split(';'))
             {
-                var messageType = Type.GetType(messageTypeString, false);
+                yield return GetMessageMetadata(messageTypeString);
+            }
+        }
 
-                if (messageType == null)
-                {
-                    Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match.MessageId: {1}", messageTypeString, message.Id);
+        public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
+        {
+            if (string.IsNullOrEmpty(messageTypeIdentifier))
+            {
+                throw new ArgumentException("MessageTypeIdentifier passed is null or empty");
+            }
 
-                    var messageMetadata = messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeString);
-                    if (messageMetadata == null)
-                    {
-                        continue;
-                    }
-                    messageType = messageMetadata.MessageType;
-                }
+            var messageType = Type.GetType(messageTypeIdentifier, false);
+
+            if (messageType == null)
+            {
+                Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
+                return messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeIdentifier);
+            }
+            else
+            {
                 MessageMetadata metadata;
                 if (messages.TryGetValue(messageType, out metadata))
                 {
-                    messageMetadatas.Add(metadata);
-                    continue;
+                    return metadata;
                 }
-                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. MessageId: {2}", messageTypeString, messageType.FullName, message.Id);
+                Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, please make sure the same message registration conventions are used in all endpoints, specially if you are using unobtrusive mode. ", messageType, messageType.FullName);
             }
-
-            if (messageMetadatas.Count == 0 && message.MessageIntent != MessageIntentEnum.Publish)
-            {
-                Logger.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", header, message.Id);
-            }
-            return messageMetadatas;
+            return null;
         }
 
         public IEnumerable<MessageMetadata> GetAllMessages()
@@ -92,8 +92,8 @@
                 .OrderByDescending(PlaceInMessageHierarchy)
                 .ToList();
 
-            metadata.MessageHierarchy = new[]{messageType}.Concat(parentMessages);
-                
+            metadata.MessageHierarchy = new[] { messageType }.Concat(parentMessages);
+
             messages[messageType] = metadata;
         }
 
@@ -136,6 +136,6 @@
 
         public bool DefaultToNonPersistentMessages { get; set; }
 
-        static ILog Logger = LogManager.GetLogger(typeof (DefaultDispatcherFactory));
+        static ILog Logger = LogManager.GetLogger(typeof(DefaultDispatcherFactory));
     }
 }
