@@ -29,5 +29,7 @@
         /// <see cref="IHandleMessages{T}"/>
         /// </summary>
         public List<SkippedFile> SkippedFiles { get; private set; }
+
+        public bool ErrorsThrownDuringScanning { get; internal set; }
     }
 }

@@ -37,7 +37,7 @@ namespace NServiceBus.Hosting
             Configure.GetEndpointNameAction = () => endpointName;
             Configure.DefineEndpointVersionRetriever = () => FileVersionRetriever.GetFileVersion(specifier.GetType());
 
-            if (scannableAssembliesFullName == null)
+            if (scannableAssembliesFullName == null || !scannableAssembliesFullName.Any())
             {
                 var assemblyScanner = new AssemblyScanner();
                 assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
