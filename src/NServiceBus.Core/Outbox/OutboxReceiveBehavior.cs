@@ -45,7 +45,7 @@
             foreach (var transportOperation in outboxMessage.TransportOperations)
             {
                 //dispatch to transport
-                PipelineExecutor.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.PhysicalMessage);
+                PipelineExecutor.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.Message);
             }
         }
 

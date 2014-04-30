@@ -2,15 +2,15 @@
 {
     using Unicast;
 
-    class TransportOperation
+    public class TransportOperation
     {
-        public TransportOperation(SendOptions sendOptions, TransportMessage physicalMessage)
+        public TransportOperation(SendOptions sendOptions, TransportMessage message)
         {
             SendOptions = sendOptions;
-            PhysicalMessage = physicalMessage;
+            Message = message;
         }
 
         public SendOptions SendOptions { get; private set; }
-        public TransportMessage PhysicalMessage { get;private set; }
+        public TransportMessage Message { get;private set; }
     }
 }

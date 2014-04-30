@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    class OutboxMessage
+    public class OutboxMessage
     {
         public string Id { get; set; }
        
@@ -19,7 +19,7 @@
 
                 return transportOperations;
             }
-            protected set
+            set
             {
                 transportOperations = value;
             }
