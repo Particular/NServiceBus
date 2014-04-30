@@ -40,7 +40,7 @@
             return TryGet(typeof(T).FullName, out result);
         }
 
-        public bool TryGet<T>(string key,out T result)
+        public bool TryGet<T>(string key, out T result)
         {
             object value;
             if (stash.TryGetValue(key, out value))
@@ -56,10 +56,10 @@
 
             if (typeof(T).IsValueType)
             {
-                result=default(T);
-
+                result = default(T);
                 return true;
             }
+
             result = default(T);
             return false;
         }
@@ -86,6 +86,21 @@
             stash[key] = t;
         }
 
+        public void Remove<T>()
+        {
+            Remove(typeof(T).FullName);
+        }
+
+        public void Remove(string key)
+        {
+            if (!stash.Remove(key))
+            {
+                if (parentContext != null)
+                {
+                    parentContext.Remove(key);
+                } 
+            }
+        }
 
         protected readonly BehaviorContext parentContext;
 
