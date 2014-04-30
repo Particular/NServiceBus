@@ -52,10 +52,7 @@
         public void InvokeLogicalMessagePipeline(LogicalMessage message)
         {
             var pipeline = new BehaviorChain<ReceiveLogicalMessageContext>(pipelineBuilder.receiveLogicalMessageBehaviorList);
-
-
             var context = new ReceiveLogicalMessageContext(CurrentContext, message);
-
 
             Execute(pipeline, context);
         }
@@ -84,7 +81,6 @@
         public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
             var pipeline = new BehaviorChain<SendLogicalMessageContext>(pipelineBuilder.sendLogicalMessageBehaviorList);
-
             var context = new SendLogicalMessageContext(CurrentContext, sendOptions, message);
 
             Execute(pipeline,context);
@@ -95,8 +91,14 @@
         public void InvokeSendPipeline(SendOptions sendOptions, TransportMessage physicalMessage)
         {
             var pipeline = new BehaviorChain<SendPhysicalMessageContext>(pipelineBuilder.sendPhysicalMessageBehaviorList);
-
             var context = new SendPhysicalMessageContext(CurrentContext, sendOptions, physicalMessage);
+
+            Execute(pipeline, context);
+        }
+
+        public void InvokePipeline<TContext>(IEnumerable<Type> behaviours, TContext context) where TContext : BehaviorContext
+        {
+            var pipeline = new BehaviorChain<TContext>(behaviours);
 
             Execute(pipeline, context);
         }
