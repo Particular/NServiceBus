@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Outbox
 {
-    interface IOutboxStorage
+    public interface IOutboxStorage
     {
         OutboxMessage Get(string messageId);
         void Store(OutboxMessage outboxMessage);
