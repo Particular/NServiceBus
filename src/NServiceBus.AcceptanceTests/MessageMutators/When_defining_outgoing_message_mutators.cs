@@ -6,7 +6,7 @@
     using MessageMutator;
     using NUnit.Framework;
 
-    public class When_defining_outoing_message_mutators : NServiceBusAcceptanceTest
+    public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_be_applied_to_outgoing_messages()
@@ -14,7 +14,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<OutgoingMutatatorEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
+                    .WithEndpoint<OutgoingMutatorEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
                     .Done(c => c.MessageProcessed)
                     .Run();
 
@@ -29,9 +29,9 @@
             public bool MessageMutatorCalled { get; set; }
         }
 
-        public class OutgoingMutatatorEndpoint : EndpointConfigurationBuilder
+        public class OutgoingMutatorEndpoint : EndpointConfigurationBuilder
         {
-            public OutgoingMutatatorEndpoint()
+            public OutgoingMutatorEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }

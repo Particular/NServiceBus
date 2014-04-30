@@ -8,7 +8,7 @@
         
         public EndpointBehaviorBuilder(Type type)
         {
-            behaviour = new EndpointBehaviour(type)
+            behavior = new EndpointBehavior(type)
                 {
                     Givens = new List<IGivenDefinition>(),
                     Whens = new List<IWhenDefinition>()
@@ -18,7 +18,7 @@
 
         public EndpointBehaviorBuilder<TContext> Given(Action<IBus> action)
         {
-            behaviour.Givens.Add(new GivenDefinition<TContext>(action));
+            behavior.Givens.Add(new GivenDefinition<TContext>(action));
 
             return this;
         }
@@ -26,7 +26,7 @@
 
         public EndpointBehaviorBuilder<TContext> Given(Action<IBus,TContext> action)
         {
-            behaviour.Givens.Add(new GivenDefinition<TContext>(action));
+            behavior.Givens.Add(new GivenDefinition<TContext>(action));
 
             return this;
         }
@@ -38,38 +38,38 @@
 
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus> action)
         {
-            behaviour.Whens.Add(new WhenDefinition<TContext>(condition,action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
 
             return this;
         }
 
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus,TContext> action)
         {
-            behaviour.Whens.Add(new WhenDefinition<TContext>(condition,action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
 
             return this;
         }
 
         public EndpointBehaviorBuilder<TContext> CustomConfig(Action<Configure> action)
         {
-            behaviour.CustomConfig.Add(action);
+            behavior.CustomConfig.Add(action);
 
             return this;
         }
 
         public EndpointBehaviorBuilder<TContext> AppConfig(string appConfigPath)
         {
-            behaviour.AppConfig = appConfigPath;
+            behavior.AppConfig = appConfigPath;
 
             return this;
         }
 
 
-        public EndpointBehaviour Build()
+        public EndpointBehavior Build()
         {
-            return behaviour;
+            return behavior;
         }
 
-        readonly EndpointBehaviour behaviour;
+        readonly EndpointBehavior behavior;
     }
 }

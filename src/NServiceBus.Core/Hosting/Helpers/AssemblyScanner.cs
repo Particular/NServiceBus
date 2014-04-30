@@ -21,6 +21,7 @@ namespace NServiceBus.Hosting.Helpers
 
         public AssemblyScanner(string baseDirectoryToScan)
         {
+            ThrowExceptions = true;
             AssembliesToInclude = new List<string>();
             AssembliesToSkip = new List<string>();
             MustReferenceAtLeastOneAssembly = new List<Assembly>();
@@ -84,6 +85,8 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
+        public bool ThrowExceptions { get; set; }
+
         void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
         {
             Assembly assembly;
@@ -127,6 +130,7 @@ namespace NServiceBus.Hosting.Helpers
                 }
 
                 assembly = Assembly.LoadFrom(assemblyPath);
+
                 if (results.Assemblies.Contains(assembly))
                 {
                     return;
@@ -134,8 +138,19 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (BadImageFormatException ex)
             {
-                var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
-                throw new Exception(errorMessage, ex);
+                assembly = null;
+                results.ErrorsThrownDuringScanning = true;
+
+                if (ThrowExceptions)
+                {
+                    var errorMessage = String.Format("Could not load '{0}'. Consider excluding that assembly from the scanning.", assemblyPath);
+                    throw new Exception(errorMessage, ex);
+                }
+            }
+
+            if (assembly == null)
+            {
+                return;
             }
 
             try
@@ -145,8 +160,15 @@ namespace NServiceBus.Hosting.Helpers
             }
             catch (ReflectionTypeLoadException e)
             {
-                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
-                throw new Exception(errorMessage);
+                results.ErrorsThrownDuringScanning = true;
+
+                if (ThrowExceptions)
+                {
+                    var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
+                    throw new Exception(errorMessage);
+                }
+
+                return;
             }
 
             results.Assemblies.Add(assembly);
@@ -193,8 +215,10 @@ namespace NServiceBus.Hosting.Helpers
             var nsbAssemblyName = typeof(AssemblyScanner).Assembly.GetName();
             var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
             var displayBindingRedirects = false;
+            var files = new List<string>();
+            var sbFileLoadException = new StringBuilder();
+            var sbGenericException = new StringBuilder();
 
-            var displayHeader = true;
             foreach (var ex in e.LoaderExceptions)
             {
                 var loadException = ex as FileLoadException;
@@ -203,26 +227,42 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     var assemblyName = new AssemblyName(loadException.FileName);
                     var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
-                    if (nsbAssemblyName.Name == assemblyName.Name && nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() && nsbPublicKeyToken == assemblyPublicKeyToken)
+                    if (nsbAssemblyName.Name == assemblyName.Name &&
+                        nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() &&
+                        nsbPublicKeyToken == assemblyPublicKeyToken)
                     {
                         displayBindingRedirects = true;
+                        continue;
                     }
-                }
-                else
-                {
-                    if (displayHeader)
+
+                    if (!files.Contains(loadException.FileName))
                     {
-                        sb.AppendLine("Assembly scanner errors:");
-                        displayHeader = false;
+                        files.Add(loadException.FileName);
+                        sbFileLoadException.AppendLine(loadException.FileName);
                     }
-                    sb.AppendLine(ex.ToString());
+                    continue;
                 }
+
+                sbGenericException.AppendLine(ex.ToString());
+            }
+
+            if (sbGenericException.ToString().Length > 0)
+            {
+                sb.AppendLine("Exceptions:");
+                sb.AppendLine(sbGenericException.ToString());
+            }
+
+            if (sbFileLoadException.ToString().Length > 0)
+            {
+                sb.AppendLine("It looks like you may be missing binding redirects in your config file for the following assemblies:");
+                sb.Append(sbFileLoadException);
+                sb.AppendLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
             }
 
             if (displayBindingRedirects)
             {
                 sb.AppendLine();
-                sb.AppendLine("It looks like you may be missing binding redirects in your config file, try to add the following binding redirects:");
+                sb.AppendLine("Try to add the following binding redirects to your config file:");
 
                 const string bindingRedirects = @"<runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
@@ -239,7 +279,6 @@ namespace NServiceBus.Hosting.Helpers
 
                 sb.AppendFormat(bindingRedirects, nsbAssemblyName.Version.ToString(4));
                 sb.AppendLine();
-
             }
 
             return sb.ToString();
@@ -339,8 +378,6 @@ namespace NServiceBus.Hosting.Helpers
         internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories = true;
-
-
 
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =

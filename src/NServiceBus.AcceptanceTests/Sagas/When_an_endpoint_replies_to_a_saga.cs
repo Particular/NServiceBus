@@ -19,10 +19,7 @@
                     .WithEndpoint<EndpointThatHandlesAMessageFromSagaAndReplies>()
                     .Done(c => c.DidSagaReplyMessageGetCorrelated)
                     .Repeat(r => r.For(Transports.Default))
-                    .Should(c =>
-                    {
-                        Assert.True(c.DidSagaReplyMessageGetCorrelated);
-                    })
+                    .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
                     .Run();
         }
 

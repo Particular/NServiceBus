@@ -177,7 +177,7 @@
         public static Handler<T> Handler<T>(T handler)
         {
             Func<IBus, T> handlerCreator = b => handler;
-            var prop = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(IBus)).FirstOrDefault();
+            var prop = typeof(T).GetProperties().FirstOrDefault(p => p.PropertyType == typeof(IBus));
             if (prop != null)
                 handlerCreator = b =>
                                      {

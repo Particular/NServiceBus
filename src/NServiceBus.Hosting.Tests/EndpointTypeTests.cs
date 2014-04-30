@@ -162,6 +162,7 @@ namespace NServiceBus.Hosting.Tests
 
         class TypeWithoutEmptyPublicConstructor
         {
+            // ReSharper disable once UnusedParameter.Local
             public TypeWithoutEmptyPublicConstructor(object foo)
             {
             }

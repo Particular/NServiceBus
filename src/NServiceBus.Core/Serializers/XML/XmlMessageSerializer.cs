@@ -456,7 +456,7 @@ namespace NServiceBus.Serializers.XML
                 } 
             }
 
-            throw new TypeLoadException("Could not determine type for node: '" + node.Name + "'.");
+            throw new Exception("Could not determine type for node: '" + node.Name + "'.");
         }
 
         object GetObjectOfTypeFromNode(Type t, XmlNode node)

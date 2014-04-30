@@ -10,7 +10,7 @@
 
     public class A : IMessage
     {
-        public Guid Aguid { get; set; }
+        public Guid AGuid { get; set; }
         public byte[] Data;
         public string S;
         public int I { get; set; }
@@ -34,7 +34,7 @@
 
     public class B
     {
-        public string Bstr { get; set; }
+        public string BString { get; set; }
         public object C { get; set; }
     }
 
@@ -71,12 +71,12 @@
 
             var obj = new A
                         {
-                            Aguid = expectedGuid,
+                            AGuid = expectedGuid,
                             Data = new byte[32],
                             I = 23,
                             S = "Foo",
                             Ints = new List<int> { 12, 42 },
-                            Bs = new List<B> { new B { Bstr = "aaa", C = new C { Cstr = "ccc" } }, new BB { Bstr = "bbbb", C = new C { Cstr = "dddd" }, BBString = "BBStr"} },
+                            Bs = new List<B> { new B { BString = "aaa", C = new C { Cstr = "ccc" } }, new BB { BString = "bbbb", C = new C { Cstr = "dddd" }, BBString = "BBStr"} },
                             DateTime = expectedDate,
                             DateTimeLocal = expectedDateLocal,
                             DateTimeUtc = expectedDateUtc
@@ -116,7 +116,7 @@
             Assert.AreEqual(expectedDateUtc.Kind, a.DateTimeUtc.Kind);
             Assert.AreEqual(expectedDateUtc, a.DateTimeUtc);
             Assert.AreEqual("ccc", ((C)a.Bs[0].C).Cstr);
-            Assert.AreEqual(expectedGuid, a.Aguid);
+            Assert.AreEqual(expectedGuid, a.AGuid);
 
             Assert.IsInstanceOf<B>(a.Bs[0]);
             Assert.IsInstanceOf<BB>(a.Bs[1]);
@@ -133,7 +133,7 @@
                   x.S = "kalle";
                   x.I = 42;
                   x.Data = new byte[23];
-                  x.B = new B { Bstr = "BOO", C = new C { Cstr = "COO" } };
+                  x.B = new B { BString = "BOO", C = new C { Cstr = "COO" } };
               }
               );
 
@@ -163,7 +163,7 @@
             Assert.AreEqual(42, a.I);
             Assert.AreEqual("kalle", a.S);
             Assert.IsNotNull(a.B);
-            Assert.AreEqual("BOO", a.B.Bstr);
+            Assert.AreEqual("BOO", a.B.BString);
             Assert.AreEqual("COO", ((C)a.B.C).Cstr);
         }
 
@@ -178,7 +178,7 @@
                   x.S = "kalle";
                   x.I = 42;
                   x.Data = new byte[23];
-                  x.B = new B { Bstr = "BOO", C = new C { Cstr = "COO" } };
+                  x.B = new B { BString = "BOO", C = new C { Cstr = "COO" } };
               });
 
             var obj2 = MessageMapper.CreateInstance<IA>(
@@ -187,7 +187,7 @@
                   x.S = "kalle";
                   x.I = 42;
                   x.Data = new byte[23];
-                  x.B = new B { Bstr = "BOO", C = new C { Cstr = "COO" } };
+                  x.B = new B { BString = "BOO", C = new C { Cstr = "COO" } };
               });
 
             new Random().NextBytes(obj.Data);
@@ -216,7 +216,7 @@
             Assert.AreEqual(42, a.I);
             Assert.AreEqual("kalle", a.S);
             Assert.IsNotNull(a.B);
-            Assert.AreEqual("BOO", a.B.Bstr);
+            Assert.AreEqual("BOO", a.B.BString);
             Assert.AreEqual("COO", ((C)a.B.C).Cstr);
         }
     }

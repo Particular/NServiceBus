@@ -20,7 +20,7 @@ namespace NServiceBus.Gateway.Receiving
 
         public Channel GetDefaultChannel()
         {
-            var defaultChannel = channels.Where(c => c.Default).SingleOrDefault();
+            var defaultChannel = channels.SingleOrDefault(c => c.Default);
 
             if (defaultChannel == null)
             {

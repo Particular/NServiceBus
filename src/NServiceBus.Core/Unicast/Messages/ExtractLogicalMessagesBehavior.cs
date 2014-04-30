@@ -65,17 +65,46 @@
                 return new List<LogicalMessage>();
             }
 
-            var messageMetadata = MessageMetadataRegistry.GetMessageTypes(physicalMessage);
+            string messageTypeIdentifier;
+            var messageMetadata = new List<MessageMetadata>();
+
+            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out messageTypeIdentifier))
+            {
+                foreach (var messageTypeString in messageTypeIdentifier.Split(';'))
+                {
+                    if (DoesTypeHaveImplAddedByVersion3(messageTypeString))
+                    {
+                        continue;
+                    }
+
+                    var metadata = MessageMetadataRegistry.GetMessageMetadata(messageTypeString);
+                    if (metadata == null)
+                    {
+                        continue;
+                    }
+                    messageMetadata.Add(metadata);
+                }
+
+                if (messageMetadata.Count == 0 && physicalMessage.MessageIntent != MessageIntentEnum.Publish)
+                {
+                    log.WarnFormat("Could not determine message type from message header '{0}'. MessageId: {1}", messageTypeIdentifier, physicalMessage.Id);
+                }
+            }
 
             using (var stream = new MemoryStream(physicalMessage.Body))
             {
                 var messageTypesToDeserialize = messageMetadata.Select(metadata => metadata.MessageType).ToList();
 
                 return MessageSerializer.Deserialize(stream, messageTypesToDeserialize)
-                    .Select(x => LogicalMessageFactory.Create(x.GetType(),x,physicalMessage.Headers))
+                    .Select(x => LogicalMessageFactory.Create(x.GetType(), x, physicalMessage.Headers))
                     .ToList();
             }
+        }
 
+        [ObsoleteEx(RemoveInVersion = "5.0")]
+        bool DoesTypeHaveImplAddedByVersion3(string existingTypeString)
+        {
+            return existingTypeString.Contains("__impl");
         }
 
         static ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

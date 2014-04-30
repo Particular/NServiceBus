@@ -17,10 +17,7 @@
                     .WithEndpoint<NonTransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
                     .Done(c => c.TestComplete)
                     .Repeat(r => r.For<AllDtcTransports>()) 
-                    .Should(c =>
-                        {
-                            Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit");
-                        })
+                    .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted bus.Send should not commit"))
                     .Run();
         }
 

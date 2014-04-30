@@ -15,7 +15,7 @@
         private static readonly ILog Logger = LogManager.GetLogger(typeof (EndpointRunner));
         private readonly SemaphoreSlim contextChanged = new SemaphoreSlim(0);
         private readonly IList<Guid> executedWhens = new List<Guid>();
-        private EndpointBehaviour behaviour;
+        private EndpointBehavior behavior;
         private IStartableBus bus;
         private Configure config;
         private EndpointConfiguration configuration;
@@ -23,15 +23,15 @@
         private ScenarioContext scenarioContext;
         private bool stopped;
 
-        public Result Initialize(RunDescriptor run, EndpointBehaviour endpointBehaviour,
+        public Result Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {
             try
             {
-                behaviour = endpointBehaviour;
+                behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
                 configuration =
-                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehaviour.EndpointBuilderType))
+                    ((IEndpointConfigurationFactory) Activator.CreateInstance(endpointBehavior.EndpointBuilderType))
                         .Get();
                 configuration.EndpointName = endpointName;
 
@@ -41,7 +41,7 @@
                 }
 
                 //apply custom config settings
-                endpointBehaviour.CustomConfig.ForEach(customAction => customAction(config));
+                endpointBehavior.CustomConfig.ForEach(customAction => customAction(config));
                 config = configuration.GetConfiguration(run, routingTable);
 
                 if (scenarioContext != null)
@@ -64,9 +64,9 @@
                             continue;
                         }
 
-                        lock (behaviour)
+                        lock (behavior)
                         {
-                            foreach (var when in behaviour.Whens)
+                            foreach (var when in behavior.Whens)
                             {
                                 if (executedWhens.Contains(when.Id))
                                 {
@@ -100,7 +100,7 @@
         {
             try
             {
-                foreach (var given in behaviour.Givens)
+                foreach (var given in behavior.Givens)
                 {
                     var action = given.GetAction(scenarioContext);
 
