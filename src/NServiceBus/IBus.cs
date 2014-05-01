@@ -317,7 +317,7 @@ namespace NServiceBus
         /// <summary>
         /// Support for in-memory operations.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1983 for more information.")]
+        [ObsoleteEx(RemoveInVersion = "5", TreatAsErrorFromVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1983 for more information.")]
         IInMemoryOperations InMemory { get; }
     }
 }
