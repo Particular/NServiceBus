@@ -308,12 +308,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             }
 
             var names = new List<string>(props.Count);
-            var dups = new List<PropertyInfo>(props.Count);
+            var duplicates = new List<PropertyInfo>(props.Count);
             foreach (var p in props)
             {
                 if (names.Contains(p.Name))
                 {
-                    dups.Add(p);
+                    duplicates.Add(p);
                 }
                 else
                 {
@@ -321,7 +321,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
             }
 
-            foreach (var d in dups)
+            foreach (var d in duplicates)
             {
                 props.Remove(d);
             }

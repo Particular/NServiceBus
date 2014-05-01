@@ -48,5 +48,3 @@ SEE ALSO
   Add-NServiceBusLoggingConfig
   Add-NServiceBusMasterNodeConfig
   Add-NServiceBusNHibernateConfig
-  Set-NServiceBusLocalMachineSettings
-  Get-NServiceBusLocalMachineSettings

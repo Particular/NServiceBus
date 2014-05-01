@@ -58,7 +58,7 @@ namespace NServiceBus.Testing.Tests
         public void ShouldAssertDeferWasCalledWithTimeSpan()
         {
             var timespan = TimeSpan.FromMinutes(10);
-            Test.Handler<DeferingTimeSpanHandler>()
+            Test.Handler<DeferringTimeSpanHandler>()
                 .WithExternalDependencies(h => h.Defer = timespan)
                 .ExpectDefer<TestMessage>((m, t) => t == timespan)
                 .OnMessage<TestMessage>();
@@ -68,7 +68,7 @@ namespace NServiceBus.Testing.Tests
         public void ShouldAssertDeferWasCalledWithDateTime()
         {
             var datetime = DateTime.Now;
-            Test.Handler<DeferingDateTimeHandler>()
+            Test.Handler<DeferringDateTimeHandler>()
                 .WithExternalDependencies(h => h.Defer = datetime)
                 .ExpectDefer<TestMessage>((m, t) => t == datetime)
                 .OnMessage<TestMessage>();
@@ -117,7 +117,7 @@ namespace NServiceBus.Testing.Tests
         public void ShouldFailAssertingDeferWasNotCalledWithTimeSpan()
         {
             var timespan = TimeSpan.FromMinutes(10);
-            Test.Handler<DeferingTimeSpanHandler>()
+            Test.Handler<DeferringTimeSpanHandler>()
                 .WithExternalDependencies(h => h.Defer = timespan)
                 .ExpectNotDefer<TestMessage>((m, t) => t == timespan)
                 .OnMessage<TestMessage>();
@@ -128,7 +128,7 @@ namespace NServiceBus.Testing.Tests
         public void ShouldFailAssertingDeferWasNotCalledWithDateTime()
         {
             var datetime = DateTime.Now;
-            Test.Handler<DeferingDateTimeHandler>()
+            Test.Handler<DeferringDateTimeHandler>()
                 .WithExternalDependencies(h => h.Defer = datetime)
                 .ExpectNotDefer<TestMessage>((m, t) => t == datetime)
                 .OnMessage<TestMessage>();
@@ -430,7 +430,7 @@ namespace NServiceBus.Testing.Tests
         {
         }
 
-        public class DeferingTimeSpanHandler : IHandleMessages<TestMessage>
+        public class DeferringTimeSpanHandler : IHandleMessages<TestMessage>
         {
             public IBus Bus { get; set; }
             public TimeSpan Defer { get; set; }
@@ -441,7 +441,7 @@ namespace NServiceBus.Testing.Tests
             }
         }
 
-        public class DeferingDateTimeHandler : IHandleMessages<TestMessage>
+        public class DeferringDateTimeHandler : IHandleMessages<TestMessage>
         {
             public IBus Bus { get; set; }
             public DateTime Defer { get; set; }

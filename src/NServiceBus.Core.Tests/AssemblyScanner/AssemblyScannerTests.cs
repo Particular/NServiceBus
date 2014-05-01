@@ -56,17 +56,19 @@
                 if (Directory.Exists(baseDirectoryToScan))
                     Directory.Delete(baseDirectoryToScan, true);
             }
-            
+
             [Test]
-            public void should_not_find_assembly_in_subdir()
+            public void should_not_find_assembly_in_sub_directory()
             {
                 var allEncounteredFileNames =
-                    results.Assemblies.Select(a => a.CodeBase)
-                           .Concat(results.SkippedFiles.Select(s => s.FilePath))
-                           .ToList();
+                    results.Assemblies
+                        .Where(x => !x.IsDynamic)
+                        .Select(a => a.CodeBase)
+                        .Concat(results.SkippedFiles.Select(s => s.FilePath))
+                        .ToList();
 
                 Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.dll")),
-                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a subdir");
+                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a sub directory");
             }
         }
         
@@ -101,15 +103,17 @@
             }
             
             [Test]
-            public void should_not_find_assembly_in_subdir()
+            public void should_not_find_assembly_in_sub_directory()
             {
                 var allEncounteredFileNames =
-                    results.Assemblies.Select(a => a.CodeBase)
+                    results.Assemblies
+                        .Where(x => !x.IsDynamic)
+                        .Select(a => a.CodeBase)
                            .Concat(results.SkippedFiles.Select(s => s.FilePath))
                            .ToList();
 
                 Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.exe")),
-                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a subdir");
+                    Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a sub directory");
             }
         }
 

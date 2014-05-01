@@ -6,7 +6,7 @@
     /// Used to specify the name of the current endpoint.
     /// Will be used as the name of the input queue as well.
     /// </summary>
-    public class EndpointNameAttribute : Attribute
+    public sealed class EndpointNameAttribute : Attribute
     {
         /// <summary>
         /// Used to specify the name of the current endpoint.

@@ -134,7 +134,7 @@
 
         
         int limitTestParallelismTo;
-        readonly IList<EndpointBehaviour> behaviours = new List<EndpointBehaviour>();
+        readonly IList<EndpointBehavior> behaviours = new List<EndpointBehavior>();
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         IList<IScenarioVerification> shoulds = new List<IScenarioVerification>();
         public Func<ScenarioContext, bool> done = context => true;

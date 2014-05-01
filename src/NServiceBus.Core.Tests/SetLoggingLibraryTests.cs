@@ -12,7 +12,7 @@ public class SetLoggingLibraryTests
     }
 
     [Test]
-    public void When_config_section_threashold_is_empty_threshold_should_be_null()
+    public void When_config_section_threshold_is_empty_threshold_should_be_null()
     {
         var configSection = new Logging
         {
@@ -21,7 +21,7 @@ public class SetLoggingLibraryTests
         Assert.IsNull(SetLoggingLibrary.GetThresholdFromConfigSection(configSection));
     }
     [Test]
-    public void When_config_section_threashold_is_validString_threshold_should_be_that_value()
+    public void When_config_section_threshold_is_validString_threshold_should_be_that_value()
     {
         var configSection = new Logging
         {
@@ -31,7 +31,7 @@ public class SetLoggingLibraryTests
     }
 
     [Test]
-    public void When_config_section_threashold_is_null_threshold_should_be_null()
+    public void When_config_section_threshold_is_null_threshold_should_be_null()
     {
         var configSection = new Logging
         {

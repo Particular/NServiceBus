@@ -17,7 +17,7 @@
         public void MySaga()
         {
             Test.Saga<MySaga>()
-                .ExpectReplyToOrginator<ResponseToOriginator>()
+                .ExpectReplyToOriginator<ResponseToOriginator>()
                 .ExpectTimeoutToBeSetIn<StartsSaga>((state, span) => span == TimeSpan.FromDays(7))
                 .ExpectPublish<Event>()
                 .ExpectSend<Command>()

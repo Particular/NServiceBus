@@ -29,15 +29,14 @@
                 return;
             }
 
-            var assemblyScanner = new AssemblyScanner();
-            //TODO: re-enable when we make message scanning lazy
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IHandleMessages<>).Assembly);
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(IConfigureThisEndpoint).Assembly);
-            //assemblyScanner.MustReferenceAtLeastOneAssembly.Add(typeof(Program).Assembly);
-            assemblyScannerResults = assemblyScanner.GetScannableAssemblies();
+            var assemblyScanner = new AssemblyScanner
+            {
+                ThrowExceptions = false
+            };
 
-            var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScannerResults, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
+            var endpointTypeDeterminer = new EndpointTypeDeterminer(assemblyScanner, () => ConfigurationManager.AppSettings["EndpointConfigurationType"]);
             var endpointConfigurationType = endpointTypeDeterminer.GetEndpointConfigurationTypeForHostedEndpoint(arguments);
+            assemblyScannerResults = endpointTypeDeterminer.AssemblyScannerResults;
 
             var endpointConfigurationFile = endpointConfigurationType.EndpointConfigurationFile;
             var endpointName = endpointConfigurationType.EndpointName;
@@ -119,7 +118,7 @@
                                                                        serviceCommandLine.Add(String.Format(@"/serviceName:""{0}""", serviceName));
                                                                    }
 
-                                                                   if (arguments.ScannedAssemblies.Count > 0)
+                                                                   if (!assemblyScannerResults.ErrorsThrownDuringScanning && arguments.ScannedAssemblies.Count > 0)
                                                                    {
                                                                        serviceCommandLine.AddRange(arguments.ScannedAssemblies.Select(assembly => String.Format(@"/scannedAssemblies:""{0}""", assembly)));
                                                                    }

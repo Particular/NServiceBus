@@ -5,7 +5,7 @@ namespace NServiceBus.Core.Tests.Transport
     using Transports.Msmq;
 
     [TestFixture]
-    public class When_specifying_a_queu_name_for_msmq_with_total_length_including_machine_name_and_private_identifier_exceeding_114_characters
+    public class When_specifying_a_queue_name_for_msmq_with_total_length_including_machine_name_and_private_identifier_exceeding_114_characters
     {
         [Test]
         public void Should_be_replaced_by_a_deterministic_guid ()

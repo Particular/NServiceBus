@@ -28,7 +28,9 @@ namespace NServiceBus.Hosting.Windows
             Configure.Instance.DefineCriticalErrorAction(OnCriticalError);
 
             if (runOtherInstallers || Debugger.IsAttached)
+            {
                 this.runOtherInstallers = true;
+            }
         }
 
         /// <summary>
@@ -67,7 +69,9 @@ namespace NServiceBus.Hosting.Windows
         public void Install(string username)
         {
             if (runOtherInstallers)
+            {
                 Installer<Installation.Environments.Windows>.RunOtherInstallers = true;
+            }
 
             //HACK: to force username to passed through to the 
             WindowsInstallerRunner.RunInstallers = true;

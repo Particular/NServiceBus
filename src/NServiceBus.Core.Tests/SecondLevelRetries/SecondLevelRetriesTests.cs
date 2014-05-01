@@ -64,7 +64,7 @@
         public void Message_should_be_sent_to_real_errorQ_if_defer_timeSpan_is_less_than_zero()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.RetryPolicy = _ => { return TimeSpan.MinValue; };
+            satellite.RetryPolicy = _ => TimeSpan.MinValue;
 
             satellite.Handle(message);
 
@@ -75,7 +75,7 @@
         public void Message_should_be_sent_to_retryQ_if_defer_timeSpan_is_greater_than_zero()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };
+            satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);
 
             satellite.Handle(message);
 
@@ -123,7 +123,7 @@
         public void For_each_retry_the_NServiceBus_Retries_header_should_be_increased()
         {
             TransportMessageHelpers.SetHeader(message, Faults.FaultsHeaderKeys.FailedQ, "reply@address");
-            satellite.RetryPolicy = _ => { return TimeSpan.FromSeconds(1); };            
+            satellite.RetryPolicy = _ => TimeSpan.FromSeconds(1);            
 
             for (var i = 0; i < 10; i++)
             {

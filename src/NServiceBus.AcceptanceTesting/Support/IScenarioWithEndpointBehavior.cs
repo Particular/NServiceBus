@@ -7,7 +7,7 @@
     {
         IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder;
 
-        IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> behaviour) where T : EndpointConfigurationBuilder;
+        IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> behavior) where T : EndpointConfigurationBuilder;
 
         IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 

@@ -20,7 +20,7 @@ namespace NServiceBus.Hosting.Windows
         /// </summary>
         protected override object DoGetInstance(Type serviceType, string key)
         {
-            var endpoint = Type.GetType(key,true);
+            var endpoint = Type.GetType(key, true);
 
             var arguments = new HostArguments(Args);
 

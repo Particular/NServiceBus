@@ -52,27 +52,21 @@ namespace NServiceBus.Licensing
 
         static Particular.Licensing.License GetTrialLicense()
         {
-            if (UserSidChecker.IsNotSystemSid())
-            {
-                var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-                var trialLicense = Particular.Licensing.License.TrialLicense(trialStartDate);
+            var trialStartDate = TrialStartDateStore.GetTrialStartDate();
+            var trialLicense = Particular.Licensing.License.TrialLicense(trialStartDate);
 
-                //Check trial is still valid
-                if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
-                {
-                    Logger.WarnFormat("Trial for the Particular Service Platform has expired");
-                }
-                else
-                {
-                    var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
-                    Logger.Info(message);
-                }
-                return trialLicense;
+            //Check trial is still valid
+            if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
+            {
+                Logger.WarnFormat("Trial for the Particular Service Platform has expired");
+            }
+            else
+            {
+                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}. Configuring NServiceBus to run in trial mode.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
+                Logger.Info(message);
             }
 
-            Logger.Fatal("Could not access registry for the current user sid. Please ensure that the license has been properly installed.");
-
-            return null;
+            return trialLicense;
         }
 
         internal static void InitializeLicense()

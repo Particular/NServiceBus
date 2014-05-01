@@ -25,8 +25,8 @@
                 Assert.IsNotNull(constructor, string.Format("Exception '{0}' should implement 'protected {0}(SerializationInfo info, StreamingContext context){{}}'", exceptionType.Name));
                 var serializableAttribute = exceptionType.GetCustomAttributes(typeof(SerializableAttribute), false).FirstOrDefault();
                 Assert.IsNotNull(serializableAttribute, string.Format("Exception '{0}' should have a 'SerializableAttribute'", exceptionType.Name));
-                var propertyInfos = exceptionType.GetProperties(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly);
-                if (propertyInfos.Length > 0)
+                var properties = exceptionType.GetProperties(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly);
+                if (properties.Length > 0)
                 {
                     var getObjectDataMethod = exceptionType.GetMethod("GetObjectData");
                     Assert.IsTrue(getObjectDataMethod.DeclaringType.Name != "Exception", string.Format("Exception '{0}' has properties and as such should override 'GetObjectData'", exceptionType.Name));

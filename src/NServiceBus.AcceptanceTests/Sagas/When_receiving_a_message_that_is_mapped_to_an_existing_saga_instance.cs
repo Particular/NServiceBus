@@ -22,10 +22,7 @@
                         }))
                     .Done(c => c.SecondMessageReceived)
                     .Repeat(r => r.For(SagaPersisters.Default))
-                    .Should(c =>
-                    {
-                        Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages");
-                    })
+                    .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
 
                     .Run();
         }
@@ -42,10 +39,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a =>
-                    {
-                        a.DoNotWrapHandlersExecutionInATransactionScope();
-                    }));
+                EndpointSetup<DefaultServer>(c=>Configure.Transactions.Advanced(a => a.DoNotWrapHandlersExecutionInATransactionScope()));
             }
 
             public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
