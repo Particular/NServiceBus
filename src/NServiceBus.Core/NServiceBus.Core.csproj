@@ -111,7 +111,6 @@
     <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
     <Compile Include="Distributor\DistributorSatellite.cs" />
     <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
-    <Compile Include="Distributor\LicenseConfig.cs" />
     <Compile Include="Distributor\MsmqWorkerAvailabilityManager.cs" />
     <Compile Include="Distributor\QueueCreators\DistributorStorageQueueCreator.cs" />
     <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
