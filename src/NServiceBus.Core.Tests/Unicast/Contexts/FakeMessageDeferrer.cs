@@ -10,6 +10,11 @@ namespace NServiceBus.Unicast.Tests.Contexts
             
         }
 
+        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
+        {
+            
+        }
+
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             

@@ -8,6 +8,8 @@ namespace NServiceBus.Unicast
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class SendOptions
     {
+        TimeSpan? delayDeliveryWith;
+
         public SendOptions()
         {
             Intent = MessageIntentEnum.Send;
@@ -28,7 +30,20 @@ namespace NServiceBus.Unicast
         public string CorrelationId { get; set; }
         public Address ReplyToAddress { get; set; }
         public DateTime? DeliverAt { get; set; }
-        public TimeSpan? DelayDeliveryWith { get; set; }
+
+        public TimeSpan? DelayDeliveryWith
+        {
+            get { return delayDeliveryWith; }
+            set
+            {
+                if (value < TimeSpan.Zero)
+                {
+                    throw new Exception("timespan cannot be less than zero");
+                }
+                delayDeliveryWith = value;
+            }
+        }
+
         public bool EnforceMessagingBestPractices { get; set; }
 
 

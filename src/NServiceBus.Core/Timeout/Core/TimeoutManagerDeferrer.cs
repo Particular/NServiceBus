@@ -10,11 +10,9 @@
         public ISendMessages MessageSender { get; set; }
         public Address TimeoutManagerAddress { get; set; }
 
-
         public void Defer(TransportMessage message, DateTime processAt, Address address)
         {
             message.Headers[TimeoutManagerHeaders.Expire] = DateTimeExtensions.ToWireFormattedString(processAt);
-
             message.Headers[TimeoutManagerHeaders.RouteExpiredTimeoutTo] = address.ToString();
 
             try
@@ -28,6 +26,11 @@
             }
         }
 
+        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
+        {
+            Defer(message, DateTime.UtcNow + delayBy, address);
+        }
+
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             var controlMessage = ControlMessage.Create(Address.Local);
@@ -38,6 +41,6 @@
             MessageSender.Send(controlMessage, TimeoutManagerAddress);
         }
 
-        static readonly ILog Log = LogManager.GetLogger(typeof (TimeoutManagerDeferrer));
+        static ILog Log = LogManager.GetLogger(typeof (TimeoutManagerDeferrer));
     }
 }

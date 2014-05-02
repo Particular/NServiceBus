@@ -157,6 +157,12 @@
             DeferredMessage = message;
         }
 
+        public void Defer(TransportMessage message, TimeSpan delayBy, Address address)
+        {
+            MessageRoutedTo = address;
+            DeferredMessage = message;
+        }
+
         public void ClearDeferredMessages(string headerKey, string headerValue)
         {
             
