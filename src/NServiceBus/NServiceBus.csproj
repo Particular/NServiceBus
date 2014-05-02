@@ -96,7 +96,6 @@
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISaga.cs" />
-    <Compile Include="Saga\ISagaEntity.cs" />
     <Compile Include="Saga\ISagaMessage.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
     <Compile Include="Saga\ISagaStartedBy.cs" />
