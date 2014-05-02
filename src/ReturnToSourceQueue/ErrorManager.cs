@@ -122,7 +122,7 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
         {
             string originalId;
 
-            if (tm.Headers.TryGetValue(Headers.OriginalId, out originalId))
+            if (tm.Headers.TryGetValue("NServiceBus.OriginalId", out originalId))
             {
                 return originalId;
             }
@@ -139,5 +139,6 @@ namespace NServiceBus.Tools.Management.Errors.ReturnToSourceQueue
 
         TimeSpan TimeoutDuration = TimeSpan.FromSeconds(5);
         MessageQueue queue;
+
     }
 }

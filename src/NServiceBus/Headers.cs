@@ -35,20 +35,6 @@
         public const string OriginatingSite = "NServiceBus.OriginatingSite";
 
         /// <summary>
-        /// Header for time when a message expires in the timeout manager
-        /// This header is considered an applicative header.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
-        public const string Expire = "NServiceBus.Timeout.Expire";
-
-        /// <summary>
-        /// Header for redirecting the expired timeout to a endpoint other than the one setting the Timeout
-        /// This header is considered an applicative header.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
-        public const string RouteExpiredTimeoutTo = "NServiceBus.Timeout.RouteExpiredTimeoutTo";
-
-        /// <summary>
         /// Header containing the id of the saga instance the sent the message
         /// This header is considered an applicative header.
         /// </summary>
@@ -59,13 +45,6 @@
         /// This header is considered an applicative header.
         /// </summary>
         public const string InvokedSagas = "NServiceBus.InvokedSagas";
-
-        /// <summary>
-        /// Header telling the timeout manager to clear previous timeouts
-        /// This header is considered an applicative header.
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0", Message = "This header is only populated by the timeoutManager based deferral mechanism and will not be used in future versions")]
-        public const string ClearTimeouts = "NServiceBus.ClearTimeouts";
 
         /// <summary>
         /// Header containing a stable message id for a message.
@@ -106,12 +85,6 @@
         /// Type of the saga that this message is targeted for
         /// </summary>
         public const string SagaType = "NServiceBus.SagaType";
-
-        /// <summary>
-        /// Type of the saga that sent this message
-        /// </summary>
-        [ObsoleteEx(Replacement = "SagaType", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        public const string SagaEntityType = "NServiceBus.SagaDataType";
 
         /// <summary>
         /// Id of the saga that sent this message
@@ -159,21 +132,9 @@
         public const string ContentType = "NServiceBus.ContentType";
 
         /// <summary>
-        /// Used for correlation id message.
-        /// </summary>
-        [ObsoleteEx(Message = "The IdForCorrelation header is replaced by Id", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]
-        public const string IdForCorrelation = "CorrId";
-
-        /// <summary>
         /// Header entry key for the given message type that is being subscribed to, when message intent is subscribe or unsubscribe.
         /// </summary>
         public const string SubscriptionMessageType = "SubscriptionMessageType";
-
-        /// <summary>
-        /// Header key for setting/getting the ID of the message as it was when it failed processing.
-        /// </summary>
-        [ObsoleteEx(Message = "The OriginalId headers is replaced by the Id since they are now equivalent", RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.0")]
-        public const string OriginalId = "NServiceBus.OriginalId";
 
         /// <summary>
         /// True if this message is a saga timeout
