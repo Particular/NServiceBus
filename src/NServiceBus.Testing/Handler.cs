@@ -49,15 +49,6 @@
         }
 
         /// <summary>
-        /// Obsolete
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        public Handler<T> AssertOutgoingHeader(string key, string value)
-        {
-            return this;
-        }
-
-        /// <summary>
         /// Check that the handler sends a message of the given type complying with the given predicate.
         /// </summary>
         public Handler<T> ExpectSend<TMessage>(Func<TMessage, bool> check)
