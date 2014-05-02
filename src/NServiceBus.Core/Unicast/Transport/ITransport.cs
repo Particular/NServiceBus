@@ -17,19 +17,7 @@ namespace NServiceBus.Unicast.Transport
 		/// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
 		int MaximumConcurrencyLevel { get; }
-
-		/// <summary>
-		/// Changes the number of worker threads running in the transport.
-		/// This may stop active worker threads; those threads will finish
-		/// processing their current message and then exit.
-		/// </summary>
-		/// <param name="targetNumberOfWorkerThreads">
-		/// The requested number of active worker threads after
-		/// the necessary threads have been stopped or started.
-		/// </param>
-		[ObsoleteEx(Replacement = "ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads);
-
+        
 		/// <summary>
 		/// Updates the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>

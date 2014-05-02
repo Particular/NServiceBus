@@ -19,10 +19,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
             get { return 1; }
         }
 
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
-        }
-
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
             

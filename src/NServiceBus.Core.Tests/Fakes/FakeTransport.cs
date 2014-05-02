@@ -26,11 +26,6 @@
 
         public int MaximumConcurrencyLevel { get; private set; }
 
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
-            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
-        }
-
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
             MaximumConcurrencyLevel = maximumConcurrencyLevel;

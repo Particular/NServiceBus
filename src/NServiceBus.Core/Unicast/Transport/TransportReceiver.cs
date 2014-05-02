@@ -148,15 +148,6 @@ namespace NServiceBus.Unicast.Transport
         /// </summary>
         public event EventHandler<TransportMessageReceivedEventArgs> TransportMessageReceived;
 
-        /// <summary>
-        ///     Changes the number of worker threads to the given target,
-        ///     stopping or starting worker threads as needed.
-        /// </summary>
-        public void ChangeNumberOfWorkerThreads(int targetNumberOfWorkerThreads)
-        {
-            ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
-        }
-
         public void Start(Address address)
         {
             if (isStarted)
