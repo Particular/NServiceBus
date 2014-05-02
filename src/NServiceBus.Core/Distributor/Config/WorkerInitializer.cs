@@ -4,8 +4,7 @@ namespace NServiceBus.Distributor.Config
     using ReadyMessages;
     using Settings;
 
-    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
-    public class WorkerInitializer
+    class WorkerInitializer
     {
         public static void Init()
         {
