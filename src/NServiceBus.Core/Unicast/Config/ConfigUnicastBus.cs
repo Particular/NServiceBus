@@ -7,7 +7,6 @@ namespace NServiceBus.Unicast.Config
     using Behaviors;
     using Features;
     using Logging;
-    using Messages;
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
@@ -260,21 +259,6 @@ namespace NServiceBus.Unicast.Config
         public ConfigUnicastBus DoNotAutoSubscribe()
         {
             Features.Disable<AutoSubscribe>();
-
-            return this;
-        }
-
-        /// <summary>
-        /// Causes the bus to not deserialize incoming messages. This means that no handlers are called and 
-        /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
-        /// your self.
-        /// </summary>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Replacement = "Should instead be writing a Satelite")]
-        public ConfigUnicastBus SkipDeserialization()
-        {
-            busConfig.ConfigureProperty(b => b.SkipDeserialization, true);
-            Configurer.ConfigureProperty<ExtractLogicalMessagesBehavior>(b => b.SkipDeserialization, true);
 
             return this;
         }
