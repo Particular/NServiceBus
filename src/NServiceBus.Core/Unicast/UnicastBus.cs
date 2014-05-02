@@ -1068,7 +1068,7 @@ namespace NServiceBus.Unicast
 
                 if (!PipelineFactory.CurrentContext.TryGet(ReceivePhysicalMessageContext.IncomingPhysicalMessageKey, out current))
                 {
-                    throw new InvalidOperationException("There is no current message beeing processed");
+                    throw new InvalidOperationException("There is no current message being processed");
                 }
 
                 return current;
