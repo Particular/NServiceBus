@@ -6,8 +6,7 @@ namespace NServiceBus.Distributor.ReadyMessages
     using Unicast;
     using Unicast.Transport;
 
-    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]    
-    public class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
+    class ReadyMessageSender : IWantToRunWhenBusStartsAndStops
     {
         public ISendMessages MessageSender { get; set; }
 
