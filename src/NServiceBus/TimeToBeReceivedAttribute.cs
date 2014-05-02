@@ -8,18 +8,6 @@ namespace NServiceBus
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public sealed class TimeToBeReceivedAttribute : Attribute
     {
-        /// <summary>
-        /// Sets the time to be received to be unlimited.
-        /// </summary>
-        [ObsoleteEx(
-            Replacement = "TimeToBeReceivedAttribute(string timeSpan)",
-            RemoveInVersion = "5.0",
-            TreatAsErrorFromVersion = "4.3"
-            )]
-        public TimeToBeReceivedAttribute()
-        {
-            TimeToBeReceived = TimeSpan.MaxValue;
-        }
 
         /// <summary>
         /// Sets the time to be received.
