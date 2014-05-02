@@ -11,8 +11,7 @@ namespace NServiceBus.Distributor
     ///     Provides functionality for distributing messages from a bus
     ///     to multiple workers when using a unicast transport.
     /// </summary>
-    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
-    public class DistributorSatellite : IAdvancedSatellite
+    class DistributorSatellite : IAdvancedSatellite
     {
         static DistributorSatellite()
         {
@@ -20,44 +19,25 @@ namespace NServiceBus.Distributor
             Disable = !Configure.Instance.DistributorConfiguredToRunOnThisEndpoint() || SettingsHolder.Get<int>("Distributor.Version") != 1;
         }
 
-        /// <summary>
-        ///     Object used to send messages.
-        /// </summary>
         public ISendMessages MessageSender { get; set; }
 
-        /// <summary>
-        ///     Sets the <see cref="IWorkerAvailabilityManager" /> implementation that will be
-        ///     used to determine whether or not a worker is available.
-        /// </summary>
         public IWorkerAvailabilityManager WorkerManager { get; set; }
 
-        /// <summary>
-        /// The <see cref="Address"/> for this <see cref="ISatellite"/> to use when receiving messages.
-        /// </summary>
         public Address InputAddress
         {
             get { return Address; }
         }
 
-        /// <summary>
-        /// Set to <code>true</code> to disable this <see cref="ISatellite"/>.
-        /// </summary>
         public bool Disabled
         {
             get { return Disable; }
         }
 
-        /// <summary>
-        ///     Starts the Distributor.
-        /// </summary>
         public void Start()
         {
             WorkerManager.Start();
         }
 
-        /// <summary>
-        ///     Stops the Distributor.
-        /// </summary>
         public void Stop()
         {
             WorkerManager.Stop();
@@ -90,9 +70,9 @@ namespace NServiceBus.Distributor
             return true;
         }
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(DistributorSatellite));
+        static ILog Logger = LogManager.GetLogger(typeof(DistributorSatellite));
 
-        static readonly Address Address;
-        static readonly bool Disable;
+        static Address Address;
+        static bool Disable;
     }
 }
