@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Settings;
-    using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
     using Transport;
@@ -154,15 +153,6 @@ namespace NServiceBus.Unicast
         /// Event raised when no subscribers found for the published message.
         /// </summary>
         public event EventHandler<MessageEventArgs> NoSubscribersForMessage;
-
-        /// <summary>
-        /// Event raised when client subscribed to a message type.
-        /// </summary>
-        event EventHandler<SubscriptionEventArgs> IUnicastBus.ClientSubscribed
-        {
-            add { throw new NotImplementedException(); }
-            remove { throw new NotImplementedException(); }
-        }
 
         /// <summary>
         /// Handles the filtering of messages on the subscriber side
