@@ -25,7 +25,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -37,7 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\containers\castle\NServiceBus.ObjectBuilder.CastleWindsor.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

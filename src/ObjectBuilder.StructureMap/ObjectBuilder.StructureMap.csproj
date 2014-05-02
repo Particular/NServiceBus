@@ -26,7 +26,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.xml</DocumentationFile>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.XML</DocumentationFile>
+    <DocumentationFile>..\..\binaries\containers\structuremap\NServiceBus.ObjectBuilder.StructureMap.xml</DocumentationFile>
     <NoWarn>1591,1573</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
