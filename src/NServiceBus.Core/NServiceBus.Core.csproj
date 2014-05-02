@@ -316,7 +316,6 @@
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DependencyLifecycle.cs" />
     <Compile Include="Encryption\Bootstrapper.cs" />
-    <Compile Include="Encryption\Config\ConfigureEncryption.cs" />
     <Compile Include="Encryption\EncryptionMessageMutator.cs" />
     <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Encryption\Rijndael\EncryptionService.cs" />
