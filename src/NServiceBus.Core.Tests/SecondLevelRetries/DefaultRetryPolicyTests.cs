@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Management.Retries.Tests
 {
     using System;
-    using NServiceBus.SecondLevelRetries;
-    using NServiceBus.SecondLevelRetries.Helpers;
+    using SecondLevelRetries;
+    using SecondLevelRetries.Helpers;
     using NUnit.Framework;
 
     [TestFixture]

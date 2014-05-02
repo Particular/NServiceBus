@@ -2,20 +2,20 @@
 {
     using System;
     using Faults.Forwarder;
-    using NServiceBus.SecondLevelRetries;
-    using NServiceBus.SecondLevelRetries.Helpers;
+    using SecondLevelRetries;
+    using SecondLevelRetries.Helpers;
     using NUnit.Framework;
     using Transports;
 
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        readonly SecondLevelRetriesProcessor satellite = new SecondLevelRetriesProcessor();
-        readonly FakeMessageSender messageSender = new FakeMessageSender();
-        readonly FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
-        readonly Address ERROR_QUEUE = new Address("error","localhost");
-        readonly Address RETRIES_QUEUE = new Address("retries", "localhost");
-        readonly Address ORIGINAL_QUEUE = new Address("org", "hostname");
+        SecondLevelRetriesProcessor satellite = new SecondLevelRetriesProcessor();
+        FakeMessageSender messageSender = new FakeMessageSender();
+        FakeMessageDeferrer deferrer = new FakeMessageDeferrer();
+        Address ERROR_QUEUE = new Address("error","localhost");
+        Address RETRIES_QUEUE = new Address("retries", "localhost");
+        Address ORIGINAL_QUEUE = new Address("org", "hostname");
         TransportMessage message;
 
         [SetUp]

@@ -541,7 +541,6 @@
     <Compile Include="Unicast\Monitoring\PerformanceCounterInitializer.cs" />
     <Compile Include="Unicast\Monitoring\ProcessingStatistics.cs" />
     <Compile Include="Unicast\Monitoring\CausationMutator.cs" />
-    <Compile Include="Unicast\Monitoring\VersionMutator.cs" />
     <Compile Include="Unicast\Publishing\StorageDrivenPublisher.cs" />
     <Compile Include="Unicast\Queuing\FailedToSendMessageException.cs" />
     <Compile Include="Unicast\Queuing\Installers\EndpointInputQueueCreator.cs" />
