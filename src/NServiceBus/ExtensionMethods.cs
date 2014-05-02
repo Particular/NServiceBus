@@ -1,40 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
 
-    /// <summary>
-    /// Extension method on message handler.
-    /// </summary>
-    public static class MessageHandlerExtensionMethods
-    {
-        /// <summary>
-        /// Extension method on <see cref="IHandleMessages{T}"/>. Users can avoid declaring an <see cref="IBus"/> to be injected, and use the bus implicitly.
-        /// </summary>
-        /// <example> The following is an example on how a <see cref="IHandleMessages{T}"/> might look like using the <see cref="Bus{T}"/> extension method:
-        /// <code escaped="false">
-        /// public class RequestDataMessageHandler : IHandleMessages&lt;RequestDataMessage&gt;
-        /// {
-        ///    public void Handle(RequestDataMessage message)
-        ///    {
-        ///       var response = this.Bus().CreateInstance&lt;DataResponseMessage&gt;(m =>
-        ///      {
-        ///            m.DataId = message.DataId;
-        ///            m.String = message.String;
-        ///        });
-        ///        this.Bus().Reply(response);
-        ///    }
-        /// }
-        /// </code>
-        /// </example>
-        /// <typeparam name="T">The message type to handle.</typeparam>
-        /// <param name="handler">The <see cref="IHandleMessages{T}" /> implementing class.</param>
-        /// <returns><see cref="IBus"/> interface.</returns>
-        public static IBus Bus<T>(this IHandleMessages<T> handler)
-        {
-            return ExtensionMethods.Bus;
-        }
-    }
 
     /// <summary>
     /// Class containing extension methods for base class libraries for using interface-based messages.
@@ -114,10 +81,5 @@
         /// </summary>
         public static Func<object, string, string> GetHeaderAction = (x, y) => "No header get header action was defined, please specify one using ExtensionMethods.GetHeaderAction = ...";
 
-        /// <summary>
-        /// The <see cref="Func{TResult}"/> used to get all the headers for a message.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0",TreatAsErrorFromVersion = "5.0")]
-        public static Func<IDictionary<string, string>> GetStaticOutgoingHeadersAction { get; set; }
     }
 }

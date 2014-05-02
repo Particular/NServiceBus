@@ -115,8 +115,6 @@
                                 return dictionary;
                             });
                 
-            ExtensionMethods.GetStaticOutgoingHeadersAction = () => staticOutgoingHeaders;
-
             initialized = true;
         }
 
@@ -234,7 +232,6 @@
         static IMessageCreator messageCreator;
         static readonly TestConfigurationSource testConfigurationSource = new TestConfigurationSource();
         static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, string>> messageHeaders = new ConcurrentDictionary<object, ConcurrentDictionary<string, string>>();
-        static readonly IDictionary<string, string> staticOutgoingHeaders = new Dictionary<string, string>();
         static bool initialized;
     }
 

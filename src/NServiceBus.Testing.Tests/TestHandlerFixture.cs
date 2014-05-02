@@ -454,19 +454,21 @@ namespace NServiceBus.Testing.Tests
 
         public class PublishingManyHandler : IHandleMessages<Incoming>
         {
+            public IBus Bus { get; set; }
             public void Handle(Incoming message)
             {
-                var one = this.Bus().CreateInstance<Outgoing>(m =>
+                var one = Bus.CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = this.Bus().CreateInstance<Outgoing>(m =>
+                var two = Bus.CreateInstance<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
 
-                ((StubBus)this.Bus()).Publish(one, two);
+                Bus.Publish(one);
+                Bus.Publish(two);
             }
         }
 
@@ -513,11 +515,12 @@ namespace NServiceBus.Testing.Tests
         public class SendingHandler<TSend> : IHandleMessages<TestMessage>
             where TSend : IMessage
         {
+            public IBus Bus { get; set; }
             public Action<TSend> ModifyPublish { get; set; }
 
             public void Handle(TestMessage message)
             {
-                this.Bus().Send(ModifyPublish);
+                Bus.Send(ModifyPublish);
             }
         }
 

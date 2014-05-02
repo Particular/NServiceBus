@@ -98,7 +98,6 @@ namespace NServiceBus.MessageHeaders
                 outgoingHeadersForThisMessage[key] = value;
             };
 
-            ExtensionMethods.GetStaticOutgoingHeadersAction = () => Configure.Instance.Builder.Build<IBus>().OutgoingHeaders;
         }
 
         void IWantToRunWhenConfigurationIsComplete.Run()
