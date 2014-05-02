@@ -233,20 +233,6 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-        /// <summary>
-        /// Instructs the bus not to automatically subscribe to messages that
-        /// it has handlers for (given those messages belong to a different endpoint).
-        /// 
-        /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
-        /// </summary>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.Disable<AutoSubscribe>()")]
-        public ConfigUnicastBus DoNotAutoSubscribe()
-        {
-            Features.Disable<AutoSubscribe>();
-
-            return this;
-        }
 
         /// <summary>
         /// Allow the bus to subscribe to itself
