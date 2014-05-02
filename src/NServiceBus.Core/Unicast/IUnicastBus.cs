@@ -13,10 +13,5 @@ namespace NServiceBus.Unicast
         /// </summary>
         event EventHandler<MessageEventArgs> NoSubscribersForMessage;
 
-        /// <summary>
-        /// Event raised when the bus sends multiple messages across the wire.
-        /// </summary>
-        event EventHandler<MessagesEventArgs> MessagesSent;
-
     }
 }

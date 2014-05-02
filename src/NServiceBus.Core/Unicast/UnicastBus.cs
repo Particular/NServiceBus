@@ -93,11 +93,6 @@ namespace NServiceBus.Unicast
         public Address MasterNodeAddress { get; set; }
 
         /// <summary>
-        /// Event raised when messages are sent.
-        /// </summary>
-        public event EventHandler<MessagesEventArgs> MessagesSent;
-        
-        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
@@ -636,11 +631,6 @@ namespace NServiceBus.Unicast
         ICallback SendMessages(SendOptions sendOptions, List<LogicalMessage> messages)
         {
             var context = InvokeSendPipeline(sendOptions, messages);
-
-            if (MessagesSent != null)
-            {
-                MessagesSent(this, new MessagesEventArgs(messages.Select(m => m.Instance).ToArray()));
-            }
 
             var physicalMessage = context.Get<TransportMessage>();
 
