@@ -170,7 +170,6 @@ namespace NServiceBus.Unicast
             {
                 messageMapper = value;
 
-                ExtensionMethods.MessageCreator = value;
                 ExtensionMethods.Bus = this;
             }
         }

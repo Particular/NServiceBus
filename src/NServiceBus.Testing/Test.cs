@@ -92,7 +92,6 @@
             //mapper.Initialize(Configure.TypesToScan.Where(MessageConventionExtensions.IsMessageType));
             
             messageCreator = mapper;
-            ExtensionMethods.MessageCreator = messageCreator;
             ExtensionMethods.GetHeaderAction = (msg, key) =>
                 {
                     ConcurrentDictionary<string, string> kv;
