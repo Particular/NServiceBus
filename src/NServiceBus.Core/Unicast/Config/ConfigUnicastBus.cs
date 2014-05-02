@@ -208,21 +208,6 @@ namespace NServiceBus.Unicast.Config
             }
             return result;
         }
-
-        /// <summary>
-        /// Set this if you want this endpoint to serve as something of a proxy;
-        /// recipients of messages sent by this endpoint will see the address
-        /// of endpoints that sent the incoming messages.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "PropagateReturnAddressOnSend")]
-        // ReSharper disable once IdentifierTypo
-        public ConfigUnicastBus PropogateReturnAddressOnSend(bool value)
-        {
-            busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
-            return this;
-        }
         
         /// <summary>
         /// Set this if you want this endpoint to serve as something of a proxy;
