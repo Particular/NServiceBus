@@ -17,6 +17,7 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Serialization;
+    using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
@@ -346,6 +347,9 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T), p);
         }
 
+
+        bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
+
         /// <summary>
         /// Subscribes to receive published messages of the specified type if
         /// they meet the provided condition.
@@ -356,7 +360,7 @@ namespace NServiceBus.Unicast
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
-            if (Configure.SendOnlyMode)
+            if (SendOnlyMode)
             {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to be a subscriber");
             }
@@ -418,7 +422,7 @@ namespace NServiceBus.Unicast
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
-            if (Configure.SendOnlyMode)
+            if (SendOnlyMode)
             {
                 throw new InvalidOperationException("It's not allowed for a send only endpoint to unsubscribe");
             }
@@ -720,7 +724,7 @@ namespace NServiceBus.Unicast
 
         SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, List<LogicalMessage> messages)
         {
-            if (sendOptions.ReplyToAddress == null && !Configure.SendOnlyMode)
+            if (sendOptions.ReplyToAddress == null && !SendOnlyMode)
             {
                 sendOptions.ReplyToAddress = Address.Local;
             }
