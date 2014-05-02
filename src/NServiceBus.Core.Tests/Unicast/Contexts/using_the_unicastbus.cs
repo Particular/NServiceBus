@@ -191,9 +191,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<T>(() => new T());
 
             handlerRegistry.RegisterHandler(typeof(T));
-
-            if (unicastBus.MessageDispatcherMappings == null)
-                unicastBus.MessageDispatcherMappings = new Dictionary<Type, Type>();
         }
         protected void RegisterOwnedMessageType<T>()
         {
