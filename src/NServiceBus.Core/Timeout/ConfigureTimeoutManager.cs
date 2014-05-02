@@ -39,13 +39,5 @@ namespace NServiceBus
             return config;
         }
 
-        /// <summary>
-        /// Sets the default persistence to InMemory.
-        /// </summary>
-        [ObsoleteEx(Replacement = "UseInMemoryTimeoutPersister()", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure DefaultToInMemoryTimeoutPersistence(this Configure config)
-        {
-            return config;
-        }
     }
 }
