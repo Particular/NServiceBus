@@ -105,6 +105,10 @@
     <Compile Include="AutomaticSubscriptions\Config\AutoSubscribeSettings.cs" />
     <Compile Include="Configure.cs" />
     <Compile Include="Config\AuditConfig.cs" />
+    <Compile Include="Config\ChannelCollection.cs" />
+    <Compile Include="Config\ChannelConfig.cs" />
+    <Compile Include="Config\SiteCollection.cs" />
+    <Compile Include="Config\SiteConfig.cs" />
     <Compile Include="Config\WindowsInstallerRunner.cs" />
     <Compile Include="Distributor\Config\DistributorInitializer.cs" />
     <Compile Include="Distributor\Config\WorkerInitializer.cs" />
