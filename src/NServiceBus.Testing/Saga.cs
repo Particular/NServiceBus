@@ -184,16 +184,6 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Check that the saga replies to the originator with the given message type.
         /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
-        // ReSharper disable once IdentifierTypo
-        public Saga<T> ExpectReplyToOrginator<TMessage>(Func<TMessage, bool> check = null)
-        {
-            return ExpectReplyToOriginator(check);
-        }
-
-        /// <summary>
-        /// Check that the saga replies to the originator with the given message type.
-        /// </summary>
         public Saga<T> ExpectReplyToOriginator<TMessage>(Func<TMessage, bool> check = null)
         {
             expectedInvocations.Add(new ExpectedReplyToOriginatorInvocation<TMessage>
