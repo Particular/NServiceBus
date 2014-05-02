@@ -82,7 +82,7 @@ namespace NServiceBus.Gateway.HeaderManagement
                 .ForEach(header => to[NServiceBus + Headers.HeaderName + "." + header.Key] = header.Value);
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "6.0")]
         static string StripSlashZeroFromCorrelationId(string corrId)
         {
             if (corrId == null)
@@ -101,7 +101,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             return corrId;
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.1", TreatAsErrorFromVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "6.0")]
         static void SetBackwardsCompatibilityHeaders(IDictionary<string, string> to)
         {
             if (Configure.HasComponent<MsmqMessageSender>())
@@ -110,7 +110,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             }
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "6.0")]
         static string GetCorrelationForBackwardsCompatibility(TransportMessage message)
         {
             var correlationIdToStore = message.CorrelationId;
@@ -122,7 +122,7 @@ namespace NServiceBus.Gateway.HeaderManagement
                 if (Guid.TryParse(message.CorrelationId, out correlationId))
                 {
                     correlationIdToStore = message.CorrelationId + "\\0";
-                        //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
+                    //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
                 }
             }
 
