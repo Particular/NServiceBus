@@ -213,13 +213,7 @@ namespace NServiceBus.Unicast
         /// The registered subscription manager for this bus instance
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
-
-        /// <summary>
-        /// Publishes the given messages
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public IPublishMessages MessagePublisher { get; set; }
-
+        
         /// <summary>
         /// Creates an instance of the specified type.
         /// Used primarily for instantiating interface-based messages.
