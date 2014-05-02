@@ -255,7 +255,6 @@
     <Compile Include="Persistence\Raven\SubscriptionStorage\ConfigureRavenSubscriptionStorage.cs" />
     <Compile Include="ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigureSagas.cs" />
-    <Compile Include="SecondLevelRetries\Config\ConfigureSecondLevelRetriesExtensions.cs" />
     <Compile Include="Timeout\ConfigureTimeoutManager.cs" />
     <Compile Include="ConfigureUnicastBus.cs" />
     <Compile Include="Serializers\XML\Config\ConfigureXmlSerializer.cs" />
