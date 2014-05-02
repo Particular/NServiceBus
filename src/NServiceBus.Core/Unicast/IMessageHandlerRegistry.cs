@@ -9,7 +9,7 @@
     public interface IMessageHandlerRegistry
     {
         /// <summary>
-        /// Gets the list of <see cref="IMessageHandler{T}"/> <see cref="Type"/>s for the given <paramref name="messageType"/>
+        /// Gets the list of <see cref="IHandleMessages{T}"/> <see cref="Type"/>s for the given <paramref name="messageType"/>
         /// </summary>
         IEnumerable<Type> GetHandlerTypes(Type messageType);
 

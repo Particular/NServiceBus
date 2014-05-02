@@ -16,9 +16,4 @@ namespace NServiceBus
         void Handle(T message);
     }
 
-    /// <summary>
-    /// Implement this class to be called when messages of the given type arrive at your endpoint.
-    /// </summary>
-    [ObsoleteEx(Replacement = "IHandleMessages<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-    public interface IMessageHandler<T> : IHandleMessages<T> { }
 }

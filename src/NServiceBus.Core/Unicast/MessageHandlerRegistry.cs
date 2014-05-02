@@ -11,7 +11,7 @@
     public class MessageHandlerRegistry : IMessageHandlerRegistry
     {
         /// <summary>
-        ///     Gets the list of <see cref="IMessageHandler{T}" /> <see cref="Type" />s for the given
+        ///     Gets the list of <see cref="IHandleMessages{T}" /> <see cref="Type" />s for the given
         ///     <paramref name="messageType" />
         /// </summary>
         public IEnumerable<Type> GetHandlerTypes(Type messageType)
