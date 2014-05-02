@@ -22,11 +22,7 @@
             InMemoryFaultManager = new Faults.InMemory.FaultManager();
             FakeReceiver = new FakeReceiver();
 
-            Transport = new TransportReceiver
-                {
-                    Receiver = FakeReceiver,
-                    TransactionSettings = TransactionSettings.Default
-                };
+            Transport = new TransportReceiver(TransactionSettings.Default, 1, 0, FakeReceiver, InMemoryFaultManager);
 
             Configure.With(new Assembly[0])
                 .DefineEndpointName("Test")

@@ -15,20 +15,26 @@ namespace NServiceBus.Unicast.Transport
     /// </summary>
     public class TransportReceiver : ITransport, IDisposable
     {
+
+        public TransportReceiver(TransactionSettings transactionSettings, int maximumConcurrencyLevel, int maximumThroughput, IDequeueMessages receiver, IManageMessageFailures manageMessageFailures)
+        {
+            TransactionSettings = transactionSettings;
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
+            MaximumMessageThroughputPerSecond = maximumThroughput;
+            FailureManager = manageMessageFailures;
+            Receiver = receiver;
+        }
+
         /// <summary>
         ///     The receiver responsible for notifying the transport when new messages are available
         /// </summary>
-        public IDequeueMessages Receiver { get; set; }
+        public IDequeueMessages Receiver { get; private set; }
 
         /// <summary>
         ///     Manages failed message processing.
         /// </summary>
         public IManageMessageFailures FailureManager { get; set; }
 
-        /// <summary>
-        ///     The current settings for transactions
-        /// </summary>
-        public TransactionSettings TransactionSettings { get; set; }
 
         public void Dispose()
         {
@@ -53,20 +59,7 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Gets the maximum concurrency level this <see cref="ITransport" /> is able to support.
         /// </summary>
-        public virtual int MaximumConcurrencyLevel
-        {
-            get { return maximumConcurrencyLevel; }
-            set
-            {
-                if (isStarted)
-                {
-                    throw new InvalidOperationException(
-                        "Can't set the number of worker threads after the transport has been started. Use ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel) instead.");
-                }
-
-                maximumConcurrencyLevel = value;
-            }
-        }
+        public virtual int MaximumConcurrencyLevel { get; private set; }
 
         /// <summary>
         ///     Updates the maximum concurrency level this <see cref="ITransport" /> is able to support.
@@ -74,12 +67,12 @@ namespace NServiceBus.Unicast.Transport
         /// <param name="maximumConcurrencyLevel">The new maximum concurrency level for this <see cref="ITransport" />.</param>
         public void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel)
         {
-            if (this.maximumConcurrencyLevel == maximumConcurrencyLevel)
+            if (MaximumConcurrencyLevel == maximumConcurrencyLevel)
             {
                 return;
             }
 
-            this.maximumConcurrencyLevel = maximumConcurrencyLevel;
+            MaximumConcurrencyLevel = maximumConcurrencyLevel;
 
             if (isStarted)
             {
@@ -93,39 +86,18 @@ namespace NServiceBus.Unicast.Transport
         /// <summary>
         ///     Gets the receiving messages rate.
         /// </summary>
-        public int MaximumMessageThroughputPerSecond
-        {
-            get { return maxMessageThroughputPerSecond; }
-        }
-
-        /// <summary>
-        ///     Throttling receiving messages rate. You can't set the value other than the value specified at your license.
-        /// </summary>
-        public int MaxThroughputPerSecond
-        {
-            get { return maxMessageThroughputPerSecond; }
-            set
-            {
-                if (isStarted)
-                {
-                    throw new InvalidOperationException(
-                        "Can't set the maximum throughput per second after the transport has been started. Use ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond) instead.");
-                }
-
-                maxMessageThroughputPerSecond = value;
-            }
-        }
+        public int MaximumMessageThroughputPerSecond { get; private set; }
 
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
-            if (maximumMessageThroughputPerSecond == maxMessageThroughputPerSecond)
+            if (maximumMessageThroughputPerSecond == MaximumMessageThroughputPerSecond)
             {
                 return;
             }
 
             lock (changeMaximumMessageThroughputPerSecondLock)
             {
-                maxMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
+                MaximumMessageThroughputPerSecond = maximumMessageThroughputPerSecond;
                 if (throughputLimiter != null)
                 {
                     throughputLimiter.Stop();
@@ -176,14 +148,14 @@ namespace NServiceBus.Unicast.Transport
 
             throughputLimiter = new ThroughputLimiter();
 
-            throughputLimiter.Start(maxMessageThroughputPerSecond);
+            throughputLimiter.Start(MaximumMessageThroughputPerSecond);
 
             StartReceiver();
 
-            if (maxMessageThroughputPerSecond > 0)
+            if (MaximumMessageThroughputPerSecond > 0)
             {
                 Logger.InfoFormat("Transport: {0} started with its throughput limited to {1} msg/sec", receiveAddress,
-                    maxMessageThroughputPerSecond);
+                    MaximumMessageThroughputPerSecond);
             }
 
             isStarted = true;
@@ -215,7 +187,7 @@ namespace NServiceBus.Unicast.Transport
         void StartReceiver()
         {
             Receiver.Init(receiveAddress, TransactionSettings, TryProcess, EndProcess);
-            Receiver.Start(maximumConcurrencyLevel);
+            Receiver.Start(MaximumConcurrencyLevel);
         }
 
         [DebuggerNonUserCode]
@@ -461,14 +433,14 @@ namespace NServiceBus.Unicast.Transport
 
         [ThreadStatic] static volatile bool needToAbort;
 
-        static readonly ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
-        readonly object changeMaximumMessageThroughputPerSecondLock = new object();
+        static ILog Logger = LogManager.GetLogger(typeof(TransportReceiver));
+        object changeMaximumMessageThroughputPerSecondLock = new object();
         ReceivePerformanceDiagnostics currentReceivePerformanceDiagnostics;
         FirstLevelRetries firstLevelRetries;
         bool isStarted;
-        int maxMessageThroughputPerSecond;
-        int maximumConcurrencyLevel;
         Address receiveAddress;
         ThroughputLimiter throughputLimiter;
+
+        public TransactionSettings TransactionSettings { get; private set; }
     }
 }

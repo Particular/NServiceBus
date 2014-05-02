@@ -64,11 +64,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
             }
             FinishedMessageProcessing(this, new FinishedMessageProcessingEventArgs(transportMessage));
         }
-        /// <summary>
-        /// todo: use for testing.
-        /// </summary>
-        public int MaxThroughputPerSecond { get; set; }
-
         public int MaximumMessageThroughputPerSecond { get; private set; }
     }
 }

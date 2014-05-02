@@ -37,8 +37,6 @@
             throw new NotImplementedException();
         }
 
-        public int MaxThroughputPerSecond { get; set; }
-
         public int MaximumMessageThroughputPerSecond { get; private set; }
 
         public bool IsEventAssigned

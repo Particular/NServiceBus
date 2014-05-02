@@ -11,12 +11,7 @@
         {
             fakeReceiver = new FakeReceiver();
 
-            TransportReceiver = new TransportReceiver
-                {
-                    FailureManager = new FakeFailureManager(),
-                    Receiver = fakeReceiver,
-                    TransactionSettings = TransactionSettings.Default
-                };
+            TransportReceiver = new TransportReceiver(TransactionSettings.Default, 1, 0,fakeReceiver, new FakeFailureManager());
 
         }
 

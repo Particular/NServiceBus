@@ -25,12 +25,6 @@ namespace NServiceBus.Unicast.Transport
 		void ChangeMaximumConcurrencyLevel(int maximumConcurrencyLevel);
 
 		/// <summary>
-		/// Throttling receiving messages rate. You can't set the value than the value specified at your license.
-		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumMessageThroughputPerSecond and ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		int MaxThroughputPerSecond { get; set; }
-
-		/// <summary>
 		/// Gets the receiving messages rate.
 		/// </summary>
 		int MaximumMessageThroughputPerSecond { get; }
