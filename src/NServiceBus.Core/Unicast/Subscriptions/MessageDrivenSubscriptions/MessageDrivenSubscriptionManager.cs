@@ -24,9 +24,6 @@
         public ISubscriptionStorage SubscriptionStorage { get; set; }
         public IAuthorizeSubscriptions SubscriptionAuthorizer { get { return subscriptionAuthorizer ?? (subscriptionAuthorizer = new NoopSubscriptionAuthorizer()); } set { subscriptionAuthorizer = value; } }
         
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.5", RemoveInVersion = "5.0")]
-        public Address DistributorDataAddress { get; set; }
-
         public void Subscribe(Type eventType, Address publisherAddress)
         {
             if (publisherAddress == Address.Undefined)
