@@ -265,7 +265,6 @@
     <Compile Include="Config\ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Config\ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
-    <Compile Include="Config\Conventions\SystemMessageConventions.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
     <Compile Include="Config\INeedInitialization.cs" />
