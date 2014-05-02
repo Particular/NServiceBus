@@ -92,24 +92,6 @@ namespace NServiceBus.Unicast
         /// </summary>
         public Address MasterNodeAddress { get; set; }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public delegate void MessageReceivedDelegate(TransportMessage message);
-
-        /// <summary>
-        /// Event raised when a message is received.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public event MessageReceivedDelegate MessageReceived;
-
-        internal void OnMessageReceived(TransportMessage message)
-        {
-            var onMessageReceived = MessageReceived;
-            if (onMessageReceived != null)
-            {
-                onMessageReceived(message);
-            }
-        }
-
         /// <summary>
         /// Event raised when messages are sent.
         /// </summary>

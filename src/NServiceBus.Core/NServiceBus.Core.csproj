@@ -189,7 +189,6 @@
     <Compile Include="MessageMutator\MutateOutgoingPhysicalMessageBehavior.cs" />
     <Compile Include="Pipeline\Contexts\ReceivePhysicalMessageContext.cs" />
     <Compile Include="Pipeline\PipelineExecutor.cs" />
-    <Compile Include="Unicast\Behaviors\RaiseMessageReceivedBehavior.cs" />
     <Compile Include="Pipeline\Contexts\RootContext.cs" />
     <Compile Include="Pipeline\Contexts\SendLogicalMessageContext.cs" />
     <Compile Include="Pipeline\Contexts\SendLogicalMessagesContext.cs" />
