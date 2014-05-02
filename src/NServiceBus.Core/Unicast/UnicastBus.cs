@@ -357,7 +357,7 @@ namespace NServiceBus.Unicast
                 throw new InvalidOperationException("No subscription manager is available");
             }
 
-            if (TransportDefinition.HasSupportForCentralizedPubSub && !IsAzureTransport())
+            if (TransportDefinition.HasSupportForCentralizedPubSub)
             {   
                 // We are dealing with a brokered transport wired for auto pub/sub.
                 SubscriptionManager.Subscribe(messageType, null);
@@ -384,12 +384,6 @@ namespace NServiceBus.Unicast
                     SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
                 }
             }
-        }
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        bool IsAzureTransport()
-        {
-            return TransportDefinition.GetType().Name.ToLower().Contains("azure");
         }
 
         /// <summary>
