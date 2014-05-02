@@ -173,7 +173,7 @@ namespace NServiceBus.Serializers.XML
             {
                 logger.Debug("Handling property: " + p.Name);
 
-                DelegateFactory.Create(p);
+                DelegateFactory.CreateGet(p);
                 if (!isKeyValuePair)
                 {
                     DelegateFactory.CreateSet(p);
@@ -186,7 +186,7 @@ namespace NServiceBus.Serializers.XML
             {
                 logger.Debug("Handling field: " + f.Name);
 
-                DelegateFactory.Create(f);
+                DelegateFactory.CreateGet(f);
                 if (!isKeyValuePair)
                 {
                     DelegateFactory.CreateSet(f);
@@ -920,12 +920,12 @@ namespace NServiceBus.Serializers.XML
                 {
                     throw new NotSupportedException(string.Format("Type {0} contains an indexed property named {1}. Indexed properties are not supported on message types.", t.FullName, prop.Name));
                 }
-                WriteEntry(prop.Name, prop.PropertyType, DelegateFactory.Create(prop).Invoke(obj), builder);
+                WriteEntry(prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj), builder);
             }
 
             foreach (var field in typeToFields[t])
             {
-                WriteEntry(field.Name, field.FieldType, DelegateFactory.Create(field).Invoke(obj), builder);
+                WriteEntry(field.Name, field.FieldType, DelegateFactory.CreateGet(field).Invoke(obj), builder);
             }
         }
 
