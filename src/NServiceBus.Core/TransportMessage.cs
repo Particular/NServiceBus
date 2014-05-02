@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using IdGeneration;
-    using Support;
     using Unicast;
 
     /// <summary>
@@ -30,15 +29,8 @@ namespace NServiceBus
             MessageIntent = MessageIntentEnum.Send;
             Headers[NServiceBus.Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
             Headers[NServiceBus.Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
-            AddBackwardsCompatibilityHeaders();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        void AddBackwardsCompatibilityHeaders()
-        {
-            Headers.Add("NServiceBus.OriginatingMachine", RuntimeEnvironment.MachineName);
-        }
 
         /// <summary>
         ///     Creates a new TransportMessage with the given id and headers
