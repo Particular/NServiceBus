@@ -24,8 +24,6 @@
             //auto correlate with the saga we are replying to if needed
             if (context.SendOptions.Intent == MessageIntentEnum.Reply && context.IncomingMessage != null)
             {
-                RevertToSendForBackwardCompatibility(context);
-
                 string sagaId;
                 string sagaType;
 
@@ -41,14 +39,6 @@
             }
 
             next();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        void RevertToSendForBackwardCompatibility(SendLogicalMessageContext context)
-        {
-            //for now we revert back to send since this would be a breaking change.
-            //https://github.com/NServiceBus/NServiceBus/issues/1409
-            context.SendOptions.Intent = MessageIntentEnum.Send;
         }
     }
 }
