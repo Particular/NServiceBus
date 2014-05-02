@@ -570,7 +570,6 @@
     <Compile Include="Unicast\Transport\FailedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\ITransport.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
-    <Compile Include="Unicast\Transport\Config\AdvancedTransactionalConfig.cs" />
     <Compile Include="Unicast\Transport\Config\SetTransportThresholds.cs" />
     <Compile Include="Unicast\Transport\Config\TransportReceiverConfig.cs" />
     <Compile Include="Unicast\Transport\FirstLevelRetries.cs" />
