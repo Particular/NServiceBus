@@ -4,7 +4,7 @@ namespace NServiceBus.CircuitBreakers
     using System.Threading;
     using Logging;
 
-    public class RepeatedFailuresOverTimeCircuitBreaker : ICircuitBreaker, IDisposable
+    public class RepeatedFailuresOverTimeCircuitBreaker : IDisposable
     {
         public RepeatedFailuresOverTimeCircuitBreaker(string name, TimeSpan timeToWaitBeforeTriggering,
             Action<Exception> triggerAction)
