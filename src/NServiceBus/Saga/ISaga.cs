@@ -6,7 +6,7 @@ namespace NServiceBus.Saga
     /// It is recommended you inherit the abstract class <see cref="Saga{T}"/> to get the most functionality.
     /// </summary>
     [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.0", Replacement = "Saga<T>")]
-    public interface ISaga : ITimeoutable
+    public interface ISaga
     {
         /// <summary>
         /// The saga's data.

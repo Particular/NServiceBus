@@ -100,7 +100,6 @@
     <Compile Include="Saga\ISagaMessage.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
     <Compile Include="Saga\ISagaStartedBy.cs" />
-    <Compile Include="Saga\ITimeoutable.cs" />
     <Compile Include="Saga\Saga.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
