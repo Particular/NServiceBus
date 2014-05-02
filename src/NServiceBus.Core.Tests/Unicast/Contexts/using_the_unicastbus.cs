@@ -8,8 +8,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Behaviors;
     using Core.Tests;
     using Helpers;
-    using Impersonation;
-    using Impersonation.Windows;
     using MessageHeaders;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
@@ -117,7 +115,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
 
             FuncBuilder.Register<IMessageHandlerRegistry>(() => handlerRegistry);
-            FuncBuilder.Register<ExtractIncomingPrincipal>(() => new WindowsImpersonator());
             FuncBuilder.Register<IMessageMapper>(() => MessageMapper);
 
             FuncBuilder.Register<ExtractLogicalMessagesBehavior>(() => new ExtractLogicalMessagesBehavior
@@ -125,10 +122,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                                                                  MessageSerializer = MessageSerializer,
                                                                  MessageMetadataRegistry = MessageMetadataRegistry,
                                                              });
-            FuncBuilder.Register<ImpersonateSenderBehavior>(() => new ImpersonateSenderBehavior
-                {
-                    ExtractIncomingPrincipal = MockRepository.GenerateStub<ExtractIncomingPrincipal>()
-                });
 
             FuncBuilder.Register<CreatePhysicalMessageBehavior>(() => new CreatePhysicalMessageBehavior());
             FuncBuilder.Register<PipelineBuilder>(() => pipelineBuilder);

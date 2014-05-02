@@ -60,7 +60,6 @@
 
             behaviorList.Add<ChildContainerBehavior>();
             behaviorList.Add<MessageHandlingLoggingBehavior>();
-            behaviorList.Add<ImpersonateSenderBehavior>();
             behaviorList.Add<AuditBehavior>();
             behaviorList.Add<ForwardBehavior>();
             behaviorList.Add<UnitOfWorkBehavior>();

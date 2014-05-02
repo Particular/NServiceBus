@@ -167,7 +167,6 @@
     <Compile Include="Transports\ConfigureTransport.cs" />
     <Compile Include="Unicast\Behaviors\CallbackInvocationBehavior.cs" />
     <Compile Include="Unicast\Behaviors\ForwardBehavior.cs" />
-    <Compile Include="Unicast\Behaviors\ImpersonateSenderBehavior.cs" />
     <Compile Include="Unicast\Behaviors\InvokeHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\LoadHandlersBehavior.cs" />
     <Compile Include="Unicast\Behaviors\SetCurrentMessageBeingHandledBehavior.cs" />
@@ -208,7 +207,6 @@
     <Compile Include="ConfigureFaultsForwarder.cs" />
     <Compile Include="ConfigureFileShareDataBus.cs" />
     <Compile Include="ConfigureGateway.cs" />
-    <Compile Include="ConfigureImpersonation.cs" />
     <Compile Include="ConfigureInMemoryFaultManagement.cs" />
     <Compile Include="DataBus\InMemory\InMemoryDataBus.cs" />
     <Compile Include="Features\FeatureSettings.cs" />
@@ -395,10 +393,7 @@
     </Compile>
     <Compile Include="IExcludesBuilder.cs" />
     <Compile Include="IIncludesBuilder.cs" />
-    <Compile Include="Impersonation\ExtractIncomingPrincipal.cs" />
-    <Compile Include="Impersonation\Windows\ConfigureWindowsImpersonation.cs" />
     <Compile Include="Impersonation\Windows\WindowsIdentityEnricher.cs" />
-    <Compile Include="Impersonation\Windows\WindowsImpersonator.cs" />
     <Compile Include="Install.cs" />
     <Compile Include="Installation\Environments\Windows.cs" />
     <Compile Include="Installation\IEnvironment.cs" />

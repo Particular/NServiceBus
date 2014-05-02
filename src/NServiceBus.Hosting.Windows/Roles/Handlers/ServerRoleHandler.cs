@@ -20,8 +20,7 @@ namespace NServiceBus.Hosting.Windows.Roles.Handlers
 
             return Configure.Instance
                 .PurgeOnStartup(false)
-                .UnicastBus()
-                .RunHandlersUnderIncomingPrincipal(true);
+                .UnicastBus();
         }
     }
 }

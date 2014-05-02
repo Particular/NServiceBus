@@ -294,7 +294,6 @@
     <Compile Include="Unicast\Subscriptions.cs" />
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
-    <Compile Include="Unicast\Impersonation.cs" />
     <Compile Include="Unicast\with_sagas.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
