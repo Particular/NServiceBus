@@ -131,13 +131,6 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(RemoveInVersion = "5.0")]
         public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
 
-
-        /// <summary>
-        /// A way to request the transport to defer the processing of a message
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public IDeferMessages MessageDeferrer { get; set; }
-
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
