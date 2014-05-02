@@ -265,7 +265,6 @@
     <Compile Include="Config\Conventions\EndpointHelper.cs" />
     <Compile Include="Config\ConfigureExtensions.cs" />
     <Compile Include="Config\GatewayConfig.cs" />
-    <Compile Include="Config\INeedInitialization.cs" />
     <Compile Include="Config\IWantToRunWhenConfigurationIsComplete.cs" />
     <Compile Include="Config\Logging.cs" />
     <Compile Include="Distributor\MasterNode\MasterNodeConfig.cs" />

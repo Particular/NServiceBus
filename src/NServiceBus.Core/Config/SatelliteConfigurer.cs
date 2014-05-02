@@ -2,7 +2,7 @@ namespace NServiceBus.Config
 {
     using Satellites;
 
-    public class SatelliteConfigurer : NServiceBus.INeedInitialization
+    public class SatelliteConfigurer : INeedInitialization
     {
         public void Init()
         {

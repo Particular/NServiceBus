@@ -345,8 +345,6 @@ namespace NServiceBus
 
             InvokeBeforeConfigurationInitializers();
 
-            ActivateAndInvoke<Config.INeedInitialization>(t => t.Init());
-
             ActivateAndInvoke<INeedInitialization>(t => t.Init());
 
             ActivateAndInvoke<IWantToRunBeforeConfigurationIsFinalized>(t => t.Run());

@@ -64,7 +64,7 @@
                         .AllowExceptions();
             }
 
-            class BodyMutator : IMutateTransportMessages, NServiceBus.INeedInitialization
+            class BodyMutator : IMutateTransportMessages, INeedInitialization
             {
                 public Context Context { get; set; }
 
