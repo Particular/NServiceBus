@@ -163,15 +163,6 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Check that the saga uses the bus to return the appropriate error code.
-        /// </summary>
-        [ObsoleteEx(Message = "Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.", RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0")]
-        public Saga<T> ExpectReturn(Func<int, bool> check = null)
-        {
-            throw new InvalidOperationException("Sagas should never call Return, instead they should call ReplyToOriginator which should be tested with ExpectReplyToOriginator.");
-        }
-
-        /// <summary>
         /// Check that the saga sends the given message type to the appropriate destination.
         /// </summary>
         public Saga<T> ExpectSendToDestination<TMessage>(Func<TMessage, Address, bool> check)
