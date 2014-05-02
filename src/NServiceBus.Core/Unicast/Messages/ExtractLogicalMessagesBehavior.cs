@@ -32,7 +32,7 @@
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
-            if (SkipDeserialization || UnicastBus.SkipDeserialization)
+            if (SkipDeserialization)
             {
                 next();
                 return;

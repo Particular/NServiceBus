@@ -153,26 +153,6 @@
     }
 
     [TestFixture]
-    public class When_receiving_a_message_with_the_deserialization_turned_off : using_the_unicastBus
-    {
-        [Test]
-        public void Handlers_should_not_be_invoked()
-        {
-            unicastBus.skipDeserialization = true; 
-
-            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
-
-            RegisterMessageType<EventMessage>();
-            RegisterMessageHandlerType<Handler1>();
-
-            ReceiveMessage(receivedMessage);
-
-
-            Assert.False(Handler1.Called);
-        }
-    }
-
-    [TestFixture]
     public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastBus
     {
         [Test]

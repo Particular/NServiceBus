@@ -909,17 +909,6 @@ namespace NServiceBus.Unicast
             started = false;
         }
 
-
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public bool SkipDeserialization
-        {
-            get { return skipDeserialization; }
-            set { skipDeserialization = value; }
-        }
-
-        internal bool skipDeserialization;
-
         public void Raise<T>(Action<T> messageConstructor)
         {
             Raise(CreateInstance(messageConstructor));
