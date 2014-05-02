@@ -2,7 +2,6 @@ namespace NServiceBus.Installation
 {
     /// <summary>
     /// Interface invoked by the infrastructure when going to install an endpoint.
-    /// Implementors are invoked after <see cref="INeedToInstallInfrastructure"/>.
     /// Implementors should not implement this type directly but rather the generic version of it.
     /// </summary>
     public interface INeedToInstallSomething

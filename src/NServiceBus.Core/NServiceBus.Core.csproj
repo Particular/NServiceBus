@@ -394,7 +394,6 @@
     <Compile Include="Install.cs" />
     <Compile Include="Installation\Environments\Windows.cs" />
     <Compile Include="Installation\IEnvironment.cs" />
-    <Compile Include="Installation\INeedToInstallInfrastructure.cs" />
     <Compile Include="Installation\INeedToInstallSomething.cs" />
     <Compile Include="IWantToRunBeforeConfiguration.cs" />
     <Compile Include="IWantToRunBeforeConfigurationIsFinalized.cs" />
