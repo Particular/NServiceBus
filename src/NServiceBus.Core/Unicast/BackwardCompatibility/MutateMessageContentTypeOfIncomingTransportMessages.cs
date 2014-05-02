@@ -4,8 +4,8 @@
     using Serialization;
     using Transport;
 
-    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "Exist only for compatibility between V4 and V3. No longer needed in V5")]
-    public class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
+    [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "6.0", Message = "Exist only for compatibility between V4 and V3. No longer needed in V6")]
+    class MutateMessageContentTypeOfIncomingTransportMessages : IMutateIncomingTransportMessages, INeedInitialization
     {
         public IMessageSerializer Serializer { get; set; }
 
