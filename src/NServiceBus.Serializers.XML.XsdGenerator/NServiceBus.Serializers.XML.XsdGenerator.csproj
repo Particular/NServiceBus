@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\Utils\Reflection\ExtensionMethods.cs">
+      <Link>ExtensionMethods.cs</Link>
+    </Compile>
     <Compile Include="ComplexType.cs" />
     <Compile Include="ComplexTypeWriter.cs" />
     <Compile Include="Element.cs" />

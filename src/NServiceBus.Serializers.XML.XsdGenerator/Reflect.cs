@@ -4,7 +4,7 @@ namespace NServiceBus.Serializers.XML.XsdGenerator
     using System.Collections.Generic;
     using Utils.Reflection;
 
-    public static class Reflect
+    static class Reflect
     {
         public static string GetTypeNameFrom(Type t)
         {

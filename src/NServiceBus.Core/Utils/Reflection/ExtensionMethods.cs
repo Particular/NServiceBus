@@ -5,23 +5,8 @@ namespace NServiceBus.Utils.Reflection
     using System.Collections.Concurrent;
     using System.Collections.Generic;
 
-    /// <summary>
-    /// Contains extension methods
-    /// </summary>
-    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message= "These will be made internal in version 5.0")]
-    public static class ExtensionMethods
+    static class ExtensionMethods
     {
-        /// <summary>
-        /// Useful for finding if a type is (for example) IMessageHandler{T} where T : IMessage.
-        /// </summary>  
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.3", Message= "No longer used. to be deleted")]
-        public static bool IsGenericallyEquivalent(this Type type, Type openGenericType, Type genericArg)
-        {
-            var result = false;
-            LoopAndAct(type, openGenericType, genericArg, t => result = true);
-
-            return result;
-        }
 
         /// <summary>
         /// Returns the enclosed generic type given that the type is GenericallyEquivalent.
@@ -34,7 +19,7 @@ namespace NServiceBus.Utils.Reflection
             return result;
         }
 
-        private static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
+        static void LoopAndAct(Type type, Type openGenericType, Type genericArg, Action<Type> act)
         {
             foreach (var i in type.GetInterfaces())
             {
