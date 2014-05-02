@@ -346,7 +346,6 @@
     <Compile Include="Gateway\Notifications\MessageNotifier.cs" />
     <Compile Include="Gateway\Notifications\MessageReceivedOnChannelArgs.cs" />
     <Compile Include="Gateway\Persistence\IPersistMessages.cs" />
-    <Compile Include="Gateway\Persistence\Sql\SqlPersistence.cs" />
     <Compile Include="Gateway\Receiving\ConfigurationBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\ConventionBasedChannelManager.cs" />
     <Compile Include="Gateway\Receiving\GatewayReceiver.cs" />
@@ -605,7 +604,6 @@
     <Folder Include="Unicast\Monitoring\Config\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Gateway\Persistence\Sql\Schema.sql" />
     <None Include="Resources\NServiceBus_Logo-  white.png" />
     <None Include="Resources\NServiceBus.png" />
     <None Include="Resources\logo.bmp" />
