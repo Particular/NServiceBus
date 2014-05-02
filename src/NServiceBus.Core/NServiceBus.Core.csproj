@@ -515,7 +515,6 @@
     <Compile Include="Unicast\Callback.cs" />
     <Compile Include="Unicast\Config\ConfigUnicastBus.cs" />
     <Compile Include="Unicast\Config\DefaultToTimeoutManagerBasedDeferal.cs" />
-    <Compile Include="Unicast\Config\StartupRunners.cs" />
     <Compile Include="Unicast\DefaultDispatcherFactory.cs" />
     <Compile Include="Timeout\Core\TimeoutManagerDeferrer.cs" />
     <Compile Include="Unicast\Config\DefaultTransportForHost.cs" />
@@ -531,7 +530,6 @@
     <Compile Include="AutomaticSubscriptions\IAutoSubscriptionStrategy.cs" />
     <Compile Include="Unicast\IMessageDispatcherFactory.cs" />
     <Compile Include="Unicast\IUnicastBus.cs" />
-    <Compile Include="Unicast\IWantToRunWhenTheBusStarts.cs" />
     <Compile Include="Unicast\MessageContext.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
