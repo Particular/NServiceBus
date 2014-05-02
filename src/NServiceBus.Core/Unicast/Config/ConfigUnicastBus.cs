@@ -264,20 +264,6 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-
-       
-        /// <summary>
-        /// Tells the bus to auto subscribe plain messages in addition to events
-        /// Commands will NOT be auto subscribed
-        /// </summary>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.AutoSubscribePlainMessages())")]
-        public ConfigUnicastBus AutoSubscribePlainMessages()
-        {
-            Features.AutoSubscribe(f => f.AutoSubscribePlainMessages());
-            return this;
-        }
-
         /// <summary>
         /// Causes the bus to not deserialize incoming messages. This means that no handlers are called and 
         /// you need to be subscribed to the ITransport.TransportMessageReceived event to handle the messages
