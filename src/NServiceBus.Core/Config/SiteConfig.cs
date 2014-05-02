@@ -7,16 +7,6 @@ namespace NServiceBus.Config
     /// </summary>
     public class SiteConfig : ConfigurationElement
     {
-        public SiteConfig()
-        {
-            LegacyMode = SetDefaultLegacyMode();
-        }
-
-        [ObsoleteEx(RemoveInVersion = "5.0", Message = "From v5 we need to set the legacy mode to false.")]
-        bool SetDefaultLegacyMode()
-        {
-            return true;
-        }
 
         /// <summary>
         /// The key
