@@ -7,46 +7,15 @@
     [TestFixture]
     public class OutboxReceiveBehaviorTests
     {
-        [Test]
-        public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
+        [SetUp]
+        public void SetUp()
         {
-            var incomingTransportMessage = new TransportMessage();
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage,false);
+            fakeOutbox = new FakeOutboxStorage();
 
-            Invoke(context);
-
-            Assert.True(context.Get<OutboxMessage>().IsDispatching,"Outbox message should be flaged as dispatching");
-            Assert.True(fakeOutbox.StoredMessage.Dispatched);
-        }
-
-        [Test]
-        public void Should_shortcut_the_pipeline_if_existing_message_is_found()
-        {
-            var incomingTransportMessage = new TransportMessage();
-
-            fakeOutbox.ExistingMessage = new OutboxMessage { Id = incomingTransportMessage.Id };
-
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage, false);
-
-            Invoke(context);
-
-            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
-            Assert.Null(fakeOutbox.StoredMessage);
-        }
-
-        [Test]
-        public void Should_not_dispatch_already_dispatched_messages()
-        {
-            var incomingTransportMessage = new TransportMessage();
-
-            fakeOutbox.ExistingMessage = new OutboxMessage { Id = incomingTransportMessage.Id,Dispatched=true };
-            fakeOutbox.ThrowOnDisaptch();
-            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage, false);
-
-            Invoke(context);
-
-            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
-            Assert.Null(fakeOutbox.StoredMessage);
+            behavior = new OutboxReceiveBehavior
+            {
+                OutboxStorage = fakeOutbox
+            };
         }
 
         void Invoke(ReceivePhysicalMessageContext context, bool shouldAbort = false)
@@ -60,21 +29,49 @@
             });
         }
 
-     
-        [SetUp]
-        public void SetUp()
-        {
-            fakeOutbox = new FakeOutboxStorage();
-
-            behavior = new OutboxReceiveBehavior
-            {
-                OutboxStorage = fakeOutbox
-            };
-
-        }
-
         FakeOutboxStorage fakeOutbox;
         OutboxReceiveBehavior behavior;
 
+        [Test]
+        public void Should_mark_outbox_message_as_stored_when_successfully_processing_a_message()
+        {
+            var incomingTransportMessage = new TransportMessage();
+            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage, false);
+
+            Invoke(context);
+
+            Assert.True(context.Get<bool>("Outbox_StartDispatching"), "Outbox message should be flaged as dispatching");
+            Assert.True(fakeOutbox.StoredMessage.Dispatched);
+        }
+
+        [Test]
+        public void Should_not_dispatch_already_dispatched_messages()
+        {
+            var incomingTransportMessage = new TransportMessage();
+
+            fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id, true);
+            fakeOutbox.ThrowOnDispatch();
+            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage, false);
+
+            Invoke(context);
+
+            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
+            Assert.Null(fakeOutbox.StoredMessage);
+        }
+
+        [Test]
+        public void Should_shortcut_the_pipeline_if_existing_message_is_found()
+        {
+            var incomingTransportMessage = new TransportMessage();
+
+            fakeOutbox.ExistingMessage = new OutboxMessage(incomingTransportMessage.Id);
+
+            var context = new ReceivePhysicalMessageContext(null, incomingTransportMessage, false);
+
+            Invoke(context);
+
+            Assert.True(fakeOutbox.ExistingMessage.Dispatched);
+            Assert.Null(fakeOutbox.StoredMessage);
+        }
     }
 }

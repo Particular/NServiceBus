@@ -1,24 +1,34 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline
 {
     using System;
+    using System.Collections.Generic;
     using Outbox;
 
-    class FakeOutboxStorage : IOutboxStorage
+    internal class FakeOutboxStorage : IOutboxStorage
     {
-        public OutboxMessage Get(string messageId)
+        public OutboxMessage ExistingMessage { get; set; }
+        public OutboxMessage StoredMessage { get; set; }
+
+        public bool TryGet(string messageId, out OutboxMessage message)
         {
+            message = null;
+
             if (ExistingMessage != null && ExistingMessage.Id == messageId)
-                return ExistingMessage;
+            {
+                message = ExistingMessage;
+                return true;
+            }
 
-            return null;
+            return false;
         }
 
-        public void Store(OutboxMessage outboxMessage)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
-            StoredMessage = outboxMessage;
+            StoredMessage = new OutboxMessage(messageId);
+            StoredMessage.TransportOperations.AddRange(transportOperations);
         }
 
-        public void SetAsDispatched(OutboxMessage outboxMessage)
+        public void SetAsDispatched(string messageId)
         {
             if (throwOnDispatch)
             {
@@ -27,21 +37,22 @@
 
             if (StoredMessage != null)
             {
-                if (StoredMessage.Id == outboxMessage.Id)
-                    StoredMessage.Dispatched = true;
+                if (StoredMessage.Id == messageId)
+                {
+                    StoredMessage = new OutboxMessage(messageId, true);
+                }
             }
 
             if (ExistingMessage != null)
             {
-                if (ExistingMessage.Id == outboxMessage.Id)
-                    ExistingMessage.Dispatched = true;
+                if (ExistingMessage.Id == messageId)
+                {
+                    ExistingMessage = new OutboxMessage(messageId, true);
+                }
             }
         }
 
-        public OutboxMessage ExistingMessage { get; set; }
-        public OutboxMessage StoredMessage { get; set; }
-
-        public void ThrowOnDisaptch()
+        public void ThrowOnDispatch()
         {
             throwOnDispatch = true;
         }

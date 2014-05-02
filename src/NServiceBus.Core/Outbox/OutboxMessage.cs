@@ -4,36 +4,29 @@
 
     public class OutboxMessage
     {
-        public string Id { get; set; }
-       
-        public bool IsDispatching { get { return isDispatching; } }
+        public OutboxMessage(string messageId, bool dispatched = false)
+        {
+            Id = messageId;
+            Dispatched = dispatched;
+        }
 
-        public bool Dispatched { get; set; }
+        public string Id { get; private set; }
+       
+        public bool Dispatched { get; private set; }
    
         public List<TransportOperation> TransportOperations
         {
             get
             {
                 if (transportOperations == null)
+                {
                     transportOperations = new List<TransportOperation>();
+                }
 
                 return transportOperations;
             }
-            set
-            {
-                transportOperations = value;
-            }
-        }
-
-        public void StartDispatching()
-        {
-            isDispatching = true;
         }
 
         List<TransportOperation> transportOperations;
-
-        bool isDispatching;
-
-        
     }
 }
