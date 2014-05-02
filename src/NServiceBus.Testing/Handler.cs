@@ -158,16 +158,6 @@
         }
 
         /// <summary>
-        /// Check that the handler tells the bus to forward the current message to the given destination.
-        /// </summary>
-        [ObsoleteEx(Message = "Please use an integration test to validate this feature.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public Handler<T> ExpectForwardCurrentMessageTo(string destination)
-        {
-            expectedInvocations.Add(new ExpectedForwardCurrentMessageToInvocation { Check = d => d == destination });
-            return this;
-        }
-
-        /// <summary>
         /// Check that the handler tells the bus to handle the current message later.
         /// </summary>
         public Handler<T> ExpectHandleCurrentMessageLater()

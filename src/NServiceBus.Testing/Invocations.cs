@@ -118,7 +118,6 @@
     public class ExpectedReplyInvocation<M> : SingleMessageExpectedInvocation<ReplyInvocation<M>, M> { }
     public class ReplyInvocation<M> : MessageInvocation<M> { }
 
-    public class ExpectedForwardCurrentMessageToInvocation : SingleValueExpectedInvocation<ForwardCurrentMessageToInvocation, string> { }
     public class ForwardCurrentMessageToInvocation : SingleValueInvocation<string> { }
 
     public class ExpectedReturnInvocation<T> : SingleValueExpectedInvocation<ReturnInvocation<T>, T> { }
