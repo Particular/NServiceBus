@@ -9,7 +9,7 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class RemoveIncomingHeadersBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
-        [ObsoleteEx(RemoveInVersion = "5.0")]
+        [ObsoleteEx(RemoveInVersion = "6.0")]
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
            
