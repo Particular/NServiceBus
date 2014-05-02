@@ -185,10 +185,6 @@ namespace NServiceBus.Unicast
         [ObsoleteEx(RemoveInVersion = "5.0")]
         public Address ForwardReceivedMessagesTo { get; set; }
 
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>
         /// </summary>

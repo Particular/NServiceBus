@@ -54,8 +54,6 @@ namespace NServiceBus.Unicast.Config
                     forwardAddress);
                 Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
-            Configure.Instance.Configurer.ConfigureProperty<UnicastBus>(b => b.TimeToBeReceivedOnForwardedMessages,
-                unicastConfig.TimeToBeReceivedOnForwardedMessages);
             Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);
             
             var messageEndpointMappings = unicastConfig.MessageEndpointMappings.Cast<MessageEndpointMapping>()

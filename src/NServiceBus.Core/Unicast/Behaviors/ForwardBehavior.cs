@@ -5,15 +5,12 @@
     using Pipeline;
     using Pipeline.Contexts;
     using Transports;
-    using Unicast;
 
     [Obsolete("This is a prototype API. May change in minor version releases.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ForwardBehavior : IBehavior<ReceivePhysicalMessageContext>
     {
         public ISendMessages MessageSender { get; set; }
-
-        public UnicastBus UnicastBus { get; set; }
 
         public Address ForwardReceivedMessagesTo { get; set; }
 
@@ -26,14 +23,6 @@
             if (ForwardReceivedMessagesTo != null && ForwardReceivedMessagesTo != Address.Undefined)
             {
                 MessageSender.ForwardMessage(context.PhysicalMessage, TimeToBeReceivedOnForwardedMessages, ForwardReceivedMessagesTo);
-            }
-            //To cope with people hacking UnicastBus.ForwardReceivedMessagesTo at runtime. will be removed when we remove UnicastBus.ForwardReceivedMessagesTo
-            if (UnicastBus.ForwardReceivedMessagesTo != ForwardReceivedMessagesTo)
-            {
-                if (UnicastBus.ForwardReceivedMessagesTo != null && UnicastBus.ForwardReceivedMessagesTo != Address.Undefined)
-                {
-                    MessageSender.ForwardMessage(context.PhysicalMessage, UnicastBus.TimeToBeReceivedOnForwardedMessages, UnicastBus.ForwardReceivedMessagesTo);
-                }
             }
         }
     }
