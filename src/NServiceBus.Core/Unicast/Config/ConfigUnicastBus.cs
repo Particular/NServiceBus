@@ -264,20 +264,7 @@ namespace NServiceBus.Unicast.Config
             return this;
         }
 
-        /// <summary>
-        /// Instructs the bus not to automatically subscribe sagas to messages that
-        /// it has handlers for (given those messages belong to a different endpoint).
-        /// 
-        /// This is needed only if you require fine-grained control over the subscribe/unsubscribe process.
-        /// </summary>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotAutoSubscribeSagas())")]
-        public ConfigUnicastBus DoNotAutoSubscribeSagas()
-        {
-            Features.AutoSubscribe(f => f.DoNotAutoSubscribeSagas());
-            //ApplyDefaultAutoSubscriptionStrategy.DoNotAutoSubscribeSagas = true;
-            return this;
-        }
+
        
         /// <summary>
         /// Tells the bus to auto subscribe plain messages in addition to events
