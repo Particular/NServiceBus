@@ -5,7 +5,7 @@ namespace NServiceBus.Licensing
 
     static class LicenseExpiredFormDisplayer
     {
-        public static Particular.Licensing.License PromptUserForLicense(Particular.Licensing.License currentLicense)
+        public static License PromptUserForLicense(License currentLicense)
         {
             SynchronizationContext synchronizationContext = null;
             try

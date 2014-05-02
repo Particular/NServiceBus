@@ -16,7 +16,7 @@
             InitializeComponent();
         }
 
-        public Particular.Licensing.License CurrentLicense { get; set; }
+        public License CurrentLicense { get; set; }
 
         protected override void OnLoad(EventArgs e)
         {
