@@ -38,15 +38,7 @@ namespace NServiceBus
             Feature.Disable<TimeoutManager>();
             return config;
         }
-
-
-        [ObsoleteEx(Message = "As Timeout Manager is part of the core NServiceBus functionality, it is not required to call this method any longer.", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public static Configure RunTimeoutManager(this Configure config)
-        {
-            Feature.Enable<TimeoutManager>();
-            return config;
-        }
-
+        
         /// <summary>
         /// Sets the default persistence to InMemory.
         /// </summary>
