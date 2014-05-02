@@ -5,8 +5,7 @@ namespace NServiceBus.Distributor.Config
     using Transports.Msmq.WorkerAvailabilityManager;
     using Unicast;
 
-    [ObsoleteEx(Message = "Not a public API.", TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
-    public class DistributorInitializer
+    class DistributorInitializer
     {
         public static void Init(bool withWorker)
         {
