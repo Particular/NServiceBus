@@ -64,7 +64,6 @@
             behaviorList.Add<ForwardBehavior>();
             behaviorList.Add<UnitOfWorkBehavior>();
             behaviorList.Add<ApplyIncomingTransportMessageMutatorsBehavior>();
-            behaviorList.Add<RaiseMessageReceivedBehavior>();
             behaviorList.Add<RemoveIncomingHeadersBehavior>();
             behaviorList.Add<ExtractLogicalMessagesBehavior>();
             behaviorList.Add<CallbackInvocationBehavior>();
