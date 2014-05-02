@@ -50,9 +50,6 @@ To fix this, please mark the property type '{0}' as serializable, see http://msd
 			    throw new InvalidOperationException("Messages containing databus properties found, please configure a databus!");
 			}
 
-			Configure.Instance.Configurer.ConfigureComponent<DataBusMessageMutator>(
-                DependencyLifecycle.InstancePerCall);
-
             if (!Configure.Instance.Configurer.HasComponent<IDataBusSerializer>())
             {
                 Configure.Instance.Configurer.ConfigureComponent<DefaultDataBusSerializer>(
