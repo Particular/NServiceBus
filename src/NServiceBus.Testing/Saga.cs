@@ -215,18 +215,7 @@ namespace NServiceBus.Testing
                 );
             return this;
         }
-
-        /// <summary>
-        /// Check that the saga replies to the originator with the given message type.
-        /// </summary>
-        /// <param name="check">An action that performs assertions on the message.</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "ExpectReplyToOriginator")]
-        // ReSharper disable once IdentifierTypo
-        public Saga<T> ExpectReplyToOrginator<TMessage>(Action<TMessage> check)
-        {
-            return ExpectReplyToOriginator(CheckActionToFunc(check));
-        }
-
+        
         /// <summary>
         /// Check that the saga replies to the originator with the given message type.
         /// </summary>
