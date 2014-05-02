@@ -12,7 +12,7 @@ namespace NServiceBus.Outbox
         {
             OutboxMessage currentOutboxMessage;
 
-            if (context.TryGet(out currentOutboxMessage) && !currentOutboxMessage.IsDispatching)
+            if (context.TryGet(out currentOutboxMessage) && !context.Get<bool>("Outbox_StartDispatching"))
             {
                 currentOutboxMessage.TransportOperations.Add(new TransportOperation(context.SendOptions, context.MessageToSend));
             }

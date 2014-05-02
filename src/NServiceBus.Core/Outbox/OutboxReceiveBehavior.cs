@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Outbox
 {
     using System;
+    using System.Collections.Generic;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -13,19 +14,18 @@
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
             var messageId = context.PhysicalMessage.Id;
+            OutboxMessage outboxMessage;
 
-            var outboxMessage = OutboxStorage.Get(messageId);
-
-            if (outboxMessage == null)
+            if (!OutboxStorage.TryGet(messageId, out outboxMessage))
             {
-                outboxMessage = new OutboxMessage { Id = messageId };
+                outboxMessage = new OutboxMessage(messageId);
 
                 context.Set(outboxMessage);
 
                 //this runs the rest of the pipeline
                 next();
 
-                OutboxStorage.Store(outboxMessage);
+                OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
             }
 
             if (outboxMessage.Dispatched)
@@ -33,21 +33,19 @@
                 return;
             }
 
-            DispatchOperationToTransport(outboxMessage);
+            DispatchOperationToTransport(outboxMessage.TransportOperations);
 
-            outboxMessage.Dispatched = true;
-            OutboxStorage.SetAsDispatched(outboxMessage);
+            context.Set("Outbox_StartDispatching", true);
+            OutboxStorage.SetAsDispatched(messageId);
         }
 
-        void DispatchOperationToTransport(OutboxMessage outboxMessage)
+        void DispatchOperationToTransport(IEnumerable<TransportOperation> operations)
         {
-            outboxMessage.StartDispatching();
-            foreach (var transportOperation in outboxMessage.TransportOperations)
+            foreach (var transportOperation in operations)
             {
                 //dispatch to transport
                 PipelineExecutor.InvokeSendPipeline(transportOperation.SendOptions, transportOperation.Message);
             }
         }
-
     }
 }

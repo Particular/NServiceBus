@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.Outbox
 {
+    using System.Collections.Generic;
+
     public interface IOutboxStorage
     {
-        OutboxMessage Get(string messageId);
-        void Store(OutboxMessage outboxMessage);
-        void SetAsDispatched(OutboxMessage outboxMessage);
+        bool TryGet(string messageId, out OutboxMessage message);
+        void Store(string messageId, IEnumerable<TransportOperation> transportOperations);
+        void SetAsDispatched(string messageId);
     }
 }

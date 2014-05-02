@@ -1,37 +1,50 @@
 ﻿namespace NServiceBus.Persistence.InMemory.Outbox
 {
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Outbox;
 
-    class InMemoryOutboxStorage:IOutboxStorage
+    internal class InMemoryOutboxStorage : IOutboxStorage
     {
-        public OutboxMessage Get(string messageId)
+        public bool TryGet(string messageId, out OutboxMessage message)
         {
             StoredMessage storedMessage;
+            message = null;
 
-            if(!storage.TryGetValue(messageId, out storedMessage))
+            if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return null;
+                return false;
             }
-            
-            return storedMessage.OutboxMessage;
+
+            message = new OutboxMessage(messageId);
+            message.TransportOperations.AddRange(storedMessage.TransportOperations);
+
+            return true;
         }
 
-        public void Store(OutboxMessage outboxMessage)
+        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
-            if (!storage.TryAdd(outboxMessage.Id, new StoredMessage(outboxMessage)))
+            if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations)))
             {
-                throw new ConcurrencyException(string.Format("Outbox message with id: '{0}' is already present in storage",outboxMessage.Id));
+                throw new ConcurrencyException(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
             }
         }
 
-        public void SetAsDispatched(OutboxMessage outboxMessage)
+        public void SetAsDispatched(string messageId)
         {
-            var expectedState = new StoredMessage(outboxMessage.Id);
+            var expectedState = new StoredMessage(messageId, Enumerable.Empty<TransportOperation>());
+            StoredMessage storedMessage;
 
-            if (!storage.TryUpdate(outboxMessage.Id, new StoredMessage(outboxMessage), expectedState))
+            storage.TryGetValue(messageId, out storedMessage);
+            storedMessage.Dispatched = true;
+
+            if (!storage.TryUpdate(messageId, new StoredMessage(messageId, storedMessage.TransportOperations)
             {
-                throw new ConcurrencyException(string.Format("Outbox message with id: '{0}' is has been updated by another thread", outboxMessage.Id));
+                Dispatched = true
+            }, expectedState))
+            {
+                throw new ConcurrencyException(string.Format("Outbox message with id '{0}' is has already been updated by another thread.", messageId));
             }
         }
 
@@ -39,16 +52,19 @@
 
         class StoredMessage
         {
-            public StoredMessage(OutboxMessage outboxMessage)
+            public StoredMessage(string messageId, IEnumerable<TransportOperation> transportOperations)
             {
-                OutboxMessage = outboxMessage;
-                Id = outboxMessage.Id;
-                Dispatched = outboxMessage.Dispatched;
+                this.transportOperations = transportOperations;
+                Id = messageId;
             }
 
-            public StoredMessage(string outboxMessageId)
+            public string Id { get; private set; }
+
+            public bool Dispatched { get; set; }
+
+            public IEnumerable<TransportOperation> TransportOperations
             {
-                Id = outboxMessageId;
+                get { return transportOperations; }
             }
 
             protected bool Equals(StoredMessage other)
@@ -81,11 +97,7 @@
                 }
             }
 
-            public string Id{ get; private set; }
-
-            public bool Dispatched { get; private set; }
-
-            public OutboxMessage OutboxMessage { get; private set; }
+            readonly IEnumerable<TransportOperation> transportOperations;
         }
     }
 }
