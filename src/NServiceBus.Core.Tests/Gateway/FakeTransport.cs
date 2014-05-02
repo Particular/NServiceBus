@@ -13,11 +13,6 @@
         {
         }
 
-        public void Start(string inputQueue)
-        {
-            Start(Address.Parse(inputQueue));
-        }
-
         public bool IsStarted { get; set; }
 
         public Address InputAddress { get; set; }

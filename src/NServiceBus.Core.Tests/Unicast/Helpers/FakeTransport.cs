@@ -10,10 +10,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
            
         }
         
-        public void Start(string inputqueue)
-        {
-        }
-
         public void Start(Address localAddress)
         {
         }

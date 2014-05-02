@@ -171,11 +171,6 @@ namespace NServiceBus.Unicast.Transport
             ChangeMaximumConcurrencyLevel(targetNumberOfWorkerThreads);
         }
 
-        public void Start(string inputqueue)
-        {
-            Start(Address.Parse(inputqueue));
-        }
-
         public void Start(Address address)
         {
             if (isStarted)
