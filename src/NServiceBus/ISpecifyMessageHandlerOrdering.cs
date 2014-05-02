@@ -35,15 +35,6 @@
         }
 
         /// <summary>
-        /// Obsolete - use SpecifyFirst instead.
-        /// </summary>
-        [ObsoleteEx(Replacement = "SpecifyFirst<T>", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        public void Specify<TFirst>()
-        {
-            SpecifyFirst<TFirst>();
-        }
-
-        /// <summary>
         /// Specifies an ordering of multiple types using the syntax: <code>First{H1}.Then{H2}().AndThen{H3}()</code> etc
         /// </summary>
         public void Specify<T>(First<T> ordering)
