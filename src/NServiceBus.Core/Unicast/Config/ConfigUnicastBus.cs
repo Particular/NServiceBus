@@ -280,17 +280,6 @@ namespace NServiceBus.Unicast.Config
         }
        
         /// <summary>
-        /// Allow the bus to subscribe to itself
-        /// </summary>
-        /// <returns></returns>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Configure.Features.AutoSubscribe(f=>f.DoNotRequireExplicitRouting())")]
-        public ConfigUnicastBus AllowSubscribeToSelf()
-        {
-            Features.AutoSubscribe(f => f.DoNotRequireExplicitRouting());
-            return this;
-        }
-
-        /// <summary>
         /// Tells the bus to auto subscribe plain messages in addition to events
         /// Commands will NOT be auto subscribed
         /// </summary>
