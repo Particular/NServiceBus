@@ -50,8 +50,6 @@ namespace NServiceBus.Unicast.Config
             if (!string.IsNullOrWhiteSpace(unicastConfig.ForwardReceivedMessagesTo))
             {
                 var forwardAddress = Address.Parse(unicastConfig.ForwardReceivedMessagesTo);
-                Configure.Instance.Configurer.ConfigureProperty<UnicastBus>(b => b.ForwardReceivedMessagesTo,
-                    forwardAddress);
                 Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.ForwardReceivedMessagesTo, forwardAddress);
             }
             Configure.Instance.Configurer.ConfigureProperty<ForwardBehavior>(b => b.TimeToBeReceivedOnForwardedMessages, unicastConfig.TimeToBeReceivedOnForwardedMessages);

@@ -16,7 +16,6 @@ namespace NServiceBus.Unicast
     using Pipeline.Contexts;
     using Routing;
     using Satellites;
-    using Serialization;
     using Settings;
     using Subscriptions;
     using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
@@ -145,11 +144,7 @@ namespace NServiceBus.Unicast
         /// used primarily for the Distributor.
         /// </summary>
         public bool PropagateReturnAddressOnSend { get; set; }
-
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public Address ForwardReceivedMessagesTo { get; set; }
-
+        
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>
         /// </summary>

@@ -219,18 +219,6 @@ namespace NServiceBus.Unicast.Config
             busConfig.ConfigureProperty(b => b.PropagateReturnAddressOnSend, value);
             return this;
         }
-        /// <summary>
-        /// Forwards all received messages to a given endpoint (queue@machine).
-        /// This is useful as an auditing/debugging mechanism.
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public ConfigUnicastBus ForwardReceivedMessagesTo(string value)
-        {
-            busConfig.ConfigureProperty(b => b.ForwardReceivedMessagesTo, value);
-            return this;
-        }
-
 
         /// <summary>
         /// Allow the bus to subscribe to itself
