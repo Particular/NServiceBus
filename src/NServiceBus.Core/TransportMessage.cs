@@ -69,15 +69,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        ///     Gets/sets the identifier that is copied to <see cref="CorrelationId" />.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "Id")]
-        public string IdForCorrelation
-        {
-            get { return Id; }
-        }
-
-        /// <summary>
         ///     Gets/sets the unique identifier of another message bundle
         ///     this message bundle is associated with.
         /// </summary>
