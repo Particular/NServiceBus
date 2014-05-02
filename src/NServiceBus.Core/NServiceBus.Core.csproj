@@ -436,7 +436,6 @@
     <Compile Include="ObjectBuilder\Common\Config\ConfigureContainer.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />
     <Compile Include="ObjectBuilder\Common\SynchronizedInvoker.cs" />
-    <Compile Include="ObjectBuilder\ComponentCallModelEnum.cs" />
     <Compile Include="ObjectBuilder\IBuilder.cs" />
     <Compile Include="ObjectBuilder\IComponentConfig.cs" />
     <Compile Include="ObjectBuilder\IConfigureComponents.cs" />

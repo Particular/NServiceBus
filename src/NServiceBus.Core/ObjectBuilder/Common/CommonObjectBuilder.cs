@@ -77,25 +77,6 @@ namespace NServiceBus.ObjectBuilder.Common
             return new ComponentConfig<T>(container);
         }
 
-        public IComponentConfig ConfigureComponent(Type concreteComponent, ComponentCallModelEnum callModel)
-        {
-            var lifecycle = MapToDependencyLifecycle(callModel);
-
-            container.Configure(concreteComponent, lifecycle);
-
-            return new ComponentConfig(concreteComponent, container);
-        }
-
-
-        public IComponentConfig<T> ConfigureComponent<T>(ComponentCallModelEnum callModel)
-        {
-            var lifecycle = MapToDependencyLifecycle(callModel);
-
-            container.Configure(typeof(T), lifecycle);
-
-            return new ComponentConfig<T>(container);
-        }
-
         public IConfigureComponents ConfigureProperty<T>(Expression<Func<T, object>> property, object value)
         {
             var prop = Reflect<T>.GetProperty(property);
@@ -188,21 +169,6 @@ namespace NServiceBus.ObjectBuilder.Common
                 var o = container.Build(typeToBuild);
                 action(o);
             }
-        }
-
-        static DependencyLifecycle MapToDependencyLifecycle(ComponentCallModelEnum callModel)
-        {
-            switch (callModel)
-            {
-                case ComponentCallModelEnum.Singleton:
-                    return DependencyLifecycle.SingleInstance;
-                case ComponentCallModelEnum.Singlecall:
-                    return DependencyLifecycle.InstancePerCall;
-                case ComponentCallModelEnum.None:
-                    return DependencyLifecycle.InstancePerUnitOfWork;
-            }
-
-            throw new ArgumentException("Unhandled component call model: " + callModel);
         }
 
         static SynchronizedInvoker sync;
