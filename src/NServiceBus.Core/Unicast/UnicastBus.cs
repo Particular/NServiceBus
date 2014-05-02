@@ -116,14 +116,6 @@ namespace NServiceBus.Unicast
         /// Event raised when messages are sent.
         /// </summary>
         public event EventHandler<MessagesEventArgs> MessagesSent;
-
-        /// <summary>
-        /// Should be used by the programmer, not the administrator.
-        /// Gets and sets an <see cref="IMessageSerializer"/> implementation to
-        /// be used for subscription storage for the bus.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public virtual IMessageSerializer MessageSerializer { get; set; }
         
         /// <summary>
         /// Should be used by programmer, not administrator.
