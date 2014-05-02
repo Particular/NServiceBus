@@ -124,13 +124,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "5.0")]
         public virtual IMessageSerializer MessageSerializer { get; set; }
-
-        /// <summary>
-        /// The registry of all known messages for this endpoint
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public MessageMetadataRegistry MessageMetadataRegistry { get; set; }
-
+        
         /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
