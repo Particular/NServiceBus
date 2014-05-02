@@ -846,7 +846,11 @@ namespace NServiceBus.Unicast
 
         public IInMemoryOperations InMemory
         {
-            get { return this; }
+            get
+            {
+                ThrowInMemoryException();
+                return null;
+            }
         }
 
         public void Shutdown()
@@ -883,42 +887,17 @@ namespace NServiceBus.Unicast
 
         public void Raise<T>(Action<T> messageConstructor)
         {
-            Raise(CreateInstance(messageConstructor));
+            ThrowInMemoryException();
         }
 
         public void Raise<T>(T @event)
         {
-            var messageType = typeof(T);
-
-            EnsureMessageIsRegistered(messageType);
-
-            var logicalMessage = LogicalMessageFactory.Create(messageType, @event);
-
-            if (PipelineFactory.CurrentContext is RootContext)
-            {
-                using (var childBuilder = Builder.CreateChildBuilder())
-                {
-                    PipelineFactory.CurrentContext.Set(childBuilder);
-                    PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);
-                }
-            }
-            else
-            {
-                PipelineFactory.InvokeLogicalMessagePipeline(logicalMessage);                
-            }
+            ThrowInMemoryException();
         }
 
-        [ObsoleteEx(RemoveInVersion = "5.0", Message = "In 5.0.0 we'll require inmemory messages to be picked up by the conventions")]
-        void EnsureMessageIsRegistered(Type messageType)
+        static void ThrowInMemoryException()
         {
-            var registry = Builder.Build<MessageMetadataRegistry>();
-
-            if (registry.HasDefinitionFor(messageType))
-            {
-                return;
-            }
-
-            registry.RegisterMessageType(messageType);
+            throw new Exception("InMemory.Raise has been removed from the core please see http://docs.particular.net/nservicebus/inmemoryremoval");
         }
 
         void TransportStartedMessageProcessing(object sender, StartedMessageProcessingEventArgs e)
