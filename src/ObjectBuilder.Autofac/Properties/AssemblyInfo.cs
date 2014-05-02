@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("NServiceBus Container Autofac Implementation")]
@@ -7,3 +8,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("NServiceBus")]
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: ComVisible(false)]
+[assembly: CLSCompliant(true)]

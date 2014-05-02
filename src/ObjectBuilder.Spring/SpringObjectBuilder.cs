@@ -29,6 +29,7 @@
         /// <summary>
         /// Instantiates the builder using the given container.
         /// </summary>
+        [CLSCompliant(false)]
         public SpringObjectBuilder(GenericApplicationContext context)
         {
             this.context = context;
