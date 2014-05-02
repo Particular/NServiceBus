@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -23,10 +22,5 @@
         /// </summary>
         IDictionary<string, string> Headers { get; }
 
-        /// <summary>
-        /// Returns the time at which the message was sent.
-        /// </summary>
-        [ObsoleteEx(Replacement = @"Headers[Headers.TimeSent]", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-        DateTime TimeSent { get; }
     }
 }
