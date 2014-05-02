@@ -75,7 +75,6 @@ namespace NServiceBus.Hosting
                     bus.Start();
                 }
 
-                configManager.Startup();
                 wcfManager.Startup();
             }
             catch (Exception ex)
@@ -90,7 +89,6 @@ namespace NServiceBus.Hosting
         /// </summary>
         public void Stop()
         {
-            configManager.Shutdown();
             wcfManager.Shutdown();
 
             if (bus != null)

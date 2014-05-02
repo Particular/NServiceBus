@@ -128,6 +128,9 @@
     <Compile Include="Gateway\Sending\CallType.cs" />
     <Compile Include="Gateway\GatewayTransaction.cs" />
     <Compile Include="GitFlowVersion.cs" />
+    <Compile Include="Hosting\Configuration\IWantCustomLogging.cs" />
+    <Compile Include="Hosting\Configuration\IWantTheEndpointConfig.cs" />
+    <Compile Include="Hosting\Configuration\IWantTheListOfActiveProfiles.cs" />
     <Compile Include="Hosting\Configuration\SLAInitializer.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />
@@ -366,7 +369,7 @@
     <Compile Include="Hosting\Configuration\EndpointSLAAttribute.cs" />
     <Compile Include="Hosting\Configuration\IConfigureLogging.cs" />
     <Compile Include="Hosting\Configuration\IConfigureThisEndpoint.cs" />
-    <Compile Include="Hosting\Configuration\IWant.cs" />
+    <Compile Include="Hosting\Configuration\IWantCustomInitialization.cs" />
     <Compile Include="Hosting\GenericHost.cs" />
     <Compile Include="Hosting\Helpers\AssemblyListExtensions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
