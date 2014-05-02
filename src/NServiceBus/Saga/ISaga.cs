@@ -6,12 +6,17 @@ namespace NServiceBus.Saga
     /// It is recommended you inherit the abstract class <see cref="Saga{T}"/> to get the most functionality.
     /// </summary>
     [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "5.0", Replacement = "Saga<T>")]
-    public interface ISaga : ITimeoutable, HasCompleted
+    public interface ISaga : ITimeoutable
     {
         /// <summary>
         /// The saga's data.
         /// </summary>
         IContainSagaData Entity { get; set; }
+
+        /// <summary>
+        /// Indicates if the saga has completed.
+        /// </summary>
+        bool Completed { get; }
 
         /// <summary>
         /// Used for retrieving the endpoint which caused the saga to be initiated.
