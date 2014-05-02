@@ -92,7 +92,6 @@
     <Compile Include="Saga\IConfigureHowToFindSagaWithMessage.cs" />
     <Compile Include="Saga\IContainSagaData.cs" />
     <Compile Include="Saga\IFindSagas.cs" />
-    <Compile Include="Saga\IHandleReplyingToNullOriginator.cs" />
     <Compile Include="Saga\IHandleSagaNotFound.cs" />
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISaga.cs" />

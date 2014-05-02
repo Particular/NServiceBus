@@ -72,14 +72,6 @@ namespace NServiceBus.Saga
             return new ToSagaExpression<T, TMessage>(SagaMessageFindingConfiguration, messageProperty);
         }
 
-
-        /// <summary>
-        /// Called by saga to notify the infrastructure when attempting to reply to message where the originator is null
-        /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "4.3", RemoveInVersion = "5.0")]
-        public IHandleReplyingToNullOriginator HandleReplyingToNullOriginator { get; set; }
-
-
         /// <summary>
         /// Bus object used for retrieving the sender endpoint which caused this saga to start.
         /// Necessary for <see cref="ReplyToOriginator" />.
@@ -258,9 +250,8 @@ namespace NServiceBus.Saga
         }
         #endregion
 
-        private void SetTimeoutHeaders(object toSend)
+        void SetTimeoutHeaders(object toSend)
         {
-
             Headers.SetMessageHeader(toSend, Headers.SagaId, Data.Id.ToString());
             Headers.SetMessageHeader(toSend, Headers.IsSagaTimeoutMessage, Boolean.TrueString);
             Headers.SetMessageHeader(toSend, Headers.SagaType, GetType().AssemblyQualifiedName);
@@ -273,13 +264,9 @@ namespace NServiceBus.Saga
         {
             if (string.IsNullOrEmpty(Data.Originator))
             {
-                if (HandleReplyingToNullOriginator != null)
-                {
-                    HandleReplyingToNullOriginator.TriedToReplyToNullOriginator();    
-                }
+                throw new Exception("Data.Originator cannot be null. Perhaps the sender is a SendOnly endpoint.");
             }
-            else
-                Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
+            Bus.Send(Data.Originator, Data.OriginalMessageId, messages);
         }
 
         /// <summary>
