@@ -6,7 +6,6 @@ namespace NServiceBus.Unicast
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Audit;
     using Hosting;
     using Licensing;
     using Logging;
@@ -189,10 +188,6 @@ namespace NServiceBus.Unicast
 
         [ObsoleteEx(RemoveInVersion = "5.0")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
-
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public MessageAuditer MessageAuditer { get; set; }
 
         /// <summary>
         /// The router for this <see cref="UnicastBus"/>

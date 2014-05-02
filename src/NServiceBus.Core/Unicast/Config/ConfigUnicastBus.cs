@@ -5,7 +5,6 @@ namespace NServiceBus.Unicast.Config
     using System.Configuration;
     using System.Linq;
     using Behaviors;
-    using Features;
     using Logging;
     using ObjectBuilder;
     using Pipeline;
