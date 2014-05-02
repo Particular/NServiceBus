@@ -37,11 +37,6 @@ namespace NServiceBus.Unicast.Tests.Helpers
         {
         }
 
-        public int NumberOfWorkerThreads
-        {
-            get { return MaximumConcurrencyLevel; }
-        }
-
         public void ChangeMaximumMessageThroughputPerSecond(int maximumMessageThroughputPerSecond)
         {
             throw new NotImplementedException();

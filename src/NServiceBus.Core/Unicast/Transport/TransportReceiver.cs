@@ -51,20 +51,6 @@ namespace NServiceBus.Unicast.Transport
         public event EventHandler<FailedMessageProcessingEventArgs> FailedMessageProcessing;
 
         /// <summary>
-        ///     Gets/sets the number of concurrent threads that should be
-        ///     created for processing the queue.
-        ///     Get returns the actual number of running worker threads, which may
-        ///     be different than the originally configured value.
-        ///     When used as a setter, this value will be used by the <see cref="Start(Address)" />
-        ///     method only and will have no effect if called afterwards.
-        ///     To change the number of worker threads at runtime, call <see cref="ChangeNumberOfWorkerThreads" />.
-        /// </summary>
-        public virtual int NumberOfWorkerThreads
-        {
-            get { return MaximumConcurrencyLevel; }
-        }
-
-        /// <summary>
         ///     Gets the maximum concurrency level this <see cref="ITransport" /> is able to support.
         /// </summary>
         public virtual int MaximumConcurrencyLevel

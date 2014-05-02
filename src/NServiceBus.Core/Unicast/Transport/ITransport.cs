@@ -14,12 +14,6 @@ namespace NServiceBus.Unicast.Transport
 		void Start(Address localAddress);
 
 		/// <summary>
-		/// Gets the number of worker threads currently running in the transport.
-		/// </summary>
-		[ObsoleteEx(Replacement = "MaximumConcurrencyLevel", TreatAsErrorFromVersion = "4.0", RemoveInVersion = "5.0")]
-		int NumberOfWorkerThreads { get; }
-
-		/// <summary>
 		/// Gets the maximum concurrency level this <see cref="ITransport"/> is able to support.
 		/// </summary>
 		int MaximumConcurrencyLevel { get; }

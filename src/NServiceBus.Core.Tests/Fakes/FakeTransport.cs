@@ -42,8 +42,6 @@
             throw new NotImplementedException();
         }
 
-        public int NumberOfWorkerThreads { get; set; }
-
         public int MaxThroughputPerSecond { get; set; }
 
         public int MaximumMessageThroughputPerSecond { get; private set; }
