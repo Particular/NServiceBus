@@ -91,10 +91,8 @@
     <Compile Include="Profiles\MultiSite.cs" />
     <Compile Include="Profiles\Handlers\GatewayProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\MasterProfileHandler.cs" />
-    <Compile Include="Profiles\Handlers\TimeoutProfileHandler.cs" />
     <Compile Include="Profiles\Handlers\WorkerProfileHandler.cs" />
     <Compile Include="Profiles\Master.cs" />
-    <Compile Include="Profiles\Time.cs" />
     <Compile Include="Profiles\Worker.cs" />
     <Compile Include="Roles\AsA_Publisher.cs" />
     <Compile Include="Arguments\HostArguments.cs" />
