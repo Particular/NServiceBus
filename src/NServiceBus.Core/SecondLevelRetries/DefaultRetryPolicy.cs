@@ -3,9 +3,7 @@ namespace NServiceBus.SecondLevelRetries
     using System;
     using Helpers;
 
-
-    [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "5.0", Message = "Should not be public")]
-    public static class DefaultRetryPolicy
+    static class DefaultRetryPolicy
     {
         public static int NumberOfRetries = 3;
         public static TimeSpan TimeIncrease = TimeSpan.FromSeconds(10);
