@@ -300,7 +300,6 @@
     <Compile Include="Transports\Msmq\MsmqUnitOfWork.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Config\MsmqSubscriptionStorageConfig.cs" />
-    <Compile Include="Config\MsmqTransportConfig.cs" />
     <Compile Include="Config\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Config\SatelliteConfigurer.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
@@ -569,7 +568,7 @@
     <Compile Include="Unicast\Transport\ITransport.cs" />
     <Compile Include="Unicast\Transport\StartedMessageProcessingEventArgs.cs" />
     <Compile Include="Unicast\Transport\Config\AdvancedTransactionalConfig.cs" />
-    <Compile Include="Unicast\Transport\Config\Bootstrapper.cs" />
+    <Compile Include="Unicast\Transport\Config\SetTransportThresholds.cs" />
     <Compile Include="Unicast\Transport\Config\TransportReceiverConfig.cs" />
     <Compile Include="Unicast\Transport\FirstLevelRetries.cs" />
     <Compile Include="Unicast\Transport\Monitoring\ReceivePerformanceDiagnostics.cs" />
