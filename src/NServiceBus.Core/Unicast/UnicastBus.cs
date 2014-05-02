@@ -118,21 +118,6 @@ namespace NServiceBus.Unicast
         public event EventHandler<MessagesEventArgs> MessagesSent;
 
         /// <summary>
-        /// Clear Timeouts For the saga
-        /// </summary>
-        /// <param name="sagaId">Id of the Saga for clearing the timeouts</param>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDeferMessages.ClearDeferredMessages")]
-        public void ClearTimeoutsFor(Guid sagaId)
-        {
-            if (sagaId == Guid.Empty)
-            {
-                throw new ArgumentException("Invalid saga id.", "sagaId");
-            }
-
-            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, sagaId.ToString());
-        }
-
-        /// <summary>
         /// Should be used by the programmer, not the administrator.
         /// Gets and sets an <see cref="IMessageSerializer"/> implementation to
         /// be used for subscription storage for the bus.

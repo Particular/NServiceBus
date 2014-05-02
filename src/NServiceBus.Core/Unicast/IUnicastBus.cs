@@ -25,10 +25,5 @@ namespace NServiceBus.Unicast
         /// </summary>
         event EventHandler<MessagesEventArgs> MessagesSent;
 
-        /// <summary>
-        /// Clears any existing timeouts for the given saga
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0", TreatAsErrorFromVersion = "4.0", Replacement = "IDeferMessages.ClearDeferredMessages")]
-        void ClearTimeoutsFor(Guid sagaId);
     }
 }
