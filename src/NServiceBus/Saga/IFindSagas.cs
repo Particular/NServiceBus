@@ -2,11 +2,6 @@
 namespace NServiceBus.Saga
 {
     /// <summary>
-    /// Marker interface for <see cref="IFindSagas{T}.Using{M}"/>
-    /// </summary>
-    public interface IFinder { }
-
-    /// <summary>
     /// Interface indicating that implementers can find sagas of the given type.
     /// </summary>
     public abstract class IFindSagas<T> where T : IContainSagaData

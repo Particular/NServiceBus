@@ -6,11 +6,11 @@ namespace NServiceBus
     public enum AddressMode
     {
         /// <summary>
-        /// Addressing behavior is confirm to local queueing policies, eg. MSMQ
+        /// Addressing behavior is confirm to local queuing policies, eg. MSMQ
         /// </summary>
         Local,
         /// <summary>
-        /// Addressing behavior is confirm to remote queueing policies, eg. Azure
+        /// Addressing behavior is confirm to remote queuing policies, eg. Azure
         /// </summary>
         Remote
     }

@@ -62,7 +62,12 @@
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBusProperty.cs" />
     <Compile Include="ExpressAttribute.cs" />
+    <Compile Include="HandlerOrdering\First.cs" />
+    <Compile Include="HandlerOrdering\Order.cs" />
+    <Compile Include="MessageMutator\IMutateIncomingMessages.cs" />
+    <Compile Include="MessageMutator\IMutateOutgoingMessages.cs" />
     <Compile Include="RecoverableAttribute.cs" />
+    <Compile Include="Saga\IFinder.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="IdGeneration\CombGuid.cs" />
@@ -79,7 +84,7 @@
     <Compile Include="IMessageHandler.cs" />
     <Compile Include="IMessageModule.cs" />
     <Compile Include="INeedInitialization.cs" />
-    <Compile Include="ISpecifyMessageHandlerOrdering.cs" />
+    <Compile Include="HandlerOrdering\ISpecifyMessageHandlerOrdering.cs" />
     <Compile Include="IStartableBus.cs" />
     <Compile Include="IWantToRunWhenBusStartsAndStops.cs" />
     <Compile Include="MessageConventionException.cs" />
@@ -96,7 +101,7 @@
     <Compile Include="Saga\IHandleTimeouts.cs" />
     <Compile Include="Saga\ISaga.cs" />
     <Compile Include="Saga\ISagaPersister.cs" />
-    <Compile Include="Saga\ISagaStartedBy.cs" />
+    <Compile Include="Saga\IAmStartedByMessages.cs" />
     <Compile Include="Saga\Saga.cs" />
     <Compile Include="Saga\ToSagaExpression.cs" />
     <Compile Include="Saga\UniqueAttribute.cs" />
