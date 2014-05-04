@@ -132,6 +132,13 @@
     <Compile Include="AttributeTests.cs" />
     <Compile Include="Hosting\When_creating_host_information_from_environment.cs" />
     <Compile Include="Pipeline\BehaviorChainTests.cs" />
+    <Compile Include="Sagas\When_completing_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_hits_multiple_sagas_of_different_types.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_configure_to_start_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_handled_by_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_message_that_is_not_set_to_start_a_saga.cs" />
+    <Compile Include="Sagas\When_receiving_a_timeout_message.cs" />
+    <Compile Include="Sagas\When_sending_messages_from_a_saga.cs" />
     <Compile Include="SetLoggingLibraryTests.cs" />
     <Compile Include="Gateway\Receiving\ChannelReceiverHeaderReaderTests.cs" />
     <Compile Include="GitFlowVersionTests.cs" />
@@ -271,7 +278,7 @@
     <Compile Include="Unicast\Contexts\FakeMessageDeferrer.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\Contexts\using_the_unicastbus.cs" />
-    <Compile Include="Unicast\Sagas.cs" />
+    <Compile Include="Sagas\When_using_custom_finders_to_find_sagas.cs" />
     <Compile Include="Unicast\UnitOfWorkBehaviorTests.cs" />
     <Compile Include="Unicast\ThroughputLimiterTests.cs" />
     <Compile Include="Unicast\MessagingBestPracticesTests.cs" />
