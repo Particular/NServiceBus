@@ -86,7 +86,7 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Gets/sets the message mapper.
         /// </summary>
-        public virtual IMessageMapper MessageMapper
+        public IMessageMapper MessageMapper
         {
             get { return messageMapper; }
             set
@@ -126,58 +126,13 @@ namespace NServiceBus.Unicast
         public IManageSubscriptions SubscriptionManager { get; set; }
         
         /// <summary>
-        /// Creates an instance of the specified type.
-        /// Used primarily for instantiating interface-based messages.
-        /// </summary>
-        /// <typeparam name="T">The type to instantiate.</typeparam>
-        /// <returns>An instance of the specified type.</returns>
-        [ObsoleteEx(
-            Message = "No longer required since the IBus batch operations have been trimmed",
-            TreatAsErrorFromVersion = "4.3",
-            RemoveInVersion = "5.0")]
-        public T CreateInstance<T>()
-        {
-            return messageMapper.CreateInstance<T>();
-        }
-
-        /// <summary>
-        /// Creates an instance of the specified type.
-        /// Used primarily for instantiating interface-based messages.
-        /// </summary>
-        /// <typeparam name="T">The type to instantiate.</typeparam>
-        /// <param name="action">An action to perform on the result</param>
-        [ObsoleteEx(
-            Message = "No longer required since the IBus batch operations have been trimmed",
-            TreatAsErrorFromVersion = "4.3",
-            RemoveInVersion = "5.0")]
-        public T CreateInstance<T>(Action<T> action)
-        {
-            return messageMapper.CreateInstance(action);
-        }
-
-        /// <summary>
-        /// Creates an instance of the specified type.
-        /// Used primarily for instantiating interface-based messages.
-        /// </summary>
-        /// <param name="messageType">The type to instantiate.</param>
-        /// <returns>An instance of the specified type.</returns>
-        [ObsoleteEx(
-            Message = "No longer required since the IBus batch operations have been trimmed",
-            TreatAsErrorFromVersion = "4.3",
-            RemoveInVersion = "5.0")]
-        public object CreateInstance(Type messageType)
-        {
-            return messageMapper.CreateInstance(messageType);
-        }
-
-        /// <summary>
         /// Creates an instance of the requested message type (T), 
         /// performing the given action on the created message,
         /// and then publishing it.
         /// </summary>
         public void Publish<T>(Action<T> messageConstructor)
         {
-            Publish(CreateInstance(messageConstructor));
+            Publish(messageMapper.CreateInstance(messageConstructor));
         }
 
         /// <summary>
@@ -185,7 +140,7 @@ namespace NServiceBus.Unicast
         /// </summary>
         public virtual void Publish<T>()
         {
-            Publish(CreateInstance<T>());
+            Publish(messageMapper.CreateInstance<T>());
         }
 
         /// <summary>
@@ -335,7 +290,7 @@ namespace NServiceBus.Unicast
 
         public void Reply<T>(Action<T> messageConstructor)
         {
-            Reply(CreateInstance(messageConstructor));
+            Reply(messageMapper.CreateInstance(messageConstructor));
         }
 
         public void Return<T>(T errorCode)
@@ -379,7 +334,7 @@ namespace NServiceBus.Unicast
 
         public ICallback SendLocal<T>(Action<T> messageConstructor)
         {
-            return SendLocal(CreateInstance(messageConstructor));
+            return SendLocal(messageMapper.CreateInstance(messageConstructor));
         }
 
         public ICallback SendLocal(object message)
@@ -394,7 +349,7 @@ namespace NServiceBus.Unicast
 
         public ICallback Send<T>(Action<T> messageConstructor)
         {
-            return Send(CreateInstance(messageConstructor));
+            return Send(messageMapper.CreateInstance(messageConstructor));
         }
 
         public ICallback Send(object message)
@@ -413,27 +368,14 @@ namespace NServiceBus.Unicast
             return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
-        IEnumerable<Address> GetAddressForMessages(IEnumerable<object> messages)
-        {
-            if (messages == null)
-            {
-                yield break;
-            }
-
-            foreach (var address in messages.SelectMany(message => GetAddressForMessageType(message.GetType())))
-            {
-                yield return address;
-            }
-        }
-
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, object message)
@@ -453,7 +395,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
@@ -463,7 +405,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(CreateInstance(messageConstructor)));
+            return SendMessages(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, string correlationId, object message)

@@ -457,18 +457,14 @@ namespace NServiceBus.Testing.Tests
             public IBus Bus { get; set; }
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Publish<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
-
-                var two = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Publish<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
-
-                Bus.Publish(one);
-                Bus.Publish(two);
             }
         }
 
@@ -478,18 +474,14 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
-
-                var two = Bus.CreateInstance<Outgoing2>(m =>
+                Bus.Send<Outgoing2>(m =>
                 {
                     m.Number = 2;
                 });
-
-                ((StubBus)Bus).Send(one);
-                ((StubBus)Bus).Send(two);
             }
         }
 
@@ -499,18 +491,15 @@ namespace NServiceBus.Testing.Tests
 
             public void Handle(Incoming message)
             {
-                var one = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 1;
                 });
 
-                var two = Bus.CreateInstance<Outgoing>(m =>
+                Bus.Send<Outgoing>(m =>
                 {
                     m.Number = 2;
                 });
-
-                ((StubBus)Bus).Send(one);
-                ((StubBus)Bus).Send(two);
             }
         }
 

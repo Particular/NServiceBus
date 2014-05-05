@@ -11,8 +11,7 @@ namespace NServiceBus.Saga
     /// implement <see cref="IAmStartedByMessages{T}"/> for the relevant message type.
     /// </summary>
     /// <typeparam name="T">A type that implements <see cref="IContainSagaData"/>.</typeparam>
-    public abstract class
-        Saga<T> : IConfigurable, ISaga<T> where T : IContainSagaData
+    public abstract class Saga<T> : IConfigurable, ISaga<T> where T : IContainSagaData, new()
     {
         /// <summary>
         /// The saga's strongly typed data.
@@ -109,9 +108,9 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur at the given <see cref="DateTime"/>.
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <typeparamref name="TTimeoutMessageType"/>.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at)
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at) where TTimeoutMessageType : new()
         {
-            RequestTimeout(at, Bus.CreateInstance<TTimeoutMessageType>());
+            RequestTimeout(at, Activator.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -119,9 +118,11 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send call <paramref name="action"/>.</param>
         /// <param name="action">Callback to execute after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action)
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, Action<TTimeoutMessageType> action) where TTimeoutMessageType : new()
         {
-            RequestTimeout(at, Bus.CreateInstance(action));
+            var instance = Activator.CreateInstance<TTimeoutMessageType>();
+            action(instance);
+            RequestTimeout(at, instance);
         }
 
         /// <summary>
@@ -129,10 +130,12 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="at"><see cref="DateTime"/> to send timeout <paramref name="timeoutMessage"/>.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="at"/> is reached.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage)
+        protected void RequestTimeout<TTimeoutMessageType>(DateTime at, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
         {
             if (at.Kind == DateTimeKind.Unspecified)
+            {
                 throw new InvalidOperationException("Kind property of DateTime 'at' must be specified.");
+            }
 
             VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
@@ -140,7 +143,7 @@ namespace NServiceBus.Saga
             Bus.Defer(at, timeoutMessage);
         }
 
-        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage)
+        void VerifySagaCanHandleTimeout<TTimeoutMessageType>(TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
         {
             var canHandleTimeoutMessage = this is IHandleTimeouts<TTimeoutMessageType>;
             if (!canHandleTimeoutMessage)
@@ -154,9 +157,9 @@ namespace NServiceBus.Saga
         /// Request for a timeout to occur within the give <see cref="TimeSpan"/>.
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within) where TTimeoutMessageType : new()
         {
-            RequestTimeout(within, Bus.CreateInstance<TTimeoutMessageType>());
+            RequestTimeout(within, Activator.CreateInstance<TTimeoutMessageType>());
         }
 
         /// <summary>
@@ -164,9 +167,11 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message that is sent after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, Action<TTimeoutMessageType> messageConstructor) where TTimeoutMessageType : new()
         {
-            RequestTimeout(within, Bus.CreateInstance(messageConstructor));
+            var instance = Activator.CreateInstance<TTimeoutMessageType>();
+            messageConstructor(instance);
+            RequestTimeout(within, instance);
         }
 
         /// <summary>
@@ -174,7 +179,7 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <param name="within">Given <see cref="TimeSpan"/> to delay timeout message by.</param>
         /// <param name="timeoutMessage">The message to send after <paramref name="within"/> expires.</param>
-        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage)
+        protected void RequestTimeout<TTimeoutMessageType>(TimeSpan within, TTimeoutMessageType timeoutMessage) where TTimeoutMessageType : new()
         {
             VerifySagaCanHandleTimeout(timeoutMessage);
             SetTimeoutHeaders(timeoutMessage);
@@ -208,12 +213,18 @@ namespace NServiceBus.Saga
         /// </summary>
         /// <typeparam name="TMessage">The type of message to construct.</typeparam>
         /// <param name="messageConstructor">An <see cref="Action"/> which initializes properties of the message reply with.</param>
-        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor)
+        protected virtual void ReplyToOriginator<TMessage>(Action<TMessage> messageConstructor) where TMessage : new()
         {
             if (messageConstructor != null)
-                ReplyToOriginator(Bus.CreateInstance(messageConstructor));
+            {
+                var instance = Activator.CreateInstance<TMessage>();
+                messageConstructor(instance);
+                ReplyToOriginator(instance);
+            }
             else
+            {
                 ReplyToOriginator(null);
+            }
         }
 
         /// <summary>
