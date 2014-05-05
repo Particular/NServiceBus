@@ -56,14 +56,7 @@ namespace NServiceBus.Unicast
         /// Sets an <see cref="ITransport"/> implementation to use as the
         /// listening endpoint for the bus.
         /// </summary>
-        public virtual ITransport Transport
-        {
-            set
-            {
-                transport = value;
-            }
-            get { return transport; }
-        }
+        public ITransport Transport { get; set; }
 
         /// <summary>
         /// Message queue used to send messages.
@@ -506,11 +499,11 @@ namespace NServiceBus.Unicast
 
                 if (!DoNotStartTransport)
                 {
-                    transport.StartedMessageProcessing += TransportStartedMessageProcessing;
-                    transport.TransportMessageReceived += TransportMessageReceived;
-                    transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
-                    transport.FailedMessageProcessing += TransportFailedMessageProcessing;
-                    transport.Start(InputAddress);
+                    Transport.StartedMessageProcessing += TransportStartedMessageProcessing;
+                    Transport.TransportMessageReceived += TransportMessageReceived;
+                    Transport.FinishedMessageProcessing += TransportFinishedMessageProcessing;
+                    Transport.FailedMessageProcessing += TransportFailedMessageProcessing;
+                    Transport.Start(InputAddress);
                 }
 
                 started = true;
@@ -676,11 +669,11 @@ namespace NServiceBus.Unicast
 
             if (!DoNotStartTransport)
             {
-                transport.Stop();
-                transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
-                transport.TransportMessageReceived -= TransportMessageReceived;
-                transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
-                transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
+                Transport.Stop();
+                Transport.StartedMessageProcessing -= TransportStartedMessageProcessing;
+                Transport.TransportMessageReceived -= TransportMessageReceived;
+                Transport.FinishedMessageProcessing -= TransportFinishedMessageProcessing;
+                Transport.FailedMessageProcessing -= TransportFailedMessageProcessing;
             }
 
             ExecuteIWantToRunAtStartupStopMethods();
@@ -828,10 +821,6 @@ namespace NServiceBus.Unicast
         static ILog Log = LogManager.GetLogger(typeof(UnicastBus));
 
         IList<IWantToRunWhenBusStartsAndStops> thingsToRunAtStartup;
-
-#pragma warning disable 3005
-        protected ITransport transport;
-#pragma warning restore 3005
 
         IMessageMapper messageMapper;
         Task[] thingsToRunAtStartupTask = new Task[0];
