@@ -5,7 +5,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
     using Features;
     using Satellites;
     using Transports;
-    using Transports.Msmq;
     using Unicast.Transport;
 
     public class TimeoutMessageProcessor : IAdvancedSatellite
@@ -115,7 +114,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     SagaId = sagaId,
                     State = message.Body,
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
-                    CorrelationId = GetCorrelationIdToStore(message),
                     Headers = message.Headers,
                     OwningTimeoutManager = Configure.EndpointName
                 };
@@ -128,24 +126,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                 TimeoutManager.PushTimeout(data);
             }
-        }
-
-        [ObsoleteEx(RemoveInVersion ="5.0")]
-        string GetCorrelationIdToStore(TransportMessage message)
-        {
-            var correlationIdToStore = message.CorrelationId;
-            
-            if (MessageSender is MsmqMessageSender)
-            {
-                Guid correlationId;
-                
-                if (Guid.TryParse(message.CorrelationId, out correlationId))
-                {
-                    correlationIdToStore = message.CorrelationId + "\\0";//msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible                
-                }
-            }
-
-            return correlationIdToStore;
         }
 
         const string TimeoutDestinationHeader = "NServiceBus.Timeout.Destination";
