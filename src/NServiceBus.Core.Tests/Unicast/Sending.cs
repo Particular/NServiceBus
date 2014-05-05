@@ -10,15 +10,6 @@
     public class When_sending_a_message_with_databusProperty : using_the_unicastBus
     {
         [Test]
-        public void Should_throw_if_more_than_one_is_sent_in_the_same_send()
-        {
-            RegisterMessageType<CommandWithDataBusPropertyMessage>();
-
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage()));
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage()));
-        }
-
-        [Test]
         public void Should_sent_if_only_one_message_is_in_the_same_send()
         {
             RegisterMessageType<CommandWithDataBusPropertyMessage>();
@@ -166,19 +157,6 @@
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.TimeToBeReceived == TimeSpan.FromMinutes(45)), Arg<Address>.Is.Anything));
         }
-
-        [Test]
-        public void Should_throw_if_messages_contain_different_configured_addresses()
-        {
-            var firstAddress = Address.Parse("first");
-            var secondAddress = Address.Parse("second");
-            RegisterMessageType<NonPersistentMessage>(firstAddress);
-            RegisterMessageType<PersistentMessage>(secondAddress);
-
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new NonPersistentMessage()));
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new PersistentMessage()));
-        }
-
 
         [TimeToBeReceived("00:45:00")]
         class PersistentMessage { }
