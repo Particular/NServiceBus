@@ -56,11 +56,6 @@
             throw new NotImplementedException();
         }
 
-        public void Subscribe<T>(Predicate<T> condition)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Unsubscribe(Type messageType)
         {
             throw new NotImplementedException();

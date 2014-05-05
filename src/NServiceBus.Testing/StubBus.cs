@@ -58,11 +58,6 @@
             throw new NotSupportedException();
         }
 
-        public void Subscribe<T>(Predicate<T> condition)
-        {
-            throw new NotSupportedException();
-        }
-
         public void Unsubscribe(Type messageType)
         {
             throw new NotSupportedException();

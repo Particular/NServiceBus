@@ -239,26 +239,6 @@ namespace NServiceBus.Unicast
             Subscribe(messageType, null);
         }
 
-        /// <summary>
-        /// Subscribes to the given type T, registering a condition that all received
-        /// messages of that type should comply with, otherwise discarding them.
-        /// </summary>
-        public void Subscribe<T>(Predicate<T> condition)
-        {
-            var p = new Predicate<object>(m =>
-            {
-                if (m is T)
-                {
-                    return condition((T)m);
-                }
-
-                return true;
-            });
-
-            Subscribe(typeof(T), p);
-        }
-
-
         bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
 
         /// <summary>
