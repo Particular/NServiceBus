@@ -21,9 +21,6 @@
         public virtual void Override(BehaviorList<SendLogicalMessageContext> behaviorList)
         {
         }
-        public virtual void Override(BehaviorList<SendLogicalMessagesContext> behaviorList)
-        {
-        }
         public virtual void Override(BehaviorList<SendPhysicalMessageContext> behaviorList)
         {
         }

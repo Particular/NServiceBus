@@ -14,7 +14,8 @@
         {
             RegisterMessageType<CommandWithDataBusPropertyMessage>();
 
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage(), new CommandWithDataBusPropertyMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new CommandWithDataBusPropertyMessage()));
         }
 
         [Test]
@@ -148,7 +149,8 @@
         {
             RegisterMessageType<NonPersistentMessage>(Address.Local);
             RegisterMessageType<PersistentMessage>(Address.Local);
-            bus.Send(new NonPersistentMessage(), new PersistentMessage());
+            bus.Send(new NonPersistentMessage());
+            bus.Send(new PersistentMessage());
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.Recoverable), Arg<Address>.Is.Anything));
         }
@@ -159,7 +161,8 @@
         {
             RegisterMessageType<NonPersistentMessage>(Address.Local);
             RegisterMessageType<PersistentMessage>(Address.Local);
-            bus.Send(new NonPersistentMessage(), new PersistentMessage());
+            bus.Send(new NonPersistentMessage());
+            bus.Send(new PersistentMessage());
 
             messageSender.AssertWasCalled(x => x.Send(Arg<TransportMessage>.Matches(m => m.TimeToBeReceived == TimeSpan.FromMinutes(45)), Arg<Address>.Is.Anything));
         }
@@ -172,7 +175,8 @@
             RegisterMessageType<NonPersistentMessage>(firstAddress);
             RegisterMessageType<PersistentMessage>(secondAddress);
 
-            Assert.Throws<InvalidOperationException>(() => bus.Send(new NonPersistentMessage(), new PersistentMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new NonPersistentMessage()));
+            Assert.Throws<InvalidOperationException>(() => bus.Send(new PersistentMessage()));
         }
 
 

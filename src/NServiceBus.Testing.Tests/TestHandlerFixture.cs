@@ -488,7 +488,8 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                ((StubBus)Bus).Send(one, two);
+                ((StubBus)Bus).Send(one);
+                ((StubBus)Bus).Send(two);
             }
         }
 
@@ -508,7 +509,8 @@ namespace NServiceBus.Testing.Tests
                     m.Number = 2;
                 });
 
-                ((StubBus)Bus).Send(one, two);
+                ((StubBus)Bus).Send(one);
+                ((StubBus)Bus).Send(two);
             }
         }
 

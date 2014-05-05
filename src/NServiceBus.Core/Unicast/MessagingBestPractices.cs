@@ -10,7 +10,7 @@ namespace NServiceBus.Unicast
     public class MessagingBestPractices
     {
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object[])"/>.
+        /// Enforce messaging rules. Make sure, the message can be used within the <see cref="IBus.Send(object)"/>.
         /// </summary>
         /// <param name="messageType">Event, Command or message</param>
         public static void AssertIsValidForSend(Type messageType, MessageIntentEnum messageIntent)
@@ -22,7 +22,7 @@ namespace NServiceBus.Unicast
         }
 
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object[])"/>.
+        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object)"/>.
         /// </summary>
         /// <param name="messages">Collection of messages to enforce messaging rules on.</param>
         public static void AssertIsValidForReply(IEnumerable<object> messages)
@@ -40,7 +40,7 @@ namespace NServiceBus.Unicast
             }
         }
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object[])"/>.
+        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object)"/>.
         /// </summary>
         [ObsoleteEx(RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
         public static void AssertIsValidForReply(Type messageType)
@@ -51,7 +51,7 @@ namespace NServiceBus.Unicast
             }
         }
         /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by pubsub bus methods (<see cref="IBus.Subscribe(System.Type)"/>, <see cref="IBus.Unsubscribe"/> and <see cref="IBus.Publish{T}(T[])"/>)..
+        /// Enforce messaging rules. Make sure, the message can be used by pubsub bus methods (<see cref="IBus.Subscribe(System.Type)"/>, <see cref="IBus.Unsubscribe"/> and <see cref="IBus.Publish{T}(T)"/>)..
         /// </summary>
         public static void AssertIsValidForPubSub(Type messageType)
         {

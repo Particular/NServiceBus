@@ -68,16 +68,6 @@
             return context;
         }
 
-        public SendLogicalMessagesContext InvokeSendPipeline(SendOptions sendOptions, IEnumerable<LogicalMessage> messages)
-        {
-            var pipeline = new BehaviorChain<SendLogicalMessagesContext>(pipelineBuilder.sendLogicalMessagesBehaviorList);
-            var context = new SendLogicalMessagesContext(CurrentContext, sendOptions, messages);
-
-            Execute(pipeline, context);
-
-            return context;
-        }
-
         public SendLogicalMessageContext InvokeSendPipeline(SendOptions sendOptions, LogicalMessage message)
         {
             var pipeline = new BehaviorChain<SendLogicalMessageContext>(pipelineBuilder.sendLogicalMessageBehaviorList);

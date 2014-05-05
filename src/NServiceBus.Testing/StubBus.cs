@@ -28,27 +28,14 @@
             messageCreator = creator;
         }
 
-        public void Publish<T>(T message)
-        {
-            Publish(new []{message} );
-        }
         public void Publish<T>()
         {
-            Publish(new T[0]);
+            ProcessInvocation(typeof(PublishInvocation<>), CreateInstance<T>());
         }
 
-        public void Publish<T>(params T[] messages)
+        public void Publish<T>(T message)
         {
-            if (messages.Length == 0)
-            {
-                ProcessInvocation(typeof(PublishInvocation<>), CreateInstance<T>());
-                return;
-            }
-
-            foreach (var message in messages)
-            {
-                ProcessInvocation(typeof(PublishInvocation<>), message);
-            }
+            ProcessInvocation(typeof(PublishInvocation<>), message);
         }
 
         public void Publish<T>(Action<T> messageConstructor)
@@ -88,12 +75,7 @@
 
         public ICallback SendLocal(object message)
         {
-            return SendLocal(new []{message});
-        }
-
-        public ICallback SendLocal(params object[] messages)
-        {
-            return ProcessInvocation(typeof(SendLocalInvocation<>), messages);
+            return ProcessInvocation(typeof(SendLocalInvocation<>), message);
         }
 
         public ICallback SendLocal<T>(Action<T> messageConstructor)
@@ -101,14 +83,10 @@
             return SendLocal(messageCreator.CreateInstance(messageConstructor));
         }
 
+        
         public ICallback Send(object message)
         {
-            return Send(new[] {message});
-        }
-
-        public ICallback Send(params object[] messages)
-        {
-            return Send(Address.Undefined, messages);
+            return Send(Address.Undefined, message);
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -118,26 +96,15 @@
 
         public ICallback Send(string destination, object message)
         {
-            return Send(destination, new[] {message});
-        }
-
-        public ICallback Send(string destination, params object[] messages)
-        {
             if (destination == string.Empty)
-                return Send(Address.Undefined, messages);
-            
-            return Send(Address.Parse(destination), messages);
+                return Send(Address.Undefined, message);
+
+            return Send(Address.Parse(destination), message);
         }
 
         public ICallback Send(Address address, object message)
         {
-            return Send(address, new[] {message});
-        }
-
-
-        public ICallback Send(Address address, params object[] messages)
-        {
-            return Send(address, String.Empty, messages);
+            return Send(address, String.Empty, message);
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
@@ -150,36 +117,27 @@
             return Send(address, messageCreator.CreateInstance(messageConstructor));
         }
 
+
         public ICallback Send(string destination, string correlationId, object message)
         {
-            return Send(destination, correlationId, new[] {message});
-        }
-
-        public ICallback Send(string destination, string correlationId, params object[] messages)
-        {
             if (destination == string.Empty)
-                return Send(Address.Undefined, correlationId, messages);
+                return Send(Address.Undefined, correlationId, message);
 
-            return Send(Address.Parse(destination), correlationId, messages);
+            return Send(Address.Parse(destination), correlationId, message);
         }
 
         public ICallback Send(Address address, string correlationId, object message)
         {
-            return Send(address, correlationId, new[] {message});
-        }
-
-        public ICallback Send(Address address, string correlationId, params object[] messages)
-        {
             if (address != Address.Undefined && correlationId != string.Empty)
             {
                 var d = new Dictionary<string, object> {{"Address", address}, {"CorrelationId", correlationId}};
-                return ProcessInvocation(typeof (ReplyToOriginatorInvocation<>), d, messages);
+                return ProcessInvocation(typeof(ReplyToOriginatorInvocation<>), d, message);
             }
 
             if (address != Address.Undefined && correlationId == string.Empty)
-                return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object> { { "Address", address } }, messages);
+                return ProcessInvocation(typeof(SendToDestinationInvocation<>), new Dictionary<string, object> { { "Address", address } }, message);
 
-            return ProcessInvocation(typeof(SendInvocation<>), messages);
+            return ProcessInvocation(typeof(SendInvocation<>), message);
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -194,42 +152,22 @@
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
-            return SendToSites(siteKeys, new[] {message});
+            return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object> { { "Value", siteKeys } }, message);
         }
 
-        public ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages)
-        {
-            return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object> { { "Value", siteKeys } }, messages);
-        }
-
-        public ICallback Defer(TimeSpan delay, object message)
-        {
-            return Defer(delay, new[] { message });
-        }
-
-        public ICallback Defer(TimeSpan delay, params object[] messages)
+        public ICallback Defer(TimeSpan delay, object messages)
         {
             return ProcessDefer<TimeSpan>(delay, messages);
         }
 
         public ICallback Defer(DateTime processAt, object message)
         {
-            return Defer(processAt, new[] { message });
-        }
-
-        public ICallback Defer(DateTime processAt, params object[] messages)
-        {
-            return ProcessDefer<DateTime>(processAt, messages);
+            return ProcessDefer<DateTime>(processAt, message);
         }
 
         public void Reply(object message)
         {
-            Reply(new []{message} );
-        }
-
-        public void Reply(params object[] messages)
-        {
-            ProcessInvocation(typeof(ReplyInvocation<>), messages);
+            ProcessInvocation(typeof(ReplyInvocation<>), message);
         }
 
         public void Reply<T>(Action<T> messageConstructor)
@@ -303,45 +241,32 @@
             return messageCreator.CreateInstance(messageType);
         }
 
-        private ICallback ProcessInvocation(Type genericType, params object[] messages)
+        private ICallback ProcessInvocation(Type genericType, object message)
         {
-            return ProcessInvocation(genericType, new Dictionary<string, object>(), messages);
+            return ProcessInvocation(genericType, new Dictionary<string, object>(), message);
         }
 
-        private ICallback ProcessInvocation(Type genericType, Dictionary<string, object> others, object[] messages)
+        ICallback ProcessInvocation(Type genericType, Dictionary<string, object> others, object message)
         {
-            foreach (var message in messages)
-            {
-                var messageType = GetMessageType(message);
-                var invocationType = genericType.MakeGenericType(messageType);
-                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
-            }
-
-            return null;
+            var messageType = GetMessageType(message);
+            var invocationType = genericType.MakeGenericType(messageType);
+            return ProcessInvocationWithBuiltType(invocationType, others, message);
         }
 
-        private ICallback ProcessInvocation<K>(Type dualGenericType, Dictionary<string, object> others, params object[] messages)
+        ICallback ProcessInvocation<K>(Type dualGenericType, Dictionary<string, object> others, object message)
         {
-            foreach (var message in messages)
-            {
-                var invocationType = dualGenericType.MakeGenericType(GetMessageType(message), typeof (K));
-                ProcessInvocationWithBuiltType(invocationType, others, new[] {message});
-            }
-
-            return null;
+            var invocationType = dualGenericType.MakeGenericType(GetMessageType(message), typeof(K));
+            return ProcessInvocationWithBuiltType(invocationType, others, message);
         }
 
-        private ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object[] messages)
+        private ICallback ProcessInvocationWithBuiltType(Type builtType, Dictionary<string, object> others, object message)
         {
-            if (messages == null)
-                throw new NullReferenceException("messages is null.");
-
-            if (messages.Length == 0)
-                throw new InvalidOperationException("messages should not be empty.");
+            if (message == null)
+                throw new NullReferenceException("message is null.");
 
             var invocation = Activator.CreateInstance(builtType) as ActualInvocation;
 
-            builtType.GetProperty("Messages").SetValue(invocation, messages, null);
+            builtType.GetProperty("Message").SetValue(invocation, message, null);
 
             foreach (var kv in others)
                 builtType.GetProperty(kv.Key).SetValue(invocation, kv.Value, null);
@@ -364,10 +289,10 @@
             return message.GetType();
         }
 
-        private ICallback ProcessDefer<T>(object delayOrProcessAt, params object[] messages)
+        private ICallback ProcessDefer<T>(object delayOrProcessAt, object message)
         {
-            timeoutManager.Push(delayOrProcessAt, messages[0]);
-            return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delayOrProcessAt } }, messages);
+            timeoutManager.Push(delayOrProcessAt, message);
+            return ProcessInvocation<T>(typeof(DeferMessageInvocation<,>), new Dictionary<string, object> { { "Value", delayOrProcessAt } }, message);
         }
     }
 }

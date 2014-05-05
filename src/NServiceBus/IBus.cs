@@ -9,16 +9,6 @@ namespace NServiceBus
     public interface IBus : IMessageCreator
     {
         /// <summary>
-        /// Publishes the list of messages to subscribers.
-        /// If publishing multiple messages, they should all be of the same type
-        /// since subscribers are identified by the first message in the list.
-        /// </summary>
-        /// <param name="messages">A list of messages. The first message's type
-        /// is used for looking up subscribers.</param>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        void Publish<T>(params T[] messages);
-
-        /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
         void Publish<T>(T message);
@@ -81,13 +71,6 @@ namespace NServiceBus
         void Unsubscribe<T>();
 
         /// <summary>
-        /// Sends the list of messages back to the current bus.
-        /// </summary>
-        /// <param name="messages">The messages to send.</param>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback SendLocal(params object[] messages);
-
-        /// <summary>
         /// Sends the message back to the current bus.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -99,17 +82,6 @@ namespace NServiceBus
         /// <typeparam name="T">The type of message, usually an interface.</typeparam>
         /// <param name="messageConstructor">An action which initializes properties of the message</param>
         ICallback SendLocal<T>(Action<T> messageConstructor);
-
-        /// <summary>
-        /// Sends the list of provided messages.
-        /// </summary>
-        /// <param name="messages">The list of messages to send.</param>
-        /// <remarks>
-        /// All the messages will be sent to the destination configured for the
-        /// first message in the list.
-        /// </remarks>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Send(params object[] messages);
 
         /// <summary>
         /// Sends the provided message.
@@ -128,16 +100,6 @@ namespace NServiceBus
         ICallback Send<T>(Action<T> messageConstructor);
 
         /// <summary>
-        /// Sends the list of provided messages.
-        /// </summary>
-        /// <param name="destination">
-        /// The address of the destination to which the messages will be sent.
-        /// </param>
-        /// <param name="messages">The list of messages to send.</param>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Send(string destination, params object[] messages);
-
-        /// <summary>
         /// Sends the message.
         /// </summary>
         /// <param name="destination">
@@ -145,16 +107,6 @@ namespace NServiceBus
         /// </param>
         /// <param name="message">The message to send.</param>
         ICallback Send(string destination, object message);
-
-        /// <summary>
-        /// Sends the list of provided messages.
-        /// </summary>
-        /// <param name="address">
-        /// The address to which the messages will be sent.
-        /// </param>
-        /// <param name="messages">The list of messages to send.</param>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Send(Address address, params object[] messages);
 
         /// <summary>
         /// Sends the provided message.
@@ -182,24 +134,10 @@ namespace NServiceBus
         ICallback Send<T>(Address address, Action<T> messageConstructor);
 
         /// <summary>
-        /// Sends the messages to the destination as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Send(string destination, string correlationId, params object[] messages);
-
-        /// <summary>
         /// Sends the message to the destination as well as identifying this
         /// as a response to a message containing the Id found in correlationId.
         /// </summary>
         ICallback Send(string destination, string correlationId, object message);
-
-        /// <summary>
-        /// Sends the messages to the given address as well as identifying this
-        /// as a response to a message containing the Id found in correlationId.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Send(Address address, string correlationId, params object[] messages);
 
         /// <summary>
         /// Sends the message to the given address as well as identifying this
@@ -222,23 +160,10 @@ namespace NServiceBus
         ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor);
 
         /// <summary>
-        /// Sends the messages to all sites with matching site keys registered with the gateway.
-        /// The gateway is assumed to be located at the master node. 
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback SendToSites(IEnumerable<string> siteKeys, params object[] messages);
-
-        /// <summary>
         /// Sends the message to all sites with matching site keys registered with the gateway.
         /// The gateway is assumed to be located at the master node. 
         /// </summary>
         ICallback SendToSites(IEnumerable<string> siteKeys, object message);
-
-        /// <summary>
-        /// Defers the processing of the messages for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Defer(TimeSpan delay, params object[] messages);
 
         /// <summary>
         /// Defers the processing of the message for the given delay. This feature is using the timeout manager so make sure that you enable timeouts
@@ -246,22 +171,9 @@ namespace NServiceBus
         ICallback Defer(TimeSpan delay, object message);
 
         /// <summary>
-        /// Defers the processing of the messages until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        ICallback Defer(DateTime processAt, params object[] messages);
-
-        /// <summary>
         /// Defers the processing of the message until the specified time. This feature is using the timeout manager so make sure that you enable timeouts
         /// </summary>
         ICallback Defer(DateTime processAt, object message);
-
-        /// <summary>
-        /// Sends all messages to the endpoint which sent the message currently being handled on this thread.
-        /// </summary>
-        /// <param name="messages">The messages to send.</param>
-        [ObsoleteEx(RemoveInVersion = "5", Message = "Removed to reduce complexity and API confusion. See https://github.com/Particular/NServiceBus/issues/1346 for more information.")]
-        void Reply(params object[] messages);
 
         /// <summary>
         /// Sends the message to the endpoint which sent the message currently being handled on this thread.

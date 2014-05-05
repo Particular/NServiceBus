@@ -26,22 +26,6 @@
             return messages.ContainsKey(messageType);
         }
 
-
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public IEnumerable<MessageMetadata> GetMessageTypes(TransportMessage message)
-        {
-            string header;
-
-            if (!message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out header))
-            {
-                yield break;
-            }
-            foreach (var messageTypeString in header.Split(';'))
-            {
-                yield return GetMessageMetadata(messageTypeString);
-            }
-        }
-
         public MessageMetadata GetMessageMetadata(string messageTypeIdentifier)
         {
             if (string.IsNullOrEmpty(messageTypeIdentifier))
