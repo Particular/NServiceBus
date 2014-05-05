@@ -524,7 +524,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations;
+				var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
 			}
 		}
@@ -544,7 +544,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedListInAlternateNamespaceMultipleIListImplementations;
+				var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
 			}
 		}
@@ -564,7 +564,7 @@ namespace NServiceBus.Serializers.XML.Test
 				stream.Position = 0;
 
 				var msgArray = serializer.Deserialize(stream);
-				var m = msgArray[0] as MessageWithClosedList;
+				var m = (MessageWithClosedList)msgArray[0];
 				Assert.AreEqual("Hello", m.Items.First().Data);
 			}
 		}
@@ -584,7 +584,7 @@ namespace NServiceBus.Serializers.XML.Test
                 stream.Position = 0;
 
                 var msgArray = serializer.Deserialize(stream);
-                var m = msgArray[0] as MessageWithList;
+                var m = (MessageWithList)msgArray[0];
                 Assert.IsEmpty(m.Items);
             }
         }
