@@ -39,8 +39,4 @@ namespace NServiceBus.Saga
         void Complete(IContainSagaData saga);
     }
 
-    /// <summary>
-    /// Interface responsible for persisting sagas.
-    /// </summary>
-    public interface IPersistSagas : ISagaPersister {}
 }
