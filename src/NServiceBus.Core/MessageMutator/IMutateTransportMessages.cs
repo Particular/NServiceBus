@@ -15,7 +15,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// Modifies various properties of the transport message.
         /// </summary>
-        void MutateOutgoing(object[] messages, TransportMessage transportMessage);
+        void MutateOutgoing(object messages, TransportMessage transportMessage);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace NServiceBus.Impersonation.Windows
     /// </summary>
     public class WindowsIdentityEnricher : IMutateOutgoingTransportMessages
     {
-        void IMutateOutgoingTransportMessages.MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             transportMessage.Headers[Headers.WindowsIdentityName] = Thread.CurrentPrincipal.Identity.Name;
         }

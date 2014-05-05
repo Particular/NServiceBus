@@ -24,7 +24,7 @@
         {
             var sendOptions = context.SendOptions;
 
-            var logicalMessage = context.LogicalMessages.FirstOrDefault();
+            var logicalMessage = context.LogicalMessage;
             var messageDescription = "ControlMessage";
 
             if (logicalMessage != null)
@@ -116,7 +116,7 @@
                 throw new InvalidOperationException("No message publisher has been registered. If you're using a transport without native support for pub/sub please enable the message driven publishing feature by calling: Feature.Enable<MessageDrivenPublisher>() in your configuration");
             }
 
-            var eventTypesToPublish = context.LogicalMessages.SelectMany(m => m.Metadata.MessageHierarchy)
+            var eventTypesToPublish = context.LogicalMessage.Metadata.MessageHierarchy
                 .Distinct()
                 .ToList();
 

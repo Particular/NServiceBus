@@ -2,7 +2,6 @@
 {
     using System;
     using System.ComponentModel;
-    using System.Linq;
     using Pipeline;
     using Pipeline.Contexts;
 
@@ -13,11 +12,9 @@
     {
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
-            var messages = context.LogicalMessages.Select(m => m.Instance).ToArray();
-
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
-                mutator.MutateOutgoing(messages, context.MessageToSend);
+                mutator.MutateOutgoing(context.LogicalMessage, context.MessageToSend);
             }
 
             next();

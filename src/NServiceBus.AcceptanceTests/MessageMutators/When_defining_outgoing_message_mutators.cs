@@ -39,7 +39,7 @@
 
             class MyTransportMessageMutator:IMutateOutgoingTransportMessages,INeedInitialization
             {
-                public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+                public void MutateOutgoing(object message, TransportMessage transportMessage)
                 {
                     transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
                 }

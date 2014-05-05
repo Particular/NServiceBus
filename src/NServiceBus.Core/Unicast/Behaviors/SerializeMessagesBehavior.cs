@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Unicast.Behaviors
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
@@ -18,22 +17,21 @@
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
-            if (context.LogicalMessages.Any())
+            if (context.LogicalMessage != null)
             {
                 using (var ms = new MemoryStream())
                 {
-                    var messages = context.LogicalMessages.Select(m => m.Instance).ToArray();
-
-                    MessageSerializer.Serialize(messages, ms);
+                    
+                    MessageSerializer.Serialize(new[]{context.LogicalMessage.Instance}, ms);
 
                     context.MessageToSend.Headers[Headers.ContentType] = MessageSerializer.ContentType;
 
-                    context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessages);
+                    context.MessageToSend.Headers[Headers.EnclosedMessageTypes] = SerializeEnclosedMessageTypes(context.LogicalMessage);
 
                     context.MessageToSend.Body = ms.ToArray();
                 }
               
-                foreach (var headerEntry in context.LogicalMessages.SelectMany(lm => lm.Headers))
+                foreach (var headerEntry in context.LogicalMessage.Headers)
                 {
                     context.MessageToSend.Headers[headerEntry.Key] = headerEntry.Value;
                 }
@@ -43,9 +41,9 @@
             next();
         }
 
-        string SerializeEnclosedMessageTypes(IEnumerable<LogicalMessage> messages)
+        string SerializeEnclosedMessageTypes(LogicalMessage message)
         {
-            var distinctTypes = messages.SelectMany(lm => lm.Metadata.MessageHierarchy).Distinct();
+            var distinctTypes = message.Metadata.MessageHierarchy.Distinct();
             
             return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
         }

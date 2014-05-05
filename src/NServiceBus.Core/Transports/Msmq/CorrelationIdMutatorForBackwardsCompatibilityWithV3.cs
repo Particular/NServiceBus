@@ -6,7 +6,7 @@
     [ObsoleteEx(RemoveInVersion ="5.0")]
     public class CorrelationIdMutatorForBackwardsCompatibilityWithV3 : IMutateOutgoingTransportMessages
     {
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             if (transportMessage.Headers.ContainsKey(CorrIdHeader))
                 return;

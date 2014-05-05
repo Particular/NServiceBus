@@ -6,7 +6,7 @@ namespace NServiceBus.Distributor.ReadyMessages
     {
         public Address DistributorDataAddress { get; set; }
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             //when not talking to the distributor, pretend that our address is that of the distributor
             if (DistributorDataAddress != null)

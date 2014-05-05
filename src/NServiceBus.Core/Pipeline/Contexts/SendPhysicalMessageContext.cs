@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Pipeline.Contexts
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using Unicast;
     using Unicast.Messages;
@@ -31,18 +30,18 @@
             }
         }
 
-        public IEnumerable<LogicalMessage> LogicalMessages
+        public LogicalMessage LogicalMessage
         {
             get
             {
-                IEnumerable<LogicalMessage> result;
+                LogicalMessage result;
 
                 if (TryGet(out result))
                 {
                     return result;
                 }
 
-                return new List<LogicalMessage>();
+                return null;
             }
         }
     }

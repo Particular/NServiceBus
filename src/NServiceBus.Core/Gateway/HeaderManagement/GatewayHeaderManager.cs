@@ -30,7 +30,7 @@ namespace NServiceBus.Gateway.HeaderManagement
             };
         }
 
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             if (returnInfo == null)
             {

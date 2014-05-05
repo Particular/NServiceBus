@@ -16,7 +16,7 @@ namespace NServiceBus.Unicast.Monitoring
         /// <summary>
         /// Keeps track of related messages to make auditing possible
         /// </summary>
-        public void MutateOutgoing(object[] messages, TransportMessage transportMessage)
+        public void MutateOutgoing(object message, TransportMessage transportMessage)
         {
             if (transportMessage.Headers.ContainsKey(Headers.ConversationId))
                 return;

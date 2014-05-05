@@ -285,7 +285,7 @@ namespace NServiceBus.Unicast
 
             options.CorrelationId = !string.IsNullOrEmpty(MessageBeingProcessed.CorrelationId) ? MessageBeingProcessed.CorrelationId : MessageBeingProcessed.Id;
 
-            SendMessages(options, LogicalMessageFactory.Create(message));
+            SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public void Reply<T>(Action<T> messageConstructor)
@@ -342,9 +342,9 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (Configure.Instance.WorkerRunsOnThisEndpoint())
             {
-                return SendMessages(new SendOptions(MasterNodeAddress), LogicalMessageFactory.Create(message));
+                return SendMessage(new SendOptions(MasterNodeAddress), LogicalMessageFactory.Create(message));
             }
-            return SendMessages(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send<T>(Action<T> messageConstructor)
@@ -365,27 +365,27 @@ namespace NServiceBus.Unicast
 
             var destination = destinations.SingleOrDefault();
 
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send<T>(string destination, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, Action<T> messageConstructor)
         {
-            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, object message)
         {
-            return SendMessages(new SendOptions(destination), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(destination), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(Address address, object message)
         {
-            return SendMessages(new SendOptions(address), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(address), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send<T>(string destination, string correlationId, Action<T> messageConstructor)
@@ -395,7 +395,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send<T>(Address address, string correlationId, Action<T> messageConstructor)
@@ -405,7 +405,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
+            return SendMessage(options, LogicalMessageFactory.Create(messageMapper.CreateInstance(messageConstructor)));
         }
 
         public ICallback Send(string destination, string correlationId, object message)
@@ -415,7 +415,7 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback Send(Address address, string correlationId, object message)
@@ -425,14 +425,14 @@ namespace NServiceBus.Unicast
                 CorrelationId = correlationId
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback SendToSites(IEnumerable<string> siteKeys, object message)
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessages(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Defer(TimeSpan delay, object message)
@@ -443,7 +443,7 @@ namespace NServiceBus.Unicast
                 EnforceMessagingBestPractices = false
             };
 
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
         public ICallback Defer(DateTime processAt, object message)
@@ -453,13 +453,13 @@ namespace NServiceBus.Unicast
                 DeliverAt = processAt,
                 EnforceMessagingBestPractices = false
             };
-            return SendMessages(options, LogicalMessageFactory.Create(message));
+            return SendMessage(options, LogicalMessageFactory.Create(message));
         }
 
 
-        ICallback SendMessages(SendOptions sendOptions, LogicalMessage messages)
+        ICallback SendMessage(SendOptions sendOptions, LogicalMessage message)
         {
-            var context = InvokeSendPipeline(sendOptions, messages);
+            var context = InvokeSendPipeline(sendOptions, message);
 
             var physicalMessage = context.Get<TransportMessage>();
 
