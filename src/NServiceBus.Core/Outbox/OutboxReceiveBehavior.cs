@@ -22,12 +22,15 @@
 
                 context.Set(outboxMessage);
 
-                //this runs the rest of the pipeline
-                next();
+                using (OutboxStorage.OpenSession())
+                {
+                    //this runs the rest of the pipeline
+                    next();
 
-                OutboxStorage.Store(messageId, outboxMessage.TransportOperations);
+                    OutboxStorage.StoreAndCommit(messageId, outboxMessage.TransportOperations);
+                }
             }
-
+            
             if (outboxMessage.Dispatched)
             {
                 return;

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Persistence.InMemory.Outbox
 {
+    using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
@@ -23,7 +24,12 @@
             return true;
         }
 
-        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public IDisposable OpenSession()
+        {
+            return new EmptyDisposable();
+        }
+
+        public void StoreAndCommit(string messageId, IEnumerable<TransportOperation> transportOperations)
         {
             if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations)))
             {
@@ -49,6 +55,13 @@
         }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
+
+        class EmptyDisposable : IDisposable
+        {
+            public void Dispose()
+            {
+            }
+        }
 
         class StoredMessage
         {
