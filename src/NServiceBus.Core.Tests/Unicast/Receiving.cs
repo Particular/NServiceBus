@@ -152,25 +152,6 @@
         }
     }
 
-    [TestFixture]
-    public class When_receiving_an_event_that_is_filtered_out_by_the_subscribe_predicate : using_the_unicastBus
-    {
-        [Test]
-        public void Should_not_invoke_the_handlers()
-        {
-            Handler2.Called = false;
-            var receivedMessage = Helpers.Helpers.Serialize(new EventMessage());
-
-            RegisterMessageType<EventMessage>();
-            bus.Subscribe(typeof(EventMessage),m=>false);
-
-            RegisterMessageHandlerType<Handler2>();
-
-            ReceiveMessage(receivedMessage);
-
-            Assert.False(Handler2.Called);
-        }
-    }
 
     [TestFixture]
     public class When_receiving_a_v3_saga_timeout_message : using_the_unicastBus
@@ -232,11 +213,6 @@
             }
 
             public void Subscribe<T>()
-            {
-                throw new NotImplementedException();
-            }
-
-            public void Subscribe(Type messageType, Predicate<object> condition)
             {
                 throw new NotImplementedException();
             }

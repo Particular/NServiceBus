@@ -17,7 +17,6 @@ namespace NServiceBus.Unicast
     using Routing;
     using Satellites;
     using Settings;
-    using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Support;
     using Transport;
     using Transports;
@@ -116,11 +115,6 @@ namespace NServiceBus.Unicast
         public event EventHandler<MessageEventArgs> NoSubscribersForMessage;
 
         /// <summary>
-        /// Handles the filtering of messages on the subscriber side
-        /// </summary>
-        public SubscriptionPredicatesEvaluator SubscriptionPredicatesEvaluator { get; set; }
-
-        /// <summary>
         /// The registered subscription manager for this bus instance
         /// </summary>
         public IManageSubscriptions SubscriptionManager { get; set; }
@@ -169,24 +163,13 @@ namespace NServiceBus.Unicast
             Subscribe(typeof(T));
         }
 
+        bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
+
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
         /// </summary>
         /// <param name="messageType">The type of message to subscribe to.</param>
         public virtual void Subscribe(Type messageType)
-        {
-            Subscribe(messageType, null);
-        }
-
-        bool SendOnlyMode { get { return SettingsHolder.Get<bool>("Endpoint.SendOnly"); } }
-
-        /// <summary>
-        /// Subscribes to receive published messages of the specified type if
-        /// they meet the provided condition.
-        /// </summary>
-        /// <param name="messageType">The type of message to subscribe to.</param>
-        /// <param name="condition">The condition under which to receive the message.</param>
-        public virtual void Subscribe(Type messageType, Predicate<object> condition)
         {
             MessagingBestPractices.AssertIsValidForPubSub(messageType);
 
@@ -223,11 +206,6 @@ namespace NServiceBus.Unicast
                 }
 
                 SubscriptionManager.Subscribe(messageType, destination);
-
-                if (SubscriptionPredicatesEvaluator != null)
-                {
-                    SubscriptionPredicatesEvaluator.AddConditionForSubscriptionToMessageType(messageType, condition);
-                }
             }
         }
 

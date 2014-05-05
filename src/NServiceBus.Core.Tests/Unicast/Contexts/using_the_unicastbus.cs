@@ -22,7 +22,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
     using Serializers.XML;
     using Settings;
     using Subscriptions.MessageDrivenSubscriptions;
-    using Subscriptions.MessageDrivenSubscriptions.SubcriberSideFiltering;
     using Timeout;
     using Transports;
     using Unicast.Messages;
@@ -46,7 +45,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
         protected EstimatedTimeToSLABreachCalculator SLABreachCalculator = new EstimatedTimeToSLABreachCalculator();
         protected MessageMetadataRegistry MessageMetadataRegistry;
         protected MessageDrivenSubscriptionManager subscriptionManager;
-        SubscriptionPredicatesEvaluator subscriptionPredicatesEvaluator;
         protected StaticMessageRouter router;
 
         protected MessageHandlerRegistry handlerRegistry;
@@ -74,7 +72,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
             Configure.GetEndpointNameAction = () => "TestEndpoint";
-            subscriptionPredicatesEvaluator = new SubscriptionPredicatesEvaluator();
             router = new StaticMessageRouter(KnownMessageTypes());
             handlerRegistry = new MessageHandlerRegistry();
             MessageMetadataRegistry = new MessageMetadataRegistry
@@ -106,10 +103,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             FuncBuilder.Register<LogicalMessageFactory>(() => new LogicalMessageFactory());
 
-            FuncBuilder.Register<IMutateIncomingMessages>(() => new FilteringMutator
-                {
-                    SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator
-                });
             FuncBuilder.Register<IMutateIncomingTransportMessages>(() => subscriptionManager);
             FuncBuilder.Register<EstimatedTimeToSLABreachCalculator>(() => SLABreachCalculator);
             FuncBuilder.Register<MessageMetadataRegistry>(() => MessageMetadataRegistry);
@@ -152,7 +145,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 Transport = Transport,
                 MessageMapper = MessageMapper,
                 SubscriptionManager = subscriptionManager,
-                SubscriptionPredicatesEvaluator = subscriptionPredicatesEvaluator,
                 MessageRouter = router
             };
             bus = unicastBus;

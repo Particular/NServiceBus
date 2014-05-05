@@ -40,15 +40,6 @@ namespace NServiceBus
         void Subscribe<T>();
 
         /// <summary>
-        /// Subscribes to receive published messages of the specified type.
-        /// When messages arrive, the condition is evaluated to see if they
-        /// should be handled.
-        /// </summary>
-        /// <param name="messageType">The type of message to subscribe to.</param>
-        /// <param name="condition">The condition with which to evaluate messages.</param>
-        void Subscribe(Type messageType, Predicate<object> condition);
-
-        /// <summary>
         /// Unsubscribes from receiving published messages of the specified type.
         /// </summary>
         /// <param name="messageType">The type of message to subscribe to.</param>
