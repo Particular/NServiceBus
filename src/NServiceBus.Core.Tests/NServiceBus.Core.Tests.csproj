@@ -116,7 +116,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
+    <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_directory_with_handler_dll_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_directory__with_non_dot_net_dll_is_scanned.cs" />
+    <Compile Include="AssemblyScanner\When_exclusion_predicate_is_used.cs" />
+    <Compile Include="AssemblyScanner\When_inclusion_predicate_is_used.cs" />
+    <Compile Include="AssemblyScanner\When_scanning_for_dlls_only.cs" />
+    <Compile Include="AssemblyScanner\When_scanning_top_level_only.cs" />
+    <Compile Include="AssemblyScanner\When_told_to_scan_app_domain.cs" />
     <Compile Include="AutomaticSubscriptions\AutoSubscriptionContext.cs" />
     <Compile Include="AutomaticSubscriptions\When_autosubscribing_a_saga_that_handles_a_superclass_event.cs" />
     <Compile Include="AutomaticSubscriptions\When_starting_an_endpoint_containing_a_saga.cs" />
@@ -325,13 +334,10 @@
     <Folder Include="Queuing\SqlServer\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TestDlls\dotNet.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDlls\libzmq-v120-mt-3_2_3.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\NServiceBus.Core.Tests.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestDlls\Rebus.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="TestDlls\some_random.dll">
