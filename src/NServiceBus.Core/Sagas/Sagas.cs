@@ -183,27 +183,6 @@
         /// <summary>
         /// Returns a list of finder object capable of using the given message.
         /// </summary>
-        [ObsoleteEx(Replacement = "GetFindersForMessageAndEntity", TreatAsErrorFromVersion = "4.3")]
-        public static IEnumerable<Type> GetFindersFor(object m)
-        {
-            foreach (var finderPair in FinderTypeToMessageToMethodInfoLookup)
-            {
-                var messageToMethodInfo = finderPair.Value;
-                if (messageToMethodInfo.ContainsKey(m.GetType()))
-                {
-                    yield return finderPair.Key;
-                    continue;
-                }
-
-                foreach (var messageType in messageToMethodInfo.Keys)
-                    if (messageType.IsInstanceOfType(m))
-                        yield return finderPair.Key;
-            }
-        }
-
-        /// <summary>
-        /// Returns a list of finder object capable of using the given message.
-        /// </summary>
         public static IEnumerable<Type> GetFindersForMessageAndEntity(Type messageType, Type entityType)
         {
             var findersWithExactMatch = new List<Type>();
