@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>NServiceBus.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac\lib\net40\Autofac.dll</HintPath>
@@ -132,6 +138,8 @@
     <Compile Include="InMemory\When_calling_DoNotContinueDispatchingCurrentMessageToHandlers_from_inmemory.cs" />
     <Compile Include="InMemory\When_raising_an_in_memory_event_from_a_non_handler.cs" />
     <Compile Include="InMemory\When_raising_an_in_memory_event.cs" />
+    <Compile Include="NonDTCOperations\When_sending_messages_from_a_non_dtc_endpoint.cs" />
+    <Compile Include="NonDTCOperations\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
@@ -187,6 +195,7 @@
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NServiceBus.snk" />
     <None Include="ripple.dependencies.config" />
   </ItemGroup>
   <ItemGroup>
