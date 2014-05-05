@@ -23,9 +23,9 @@
             this.pipelineBuilder = pipelineBuilder;
         }
 
-        public void PreparePhysicalMessagePipelineContext(TransportMessage message, bool messageHandlingDisabled)
+        public void PreparePhysicalMessagePipelineContext(TransportMessage message)
         {
-            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message, messageHandlingDisabled));
+            contextStacker.Push(new ReceivePhysicalMessageContext(CurrentContext, message));
         }
 
         public void InvokeReceivePhysicalMessagePipeline()

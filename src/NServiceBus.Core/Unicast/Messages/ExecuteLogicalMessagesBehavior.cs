@@ -18,12 +18,6 @@
 
         public void Invoke(ReceivePhysicalMessageContext context, Action next)
         {
-            if (context.MessageHandlingDisabled)
-            {
-                return;
-            }
-
-
             var logicalMessages = context.LogicalMessages;
             foreach (var message in logicalMessages)
             {

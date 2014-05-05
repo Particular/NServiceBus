@@ -10,13 +10,12 @@
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class ReceivePhysicalMessageContext : BehaviorContext
     {
-        public ReceivePhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage, bool messageHandlingDisabled)
+        public ReceivePhysicalMessageContext(BehaviorContext parentContext, TransportMessage transportMessage)
             : base(parentContext)
         {
             handleCurrentMessageLaterWasCalled = false;
 
             Set(IncomingPhysicalMessageKey, transportMessage);
-            Set("MessageHandlingDisabled", messageHandlingDisabled);
 
             LogicalMessages = new List<LogicalMessage>();
         }
@@ -29,11 +28,6 @@
         {
             get { return Get<List<LogicalMessage>>(); }
             set { Set(value); }
-        }
-
-        public bool MessageHandlingDisabled
-        {
-            get { return Get<bool>("MessageHandlingDisabled"); }
         }
 
         public static string IncomingPhysicalMessageKey

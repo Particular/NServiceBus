@@ -27,8 +27,6 @@ namespace NServiceBus.Unicast
     /// </summary>
     public class UnicastBus : IUnicastBus, IInMemoryOperations
     {
-        bool messageHandlingDisabled;
-
         HostInformation hostInformation = HostInformation.CreateDefault();
 
         // HACK: Statics are bad, remove
@@ -53,20 +51,6 @@ namespace NServiceBus.Unicast
                 hostInformation = value;
             }
         }
-
-        /// <summary>
-        /// Should be used by programmer, not administrator.
-        /// Disables the handling of incoming messages.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "5.0")]
-        public virtual bool DisableMessageHandling
-        {
-            set
-            {
-                messageHandlingDisabled = value;
-            }
-        }
-
 
         /// <summary>
         /// Should be used by programmer, not administrator.
@@ -812,7 +796,7 @@ namespace NServiceBus.Unicast
             incomingMessage.Headers[Headers.HostId] = HostInformation.HostId.ToString("N");
             incomingMessage.Headers[Headers.HostDisplayName] = HostInformation.DisplayName;
 
-            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage, messageHandlingDisabled);
+            PipelineFactory.PreparePhysicalMessagePipelineContext(incomingMessage);
 
 #pragma warning disable 0618
             modules = Builder.BuildAll<IMessageModule>().ToList();
