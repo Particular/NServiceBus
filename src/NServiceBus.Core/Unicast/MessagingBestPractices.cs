@@ -1,7 +1,6 @@
 namespace NServiceBus.Unicast
 {
     using System;
-    using System.Collections.Generic;
     using Logging;
 
     /// <summary>
@@ -24,25 +23,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object)"/>.
         /// </summary>
-        /// <param name="messages">Collection of messages to enforce messaging rules on.</param>
-        public static void AssertIsValidForReply(IEnumerable<object> messages)
-        {
-            foreach (var message in messages)
-            {
-                if (MessageConventionExtensions.IsCommand(message)) 
-                {
-                    throw new InvalidOperationException("Reply is not supported for Commands. Commands should be sent to their logical owner using bus.Send and bus.");
-                }
-                if (MessageConventionExtensions.IsEvent(message)) 
-                {
-                    throw new InvalidOperationException("Reply is not supported for Events. Events should be Published with bus.Publish.");
-                }
-            }
-        }
-        /// <summary>
-        /// Enforce messaging rules. Make sure, the message can be used by <see cref="IBus.Reply(object)"/>.
-        /// </summary>
-        [ObsoleteEx(RemoveInVersion = "6.0",TreatAsErrorFromVersion = "5.0")]
         public static void AssertIsValidForReply(Type messageType)
         {
             if (MessageConventionExtensions.IsCommandType(messageType) || MessageConventionExtensions.IsEventType(messageType))

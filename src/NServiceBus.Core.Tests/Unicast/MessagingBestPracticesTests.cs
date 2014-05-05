@@ -12,21 +12,21 @@
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(new[] { new MyCommand() }));
-                Assert.AreEqual("Reply is not supported for Commands. Commands should be sent to their logical owner using bus.Send and bus.",invalidOperationException.Message);
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyCommand) ));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_throw_for_event()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(new[] { new MyEvent() }));
-                Assert.AreEqual("Reply is not supported for Events. Events should be Published with bus.Publish.",invalidOperationException.Message);
+                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyEvent)));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_not_throw_for_message()
             {
-                MessagingBestPractices.AssertIsValidForReply(new[] { new MyMessage() });
+                MessagingBestPractices.AssertIsValidForReply(typeof(MyMessage));
             }
 
             public class MyMessage : IMessage
