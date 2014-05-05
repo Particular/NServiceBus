@@ -5,10 +5,6 @@
     ///</summary>
     public enum MessageIntentEnum
     {
-        /// <summary>
-        /// Initialization - Here just for compatibility with NServiceBus V2.6
-        /// </summary>
-        Init = 0,
         
         ///<summary>
         /// Regular point-to-point send
