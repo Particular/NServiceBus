@@ -103,7 +103,6 @@
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="BasicMessaging\When_using_a_message_with_TimeToBeReceived_has_expired.cs" />
     <Compile Include="BasicMessaging\When_Deferring_a_message.cs" />
-    <Compile Include="BusStartStop\When_bus_start_raises_an_inmemory_message.cs" />
     <Compile Include="HostInformation\When_a_message_is_received.cs" />
     <Compile Include="MessageMutators\Issue_1980.cs" />
     <Compile Include="MessageMutators\When_outgoing_mutator_replaces_message_instance.cs" />
@@ -128,10 +127,6 @@
     <Compile Include="Gateway\When_sending_a_message_via_the_gateway.cs" />
     <Compile Include="Gateway\When_doing_request_response_with_databus_between_sites.cs" />
     <Compile Include="Gateway\When_sending_a_message_to_another_site.cs" />
-    <Compile Include="InMemory\When_raising_an_in_memory_event_transport_mutators_should_not_be_called.cs" />
-    <Compile Include="InMemory\When_calling_DoNotContinueDispatchingCurrentMessageToHandlers_from_inmemory.cs" />
-    <Compile Include="InMemory\When_raising_an_in_memory_event_from_a_non_handler.cs" />
-    <Compile Include="InMemory\When_raising_an_in_memory_event.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
