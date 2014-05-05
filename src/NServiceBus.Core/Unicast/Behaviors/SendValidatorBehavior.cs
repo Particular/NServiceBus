@@ -30,7 +30,6 @@
 
             switch (context.SendOptions.Intent)
             {
-                case MessageIntentEnum.Init:
                 case MessageIntentEnum.Subscribe:
                 case MessageIntentEnum.Unsubscribe:
                     break;
