@@ -210,20 +210,6 @@
 
         class MyBus: IBus
         {
-            public T CreateInstance<T>()
-            {
-                throw new NotImplementedException();
-            }
-
-            public T CreateInstance<T>(Action<T> action)
-            {
-                throw new NotImplementedException();
-            }
-
-            public object CreateInstance(Type messageType)
-            {
-                throw new NotImplementedException();
-            }
 
             public void Publish<T>(T message)
             {
