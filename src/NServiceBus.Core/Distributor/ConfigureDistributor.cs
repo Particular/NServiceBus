@@ -5,19 +5,16 @@ namespace NServiceBus
     [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
     public static class ConfigureDistributor
     {
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool DistributorEnabled(this Configure config)
         {
             throw new Exception("Obsolete");
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool DistributorConfiguredToRunOnThisEndpoint(this Configure config)
         {
             throw new Exception("Obsolete");
         }
 
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static bool WorkerRunsOnThisEndpoint(this Configure config)
         {
             throw new Exception("Obsolete");
@@ -27,7 +24,6 @@ namespace NServiceBus
         /// Configure the distributor to run on this endpoint
         /// </summary>
         /// <param name="withWorker">True if this endpoint should enlist as a worker</param>
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure RunDistributor(this Configure config, bool withWorker = true)
         {
             throw new Exception("Obsolete");
@@ -36,7 +32,6 @@ namespace NServiceBus
         /// <summary>
         /// Starting the Distributor without a worker running on its endpoint
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure RunDistributorWithNoWorkerOnItsEndpoint(this Configure config)
         {
             throw new Exception("Obsolete");
@@ -45,7 +40,6 @@ namespace NServiceBus
         /// <summary>
         /// Enlist Worker with Master node defined in the config.
         /// </summary>
-        [ObsoleteEx(TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0", Message = "The NServiceBus Distributor was moved into its own assembly (NServiceBus.Distributor.MSMQ.dll), please make sure you reference the new assembly.")]
         public static Configure EnlistWithDistributor(this Configure config)
         {
             throw new Exception("Obsolete");

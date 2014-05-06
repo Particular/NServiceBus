@@ -6,14 +6,14 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure
     /// </summary>
+    [ObsoleteEx(Replacement = "Configure.Transactions.Enable() or Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]      
     public static class TransactionalConfigManager
     {
         /// <summary>
         /// Sets the transactionality of the endpoint.
         /// If true, the endpoint will not lose messages when exceptions occur.
         /// If false, the endpoint may lose messages when exceptions occur.
-        /// </summary>
-        [ObsoleteEx(Replacement = "Configure.Transactions.Enable() or Configure.Transactions.Disable()", TreatAsErrorFromVersion = "5.0", RemoveInVersion = "6.0")]                
+        /// </summary>          
         public static Configure IsTransactional(this Configure config, bool value)
         {
             if (value)

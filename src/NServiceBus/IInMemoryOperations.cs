@@ -13,7 +13,6 @@
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="event">The message to raise</param>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "Removed to reduce complexity and API confusion. See http://docs.particular.net/nservicebus/inmemoryremoval for more information.")]
         void Raise<T>(T @event);
 
         /// <summary>
@@ -21,7 +20,6 @@
         /// </summary>
         /// <typeparam name="T">The type of message, usually an interface</typeparam>
         /// <param name="messageConstructor">An <see cref="Action{T}"/> which initializes properties of the message</param>
-        [ObsoleteEx(RemoveInVersion = "6", TreatAsErrorFromVersion = "5", Message = "Removed to reduce complexity and API confusion. See http://docs.particular.net/nservicebus/inmemoryremoval for more information.")]
         void Raise<T>(Action<T> messageConstructor);
     }
 }
