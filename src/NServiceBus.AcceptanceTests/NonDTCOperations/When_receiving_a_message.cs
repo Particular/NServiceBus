@@ -17,7 +17,7 @@
 
             Scenario.Define(context)
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
-                    .Done(c => context.TimesCalled == 1)
+                    .Done(c => context.OrderAckReceived == 1)
                     .Run();
         }
 
@@ -30,32 +30,20 @@
                     .WithEndpoint<NonDtcReceivingEndpoint>(b => b.Given(bus =>
                     {
                         var duplicateMessageId = Guid.NewGuid().ToString();
-                        bus.SendLocal<PlaceOrder>(m =>
-                        {
-                            m.SetHeader(Headers.MessageId, duplicateMessageId);
-                            m.OrderId = duplicateMessageId;
-                            m.Duplicate = true;
-                        });
-                        bus.SendLocal<PlaceOrder>(m =>
-                        {
-                            m.SetHeader(Headers.MessageId, duplicateMessageId);
-                            m.OrderId = duplicateMessageId;
-                            m.Duplicate = true;
-                        });
+                        bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
+                        bus.SendLocal<PlaceOrder>(m => m.SetHeader(Headers.MessageId, duplicateMessageId));
                       
                         bus.SendLocal(new PlaceOrder());
                     }))
-                    .Done(c => context.DuplicateMessageProcessed && context.NonDuplicateProcessed)
+                    .Done(c => context.OrderAckReceived >= 2)
                     .Run();
 
-            Assert.AreEqual(2, context.TimesCalled);
+            Assert.AreEqual(2, context.OrderAckReceived);
         }
 
         public class Context : ScenarioContext
         {
-            public int TimesCalled { get; set; }
-            public bool DuplicateMessageProcessed { get; set; }
-            public bool NonDuplicateProcessed { get; set; }
+            public int OrderAckReceived { get; set; }
         }
 
         public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
@@ -74,34 +62,37 @@
                     });
 
                     Configure.Features.Enable<Features.Outbox>();
-                });
+                })
+                .AllowExceptions();
             }
 
-            class PlaceOrderHandler:IHandleMessages<PlaceOrder>
+
+            class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
-                public Context Context { get; set; }
-         
+                public IBus Bus { get; set; }
+
                 public void Handle(PlaceOrder message)
                 {
-                    Context.TimesCalled++;
-                    if (message.Duplicate)
-                    {
-                        Assert.False(Context.DuplicateMessageProcessed);
-                        Context.DuplicateMessageProcessed = true;
-                    }
-                    else
-                    {
-                        Context.NonDuplicateProcessed = true;
-                    }
+                    Bus.SendLocal(new SendOrderAcknowledgement());
+                }
+            }
+
+            class SendOrderAcknowledgementHandler : IHandleMessages<SendOrderAcknowledgement>
+            {
+                public Context Context { get; set; }
+
+                public void Handle(SendOrderAcknowledgement message)
+                {
+                    Context.OrderAckReceived++;
                 }
             }
         }
 
+
         [Serializable]
-        public class PlaceOrder : ICommand
-        {
-            public string OrderId{ get; set; }
-            public bool Duplicate { get; set; }
-        }
+        class PlaceOrder : ICommand { }
+
+        [Serializable]
+        class SendOrderAcknowledgement : IMessage { }
     }
 }

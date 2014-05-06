@@ -37,6 +37,12 @@
                     InfrastructureServices.SetDefaultFor<IOutboxStorage>(() =>
                         Configure.Component<InMemoryOutboxStorage>(DependencyLifecycle.SingleInstance));
 
+                    Configure.Transactions.Advanced(t =>
+                    {
+                        t.DisableDistributedTransactions();
+                        t.DoNotWrapHandlersExecutionInATransactionScope();
+                    });
+
                     Configure.Features.Enable<Features.Outbox>();
                 });
             }
@@ -63,15 +69,9 @@
         }
 
         [Serializable]
-        class PlaceOrder : ICommand
-        {
-            public string OrderId { get; set; }
-            public bool Duplicate { get; set; }
-        }
+        class PlaceOrder : ICommand{}
 
         [Serializable]
-        class SendOrderAcknowledgement : IMessage
-        {
-        }
+        class SendOrderAcknowledgement : IMessage{}
     }
 }
