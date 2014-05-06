@@ -317,7 +317,6 @@
     <Compile Include="Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Faults\Forwarder\Config\FaultsQueueCreator.cs" />
     <Compile Include="Faults\Forwarder\FaultManager.cs" />
-    <Compile Include="Faults\Forwarder\MessageHelpers.cs" />
     <Compile Include="Faults\IManageMessageFailures.cs" />
     <Compile Include="Faults\InMemory\FaultManager.cs" />
     <Compile Include="Gateway\Channels\Channel.cs" />

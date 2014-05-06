@@ -2,20 +2,12 @@ namespace NServiceBus.SecondLevelRetries.Helpers
 {
     using System;
     using Faults;
-    using Faults.Forwarder;
-    using Transports.Msmq;
 
     public static class TransportMessageHelpers
     {
         public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
         {
             var failedQ = GetHeader(message, FaultsHeaderKeys.FailedQ);
-
-            if (string.IsNullOrEmpty(failedQ))
-            {
-                failedQ = MessageHelpers.GetFailedQueueFromLabel(MsmqUtilities.Convert(message));
-            }
-
             if (string.IsNullOrEmpty(failedQ))
             {
                 throw new Exception("Could not find address");
