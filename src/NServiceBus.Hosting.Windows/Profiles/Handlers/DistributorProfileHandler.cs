@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
-    using System.Linq;
     using Hosting.Profiles;
 
 #pragma warning disable 437
@@ -13,12 +11,7 @@
     {
         public void ProfileActivated()
         {
-            if (ActiveProfiles.Contains(typeof(Worker)))
-            {
-                throw new ConfigurationErrorsException("Distributor profile and Worker profile should not coexist.");
-            }
-
-            Configure.Instance.RunDistributorWithNoWorkerOnItsEndpoint();
+            throw new Exception("Obsolete");
         }
         public IEnumerable<Type> ActiveProfiles { get; set; }
     }

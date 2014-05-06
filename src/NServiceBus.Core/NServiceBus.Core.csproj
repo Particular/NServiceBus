@@ -110,17 +110,6 @@
     <Compile Include="Config\SiteCollection.cs" />
     <Compile Include="Config\SiteConfig.cs" />
     <Compile Include="Config\WindowsInstallerRunner.cs" />
-    <Compile Include="Distributor\Config\DistributorInitializer.cs" />
-    <Compile Include="Distributor\Config\WorkerInitializer.cs" />
-    <Compile Include="Distributor\DistributorReadyMessageProcessor.cs" />
-    <Compile Include="Distributor\DistributorSatellite.cs" />
-    <Compile Include="Distributor\IWorkerAvailabilityManager.cs" />
-    <Compile Include="Distributor\MsmqWorkerAvailabilityManager.cs" />
-    <Compile Include="Distributor\QueueCreators\DistributorStorageQueueCreator.cs" />
-    <Compile Include="Distributor\QueueCreators\WorkerQueueCreator.cs" />
-    <Compile Include="Distributor\ReadyMessages\Headers.cs" />
-    <Compile Include="Distributor\ReadyMessages\ReadyMessageSender.cs" />
-    <Compile Include="Distributor\ReadyMessages\ReturnAddressRewriter.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
     <Compile Include="Encryption\MemberInfoExtensions.cs" />
@@ -225,7 +214,6 @@
     <Compile Include="Gateway\HeaderManagement\DataBusHeaderManager.cs" />
     <Compile Include="Gateway\Receiving\SingleCallChannelReceiver.cs" />
     <Compile Include="Gateway\Sending\SingleCallChannelForwarder.cs" />
-    <Compile Include="Distributor\MasterNode\AdjustSettingsForNonMasterNodes.cs" />
     <Compile Include="SecondLevelRetries\Config\FeatureSettingsExtensions.cs" />
     <Compile Include="SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Binary\Config\BinarySerializerConfigurationExtensions.cs" />
