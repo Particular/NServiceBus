@@ -57,17 +57,18 @@ namespace NServiceBus.Unicast.Tests.Contexts
             var localAddress = "endpointA";
             MasterNodeAddress = new Address(localAddress, "MasterNode");
             Address.InitializeLocalAddress(localAddress);
+            
         }
 
         [SetUp]
         public void SetUp()
         {
-          
             transportDefinition = new Msmq();
             HandlerInvocationCache.Clear();
 
             SettingsHolder.Reset();
             SettingsHolder.SetDefault("Endpoint.SendOnly", false);
+            SettingsHolder.SetDefault("MasterNode.Address", MasterNodeAddress);
 
             Transport = new FakeTransport();
             FuncBuilder = new FuncBuilder();
@@ -78,7 +79,6 @@ namespace NServiceBus.Unicast.Tests.Contexts
                 {
                     DefaultToNonPersistentMessages = false
                 };
-
 
             MessageSerializer = new XmlMessageSerializer(MessageMapper);
             //ExtensionMethods.GetStaticOutgoingHeadersAction = () => MessageHeaderManager.staticHeaders;
@@ -139,7 +139,7 @@ namespace NServiceBus.Unicast.Tests.Contexts
 
             unicastBus = new UnicastBus
             {
-                MasterNodeAddress = MasterNodeAddress,
+                //MasterNodeAddress = MasterNodeAddress,
                 Builder = FuncBuilder,
                 MessageSender = messageSender,
                 Transport = Transport,

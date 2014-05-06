@@ -64,11 +64,6 @@ namespace NServiceBus.Unicast
         public ISendMessages MessageSender { get; set; }
 
         /// <summary>
-        /// Information regarding the current master node
-        /// </summary>
-        public Address MasterNodeAddress { get; set; }
-
-        /// <summary>
         /// Should be used by programmer, not administrator.
         /// Sets <see cref="IBuilder"/> implementation that will be used to 
         /// dynamically instantiate and execute message handlers.
@@ -288,7 +283,7 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
             {
-                MessageSender.Send(MessageBeingProcessed, MasterNodeAddress);
+                MessageSender.Send(MessageBeingProcessed, SettingsHolder.Get<Address>("MasterNode.Address"));
             }
             else
             {
@@ -313,7 +308,7 @@ namespace NServiceBus.Unicast
             //if we're a worker, send to the distributor data bus
             if (SettingsHolder.GetOrDefault<bool>("Worker.Enabled"))
             {
-                return SendMessage(new SendOptions(MasterNodeAddress), LogicalMessageFactory.Create(message));
+                return SendMessage(new SendOptions(SettingsHolder.Get<Address>("MasterNode.Address")), LogicalMessageFactory.Create(message));
             }
             return SendMessage(new SendOptions(Address.Local), LogicalMessageFactory.Create(message));
         }
@@ -403,7 +398,7 @@ namespace NServiceBus.Unicast
         {
             Headers.SetMessageHeader(message, Headers.DestinationSites, string.Join(",", siteKeys.ToArray()));
 
-            return SendMessage(new SendOptions(MasterNodeAddress.SubScope("gateway")), LogicalMessageFactory.Create(message));
+            return SendMessage(new SendOptions(SettingsHolder.Get<Address>("MasterNode.Address").SubScope("gateway")), LogicalMessageFactory.Create(message));
         }
 
         public ICallback Defer(TimeSpan delay, object message)

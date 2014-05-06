@@ -9,7 +9,6 @@ namespace NServiceBus.Unicast.Config
     using ObjectBuilder;
     using Pipeline;
     using Pipeline.Contexts;
-    using Settings;
 
     /// <summary>
     /// Inherits NServiceBus.Configure providing UnicastBus specific configuration on top of it.
@@ -24,8 +23,7 @@ namespace NServiceBus.Unicast.Config
         {
             Builder = config.Builder;
             Configurer = config.Configurer;
-            busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(p => p.MasterNodeAddress, SettingsHolder.Get<Address>("MasterNode.Address"));
+            busConfig = Configurer.ConfigureComponent<UnicastBus>(DependencyLifecycle.SingleInstance);
 
             ConfigureSubscriptionAuthorization();
             RegisterMessageModules();
