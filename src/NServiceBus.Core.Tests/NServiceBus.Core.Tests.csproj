@@ -333,10 +333,7 @@
       <Name>NServiceBus</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-    <Folder Include="Queuing\SqlServer\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
