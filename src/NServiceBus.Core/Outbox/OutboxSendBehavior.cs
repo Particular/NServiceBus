@@ -4,11 +4,12 @@ namespace NServiceBus.Outbox
     using Pipeline;
     using Pipeline.Contexts;
     using Unicast.Behaviors;
-    using Unicast.Messages;
 
     class OutboxSendBehavior : IBehavior<SendPhysicalMessageContext>
     {
         public IOutboxStorage OutboxStorage { get; set; }
+
+        public DispatchMessageToTransportBehavior DispatchMessageToTransportBehavior { get; set; }
 
         public void Invoke(SendPhysicalMessageContext context, Action next)
         {
@@ -20,6 +21,8 @@ namespace NServiceBus.Outbox
             }
             else
             {
+                DispatchMessageToTransportBehavior.InvokeNative(context.SendOptions, context.MessageToSend, context.LogicalMessage.Metadata);
+
                 next();
             }
         }
