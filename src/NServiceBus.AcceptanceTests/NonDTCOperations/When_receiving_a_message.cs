@@ -21,7 +21,6 @@
                     .Run();
         }
 
-
         [Test]
         public void Should_discard_duplicates_using_the_outbox()
         {
@@ -49,9 +48,8 @@
                     .Done(c => context.DuplicateMessageProcessed && context.NonDuplicateProcessed)
                     .Run();
 
-            Assert.AreEqual(2,context.TimesCalled);
+            Assert.AreEqual(2, context.TimesCalled);
         }
-
 
         public class Context : ScenarioContext
         {
@@ -59,7 +57,6 @@
             public bool DuplicateMessageProcessed { get; set; }
             public bool NonDuplicateProcessed { get; set; }
         }
-
 
         public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
         {
@@ -98,7 +95,6 @@
                     }
                 }
             }
-          
         }
 
         [Serializable]
@@ -107,8 +103,5 @@
             public string OrderId{ get; set; }
             public bool Duplicate { get; set; }
         }
-
-
     }
-
 }

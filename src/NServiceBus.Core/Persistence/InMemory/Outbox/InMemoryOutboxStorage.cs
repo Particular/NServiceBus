@@ -43,7 +43,6 @@
             StoredMessage storedMessage;
 
             storage.TryGetValue(messageId, out storedMessage);
-            storedMessage.Dispatched = true;
 
             if (!storage.TryUpdate(messageId, new StoredMessage(messageId, storedMessage.TransportOperations)
             {
