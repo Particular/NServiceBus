@@ -150,9 +150,9 @@
             return ProcessInvocation(typeof(SendToSitesInvocation<>), new Dictionary<string, object> { { "Value", siteKeys } }, message);
         }
 
-        public ICallback Defer(TimeSpan delay, object messages)
+        public ICallback Defer(TimeSpan delay, object message)
         {
-            return ProcessDefer<TimeSpan>(delay, messages);
+            return ProcessDefer<TimeSpan>(delay, message);
         }
 
         public ICallback Defer(DateTime processAt, object message)

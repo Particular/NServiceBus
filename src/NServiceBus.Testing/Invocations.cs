@@ -55,16 +55,16 @@
             if (Check == null)
                 return true;
 
-            if (invocation.Messages == null || invocation.Messages.Length != 1)
+            if (invocation.Message == null)
                 return false;
 
-            return Check((M)invocation.Messages[0]);
+            return Check((M)invocation.Message);
         }
     }
 
     public class MessageInvocation<T> : ActualInvocation
     {
-        public object[] Messages { get; set; }
+        public object Message { get; set; }
     }
 
     public class SingleValueExpectedInvocation<INVOCATION, T> : ExpectedInvocation<INVOCATION> where INVOCATION : SingleValueInvocation<T>
@@ -94,10 +94,10 @@
             if (Check == null)
                 return true;
 
-            if (invocation.Messages == null || invocation.Messages.Length != 1)
+            if (invocation.Message == null)
                 return false;
 
-            return Check((M)invocation.Messages[0], invocation.Value);
+            return Check((M)invocation.Message, invocation.Value);
         }
     }
 
@@ -201,10 +201,10 @@
             if (Check == null)
                 return true;
 
-            if (invocation.Messages == null || invocation.Messages.Length != 1)
+            if (invocation.Message == null )
                 return false;
 
-            return Check((M)invocation.Messages[0], invocation.Address, invocation.CorrelationId);
+            return Check((M)invocation.Message, invocation.Address, invocation.CorrelationId);
         }
     }
 
