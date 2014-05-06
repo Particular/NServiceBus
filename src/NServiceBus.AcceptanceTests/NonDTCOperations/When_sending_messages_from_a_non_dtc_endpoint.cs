@@ -18,7 +18,9 @@
             Scenario.Define(context)
                     .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .Done(c => context.OrderAckReceived)
-                    .Run();
+                    .Run(TimeSpan.FromSeconds(20));
+
+            Assert.IsTrue(context.OrderAckReceived);
         }
 
         public class Context : ScenarioContext
@@ -71,7 +73,5 @@
         class SendOrderAcknowledgement : IMessage
         {
         }
-
     }
-
 }
