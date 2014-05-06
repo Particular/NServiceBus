@@ -99,10 +99,12 @@ namespace NServiceBus.Settings
         {
             SetDefault(typeof(T).FullName, value);
         }
+
         public static void SetDefault<T>(Action value)
         {
             SetDefault(typeof(T).FullName, value);
         }
+
         public static void SetDefault(string key, object value)
         {
             EnsureWriteEnabled(key);

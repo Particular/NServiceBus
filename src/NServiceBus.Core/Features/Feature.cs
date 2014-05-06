@@ -83,8 +83,6 @@
             SettingsHolder.SetDefault(featureType.FullName, true);
         }
 
-
-
         /// <summary>
         /// Turns the given feature off
         /// </summary>
