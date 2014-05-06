@@ -232,7 +232,6 @@
     <Compile Include="Persistence\RavenDB\WithRavenDbServer.cs" />
     <Compile Include="Persistence\RavenDB\With_using_raven_persistence.cs" />
     <Compile Include="Pipeline\BehaviorListTests.cs" />
-    <Compile Include="Outbox\OutboxSendBehaviourTests.cs" />
     <Compile Include="Routing\StaticMessageRouterTests.cs" />
     <Compile Include="Sagas\UniqueAttributeTests.cs" />
     <Compile Include="Sagas\When_resolving_message_handlers_for_a_saga.cs" />
