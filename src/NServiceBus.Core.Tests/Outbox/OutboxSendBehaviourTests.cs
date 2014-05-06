@@ -11,11 +11,11 @@
         [Test]
         public void Should_record_the_operation_for_later_storage_in_the_outbox()
         {
-            var transportMessageBeeingSent = new TransportMessage();
+            var transportMessageBeingSent = new TransportMessage();
 
             var sendOptions = new SendOptions();
 
-            var context = new SendPhysicalMessageContext(null, sendOptions, transportMessageBeeingSent);
+            var context = new SendPhysicalMessageContext(null, sendOptions, transportMessageBeingSent);
 
             context.Set(new OutboxMessage("1"));
 
@@ -31,11 +31,11 @@
         [Test]
         public void Should_allow_pipeline_to_proceed()
         {
-            var transportMessageBeeingSent = new TransportMessage();
+            var transportMessageBeingSent = new TransportMessage();
 
             var sendOptions = new SendOptions();
 
-            var context = new SendPhysicalMessageContext(null, sendOptions, transportMessageBeeingSent);
+            var context = new SendPhysicalMessageContext(null, sendOptions, transportMessageBeingSent);
 
 
             Assert.False(Invoke(context), "Pipeline should have not been aborted");

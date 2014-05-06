@@ -17,10 +17,7 @@
             var context = new Context();
 
             Scenario.Define(context)
-                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus =>
-                    {
-                        bus.SendLocal(new PlaceOrder());
-                    }))
+                    .WithEndpoint<NonDtcSalesEndpoint>(b => b.Given(bus => bus.SendLocal(new PlaceOrder())))
                     .Done(c => context.OrderAckReceived)
                     .Run();
 
